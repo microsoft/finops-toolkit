@@ -309,11 +309,20 @@ function Test-HubStorageAccess {
             $out.Detail = "A required module failed to load: $msg"
             $out.Remediation = 'Ensure Az.Storage and Az.Accounts are installed and importable.'
         }
-        else {
-            # ARM read failed — likely no reader role on the account.
+        elseif ($_.Exception.Response.StatusCode -eq 403 -or $_.Exception.StatusCode -eq 403 -or $msg -match 'AuthorizationFailed|\b403\b|\bForbidden\b') {
             $out.Blocker = 'NoRbac'
             $out.Detail = "Cannot read the storage account ('$msg')."
             $out.Remediation = 'Grant at least Reader on the hub storage account.'
+        }
+        elseif ($_.Exception.Response.StatusCode -eq 401 -or $_.Exception.StatusCode -eq 401 -or $msg -match 'AuthenticationFailed|\b401\b|\bUnauthorized\b') {
+            $out.Blocker = 'AuthenticationFailed'
+            $out.Detail = "Storage account authentication failed: $msg"
+            $out.Remediation = 'Verify the current Azure identity and tenant before retrying.'
+        }
+        else {
+            $out.Blocker = 'LookupFailed'
+            $out.Detail = "Storage account lookup failed: $msg"
+            $out.Remediation = 'Check the account and resource group, network connectivity, and service availability, then retry. This error does not establish a missing role.'
         }
         return $out
     }

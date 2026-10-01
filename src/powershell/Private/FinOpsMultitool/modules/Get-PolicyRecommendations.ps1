@@ -246,6 +246,7 @@ function Get-PolicyRecommendations {
                 AssignmentId = $assignment.AssignmentId
                 AssignmentName = $assignment.AssignmentName
                 Scope = $assignment.Scope
+                ScopeDisplayName = $assignment.ScopeDisplayName
                 EnforcementMode = $assignment.EnforcementMode
                 Source = if ($isInitiative) { 'Initiative' } else { 'Direct' }
                 InitiativeId = if ($isInitiative) { $definitionId } else { $null }

@@ -34,8 +34,8 @@ function Get-BillingStructure {
     try {
         $baPath = "/providers/Microsoft.Billing/billingAccounts?api-version=2024-04-01"
         $baResp = Invoke-AzRestMethodWithRetry -Path $baPath -Method GET
-        $baResult = Get-FinOpsListResult -FirstResponse $baResp -Context 'billing accounts'
         if ($baResp.StatusCode -eq 200) {
+            $baResult = Get-FinOpsListResult -FirstResponse $baResp -Context 'billing accounts'
             if ($baResult.value) {
                 $scope = Get-FinOpsBillingScope -BillingAccounts @($baResult.value) -Subscriptions $Subscriptions
                 if ($scope.CoverageIncomplete) {
@@ -62,7 +62,7 @@ function Get-BillingStructure {
             }
         }
         else {
-            Write-Warning "  Billing accounts returned HTTP $($baResp.StatusCode)"
+            throw "Billing accounts returned HTTP $($baResp.StatusCode); results are incomplete."
         }
     }
     catch {
@@ -78,8 +78,8 @@ function Get-BillingStructure {
         try {
             $bpPath = "$($ba.FullId)/billingProfiles?api-version=2024-04-01"
             $bpResp = Invoke-AzRestMethodWithRetry -Path $bpPath -Method GET
-            $bpResult = Get-FinOpsListResult -FirstResponse $bpResp -Context "billing profiles for $($ba.DisplayName)"
             if ($bpResp.StatusCode -eq 200) {
+                $bpResult = Get-FinOpsListResult -FirstResponse $bpResp -Context "billing profiles for $($ba.DisplayName)"
                 if ($bpResult.value) {
                     foreach ($bp in $bpResult.value) {
                         $bpProps = $bp.properties
@@ -97,8 +97,8 @@ function Get-BillingStructure {
                         try {
                             $isPath = "$($bp.id)/invoiceSections?api-version=2024-04-01"
                             $isResp = Invoke-AzRestMethodWithRetry -Path $isPath -Method GET
-                            $isResult = Get-FinOpsListResult -FirstResponse $isResp -Context "invoice sections for $($bpProps.displayName)"
                             if ($isResp.StatusCode -eq 200) {
+                                $isResult = Get-FinOpsListResult -FirstResponse $isResp -Context "invoice sections for $($bpProps.displayName)"
                                 if ($isResult.value) {
                                     foreach ($section in $isResult.value) {
                                         $sProps = $section.properties
@@ -114,6 +114,7 @@ function Get-BillingStructure {
                                     }
                                 }
                             }
+                            else { throw "Invoice sections returned HTTP $($isResp.StatusCode); results are incomplete." }
                         }
                         catch {
                             $readErrors.Add($_.Exception.Message)
@@ -122,6 +123,7 @@ function Get-BillingStructure {
                     }
                 }
             }
+            else { throw "Billing profiles returned HTTP $($bpResp.StatusCode); results are incomplete." }
         }
         catch {
             $readErrors.Add($_.Exception.Message)
@@ -136,8 +138,8 @@ function Get-BillingStructure {
         try {
             $deptPath = "$($ba.FullId)/departments?api-version=2024-04-01"
             $deptResp = Invoke-AzRestMethodWithRetry -Path $deptPath -Method GET
-            $deptResult = Get-FinOpsListResult -FirstResponse $deptResp -Context "departments for $($ba.DisplayName)"
             if ($deptResp.StatusCode -eq 200) {
+                $deptResult = Get-FinOpsListResult -FirstResponse $deptResp -Context "departments for $($ba.DisplayName)"
                 if ($deptResult.value) {
                     foreach ($dept in $deptResult.value) {
                         $dProps = $dept.properties
@@ -151,6 +153,7 @@ function Get-BillingStructure {
                     }
                 }
             }
+            else { throw "EA departments returned HTTP $($deptResp.StatusCode); results are incomplete." }
         }
         catch {
             $readErrors.Add($_.Exception.Message)

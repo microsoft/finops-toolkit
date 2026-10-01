@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 09/24/2026
+ms.date: 10/01/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -63,9 +63,23 @@ The following section lists features and enhancements that are currently in deve
     - Added engine-side aggregation through the FinOps hub's Azure Data Explorer or Microsoft Fabric Kusto database for large environments, with a storage reader as a small-dataset fallback.
     - Added a non-interactive mode for an already-authenticated pipeline or scheduled job, and automatic private CSV, HTML, and text reports. Consoles that can't render the arrow-key menus, such as PowerShell remoting sessions, fall back to numbered prompts.
     - Added a searchable KPI reference and in-report calculation details for cost shares, unit rates, VM and storage screening, and budget coverage and forecast availability.
+    - Added aggregate and per-subscription cost trend views with captured UTC periods, partial-month labels, and separate empty and unverified coverage states.
+    - Added sticky table headers, row numbers, sorting, resizable columns, and expanded views to the local HTML report without changing CSV data.
 - **Fixed**
+  - Fixed AI token totals using inconsistent account and deployment measurements, and kept same-named deployments in different accounts separate.
+  - Fixed commitment SKU and kind metadata, incomplete fallback pagination, and unavailable utilization appearing as measured zero.
+  - Clarified budget sampling and CPU units, distinguished storage lookup failures from missing permissions, and added private launcher help and read-only regression checks.
+  - Hardened CSV exports against formula prefixes after whitespace or invisible characters and unsafe column names, while preserving numeric credits.
   - Fixed storage-backed Parquet imports returning empty values or misaligning costs when an export contains nested metadata.
   - Fixed measured zero unit-cost KPIs appearing unavailable.
+  - Fixed automatic Hub discovery failures aborting scans, including when every probe fails, while preserving explicit source choices and tenant boundaries ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
+  - Fixed provider-discovery exceptions aborting detected-Hub scans and preserved the selected storage fallback through scan execution ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
+  - Stopped unresolved explicit subscription lookups from searching other tenants or widening the scan scope ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
+  - Fixed policy-definition read failures appearing as complete scan results; warnings and reports now identify unread definitions while retaining assignments and valid compliance data ([#2335](https://github.com/microsoft/finops-toolkit/issues/2335)).
+  - Limited management-group cost discovery to 25 candidates, including the tenant root, while preserving pagination, selected-subscription fallback, and tenant-specific caching ([#2335](https://github.com/microsoft/finops-toolkit/issues/2335)).
+  - Fixed crowded HTML reports for large subscription selections with bounded columns, compact scope lists, expandable tag and policy details, and local table filtering and pagination without reducing CSV detail.
+  - Fixed missing resource-cost periods and unclear resource identities by retaining the requested UTC window, displaying resource and reservation-charge labels, and preserving full IDs in HTML and CSV.
+  - Added verified subscription and management-group display names to policy locations while retaining scope IDs when name lookup fails.
 
 ### [Power BI reports](power-bi/reports.md)
 

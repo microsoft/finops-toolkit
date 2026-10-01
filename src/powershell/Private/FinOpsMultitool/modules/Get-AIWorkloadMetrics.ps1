@@ -127,7 +127,8 @@ resources
     # Month-to-date so it lines up with the MonthToDate cost query. Daily
     # interval keeps the payload to ~30 datapoints per account.
     $now = (Get-Date).ToUniversalTime()
-    $monthStart = (Get-Date -Year $now.Year -Month $now.Month -Day 1 -Hour 0 -Minute 0 -Second 0).ToUniversalTime()
+    $now = $now.AddTicks(-($now.Ticks % [TimeSpan]::TicksPerSecond))
+    $monthStart = $now.Date.AddDays(1 - $now.Day)
     $fromStr = $monthStart.ToString('yyyy-MM-ddTHH:mm:ssZ')
     $toStr = $now.ToString('yyyy-MM-ddTHH:mm:ssZ')
 
@@ -195,7 +196,7 @@ resources
 
                 $acctKey = $acct.Id.ToLowerInvariant()
                 if (-not $acctTokens.ContainsKey($acctKey)) {
-                    $acctTokens[$acctKey] = @{ Name = $acct.Name; Tokens = 0.0; Requests = 0.0 }
+                    $acctTokens[$acctKey] = @{ Name = $acct.Name; SubscriptionId = $acct.SubscriptionId; Tokens = 0.0; Requests = 0.0; TokenBases = @{}; TokensMeasured = $false; RequestsMeasured = $false; MetricsComplete = $false }
                 }
 
                 # Split by deployment so per-model KPIs are available. The
@@ -207,10 +208,12 @@ resources
                 try {
                     $resp = Invoke-WebRequest -Uri $metricUri -Headers $headers -Method Get -UseBasicParsing -TimeoutSec 20 -MaximumRedirection 0 -ErrorAction Stop
                     $data = $resp.Content | ConvertFrom-Json
-                    $metricsOk = $true
+                    if (-not $data.value) { throw 'No AI usage metrics were returned.' }
 
                     foreach ($metric in $data.value) {
                         $mName = $metric.name.value
+                        if ($mName -notin @('ProcessedPromptTokens', 'GeneratedTokens', 'TokenTransaction', 'AzureOpenAIRequests')) { continue }
+                        if ($metric.errorCode -and $metric.errorCode -ne 'Success') { throw "AI metric $mName is unavailable: $($metric.errorCode)." }
                         foreach ($ts in $metric.timeseries) {
                             # Deployment name comes from the splitting dimension.
                             $deployment = 'unknown'
@@ -220,19 +223,29 @@ resources
                                 }
                             }
                             $sum = 0.0
-                            foreach ($dp in $ts.data) { if ($null -ne $dp.total) { $sum += [double]$dp.total } }
+                            $hasSamples = $false
+                            foreach ($dp in $ts.data) {
+                                if ($null -ne $dp.total) {
+                                    $sample = [double]$dp.total
+                                    if ([double]::IsNaN($sample) -or [double]::IsInfinity($sample) -or $sample -lt 0) { throw 'AI usage contains an invalid metric sample.' }
+                                    $sum += $sample
+                                    $hasSamples = $true
+                                }
+                            }
 
-                            if (-not $modelTokens.ContainsKey($deployment)) {
-                                $modelTokens[$deployment] = @{ Prompt = 0.0; Generated = 0.0; Total = 0.0 }
+                            $modelKey = "$acctKey|$deployment"
+                            if (-not $modelTokens.ContainsKey($modelKey)) {
+                                $modelTokens[$modelKey] = @{ Deployment = $deployment; Account = $acct.Name; ResourceId = $acctKey; SubscriptionId = $acct.SubscriptionId; Prompt = 0.0; Generated = 0.0; Total = 0.0; PromptMeasured = $false; GeneratedMeasured = $false; TotalMeasured = $false }
                             }
                             switch ($mName) {
-                                'ProcessedPromptTokens' { $modelTokens[$deployment].Prompt += $sum; $totalPrompt += $sum; $acctTokens[$acctKey].Tokens += $sum }
-                                'GeneratedTokens' { $modelTokens[$deployment].Generated += $sum; $totalGen += $sum; $acctTokens[$acctKey].Tokens += $sum }
-                                'TokenTransaction' { $modelTokens[$deployment].Total += $sum; $totalTokens += $sum }
-                                'AzureOpenAIRequests' { $totalReq += $sum; $acctTokens[$acctKey].Requests += $sum }
+                                'ProcessedPromptTokens' { $modelTokens[$modelKey].Prompt += $sum; $modelTokens[$modelKey].PromptMeasured = $modelTokens[$modelKey].PromptMeasured -or $hasSamples; $totalPrompt += $sum }
+                                'GeneratedTokens' { $modelTokens[$modelKey].Generated += $sum; $modelTokens[$modelKey].GeneratedMeasured = $modelTokens[$modelKey].GeneratedMeasured -or $hasSamples; $totalGen += $sum }
+                                'TokenTransaction' { $modelTokens[$modelKey].Total += $sum; $modelTokens[$modelKey].TotalMeasured = $modelTokens[$modelKey].TotalMeasured -or $hasSamples }
+                                'AzureOpenAIRequests' { $totalReq += $sum; $acctTokens[$acctKey].Requests += $sum; $acctTokens[$acctKey].RequestsMeasured = $acctTokens[$acctKey].RequestsMeasured -or $hasSamples }
                             }
                         }
                     }
+                    $acctTokens[$acctKey].MetricsComplete = $true
                 }
                 catch {
                     # "No usage yet" and "the call failed" both land here, so record it
@@ -246,8 +259,31 @@ resources
         }
     }
 
-    # When TokenTransaction is sparse, fall back to prompt + generated.
-    if ($totalTokens -le 0) { $totalTokens = $totalPrompt + $totalGen }
+    if (-not $fromHub) {
+        foreach ($model in $modelTokens.Values) {
+            if ($model.TotalMeasured) { $model.TokenBasis = 'TokenTransaction' }
+            elseif ($model.PromptMeasured -and $model.GeneratedMeasured) {
+                $model.Total = $model.Prompt + $model.Generated
+                $model.TokenBasis = 'Prompt + generated'
+            }
+            else { $model.Total = $null; $model.TokenBasis = 'Unavailable'; $acctTokens[$model.ResourceId].MetricsComplete = $false }
+            if ($null -ne $model.Total) {
+                $totalTokens += $model.Total
+                $acctTokens[$model.ResourceId].Tokens += $model.Total
+                $acctTokens[$model.ResourceId].TokensMeasured = $true
+                $acctTokens[$model.ResourceId].TokenBases[$model.TokenBasis] = $true
+            }
+        }
+        foreach ($accountKey in $acctTokens.Keys) {
+            $usage = $acctTokens[$accountKey]
+            if (-not $usage.TokensMeasured) { $usage.Tokens = $null; $usage.MetricsComplete = $false }
+            if (-not $usage.RequestsMeasured) { $usage.Requests = $null; $usage.MetricsComplete = $false }
+            if (-not $usage.MetricsComplete -and @($metricFailures | Where-Object { $_.StartsWith("$accountKey :", [StringComparison]::OrdinalIgnoreCase) }).Count -eq 0) {
+                $metricFailures.Add("$accountKey : AI usage samples are incomplete.")
+            }
+        }
+        $metricsOk = @($acctTokens.Values | Where-Object { $_.TokensMeasured -or $_.RequestsMeasured }).Count -gt 0
+    }
 
     # -- 2: Map tokens to AI spend (Cost Management) ----------------------
     # Skipped entirely on the export path - spend already came from the Hub.
@@ -261,7 +297,8 @@ resources
 
                 $body = @{
                     type      = 'AmortizedCost'
-                    timeframe = 'MonthToDate'
+                    timeframe = 'Custom'
+                    timePeriod = @{ from = $fromStr; to = $toStr }
                     dataset   = @{
                         granularity = 'None'
                         aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
@@ -330,13 +367,17 @@ resources
 
     $byModel = @(
         $modelTokens.GetEnumerator() | ForEach-Object {
-            $mt = if ($_.Value.Total -gt 0) { $_.Value.Total } else { $_.Value.Prompt + $_.Value.Generated }
+            $mt = if ($fromHub -and $_.Value.Total -le 0) { $_.Value.Prompt + $_.Value.Generated } else { $_.Value.Total }
             [PSCustomObject]@{
-                Deployment      = $_.Key
-                PromptTokens    = [long]$_.Value.Prompt
-                GeneratedTokens = [long]$_.Value.Generated
-                TotalTokens     = [long]$mt
-                PctOfTokens     = if ($totalTokens -gt 0) { [math]::Round(($mt / $totalTokens) * 100, 1) } else { 0 }
+                Deployment      = if ($_.Value.Deployment) { $_.Value.Deployment } else { $_.Key }
+                Account         = $_.Value.Account
+                ResourceId      = $_.Value.ResourceId
+                SubscriptionId  = $_.Value.SubscriptionId
+                TokenBasis      = if ($fromHub) { 'Billed token quantity' } else { $_.Value.TokenBasis }
+                PromptTokens    = if ($fromHub -or $_.Value.PromptMeasured) { [long]$_.Value.Prompt } else { $null }
+                GeneratedTokens = if ($fromHub -or $_.Value.GeneratedMeasured) { [long]$_.Value.Generated } else { $null }
+                TotalTokens     = if ($null -ne $mt) { [long]$mt } else { $null }
+                PctOfTokens     = if ($null -ne $mt -and $totalTokens -gt 0) { [math]::Round(($mt / $totalTokens) * 100, 1) } else { $null }
             }
         } | Sort-Object TotalTokens -Descending
     )
@@ -348,11 +389,14 @@ resources
             [PSCustomObject]@{
                 Name            = $_.Value.Name
                 ResourceId      = $_.Key
-                Tokens          = [long]$tk
-                Requests        = [long]$_.Value.Requests
+                SubscriptionId  = $_.Value.SubscriptionId
+                TokenBasis      = if ($fromHub) { 'Billed token quantity' } elseif ($_.Value.TokenBases.Count -eq 1) { @($_.Value.TokenBases.Keys)[0] } elseif ($_.Value.TokenBases.Count -gt 1) { 'Mixed reported token metrics' } else { 'Unavailable' }
+                Tokens          = if ($null -ne $tk) { [long]$tk } else { $null }
+                Requests        = if (-not $fromHub -and $null -ne $_.Value.Requests) { [long]$_.Value.Requests } else { $null }
+                MetricsComplete = if ($fromHub) { $null } else { [bool]$_.Value.MetricsComplete }
                 Currency        = $currency
                 Cost            = if ($null -ne $c) { [math]::Round($c, 2) } else { $null }
-                CostPer1KTokens = if ($null -ne $c -and $tk -gt 0) { [math]::Round(($c / $tk) * 1000, 4) } else { $null }
+                CostPer1KTokens = if ($null -ne $c -and $tk -gt 0 -and ($fromHub -or $_.Value.MetricsComplete)) { [math]::Round(($c / $tk) * 1000, 4) } else { $null }
             }
         } | Sort-Object Cost -Descending
     )
@@ -392,13 +436,18 @@ resources
         foreach ($f in ($metricFailures | Select-Object -First 3)) { Write-Verbose "    $f" }
     }
 
+    $tokensMeasured = if ($fromHub) { $agg.HasTokens } else { @($acctTokens.Values | Where-Object TokensMeasured).Count -gt 0 }
+    $requestsMeasured = -not $fromHub -and @($acctTokens.Values | Where-Object RequestsMeasured).Count -gt 0
+
     return [PSCustomObject]@{
         HasData              = $hasData
         AIFootprint          = $footprint
         TotalPromptTokens    = [long]$totalPrompt
         TotalGeneratedTokens = [long]$totalGen
-        TotalTokens          = [long]$totalTokens
-        TotalRequests        = [long]$totalReq
+        TotalTokens          = if ($tokensMeasured) { [long]$totalTokens } else { $null }
+        TotalRequests        = if ($requestsMeasured) { [long]$totalReq } else { $null }
+        HasTokenData         = $tokensMeasured
+        HasRequestData       = $requestsMeasured
         TotalAICost          = if ($costAvailable) { [math]::Round($aiCost, 2) } else { $null }
         Currency             = $currency
         CostAvailable        = $costAvailable
@@ -409,6 +458,9 @@ resources
         ByModel              = $byModel
         ByAccount            = $byAccount
         Period               = if ($fromHub) { $agg.Period } else { 'MonthToDate' }
+        UsagePeriodStartUtc  = if (-not $fromHub) { $monthStart } else { $null }
+        UsagePeriodEndUtc    = if (-not $fromHub) { $now } else { $null }
+        CostBasis            = if (-not $fromHub) { 'AmortizedCost' } else { 'Export cost' }
         Source               = if ($fromHub) { 'FinOpsHub' } else { 'API' }
         ScannedSubs          = $Subscriptions.Count
         DetectionFailed      = $false

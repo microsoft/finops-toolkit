@@ -16,19 +16,21 @@ function Test-MgCostScope {
 
 function Set-MgCostScopeFailed {
     $script:MgCostScopeFailed = $true
-    Write-Host "  MG-scope cost access unavailable for this tenant - all subsequent modules will use per-subscription queries" -ForegroundColor Yellow
+    Write-Host "  Management-group cost queries are disabled for this scan. Subsequent cost modules will query the selected subscriptions individually." -ForegroundColor Yellow
 }
 
 # -- Resolved Cost MG Scope ------------------------------------------------
 # Many orgs assign Cost Management Reader on a CHILD management group rather
 # than the tenant-root group (whose id == tenant GUID), so querying
 # managementGroups/<tenantId> returns 401. Resolve-CostMgId probes the tenant
-# root first, then every accessible MG, and caches the first scope that returns
-# cost data. Falls back to per-subscription when none work.
+# root after a bounded set of accessible MGs and caches the first usable scope
+# for this tenant. Falls back to per-subscription when none work.
 $script:CostMgId = $null
+$script:CostMgTenantId = $null
 
 function Reset-CostMgScope {
     $script:CostMgId = $null
+    $script:CostMgTenantId = $null
     $script:MgCostScopeFailed = $false
 }
 
@@ -38,6 +40,10 @@ function Resolve-CostMgId {
         [string]$TenantId
     )
 
+    if ($script:CostMgTenantId -ne $TenantId) {
+        Reset-CostMgScope
+        $script:CostMgTenantId = $TenantId
+    }
     if ($script:MgCostScopeFailed) { return $null }
     if ($script:CostMgId) { return $script:CostMgId }
 
@@ -45,15 +51,18 @@ function Resolve-CostMgId {
     # access usually lives on a child MG (not the tenant root), so probe the
     # visible MGs first and fall back to the tenant root last. A throttled
     # (429) probe must not abandon discovery - keep trying the rest.
+    $probeLimit = 25
     $candidates = [System.Collections.Generic.List[string]]::new()
+    $seenCandidates = @{}
 
     try {
         $listResp = Invoke-AzRestMethodWithRetry -Path '/providers/Microsoft.Management/managementGroups?api-version=2020-05-01' -Method GET
         if ($listResp -and $listResp.StatusCode -eq 200) {
             $mgs = (Get-FinOpsListResult -FirstResponse $listResp -Context 'management-group discovery').value
             foreach ($mg in @($mgs)) {
-                $name = $mg.name
-                if ($name -and -not $candidates.Contains($name)) {
+                $name = [string]$mg.name
+                if (-not [string]::IsNullOrWhiteSpace($name) -and $name -ne $TenantId -and -not $seenCandidates.ContainsKey($name)) {
+                    $seenCandidates[$name] = $true
                     $candidates.Add($name)
                 }
             }
@@ -65,9 +74,11 @@ function Resolve-CostMgId {
 
     # Tenant root as a last-resort candidate (covers orgs where the cost role
     # is assigned at the root management group).
-    if (-not $candidates.Contains($TenantId)) {
-        $candidates.Add($TenantId)
+    if ($candidates.Count -ge $probeLimit) {
+        Write-Warning "Management-group cost discovery is limited to $probeLimit candidates, including the tenant root. Remaining groups won't be probed. If these candidates fail, cost scans query the selected subscriptions individually."
+        $candidates.RemoveRange(($probeLimit - 1), ($candidates.Count - $probeLimit + 1))
     }
+    $candidates.Add($TenantId)
 
     $probeBody = @{
         type      = 'ActualCost'
@@ -86,7 +97,7 @@ function Resolve-CostMgId {
         if ($resp -and $resp.StatusCode -eq 200) {
             $script:CostMgId = $mgId
             if ($mgId -ne $TenantId) {
-                Write-Host "  Cost scope resolved to management group '$mgId' (no cost role on tenant root)" -ForegroundColor Yellow
+                Write-Host "  Cost scope resolved to management group '$mgId'." -ForegroundColor Yellow
             }
             return $mgId
         }

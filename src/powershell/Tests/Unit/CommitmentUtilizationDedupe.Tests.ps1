@@ -143,6 +143,121 @@ Describe 'Commitment utilization de-duplication' {
         }
     }
 
+    Context 'Commitment metadata and availability' {
+        It 'Reads fallback pages without treating partial utilization as complete (page failure: <PageFails>)' -Tag 'CommitmentMetadata' -ForEach @(
+            @{ PageFails = $false }
+            @{ PageFails = $true }
+        ) {
+            $failPage = $PageFails
+            $reservationPath = '/providers/Microsoft.Capacity/reservationOrders/order-1/reservations/res-1'
+            Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool {
+                if ($Path -match 'billingAccounts\?') { [pscustomobject]@{ StatusCode = 200; Content = $script:BillingAccountPayload } }
+                elseif ($Path -match 'billingProperty/default') { [pscustomobject]@{ StatusCode = 200; Content = $script:BillingPropertyPayload } }
+                elseif ($Path -match '^/providers/Microsoft\.Capacity/reservationOrders\?') {
+                    if ($Path -like '*page=2') {
+                        [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @(@{ name = 'order-1'; properties = @{ displayProvisioningState = 'Succeeded'; billingScopeId = '/subscriptions/not-a-kind'; reservations = @(@{ id = $reservationPath }, @{ id = $reservationPath }) } }) } | ConvertTo-Json -Depth 8) }
+                    }
+                    else { [pscustomobject]@{ StatusCode = 200; Content = '{"value":[],"nextLink":"/providers/Microsoft.Capacity/reservationOrders?api-version=2022-11-01&page=2"}' } }
+                }
+                elseif ($Path -like "$reservationPath/providers/*") {
+                    if ($Path -like '*page=2' -and $failPage) { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
+                    $older = $Path -like '*page=2'
+                    $content = @{ value = @(@{ properties = @{ avgUtilizationPercentage = $(if ($older) { 20 } else { 90 }); usageDate = $(if ($older) { '2026-08-01' } else { '2026-09-01' }) } }) }
+                    if (-not $older) { $content.nextLink = "$Path&page=2" }
+                    [pscustomobject]@{ StatusCode = 200; Content = ($content | ConvertTo-Json -Depth 8) }
+                }
+                elseif ($Path -like "$reservationPath`?*") {
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ id = $reservationPath; sku = @{ name = 'Standard_D2s_v5' }; properties = @{ displayName = 'Example reservation'; reservedResourceType = 'VirtualMachines' } } | ConvertTo-Json -Depth 6) }
+                }
+                else { [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' } }
+            }
+
+            $result = Get-CommitmentUtilization -Subscriptions $script:TwoSubs -WarningAction SilentlyContinue
+
+            $result.CoverageIncomplete | Should -BeTrue
+            $result.RIAvgUtilization | Should -BeNullOrEmpty
+            if ($PageFails) { $result.RICount | Should -Be 0; $result.UtilizationFailures | Should -Be 1 }
+            else {
+                $result.RICount | Should -Be 1
+                $result.UnscopedFallback | Should -BeTrue
+                $result.Reservations[0].AvgUtilization | Should -Be 90
+                $result.Reservations[0].SkuName | Should -Be 'Standard_D2s_v5'
+                $result.Reservations[0].Kind | Should -Be 'VirtualMachines'
+            }
+            Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 1 -Exactly -ParameterFilter { $Path -like '*reservationSummaries*page=2' }
+        }
+
+        It 'Retains utilization with <MetadataState> reservation metadata' -Tag 'CommitmentMetadata' -ForEach @(
+            @{ MetadataState = 'verified'; StatusCode = 200; Matches = $true }
+            @{ MetadataState = 'denied'; StatusCode = 403; Matches = $true }
+            @{ MetadataState = 'mismatched'; StatusCode = 200; Matches = $false }
+        ) {
+            $metadataStatus = $StatusCode
+            $matchingMetadata = $Matches
+            $reservationPath = '/providers/Microsoft.Capacity/reservationOrders/order-1/reservations/res-1'
+            $summary = @{ value = @(@{ properties = @{ reservationOrderId = 'order-1'; reservationId = 'res-1'; avgUtilizationPercentage = 90; usageDate = '2026-09-01T00:00:00Z' } }) } | ConvertTo-Json -Depth 8
+            Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool {
+                if ($Path -match 'billingAccounts\?') { [pscustomobject]@{ StatusCode = 200; Content = $script:BillingAccountPayload } }
+                elseif ($Path -match 'billingProperty/default') { [pscustomobject]@{ StatusCode = 200; Content = $script:BillingPropertyPayload } }
+                elseif ($Path -match 'reservationSummaries') { [pscustomobject]@{ StatusCode = 200; Content = $summary } }
+                elseif ($Path -like "$reservationPath`?*") {
+                    [pscustomobject]@{ StatusCode = $metadataStatus; Content = (@{
+                        id = $(if ($matchingMetadata) { $reservationPath } else { "$reservationPath-other" }); sku = @{ name = 'Standard_D2s_v5' }
+                        properties = @{ displayName = 'Example <reservation>'; reservedResourceType = 'VirtualMachines' }
+                    } | ConvertTo-Json -Depth 6) }
+                }
+                else { [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' } }
+            }
+
+            $result = Get-CommitmentUtilization -Subscriptions $script:TwoSubs -WarningAction SilentlyContinue
+
+            $result.RICount | Should -Be 1
+            $result.RIAvgUtilization | Should -Be 90
+            $result.SPAvgUtilization | Should -BeNullOrEmpty
+            $result.Reservations[0].ResourceId | Should -Be $reservationPath
+            $result.Reservations[0].MinUtilization | Should -BeNullOrEmpty
+            if ($MetadataState -eq 'verified') {
+                $result.Reservations[0].Name | Should -Be 'Example <reservation>'
+                $result.Reservations[0].SkuName | Should -Be 'Standard_D2s_v5'
+                $result.Reservations[0].Kind | Should -Be 'VirtualMachines'
+                $result.MetadataErrors | Should -BeNullOrEmpty
+            }
+            else {
+                $result.Reservations[0].Name | Should -Be 'res-1'
+                $result.Reservations[0].SkuName | Should -BeNullOrEmpty
+                $result.Reservations[0].Kind | Should -BeNullOrEmpty
+                @($result.MetadataErrors).Count | Should -Be 1
+            }
+        }
+
+        It 'Does not invent utilization for <Scenario>' -Tag 'CommitmentMetadata' -ForEach @(
+            @{ Scenario = 'no commitments'; ReturnReservation = $false; Utilization = $null }
+            @{ Scenario = 'missing utilization'; ReturnReservation = $true; Utilization = $null }
+            @{ Scenario = 'measured zero'; ReturnReservation = $true; Utilization = 0 }
+        ) {
+            $includeReservation = $ReturnReservation
+            $utilizationValue = $Utilization
+            Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool {
+                if ($Path -match 'billingAccounts\?') { [pscustomobject]@{ StatusCode = 200; Content = $script:BillingAccountPayload } }
+                elseif ($Path -match 'billingProperty/default') { [pscustomobject]@{ StatusCode = 200; Content = $script:BillingPropertyPayload } }
+                elseif ($Path -match 'reservationSummaries' -and $includeReservation) {
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @(@{ properties = @{ reservationOrderId = 'order-1'; reservationId = 'res-1'; skuName = 'Standard_D2s_v5'; kind = 'Compute'; avgUtilizationPercentage = $utilizationValue; usageDate = '2026-09-01' } }) } | ConvertTo-Json -Depth 8) }
+                }
+                else { [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' } }
+            }
+
+            $result = Get-CommitmentUtilization -Subscriptions $script:TwoSubs -WarningAction SilentlyContinue
+
+            $result.SPAvgUtilization | Should -BeNullOrEmpty
+            if ($null -eq $Utilization) {
+                $result.RIAvgUtilization | Should -BeNullOrEmpty
+                $result.UnderutilizedRIs | Should -BeNullOrEmpty
+                if ($ReturnReservation) { $result.CoverageIncomplete | Should -BeTrue; $result.Reservations[0].AvgUtilization | Should -BeNullOrEmpty }
+            }
+            else { $result.RIAvgUtilization | Should -Be 0; $result.UnderutilizedRIs.Count | Should -Be 1 }
+        }
+    }
+
     Context 'Usage date comparison' {
 
         It 'Treats a newer ISO date as newer' {

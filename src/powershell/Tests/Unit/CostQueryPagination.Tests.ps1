@@ -410,6 +410,97 @@ Describe 'Cost Management query pagination' {
     }
 
     Context 'Resource costs' {
+        It 'Preserves explicit UTC periods and honest resource identities for <QueryPath>' -Tag 'ResourceCostMetadata' -ForEach @(
+            @{ QueryPath = 'ManagementGroup' }
+            @{ QueryPath = 'PerSubscription' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ QueryPath = $QueryPath } {
+                param($QueryPath)
+                $fixturePath = $QueryPath
+                $capturedUtc = [datetime]::new(2026, 10, 1, 0, 30, 0, [DateTimeKind]::Utc)
+                $subId = '11111111-1111-1111-1111-111111111111'
+                $vmId = "/subscriptions/$subId/resourceGroups/fixture/providers/Microsoft.Compute/virtualMachines/fixture-vm"
+                $databaseId = "/subscriptions/$subId/resourceGroups/fixture/providers/Microsoft.Sql/servers/fixture-server/databases/fixture-db"
+                $reservationId = '/providers/Microsoft.Capacity/reservationOrders/fixture-order/reservations/fixture-reservation'
+                $reservationGroupId = '/providers/Microsoft.Capacity/reservationOrders/fixture-order/reservations/'
+                $queryBodies = [Collections.Generic.List[object]]::new()
+                Mock Get-Date { $capturedUtc.ToLocalTime() }
+                Mock Resolve-CostMgId { if ($fixturePath -eq 'ManagementGroup') { 'fixture-mg' } }
+                Mock Write-Host { }
+                Mock Get-AzContext { throw 'Resource metadata tests must not read Azure context.' }
+                Mock Invoke-RestMethod { throw 'Resource metadata tests must not send HTTP requests.' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Method -ne 'POST' -or $Path -notlike '*Microsoft.CostManagement/query*') { throw 'Unexpected resource-cost request.' }
+                    [void]$queryBodies.Add(($Payload | ConvertFrom-Json))
+                    $rows = @(
+                        if ($Path -like '*page=2') {
+                            , @(20.0, $databaseId, 'fixture', 'USD')
+                            , @(30.0, $reservationId, '', 'USD')
+                            , @(40.0, $reservationGroupId, '', 'USD')
+                            , @(50.0, '', '', 'USD')
+                        }
+                        else { , @(10.0, $vmId, 'fixture', 'USD') }
+                    )
+                    $properties = @{
+                        columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' }, @{ name = 'ResourceGroupName' }, @{ name = 'Currency' })
+                        rows    = $rows
+                    }
+                    if ($Path -notlike '*page=2') { $properties.nextLink = "$Path&page=2" }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @([pscustomobject]@{ Id = $subId; Name = 'Example subscription'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+                $costData = @{ $subId = @{ Actual = 150; Forecast = 150 } }
+
+                $rows = @(Get-ResourceCosts -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -CostData $costData -RestrictToSelected)
+
+                $rows.Count | Should -Be 5
+                ($rows | Measure-Object Actual -Sum).Sum | Should -Be 150
+                foreach ($row in $rows) {
+                    $row.ActualPeriodStart | Should -Be ([datetime]::new(2026, 10, 1, 0, 0, 0, [DateTimeKind]::Utc))
+                    $row.ActualPeriodEnd | Should -Be $capturedUtc
+                    $row.ActualPeriodSource | Should -Be 'Query window'
+                    $row.ActualPeriod | Should -Match '2026-10-01.*UTC.*query window'
+                    $row.Currency | Should -Be 'USD'
+                }
+                foreach ($body in $queryBodies) {
+                    $body.timeframe | Should -Be 'Custom'
+                    ([datetime]$body.timePeriod.from).ToUniversalTime() | Should -Be ([datetime]::new(2026, 10, 1, 0, 0, 0, [DateTimeKind]::Utc))
+                    ([datetime]$body.timePeriod.to).ToUniversalTime() | Should -Be $capturedUtc
+                    $body.type | Should -Be 'ActualCost'
+                }
+                $vm = $rows | Where-Object ResourcePath -EQ $vmId
+                $vm.SubscriptionId | Should -Be $subId
+                $vm.Subscription | Should -Be 'Example subscription'
+                $vm.ResourceName | Should -Be 'fixture-vm'
+                $vm.ResourceType | Should -Be 'Virtual Machine'
+                $database = $rows | Where-Object ResourcePath -EQ $databaseId
+                $database.ResourceName | Should -Be 'fixture-db'
+                $database.ResourceType | Should -Be 'SQL Database'
+                $reservation = $rows | Where-Object ResourcePath -EQ $reservationId
+                $reservation.ResourceName | Should -Be 'fixture-reservation'
+                $reservation.ResourceType | Should -Be 'Reservation charge'
+                $reservationGroup = $rows | Where-Object ResourcePath -EQ $reservationGroupId
+                $reservationGroup.ResourceName | Should -Be 'Reservation charge (order fixture-order)'
+                $reservationGroup.ResourceType | Should -Be 'Reservation charge'
+                $unattributed = $rows | Where-Object { [string]::IsNullOrWhiteSpace($_.ResourcePath) }
+                $unattributed.ResourceType | Should -Be 'Unattributed charge'
+                $unattributed.ResourceName | Should -Be 'No resource ID recorded'
+                foreach ($charge in @($reservation, $reservationGroup, $unattributed)) {
+                    if ($fixturePath -eq 'ManagementGroup') {
+                        $charge.SubscriptionId | Should -BeNullOrEmpty
+                        $charge.Subscription | Should -Be 'Not attributed'
+                    }
+                    else {
+                        $charge.SubscriptionId | Should -Be $subId
+                        $charge.Subscription | Should -Be 'Example subscription'
+                    }
+                }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly
+                Should -Invoke Get-AzContext -Times 0 -Exactly
+                Should -Invoke Invoke-RestMethod -Times 0 -Exactly
+            }
+        }
+
         It 'Reads every resource page without retaining a failed MG attempt (<QueryPath>)' -ForEach @(
             @{ QueryPath = 'PerSubscription' }
             @{ QueryPath = 'ManagementGroup' }
@@ -529,6 +620,140 @@ Describe 'Cost Management query pagination' {
     }
 
     Context 'Parsed query consumers' {
+        It 'Reconciles scoped AI token totals for <Scenario>' -Tag 'AIReconciliation' -ForEach @(
+            @{ Scenario = 'different transaction totals'; SecondTotal = 1200; ExpectedTokens = 2400; ExpectedBasis = 'TokenTransaction'; ExpectedRate = 62.5 }
+            @{ Scenario = 'per-deployment fallback'; SecondTotal = $null; ExpectedTokens = 2200; ExpectedBasis = 'Prompt + generated'; ExpectedRate = 68.1818 }
+            @{ Scenario = 'measured zero transaction total'; SecondTotal = 0; ExpectedTokens = 1200; ExpectedBasis = 'TokenTransaction'; ExpectedRate = 83.3333 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ SecondTotal = $SecondTotal; ExpectedTokens = $ExpectedTokens; ExpectedBasis = $ExpectedBasis; ExpectedRate = $ExpectedRate } {
+                param($SecondTotal, $ExpectedTokens, $ExpectedBasis, $ExpectedRate)
+                $secondTransactionTotal = $SecondTotal
+                $accountIds = @(
+                    '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.CognitiveServices/accounts/first'
+                    '/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/fixture/providers/Microsoft.CognitiveServices/accounts/second'
+                )
+                Mock Write-Host { }
+                Mock Resolve-CostMgId { 'fixture' }
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Search-AzGraphSafe {
+                    @{ Data = @($accountIds | ForEach-Object { [pscustomobject]@{ id = $_; name = ($_ -split '/')[-1]; type = 'microsoft.cognitiveservices/accounts'; lkind = 'OpenAI'; subscriptionId = ($_ -split '/')[2]; location = 'eastus' } }) }
+                }
+                Mock Invoke-WebRequest {
+                    $transactionTotal = if ($Uri -like '*/accounts/second/*') { $secondTransactionTotal } else { 1200 }
+                    $metricValues = @(@{ Name = 'ProcessedPromptTokens'; Total = 800 }, @{ Name = 'GeneratedTokens'; Total = 200 }, @{ Name = 'AzureOpenAIRequests'; Total = 10 })
+                    if ($null -ne $transactionTotal) { $metricValues += @{ Name = 'TokenTransaction'; Total = $transactionTotal } }
+                    $metrics = @(foreach ($metric in $metricValues) {
+                            @{ name = @{ value = $metric.Name }; timeseries = @(@{ metadatavalues = @(@{ name = @{ value = 'ModelDeploymentName' }; value = 'shared-deployment' }); data = @(@{ total = $metric.Total }) }) }
+                        })
+                    [pscustomobject]@{ Content = (@{ value = $metrics } | ConvertTo-Json -Depth 10) }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' }, @{ name = 'Currency' }); rows = @(@(100, $accountIds[0], 'USD'), @(50, $accountIds[1], 'USD')) } } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' }, [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second' })
+
+                $result = Get-AIWorkloadMetrics -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions
+
+                $result.RateIssue | Should -BeNullOrEmpty
+                $result.TotalTokens | Should -Be $ExpectedTokens
+                ($result.ByAccount | Measure-Object Tokens -Sum).Sum | Should -Be $ExpectedTokens
+                ($result.ByModel | Measure-Object TotalTokens -Sum).Sum | Should -Be $ExpectedTokens
+                $result.CostPer1KTokens | Should -Be $ExpectedRate
+                $result.CostPerRequest | Should -Be 7.5
+                $result.ByModel.Count | Should -Be 2
+                @($result.ByModel.Deployment | Select-Object -Unique) | Should -Be @('shared-deployment')
+                @($result.ByModel.ResourceId | Select-Object -Unique).Count | Should -Be 2
+                @($result.ByModel.SubscriptionId | Select-Object -Unique).Count | Should -Be 2
+                ($result.ByModel | Where-Object Account -EQ 'second').TokenBasis | Should -Be $ExpectedBasis
+                ($result.ByAccount | Where-Object Name -EQ 'second').TokenBasis | Should -Be $ExpectedBasis
+            }
+        }
+
+        It 'Leaves incomplete AI usage unavailable for <Scenario>' -Tag 'AIReconciliation' -ForEach @(
+            @{ Scenario = 'empty response' }
+            @{ Scenario = 'missing samples' }
+            @{ Scenario = 'missing output and total' }
+            @{ Scenario = 'missing requests' }
+            @{ Scenario = 'metric error' }
+            @{ Scenario = 'invalid sample' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Scenario = $Scenario } {
+                param($Scenario)
+                $fixtureScenario = $Scenario
+                $accountId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.CognitiveServices/accounts/example'
+                $queries = [Collections.Generic.List[object]]::new()
+                Mock Write-Host { }
+                Mock Get-Date { [datetime]::new(2026, 10, 1, 0, 30, 0, [DateTimeKind]::Utc).ToLocalTime() }
+                Mock Resolve-CostMgId { 'fixture' }
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Search-AzGraphSafe { @{ Data = @([pscustomobject]@{ id = $accountId; name = 'example'; type = 'microsoft.cognitiveservices/accounts'; lkind = 'OpenAI'; subscriptionId = '11111111-1111-1111-1111-111111111111' }) } }
+                Mock Invoke-WebRequest {
+                    $metrics = @(foreach ($metricName in @('ProcessedPromptTokens', 'GeneratedTokens', 'TokenTransaction', 'AzureOpenAIRequests')) {
+                            if ($fixtureScenario -eq 'empty response' -or ($fixtureScenario -eq 'missing output and total' -and $metricName -in @('GeneratedTokens', 'TokenTransaction')) -or ($fixtureScenario -eq 'missing requests' -and $metricName -eq 'AzureOpenAIRequests')) { continue }
+                            $total = if ($fixtureScenario -eq 'missing samples') { $null } elseif ($fixtureScenario -eq 'invalid sample') { -1 } else { 10 }
+                            @{ name = @{ value = $metricName }; errorCode = $(if ($fixtureScenario -eq 'metric error') { 'BadRequest' } else { 'Success' }); timeseries = @(@{ data = @(@{ total = $total }) }) }
+                        })
+                    [pscustomobject]@{ Content = (@{ value = $metrics } | ConvertTo-Json -Depth 10) }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $queries.Add(($Payload | ConvertFrom-Json))
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' }, @{ name = 'Currency' }); rows = @(, @(100, $accountId, 'USD')) } } | ConvertTo-Json -Depth 8) }
+                }
+
+                $result = Get-AIWorkloadMetrics -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example' })
+
+                $result.MetricFailures | Should -Be 1
+                $result.RateIssue | Should -Match 'incomplete'
+                $result.CostPer1KTokens | Should -BeNullOrEmpty
+                $result.CostPerRequest | Should -BeNullOrEmpty
+                $result.ByAccount[0].CostPer1KTokens | Should -BeNullOrEmpty
+                $result.ByAccount[0].MetricsComplete | Should -BeFalse
+                if ($fixtureScenario -eq 'missing requests') {
+                    $result.ByAccount[0].Requests | Should -BeNullOrEmpty
+                    $result.TotalRequests | Should -BeNullOrEmpty
+                    $result.HasRequestData | Should -BeFalse
+                }
+                else {
+                    $result.ByAccount[0].Tokens | Should -BeNullOrEmpty
+                    $result.TotalTokens | Should -BeNullOrEmpty
+                    $result.HasTokenData | Should -BeFalse
+                }
+                $queries[0].timeframe | Should -Be 'Custom'
+                ([datetime]$queries[0].timePeriod.from).ToUniversalTime() | Should -Be ([datetime]::new(2026, 10, 1, 0, 0, 0, [DateTimeKind]::Utc))
+                ([datetime]$queries[0].timePeriod.to).ToUniversalTime() | Should -Be $result.UsagePeriodEndUtc
+                Should -Invoke Invoke-WebRequest -Times 1 -Exactly -ParameterFilter { $Uri -like '*timespan=2026-10-01T00:00:00Z/2026-10-01T00:30:00Z*' }
+            }
+        }
+
+        It 'Keeps Hub model token rows distinct by account without live requests' -Tag 'AIReconciliation' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-AzRestMethodWithRetry { throw 'No live cost calls are allowed.' }
+                Mock Invoke-WebRequest { throw 'No live metric calls are allowed.' }
+                $hubRows = @(foreach ($accountName in @('first', 'second')) {
+                    $subscriptionId = if ($accountName -eq 'first') { '11111111-1111-1111-1111-111111111111' } else { '22222222-2222-2222-2222-222222222222' }
+                    [pscustomobject]@{
+                        SubAccountId = $subscriptionId; ResourceName = $accountName
+                        ResourceId = "/subscriptions/$subscriptionId/resourceGroups/fixture/providers/Microsoft.CognitiveServices/accounts/$accountName"
+                        ResourceType = 'microsoft.cognitiveservices/accounts'; EffectiveCost = 100; BilledCost = 100; BillingCurrency = 'USD'
+                        ChargePeriodStart = '2026-09-01'; ConsumedQuantity = 10; ConsumedUnit = '1K tokens'; x_SkuMeterName = 'gpt-example input tokens'
+                    }
+                })
+
+                $result = ConvertTo-AIHubAggregates -HubData $hubRows
+
+                $result.ModelTokens.Count | Should -Be 2
+                @($result.ModelTokens.Values.Deployment | Select-Object -Unique).Count | Should -Be 1
+                @($result.ModelTokens.Values.ResourceId | Select-Object -Unique).Count | Should -Be 2
+                @($result.ModelTokens.Values.SubscriptionId | Select-Object -Unique).Count | Should -Be 2
+                ($result.ModelTokens.Values | Measure-Object Total -Sum).Sum | Should -Be $result.TotalTokens
+                ($result.AcctTokens.Values | Measure-Object Tokens -Sum).Sum | Should -Be $result.TotalTokens
+                $result.TotalTokens | Should -Be 20000
+                $result.Currency | Should -Be 'USD'
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly
+                Should -Invoke Invoke-WebRequest -Times 0 -Exactly
+            }
+        }
+
         It 'Preserves AI usage without inventing totals for <CurrencyCase> currencies' -ForEach @(
             @{ CurrencyCase = 'mixed'; ExpectedAvailable = $false }
             @{ CurrencyCase = 'missing column'; ExpectedAvailable = $false }
@@ -677,6 +902,83 @@ Describe 'Cost Management query pagination' {
                 Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter {
                     $Path -like '*page=2' -and $Method -eq 'POST' -and ($Payload | ConvertFrom-Json).type -eq 'AmortizedCost'
                 }
+            }
+        }
+    }
+
+    Context 'Trend scope metadata' {
+        It 'Retains scoped trends and explicit coverage for <Scenario>' -Tag 'ScopedCostTrend' -ForEach @(
+            @{ Scenario = 'complete grouped response'; QueryPath = 'ManagementGroup'; IncludeSecond = $true; EmptySingle = $false; ExpectedData = 2; ExpectedUnverified = 0; ExpectedEmpty = 0 }
+            @{ Scenario = 'partial grouped response'; QueryPath = 'ManagementGroup'; IncludeSecond = $false; EmptySingle = $false; ExpectedData = 1; ExpectedUnverified = 1; ExpectedEmpty = 0 }
+            @{ Scenario = 'empty subscription response'; QueryPath = 'PerSubscription'; IncludeSecond = $false; EmptySingle = $false; ExpectedData = 1; ExpectedUnverified = 0; ExpectedEmpty = 1 }
+            @{ Scenario = 'empty single-subscription response'; QueryPath = 'Single'; IncludeSecond = $false; EmptySingle = $true; ExpectedData = 0; ExpectedUnverified = 0; ExpectedEmpty = 1 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ QueryPath = $QueryPath; IncludeSecond = $IncludeSecond; EmptySingle = $EmptySingle; ExpectedData = $ExpectedData; ExpectedUnverified = $ExpectedUnverified; ExpectedEmpty = $ExpectedEmpty } {
+                param($QueryPath, $IncludeSecond, $EmptySingle, $ExpectedData, $ExpectedUnverified, $ExpectedEmpty)
+                $fixturePath = $QueryPath
+                $includeSecondRow = $IncludeSecond
+                $emptyOnlySubscription = $EmptySingle
+                $firstId = '11111111-1111-1111-1111-111111111111'
+                $secondId = '22222222-2222-2222-2222-222222222222'
+                $outsideId = '99999999-9999-9999-9999-999999999999'
+                $capturedUtc = [datetime]::new(2026, 10, 1, 0, 30, 0, [DateTimeKind]::Utc)
+                $queries = [Collections.Generic.List[object]]::new()
+                Mock Get-Date { $capturedUtc.ToLocalTime() }
+                Mock Write-Host { }
+                Mock Resolve-CostMgId { if ($fixturePath -eq 'ManagementGroup') { 'fixture-mg' } }
+                Mock Get-AzContext { throw 'Trend fixtures must not read Azure context.' }
+                Mock Invoke-RestMethod { throw 'Trend fixtures must not send HTTP requests.' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    [void]$queries.Add(($Payload | ConvertFrom-Json))
+                    $columns = @(@{ name = 'Cost' }, @{ name = 'BillingMonth' }, @{ name = 'Currency' })
+                    $rows = @()
+                    if ($fixturePath -eq 'ManagementGroup') {
+                        $columns += @{ name = 'SubscriptionId' }
+                        $rows = @(
+                            , @(10, '20260901', 'USD', $firstId)
+                            if ($includeSecondRow) { , @(20, '20260901', 'USD', $secondId) }
+                            , @(999, '20260901', 'EUR', $outsideId)
+                        )
+                    }
+                    elseif (-not $emptyOnlySubscription -and $Path -like "*/$firstId/*") {
+                        $rows = @(, @(10, '20260901', 'USD'))
+                    }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ columns = $columns; rows = $rows } } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @([pscustomobject]@{ Id = $firstId; Name = 'Example <first>'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+                if ($fixturePath -ne 'Single') { $subscriptions += [pscustomobject]@{ Id = $secondId; Name = 'Example second'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' } }
+
+                $result = Get-CostTrend -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions
+
+                $result.ScopeKind | Should -Be 'Selected subscriptions'
+                $result.SelectedSubscriptionCount | Should -Be $subscriptions.Count
+                $result.SubscriptionsWithData | Should -Be $ExpectedData
+                @($result.UnverifiedSubscriptionIds).Count | Should -Be $ExpectedUnverified
+                @($result.NoDataSubscriptionIds).Count | Should -Be $ExpectedEmpty
+                $result.CoverageIncomplete | Should -Be ($ExpectedUnverified -gt 0)
+                $result.BySubscription.ContainsKey($outsideId) | Should -BeFalse
+                $result.SubscriptionNames[$firstId] | Should -Be 'Example <first>'
+                $result.CostBasis | Should -Be 'ActualCost'
+                $result.CostPeriodStartUtc | Should -Be ([datetime]::new(2026, 4, 1, 0, 0, 0, [DateTimeKind]::Utc))
+                $result.CostPeriodEndUtc | Should -Be $capturedUtc
+                foreach ($query in $queries) {
+                    ([datetime]$query.timePeriod.from).ToUniversalTime() | Should -Be $result.CostPeriodStartUtc
+                    ([datetime]$query.timePeriod.to).ToUniversalTime() | Should -Be $result.CostPeriodEndUtc
+                }
+                if ($fixturePath -eq 'ManagementGroup') {
+                    $queries[0].dataset.filter.dimensions.values | Should -Be @($firstId, $secondId)
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly
+                    $result.QueryScope | Should -Be '/providers/Microsoft.Management/managementGroups/fixture-mg'
+                    $result.Months[0].Cost | Should -Be $(if ($includeSecondRow) { 30 } else { 10 })
+                    $result.Months[0].Currency | Should -Be 'USD'
+                }
+                if ($ExpectedUnverified) {
+                    $result.UnverifiedSubscriptionIds | Should -Contain $secondId
+                    $result.Note | Should -Match 'not verified'
+                }
+                if ($emptyOnlySubscription) { $result.HasData | Should -BeFalse; $result.Months | Should -BeNullOrEmpty }
+                Should -Invoke Get-AzContext -Times 0 -Exactly
+                Should -Invoke Invoke-RestMethod -Times 0 -Exactly
             }
         }
     }
@@ -1167,7 +1469,174 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
             }
         }
 
-        It 'Finds a readable management group after the first page and first twelve candidates' {
+        It 'Bounds management-group probes and reserves the tenant root (listed: <RootListed>, readable: <RootReadable>)' -Tag 'ManagementGroupProbeLimit' -ForEach @(
+            @{ RootListed = $false; RootReadable = $true }
+            @{ RootListed = $true; RootReadable = $true }
+            @{ RootListed = $false; RootReadable = $false }
+            @{ RootListed = $true; RootReadable = $false }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ RootListed = $RootListed; RootReadable = $RootReadable } {
+                param($RootListed, $RootReadable)
+                Reset-CostMgScope
+                $fixtureRootListed = $RootListed
+                $tenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                $probedIds = [System.Collections.Generic.List[string]]::new()
+                Mock Write-Host { }
+                Mock Write-Warning { }
+                Mock Get-AzContext { throw 'Probe fixtures must not read an Azure context.' }
+                Mock Invoke-RestMethod { throw 'Probe fixtures must not make HTTP requests.' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Method -eq 'GET') {
+                        if ($Path -like '*page=2') {
+                            $body = @{ value = @(13..100 | ForEach-Object { @{ name = "denied-$_" } }) }
+                        }
+                        else {
+                            $names = @(if ($fixtureRootListed) { @{ name = $tenantId } }) + @(foreach ($number in 1..12) {
+                                    @{ name = "denied-$number" }
+                                    @{ name = "DENIED-$number" }
+                                })
+                            $body = @{ value = $names; nextLink = "$Path&page=2" }
+                        }
+                        return [pscustomobject]@{ StatusCode = 200; Content = ($body | ConvertTo-Json -Depth 5) }
+                    }
+                    $mgId = ($Path -split '/managementGroups/')[1].Split('/')[0]
+                    [void]$probedIds.Add($mgId)
+                    $status = if ($mgId -eq $tenantId -and $RootReadable) { 200 } elseif ($mgId -eq 'denied-1') { 429 } else { 403 }
+                    [pscustomobject]@{ StatusCode = $status; Content = '{}' }
+                }
+                try {
+                    $resolved = Resolve-CostMgId -TenantId $tenantId
+
+                    $probedIds.Count | Should -Be 25
+                    $probedIds[-1] | Should -Be $tenantId
+                    @($probedIds | Where-Object { $_ -eq $tenantId }).Count | Should -Be 1
+                    $probedIds[0] | Should -Be 'denied-1'
+                    $probedIds[23] | Should -Be 'denied-24'
+                    if ($RootReadable) {
+                        $resolved | Should -Be $tenantId
+                        Test-MgCostScope | Should -BeTrue
+                        Resolve-CostMgId -TenantId $tenantId | Should -Be $tenantId
+                    }
+                    else {
+                        $resolved | Should -BeNullOrEmpty
+                        Test-MgCostScope | Should -BeFalse
+                        Resolve-CostMgId -TenantId $tenantId | Should -BeNullOrEmpty
+                    }
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter { $Method -eq 'GET' }
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 25 -Exactly -ParameterFilter { $Method -eq 'POST' -and $MaxRetries -eq 2 }
+                    Should -Invoke Write-Warning -Times 1 -Exactly -ParameterFilter { $Message -match '25.*tenant root' }
+                    Should -Invoke Get-AzContext -Times 0 -Exactly
+                    Should -Invoke Invoke-RestMethod -Times 0 -Exactly
+                }
+                finally { Reset-CostMgScope }
+            }
+        }
+
+        It 'Stops at the first usable child and reuses its scope without a limit warning' -Tag 'ManagementGroupProbeLimit' {
+            InModuleScope FinOpsMultitool {
+                Reset-CostMgScope
+                Mock Write-Host { }
+                Mock Write-Warning { }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Method -eq 'GET') {
+                        return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[{"name":"denied"},{"name":"readable"},{"name":"unused"}]}' }
+                    }
+                    [pscustomobject]@{ StatusCode = $(if ($Path -like '*/readable/*') { 200 } else { 403 }); Content = '{}' }
+                }
+                try {
+                    Resolve-CostMgId -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' | Should -Be 'readable'
+                    Resolve-CostMgId -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' | Should -Be 'readable'
+
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter { $Method -eq 'GET' }
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter { $Method -eq 'POST' -and $MaxRetries -eq 2 }
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly -ParameterFilter { $Path -match '/(unused|aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa)/' }
+                    Should -Invoke Write-Warning -Times 0 -Exactly
+                }
+                finally { Reset-CostMgScope }
+            }
+        }
+
+        It 'Keeps selected-subscription cost coverage after exhausting the probe budget' -Tag 'ManagementGroupProbeLimit' {
+            InModuleScope FinOpsMultitool {
+                Reset-CostMgScope
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }
+                )
+                Mock Write-Host { }
+                Mock Write-Warning { }
+                Mock Get-AzContext { throw 'Cost fallback fixtures must not read an Azure context.' }
+                Mock Invoke-RestMethod { throw 'Cost fallback fixtures must not make HTTP requests.' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Method -eq 'GET') {
+                        return [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @(1..100 | ForEach-Object { @{ name = "denied-$_" } }) } | ConvertTo-Json -Depth 5) }
+                    }
+                    if ($Path -like '/providers/Microsoft.Management/managementGroups/*') {
+                        return [pscustomobject]@{ StatusCode = 403; Content = '{}' }
+                    }
+                    if ($Path -notmatch '^/subscriptions/(11111111-1111-1111-1111-111111111111|22222222-2222-2222-2222-222222222222)/') { throw 'Unexpected subscription scope.' }
+                    $amount = if ($Path -like '*forecast*') { 150 } else { 100 }
+                    $responseContent = @{
+                        properties = @{ columns = @(@{ name = 'Cost' }, @{ name = 'Currency' }); rows = @(, @($amount, 'USD')) }
+                    } | ConvertTo-Json -Depth 6
+                    [pscustomobject]@{ StatusCode = 200; Content = $responseContent }
+                }
+                try {
+                    $costs = Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -RestrictToSelected
+
+                    $costs.Count | Should -Be 2
+                    foreach ($subscription in $subscriptions) {
+                        $costs[$subscription.Id].Actual | Should -Be 100
+                        $costs[$subscription.Id].Forecast | Should -Be 150
+                        $costs[$subscription.Id].Currency | Should -Be 'USD'
+                    }
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 25 -Exactly -ParameterFilter { $Method -eq 'POST' -and $Path -like '/providers/Microsoft.Management/*' -and $MaxRetries -eq 2 }
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 4 -Exactly -ParameterFilter {
+                        $Method -eq 'POST' -and $Path -match '^/subscriptions/(11111111-1111-1111-1111-111111111111|22222222-2222-2222-2222-222222222222)/'
+                    }
+                    Should -Invoke Get-AzContext -Times 0 -Exactly
+                    Should -Invoke Invoke-RestMethod -Times 0 -Exactly
+                }
+                finally { Reset-CostMgScope }
+            }
+        }
+
+        It 'Does not reuse a <PreviousState> management-group cache across tenants' -Tag 'ManagementGroupProbeLimit' -ForEach @(
+            @{ PreviousState = 'resolved'; FirstStatus = 200 }
+            @{ PreviousState = 'failed'; FirstStatus = 403 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ FirstStatus = $FirstStatus } {
+                param($FirstStatus)
+                Reset-CostMgScope
+                $fixtureStatus = $FirstStatus
+                Mock Write-Host { }
+                Mock Get-AzContext { throw 'Tenant cache fixtures must not read an Azure context.' }
+                Mock Invoke-RestMethod { throw 'Tenant cache fixtures must not make HTTP requests.' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Method -eq 'GET') { return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' } }
+                    $status = if ($Path -like '*/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/*') { $fixtureStatus } else { 200 }
+                    [pscustomobject]@{ StatusCode = $status; Content = '{}' }
+                }
+                try {
+                    $null = Resolve-CostMgId -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+
+                    Resolve-CostMgId -TenantId 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' | Should -Be 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+
+                    Test-MgCostScope | Should -BeTrue
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter { $Method -eq 'GET' }
+                    foreach ($expectedTenant in @('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb')) {
+                        Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter {
+                            $Method -eq 'POST' -and $Path -like "*/$expectedTenant/*"
+                        }
+                    }
+                    Should -Invoke Get-AzContext -Times 0 -Exactly
+                    Should -Invoke Invoke-RestMethod -Times 0 -Exactly
+                }
+                finally { Reset-CostMgScope }
+            }
+        }
+
+        It 'Finds a readable management group after the first page and first twelve candidates' -Tag 'ManagementGroupProbeLimit' {
             InModuleScope FinOpsMultitool {
                 Reset-CostMgScope
                 Mock Invoke-AzRestMethodWithRetry {

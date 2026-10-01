@@ -172,7 +172,7 @@ function Get-ContractInfo {
                 Currency           = 'Unknown'
                 CoverageIncomplete = ($probeErrors.Count -gt 0)
                 ReadErrors         = @($probeErrors)
-                Note               = 'Agreement inferred from subscription metadata, not confirmed billing-account details. ' + ($probeErrors -join ' ')
+                Note               = ('Agreement inferred from subscription metadata, not confirmed billing-account details. ' + ($probeErrors -join ' ')).TrimEnd()
             })
     }
 

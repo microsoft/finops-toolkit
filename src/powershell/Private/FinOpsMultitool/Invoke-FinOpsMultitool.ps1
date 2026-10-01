@@ -25,6 +25,24 @@ param()
 ###########################################################################
 
 function Invoke-FinOpsMultitool {
+    # .SYNOPSIS
+    # Runs the private FinOps Multitool terminal interface and creates local reports.
+    # .DESCRIPTION
+    # Uses the existing Azure identity to run read-only analysis within the selected tenant
+    # and subscriptions. Use Start-FinOpsMultitool as the supported public entry point.
+    # .PARAMETER SubscriptionId
+    # Selects a subscription in the current tenant. An unresolved ID stops the scan.
+    # .PARAMETER OutputPath
+    # Selects the local parent directory for a new private report folder, outside Git repositories.
+    # .PARAMETER Scans
+    # Selects scan function names, such as Get-CostData. Omit for interactive selection.
+    # .PARAMETER DataSource
+    # Selects Hub, API, or GraphOnly. An explicitly unavailable Hub does not fall back silently.
+    # .PARAMETER NonInteractive
+    # Disables prompts. Requires an existing Azure context; this switch does not sign in.
+    # .EXAMPLE
+    # Invoke-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource API -NonInteractive
+    # Runs the cost-data scan for one selected subscription and saves reports locally.
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'NonInteractive', Justification = 'Read by the nested picker functions, which PSScriptAnalyzer does not trace into.')]
     param(
@@ -304,6 +322,15 @@ function Invoke-FinOpsMultitool {
             [string]$Preselected
         )
 
+        if ([string]::IsNullOrWhiteSpace($TenantId) -or -not $Subscriptions.Count -or
+            @($Subscriptions | Where-Object { [string]::IsNullOrWhiteSpace($_.Id) -or $_.TenantId -ne $TenantId }).Count -gt 0) {
+            throw 'Every selected subscription must have a verified ID and belong to the selected tenant. No source discovery was started.'
+        }
+        $discoveryContext = Get-AzContext -ErrorAction Stop
+        if (-not $discoveryContext -or $discoveryContext.Tenant.Id -ne $TenantId) {
+            throw 'The current Azure context does not match the selected tenant. No source discovery was started.'
+        }
+
         Write-FinOpsConsole ""
         Write-FinOpsConsole "  DATA SOURCE" -ForegroundColor Cyan
         Write-FinOpsConsole "  ─────────────────────────────────────────────────────" -ForegroundColor DarkGray
@@ -325,7 +352,7 @@ function Invoke-FinOpsMultitool {
         foreach ($sub in $Subscriptions) {
             try {
                 $query = "resources | where type == 'microsoft.storage/storageaccounts' and tags['cm-resource-parent'] contains 'Microsoft.Cloud/hubs' | project name, resourceGroup, subscriptionId, location"
-                $result = Search-AzGraph -Query $query -Subscription $sub.Id -ErrorAction Stop
+                $result = Search-AzGraph -Query $query -Subscription $sub.Id -DefaultProfile $discoveryContext -ErrorAction Stop
                 if ($result -and @($result).Count -gt 0) {
                     $hubStorage = $result[0]
                     break
@@ -338,7 +365,10 @@ function Invoke-FinOpsMultitool {
         }
 
         if (-not $hubStorage -and $discoveryErrors.Count -gt 0) {
-            throw "FinOps hub discovery is incomplete: $($discoveryErrors -join '; '). Select API or GraphOnly explicitly, or configure FINOPS_HUB_KUSTO_URI."
+            if ($Preselected -eq 'Hub') {
+                throw "FinOps hub discovery is incomplete: $($discoveryErrors -join '; '). Select API or GraphOnly explicitly, or configure FINOPS_HUB_KUSTO_URI."
+            }
+            Write-FinOpsConsole '  Hub discovery is incomplete. Continuing with the selected subscriptions only.' -ForegroundColor Yellow
         }
 
         if ($Preselected) {
@@ -385,7 +415,7 @@ function Invoke-FinOpsMultitool {
                         $hubSubIds = @($Subscriptions | ForEach-Object { $_.Id })
                         $prov = $null
                         try { $prov = Resolve-FOHubProvider -Subscriptions $hubSubIds } catch {
-                            throw "FinOps hub provider discovery failed: $($_.Exception.Message)"
+                            Write-FinOpsConsole "  FinOps hub provider discovery failed: $($_.Exception.Message) Checking the detected Hub's storage reader instead." -ForegroundColor Yellow
                         }
                         if ($prov -and $prov.Found) {
                             # A scalable Kusto path exists - no warning needed.
@@ -417,7 +447,7 @@ function Invoke-FinOpsMultitool {
                             if ($useApi -notmatch '^(?i)(n|no)$') {
                                 return @{ Source = 'API'; HubStorage = $hubStorage }
                             }
-                            return @{ Source = 'Hub'; HubStorage = $hubStorage }
+                            return @{ Source = 'Hub'; HubStorage = $hubStorage; HubProviderResolved = $true }
                         }
 
                         if (-not $hubSize.IsLarge) {
@@ -426,11 +456,11 @@ function Invoke-FinOpsMultitool {
                             Write-FinOpsConsole ""
                             Write-FinOpsConsole "  Using the FinOps Hub storage reader (small-dataset path; $($hubSize.Display))." -ForegroundColor DarkGray
                             Write-FinOpsConsole "  Larger hubs should query Kusto: deploy ADX/Fabric, or set FINOPS_HUB_KUSTO_URI (ftklocal)." -ForegroundColor DarkGray
-                            return @{ Source = 'Hub'; HubStorage = $hubStorage }
+                            return @{ Source = 'Hub'; HubStorage = $hubStorage; HubProviderResolved = $true }
                         }
 
                         Write-FinOpsConsole ""
-                        Write-FinOpsConsole "  Note: this FinOps Hub has no Azure Data Explorer (Kusto) cluster." -ForegroundColor Yellow
+                        Write-FinOpsConsole "  Note: no Kusto provider was selected for this FinOps Hub." -ForegroundColor Yellow
                         if ($hubSize.Known) {
                             Write-FinOpsConsole "  Ingestion data measured at $($hubSize.Display)." -ForegroundColor Yellow
                         }
@@ -446,7 +476,7 @@ function Invoke-FinOpsMultitool {
                         if ($useApi -match '^(?i)(y|yes)$') {
                             return @{ Source = 'API'; HubStorage = $hubStorage }
                         }
-                        return @{ Source = 'Hub'; HubStorage = $hubStorage }
+                        return @{ Source = 'Hub'; HubStorage = $hubStorage; HubProviderResolved = $true }
                     }
                     '2' { return @{ Source = 'API'; HubStorage = $hubStorage } }
                     '3' { return @{ Source = 'GraphOnly'; HubStorage = $hubStorage } }
@@ -464,7 +494,12 @@ function Invoke-FinOpsMultitool {
             }
         }
         else {
-            Write-FinOpsConsole "  No FinOps Hub found in selected subscriptions." -ForegroundColor DarkGray
+            if ($discoveryErrors.Count -gt 0) {
+                Write-FinOpsConsole "  A FinOps Hub could not be verified in the selected subscriptions." -ForegroundColor Yellow
+            }
+            else {
+                Write-FinOpsConsole "  No FinOps Hub found in selected subscriptions." -ForegroundColor DarkGray
+            }
             Write-FinOpsConsole ""
             Write-FinOpsConsole "  [1] Cost Management API" -ForegroundColor Yellow -NoNewline
             Write-FinOpsConsole "  - Query Azure Cost Management REST APIs directly" -ForegroundColor DarkGray
@@ -507,51 +542,38 @@ function Invoke-FinOpsMultitool {
             Connect-AzAccount | Out-Null
             $ctx = Get-AzContext
         }
+        if ([string]::IsNullOrWhiteSpace($ctx.Tenant.Id)) {
+            throw 'The current tenant could not be verified. Sign in to the intended tenant before starting the scan.'
+        }
         Write-FinOpsConsole "  Signed in as: $($ctx.Account.Id)" -ForegroundColor Green
         Write-FinOpsConsole ""
 
         # -- Explicit scope: resolve before either picker ------------------
-        # When the caller already named a subscription there is nothing to pick,
-        # so resolve it, set that context, and return. The current tenant is
-        # tried first because Get-AzSubscription without -TenantId probes every
-        # accessible tenant and emits a conditional-access/MFA warning for each
-        # one that refuses.
+        # An explicit subscription must resolve in the current tenant. Never
+        # search other tenants or widen the scope when that lookup fails.
         if ($PreselectedId) {
-            $sub = $null
-            if ($ctx -and $ctx.Tenant -and $ctx.Tenant.Id) {
-                $sub = Get-AzSubscription -SubscriptionId $PreselectedId -TenantId $ctx.Tenant.Id -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
-            }
+            $sub = Get-AzSubscription -SubscriptionId $PreselectedId -TenantId $ctx.Tenant.Id -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
             if (-not $sub) {
-                foreach ($t in @(Get-AzTenant -ErrorAction SilentlyContinue)) {
-                    $sub = Get-AzSubscription -SubscriptionId $PreselectedId -TenantId $t.Id -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
-                    if ($sub) { break }
-                }
+                throw "Subscription '$PreselectedId' could not be resolved in the current tenant '$($ctx.Tenant.Id)'. Refusing to widen the scan to all subscriptions. Sign in to the intended tenant before trying again."
             }
-            if ($sub) {
-                $null = Set-AzContext -SubscriptionId $sub.Id -TenantId $sub.TenantId -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
-                Write-FinOpsConsole "  Using subscription: $($sub.Name)" -ForegroundColor Green
-                Write-FinOpsConsole "  Tenant: $($sub.TenantId)" -ForegroundColor Green
-                Write-FinOpsConsole ""
-                return @($sub)
+            if (@($sub).Count -ne 1 -or $sub.Id -ne $PreselectedId -or $sub.TenantId -ne $ctx.Tenant.Id) {
+                throw "Subscription '$PreselectedId' could not be verified in the current tenant. No context change or scan was started."
             }
-            # Widening an explicit request to every accessible subscription would
-            # put other tenants' cost data in a report scoped to one of them. A host
-            # that cannot prompt has to fail the same way -NonInteractive does,
-            # because an unanswered prompt further down reads as "scan everything".
-            if ($NonInteractive -or -not (Test-FinOpsRichConsole)) {
-                throw "Subscription '$PreselectedId' could not be resolved in any accessible tenant. Refusing to widen the scan to all subscriptions."
-            }
-            Write-FinOpsConsole "  Subscription $PreselectedId not found in any accessible tenant, showing picker..." -ForegroundColor Yellow
+            $null = Set-AzContext -SubscriptionId $sub.Id -TenantId $ctx.Tenant.Id -Scope Process -ErrorAction Stop -WarningAction SilentlyContinue
+            Write-FinOpsConsole "  Using subscription: $($sub.Name)" -ForegroundColor Green
+            Write-FinOpsConsole "  Tenant: $($sub.TenantId)" -ForegroundColor Green
+            Write-FinOpsConsole ""
+            return @($sub)
         }
 
         # -- Tenant picker ------------------------------------------------
         $tenants = @(Get-AzTenant -ErrorAction SilentlyContinue)
         if ($tenants.Count -gt 1 -and ($NonInteractive -or -not (Test-FinOpsRichConsole))) {
             # The tenant picker is arrow-key only, so stay in the signed-in tenant
-            # and let -SubscriptionId reach the others.
+            # until the user explicitly signs in to another one.
             $currentTenant = (Get-AzContext -ErrorAction SilentlyContinue).Tenant.Id
             Write-FinOpsConsole "  Tenant: $currentTenant" -ForegroundColor Green
-            Write-FinOpsConsole "  $($tenants.Count) tenants available. Pass -SubscriptionId to target another one." -ForegroundColor DarkGray
+            Write-FinOpsConsole "  $($tenants.Count) tenants available. Sign in to the intended tenant before targeting another one." -ForegroundColor DarkGray
             Write-FinOpsConsole ""
         }
         elseif ($tenants.Count -gt 1) {
@@ -627,6 +649,9 @@ function Invoke-FinOpsMultitool {
         # tenant the signed-in account can access, which incorrectly mixes tenants
         # together when the user picks one tenant and chooses "All subscriptions".
         $effectiveTenantId = (Get-AzContext -ErrorAction SilentlyContinue).Tenant.Id
+        if ([string]::IsNullOrWhiteSpace($effectiveTenantId) -or $effectiveTenantId -ne $ctx.Tenant.Id) {
+            throw 'The selected tenant changed or could not be verified. No subscriptions were enumerated.'
+        }
         $allSubs = @(Get-AzSubscription -TenantId $effectiveTenantId -ErrorAction SilentlyContinue | Where-Object { $_.State -eq 'Enabled' })
         if ($allSubs.Count -eq 0) {
             Write-Error "No enabled subscriptions found in tenant $effectiveTenantId."
@@ -910,7 +935,14 @@ function Invoke-FinOpsMultitool {
         $kustoProvider = $null
         $subIdsForDisco = @($Subscriptions | ForEach-Object { $_.Id })
         if ($DataSource.Source -eq 'Hub') {
-            $kp = if ($DataSource.HubProvider) { $DataSource.HubProvider } else { Resolve-FOHubProvider -Subscriptions $subIdsForDisco }
+            $kp = $DataSource.HubProvider
+            if (-not $kp -and -not $DataSource.HubProviderResolved) {
+                try { $kp = Resolve-FOHubProvider -Subscriptions $subIdsForDisco }
+                catch {
+                    if (-not $DataSource.HubStorage -or -not [string]::IsNullOrWhiteSpace($env:FINOPS_HUB_KUSTO_URI)) { throw }
+                    Write-FinOpsConsole "  FinOps hub provider discovery failed: $($_.Exception.Message) Using the selected Hub's storage reader." -ForegroundColor Yellow
+                }
+            }
             if ($kp -and $kp.Found) {
                 $kustoProvider = $kp
                 $DataSource.HubProvider = $kp
@@ -1298,7 +1330,7 @@ function Invoke-FinOpsMultitool {
     # all controlled by whoever created the resource.
     function Protect-FinOpsExportText {
         param([string]$Text)
-        if ($Text -match '^[=+\-@\t\r]') { return "'" + $Text }
+        if ($Text -match '^(?:[\s\p{Cf}]*[=+\-@]|[\t\r\n])') { return "'" + $Text }
         return $Text
     }
 
@@ -1486,6 +1518,7 @@ function Invoke-FinOpsMultitool {
         $seenColumns = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
         foreach ($row in $flatRows) {
             foreach ($property in $row.PSObject.Properties) {
+                if ((Protect-FinOpsExportText $property.Name) -cne $property.Name) { throw 'CSV column header contains an unsafe formula prefix.' }
                 if ($seenColumns.Add($property.Name)) { [void]$columnNames.Add($property.Name) }
             }
         }
@@ -1629,6 +1662,52 @@ function Invoke-FinOpsMultitool {
 
             [string]$DataSourceLabel
         )
+
+        function Format-ReportMetric {
+            param($Value, [string]$Format = 'N0', [string]$Suffix = '')
+            $number = 0.0
+            if ($null -eq $Value -or -not [double]::TryParse([Convert]::ToString($Value, [cultureinfo]::InvariantCulture), [Globalization.NumberStyles]::Float, [cultureinfo]::InvariantCulture, [ref]$number) -or
+                [double]::IsNaN($number) -or [double]::IsInfinity($number)) { return 'Unavailable' }
+            $number.ToString($Format, [cultureinfo]::InvariantCulture) + $Suffix
+        }
+
+        function ConvertTo-ReportTableControlHtml {
+            param([string]$TableId, [string]$Title, [int]$RowCount)
+
+            if ($RowCount -le 25) { return '' }
+            $filterId = [System.Net.WebUtility]::HtmlEncode(($TableId -replace '^table-', 'filter-'))
+            $encodedId = [System.Net.WebUtility]::HtmlEncode($TableId)
+            $encodedTitle = [System.Net.WebUtility]::HtmlEncode($Title)
+            return "<div class=`"report-table-controls`" data-table-id=`"$encodedId`"><label for=`"$filterId`">Filter $encodedTitle<input id=`"$filterId`" type=`"search`" aria-controls=`"$encodedId`"></label><output aria-live=`"polite`">$RowCount rows</output><button type=`"button`" data-page-action=`"previous`" aria-label=`"Previous page of $encodedTitle`">Previous</button><button type=`"button`" data-page-action=`"next`" aria-label=`"Next page of $encodedTitle`">Next</button></div>"
+        }
+
+        function ConvertTo-ResourceIdentityHtml {
+            param([object]$Resource)
+
+            $label = if ($Resource.ResourceName) { [string]$Resource.ResourceName }
+            elseif ($Resource.ResourcePath) { [string]$Resource.ResourcePath }
+            else { 'No resource ID recorded' }
+            $html = [System.Net.WebUtility]::HtmlEncode($label)
+            if ($Resource.ResourceName -and $Resource.ResourcePath -and $Resource.ResourceName -ne $Resource.ResourcePath) {
+                $html += "<details class=`"cell-details`"><summary>Resource ID</summary><div class=`"detail-content`"><code>$([System.Net.WebUtility]::HtmlEncode([string]$Resource.ResourcePath))</code></div></details>"
+            }
+            return $html
+        }
+
+        function ConvertTo-PolicyScopeHtml {
+            param([object]$Assignment)
+
+            $scopeId = [string]$Assignment.Scope
+            $label = if ($Assignment.ScopeDisplayName) { [string]$Assignment.ScopeDisplayName }
+            elseif ($scopeId -match '^/subscriptions/([^/]+)$' -and $subNameLookup.ContainsKey($Matches[1])) { [string]$subNameLookup[$Matches[1]] }
+            elseif ($scopeId) { $scopeId }
+            else { 'Scope not recorded' }
+            $html = [System.Net.WebUtility]::HtmlEncode($label)
+            if ($scopeId -and $label -ne $scopeId) {
+                $html += "<details class=`"cell-details`"><summary>Scope ID</summary><div class=`"detail-content`"><code>$([System.Net.WebUtility]::HtmlEncode($scopeId))</code></div></details>"
+            }
+            return $html
+        }
 
         # Build sub ID → name lookup for display functions
         $subNameLookup = @{}
@@ -1817,17 +1896,18 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-CommitmentUtilization' {
                     if ($data.HasData) {
-                        Write-FinOpsConsole "    RIs: $($data.RICount) (avg $($data.RIAvgUtilization)% util)  |  Savings Plans: $($data.SPCount) (avg $($data.SPAvgUtilization)% util)" -ForegroundColor White
-                        $rows = $data.UnderutilizedRIs | ForEach-Object {
-                            [PSCustomObject]@{ SKU = $_.SkuName; Kind = $_.Kind; AvgUtil = "$($_.AvgUtilization)%"; MinUtil = "$($_.MinUtilization)%" }
+                        Write-FinOpsConsole "    Reservations: $($data.RICount) (average $(Format-ReportMetric $data.RIAvgUtilization -Format '0.#' -Suffix '%'))  |  Savings plans: $($data.SPCount) (average $(Format-ReportMetric $data.SPAvgUtilization -Format '0.#' -Suffix '%'))" -ForegroundColor White
+                        $rows = $data.Reservations | ForEach-Object {
+                            [PSCustomObject]@{ Reservation = if ($_.Name) { $_.Name } else { $_.ReservationId }; SKU = if ($_.SkuName) { $_.SkuName } else { 'Not returned' }; Kind = if ($_.Kind) { $_.Kind } else { 'Not returned' }; AvgUtil = Format-ReportMetric $_.AvgUtilization -Format '0.#' -Suffix '%'; UsageDate = $_.UsageDate }
                         }
-                        $cols = @('SKU', 'Kind', 'AvgUtil', 'MinUtil')
+                        $cols = @('Reservation', 'SKU', 'Kind', 'AvgUtil', 'UsageDate')
+                        if ($data.Note) { Write-FinOpsConsole "    $($data.Note)" -ForegroundColor DarkGray }
                     }
                     elseif ($data.AccessDenied) {
                         Show-PermissionReadout -Fn 'Get-CommitmentUtilization' -PermissionInfo $permissionInfo -Activity 'reservation / savings plan utilization'
                     }
                     else {
-                        Write-FinOpsConsole "    No active reservations or savings plans found." -ForegroundColor DarkGray
+                        Write-FinOpsConsole "    $(if ($data.Note) { $data.Note } else { 'No reservation or savings plan results returned.' })" -ForegroundColor DarkGray
                     }
                 }
                 'Get-SavingsRealized' {
@@ -1980,6 +2060,9 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-PolicyInventory' {
                     $hasComplianceData = if ($null -ne $data.HasComplianceData) { $data.HasComplianceData } else { (($data.TotalCompliant + $data.TotalNonCompliant) -gt 0) }
+                    if ($data.DefinitionCoverageIncomplete) {
+                        Write-FinOpsConsole '    Policy definition coverage is incomplete. Some effects could not be resolved.' -ForegroundColor Yellow
+                    }
                     if ($data.ComplianceCoverageIncomplete) {
                         Write-FinOpsConsole "    Assignments: $($data.AssignmentCount) | Compliance: unverified because some selected scopes could not be read" -ForegroundColor Yellow
                     }
@@ -2179,12 +2262,12 @@ function Invoke-FinOpsMultitool {
                         $periodLabel = if ($data.Period -eq 'MonthToDate') { 'Month to date' } elseif ($data.Period) { [string]$data.Period } else { 'Unknown period' }
                         Write-ColorizedLine -Text "    AI footprint — OpenAI/AIServices: $($fp.OpenAIAccounts + $fp.AIServices)  ML workspaces: $($fp.MLWorkspaces)  AI Search: $($fp.SearchServices)  GPU VMs: $($fp.GpuVmCount)" -DefaultColor 'White'
                         Write-ColorizedLine -Text "    Period: $periodLabel" -DefaultColor 'White'
-                        Write-ColorizedLine -Text "    Tokens: $($data.TotalTokens) total ($($data.TotalPromptTokens) in / $($data.TotalGeneratedTokens) out) over $($data.TotalRequests) requests" -DefaultColor 'White'
+                        Write-ColorizedLine -Text "    Tokens: $(Format-ReportMetric $data.TotalTokens)  |  Requests: $(Format-ReportMetric $data.TotalRequests)" -DefaultColor 'White'
                         Write-ColorizedLine -Text "    AI spend: $(Format-BudgetAmount -Value $data.TotalAICost -Currency $data.Currency)  |  $(Format-FinOpsUnitRate -Value $data.CostPer1KTokens -Currency $data.Currency)/1K tokens  |  $(Format-FinOpsUnitRate -Value $data.CostPerRequest -Currency $data.Currency)/request" -DefaultColor 'White'
                         if ($data.Note) { Write-FinOpsConsole "    $($data.Note)" -ForegroundColor DarkGray }
                         if ($data.ByModel -and @($data.ByModel).Count -gt 0) {
                             $rows = $data.ByModel
-                            $cols = @('Deployment', 'PromptTokens', 'GeneratedTokens', 'TotalTokens', 'PctOfTokens')
+                            $cols = @('Account', 'Deployment', 'PromptTokens', 'GeneratedTokens', 'TotalTokens', 'TokenBasis')
                         }
                         elseif ($data.ByAccount -and @($data.ByAccount).Count -gt 0) {
                             $rows = $data.ByAccount
@@ -2541,7 +2624,7 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-CostTrend' {
-                    $nowUtc = (Get-Date).ToUniversalTime()
+                    $nowUtc = if ($data.CostPeriodEndUtc) { ([datetime]$data.CostPeriodEndUtc).ToUniversalTime() } else { (Get-Date).ToUniversalTime() }
                     $currentMonthStart = $nowUtc.Date.AddDays(1 - $nowUtc.Day)
                     $completedMonths = @($data.Months | Where-Object { $_.MonthDate -and [datetime]$_.MonthDate -lt $currentMonthStart } |
                         Sort-Object { [datetime]$_.MonthDate } -Descending | Select-Object -First 2)
@@ -2573,6 +2656,9 @@ function Invoke-FinOpsMultitool {
                                 @{ Severity = 'Yellow'; Message = 'A change in spend can reflect usage, prices, credits, or optimization. Review the cost drivers before attributing savings.' }
                             )
                         }
+                    }
+                    if ($data.CoverageIncomplete) {
+                        $guidanceItems = @(@{ Severity = 'Yellow'; Message = 'The trend covers returned rows, not a verified total for every selected subscription. Changes may reflect differences in coverage.' }) + $guidanceItems
                     }
                 }
                 'Get-ReservationAdvice' {
@@ -2612,26 +2698,28 @@ function Invoke-FinOpsMultitool {
                 }
                 'Get-CommitmentUtilization' {
                     if ($data.HasData) {
-                        $riUtil = if ($data.RIAvgUtilization) { [double]$data.RIAvgUtilization } else { 100 }
-                        $spUtil = if ($data.SPAvgUtilization) { [double]$data.SPAvgUtilization } else { 100 }
-                        $lowUtil = ($riUtil -lt 80) -or ($spUtil -lt 80)
-                        $medUtil = ($riUtil -lt 95) -or ($spUtil -lt 95)
-                        if ($lowUtil) {
+                        $knownUtilization = @(
+                            if ($data.RICount -gt 0 -and $null -ne $data.RIAvgUtilization) { [double]$data.RIAvgUtilization }
+                            if ($data.SPCount -gt 0 -and $null -ne $data.SPAvgUtilization) { [double]$data.SPAvgUtilization }
+                        )
+                        $minimumAverage = ($knownUtilization | Measure-Object -Minimum).Minimum
+                        if ($data.CoverageIncomplete -or $data.UnscopedFallback -or $knownUtilization.Count -eq 0) {
+                            $guidanceItems = @(@{ Severity = 'Yellow'; Message = 'Overall commitment utilization is unavailable or its scope is unverified. Review the returned commitments and coverage notes; missing values are not zero utilization.' })
+                        }
+                        elseif ($minimumAverage -lt 80) {
                             $guidanceItems = @(
-                                @{ Severity = 'Red'; Message = "Commitment utilization below 80%. You may be paying more than on-demand pricing." }
-                                @{ Severity = 'Red'; Message = "FinOps Action: Review scope and SKU alignment. Exchange underused RIs for better-fitting ones." }
-                                @{ Severity = 'Yellow'; Message = "Target 95%+ utilization. Consider switching unused RIs to Savings Plans for more flexibility."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/reservations/manage-reserved-vm-instance' }
+                                @{ Severity = 'Red'; Message = 'Reported average commitment utilization is below 80%. Review eligible usage, scope, and SKU alignment before changing purchases.' }
+                                @{ Severity = 'Yellow'; Message = 'Exchange and refund options depend on the reservation product and current eligibility rules.'; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/reservations/manage-reserved-vm-instance' }
                             )
                         }
-                        elseif ($medUtil) {
+                        elseif ($minimumAverage -lt 95) {
                             $guidanceItems = @(
-                                @{ Severity = 'Yellow'; Message = "Commitment utilization at RI: $($data.RIAvgUtilization)%, SP: $($data.SPAvgUtilization)%. Room to improve." }
-                                @{ Severity = 'Yellow'; Message = "Review scope settings — broadening scope can improve utilization across subscriptions." }
+                                @{ Severity = 'Yellow'; Message = 'Reported average commitment utilization is below 95%. Review whether benefit scope and eligible demand still match the purchase.' }
                             )
                         }
                         else {
                             $guidanceItems = @(
-                                @{ Severity = 'Green'; Message = "Commitment utilization is excellent (RI: $($data.RIAvgUtilization)%, SP: $($data.SPAvgUtilization)%). Maximum discount realized." }
+                                @{ Severity = 'Green'; Message = 'Reported average commitment utilization is at least 95%. This is utilization evidence, not a measurement of financial savings.' }
                             )
                         }
                     }
@@ -2674,10 +2762,17 @@ function Invoke-FinOpsMultitool {
                         )
                     }
                     elseif ($data.CoverageIncomplete) {
-                        $guidanceItems = @(
-                            @{ Severity = 'Yellow'; Message = "Budgets were read for $($data.ScannedSubs) of $($data.TotalSubs) subscriptions, so coverage across the rest is unverified." }
-                            @{ Severity = 'Yellow'; Message = "Re-run against a narrower subscription set, or resolve the access gap, to measure budget coverage exactly."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets' }
-                        )
+                        if ($data.Sampled) {
+                            $guidanceItems = @(
+                                @{ Severity = 'Yellow'; Message = "No budgets were returned from $($data.ScannedSubs) sampled subscriptions; the remaining selections were not queried. This is a sampling limit, not evidence of denied access." }
+                                @{ Severity = 'Yellow'; Message = 'Run smaller subscription selections to query every selected subscription. This scan reads subscription budgets, not resource-group, management-group, or billing-scope budgets.'; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets' }
+                            )
+                        }
+                        else {
+                            $guidanceItems = @(
+                                @{ Severity = 'Yellow'; Message = "Budgets were read for $($data.ScannedSubs) of $($data.TotalSubs) subscriptions. Review the recorded failures before concluding whether access, throttling, or another error caused the gap." }
+                            )
+                        }
                     }
                     elseif (@($data.Budgets | Where-Object { $null -eq $_.Amount -or $null -eq $_.ActualSpend -or $null -eq $_.Forecast -or $_.Risk -in @('Unknown', 'Forecast unavailable') }).Count -gt 0) {
                         $guidanceItems = @(
@@ -2752,6 +2847,11 @@ function Invoke-FinOpsMultitool {
                         $guidanceItems = @(
                             @{ Severity = 'Green'; Message = "Full policy compliance ($compliance%). Strong governance posture." }
                         )
+                    }
+                    if ($data.DefinitionCoverageIncomplete) {
+                        $guidanceItems = @(
+                            @{ Severity = 'Yellow'; Message = 'Policy definition coverage is incomplete. Review the unreadable definitions before drawing conclusions about unresolved effects.' }
+                        ) + @($guidanceItems | Where-Object { $_.Severity -ne 'Green' })
                     }
                 }
                 'Get-PolicyRecommendations' {
@@ -2901,6 +3001,7 @@ function Invoke-FinOpsMultitool {
             # -- HTML report --
             $timestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss 'UTC'", [cultureinfo]::InvariantCulture)
             $subList = if ($Subscriptions) { ($Subscriptions | ForEach-Object { if ($_.Name) { $_.Name } else { $_.Id } }) -join ', ' } else { 'N/A' }
+            $headerScope = if (@($Subscriptions).Count -gt 5) { "$(@($Subscriptions).Count) selected" } else { $subList }
             $htmlSb = [System.Text.StringBuilder]::new()
             [void]$htmlSb.Append(@"
 <!DOCTYPE html>
@@ -2955,7 +3056,95 @@ tr:hover td { background: var(--surface); }
 .story-meta { display: grid; grid-template-columns: minmax(7rem, 11rem) minmax(0, 1fr); gap: 8px 16px; margin: 20px 0; font-size: 13px; }
 .story-meta dt { font-weight: 600; color: var(--muted); }
 .story-meta dd { margin: 0; overflow-wrap: anywhere; }
-.table-scroll { width: 100%; overflow-x: auto; }
+.table-scroll { width: 100%; max-width: 100%; overflow-x: auto; }
+.report-table { table-layout: fixed; min-width: 48rem; }
+.report-table td { overflow-wrap: break-word; word-break: normal; }
+.table-cost-by-tag { table-layout: auto; min-width: 36rem; }
+.report-table th { overflow-wrap: normal; word-break: normal; }
+.report-table .numeric-cell { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.cost-trend { margin: 16px 0; }
+.cost-trend [hidden] { display: none !important; }
+.trend-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 16px 24px; margin: 18px 0; }
+.trend-modes { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0; min-width: 0; }
+.trend-modes legend, .trend-subscription-control label { font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block; }
+.trend-modes label { display: flex; align-items: center; gap: 6px; min-height: 38px; padding: 8px 12px; border: 1px solid #767676; background: var(--surface); font-size: 13px; cursor: pointer; }
+.trend-modes label:has(input:checked) { border-color: var(--energy-blue); color: var(--energy-blue); background: var(--mint); }
+.trend-modes input { margin: 0; accent-color: var(--energy-blue); }
+.trend-subscription-control { flex: 1 1 20rem; min-width: 0; max-width: 42rem; }
+.trend-subscription-control select { width: 100%; min-width: 0; min-height: 38px; padding: 7px; border: 1px solid #767676; border-radius: 4px; background: #FFFFFF; color: var(--ink); font: inherit; font-size: 13px; }
+.trend-series h4 { font-size: 15px; margin: 16px 0 8px; overflow-wrap: anywhere; }
+.trend-series code { font-size: 12px; overflow-wrap: anywhere; }
+.trend-status { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.table-trend { min-width: 30rem; }
+.table-trend th:nth-child(1) { width: 45%; }
+.table-trend th:nth-child(2) { width: 35%; text-align: right; }
+.table-trend th:nth-child(3) { width: 20%; }
+.table-tags { min-width: 50rem; }
+.table-tags col:nth-child(1) { width: 26%; }
+.table-tags col:nth-child(2) { width: 12%; }
+.table-tags col:nth-child(3) { width: 10%; }
+.table-tags col:nth-child(4) { width: 52%; }
+.table-policies { min-width: 56rem; }
+.table-policies col:nth-child(1) { width: 30%; }
+.table-policies col:nth-child(2) { width: 19%; }
+.table-policies col:nth-child(3) { width: 13%; }
+.table-policies col:nth-child(4) { width: 12%; }
+.table-policies col:nth-child(5) { width: 26%; }
+.table-cost-summary { min-width: 64rem; }
+.table-cost-summary col:nth-child(1) { width: 25%; }
+.table-cost-summary col:nth-child(2) { width: 16%; }
+.table-cost-summary col:nth-child(3) { width: 25%; }
+.table-cost-summary col:nth-child(4) { width: 18%; }
+.table-cost-summary col:nth-child(5) { width: 16%; }
+.table-cost-drivers { min-width: 64rem; }
+.table-cost-drivers col:nth-child(1) { width: 20%; }
+.table-cost-drivers col:nth-child(2) { width: 36%; }
+.table-cost-drivers col:nth-child(3) { width: 16%; }
+.table-cost-drivers col:nth-child(4) { width: 12%; }
+.table-cost-drivers col:nth-child(5) { width: 16%; }
+.scope-details summary, .tag-case-details summary, .cell-details summary { cursor: pointer; color: var(--energy-blue); font-weight: 600; line-height: 1.5; padding: 4px 0; }
+.scope-details { max-width: 100%; }
+.scope-list { list-style: none; padding: 0; margin: 8px 0; max-height: 18rem; overflow-y: auto; }
+.scope-list li { display: grid; grid-template-columns: minmax(10rem, 1fr) minmax(16rem, 1fr); gap: 8px 16px; padding: 8px 4px; border-bottom: 1px solid var(--light-gray); }
+.scope-list code, .detail-content code { overflow-wrap: anywhere; font-size: 12px; }
+.tag-case-details { border-left: 4px solid var(--warning); background: var(--surface); padding: 8px 14px; margin: 12px 0; font-size: 13px; }
+.tag-case-details p { max-width: 85ch; }
+.cell-details { margin-top: 6px; }
+.cell-preview { margin: 0; line-height: 1.5; }
+.detail-content { max-height: 18rem; overflow-y: auto; overflow-wrap: anywhere; padding-right: 8px; }
+.detail-content dl { margin: 8px 0; }
+.detail-content dt { font-weight: 600; margin-top: 10px; }
+.detail-content dd { margin: 4px 0 12px; line-height: 1.5; }
+.detail-list { list-style: none; margin: 8px 0; padding: 0; }
+.detail-list li { padding: 6px 0; border-bottom: 1px solid var(--light-gray); line-height: 1.5; }
+.report-table-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 10px 16px; margin: 16px 0 0; font-size: 13px; }
+.report-table-controls label { display: grid; gap: 5px; flex: 1 1 16rem; max-width: 28rem; font-weight: 600; }
+.report-table-controls input { width: 100%; min-height: 36px; padding: 6px 9px; border: 1px solid #767676; border-radius: 4px; font: inherit; }
+.report-table-controls output { min-width: 12rem; padding: 9px 0; font-variant-numeric: tabular-nums; }
+.report-table-controls button { min-height: 36px; padding: 6px 12px; border: 1px solid #767676; border-radius: 4px; color: var(--energy-blue); background: #FFFFFF; font: inherit; cursor: pointer; }
+.report-table-controls button:disabled { color: var(--muted); opacity: 0.5; cursor: default; }
+.report-table tbody tr[hidden] { display: none; }
+.report-grid { margin: 14px 0 24px; border: 1px solid #BDBDBD; border-radius: 6px; background: #FFFFFF; overflow: hidden; }
+.report-grid .report-table-controls { margin: 0; padding: 10px 12px; border-bottom: 1px solid #D9D9D6; background: #F7F7F5; gap: 8px 12px; }
+.report-grid .report-table-controls label { flex-basis: 13rem; max-width: 24rem; min-width: 0; }
+.report-grid .report-table-controls output { min-width: 8rem; }
+.report-grid .table-scroll { max-height: 30rem; overflow: auto; overscroll-behavior: contain; }
+.report-grid table { margin: 0; }
+.report-grid th { position: sticky; top: 0; z-index: 2; background: #F2F2F2; border-right: 1px solid #D9D9D6; letter-spacing: 0; text-transform: none; font-size: 12px; }
+.report-grid td { border-right: 1px solid #ECECEA; line-height: 1.45; }
+.report-grid tbody tr:nth-child(even) td { background: #FAFAFA; }
+.report-grid tbody tr:hover td { background: #EEF6FC; }
+.report-grid .row-number { width: 3rem; min-width: 3rem; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; background: #F2F2F2; }
+.column-sort { font: inherit; font-weight: 600; color: inherit; background: transparent; border: 0; padding: 0 12px 0 0; width: 100%; text-align: inherit; cursor: pointer; overflow-wrap: anywhere; }
+.column-sort span { margin-left: 5px; color: var(--blue); }
+.column-resizer { position: absolute; right: 0; top: 0; bottom: 0; width: 8px; cursor: col-resize; touch-action: none; }
+.column-resizer:hover, .column-resizer:focus-visible { background: #0078D440; outline: 2px solid var(--blue); outline-offset: -2px; }
+.grid-dialog { width: calc(100vw - 32px); height: calc(100vh - 32px); max-width: none; max-height: none; padding: 0; border: 1px solid #767676; border-radius: 6px; background: #FFFFFF; color: var(--ink); }
+.grid-dialog::backdrop { background: #00000066; }
+.grid-dialog .report-grid { display: flex; flex-direction: column; width: 100%; height: 100%; margin: 0; border: 0; }
+.grid-dialog .table-scroll { flex: 1; max-height: none; }
+.table-ai-accounts { min-width: 62rem; }
+.table-ai-tokens { min-width: 68rem; }
 .report-jump { color: var(--blue); text-underline-offset: 3px; }
 .evidence-state { font-weight: 600; white-space: nowrap; }
 .story-note { color: var(--muted); font-size: 13px; margin: 8px 0 20px; max-width: 85ch; }
@@ -2968,6 +3157,7 @@ h2[id] { scroll-margin-top: 85px; }
     .summary-card { min-width: 0; flex: 1 1 125px; padding: 10px 12px; }
     .story-meta { grid-template-columns: 1fr; gap: 4px; }
     .story-meta dd { margin-bottom: 10px; }
+    .scope-list li { grid-template-columns: 1fr; gap: 4px; }
     .tabs { position: static; }
     .tab { padding: 10px; }
     th, td { padding: 7px 8px; }
@@ -3020,6 +3210,11 @@ h2[id] { scroll-margin-top: 85px; }
   body { padding: 16px; }
   tr:hover td { background: none; }
     .table-scroll { overflow: visible; }
+    .report-grid { overflow: visible; break-inside: auto; }
+    .report-grid .report-table-controls, .column-resizer { display: none; }
+    .report-grid .table-scroll { max-height: none; overflow: visible; }
+    .report-grid th { position: static; }
+    .report-grid tr[data-grid-match="true"] { display: table-row !important; }
 }
 </style>
 <noscript><style>.tabpane { display: block; } .tabs { display: none; }</style></noscript>
@@ -3028,7 +3223,7 @@ h2[id] { scroll-margin-top: 85px; }
 <div class="masthead">
 <div class="eyebrow">FinOps Toolkit</div>
 <h1>FinOps Multitool report</h1>
-<p class="meta">Generated: $timestamp &nbsp;|&nbsp; Subscriptions: $([System.Net.WebUtility]::HtmlEncode($subList))$(if ($DataSourceLabel) { " &nbsp;|&nbsp; Cost data: $([System.Net.WebUtility]::HtmlEncode($DataSourceLabel))" })</p>
+<p class="meta">Generated: $timestamp &nbsp;|&nbsp; Subscriptions: $([System.Net.WebUtility]::HtmlEncode($headerScope))$(if ($DataSourceLabel) { " &nbsp;|&nbsp; Cost data: $([System.Net.WebUtility]::HtmlEncode($DataSourceLabel))" })</p>
 </div>
 <div class="wrap">
 "@)
@@ -3044,7 +3239,7 @@ h2[id] { scroll-margin-top: 85px; }
                         $notes = @([string]$Results["_error_$($selectedMod.Fn)"])
                     }
                     elseif (-not $scanData -or @($scanData).Count -eq 0 -or $scanData.HasData -contains $false) { $state = 'No data' }
-                    if ($state -ne 'Failed' -and ($scanData.CoverageIncomplete -contains $true -or $scanData.ComplianceCoverageIncomplete -contains $true -or $scanData.AccessDenied -contains $true -or
+                    if ($state -ne 'Failed' -and ($scanData.CoverageIncomplete -contains $true -or $scanData.ComplianceCoverageIncomplete -contains $true -or $scanData.DefinitionCoverageIncomplete -contains $true -or $scanData.AccessDenied -contains $true -or
                             @(@($scanData.CostIssue; $scanData.RateIssue; $scanData.AHBIssue; $scanData.Error) | Where-Object { $_ }).Count -gt 0 -or
                             @($scanData.MetricFailures | Where-Object { $_ -gt 0 }).Count -gt 0 -or
                             @($scanData.Status | Where-Object { $_ -in @('Unavailable', 'Unknown') }).Count -gt 0)) {
@@ -3134,13 +3329,23 @@ h2[id] { scroll-margin-top: 85px; }
                 $scopeLabel = if ($Subscriptions) { @($Subscriptions | ForEach-Object { "$($_.Name) [$($_.Id)]" }) -join '; ' } else { 'Not recorded' }
                 [void]$htmlSb.Append('<dl class="story-meta">')
                 [void]$htmlSb.Append("<dt>Tenant</dt><dd>$([System.Net.WebUtility]::HtmlEncode($tenantLabel))</dd>")
-                [void]$htmlSb.Append("<dt>Selected scope</dt><dd>$([System.Net.WebUtility]::HtmlEncode($scopeLabel))</dd>")
+                [void]$htmlSb.Append('<dt>Selected scope</dt><dd>')
+                if (@($Subscriptions).Count -gt 5) {
+                    [void]$htmlSb.Append("<details class=`"scope-details`"><summary>$(@($Subscriptions).Count) subscriptions</summary><ul class=`"scope-list`">")
+                    foreach ($subscription in $Subscriptions | Sort-Object Name, Id) {
+                        [void]$htmlSb.Append("<li><span>$([System.Net.WebUtility]::HtmlEncode([string]$subscription.Name))</span><code>$([System.Net.WebUtility]::HtmlEncode([string]$subscription.Id))</code></li>")
+                    }
+                    [void]$htmlSb.Append('</ul></details>')
+                }
+                else { [void]$htmlSb.Append([System.Net.WebUtility]::HtmlEncode($scopeLabel)) }
+                [void]$htmlSb.Append('</dd>')
                 [void]$htmlSb.Append("<dt>Primary cost source</dt><dd>$([System.Net.WebUtility]::HtmlEncode($(if ($DataSourceLabel) { $DataSourceLabel } else { 'Not recorded' })))</dd>")
                 [void]$htmlSb.Append('</dl>')
                 [void]$htmlSb.Append('<h2>Observed spend</h2>')
                 $costData = $Results['Get-CostData']
                 if (-not $Results.ContainsKey('_error_Get-CostData') -and $costData -is [System.Collections.IDictionary] -and $costData.Count -gt 0) {
-                    [void]$htmlSb.Append('<div class="table-scroll"><table><thead><tr><th>Subscription</th><th>Actual cost</th><th>Observed period</th><th>Full-month forecast</th><th>Forecast source</th></tr></thead><tbody>')
+                    [void]$htmlSb.Append((ConvertTo-ReportTableControlHtml -TableId 'table-story-costs' -Title 'observed spend' -RowCount $costData.Count))
+                    [void]$htmlSb.Append('<div class="table-scroll"><table class="report-table table-cost-summary" id="table-story-costs"><colgroup><col><col><col><col><col></colgroup><thead><tr><th scope="col">Subscription</th><th scope="col">Actual cost</th><th scope="col">Observed period</th><th scope="col">Full-month forecast</th><th scope="col">Forecast source</th></tr></thead><tbody>')
                     foreach ($entry in $costData.GetEnumerator() | Sort-Object Key) {
                         $currency = if ($entry.Value.Currency -eq 'Mixed') { '' } else { [string]$entry.Value.Currency }
                         $forecastSource = if ($entry.Value.ForecastSource) { [string]$entry.Value.ForecastSource } else { 'Unavailable' }
@@ -3153,7 +3358,10 @@ h2[id] { scroll-margin-top: 85px; }
                             $forecastSource
                         )
                         [void]$htmlSb.Append('<tr>')
-                        foreach ($cell in $cells) { [void]$htmlSb.Append("<td>$([System.Net.WebUtility]::HtmlEncode([string]$cell))</td>") }
+                        for ($cellIndex = 0; $cellIndex -lt $cells.Count; $cellIndex++) {
+                            $cellClass = if ($cellIndex -in @(1, 3)) { ' class="numeric-cell"' } else { '' }
+                            [void]$htmlSb.Append("<td$cellClass>$([System.Net.WebUtility]::HtmlEncode([string]$cells[$cellIndex]))</td>")
+                        }
                         [void]$htmlSb.Append('</tr>')
                     }
                     [void]$htmlSb.Append('</tbody></table></div>')
@@ -3168,32 +3376,42 @@ h2[id] { scroll-margin-top: 85px; }
                             $resource
                         })
                     [void]$htmlSb.Append('<div id="story-cost-drivers"><h2>Largest resource costs</h2>')
-                    [void]$htmlSb.Append('<p class="story-note">Up to five positive costs per subscription, currency, and reported period among the returned rows. Source query limits can omit resources. The detail table retains every returned row, including credits. High cost is not proof of waste.</p>')
+                    [void]$htmlSb.Append('<p class="story-note">Up to five positive resource or charge costs per subscription, currency, and reported period among the returned rows. Source query limits can omit resources. The detail table retains every returned row, including credits. Charges without subscription attribution remain separate. High cost is not proof of waste.</p>')
                     if ($driverRows.Count -gt 0) {
-                        [void]$htmlSb.Append('<div class="table-scroll"><table><thead><tr><th>Subscription</th><th>Resource</th><th>Type</th><th>Actual cost</th><th>Observed period</th></tr></thead><tbody>')
-                        foreach ($group in $driverRows | Group-Object -Property @{
+                        $driverGroups = @($driverRows | Group-Object -Property @{
                                 Expression = {
                                     if ($_.SubscriptionId) { [string]$_.SubscriptionId }
                                     elseif ($_.ResourcePath -match '^/subscriptions/([^/]+)/') { $Matches[1] }
                                     else { [string]$_.Subscription }
                                 }
-                            }, Currency, ActualPeriod | Sort-Object Name) {
+                            }, Currency, ActualPeriod | Sort-Object Name)
+                        $driverCount = ($driverGroups | ForEach-Object { [math]::Min(5, $_.Count) } | Measure-Object -Sum).Sum
+                        [void]$htmlSb.Append((ConvertTo-ReportTableControlHtml -TableId 'table-story-resources' -Title 'largest resource costs' -RowCount $driverCount))
+                        [void]$htmlSb.Append('<div class="table-scroll"><table class="report-table table-cost-drivers" id="table-story-resources"><colgroup><col><col><col><col><col></colgroup><thead><tr><th scope="col">Subscription</th><th scope="col">Resource or charge</th><th scope="col">Type</th><th scope="col">Actual cost</th><th scope="col">Cost period</th></tr></thead><tbody>')
+                        foreach ($group in $driverGroups) {
                             foreach ($resource in $group.Group | Sort-Object { [double]$_.Actual } -Descending | Select-Object -First 5) {
                                 [void]$htmlSb.Append('<tr>')
                                 $driverCells = @(
-                                    [string]$resource.Subscription
+                                    $(if ($resource.Subscription) { [string]$resource.Subscription } else { 'Not attributed' })
                                     $(if ($resource.ResourcePath) { [string]$resource.ResourcePath } else { 'No resource ID recorded' })
                                     [string]$resource.ResourceType
                                     (Format-BudgetAmount -Value $resource.Actual -Currency $resource.Currency)
                                     $(if ($resource.ActualPeriod) { [string]$resource.ActualPeriod } else { 'Not recorded' })
                                 )
-                                foreach ($cell in $driverCells) { [void]$htmlSb.Append("<td>$([System.Net.WebUtility]::HtmlEncode([string]$cell))</td>") }
+                                for ($cellIndex = 0; $cellIndex -lt $driverCells.Count; $cellIndex++) {
+                                    $cellClass = if ($cellIndex -eq 3) { ' class="numeric-cell"' } else { '' }
+                                    $cellHtml = if ($cellIndex -eq 1) { ConvertTo-ResourceIdentityHtml -Resource $resource } else { [System.Net.WebUtility]::HtmlEncode([string]$driverCells[$cellIndex]) }
+                                    [void]$htmlSb.Append("<td$cellClass>$cellHtml</td>")
+                                }
                                 [void]$htmlSb.Append('</tr>')
                             }
                         }
                         [void]$htmlSb.Append('</tbody></table></div>')
                     }
                     else { [void]$htmlSb.Append('<p class="no-data">No positive resource costs with a known currency were available to rank.</p>') }
+                    if (@($driverRows | Where-Object ActualPeriodSource -EQ 'Query window').Count -gt 0) {
+                        [void]$htmlSb.Append('<p class="story-note">API cost periods are the requested UTC query window. Query windows are not proof that billing data is complete through the end timestamp.</p>')
+                    }
                     [void]$htmlSb.Append("<p><a class=`"report-jump`" data-target=`"$($resourceEvidence.Target)`" href=`"#$($resourceEvidence.Anchor)`">All returned resource costs</a></p></div><!-- cost-drivers -->")
                 }
                 [void]$htmlSb.Append('<h2>Scan status</h2><div class="table-scroll"><table><thead><tr><th>Scan</th><th>Evidence</th><th>Coverage and notes</th></tr></thead><tbody>')
@@ -3328,6 +3546,7 @@ h2[id] { scroll-margin-top: 85px; }
                 $htmlRows = $null
                 $htmlCols = $null
                 $tableNote = $null
+                $htmlTableClass = 'report-table'
                 switch ($fn) {
                     'Get-OrphanedResources' {
                         if ($data.MonthlyCost) {
@@ -3377,19 +3596,20 @@ h2[id] { scroll-margin-top: 85px; }
                         $untaggedLabel = if ($null -ne $data.UntaggedCount) { [System.Net.WebUtility]::HtmlEncode([string]$data.UntaggedCount) } else { 'Unknown' }
                         [void]$htmlSb.Append("<p>Coverage: $coverageLabel &nbsp;|&nbsp; $taggedLabel tagged / $untaggedLabel untagged &nbsp;|&nbsp; $tagCountHtml</p>")
                         if ($data.CaseVariants -and @($data.CaseVariants).Count -gt 0) {
-                            # Tag keys and values come from customer resources, so encode before emitting.
-                            $cvText = (@($data.CaseVariants) | ForEach-Object {
-                                    "$([System.Net.WebUtility]::HtmlEncode([string]$_.TagKey)): $([System.Net.WebUtility]::HtmlEncode([string]$_.Detail))"
-                                }) -join ' &nbsp;&bull;&nbsp; '
-                            [void]$htmlSb.Append("<div class=`"guidance yellow`">Case-variant tag keys found. Azure resolves tag keys case-insensitively, so these spellings are a single key to Azure, but Resource Graph and cost exports report each one separately. $cvText</div>")
+                            [void]$htmlSb.Append("<details class=`"tag-case-details`"><summary>$(@($data.CaseVariants).Count) tag-key spelling groups</summary><p>Azure resolves tag keys case-insensitively. Resource Graph and cost exports can report their spellings separately.</p><div class=`"detail-content`"><dl>")
+                            foreach ($variant in $data.CaseVariants) {
+                                [void]$htmlSb.Append("<dt>$([System.Net.WebUtility]::HtmlEncode([string]$variant.TagKey))</dt><dd>$([System.Net.WebUtility]::HtmlEncode([string]$variant.Detail))</dd>")
+                            }
+                            [void]$htmlSb.Append('</dl></div></details>')
                         }
                         if ($data.TagNames) {
                             $htmlRows = $data.TagNames.GetEnumerator() | Sort-Object { $_.Value.TotalResources } -Descending | ForEach-Object {
                                 $vals = @($_.Value.Values | Sort-Object ResourceCount -Descending)
-                                $valText = (@($vals | ForEach-Object { "$($_.Value) ($($_.ResourceCount))" }) -join ', ')
-                                [PSCustomObject]@{ Tag = $_.Key; Resources = $_.Value.TotalResources; Values = $vals.Count; 'Top values' = $valText }
+                                $valText = (@($vals | Select-Object -First 5 | ForEach-Object { "$($_.Value) ($($_.ResourceCount))" }) -join ', ')
+                                [PSCustomObject]@{ Tag = $_.Key; Resources = $_.Value.TotalResources; Values = $vals.Count; 'Top values' = $valText; _MoreValues = @($vals | Select-Object -Skip 5) }
                             }
                             $htmlCols = @('Tag', 'Resources', 'Values', 'Top values')
+                            $htmlTableClass = 'report-table table-tags'
                             $tableNote = 'Values are the distinct tag values in use, with the resource count for each. A tag with a single value provides no allocation granularity; a tag with many near-identical values indicates inconsistent tagging.'
                             if ($data.CoverageIncomplete) { $tableNote = "$($data.Note) $tableNote" }
                         }
@@ -3413,15 +3633,21 @@ h2[id] { scroll-margin-top: 85px; }
                     'Get-ResourceCosts' {
                         $htmlRows = @($data) | Sort-Object { $_.Actual } -Descending | ForEach-Object {
                             [PSCustomObject]@{
-                                Subscription  = $_.Subscription
-                                Resource      = if ($_.ResourcePath) { $_.ResourcePath } else { 'No resource ID recorded' }
+                                Subscription  = if ($_.Subscription) { $_.Subscription } else { 'Not attributed' }
+                                Resource      = if ($_.ResourceName) { $_.ResourceName } elseif ($_.ResourcePath) { $_.ResourcePath } else { 'No resource ID recorded' }
                                 ResourceGroup = $_.ResourceGroup
                                 ResourceType  = $_.ResourceType
                                 Cost          = Format-BudgetAmount -Value $_.Actual -Currency $_.Currency
                                 ActualPeriod  = if ($_.ActualPeriod) { $_.ActualPeriod } else { 'Not recorded' }
+                                'Cost period' = if ($_.ActualPeriod) { $_.ActualPeriod } else { 'Not recorded' }
+                                ResourceName  = $_.ResourceName
+                                ResourcePath  = $_.ResourcePath
                             }
                         }
-                        $htmlCols = @('Subscription', 'Resource', 'ResourceGroup', 'ResourceType', 'Cost', 'ActualPeriod')
+                        $htmlCols = @('Subscription', 'Resource', 'ResourceGroup', 'ResourceType', 'Cost', 'Cost period')
+                        if (@($data | Where-Object ActualPeriodSource -EQ 'Query window').Count -gt 0) {
+                            $tableNote = 'API cost periods are the requested UTC query window. Query windows are not proof that billing data is complete through the end timestamp.'
+                        }
                     }
                     'Get-CostByTag' {
                         if ($data.CostByTag) {
@@ -3431,19 +3657,82 @@ h2[id] { scroll-margin-top: 85px; }
                                 }
                             }
                             $htmlCols = @('Tag', 'Value', 'Cost')
+                            $htmlTableClass = 'report-table table-cost-by-tag'
                             $tableNote = 'Each tag is measured on its own, so a resource missing that tag counts as (untagged) for it and appears once per tag it lacks. Costs overlap between tags and do not sum to total spend.'
                             if ($data.CoverageIncomplete) { $tableNote = "$($data.Note) $tableNote" }
                         }
                     }
                     'Get-CostTrend' {
-                        if ($data.Months) {
-                            $htmlRows = $data.Months | ForEach-Object { [PSCustomObject]@{ Month = $_.Month; Cost = Format-BudgetAmount -Value $_.Cost -Currency $_.Currency; Currency = $_.Currency } }
-                            $htmlCols = @('Month', 'Cost', 'Currency')
+                        $trendNames = @{}
+                        foreach ($subscription in $Subscriptions) {
+                            if ($subscription.Id) { $trendNames[[string]$subscription.Id] = if ($subscription.Name) { [string]$subscription.Name } else { [string]$subscription.Id } }
+                        }
+                        if ($trendNames.Count -eq 0 -and $data.SubscriptionNames) {
+                            foreach ($subscriptionId in $data.SubscriptionNames.Keys) { $trendNames[$subscriptionId] = [string]$data.SubscriptionNames[$subscriptionId] }
+                        }
+                        if ($trendNames.Count -eq 0 -and $data.BySubscription) {
+                            foreach ($subscriptionId in $data.BySubscription.Keys) { $trendNames[$subscriptionId] = [string]$subscriptionId }
+                        }
+                        $trendIds = @($trendNames.Keys | Sort-Object { $trendNames[$_] }, { $_ })
+                        $coverageRecorded = $null -ne $data.SelectedSubscriptionCount -and $null -ne $data.CoverageIncomplete
+                        $selectedCount = if ($coverageRecorded) { $data.SelectedSubscriptionCount } else { @($Subscriptions).Count }
+                        $returnedCount = @($trendIds | Where-Object { $data.BySubscription -and @($data.BySubscription[$_] | Where-Object { $_ }).Count -gt 0 }).Count
+                        $coverageLabel = if ($selectedCount -gt 0) { "Returned rows: $returnedCount of $selectedCount selected subscriptions" } else { "Returned rows: $returnedCount subscriptions; selected scope not recorded" }
+                        $basisLabel = switch ($data.CostBasis) { 'ActualCost' { 'Actual cost' } 'AmortizedCost' { 'Amortized cost' } default { 'Cost basis not recorded' } }
+                        $periodLabel = 'Query window not recorded'
+                        $partialMonth = $null
+                        if ($data.CostPeriodStartUtc -and $data.CostPeriodEndUtc) {
+                            $periodStart = ([datetime]$data.CostPeriodStartUtc).ToUniversalTime()
+                            $periodEnd = ([datetime]$data.CostPeriodEndUtc).ToUniversalTime()
+                            $periodLabel = $periodStart.ToString('yyyy-MM-dd HH:mm:ss', [cultureinfo]::InvariantCulture) + ' to ' + $periodEnd.ToString('yyyy-MM-dd HH:mm:ss', [cultureinfo]::InvariantCulture) + ' UTC'
+                            $partialMonth = $periodEnd.Date.AddDays(1 - $periodEnd.Day)
+                        }
+                        [void]$htmlSb.Append('<div class="cost-trend">')
+                        [void]$htmlSb.Append("<p class=`"story-summary`">$([System.Net.WebUtility]::HtmlEncode($coverageLabel))</p><p class=`"story-detail`">$basisLabel<br>$([System.Net.WebUtility]::HtmlEncode($periodLabel))</p>")
+                        if (-not $coverageRecorded) {
+                            [void]$htmlSb.Append('<p class="guidance yellow">Coverage metadata not recorded. The aggregate is based on returned rows and is not a verified selected-scope or whole-tenant total.</p>')
                         }
                         else {
-                            # Say why it is empty; the generic fallback reads like the scan failed.
-                            [void]$htmlSb.Append('<div class="guidance yellow">No cost data was returned for the trend period. Check the data source, permissions, and that the period has usage.</div>')
+                            [void]$htmlSb.Append("<p class=`"story-detail`">Confirmed empty: $(@($data.NoDataSubscriptionIds).Count). Unverified: $(@($data.UnverifiedSubscriptionIds).Count).</p>")
+                            if ($data.Note) { [void]$htmlSb.Append("<p class=`"guidance yellow`">$([System.Net.WebUtility]::HtmlEncode([string]$data.Note))</p>") }
                         }
+                        if ($data.QueryScope) {
+                            [void]$htmlSb.Append("<details class=`"cell-details`"><summary>Query scope</summary><div class=`"detail-content`"><code>$([System.Net.WebUtility]::HtmlEncode([string]$data.QueryScope))</code></div></details>")
+                        }
+                        [void]$htmlSb.Append('<div class="trend-controls"><fieldset class="trend-modes"><legend>Trend view</legend><label for="trend-view-scope"><input type="radio" id="trend-view-scope" name="trend-view" value="aggregate" checked>Selected scope</label><label for="trend-view-subscription"><input type="radio" id="trend-view-subscription" name="trend-view" value="subscription">Subscription</label></fieldset>')
+                        [void]$htmlSb.Append('<div class="trend-subscription-control" hidden><label for="trend-subscription">Subscription</label><select id="trend-subscription">')
+                        foreach ($subscriptionId in $trendIds) {
+                            $optionLabel = "$($trendNames[$subscriptionId]) [$subscriptionId]"
+                            [void]$htmlSb.Append("<option value=`"$([System.Net.WebUtility]::HtmlEncode($subscriptionId))`">$([System.Net.WebUtility]::HtmlEncode($optionLabel))</option>")
+                        }
+                        [void]$htmlSb.Append('</select></div></div><p class="trend-status" role="status" aria-live="polite"></p>')
+                        $aggregateLabel = if ($coverageRecorded -and -not $data.CoverageIncomplete) { 'Selected-scope aggregate' } else { 'Returned aggregate (coverage not verified)' }
+                        $trendSeries = @([pscustomobject]@{ Id = 'aggregate'; Label = $aggregateLabel; Months = @($data.Months | Where-Object { $_ }); EmptyMessage = 'No cost rows were returned for the trend period.' })
+                        foreach ($subscriptionId in $trendIds) {
+                            $emptyMessage = if ($subscriptionId -in $data.NoDataSubscriptionIds) { 'No cost rows were returned for this subscription.' } else { 'Coverage is not verified for this subscription.' }
+                            $subscriptionMonths = if ($data.BySubscription) { @($data.BySubscription[$subscriptionId] | Where-Object { $_ }) } else { @() }
+                            $trendSeries += [pscustomobject]@{ Id = $subscriptionId; Label = $trendNames[$subscriptionId]; Months = @($subscriptionMonths); EmptyMessage = $emptyMessage }
+                        }
+                        foreach ($series in $trendSeries) {
+                            $encodedId = [System.Net.WebUtility]::HtmlEncode([string]$series.Id)
+                            $encodedLabel = [System.Net.WebUtility]::HtmlEncode([string]$series.Label)
+                            $hidden = if ($series.Id -eq 'aggregate') { '' } else { ' hidden' }
+                            [void]$htmlSb.Append("<div class=`"trend-series`" data-trend-series=`"$encodedId`" data-trend-label=`"$encodedLabel`"$hidden><h4>$encodedLabel</h4>")
+                            if ($series.Id -ne 'aggregate') { [void]$htmlSb.Append("<p><code>$encodedId</code></p>") }
+                            if ($series.Months.Count -gt 0) {
+                                [void]$htmlSb.Append('<div class="table-scroll"><table class="report-table table-trend"><thead><tr><th scope="col">Month</th><th scope="col">Cost</th><th scope="col">Currency</th></tr></thead><tbody>')
+                                foreach ($trendMonth in ($series.Months | Sort-Object MonthDate)) {
+                                    $monthLabel = [string]$trendMonth.Month
+                                    if ($null -ne $partialMonth -and $trendMonth.MonthDate -and ([datetime]$trendMonth.MonthDate).Date -eq $partialMonth) { $monthLabel += ' (partial)' }
+                                    $amount = Format-BudgetAmount -Value $trendMonth.Cost -Currency $trendMonth.Currency
+                                    [void]$htmlSb.Append("<tr><td>$([System.Net.WebUtility]::HtmlEncode($monthLabel))</td><td class=`"numeric-cell`">$([System.Net.WebUtility]::HtmlEncode($amount))</td><td>$([System.Net.WebUtility]::HtmlEncode([string]$trendMonth.Currency))</td></tr>")
+                                }
+                                [void]$htmlSb.Append('</tbody></table></div>')
+                            }
+                            else { [void]$htmlSb.Append("<p class=`"guidance yellow`">$([System.Net.WebUtility]::HtmlEncode([string]$series.EmptyMessage)) No zero-valued months were added.</p>") }
+                            [void]$htmlSb.Append('</div>')
+                        }
+                        [void]$htmlSb.Append('<p class="story-detail">Query windows do not establish billing-data completeness. Unreturned months are not filled with zero cost.</p></div>')
                     }
                     'Get-ReservationAdvice' {
                         [void]$htmlSb.Append("<p>Est. annual savings: $([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.EstimatedAnnualSavings -Currency $data.Currency)))</p>")
@@ -3498,11 +3787,21 @@ h2[id] { scroll-margin-top: 85px; }
                         $htmlCols = @('Resource', 'Type', 'SKU', 'Region', 'Qty', 'Term', 'Savings', 'Impact')
                     }
                     'Get-CommitmentUtilization' {
-                        if ($data.HasData) {
-                            [void]$htmlSb.Append("<p>RIs: $($data.RICount) (avg $($data.RIAvgUtilization)%) &nbsp;|&nbsp; Savings Plans: $($data.SPCount) (avg $($data.SPAvgUtilization)%)</p>")
-                            $htmlRows = $data.UnderutilizedRIs | ForEach-Object { [PSCustomObject]@{ SKU = $_.SkuName; Kind = $_.Kind; AvgUtil = "$($_.AvgUtilization)%"; MinUtil = "$($_.MinUtilization)%" } }
-                            $htmlCols = @('SKU', 'Kind', 'AvgUtil', 'MinUtil')
-                        }
+                        [void]$htmlSb.Append("<p>Reservations: $($data.RICount) (average $(Format-ReportMetric $data.RIAvgUtilization -Format '0.#' -Suffix '%')) &nbsp;|&nbsp; Savings plans: $($data.SPCount) (average $(Format-ReportMetric $data.SPAvgUtilization -Format '0.#' -Suffix '%'))</p>")
+                        [void]$htmlSb.Append('<p class="story-note">Billing-scope results can include commitments beyond the selected subscriptions. Averages are unweighted and use the latest returned period per commitment. Missing metadata is not proof of denied access.</p>')
+                        $htmlRows = @(
+                            foreach ($reservation in @($data.Reservations | Where-Object { $_ })) {
+                                $name = if ($reservation.Name) { $reservation.Name } else { $reservation.ReservationId }
+                                [pscustomobject]@{ Type = 'Reservation'; Commitment = $name; ResourceName = $name; ResourcePath = $reservation.ResourceId; SKU = if ($reservation.SkuName) { $reservation.SkuName } else { 'Not returned' }; Kind = if ($reservation.Kind) { $reservation.Kind } else { 'Not returned' }; 'Avg utilization' = Format-ReportMetric $reservation.AvgUtilization -Format '0.#' -Suffix '%'; 'Usage period' = $reservation.UsageDate }
+                            }
+                            foreach ($plan in @($data.SavingsPlans | Where-Object { $_ })) {
+                                $identity = if ($plan.BenefitId) { $plan.BenefitId } else { $plan.BenefitOrderId }
+                                [pscustomobject]@{ Type = 'Savings plan'; Commitment = $identity; ResourceName = $identity; ResourcePath = $identity; SKU = 'Not returned'; Kind = $plan.BenefitType; 'Avg utilization' = Format-ReportMetric $plan.AvgUtilization -Format '0.#' -Suffix '%'; 'Usage period' = $plan.UsageDate }
+                            }
+                        )
+                        $htmlCols = @('Type', 'Commitment', 'SKU', 'Kind', 'Avg utilization', 'Usage period')
+                        if ($data.Note) { [void]$htmlSb.Append("<p class=`"story-note`">$([System.Net.WebUtility]::HtmlEncode([string]$data.Note))</p>") }
+                        if ($data.MetadataErrors) { [void]$htmlSb.Append("<p class=`"guidance yellow`">Metadata could not be verified for $(@($data.MetadataErrors).Count) reservation(s). Available utilization and reservation IDs are retained.</p>") }
                     }
                     'Get-SavingsRealized' {
                         [void]$htmlSb.Append("<p>Estimated commitment savings ($([System.Net.WebUtility]::HtmlEncode([string]$data.Period))): <span class=`"money`">$([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.CommitmentSavingsMonthToDate -Currency $data.Currency)))</span></p>")
@@ -3551,15 +3850,17 @@ h2[id] { scroll-margin-top: 85px; }
                         $htmlCols = @('Tag', 'Status', 'Priority', 'Pillar', 'Example')
                     }
                     'Get-PolicyInventory' {
-                        $htmlRows = $data.Assignments | ForEach-Object { [PSCustomObject]@{ Name = $_.AssignmentName; Effect = $_.Effect; Enforcement = $_.EnforcementMode; Scope = $_.Scope } }
+                        $htmlRows = $data.Assignments | ForEach-Object { [PSCustomObject]@{ Name = $_.AssignmentName; Effect = $_.Effect; Enforcement = $_.EnforcementMode; Scope = $_.Scope; ScopeDisplayName = $_.ScopeDisplayName } }
                         $htmlCols = @('Name', 'Effect', 'Enforcement', 'Scope')
                     }
                     'Get-PolicyRecommendations' {
                         $htmlRows = $data.Analysis | ForEach-Object {
                             $assignmentLabels = @($_.MatchedAssignments | ForEach-Object { "$($_.AssignmentName) [$($_.Source); $($_.EnforcementMode); $($_.Scope)]" })
-                            [PSCustomObject]@{ Policy = $_.DisplayName; Status = $_.Status; Category = $_.Category; Priority = $_.Priority; Effect = $_.DefaultEffect; Assignments = ($assignmentLabels -join '; '); Purpose = $_.Purpose; Note = $_.Note }
+                            $detailLabel = if ($assignmentLabels.Count -eq 1) { '1 assignment' } elseif ($assignmentLabels.Count -gt 1) { "$($assignmentLabels.Count) assignments" } else { 'Policy details' }
+                            [PSCustomObject]@{ Policy = $_.DisplayName; Status = $_.Status; Category = $_.Category; Priority = $_.Priority; Effect = $_.DefaultEffect; Assignments = ($assignmentLabels -join '; '); Purpose = $_.Purpose; Note = $_.Note; Details = $detailLabel; _AssignmentDetails = @($_.MatchedAssignments) }
                         }
-                        $htmlCols = @('Policy', 'Status', 'Category', 'Priority', 'Effect', 'Assignments', 'Purpose', 'Note')
+                        $htmlCols = @('Policy', 'Status', 'Priority', 'Effect', 'Details')
+                        $htmlTableClass = 'report-table table-policies'
                         $tableNote = 'Assignment coverage compares recommended definition IDs with the reported assignments and their initiative members. It does not measure enforcement or resource compliance.'
                     }
                     'Get-BillingStructure' {
@@ -3632,16 +3933,33 @@ h2[id] { scroll-margin-top: 85px; }
                             $fp = $data.AIFootprint
                             $aiAmount = [System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.TotalAICost -Currency $data.Currency))
                             $periodLabel = if ($data.Period -eq 'MonthToDate') { 'Month to date' } elseif ($data.Period) { [string]$data.Period } else { 'Unknown period' }
-                            $aPeriod = [System.Net.WebUtility]::HtmlEncode($periodLabel)
-                            [void]$htmlSb.Append("<p>AI footprint &mdash; OpenAI/AI Services: $($fp.OpenAIAccounts + $fp.AIServices) &nbsp;|&nbsp; ML workspaces: $($fp.MLWorkspaces) &nbsp;|&nbsp; AI Search: $($fp.SearchServices) &nbsp;|&nbsp; GPU VMs: $($fp.GpuVmCount)</p>")
-                            [void]$htmlSb.Append("<p>Period: $aPeriod &nbsp;|&nbsp; Tokens: $($data.TotalTokens) over $($data.TotalRequests) requests &nbsp;|&nbsp; AI spend: $aiAmount</p>")
-                            if ($data.ByModel -and @($data.ByModel | Where-Object { $_ }).Count -gt 0) {
-                                $htmlRows = $data.ByModel
-                                $htmlCols = @('Deployment', 'PromptTokens', 'GeneratedTokens', 'TotalTokens', 'PctOfTokens')
+                            if ($data.UsagePeriodStartUtc -and $data.UsagePeriodEndUtc) {
+                                $periodLabel = ([datetime]$data.UsagePeriodStartUtc).ToUniversalTime().ToString('yyyy-MM-dd HH:mm:ss', [cultureinfo]::InvariantCulture) + ' to ' + ([datetime]$data.UsagePeriodEndUtc).ToUniversalTime().ToString('yyyy-MM-dd HH:mm:ss', [cultureinfo]::InvariantCulture) + ' UTC'
                             }
-                            elseif ($data.ByAccount -and @($data.ByAccount | Where-Object { $_ }).Count -gt 0) {
-                                $htmlRows = $data.ByAccount
-                                $htmlCols = @('Name', 'Tokens', 'Requests', 'Cost', 'CostPer1KTokens')
+                            $aPeriod = [System.Net.WebUtility]::HtmlEncode($periodLabel)
+                            [void]$htmlSb.Append("<p>AI footprint &mdash; OpenAI/Foundry Tools: $($fp.OpenAIAccounts + $fp.AIServices) &nbsp;|&nbsp; ML workspaces: $($fp.MLWorkspaces) &nbsp;|&nbsp; AI Search: $($fp.SearchServices) &nbsp;|&nbsp; GPU VMs: $($fp.GpuVmCount)</p>")
+                            [void]$htmlSb.Append("<p>Period: $aPeriod<br>Tokens: $(Format-ReportMetric $data.TotalTokens) &nbsp;|&nbsp; Requests: $(Format-ReportMetric $data.TotalRequests) &nbsp;|&nbsp; AI account cost: $aiAmount</p>")
+                            [void]$htmlSb.Append('<p class="story-note">Cost covers Microsoft.CognitiveServices/accounts, not the ML, Search, or GPU inventory. Effective account rates are not per-model prices or a billing reconciliation. Incomplete usage leaves rates unavailable.</p>')
+                            $accountRows = @($data.ByAccount | Where-Object { $_ })
+                            if ($accountRows.Count -gt 0) {
+                                [void]$htmlSb.Append('<h3>Account costs</h3>')
+                                [void]$htmlSb.Append((ConvertTo-ReportTableControlHtml -TableId 'table-ai-accounts' -Title 'AI account costs' -RowCount $accountRows.Count))
+                                [void]$htmlSb.Append('<div class="table-scroll"><table class="report-table table-ai-accounts" id="table-ai-accounts"><thead><tr><th scope="col">Account</th><th scope="col">Tokens</th><th scope="col">Requests</th><th scope="col">Cost</th><th scope="col">Cost per 1K tokens</th><th scope="col">Measurements</th></tr></thead><tbody>')
+                                foreach ($account in $accountRows) {
+                                    $identity = [pscustomobject]@{ ResourceName = $account.Name; ResourcePath = $account.ResourceId }
+                                    [void]$htmlSb.Append("<tr><td>$(ConvertTo-ResourceIdentityHtml -Resource $identity)</td>")
+                                    $cells = @((Format-ReportMetric $account.Tokens), (Format-ReportMetric $account.Requests), (Format-BudgetAmount -Value $account.Cost -Currency $account.Currency), (Format-FinOpsUnitRate -Value $account.CostPer1KTokens -Currency $account.Currency))
+                                    foreach ($cell in $cells) { [void]$htmlSb.Append("<td class=`"numeric-cell`">$([System.Net.WebUtility]::HtmlEncode([string]$cell))</td>") }
+                                    $measurements = if ($data.Source -eq 'FinOpsHub') { 'Billed token quantity; requests not recorded' } elseif ($account.MetricsComplete -eq $true) { 'Returned' } elseif ($account.MetricsComplete -eq $false) { 'Incomplete' } else { 'Not recorded' }
+                                    [void]$htmlSb.Append("<td>$measurements</td></tr>")
+                                }
+                                [void]$htmlSb.Append('</tbody></table></div>')
+                            }
+                            if ($data.ByModel -and @($data.ByModel | Where-Object { $_ }).Count -gt 0) {
+                                [void]$htmlSb.Append('<h3>Token usage</h3>')
+                                $htmlRows = $data.ByModel | ForEach-Object { [pscustomobject]@{ 'Deployment or model' = $_.Deployment; Account = if ($_.Account) { $_.Account } else { 'Not recorded' }; ResourceName = $_.Account; ResourcePath = $_.ResourceId; 'Input tokens' = Format-ReportMetric $_.PromptTokens; 'Output tokens' = Format-ReportMetric $_.GeneratedTokens; 'Total tokens' = Format-ReportMetric $_.TotalTokens; 'Token share' = Format-ReportMetric $_.PctOfTokens -Format '0.#' -Suffix '%'; 'Token basis' = if ($_.TokenBasis) { $_.TokenBasis } else { 'Not recorded' } } }
+                                $htmlCols = @('Deployment or model', 'Account', 'Input tokens', 'Output tokens', 'Total tokens', 'Token share', 'Token basis')
+                                $htmlTableClass = 'report-table table-ai-tokens'
                             }
                             if ($data.Note) { $tableNote = [string]$data.Note }
                         }
@@ -3673,14 +3991,26 @@ h2[id] { scroll-margin-top: 85px; }
 
                 # Render HTML table
                 if ($htmlRows -and $htmlCols) {
-                    [void]$htmlSb.Append('<div class="table-scroll"><table><thead><tr>')
-                    foreach ($c in $htmlCols) { [void]$htmlSb.Append("<th>$([System.Net.WebUtility]::HtmlEncode($c))</th>") }
+                    $tableId = 'table-' + ($fn -replace '[^a-zA-Z0-9\-]', '')
+                    [void]$htmlSb.Append((ConvertTo-ReportTableControlHtml -TableId $tableId -Title $mod.Name -RowCount @($htmlRows).Count))
+                    [void]$htmlSb.Append("<div class=`"table-scroll`"><table class=`"$htmlTableClass`" id=`"$tableId`">")
+                    if ($fn -in @('Get-TagInventory', 'Get-PolicyRecommendations')) {
+                        [void]$htmlSb.Append('<colgroup>')
+                        foreach ($column in $htmlCols) { [void]$htmlSb.Append('<col>') }
+                        [void]$htmlSb.Append('</colgroup>')
+                    }
+                    [void]$htmlSb.Append('<thead><tr>')
+                    foreach ($c in $htmlCols) {
+                        $columnLabel = if ($c -eq 'AvgCPU14d') { 'Avg CPU (14 days)' } else { $c }
+                        [void]$htmlSb.Append("<th scope=`"col`">$([System.Net.WebUtility]::HtmlEncode($columnLabel))</th>")
+                    }
                     [void]$htmlSb.Append('</tr></thead><tbody>')
                     foreach ($r in $htmlRows) {
                         [void]$htmlSb.Append('<tr>')
                         foreach ($c in $htmlCols) {
                             $val = $r.$c
                             $raw = [string]$val
+                            if ($fn -eq 'Get-IdleVMs' -and $c -eq 'AvgCPU14d') { $raw = Format-ReportMetric $val -Format '0.#' -Suffix '%' }
                             $enc = [System.Net.WebUtility]::HtmlEncode($raw)
                             # Colorize money values and risk/severity
                             if ($enc -match '^\$') { $enc = "<span class=`"money`">$enc</span>" }
@@ -3689,7 +4019,46 @@ h2[id] { scroll-margin-top: 85px; }
                                 $impClass = switch ($val) { 'High' { 'severity-red' } 'Medium' { 'severity-yellow' } default { 'severity-green' } }
                                 $enc = "<span class=`"$impClass`">$enc</span>"
                             }
-                            [void]$htmlSb.Append("<td>$enc</td>")
+                            $cellClass = if ($c -in @('Resources', 'Values', 'Cost', 'Actual', 'Forecast', 'Amount', 'Spent', 'PctUsed', 'AvgCPU14d', 'AvgUtil', 'MinUtil', 'PromptTokens', 'GeneratedTokens', 'TotalTokens', 'PctOfTokens', 'Input tokens', 'Output tokens', 'Total tokens', 'Token share', 'Avg utilization')) { ' class="numeric-cell"' } else { '' }
+                            [void]$htmlSb.Append("<td$cellClass>")
+                            if ($fn -eq 'Get-ResourceCosts' -and $c -eq 'Resource') {
+                                [void]$htmlSb.Append((ConvertTo-ResourceIdentityHtml -Resource $r))
+                            }
+                            elseif (($fn -eq 'Get-CommitmentUtilization' -and $c -eq 'Commitment') -or ($fn -eq 'Get-AIWorkloadMetrics' -and $c -eq 'Account' -and $r.ResourcePath)) {
+                                [void]$htmlSb.Append((ConvertTo-ResourceIdentityHtml -Resource $r))
+                            }
+                            elseif ($fn -eq 'Get-PolicyInventory' -and $c -eq 'Scope') {
+                                [void]$htmlSb.Append((ConvertTo-PolicyScopeHtml -Assignment $r))
+                            }
+                            elseif ($fn -eq 'Get-TagInventory' -and $c -eq 'Top values') {
+                                [void]$htmlSb.Append("<p class=`"cell-preview`">$enc</p>")
+                                if ($r._MoreValues.Count -gt 0) {
+                                    [void]$htmlSb.Append("<details class=`"cell-details`"><summary>$($r._MoreValues.Count) more values</summary><div class=`"detail-content`"><ul class=`"detail-list`">")
+                                    foreach ($tagValue in $r._MoreValues) {
+                                        [void]$htmlSb.Append("<li>$([System.Net.WebUtility]::HtmlEncode([string]$tagValue.Value)) ($([System.Net.WebUtility]::HtmlEncode([string]$tagValue.ResourceCount)))</li>")
+                                    }
+                                    [void]$htmlSb.Append('</ul></div></details>')
+                                }
+                            }
+                            elseif ($fn -eq 'Get-PolicyRecommendations' -and $c -eq 'Details') {
+                                [void]$htmlSb.Append("<details class=`"cell-details`"><summary>$enc</summary><div class=`"detail-content`"><dl>")
+                                foreach ($detailName in @('Category', 'Purpose', 'Note')) {
+                                    if ($r.$detailName) {
+                                        [void]$htmlSb.Append("<dt>$detailName</dt><dd>$([System.Net.WebUtility]::HtmlEncode([string]$r.$detailName))</dd>")
+                                    }
+                                }
+                                [void]$htmlSb.Append('</dl>')
+                                if ($r._AssignmentDetails.Count -gt 0) {
+                                    [void]$htmlSb.Append('<ul class="detail-list">')
+                                    foreach ($assignment in $r._AssignmentDetails) {
+                                        [void]$htmlSb.Append("<li><strong>$([System.Net.WebUtility]::HtmlEncode([string]$assignment.AssignmentName))</strong><br>$([System.Net.WebUtility]::HtmlEncode([string]$assignment.Source)); $([System.Net.WebUtility]::HtmlEncode([string]$assignment.EnforcementMode))<br>$(ConvertTo-PolicyScopeHtml -Assignment $assignment)</li>")
+                                    }
+                                    [void]$htmlSb.Append('</ul>')
+                                }
+                                [void]$htmlSb.Append('</div></details>')
+                            }
+                            else { [void]$htmlSb.Append($enc) }
+                            [void]$htmlSb.Append('</td>')
                         }
                         [void]$htmlSb.Append('</tr>')
                     }
@@ -3739,6 +4108,238 @@ h2[id] { scroll-margin-top: 85px; }
             [void]$htmlSb.Append(@'
 <script>
 (function () {
+    Array.prototype.forEach.call(document.querySelectorAll('.cost-trend'), function (trend) {
+        var modes = Array.prototype.slice.call(trend.querySelectorAll('input[name="trend-view"]'));
+        var picker = trend.querySelector('#trend-subscription');
+        var pickerControl = trend.querySelector('.trend-subscription-control');
+        var series = Array.prototype.slice.call(trend.querySelectorAll('[data-trend-series]'));
+        var status = trend.querySelector('.trend-status');
+        var subscriptionMode = trend.querySelector('#trend-view-subscription');
+        subscriptionMode.disabled = picker.options.length === 0;
+        function updateTrend() {
+            var bySubscription = subscriptionMode.checked;
+            var selected = bySubscription ? picker.value : 'aggregate';
+            pickerControl.hidden = !bySubscription;
+            series.forEach(function (panel) {
+                panel.hidden = panel.getAttribute('data-trend-series') !== selected;
+                if (!panel.hidden) { status.textContent = panel.getAttribute('data-trend-label'); }
+            });
+        }
+        modes.forEach(function (mode) { mode.addEventListener('change', updateTrend); });
+        picker.addEventListener('change', updateTrend);
+        updateTrend();
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('table.report-table'), function (table, tableIndex) {
+        if (!table.tBodies.length || !table.tHead) { return; }
+        if (!table.id) { table.id = 'report-grid-' + tableIndex; }
+        var rows = Array.prototype.slice.call(table.tBodies[0].rows);
+        var headers = Array.prototype.slice.call(table.tHead.rows[0].cells);
+        var scroller = table.parentElement;
+        var controls = Array.prototype.find.call(document.querySelectorAll('.report-table-controls'), function (element) { return element.getAttribute('data-table-id') === table.id; });
+        var title = 'Results';
+        var series = table.closest('.trend-series');
+        if (series) { title = series.getAttribute('data-trend-label'); }
+        else {
+            Array.prototype.forEach.call(document.querySelectorAll('h2, h3'), function (heading) {
+                if (heading.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING) { title = heading.textContent; }
+            });
+        }
+        table.setAttribute('aria-label', title);
+        var frame = document.createElement('div');
+        frame.className = 'report-grid';
+        scroller.parentNode.insertBefore(frame, scroller);
+        if (!controls) {
+            controls = document.createElement('div');
+            controls.className = 'report-table-controls';
+            controls.setAttribute('data-table-id', table.id);
+            var label = document.createElement('label');
+            label.textContent = 'Filter ' + title;
+            var input = document.createElement('input');
+            input.type = 'search';
+            input.setAttribute('aria-controls', table.id);
+            label.appendChild(input);
+            controls.appendChild(label);
+            var count = document.createElement('output');
+            count.setAttribute('aria-live', 'polite');
+            controls.appendChild(count);
+            ['previous', 'next'].forEach(function (action) {
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.setAttribute('data-page-action', action);
+                button.setAttribute('aria-label', action + ' page of ' + title);
+                button.textContent = action === 'previous' ? 'Previous' : 'Next';
+                controls.appendChild(button);
+            });
+        }
+        frame.appendChild(controls);
+        frame.appendChild(scroller);
+        scroller.tabIndex = 0;
+        scroller.setAttribute('role', 'region');
+        scroller.setAttribute('aria-label', title + ' table');
+        var colgroup = table.querySelector('colgroup');
+        if (!colgroup) {
+            colgroup = document.createElement('colgroup');
+            headers.forEach(function () { colgroup.appendChild(document.createElement('col')); });
+            table.insertBefore(colgroup, table.firstChild);
+        }
+        var columns = Array.prototype.slice.call(colgroup.children);
+        columns.forEach(function (column, index) {
+            var width = getComputedStyle(column).width;
+            column.style.width = parseFloat(width) > 0 ? width : (100 / columns.length) + '%';
+            headers[index].style.width = 'auto';
+        });
+        var numberColumn = document.createElement('col');
+        numberColumn.style.width = '3rem';
+        colgroup.insertBefore(numberColumn, colgroup.firstChild);
+        var numberHeader = document.createElement('th');
+        numberHeader.scope = 'col';
+        numberHeader.className = 'row-number';
+        numberHeader.textContent = '#';
+        numberHeader.setAttribute('aria-label', 'Row number');
+        table.tHead.rows[0].insertBefore(numberHeader, table.tHead.rows[0].firstChild);
+        rows.forEach(function (row, index) {
+            row.setAttribute('data-grid-search', row.textContent.toLowerCase());
+            row.setAttribute('data-grid-order', String(index));
+            var numberCell = document.createElement('td');
+            numberCell.className = 'row-number';
+            numberCell.textContent = String(index + 1);
+            row.insertBefore(numberCell, row.firstChild);
+        });
+        var search = controls.querySelector('input[type="search"]');
+        var output = controls.querySelector('output');
+        var previous = controls.querySelector('[data-page-action="previous"]');
+        var next = controls.querySelector('[data-page-action="next"]');
+        var pageIndex = 0;
+        var pageSize = 25;
+        var sortColumn = -1;
+        var sortDirection = 1;
+        var collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+        function parseGridNumber(text) {
+            var accounting = /^\(.*\)$/.test(text);
+            var value = accounting ? text.slice(1, -1).trim() : text;
+            var match = value.match(/^([-+])?\s*([A-Z]{3}|\$)?\s*([-+])?(\d[\d,]*(?:\.\d+)?(?:[eE][-+]?\d+)?)(%|\/yr)?$/);
+            if (!match || (match[1] && match[3]) || (accounting && (match[1] || match[3]))) { return null; }
+            var amount = Number(match[4].replace(/,/g, ''));
+            if (!Number.isFinite(amount)) { return null; }
+            if (accounting || match[1] === '-' || match[3] === '-') { amount = -amount; }
+            return { value: amount, currency: match[2] || '', unit: match[5] || '' };
+        }
+        function compareCells(first, second) {
+            var firstText = first.cells[sortColumn + 1].textContent.trim();
+            var secondText = second.cells[sortColumn + 1].textContent.trim();
+            var empty = /^(?:Unavailable|Not returned|Not recorded|Unknown)?$/i;
+            if (empty.test(firstText) !== empty.test(secondText)) { return empty.test(firstText) ? 1 : -1; }
+            var firstNumber = parseGridNumber(firstText);
+            var secondNumber = parseGridNumber(secondText);
+            var comparison = firstNumber && secondNumber && firstNumber.currency === secondNumber.currency && firstNumber.unit === secondNumber.unit
+                ? firstNumber.value - secondNumber.value
+                : collator.compare(firstText, secondText);
+            return comparison ? comparison * sortDirection : Number(first.getAttribute('data-grid-order')) - Number(second.getAttribute('data-grid-order'));
+        }
+        function updateRows() {
+            var query = search.value.trim().toLowerCase();
+            var matches = rows.filter(function (row) {
+                var matched = !query || row.getAttribute('data-grid-search').indexOf(query) !== -1;
+                row.setAttribute('data-grid-match', String(matched));
+                return matched;
+            });
+            if (sortColumn >= 0) { matches.sort(compareCells); }
+            var lastPage = Math.max(0, Math.ceil(matches.length / pageSize) - 1);
+            pageIndex = Math.min(pageIndex, lastPage);
+            rows.forEach(function (row) { row.hidden = true; });
+            var startIndex = pageIndex * pageSize;
+            matches.forEach(function (row) { table.tBodies[0].appendChild(row); });
+            matches.slice(startIndex, startIndex + pageSize).forEach(function (row) { row.hidden = false; });
+            output.textContent = matches.length ? (startIndex + 1) + '-' + Math.min(startIndex + pageSize, matches.length) + ' of ' + matches.length + (query ? ' matching rows' : ' rows') : 'No matching rows';
+            previous.disabled = pageIndex === 0;
+            next.disabled = pageIndex >= lastPage;
+        }
+        function resizeColumn(index, width) {
+            var allColumns = Array.prototype.slice.call(colgroup.children);
+            var allHeaders = Array.prototype.slice.call(table.tHead.rows[0].cells);
+            allColumns.forEach(function (column, columnIndex) { column.style.width = allHeaders[columnIndex].getBoundingClientRect().width + 'px'; });
+            columns[index].style.width = Math.max(80, Math.min(1200, width)) + 'px';
+            table.style.width = allColumns.reduce(function (sum, column) { return sum + parseFloat(column.style.width); }, 0) + 'px';
+            headers[index].querySelector('.column-resizer').setAttribute('aria-valuenow', String(Math.round(parseFloat(columns[index].style.width))));
+        }
+        headers.forEach(function (header, index) {
+            var text = header.textContent;
+            header.textContent = '';
+            header.setAttribute('aria-sort', 'none');
+            var sort = document.createElement('button');
+            sort.type = 'button';
+            sort.className = 'column-sort';
+            sort.textContent = text;
+            sort.title = 'Sort by ' + text;
+            var direction = document.createElement('span');
+            direction.setAttribute('aria-hidden', 'true');
+            sort.appendChild(direction);
+            sort.addEventListener('click', function () {
+                sortDirection = sortColumn === index ? -sortDirection : 1;
+                sortColumn = index;
+                headers.forEach(function (item) { item.setAttribute('aria-sort', 'none'); item.querySelector('.column-sort span').textContent = ''; });
+                header.setAttribute('aria-sort', sortDirection === 1 ? 'ascending' : 'descending');
+                direction.textContent = sortDirection === 1 ? '\u2191' : '\u2193';
+                pageIndex = 0;
+                updateRows();
+            });
+            header.appendChild(sort);
+            var resizer = document.createElement('span');
+            resizer.className = 'column-resizer';
+            resizer.tabIndex = 0;
+            resizer.setAttribute('role', 'separator');
+            resizer.setAttribute('aria-orientation', 'vertical');
+            resizer.setAttribute('aria-label', 'Resize ' + text + ' column');
+            resizer.setAttribute('aria-valuemin', '80');
+            resizer.setAttribute('aria-valuemax', '1200');
+            resizer.title = 'Resize ' + text + ' column';
+            var drag = null;
+            resizer.addEventListener('pointerdown', function (event) { event.preventDefault(); drag = { pointer: event.pointerId, start: event.clientX, width: header.getBoundingClientRect().width }; resizer.setPointerCapture(event.pointerId); });
+            resizer.addEventListener('pointermove', function (event) { if (drag && drag.pointer === event.pointerId) { resizeColumn(index, drag.width + event.clientX - drag.start); } });
+            resizer.addEventListener('pointerup', function () { drag = null; });
+            resizer.addEventListener('pointercancel', function () { drag = null; });
+            resizer.addEventListener('keydown', function (event) {
+                if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') { return; }
+                event.preventDefault();
+                resizeColumn(index, header.getBoundingClientRect().width + (event.key === 'ArrowRight' ? 16 : -16));
+            });
+            header.appendChild(resizer);
+        });
+        var expand = document.createElement('button');
+        expand.type = 'button';
+        expand.className = 'grid-expand';
+        expand.textContent = 'Expand';
+        expand.setAttribute('aria-label', 'Expand ' + title + ' table');
+        controls.appendChild(expand);
+        var dialog = document.createElement('dialog');
+        dialog.className = 'grid-dialog';
+        dialog.setAttribute('aria-label', title + ' table');
+        document.body.appendChild(dialog);
+        var placeholder = null;
+        function restoreGrid() {
+            if (placeholder) { placeholder.parentNode.replaceChild(frame, placeholder); placeholder = null; }
+            expand.textContent = 'Expand';
+            expand.setAttribute('aria-label', 'Expand ' + title + ' table');
+            expand.focus({ preventScroll: true });
+        }
+        function closeGrid() { if (dialog.open) { dialog.close(); } restoreGrid(); }
+        expand.addEventListener('click', function () {
+            if (dialog.open) { closeGrid(); return; }
+            placeholder = document.createComment('Expanded table');
+            frame.parentNode.replaceChild(placeholder, frame);
+            dialog.appendChild(frame);
+            expand.textContent = 'Close';
+            expand.setAttribute('aria-label', 'Close expanded table');
+            dialog.showModal();
+        });
+        dialog.addEventListener('close', function () { if (!dialog.open) { restoreGrid(); } });
+        dialog.addEventListener('cancel', function (event) { event.preventDefault(); closeGrid(); });
+        window.addEventListener('beforeprint', function () { if (dialog.open) { closeGrid(); } });
+        search.addEventListener('input', function () { pageIndex = 0; updateRows(); });
+        previous.addEventListener('click', function () { pageIndex--; updateRows(); });
+        next.addEventListener('click', function () { pageIndex++; updateRows(); });
+        updateRows();
+    });
     var kpiSearch = document.getElementById('kpi-search');
     var kpiStatusFilter = document.getElementById('kpi-status-filter');
     var kpiRows = Array.prototype.slice.call(document.querySelectorAll('.kpi-reference-row'));
@@ -3817,7 +4418,7 @@ h2[id] { scroll-margin-top: 85px; }
                 $summaryNote = @(@($summaryData.Note; $summaryData.Reason; $summaryData.CostIssue; $summaryData.RateIssue; $summaryData.AHBIssue; $summaryData.Error) |
                     Where-Object { $_ -is [string] -and -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique) -join ' '
                 $status = if ($Results.ContainsKey($errorKey)) { "ERROR: $($Results[$errorKey])" }
-                elseif ($summaryData.CoverageIncomplete -contains $true -or $summaryData.ComplianceCoverageIncomplete -contains $true -or
+                elseif ($summaryData.CoverageIncomplete -contains $true -or $summaryData.ComplianceCoverageIncomplete -contains $true -or $summaryData.DefinitionCoverageIncomplete -contains $true -or
                     $summaryData.AccessDenied -contains $true -or @(@($summaryData.CostIssue; $summaryData.RateIssue; $summaryData.AHBIssue; $summaryData.Error) | Where-Object { $_ }).Count -gt 0 -or
                     @($summaryData.MetricFailures | Where-Object { $_ -gt 0 }).Count -gt 0) { "Limited data: $(if ($summaryNote) { $summaryNote } else { 'Some evidence could not be verified.' })" }
                 elseif ($count -eq 0) { 'No data' }

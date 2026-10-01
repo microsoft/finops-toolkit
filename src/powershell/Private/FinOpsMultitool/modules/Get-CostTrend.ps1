@@ -27,21 +27,30 @@ function Get-CostTrend {
         [switch]$RestrictToSelected
     )
 
-    Write-Host "  Querying 6-month cost trend..." -ForegroundColor Cyan
+    Write-Host "  Querying six full months and current month-to-date cost trend..." -ForegroundColor Cyan
 
-    $endDate   = Get-Date -Day 1  # First of current month
-    $startDate = $endDate.AddMonths(-6)
-    $fromStr   = $startDate.ToString('yyyy-MM-dd')
-    $toStr     = (Get-Date).ToString('yyyy-MM-dd')
+    $now = (Get-Date).ToUniversalTime()
+    $periodEnd = $now.AddTicks( - ($now.Ticks % [TimeSpan]::TicksPerSecond))
+    $periodStart = $periodEnd.Date.AddDays(1 - $periodEnd.Day).AddMonths(-6)
+    $fromStr = $periodStart.ToString('yyyy-MM-ddTHH:mm:ssZ')
+    $toStr = $periodEnd.ToString('yyyy-MM-ddTHH:mm:ssZ')
+    $subscriptionNames = @{}
+    foreach ($subscription in $Subscriptions) {
+        if ($subscription.Id) {
+            $subscriptionNames[[string]$subscription.Id] = if ($subscription.Name) { [string]$subscription.Name } else { [string]$subscription.Id }
+        }
+    }
+    $noDataSubscriptionIds = [System.Collections.Generic.List[string]]::new()
+    $queryScope = $null
 
     $body = @{
-        type      = 'ActualCost'
-        timeframe = 'Custom'
+        type       = 'ActualCost'
+        timeframe  = 'Custom'
         timePeriod = @{
             from = $fromStr
             to   = $toStr
         }
-        dataset   = @{
+        dataset    = @{
             granularity = 'Monthly'
             aggregation = @{
                 totalCost = @{ name = 'Cost'; function = 'Sum' }
@@ -55,7 +64,7 @@ function Get-CostTrend {
     # When the user picked a subset of subscriptions we KEEP the single fast
     # MG-scope grouped call but add a server-side SubscriptionId filter so the
     # trend only includes the selected subs - avoids per-subscription fan-out.
-    $subFilter = if ($RestrictToSelected) { Get-CostSubscriptionFilter -Subscriptions $Subscriptions } else { $null }
+    $subFilter = if ($RestrictToSelected -or $subscriptionNames.Count -gt 0) { Get-CostSubscriptionFilter -Subscriptions $Subscriptions } else { $null }
 
     # Grouped variant: one MG-scope call returns the per-subscription matrix
     # (month x subscription) in a single response, avoiding an N-subscription loop.
@@ -70,13 +79,13 @@ function Get-CostTrend {
     }
     if ($subFilter) { $groupedDataset['filter'] = $subFilter }
     $groupedBody = @{
-        type      = 'ActualCost'
-        timeframe = 'Custom'
+        type       = 'ActualCost'
+        timeframe  = 'Custom'
         timePeriod = @{
             from = $fromStr
             to   = $toStr
         }
-        dataset   = $groupedDataset
+        dataset    = $groupedDataset
     } | ConvertTo-Json -Depth 10
 
     # Helper: parse cost query rows into month entries
@@ -98,17 +107,18 @@ function Get-CostTrend {
             $dateClean = $dateVal -replace '[^0-9\-]', ''
             if ($dateClean.Length -eq 8) {
                 $parsed = [datetime]::ParseExact($dateClean, 'yyyyMMdd', $null)
-            } else {
+            }
+            else {
                 $parsed = [datetime]::Parse($dateVal)
             }
             $currency = ([string]$row[$currIdx]).Trim().ToUpperInvariant()
             if ($currency -notmatch '^[A-Z]{3}$' -or $currency -in @('XXX', 'XTS')) { throw 'Cost trend currency is unavailable or invalid.' }
             [void]$entries.Add([PSCustomObject]@{
-                Month     = $parsed.ToString('MMM yyyy')
-                MonthDate = $parsed
-                Cost      = $cost
-                Currency  = $currency
-            })
+                    Month     = $parsed.ToString('MMM yyyy')
+                    MonthDate = $parsed
+                    Cost      = $cost
+                    Currency  = $currency
+                })
         }
         return $entries
     }
@@ -142,25 +152,27 @@ function Get-CostTrend {
                 throw 'Grouped cost trend requires explicit cost, date, currency, and subscription columns; results are incomplete.'
             }
             foreach ($row in $Rows) {
+                $subId = [string]$row[$subIdx]
+                if ([string]::IsNullOrWhiteSpace($subId)) { throw 'Cost trend subscription is missing; results are incomplete.' }
+                if ($subscriptionNames.Count -gt 0 -and -not $subscriptionNames.ContainsKey($subId)) { continue }
                 $cost = [math]::Round([double]$row[$costIdx], 2)
                 $dateVal = $row[$dateIdx].ToString()
                 $dateClean = $dateVal -replace '[^0-9\-]', ''
                 if ($dateClean.Length -eq 8) {
                     $parsed = [datetime]::ParseExact($dateClean, 'yyyyMMdd', $null)
-                } else {
+                }
+                else {
                     $parsed = [datetime]::Parse($dateVal)
                 }
                 $currency = ([string]$row[$currIdx]).Trim().ToUpperInvariant()
                 if ($currency -notmatch '^[A-Z]{3}$' -or $currency -in @('XXX', 'XTS')) { throw 'Cost trend currency is unavailable or invalid.' }
-                $subId = [string]$row[$subIdx]
-                if ([string]::IsNullOrWhiteSpace($subId)) { throw 'Cost trend subscription is missing; results are incomplete.' }
                 [void]$out.Add([PSCustomObject]@{
-                    SubId     = $subId
-                    Month     = $parsed.ToString('MMM yyyy')
-                    MonthDate = $parsed
-                    Cost      = $cost
-                    Currency  = $currency
-                })
+                        SubId     = $subId
+                        Month     = $parsed.ToString('MMM yyyy')
+                        MonthDate = $parsed
+                        Cost      = $cost
+                        Currency  = $currency
+                    })
             }
             return $out
         }
@@ -175,8 +187,8 @@ function Get-CostTrend {
                         $bySubscription[$e.SubId] = [System.Collections.Generic.List[PSCustomObject]]::new()
                     }
                     [void]$bySubscription[$e.SubId].Add([PSCustomObject]@{
-                        Month = $e.Month; MonthDate = $e.MonthDate; Cost = $e.Cost; Currency = $e.Currency
-                    })
+                            Month = $e.Month; MonthDate = $e.MonthDate; Cost = $e.Cost; Currency = $e.Currency
+                        })
                 }
                 $key = $e.MonthDate.ToString('yyyy-MM')
                 if (-not $agg.ContainsKey($key)) {
@@ -192,11 +204,11 @@ function Get-CostTrend {
             }
             foreach ($entry in $agg.GetEnumerator() | Sort-Object Key) {
                 [void]$months.Add([PSCustomObject]@{
-                    Month     = $entry.Value.Date.ToString('MMM yyyy')
-                    MonthDate = $entry.Value.Date
-                    Cost      = [math]::Round($entry.Value.Cost, 2)
-                    Currency  = Resolve-CurrencyLabel -Seen $entry.Value.Currencies
-                })
+                        Month     = $entry.Value.Date.ToString('MMM yyyy')
+                        MonthDate = $entry.Value.Date
+                        Cost      = [math]::Round($entry.Value.Cost, 2)
+                        Currency  = Resolve-CurrencyLabel -Seen $entry.Value.Currencies
+                    })
             }
         }
 
@@ -208,6 +220,7 @@ function Get-CostTrend {
         # single-sub breakdown, avoiding the throttle-prone MG probe loop.
         if ($subCount -eq 1) {
             $only = $Subscriptions[0]
+            $queryScope = "/subscriptions/$($only.Id)"
             $subPath = "/subscriptions/$($only.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
             $subResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $body
             $paged = Get-AllCostRow -FirstResponse $subResp -Payload $body -Context "cost trend for $($only.Name)"
@@ -215,19 +228,19 @@ function Get-CostTrend {
                 $months = ConvertFrom-TrendCostRow -Rows $paged.Rows -Columns $paged.Columns
                 $bySubscription[$only.Id] = @($months | Sort-Object MonthDate)
             }
+            else { $noDataSubscriptionIds.Add([string]$only.Id) }
         }
         else {
             # -- Multi-sub path: one grouped MG-scope query ---------------
             # group by SubscriptionId so a single call returns the month x
             # subscription matrix (aggregate + per-sub) in one response.
-            # When the user picked a subset of subscriptions, skip MG scope
-            # (whole management group) and use the per-subscription loop so the
-            # trend only reflects the selected subscriptions.
-            $mgScopeId  = Resolve-CostMgId -TenantId $TenantId
+            # Keep the grouped query filtered to the selected subscriptions.
+            $mgScopeId = Resolve-CostMgId -TenantId $TenantId
             $useMgScope = [bool]$mgScopeId
-            $groupedOk  = $false
+            $groupedOk = $false
 
             if ($useMgScope) {
+                $queryScope = "/providers/Microsoft.Management/managementGroups/$mgScopeId"
                 $mgPath = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
                 $response = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload $groupedBody
                 if ($response.StatusCode -eq 200) {
@@ -237,7 +250,8 @@ function Get-CostTrend {
                         Set-TrendFromGrouped -Entries $entries
                         $groupedOk = ($months.Count -gt 0)
                     }
-                } else {
+                }
+                else {
                     if ($response.StatusCode -in @(401, 403)) { Set-MgCostScopeFailed }
                     Write-Warning "  MG-scope grouped cost trend returned HTTP $($response.StatusCode) - falling back to per-sub"
                     $useMgScope = $false
@@ -246,6 +260,7 @@ function Get-CostTrend {
 
             # -- Fallback: per-subscription loop (MG scope unavailable) ---
             if (-not $groupedOk -and $Subscriptions) {
+                $queryScope = 'Individual selected-subscription queries'
                 $aggTotals = @{}  # used for aggregate if MG scope failed
 
                 $i = 0
@@ -274,30 +289,59 @@ function Get-CostTrend {
                             $aggTotals[$key].Cost += $sm.Cost
                         }
                     }
+                    else { $noDataSubscriptionIds.Add([string]$sub.Id) }
                 }
 
                 if ($months.Count -eq 0 -and $aggTotals.Count -gt 0) {
                     foreach ($entry in $aggTotals.GetEnumerator() | Sort-Object Key) {
                         [void]$months.Add([PSCustomObject]@{
-                            Month     = $entry.Value.Date.ToString('MMM yyyy')
-                            MonthDate = $entry.Value.Date
-                            Cost      = [math]::Round($entry.Value.Cost, 2)
-                            Currency  = $entry.Value.Currency
-                        })
+                                Month     = $entry.Value.Date.ToString('MMM yyyy')
+                                MonthDate = $entry.Value.Date
+                                Cost      = [math]::Round($entry.Value.Cost, 2)
+                                Currency  = $entry.Value.Currency
+                            })
                     }
                 }
             }
         }
-    } catch {
+    }
+    catch {
         throw "Cost trend query failed: $($_.Exception.Message)"
     }
 
     # Sort by date
     $sorted = @($months | Sort-Object MonthDate)
+    $unverifiedSubscriptionIds = @($subscriptionNames.Keys | Where-Object {
+            -not $bySubscription.ContainsKey($_) -and $_ -notin $noDataSubscriptionIds
+        } | Sort-Object)
+    $coverageIncomplete = $subscriptionNames.Count -eq 0 -or $unverifiedSubscriptionIds.Count -gt 0
+    $note = if ($subscriptionNames.Count -eq 0) {
+        'The selected subscription set was not recorded. These results do not establish whole-tenant coverage.'
+    }
+    elseif ($unverifiedSubscriptionIds.Count -gt 0) {
+        "Trend coverage is not verified for $($unverifiedSubscriptionIds.Count) selected subscription(s) missing from the grouped response. Missing subscriptions are not treated as zero cost."
+    }
+    elseif ($noDataSubscriptionIds.Count -gt 0) {
+        "$($noDataSubscriptionIds.Count) selected subscription(s) returned no cost rows. No zero-valued months were added for them."
+    }
+    else { $null }
 
     return [PSCustomObject]@{
-        Months         = $sorted
-        BySubscription = $bySubscription
-        HasData        = ($sorted.Count -gt 0)
+        Months                    = $sorted
+        BySubscription            = $bySubscription
+        HasData                   = ($sorted.Count -gt 0)
+        ScopeKind                 = if ($subscriptionNames.Count -gt 0) { 'Selected subscriptions' } else { 'Management group' }
+        TenantId                  = $TenantId
+        QueryScope                = $queryScope
+        SubscriptionNames         = $subscriptionNames
+        SelectedSubscriptionCount = $subscriptionNames.Count
+        SubscriptionsWithData     = $bySubscription.Count
+        NoDataSubscriptionIds     = $noDataSubscriptionIds.ToArray()
+        UnverifiedSubscriptionIds = $unverifiedSubscriptionIds
+        CoverageIncomplete        = $coverageIncomplete
+        CostBasis                 = 'ActualCost'
+        CostPeriodStartUtc        = $periodStart
+        CostPeriodEndUtc          = $periodEnd
+        Note                      = $note
     }
 }

@@ -3,7 +3,7 @@ title: Start-FinOpsMultitool command
 description: Launch the FinOps multitool interactive terminal UI to scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 09/20/2026
+ms.date: 09/30/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -19,6 +19,8 @@ The **Start-FinOpsMultitool** command launches the FinOps multitool interactive 
 
 Results appear in the terminal and are saved automatically on the machine running the command. Each run creates a private folder with one CSV file per selected scan, a `FinOpsReport.html` summary, and a `ScanSummary.txt` file. Failed or empty scans have a CSV status record. The scans don't change Azure resources.
 
+In the HTML report, large subscription selections appear as a count with an expandable scope list. Result tables with more than 25 rows support local filtering and pagination. Long tag-value and policy-assignment lists stay in expandable details, and wide tables scroll within their section. CSV exports retain the full returned data regardless of the current HTML filter or page.
+
 The command requires PowerShell 7 or later and the `Az.Accounts`, `Az.ResourceGraph`, and `Az.Storage` modules. Validation for this change was performed on Windows; native macOS/Linux behavior and the `dotnet restore` path haven't been exercised.
 
 Most scans need Reader or Cost Management Reader access on the target scope. Account scans (billing structure, contract info, and MACC commitment) also need agreement-specific billing access: [Billing account reader or Billing profile reader for a Microsoft Customer Agreement](/azure/cost-management-billing/manage/understand-mca-roles), or [Enterprise Administrator (read only) for an Enterprise Agreement](/azure/cost-management-billing/manage/understand-ea-roles). Grant access at the scope the scan reads. Commitment utilization reads at billing account or billing profile scope, so it needs that same billing access. The carbon scan needs Reader or Carbon Optimization Reader assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
@@ -26,6 +28,10 @@ Most scans need Reader or Cost Management Reader access on the target scope. Acc
 The tool prompts for each choice by default. To run it from a pipeline or a scheduled job, use `-NonInteractive` and supply the choices as parameters.
 
 `-NonInteractive` requires an existing Azure context. Authenticate with the intended identity using `Connect-AzAccount` before launching the scan. Without a context, the command fails before scanning instead of starting interactive sign-in.
+
+An explicit subscription must belong to the signed-in tenant. Failed lookups don't search other tenants or open a broader subscription picker. Sign in to the intended tenant before targeting its subscription. A valid selection changes context only in the current PowerShell process.
+
+Automatic Hub discovery keeps the selected tenant and subscriptions. When a Hub can't be verified, failed probes produce warnings and the tool continues to the source menu, or defaults to API with `-NonInteractive`. This also applies when every probe fails. Explicit Hub selections never switch to API automatically. Provider-discovery exceptions can fall back to an already detected Hub's storage reader, but configured Kusto endpoints and failed Kusto cost queries don't silently switch sources.
 
 <br>
 
@@ -47,7 +53,7 @@ Start-FinOpsMultitool `
 
 | Name              | Description                                                                                                                                                                                                                                                                                                                                            |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `‑SubscriptionId` | Optional. Scopes the scan to a single subscription. When omitted, all accessible subscriptions are discovered. If the subscription can't be resolved and nothing can answer a prompt, the command returns an error rather than scanning every subscription.                                                                                            |
+| `‑SubscriptionId` | Optional. Scopes the scan to a single subscription in the current tenant. A failed or mismatched lookup stops the run without searching other tenants or widening scope. When omitted, accessible subscriptions in the selected tenant are discovered.                                                                                                 |
 | `‑OutputPath`     | Optional. Local parent folder for reports. Defaults to `FinOpsToolkit/Multitool/Reports` under the current user's local application data. Each run creates a new timestamped subfolder. Git repositories, UNC paths, mapped Windows network drives, symbolic links, and junctions aren't accepted. Unix network mounts aren't detected.                |
 | `‑Scans`          | Optional. Runs the specified scans instead of the default selection. Accepts a scan command name, such as `Get-OrphanedResources`, or its menu label, such as `Orphaned Resources`. Use `All` on its own to select every menu scan, including Billing Structure. An unrecognized name returns an error.                                                |
 | `‑DataSource`     | Optional. Sets the data source and skips the data source prompt. Valid values are `Hub`, `API`, and `GraphOnly`. `API` and `GraphOnly` take precedence over `FINOPS_HUB_KUSTO_URI` and don't preload hub data. An explicit `Hub` selection fails if no configured Kusto endpoint or hub storage is available. Select `API` separately for a live scan. |

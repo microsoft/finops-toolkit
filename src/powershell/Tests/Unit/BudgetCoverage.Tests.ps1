@@ -27,8 +27,29 @@ Describe 'Budget coverage reporting' {
         $script:NoBudgets = '{"value":[]}'
     }
 
+    BeforeEach {
+        Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool { throw 'Budget tests must provide a synthetic REST response.' }
+        Mock Invoke-AzRestMethod -ModuleName FinOpsMultitool { throw 'Budget tests must not send Azure requests.' }
+        Mock Invoke-RestMethod -ModuleName FinOpsMultitool { throw 'Budget tests must not send HTTP requests.' }
+        Mock Invoke-WebRequest -ModuleName FinOpsMultitool { throw 'Budget tests must not send HTTP requests.' }
+    }
+
     AfterAll {
         Remove-Module FinOpsMultitool -ErrorAction SilentlyContinue
+    }
+
+    It 'Blocks an unconfigured <RequestCommand> call in the test fixture' -ForEach @(
+        @{ RequestCommand = 'Invoke-AzRestMethodWithRetry'; RequestParameters = @{ Path = '/subscriptions/fixture'; Method = 'GET' }; ExpectedError = '*synthetic REST response*' }
+        @{ RequestCommand = 'Invoke-AzRestMethod'; RequestParameters = @{ Path = '/subscriptions/fixture'; Method = 'GET' }; ExpectedError = '*must not send Azure requests*' }
+        @{ RequestCommand = 'Invoke-RestMethod'; RequestParameters = @{ Uri = 'https://example.invalid/fixture'; Method = 'GET' }; ExpectedError = '*must not send HTTP requests*' }
+        @{ RequestCommand = 'Invoke-WebRequest'; RequestParameters = @{ Uri = 'https://example.invalid/fixture'; Method = 'GET' }; ExpectedError = '*must not send HTTP requests*' }
+    ) {
+        InModuleScope FinOpsMultitool -Parameters @{ RequestCommand = $RequestCommand; RequestParameters = $RequestParameters; ExpectedError = $ExpectedError } {
+            param($RequestCommand, $RequestParameters, $ExpectedError)
+            $fixtureCommand = $RequestCommand
+            $fixtureParameters = $RequestParameters
+            { & $fixtureCommand @fixtureParameters } | Should -Throw $ExpectedError
+        }
     }
 
     It 'Does not count an unreadable subscription as having no budget' {
@@ -110,14 +131,14 @@ Describe 'Budget coverage reporting' {
 
             $script:Trend2 = [PSCustomObject]@{
                 BySubscription = @{ $script:SubA = @(2, 1 | ForEach-Object {
-                            [PSCustomObject]@{ MonthDate = (Get-Date).AddMonths(-$_); Cost = 10; Currency = 'USD' }
+                            [PSCustomObject]@{ MonthDate = (Get-Date).ToUniversalTime().AddMonths(-$_); Cost = 10; Currency = 'USD' }
                         })
                 }
             }
 
             $script:Trend6 = [PSCustomObject]@{
                 BySubscription = @{ $script:SubA = @(6, 5, 4, 3, 2, 1 | ForEach-Object {
-                            [PSCustomObject]@{ MonthDate = (Get-Date).AddMonths(-$_); Cost = 10; Currency = 'USD' }
+                            [PSCustomObject]@{ MonthDate = (Get-Date).ToUniversalTime().AddMonths(-$_); Cost = 10; Currency = 'USD' }
                         })
                 }
             }
@@ -188,7 +209,7 @@ Describe 'Budget coverage reporting' {
                 if ($PageFails -and $isNextPage) { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
                 $monthsAgo = if ($isNextPage) { -1 } else { -2 }
                 $amount = if ($isNextPage) { 120.0 } else { 40.0 }
-                $month = (Get-Date).AddMonths($monthsAgo).ToString('yyyyMM01')
+                $month = (Get-Date).ToUniversalTime().AddMonths($monthsAgo).ToString('yyyyMM01')
                 $properties = @{
                     columns = @(@{ name = 'Cost' }, @{ name = 'BillingMonth' }, @{ name = 'Currency' })
                     rows    = @(, @($amount, $month, 'USD'))
@@ -224,7 +245,7 @@ Describe 'Budget coverage reporting' {
             $capturedQueries = [Collections.Generic.List[object]]::new()
             Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool {
                 $capturedQueries.Add(($Payload | ConvertFrom-Json))
-                $rows = @(2, 1 | ForEach-Object { , @(40.0, (Get-Date).AddMonths(-$_).ToString('yyyyMM01'), 'USD') })
+                $rows = @(2, 1 | ForEach-Object { , @(40.0, (Get-Date).ToUniversalTime().AddMonths(-$_).ToString('yyyyMM01'), 'USD') })
                 $properties = @{ columns = @(@{ name = 'Cost' }, @{ name = 'BillingMonth' }, @{ name = 'Currency' }); rows = $rows }
                 [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 10) }
             }
@@ -256,7 +277,7 @@ Describe 'Budget coverage reporting' {
                 $amount = if ($filter.tags.values[0] -ceq 'Prod') { 40.0 } else { 60.0 }
                 $properties = @{
                     columns = @(@{ name = 'Cost' }, @{ name = 'BillingMonth' }, @{ name = 'Currency' })
-                    rows    = @(, @($amount, (Get-Date).AddMonths(-1).ToString('yyyyMM01'), 'USD'))
+                    rows    = @(, @($amount, (Get-Date).ToUniversalTime().AddMonths(-1).ToString('yyyyMM01'), 'USD'))
                 }
                 [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
             }
@@ -356,6 +377,7 @@ Describe 'Budget coverage reporting' {
             @($rows | Where-Object Status -EQ 'Unavailable').Count | Should -Be 2
             $rows[0].Note | Should -Match 'currenc'
             $rows[0].ActualSpend | Should -BeNullOrEmpty
+            Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
         }
     }
 }

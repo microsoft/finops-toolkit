@@ -198,7 +198,12 @@ function Invoke-FinOpsMultitool {
                 Mock Connect-AzAccount { throw 'An existing test context must not trigger sign-in.' }
                 Mock Get-AzTenant { throw 'Explicit subscription scope must not enumerate tenants.' }
                 Mock Get-AzContext {
-                    [pscustomobject]@{ Account = @{ Id = 'test@example.test' }; Tenant = @{ Id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' } }
+                    $context = [Microsoft.Azure.Commands.Profile.Models.Core.PSAzureContext]::new()
+                    $context.Tenant = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureTenant]::new()
+                    $context.Tenant.Id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                    $context.Account = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureAccount]::new()
+                    $context.Account.Id = 'test@example.test'
+                    $context
                 }
                 Mock Get-AzSubscription {
                     [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Test subscription'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'; State = 'Enabled' }
@@ -278,6 +283,10 @@ function Invoke-FinOpsMultitool {
                 Should -Invoke Get-AzSubscription -Times 1 -Exactly -ParameterFilter {
                     $SubscriptionId -eq '11111111-1111-1111-1111-111111111111' -and $TenantId -eq 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
                 }
+                Should -Invoke Set-AzContext -Times 1 -Exactly -ParameterFilter {
+                    $SubscriptionId -eq '11111111-1111-1111-1111-111111111111' -and
+                    $TenantId -eq 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -and $Scope -eq 'Process'
+                }
                 if ($Source -eq 'API') {
                     $rows[0].Forecast | Should -Be '150'
                     Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 2 -Exactly
@@ -297,7 +306,7 @@ function Invoke-FinOpsMultitool {
                 Should -Invoke Read-FinOpsHubData -Times 0 -Exactly
             }
 
-            It 'Preserves the interactive Kusto choice without rediscovering the provider' {
+            It 'Preserves the interactive Kusto choice without rediscovering the provider' -Tag 'SourceSelectionIsolation' {
                 $env:FINOPS_HUB_KUSTO_URI = $null
                 Set-Variable -Name NonInteractive -Value $false -Scope Local
                 $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
@@ -310,9 +319,9 @@ function Invoke-FinOpsMultitool {
                 Mock Resolve-FOHubProvider {
                     @{ Found = $true; Mode = 'Kusto'; ClusterUri = 'https://test.eastus.kusto.windows.net'; Database = 'Hub'; UseAuth = $true }
                 }
-                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Test subscription' })
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Test subscription'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
 
-                $choice = Select-DataSource -Subscriptions $subscriptions
+                $choice = Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions
                 $choice.HubProvider.ClusterUri | Should -Be 'https://test.eastus.kusto.windows.net'
                 $result = Invoke-SelectedScans -Modules @(@{ Name = 'Cost Data'; Fn = 'Get-CostData'; Selected = $true }) -Subscriptions $subscriptions -DataSource $choice
 
@@ -322,14 +331,346 @@ function Invoke-FinOpsMultitool {
                 Should -Invoke Read-FinOpsHubData -Times 0 -Exactly
             }
 
-            It 'Does not turn failed Hub discovery into an automatic API fallback' {
+            It 'Keeps <ProbeState> Hub discovery in the selected tenant for <Mode>' -Tag 'SourceSelectionIsolation', 'MergeBlockerDiscovery' -ForEach @(
+                @{ ProbeState = 'partial'; AllProbesFail = $false; Mode = 'noninteractive'; Unattended = $true; Answer = '1'; ExpectedSource = 'API' }
+                @{ ProbeState = 'partial'; AllProbesFail = $false; Mode = 'interactive API'; Unattended = $false; Answer = '1'; ExpectedSource = 'API' }
+                @{ ProbeState = 'partial'; AllProbesFail = $false; Mode = 'interactive GraphOnly'; Unattended = $false; Answer = '2'; ExpectedSource = 'GraphOnly' }
+                @{ ProbeState = 'failed'; AllProbesFail = $true; Mode = 'noninteractive'; Unattended = $true; Answer = '1'; ExpectedSource = 'API' }
+                @{ ProbeState = 'failed'; AllProbesFail = $true; Mode = 'interactive API'; Unattended = $false; Answer = '1'; ExpectedSource = 'API' }
+                @{ ProbeState = 'failed'; AllProbesFail = $true; Mode = 'interactive GraphOnly'; Unattended = $false; Answer = '2'; ExpectedSource = 'GraphOnly' }
+            ) {
                 $env:FINOPS_HUB_KUSTO_URI = $null
-                Mock Search-AzGraph { throw 'Synthetic Resource Graph HTTP 403.' }
+                Set-Variable -Name NonInteractive -Value $Unattended -Scope Local
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({
+                            $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                            $args[0].Name -in @('Select-DataSource', 'Read-FinOpsAnswer', 'Write-FinOpsConsole')
+                        }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                Mock Read-FinOpsAnswer { $Answer }
+                Mock Search-AzGraph {
+                    if ($AllProbesFail -or $Subscription -contains '22222222-2222-2222-2222-222222222222') { throw 'Synthetic discovery HTTP 429.' }
+                    @()
+                }
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Reachable'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Throttled'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }
+                )
 
-                { Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -NonInteractive -ErrorAction Stop } |
-                    Should -Throw '*hub discovery is incomplete*403*Select API*'
+                $choice = Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions
+
+                $choice.Source | Should -Be $ExpectedSource
+                $choice.HubStorage | Should -BeNullOrEmpty
+                Should -Invoke Search-AzGraph -Times 2 -Exactly
+                foreach ($selectedId in $subscriptions.Id) {
+                    Should -Invoke Search-AzGraph -Times 1 -Exactly -ParameterFilter {
+                        @($Subscription).Count -eq 1 -and $Subscription[0] -eq $selectedId -and
+                        $DefaultProfile.DefaultContext.Tenant.Id -eq 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -and -not $UseTenantScope
+                    }
+                }
+                Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { "$Object" -match 'Hub discovery is incomplete' }
+                Should -Invoke Get-AzTenant -Times 0 -Exactly
+                Should -Invoke Get-AzSubscription -Times 0 -Exactly
+                Should -Invoke Set-AzContext -Times 0 -Exactly
+                Should -Invoke Connect-AzAccount -Times 0 -Exactly
+                Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+            }
+
+            It 'Rejects <ScopeProblem> subscription ownership before source discovery' -Tag 'SourceSelectionIsolation' -ForEach @(
+                @{ ScopeProblem = 'different tenant'; SubscriptionTenant = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' }
+                @{ ScopeProblem = 'unknown tenant'; SubscriptionTenant = $null }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Set-Variable -Name NonInteractive -Value $true -Scope Local
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({
+                            $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                            $args[0].Name -in @('Select-DataSource', 'Write-FinOpsConsole')
+                        }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Unverified'; TenantId = $SubscriptionTenant })
+
+                { Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions } |
+                Should -Throw '*selected tenant*'
+
+                Should -Invoke Search-AzGraph -Times 0 -Exactly
+                Should -Invoke Set-AzContext -Times 0 -Exactly
+                Should -Invoke Get-AzTenant -Times 0 -Exactly
+            }
+
+            It 'Does not search other tenants for an unresolved explicit subscription in <Mode> mode' -Tag 'SourceSelectionIsolation' -ForEach @(
+                @{ Mode = 'noninteractive'; Unattended = $true }
+                @{ Mode = 'interactive'; Unattended = $false }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Mock Get-AzSubscription { $null }
+                Mock Get-AzTenant { [pscustomobject]@{ Id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' } }
+
+                { Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource API -NonInteractive:$Unattended -ErrorAction Stop } |
+                Should -Throw '*current tenant*'
+
+                Should -Invoke Get-AzSubscription -Times 1 -Exactly -ParameterFilter {
+                    $SubscriptionId -eq '11111111-1111-1111-1111-111111111111' -and $TenantId -eq 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                }
+                Should -Invoke Get-AzTenant -Times 0 -Exactly
+                Should -Invoke Set-AzContext -Times 0 -Exactly
+                Should -Invoke Connect-AzAccount -Times 0 -Exactly
+                Should -Invoke Search-AzGraph -Times 0 -Exactly
+                Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+            }
+
+            It 'Rejects a subscription returned for another tenant before switching context' -Tag 'SourceSelectionIsolation' {
+                Set-Variable -Name NonInteractive -Value $true -Scope Local
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({
+                            $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                            $args[0].Name -in @('Select-Subscription', 'Write-FinOpsConsole')
+                        }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                Mock Get-AzSubscription {
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Other tenant'; TenantId = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'; State = 'Enabled' }
+                }
+
+                { Select-Subscription -PreselectedId '11111111-1111-1111-1111-111111111111' } |
+                Should -Throw '*current tenant*'
+
+                Should -Invoke Set-AzContext -Times 0 -Exactly
+                Should -Invoke Connect-AzAccount -Times 0 -Exactly
+                Should -Invoke Get-AzTenant -Times 0 -Exactly
+            }
+
+            It 'Rejects a <ContextState> context before source discovery' -Tag 'SourceSelectionIsolation' -ForEach @(
+                @{ ContextState = 'missing'; ContextTenant = $null }
+                @{ ContextState = 'different tenant'; ContextTenant = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Set-Variable -Name NonInteractive -Value $true -Scope Local
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({
+                            $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                            $args[0].Name -in @('Select-DataSource', 'Write-FinOpsConsole')
+                        }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                Mock Get-AzContext {
+                    if ($ContextTenant) { [pscustomobject]@{ Tenant = @{ Id = $ContextTenant } } }
+                }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+
+                { Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -Preselected API } |
+                Should -Throw '*current Azure context*selected tenant*'
+
+                Should -Invoke Search-AzGraph -Times 0 -Exactly
+                Should -Invoke Set-AzContext -Times 0 -Exactly
+                Should -Invoke Connect-AzAccount -Times 0 -Exactly
+            }
+
+            It 'Stops a <ContextState> tenant before subscription enumeration' -Tag 'SourceSelectionIsolation' -ForEach @(
+                @{ ContextState = 'missing'; InitialTenant = $null; EnumeratingTenant = $null }
+                @{ ContextState = 'changed'; InitialTenant = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'; EnumeratingTenant = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' }
+            ) {
+                Set-Variable -Name NonInteractive -Value $true -Scope Local
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({
+                            $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                            $args[0].Name -in @('Select-Subscription', 'Write-FinOpsConsole')
+                        }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                $contextChecks = @{ Count = 0 }
+                Mock Get-AzContext {
+                    $contextChecks.Count++
+                    $currentTenant = if ($contextChecks.Count -eq 1) { $InitialTenant } else { $EnumeratingTenant }
+                    [pscustomobject]@{ Account = @{ Id = 'test@example.test' }; Tenant = @{ Id = $currentTenant } }
+                }
+                Mock Get-AzTenant { [pscustomobject]@{ TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' } }
+
+                { Select-Subscription } | Should -Throw '*tenant*'
+
+                Should -Invoke Get-AzSubscription -Times 0 -Exactly
+                Should -Invoke Set-AzContext -Times 0 -Exactly
+                Should -Invoke Connect-AzAccount -Times 0 -Exactly
+            }
+
+            It 'Keeps an explicit Hub request strict after <ProbeState> discovery failure' -Tag 'SourceSelectionIsolation', 'MergeBlockerDiscovery' -ForEach @(
+                @{ ProbeState = 'partial'; AllProbesFail = $false }
+                @{ ProbeState = 'complete'; AllProbesFail = $true }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Set-Variable -Name NonInteractive -Value $true -Scope Local
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({
+                            $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                            $args[0].Name -in @('Select-DataSource', 'Write-FinOpsConsole')
+                        }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                Mock Search-AzGraph {
+                    if ($AllProbesFail -or $Subscription -contains '22222222-2222-2222-2222-222222222222') { throw 'Synthetic discovery HTTP 429.' }
+                    @()
+                }
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }
+                )
+
+                { Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -Preselected Hub } |
+                Should -Throw '*discovery is incomplete*429*'
 
                 Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+                Should -Invoke Read-Host -Times 0 -Exactly
+            }
+
+            It 'Honors explicit <Source> without running Hub discovery' -Tag 'SourceSelectionIsolation' -ForEach @(
+                @{ Source = 'API' }
+                @{ Source = 'GraphOnly' }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = 'https://unused.example.test'
+                Set-Variable -Name NonInteractive -Value $true -Scope Local
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({
+                            $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                            $args[0].Name -in @('Select-DataSource', 'Write-FinOpsConsole')
+                        }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                Mock Search-AzGraph { throw 'Explicit choices must not probe.' }
+                Mock Resolve-FOHubProvider { throw 'Explicit API/GraphOnly must ignore the configured Hub.' }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+
+                $choice = Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -Preselected $Source
+
+                $choice.Source | Should -Be $Source
+                Should -Invoke Search-AzGraph -Times 0 -Exactly
+                Should -Invoke Resolve-FOHubProvider -Times 0 -Exactly
+            }
+
+            It 'Uses the Hub storage fallback after <FailureKind>' -Tag 'SourceSelectionIsolation', 'MergeBlockerDiscovery' -ForEach @(
+                @{ FailureKind = 'a normal Kusto discovery failure'; ProviderThrows = $false }
+                @{ FailureKind = 'a provider resolver exception'; ProviderThrows = $true }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Set-Variable -Name NonInteractive -Value $false -Scope Local
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({
+                            $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                            $args[0].Name -in @('Select-DataSource', 'Read-FinOpsAnswer', 'Write-FinOpsConsole', 'Invoke-SelectedScans', 'Write-SectionHeader')
+                        }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                Mock Read-FinOpsAnswer { '1' }
+                Mock Search-AzGraph { [pscustomobject]@{ name = 'test-hub'; resourceGroup = 'test'; subscriptionId = '11111111-1111-1111-1111-111111111111' } }
+                Mock Search-AzGraphSafe -ModuleName FinOpsMultitool { throw 'Synthetic Kusto discovery HTTP 429.' }
+                if ($ProviderThrows) {
+                    Mock Resolve-FOHubProvider { throw 'Synthetic provider resolver exception.' }
+                }
+                Mock Measure-FinOpsHubSize { @{ Known = $true; Reachable = $true; IsLarge = $false; Display = 'synthetic small Hub' } }
+                Mock Invoke-AzRestMethodWithRetry { throw 'The storage fixture must not make live enrichment requests.' }
+                Mock Read-FinOpsHubData {
+                    [pscustomobject]@{ SubAccountId = '11111111-1111-1111-1111-111111111111'; BilledCost = 100; BillingCurrency = 'USD'; ChargePeriodStart = '2026-08-01'; Tags = '' }
+                }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+
+                $choice = Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions
+
+                $choice.Source | Should -Be 'Hub'
+                $choice.HubStorage.name | Should -Be 'test-hub'
+                $choice.HubProvider | Should -BeNullOrEmpty
+                $choice.HubProviderResolved | Should -BeTrue
+
+                $scan = Invoke-SelectedScans -Modules @(@{ Name = 'Cost Data'; Fn = 'Get-CostData'; Selected = $true }) -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -DataSource $choice
+
+                $scan.ContainsKey('_error_Get-CostData') | Should -BeFalse
+                $scan['Get-CostData']['11111111-1111-1111-1111-111111111111'].Actual | Should -Be 100
+                Should -Invoke Read-FinOpsHubData -Times 1 -Exactly -ParameterFilter { $StorageAccountName -eq 'test-hub' -and @($SubscriptionIds).Count -eq 1 -and $SubscriptionIds[0] -eq '11111111-1111-1111-1111-111111111111' }
+                if ($ProviderThrows) {
+                    Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { "$Object" -match 'provider discovery failed.*Synthetic provider resolver exception' }
+                    Should -Invoke Resolve-FOHubProvider -Times 1 -Exactly
+                }
+                Should -Invoke Set-AzContext -Times 0 -Exactly
+                Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+            }
+
+            It 'Handles runner provider exceptions with <Scenario>' -Tag 'SourceSelectionIsolation', 'MergeBlockerDiscovery' -ForEach @(
+                @{ Scenario = 'selected Hub storage'; HasStorage = $true; ConfiguredUri = $null; ExpectedFallback = $true }
+                @{ Scenario = 'an explicit Kusto endpoint'; HasStorage = $true; ConfiguredUri = 'https://configured.example.test'; ExpectedFallback = $false }
+                @{ Scenario = 'no selected Hub storage'; HasStorage = $false; ConfiguredUri = $null; ExpectedFallback = $false }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $ConfiguredUri
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({
+                            $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                            $args[0].Name -in @('Invoke-SelectedScans', 'Write-SectionHeader', 'Write-FinOpsConsole')
+                        }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                Mock Resolve-FOHubProvider { throw 'Synthetic runner provider failure.' }
+                Mock Invoke-AzRestMethodWithRetry { throw 'The storage fixture must not make live enrichment requests.' }
+                Mock Read-FinOpsHubData {
+                    [pscustomobject]@{ SubAccountId = '11111111-1111-1111-1111-111111111111'; BilledCost = 100; BillingCurrency = 'USD'; ChargePeriodStart = '2026-08-01'; Tags = '' }
+                }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+                $source = @{ Source = 'Hub'; HubStorage = $(if ($HasStorage) { @{ name = 'test-hub'; resourceGroup = 'test' } } else { $null }) }
+                $modules = @(@{ Name = 'Cost Data'; Fn = 'Get-CostData'; Selected = $true })
+
+                if ($ExpectedFallback) {
+                    $scan = Invoke-SelectedScans -Modules $modules -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -DataSource $source
+                    $scan['Get-CostData']['11111111-1111-1111-1111-111111111111'].Actual | Should -Be 100
+                    Should -Invoke Read-FinOpsHubData -Times 1 -Exactly -ParameterFilter { $StorageAccountName -eq 'test-hub' -and @($SubscriptionIds).Count -eq 1 -and $SubscriptionIds[0] -eq '11111111-1111-1111-1111-111111111111' }
+                    Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { "$Object" -match 'provider discovery failed.*Synthetic runner provider failure' }
+                }
+                else {
+                    { Invoke-SelectedScans -Modules $modules -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -DataSource $source } |
+                        Should -Throw '*Synthetic runner provider failure*'
+                    Should -Invoke Read-FinOpsHubData -Times 0 -Exactly
+                }
+                Should -Invoke Resolve-FOHubProvider -Times 1 -Exactly
+                Should -Invoke Invoke-FOHubKustoQuery -ModuleName FinOpsMultitool -Times 0 -Exactly
+                Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+                Should -Invoke Connect-AzAccount -Times 0 -Exactly
+                Should -Invoke Set-AzContext -Times 0 -Exactly
+            }
+
+            It 'Completes a scoped API scan after partial automatic Hub discovery failure' -Tag 'SourceSelectionIsolation' {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Mock Get-AzTenant { [pscustomobject]@{ TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'; Name = 'Selected tenant' } }
+                Mock Get-AzSubscription {
+                    @(
+                        [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Reachable'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'; State = 'Enabled' }
+                        [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Throttled'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'; State = 'Enabled' }
+                    )
+                }
+                Mock Search-AzGraph {
+                    if ($Subscription -contains '22222222-2222-2222-2222-222222222222') { throw 'Synthetic discovery HTTP 429.' }
+                    @()
+                }
+                Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool {
+                    if ($Path -notmatch '^/subscriptions/(11111111-1111-1111-1111-111111111111|22222222-2222-2222-2222-222222222222)/') { throw 'Unexpected query scope.' }
+                    $amount = if ($Path -like '*forecast*') { 150.0 } else { 100.0 }
+                    $content = @{ properties = @{ columns = @(@{ name = 'Cost' }, @{ name = 'Currency' }); rows = @(, @($amount, 'USD')) } } | ConvertTo-Json -Depth 8
+                    [pscustomobject]@{ StatusCode = 200; Content = $content }
+                }
+                $reportRoot = Join-Path $TestDrive 'partial-hub-discovery'
+
+                Start-FinOpsMultitool -Scans Get-CostData -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+
+                $runs = @(Get-ChildItem -LiteralPath $reportRoot -Directory)
+                $runs.Count | Should -Be 1
+                $csvFile = Get-ChildItem -LiteralPath $runs[0].FullName -Filter '*.csv'
+                $rows = @(Import-Csv -LiteralPath $csvFile.FullName)
+                $rows.Count | Should -Be 2
+                $rows.SubscriptionId | Should -Contain '11111111-1111-1111-1111-111111111111'
+                $rows.SubscriptionId | Should -Contain '22222222-2222-2222-2222-222222222222'
+                $rows | Where-Object { $_.Actual -ne '100' } | Should -BeNullOrEmpty
+                Get-Content -LiteralPath (Join-Path $runs[0].FullName 'FinOpsReport.html') -Raw | Should -Match 'Cost data: Cost Management API'
+                Should -Invoke Get-AzSubscription -Times 1 -Exactly -ParameterFilter { $TenantId -eq 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }
+                Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 4 -Exactly
+                Should -Invoke Invoke-FOHubKustoQuery -ModuleName FinOpsMultitool -Times 0 -Exactly
+                Should -Invoke Set-AzContext -Times 0 -Exactly
+                Should -Invoke Connect-AzAccount -Times 0 -Exactly
+            }
+
+            It 'Completes an automatic scoped API scan when all Hub discovery probes fail' -Tag 'SourceSelectionIsolation', 'MergeBlockerDiscovery' {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Mock Search-AzGraph { throw 'Synthetic Resource Graph HTTP 403.' }
+                $reportRoot = Join-Path $TestDrive 'all-hub-probes-failed'
+
+                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+
+                $result = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
+                $result['Get-CostData'].Count | Should -Be 1
+                $result['Get-CostData']['11111111-1111-1111-1111-111111111111'].Actual | Should -Be 100
+                $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+                (Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw).Contains('Cost data: Cost Management API') | Should -BeTrue
+                Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { "$Object" -match 'Hub discovery is incomplete' }
+                Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 2 -Exactly
+                Should -Invoke Get-AzTenant -Times 0 -Exactly
+                Should -Invoke Connect-AzAccount -Times 0 -Exactly
             }
 
             It 'Attributes a failed Hub converter only to its own scan' {
@@ -342,7 +683,7 @@ function Invoke-FinOpsMultitool {
                 Mock ConvertTo-CostDataFromHub { throw 'Synthetic summary conversion failed.' }
                 $reportRoot = Join-Path $TestDrive 'independent-hub-converters'
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans @('Get-CostData','Get-ResourceCosts','Get-CostByTag') -DataSource Hub -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag') -DataSource Hub -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
 
                 $result = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
                 $result['_error_Get-CostData'] | Should -Match 'Synthetic summary'
@@ -413,7 +754,7 @@ function Invoke-FinOpsMultitool {
 
                 Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans @('Get-TagInventory', $CostScan) -DataSource GraphOnly -OutputPath (Join-Path $TestDrive "graph-$CostScan") -NonInteractive -ErrorAction Stop
 
-                foreach ($command in @('Get-BudgetHistory','Get-BudgetStatus','Get-CostTrend','Get-UnitEconomics','Get-AIWorkloadMetrics','Get-MaccCommitment')) { Should -Invoke $command -Times 0 -Exactly }
+                foreach ($command in @('Get-BudgetHistory', 'Get-BudgetStatus', 'Get-CostTrend', 'Get-UnitEconomics', 'Get-AIWorkloadMetrics', 'Get-MaccCommitment')) { Should -Invoke $command -Times 0 -Exactly }
                 Should -Invoke Get-TagInventory -Times 1 -Exactly
                 Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
             }

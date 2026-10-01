@@ -42,11 +42,15 @@ Install-Module Az.Accounts, Az.ResourceGraph, Az.Storage -Scope CurrentUser
 
 ### 1. Authentication
 
-On an interactive launch, the TUI checks for an existing `Az.Accounts` session and starts `Connect-AzAccount` when needed. `-NonInteractive` requires an existing Azure context and fails before scanning if none is available; authenticate with the intended identity first. If you supply `-SubscriptionId`, the tool resolves the subscription and sets the subscription and tenant context before displaying menus. Otherwise, the tool offers a tenant menu when supported and discovers subscriptions in the selected tenant.
+On an interactive launch, the TUI checks for an existing `Az.Accounts` session and starts `Connect-AzAccount` when needed. `-NonInteractive` requires an existing Azure context; authenticate with the intended identity first. If you supply `-SubscriptionId`, the subscription must resolve in the current tenant. A failed or mismatched lookup stops without searching other tenants or widening the scan. A valid lookup selects that subscription for the current process only. Otherwise, the tool offers a tenant menu when supported and discovers subscriptions in the selected tenant. A missing or changed tenant stops subscription enumeration, and every selected subscription must belong to that tenant before source discovery.
 
 ### 2. Data source selection
 
 During interactive source selection, you can choose Cost Management API or Resource Graph only. FinOps Hub is also offered when a hub is detected:
+
+Automatic Hub discovery queries only the selected subscriptions in the verified Azure context. If a Hub can't be verified, discovery failures remain visible, interactive runs still offer API or GraphOnly, and `-NonInteractive` defaults to API without changing scope. This applies even when every discovery probe fails. An explicit Hub request still stops if no configured endpoint or detected storage account is available. Explicit API and GraphOnly selections skip Hub discovery.
+
+If provider discovery throws for a detected Hub, the tool warns and checks that Hub's storage reader. Storage sizing and reachability warnings still apply. The selected storage path is carried into the scan runner without repeating provider discovery. A configured Kusto endpoint or a failed Kusto cost query doesn't silently switch to storage or API.
 
 | Source                  | Description                                                                                                                                      |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -101,6 +105,8 @@ Guidance includes FinOps Foundation best practices, actionable next steps, and l
 Each completed run automatically saves one CSV file per selected scan, a `FinOpsReport.html` summary, and a `ScanSummary.txt` text summary on the machine running the multitool. Failed or empty scans have a CSV status record. There's no export prompt or format picker.
 
 The HTML report opens with the **FinOps story**: selected tenant and subscriptions, observed spend, largest resource costs, scan status, and follow-up actions. Actual costs stay separate by subscription, currency, and reported period. Full-month forecasts are separate estimates, and unavailable amounts aren't treated as zero. Failed scans and evidence gaps link to their detailed results.
+
+For more than five subscriptions, the report shows a compact scope count with an expandable list of names and IDs. Result tables have sticky headers, row numbers, local search, sortable columns, and 25-row pages. Filters include text in collapsed details. Column edges support pointer dragging or keyboard arrow keys, and **Expand** opens a larger table view; **Close** or Escape restores its place and state. Tag inventory and policy recommendations retain expandable details. Wide tables scroll within their own frames on small screens. Printing includes all matching rows, not just the current page. These display controls don't change scan results or remove data from CSV exports. The HTML is self-contained and makes no external requests for these controls.
 
 The story highlights up to five positive resource costs per subscription, currency, and period. **All returned resource costs** opens the complete returned resource table, including credits and any resource IDs and periods the data source provided. Source query limits can omit resources; this view doesn't prove the inventory is complete. A high cost alone isn't evidence of waste.
 
@@ -172,6 +178,10 @@ If an initiative can't be read, unmatched policies appear as **Unknown**, not **
 
 Policy compliance coverage is separate from assignment coverage. When ARG coverage is incomplete, the tool requests REST resource summaries for every selected subscription rather than combining the two counting methods. If those requests don't establish complete coverage, the report retains available evidence but leaves the overall percentage unverified. Assignments are identified by resource ID, so different assignments with the same display name remain distinct.
 
+Policy definition reads have separate coverage too. Failed or malformed reads produce a visible warning and a **Limited data** result. `DefinitionCoverageIncomplete` and `DefinitionErrors` identify the gap in the scan result and CSV export. Already-read assignments and valid compliance percentages remain available. An unresolved effect in a successfully read definition isn't counted as a failed read.
+
+Policy locations display available subscription and management-group names while retaining the original scope IDs. Subscription names come from the selected scope. The inventory looks up only distinct management groups referenced by its assignments and accepts a display name only when the response matches the requested group and tenant. If a name can't be verified, the ID remains visible and `ScopeNameErrors` records the reason; assignment and compliance results aren't discarded. HTML details retain the raw IDs, and CSV includes `Scope` and `ScopeDisplayName`.
+
 ### Cost Analysis
 
 | Scan           | What it finds                                                                                       |
@@ -182,7 +192,15 @@ Policy compliance coverage is separate from assignment coverage. When ARG covera
 | Cost Trend     | Month-over-month spend comparison                                                                   |
 | Unit Economics | Cost per vCPU, per GB RAM, per VM, and per GB stored (disk + blob/file, with compute/storage split) |
 
-Cost trend requires explicit cost, date, and currency fields. It rejects monthly totals that would combine different currencies rather than labeling the combined amount with one currency.
+Resource-cost API queries capture one UTC window from the first day of the current month to the query time. Every returned row carries that same window in `ActualPeriod`, `ActualPeriodStart`, and `ActualPeriodEnd`, with `ActualPeriodSource` set to `Query window`. This describes the requested period, not proof that billing data is complete through its end. Resource names and types are derived from the returned ID, including nested resources and reservation charges. The original `ResourcePath` remains in CSV and expandable HTML details. Charges without subscription attribution aren't assigned to an arbitrary subscription; subscription-scoped responses retain their known query scope.
+
+Cost trend shows a selected-scope aggregate and a subscription view with names and IDs. API queries capture one UTC window covering six full months and the current partial month. HTML labels that partial month from the captured query end, not the date you open the report. `CostPeriodStartUtc`, `CostPeriodEndUtc`, `CostBasis`, and `QueryScope` retain the request context in the result and CSV export. The window doesn't establish billing-data completeness.
+
+Coverage distinguishes subscriptions with returned rows, successful empty subscription queries (`NoDataSubscriptionIds`), and selected subscriptions absent from a grouped response (`UnverifiedSubscriptionIds`). An absent subscription isn't assumed to have zero cost or confirmed access failure. Unverified coverage sets `CoverageIncomplete`; the aggregate isn't described as a whole-tenant total. Requests and returned grouped rows are filtered to the selected IDs. Missing months aren't filled with zero, and switching views doesn't remove aggregate or per-subscription CSV data. Older results without metadata remain readable but show unverified coverage and an unrecorded query window.
+
+Cost trend requires explicit cost, date, and currency fields. It rejects monthly totals that would combine different currencies rather than labeling the combined amount with one currency. Failed required responses or continuation pages still fail the scan instead of publishing a partial total.
+
+Management-group cost-scope discovery tries at most 25 distinct candidates: up to 24 non-root groups, then the tenant root. List pagination remains intact, and each candidate keeps the existing low retry budget. The limit applies to candidates, not total HTTP requests. A warning identifies when groups are left unprobed; this doesn't establish that those groups lack cost access. If none of the bounded candidates works, cost scans query the selected subscriptions individually. Discovery results and failure state are cached only for the requested tenant during the scan.
 
 On the API path, **Cost by Tag** keeps results from subscriptions whose full cost query succeeded when another subscription fails. `CoverageIncomplete`, `ScannedSubs`, `TotalSubs`, `SuccessfulSubscriptionIds`, and `FailedSubscriptions` identify the coverage and failures. Reports show **Limited data**, and whole-scope allocation KPIs remain unavailable. If every subscription fails, the scan reports an error. Failed continuation pages don't contribute partial costs, and missing resource or resource-group tag maps stop the scan rather than classifying unknown tags as untagged. Amounts from different currencies aren't combined.
 
@@ -198,6 +216,8 @@ Advisor and reservation recommendations retain each recommendation's savings cur
 
 AI usage counts remain available when monetary rates can't be calculated. Missing or mixed billing currencies suppress combined and per-account monetary outputs; `CostIssue` explains why. Token and request rates use costs from accounts with the corresponding measured usage, not all Cognitive Services spend. Failed metric reads suppress aggregate rates and expose a `RateIssue`; reports retain the separate spend and available usage evidence. Missing measurements aren't treated as measured zero.
 
+Live AI queries share one captured UTC month-to-date window for Azure Monitor usage and amortized account cost. Token totals use the measured `TokenTransaction` value per account and deployment, including zero; the fallback uses prompt plus generated tokens only when both were measured. Account, deployment, and overall totals use that same basis. `TokenBasis`, `ResourceId`, and `SubscriptionId` retain the identity and calculation, so same-named deployments in different accounts don't merge. Hub model-meter rows also retain account identity. Missing requests or tokens remain unavailable, and incomplete measurements suppress account and aggregate rates. These are effective account rates, not model prices or a billing reconciliation. See the [Azure OpenAI metric definitions](https://learn.microsoft.com/azure/foundry/openai/monitor-openai-reference#metrics).
+
 ### Commitments
 
 | Scan                   | What it finds                                                                           |
@@ -206,6 +226,8 @@ AI usage counts remain available when monetary rates can't be calculated. Missin
 | Commitment Utilization | RI and Savings Plan usage rates                                                         |
 | Savings Realized       | Estimates of commitment and Azure Hybrid Benefit savings, not measured realized savings |
 
+Commitment utilization shows all returned reservations and savings plans, with their IDs and latest returned usage periods. Missing SKU or resource-kind metadata triggers a targeted [reservation details](https://learn.microsoft.com/rest/api/reserved-vm-instances/reservation/get?view=rest-reserved-vm-instances-2022-11-01) lookup; a returned name is accepted only when its resource ID matches. Denied or invalid metadata retains the ID and known utilization. Provisioning state and billing scope aren't substituted for SKU or kind. Missing percentages and absent commitment types have unavailable averages, not 0%; a measured 0% remains zero. Averages are unweighted and aren't reported for incomplete or unscoped coverage. Billing-scope results and the explicitly labeled reservation-order fallback can include commitments outside the selected subscriptions.
+
 The scan keeps the **Savings Realized** name for compatibility. Reservation and savings plan estimates use assumed effective discounts of 40% and 25%. Azure Hybrid Benefit estimates use a Windows license premium when available, with a fallback estimate otherwise. Results include `IsEstimate` and `EstimateBasis`. Compare the estimates with matching pay-as-you-go rates and benefit usage before reporting realized savings.
 
 Commitment estimates cover usage charges in the captured UTC month-to-date period and retain the billing currency. Purchases, refunds, and unused commitment charges are excluded before aggregation. Unknown, nonmonetary, or mixed billing currencies stop the scan instead of producing a combined amount. Negative usage adjustments also stop the estimate because the assumed discount can't produce a comparable savings amount. Use `RISavingsMonthToDate`, `SPSavingsMonthToDate`, and `CommitmentSavingsMonthToDate`, together with `Currency` and `Period`.
@@ -213,6 +235,8 @@ Commitment estimates cover usage charges in the captured UTC month-to-date perio
 The AHB estimate is separate: `AHBSavingsMonthly` represents 730 hours for the current VM inventory in USD, using a retail Windows license premium or a USD 50 per-VM fallback. `AHBCurrency` and `AHBPeriod` identify those units. The scan doesn't combine these amounts or annualize them. The legacy `RISavingsMonthly`, `SPSavingsMonthly`, `TotalMonthly`, and `TotalAnnual` fields remain present but are empty.
 
 ### Monitoring
+
+For more than 50 selected subscriptions, Budget Status samples ten first. If all ten queries succeed without budgets, the remaining subscriptions aren't queried and coverage stays unverified. The report labels this as sampling, not an access denial. Smaller selections query every selected subscription. The scan covers subscription budgets, not all resource-group, management-group, or billing-scope budgets.
 
 | Scan           | What it finds                                                  |
 | -------------- | -------------------------------------------------------------- |

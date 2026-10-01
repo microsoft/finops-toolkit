@@ -1338,11 +1338,9 @@ function ConvertTo-AIHubAggregates {
 
         $cost = Get-HubCostValue -Row $row -Column $costCol
 
-        $cur = Get-HubRowValue -Row $row -Props $props -Names @('BillingCurrency', 'BillingCurrencyCode')
-        if ($cur) { $currency = "$cur" }
-
         if (-not $acctTokens.ContainsKey($ridKey)) {
-            $acctTokens[$ridKey] = @{ Name = "$name"; Tokens = 0.0; Requests = 0.0 }
+            $subscriptionId = if ($ridKey -match '^/subscriptions/([^/]+)/') { $Matches[1] } else { $null }
+            $acctTokens[$ridKey] = @{ Name = "$name"; SubscriptionId = $subscriptionId; Tokens = 0.0; Requests = 0.0 }
         }
         if (-not $costByAcct.ContainsKey($ridKey)) { $costByAcct[$ridKey] = 0.0 }
         $costByAcct[$ridKey] += $cost
@@ -1361,9 +1359,10 @@ function ConvertTo-AIHubAggregates {
         if (-not $mult.Known) { $approximate = $true }
         $tokens = $qty * $mult.Multiplier
 
-        $modelKey = Get-AIModelKeyFromMeter -Meter "$meter"
+        $modelName = Get-AIModelKeyFromMeter -Meter "$meter"
+        $modelKey = "$ridKey|$modelName"
         if (-not $modelTokens.ContainsKey($modelKey)) {
-            $modelTokens[$modelKey] = @{ Prompt = 0.0; Generated = 0.0; Total = 0.0 }
+            $modelTokens[$modelKey] = @{ Deployment = $modelName; Account = "$name"; ResourceId = $ridKey; SubscriptionId = $acctTokens[$ridKey].SubscriptionId; Prompt = 0.0; Generated = 0.0; Total = 0.0 }
         }
 
         if ("$meter" -match '(?i)\b(inp|input|prompt|cached|cache)\b') {

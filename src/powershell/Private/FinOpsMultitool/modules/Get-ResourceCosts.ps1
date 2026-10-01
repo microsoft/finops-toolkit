@@ -42,7 +42,14 @@ function Get-ResourceCosts {
     # per-resource Cost Management query only returns ActualCost (MTD), so a
     # native forecast is not available. Project to month-end (Actual / dayOfMonth
     # * daysInMonth) so Forecast is a real projection instead of equal to Actual.
-    $now = Get-Date
+    $now = (Get-Date).ToUniversalTime()
+    $costPeriodEnd = $now.AddTicks(-($now.Ticks % [TimeSpan]::TicksPerSecond))
+    $costPeriodStart = $costPeriodEnd.Date.AddDays(1 - $costPeriodEnd.Day)
+    $queryPeriod = @{
+        from = $costPeriodStart.ToString('yyyy-MM-ddTHH:mm:ssZ')
+        to = $costPeriodEnd.ToString('yyyy-MM-ddTHH:mm:ssZ')
+    }
+    $actualPeriod = '{0:yyyy-MM-dd HH:mm} to {1:yyyy-MM-dd HH:mm} UTC (query window)' -f $costPeriodStart, $costPeriodEnd
     $daysInMonth = [DateTime]::DaysInMonth($now.Year, $now.Month)
     $dayOfMonth = [math]::Max(1, $now.Day)
     $forecastMult = $daysInMonth / $dayOfMonth
@@ -86,6 +93,40 @@ function Get-ResourceCosts {
         'microsoft.hybridcompute/machines'           = 'Arc Server'
     }
 
+    $subNameMap = @{}
+    foreach ($subscription in $Subscriptions) { $subNameMap[[string]$subscription.Id] = [string]$subscription.Name }
+
+    function Get-ResourceCostIdentity {
+        param([string]$ResourceId, [object]$QuerySubscription)
+
+        $subscriptionId = if ($QuerySubscription) { [string]$QuerySubscription.Id } else { '' }
+        if ($ResourceId -match '^/subscriptions/([^/]+)(?:/|$)') { $subscriptionId = $Matches[1] }
+        $subscriptionName = if ($subscriptionId -and $subNameMap.ContainsKey($subscriptionId) -and $subNameMap[$subscriptionId]) { $subNameMap[$subscriptionId] }
+        elseif ($subscriptionId) { $subscriptionId }
+        else { 'Not attributed' }
+        $resourceName = 'No resource ID recorded'
+        $resourceType = 'Unattributed charge'
+        if (-not [string]::IsNullOrWhiteSpace($ResourceId)) {
+            $resourceType = 'Unknown'
+            $segments = @($ResourceId.TrimEnd('/').Split('/', [StringSplitOptions]::RemoveEmptyEntries))
+            $resourceName = $segments[-1]
+            $providerIndex = -1
+            for ($segmentIndex = 0; $segmentIndex -lt $segments.Count; $segmentIndex++) {
+                if ($segments[$segmentIndex] -eq 'providers') { $providerIndex = $segmentIndex }
+            }
+            if ($providerIndex -ge 0 -and $segments.Count -gt ($providerIndex + 2)) {
+                $typeSegments = @(for ($segmentIndex = $providerIndex + 2; $segmentIndex -lt $segments.Count; $segmentIndex += 2) { $segments[$segmentIndex] })
+                $providerType = ($segments[$providerIndex + 1] + '/' + ($typeSegments -join '/')).ToLowerInvariant()
+                $resourceType = if ($typeMap.ContainsKey($providerType)) { $typeMap[$providerType] } else { $providerType -replace '^microsoft\.', '' }
+            }
+            if ($ResourceId -match '(?i)^/providers/Microsoft\.Capacity/reservationOrders/([^/]+)/reservations(?:/([^/]+))?/?$') {
+                $resourceType = 'Reservation charge'
+                $resourceName = if ($Matches[2]) { $Matches[2] } else { "Reservation charge (order $($Matches[1]))" }
+            }
+        }
+        [pscustomobject]@{ Subscription = $subscriptionName; SubscriptionId = $subscriptionId; ResourceName = $resourceName; ResourceType = $resourceType }
+    }
+
     $gotMgData = $false
 
     # -- Strategy 1: MG-scope query (1-10 API calls instead of 300+) ----
@@ -111,7 +152,8 @@ function Get-ResourceCosts {
             if ($subFilter) { $rcDataset['filter'] = $subFilter }
             $body = @{
                 type      = 'ActualCost'
-                timeframe = 'MonthToDate'
+                timeframe = 'Custom'
+                timePeriod = $queryPeriod
                 dataset   = $rcDataset
             } | ConvertTo-Json -Depth 10
 
@@ -136,21 +178,23 @@ function Get-ResourceCosts {
                         foreach ($row in $page.properties.rows) {
                             $cost = [math]::Round($row[$cols['Cost']], 2)
                             $currency = $row[$cols['Currency']]
-                            $resourceId = $row[$cols['ResourceId']]
+                                $resourceId = [string]$row[$cols['ResourceId']]
                             $rg = $row[$cols['ResourceGroupName']]
 
-                            $resType = 'Unknown'
-                            if ($resourceId -match '/providers/(.+)/([^/]+)$') {
-                                $providerType = $Matches[1].ToLower()
-                                $resType = if ($typeMap.ContainsKey($providerType)) { $typeMap[$providerType] } else { $providerType -replace 'microsoft\.', '' }
-                            }
+                                $identity = Get-ResourceCostIdentity -ResourceId $resourceId
 
                             [void]$allRows.Add([PSCustomObject]@{
-                                    Subscription  = ''
+                                    Subscription  = $identity.Subscription
+                                    SubscriptionId = $identity.SubscriptionId
                                     ResourceGroup = $rg
-                                    ResourceType  = $resType
+                                    ResourceType  = $identity.ResourceType
+                                    ResourceName  = $identity.ResourceName
                                     ResourcePath  = $resourceId
                                     Actual        = $cost
+                                    ActualPeriod = $actualPeriod
+                                    ActualPeriodStart = $costPeriodStart
+                                    ActualPeriodEnd = $costPeriodEnd
+                                    ActualPeriodSource = 'Query window'
                                     Forecast      = [math]::Round($cost * $forecastMult, 2)
                                     Currency      = $currency
                                 })
@@ -161,16 +205,6 @@ function Get-ResourceCosts {
                 if ($allRows.Count -gt 0) {
                     $gotMgData = $true
                     Write-Host "  MG scope: $($allRows.Count) resources across $pageNum page(s)" -ForegroundColor Green
-
-                    # Populate subscription names from ARM resource ID
-                    $subNameMap = @{}
-                    foreach ($sub in $Subscriptions) { $subNameMap[$sub.Id.ToLower()] = $sub.Name }
-                    foreach ($r in $allRows) {
-                        if ($r.ResourcePath -match '/subscriptions/([^/]+)/') {
-                            $sid = $Matches[1].ToLower()
-                            $r.Subscription = if ($subNameMap.ContainsKey($sid)) { $subNameMap[$sid] } else { $sid }
-                        }
-                    }
 
                     # Apply forecast ratios from CostData (actual + forecast per sub)
                     if ($CostData) {
@@ -227,7 +261,8 @@ function Get-ResourceCosts {
                 Write-Host "  Querying resource costs for $($sub.Name)..." -ForegroundColor Cyan
                 $body = @{
                     type      = 'ActualCost'
-                    timeframe = 'MonthToDate'
+                    timeframe = 'Custom'
+                    timePeriod = $queryPeriod
                     dataset   = @{
                         granularity = 'None'
                         aggregation = @{
@@ -259,22 +294,23 @@ function Get-ResourceCosts {
                             foreach ($row in $page.properties.rows) {
                                 $cost = [math]::Round($row[$cols['Cost']], 2)
                                 $currency = $row[$cols['Currency']]
-                                $resourceId = $row[$cols['ResourceId']]
+                                $resourceId = [string]$row[$cols['ResourceId']]
                                 $rg = $row[$cols['ResourceGroupName']]
 
-                                # Extract resource type from ARM ID
-                                $resType = 'Unknown'
-                                if ($resourceId -match '/providers/(.+)/([^/]+)$') {
-                                    $providerType = $Matches[1].ToLower()
-                                    $resType = if ($typeMap.ContainsKey($providerType)) { $typeMap[$providerType] } else { $providerType -replace 'microsoft\.', '' }
-                                }
+                                $identity = Get-ResourceCostIdentity -ResourceId $resourceId -QuerySubscription $sub
 
                                 $actualMap[$resourceId] = [PSCustomObject]@{
-                                    Subscription  = $sub.Name
+                                    Subscription  = $identity.Subscription
+                                    SubscriptionId = $identity.SubscriptionId
                                     ResourceGroup = $rg
-                                    ResourceType  = $resType
+                                    ResourceType  = $identity.ResourceType
+                                    ResourceName  = $identity.ResourceName
                                     ResourcePath  = $resourceId
                                     Actual        = $cost
+                                    ActualPeriod = $actualPeriod
+                                    ActualPeriodStart = $costPeriodStart
+                                    ActualPeriodEnd = $costPeriodEnd
+                                    ActualPeriodSource = 'Query window'
                                     Forecast      = [math]::Round($cost * $forecastMult, 2)
                                     Currency      = $currency
                                 }

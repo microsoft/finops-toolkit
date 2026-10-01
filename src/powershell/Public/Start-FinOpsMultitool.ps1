@@ -26,8 +26,9 @@
     run with no prompts at all.
 
     .PARAMETER SubscriptionId
-    Optional subscription ID to scope the scan to a single subscription. When omitted,
-    the tool discovers all accessible subscriptions.
+    Optional subscription ID in the current tenant. An unresolved or mismatched
+    subscription stops the scan without searching other tenants or widening scope.
+    When omitted, the tool discovers accessible subscriptions in the selected tenant.
 
     .PARAMETER OutputPath
     Optional local parent directory for reports. Each run creates a new timestamped
@@ -54,7 +55,9 @@
     Runs without prompting, for automation and scheduled jobs. Every choice comes from the
     parameters or their defaults: all accessible subscriptions in the current tenant unless
     SubscriptionId is set, a configured or detected hub or the Cost Management API unless DataSource is
-    set. Requires an existing Azure context; authenticate with the intended identity using
+    set. Failed automatic hub discovery warns and continues to API in the same scope,
+    even when every probe fails. Explicit Hub selections never switch to API.
+    Requires an existing Azure context; authenticate with the intended identity using
     Connect-AzAccount before running. Reports are saved automatically even when OutputPath is omitted.
 
     .EXAMPLE

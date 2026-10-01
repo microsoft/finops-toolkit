@@ -79,7 +79,10 @@ function Get-PolicyDefinitionMap {
     [CmdletBinding()]
     param(
         [Parameter()]
-        [string[]]$DefinitionIds
+        [string[]]$DefinitionIds,
+
+        [Parameter()]
+        [System.Collections.Generic.List[string]]$ReadErrors
     )
 
     $map = @{}
@@ -87,20 +90,20 @@ function Get-PolicyDefinitionMap {
         # The ID is concatenated ahead of a query string, so anything carrying '?',
         # '#' or '&' could rewrite the request. Accept only well-formed definition IDs.
         # The scope prefix is optional: built-ins start at /providers directly.
-        if ($id -notmatch '^(/[A-Za-z0-9._\-()/]+)?/providers/Microsoft\.Authorization/policyDefinitions/[A-Za-z0-9._\-()]+$') {
-            continue
-        }
         try {
+            if ($id -notmatch '^(/[A-Za-z0-9._\-()/]+)?/providers/Microsoft\.Authorization/policyDefinitions/[A-Za-z0-9._\-()]+$') {
+                throw 'The policy definition resource ID is invalid. No request was sent.'
+            }
             $resp = Invoke-AzRestMethodWithRetry -Path "$($id)?api-version=2023-04-01" -Method GET
             if (-not $resp -or $resp.StatusCode -ne 200) { throw "HTTP $($resp.StatusCode) while reading policy definition." }
-            if ($resp.StatusCode -eq 200) {
-                $def = $resp.Content | ConvertFrom-Json
-                if ($def.properties) { $map[[string]$id] = $def.properties }
-            }
+            $def = $resp.Content | ConvertFrom-Json -ErrorAction Stop
+            if (-not $def.properties) { throw 'The policy definition response has no properties.' }
+            $map[[string]$id] = $def.properties
         }
         catch {
-            # An unreadable definition just leaves the effect unresolved.
-            Write-Verbose "Policy definition '$id' could not be read: $($_.Exception.Message)"
+            $message = "Policy definition '$id' could not be read: $($_.Exception.Message)"
+            if ($null -ne $ReadErrors) { [void]$ReadErrors.Add($message) }
+            Write-Warning $message
             continue
         }
     }
@@ -413,13 +416,45 @@ policyresources
         }
     }
 
+    $scopeNames = @{}
+    $scopeNameErrors = [System.Collections.Generic.List[string]]::new()
+    foreach ($subscription in $Subscriptions) {
+        if ($subscription.Id -and $subscription.Name) { $scopeNames["/subscriptions/$($subscription.Id)"] = [string]$subscription.Name }
+    }
+    foreach ($assignment in $unique) {
+        $scopeId = ([string]$assignment.Scope).TrimEnd('/')
+        if (-not $scopeNames.ContainsKey($scopeId)) {
+            $scopeNames[$scopeId] = [string]$assignment.Scope
+            if ($scopeId -match '^/subscriptions/([^/]+)/resourceGroups/([^/]+)$' -and $scopeNames.ContainsKey("/subscriptions/$($Matches[1])")) {
+                $scopeNames[$scopeId] = "$($scopeNames["/subscriptions/$($Matches[1])"]) / $($Matches[2])"
+            }
+            elseif ($TenantId -and $scopeId -match '^/providers/Microsoft\.Management/managementGroups/[A-Za-z0-9._()\-]+$') {
+                try {
+                    $scopeResponse = Invoke-AzRestMethodWithRetry -Path "$($scopeId)?api-version=2020-05-01" -Method GET
+                    if (-not $scopeResponse -or $scopeResponse.StatusCode -ne 200) { throw "HTTP $($scopeResponse.StatusCode)." }
+                    $scopeBody = $scopeResponse.Content | ConvertFrom-Json -ErrorAction Stop
+                    if ($scopeBody.id -ne $scopeId -or $scopeBody.properties.tenantId -ne $TenantId) { throw 'The returned management group does not match the requested scope and tenant.' }
+                    if ([string]::IsNullOrWhiteSpace([string]$scopeBody.properties.displayName)) { throw 'The management group display name is missing.' }
+                    $scopeNames[$scopeId] = [string]$scopeBody.properties.displayName
+                }
+                catch {
+                    $message = "Policy scope name unavailable for '$scopeId': $($_.Exception.Message) The scope ID is retained."
+                    [void]$scopeNameErrors.Add($message)
+                    Write-Warning $message
+                }
+            }
+        }
+        $assignment | Add-Member -NotePropertyName ScopeDisplayName -NotePropertyValue $scopeNames[$scopeId]
+    }
+
     # -- Resolve effects the assignment did not override ---------------
+    $definitionErrors = [System.Collections.Generic.List[string]]::new()
     if ($unique.Count -gt 0) {
         # Only single policies need a definition lookup; initiatives resolve to 'varies'.
         $needsLookup = @($unique |
             Where-Object { $_.Origin -ne 'Initiative' -and (-not $_.Effect -or $_.Effect -eq '-') } |
             ForEach-Object { $_.PolicyDefId })
-        $defMap = if ($needsLookup.Count -gt 0) { Get-PolicyDefinitionMap -DefinitionIds $needsLookup } else { @{} }
+        $defMap = if ($needsLookup.Count -gt 0) { Get-PolicyDefinitionMap -DefinitionIds $needsLookup -ReadErrors $definitionErrors } else { @{} }
 
         foreach ($a in $unique) {
             $override = if ($a.Effect -and $a.Effect -ne '-') { $a.Effect } else { '' }
@@ -445,9 +480,13 @@ policyresources
         AssignmentCount              = $unique.Count
         CoverageIncomplete           = ($subFailures.Count -gt 0)
         AssignmentErrors             = $subFailures.ToArray()
+        DefinitionCoverageIncomplete = ($definitionErrors.Count -gt 0)
+        DefinitionErrors             = $definitionErrors.ToArray()
+        ScopeNameErrors              = $scopeNameErrors.ToArray()
         Note                         = (@(
                 if ($subFailures.Count -gt 0) { 'Some effective policy assignments could not be read. Missing assignments cannot be determined from this inventory.' }
                 if ($complianceIncomplete) { 'Policy compliance coverage is incomplete. Partial results do not establish a percentage for the selected scope.' }
+            if ($definitionErrors.Count -gt 0) { 'Policy definition coverage is incomplete. Some effects could not be resolved because their definitions could not be read.' }
             ) -join ' ')
         ComplianceCoverageIncomplete = $complianceIncomplete
         ComplianceErrors             = $complianceErrors.ToArray()

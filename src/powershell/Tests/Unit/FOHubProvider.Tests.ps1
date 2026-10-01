@@ -16,6 +16,30 @@ Describe 'FinOps Hub Kusto provider' {
         Remove-Module FinOpsMultitool -ErrorAction SilentlyContinue
     }
 
+    Context 'Storage lookup diagnostics' {
+        It 'Classifies <Message> as <Blocker> without a data-plane probe' -Tag 'DeferredReview' -ForEach @(
+            @{ Message = 'The request timed out.'; Blocker = 'LookupFailed' }
+            @{ Message = 'ResourceNotFound HTTP 404'; Blocker = 'LookupFailed' }
+            @{ Message = 'AuthorizationFailed HTTP 403'; Blocker = 'NoRbac' }
+            @{ Message = 'AuthenticationFailed HTTP 401'; Blocker = 'AuthenticationFailed' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Message = $Message; Blocker = $Blocker } {
+                param($Message, $Blocker)
+                $lookupMessage = $Message
+                Mock Get-AzStorageAccount { throw $lookupMessage }
+                Mock New-AzStorageContext { throw 'A data-plane probe must not run after a failed lookup.' }
+
+                $result = Test-HubStorageAccess -StorageAccountName 'examplestorage' -ResourceGroupName 'example-group'
+
+                $result.Readable | Should -BeFalse
+                $result.Blocker | Should -Be $Blocker
+                $result.Detail | Should -Match ([regex]::Escape($Message))
+                if ($Blocker -ne 'NoRbac') { $result.Remediation | Should -Not -Match '^Grant' }
+                Should -Invoke New-AzStorageContext -Times 0 -Exactly
+            }
+        }
+    }
+
     Context 'Unknown Hub coverage' {
         It 'Does not turn unreadable subscription metadata into complete coverage' {
             InModuleScope FinOpsMultitool {

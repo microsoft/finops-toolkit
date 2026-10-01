@@ -75,15 +75,15 @@ Describe 'Policy effect resolution' {
     }
 
     Context 'Unresolvable' {
-        It 'Preserves a verbose reason for an unreadable definition' {
+        It 'Warns visibly when a policy definition cannot be read' -Tag 'PolicyDefinitionCoverage' {
             InModuleScope FinOpsMultitool {
                 Mock Invoke-AzRestMethodWithRetry { [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
-                Mock Write-Verbose { }
+                Mock Write-Warning { }
 
                 $result = Get-PolicyDefinitionMap -DefinitionIds @('/providers/Microsoft.Authorization/policyDefinitions/fixture')
 
                 $result.Count | Should -Be 0
-                Should -Invoke Write-Verbose -Times 1 -Exactly -ParameterFilter { $Message -match 'fixture.*503' }
+                Should -Invoke Write-Warning -Times 1 -Exactly -ParameterFilter { $Message -match 'fixture.*503' }
             }
         }
 
@@ -103,6 +103,22 @@ Describe 'Policy effect resolution' {
     }
 
     Context 'Definition ID guard' {
+        It 'Records an invalid definition ID without sending a request' -Tag 'PolicyDefinitionCoverage' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-AzRestMethodWithRetry { throw 'An invalid definition ID must not be requested.' }
+                Mock Write-Warning { }
+                $readErrors = [System.Collections.Generic.List[string]]::new()
+
+                $result = Get-PolicyDefinitionMap -DefinitionIds @('/providers/Microsoft.Authorization/policyDefinitions/unsafe?api-version=bad') -ReadErrors $readErrors
+
+                $result.Count | Should -Be 0
+                $readErrors.Count | Should -Be 1
+                $readErrors[0] | Should -Match 'resource ID is invalid'
+                Should -Invoke Write-Warning -Times 1 -Exactly
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly
+            }
+        }
+
         # Get-PolicyDefinitionMap concatenates the ID ahead of a query string, so a
         # malformed ID could rewrite the request. These assert the accepted shapes.
         BeforeAll {
@@ -179,7 +195,146 @@ Describe 'Policy effect resolution' {
         }
     }
 
+    Context 'Definition read coverage' {
+        It 'Separates <Scenario> definition reads from assignment and compliance coverage' -Tag 'PolicyDefinitionCoverage' -ForEach @(
+            @{ Scenario = 'HTTP 503'; Incomplete = $true; ErrorPattern = '503' }
+            @{ Scenario = 'exception'; Incomplete = $true; ErrorPattern = 'Synthetic definition timeout' }
+            @{ Scenario = 'malformed JSON'; Incomplete = $true; ErrorPattern = 'definition' }
+            @{ Scenario = 'missing properties'; Incomplete = $true; ErrorPattern = 'properties' }
+            @{ Scenario = 'empty response'; Incomplete = $true; ErrorPattern = 'properties' }
+            @{ Scenario = 'unresolved parameter'; Incomplete = $false; ErrorPattern = $null }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Scenario = $Scenario; Incomplete = $Incomplete; ErrorPattern = $ErrorPattern } {
+                param($Scenario, $Incomplete, $ErrorPattern)
+                $fixtureScenario = $Scenario
+                $subscriptionId = '11111111-1111-1111-1111-111111111111'
+                $definitionId = '/providers/Microsoft.Authorization/policyDefinitions/unavailable'
+                Mock Write-Host { }
+                Mock Write-Warning { }
+                Mock Get-AzContext { throw 'Definition coverage tests must not read an Azure context.' }
+                Mock Invoke-RestMethod { throw 'Definition coverage tests must not make HTTP requests.' }
+                Mock Search-AzGraphSafe {
+                    [pscustomobject]@{ Data = @([pscustomobject]@{ subscriptionId = $subscriptionId; Total = 10; Compliant = 10; NonCompliant = 0 }) }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -eq "/subscriptions/$subscriptionId/providers/Microsoft.Authorization/policyAssignments?api-version=2022-06-01") {
+                        $assignments = @(foreach ($name in @('known', 'unavailable-one', 'unavailable-two')) {
+                            $policyId = if ($name -eq 'known') { '/providers/Microsoft.Authorization/policyDefinitions/known' } else { $definitionId }
+                            @{
+                                id = "/subscriptions/$subscriptionId/providers/Microsoft.Authorization/policyAssignments/$name"
+                                name = $name
+                                properties = @{ displayName = $name; policyDefinitionId = $policyId }
+                            }
+                        })
+                        return [pscustomobject]@{ StatusCode = 200; Content = (@{ value = $assignments } | ConvertTo-Json -Depth 8) }
+                    }
+                    if ($Path -eq '/providers/Microsoft.Authorization/policyDefinitions/known?api-version=2023-04-01') {
+                        return [pscustomobject]@{ StatusCode = 200; Content = '{"properties":{"policyRule":{"then":{"effect":"Deny"}}}}' }
+                    }
+                    if ($Path -ne "$($definitionId)?api-version=2023-04-01") { throw 'Unexpected request scope.' }
+                    switch ($fixtureScenario) {
+                        'HTTP 503' { [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
+                        'exception' { throw 'Synthetic definition timeout.' }
+                        'malformed JSON' { [pscustomobject]@{ StatusCode = 200; Content = '{invalid' } }
+                        'missing properties' { [pscustomobject]@{ StatusCode = 200; Content = '{}' } }
+                        'empty response' { [pscustomobject]@{ StatusCode = 200; Content = '' } }
+                        'unresolved parameter' {
+                            [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ policyRule = @{ then = @{ effect = "[parameters('effect')]" } } } } | ConvertTo-Json -Depth 6) }
+                        }
+                    }
+                }
+
+                $inventory = Get-PolicyInventory -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions @(
+                    [pscustomobject]@{ Id = $subscriptionId; Name = 'Selected subscription'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }
+                )
+
+                $inventory.AssignmentCount | Should -Be 3
+                $inventory.CoverageIncomplete | Should -BeFalse
+                $inventory.ComplianceCoverageIncomplete | Should -BeFalse
+                $inventory.HasComplianceData | Should -BeTrue
+                $inventory.CompliancePct | Should -Be 100
+                $inventory.DefinitionCoverageIncomplete | Should -Be $Incomplete
+                ($inventory.Assignments | Where-Object AssignmentName -EQ 'known').Effect | Should -Be 'Deny'
+                @($inventory.Assignments | Where-Object Effect -EQ '-').Count | Should -Be 2
+                if ($Incomplete) {
+                    @($inventory.DefinitionErrors).Count | Should -Be 1
+                    $inventory.DefinitionErrors[0] | Should -Match ([regex]::Escape($definitionId))
+                    $inventory.DefinitionErrors[0] | Should -Match $ErrorPattern
+                    $inventory.Note | Should -Match 'Policy definition.*incomplete'
+                    $inventory.Note | Should -Not -Match 'Missing assignments|compliance coverage is incomplete'
+                    Should -Invoke Write-Warning -Times 1 -Exactly -ParameterFilter { $Message -match 'Policy definition.*unavailable' }
+                }
+                else {
+                    @($inventory.DefinitionErrors).Count | Should -Be 0
+                    $inventory.Note | Should -BeNullOrEmpty
+                    Should -Invoke Write-Warning -Times 0 -Exactly
+                }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 3 -Exactly
+                Should -Invoke Search-AzGraphSafe -Times 1 -Exactly -ParameterFilter {
+                    @($Subscription).Count -eq 1 -and $Subscription[0] -eq $subscriptionId
+                }
+                Should -Invoke Get-AzContext -Times 0 -Exactly
+                Should -Invoke Invoke-RestMethod -Times 0 -Exactly
+            }
+        }
+    }
+
     Context 'Compliance and assignment identity' {
+        It 'Resolves policy scope names without losing IDs or crossing tenants (<LookupState>)' -Tag 'PolicyScopeMetadata' -ForEach @(
+            @{ LookupState = 'readable'; StatusCode = 200; ReturnedTenant = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'; ExpectedName = 'Example management group' }
+            @{ LookupState = 'denied'; StatusCode = 403; ReturnedTenant = $null; ExpectedName = $null }
+            @{ LookupState = 'different tenant'; StatusCode = 200; ReturnedTenant = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'; ExpectedName = $null }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ StatusCode = $StatusCode; ReturnedTenant = $ReturnedTenant; ExpectedName = $ExpectedName } {
+                param($StatusCode, $ReturnedTenant, $ExpectedName)
+                $fixtureStatus = $StatusCode
+                $fixtureTenant = $ReturnedTenant
+                $subId = '11111111-1111-1111-1111-111111111111'
+                $mgScope = '/providers/Microsoft.Management/managementGroups/fixture-group'
+                $policyId = '/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c'
+                Mock Write-Host { }
+                Mock Write-Warning { }
+                Mock Get-AzContext { throw 'Scope fixtures must not read Azure context.' }
+                Mock Invoke-RestMethod { throw 'Scope fixtures must not send HTTP requests.' }
+                Mock Search-AzGraphSafe { @{ Data = @([pscustomobject]@{ subscriptionId = $subId; Total = 1; Compliant = 1; NonCompliant = 0 }) } }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -eq "/subscriptions/$subId/providers/Microsoft.Authorization/policyAssignments?api-version=2022-06-01") {
+                        $assignments = @(
+                            @{ id = "/subscriptions/$subId/providers/Microsoft.Authorization/policyAssignments/sub-policy"; name = 'sub-policy'; properties = @{ displayName = 'Subscription policy'; policyDefinitionId = $policyId; parameters = @{ effect = @{ value = 'Audit' } } } }
+                            @{ id = "$mgScope/providers/Microsoft.Authorization/policyAssignments/mg-policy-one"; name = 'mg-policy-one'; properties = @{ displayName = 'Inherited one'; policyDefinitionId = $policyId; parameters = @{ effect = @{ value = 'Audit' } } } }
+                            @{ id = "$mgScope/providers/Microsoft.Authorization/policyAssignments/mg-policy-two"; name = 'mg-policy-two'; properties = @{ displayName = 'Inherited two'; policyDefinitionId = $policyId; parameters = @{ effect = @{ value = 'Audit' } } } }
+                        )
+                        return [pscustomobject]@{ StatusCode = 200; Content = (@{ value = $assignments } | ConvertTo-Json -Depth 9) }
+                    }
+                    if ($Path -eq "$($mgScope)?api-version=2020-05-01" -and $Method -eq 'GET') {
+                        return [pscustomobject]@{ StatusCode = $fixtureStatus; Content = (@{ id = $mgScope; name = 'fixture-group'; properties = @{ displayName = 'Example management group'; tenantId = $fixtureTenant } } | ConvertTo-Json -Depth 5) }
+                    }
+                    throw 'Unexpected policy scope request.'
+                }
+
+                $inventory = Get-PolicyInventory -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions @([pscustomobject]@{ Id = $subId; Name = 'Example subscription'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+                $recommendations = Get-PolicyRecommendations -ExistingAssignments $inventory.Assignments
+
+                $inventory.AssignmentCount | Should -Be 3
+                $inventory.CoverageIncomplete | Should -BeFalse
+                $inventory.CompliancePct | Should -Be 100
+                ($inventory.Assignments | Where-Object AssignmentName -EQ 'Subscription policy').ScopeDisplayName | Should -Be 'Example subscription'
+                $inherited = @($inventory.Assignments | Where-Object Scope -EQ $mgScope)
+                $inherited.Count | Should -Be 2
+                foreach ($assignment in $inherited) {
+                    $assignment.ScopeDisplayName | Should -Be $(if ($ExpectedName) { $ExpectedName } else { $mgScope })
+                    $assignment.Scope | Should -Be $mgScope
+                }
+                $matched = @(($recommendations.Analysis | Where-Object PolicyDefId -EQ $policyId).MatchedAssignments)
+                $matched.Count | Should -Be 3
+                ($matched | Where-Object AssignmentName -EQ 'Subscription policy').ScopeDisplayName | Should -Be 'Example subscription'
+                @($inventory.ScopeNameErrors).Count | Should -Be $(if ($ExpectedName) { 0 } else { 1 })
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter { $Path -eq "$($mgScope)?api-version=2020-05-01" -and $Method -eq 'GET' }
+                Should -Invoke Get-AzContext -Times 0 -Exactly
+                Should -Invoke Invoke-RestMethod -Times 0 -Exactly
+            }
+        }
+
         It 'Keeps compliance coverage separate from assignment coverage (<ArgMode>, HTTP <SecondStatus>)' -ForEach @(
             @{ ArgMode = 'empty'; SecondStatus = 503; ExpectedIncomplete = $true }
             @{ ArgMode = 'partial'; SecondStatus = 403; ExpectedIncomplete = $true }
