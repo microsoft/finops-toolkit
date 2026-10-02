@@ -149,6 +149,7 @@ function Invoke-FinOpsMultitool {
                 @{ Source = 'API' }
                 @{ Source = 'Hub' }
                 @{ Source = 'GraphOnly' }
+                @{ Source = 'Export' }
             ) {
                 $outputDirectory = Join-Path $TestDrive 'reports with spaces'
                 $scans = @('Get-CostData', 'Get-ResourceCosts')
@@ -304,6 +305,191 @@ function Invoke-FinOpsMultitool {
                 $tokenCalls = if ($NeedsToken) { 3 } else { 0 }
                 Should -Invoke Get-PlainAccessToken -ModuleName FinOpsMultitool -Times $tokenCalls -Exactly
                 Should -Invoke Read-FinOpsHubData -Times 0 -Exactly
+            }
+
+            It 'Offers ordinary exports without a Hub for <Mode>' -Tag 'GenericExportPicker' -ForEach @(
+                @{ Mode = 'interactive'; Preselected = $null; Unattended = $false }
+                @{ Mode = 'explicit export with Kusto override'; Preselected = 'Export'; Unattended = $true }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = if ($Preselected) { 'https://unused.example.kusto.windows.net' } else { $null }
+                Set-Variable -Name NonInteractive -Value $Unattended -Scope Local
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({
+                            $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                            $args[0].Name -in @('Select-DataSource', 'Select-ExportSource', 'Read-FinOpsAnswer', 'Write-FinOpsConsole', 'Test-FinOpsRichConsole')
+                        }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                $answers = [Collections.Generic.Queue[string]]::new()
+                $answers.Enqueue('3')
+                $answers.Enqueue('1')
+                Mock Read-FinOpsAnswer { if ($answers.Count) { $answers.Dequeue() } else { '' } }
+                Mock Test-FinOpsRichConsole { $false }
+                Mock Resolve-FOHubProvider { throw 'An explicit export choice must not select Kusto.' }
+                Mock Find-CostExport {
+                    @([pscustomobject]@{ Name = 'example-focus'; Format = 'Csv'; Type = 'FocusCost'; SubId = '11111111-1111-1111-1111-111111111111'; ScopeKind = 'Subscription'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/examplestorage'; Container = 'exports'; RootFolder = 'cost'; LastRunDate = '2026-10-01' })
+                }
+                Mock Find-CostExportFromStorage { @() }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example subscription'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+
+                $choice = Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -Preselected $Preselected
+
+                $choice.Source | Should -Be 'Export'
+                $choice.Export.Name | Should -Be 'example-focus'
+                $choice.TenantId | Should -Be 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                Should -Invoke Find-CostExport -Times 1 -Exactly -ParameterFilter { @($Subscriptions).Count -eq 1 -and $Subscriptions[0].Id -eq '11111111-1111-1111-1111-111111111111' }
+                Should -Invoke Find-CostExportFromStorage -Times 1 -Exactly -ParameterFilter { @($Subscriptions).Count -eq 1 -and $Subscriptions[0].Id -eq '11111111-1111-1111-1111-111111111111' }
+                Should -Invoke Resolve-FOHubProvider -Times 0 -Exactly
+                Should -Invoke Connect-AzAccount -Times 0 -Exactly
+                Should -Invoke Get-AzTenant -Times 0 -Exactly
+            }
+
+            It 'Keeps readable export choices and summarizes inaccessible storage without asking for a container' -Tag 'AutomaticExportDiscovery' {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Set-Variable -Name NonInteractive -Value $false -Scope Local
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -in @('Select-DataSource', 'Select-ExportSource', 'Write-FinOpsConsole', 'Read-FinOpsAnswer') }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                Mock Read-FinOpsAnswer { '1' }
+                Mock Find-CostExport { @() }
+                Mock Find-CostExportFromStorage {
+                    Write-Warning 'Synthetic storage probe HTTP 403.'
+                    Write-Warning 'Synthetic second storage probe HTTP 403.'
+                    @([pscustomobject]@{ Name = 'example-focus'; Format = 'Csv'; Type = 'FocusCost'; ScopeKind = 'Storage'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/example'; Container = 'billingdata'; RootFolder = 'costs' })
+                }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+
+                $choice = Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -Preselected Export -WarningVariable emittedWarnings
+
+                $choice.Source | Should -Be 'Export'
+                $choice.Export.Container | Should -Be 'billingdata'
+                Should -Invoke Read-FinOpsAnswer -Times 1 -Exactly
+                Should -Invoke Read-FinOpsAnswer -Times 0 -Exactly -ParameterFilter { $Prompt -match 'container name|storage account' }
+                Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { $Object -match 'Storage discovery reported 2 warning' }
+            }
+
+            It 'Offers a storage-only export alongside Cost Management definitions' -Tag 'AutomaticExportDiscovery' {
+                # A central export can stay invisible to Cost Management while some
+                # subscriptions still return definitions, so the storage pass must
+                # never be gated behind an empty definition result.
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Set-Variable -Name NonInteractive -Value $false -Scope Local
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -in @('Select-DataSource', 'Select-ExportSource', 'Write-FinOpsConsole', 'Read-FinOpsAnswer') }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                Mock Read-FinOpsAnswer { '2' }
+                Mock Find-CostExport {
+                    @([pscustomobject]@{ Name = 'defined-actual'; Format = 'Csv'; Type = 'ActualCost'; ScopeKind = 'Subscription'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/example'; Container = 'exports'; RootFolder = 'costs' })
+                }
+                Mock Find-CostExportFromStorage {
+                    @([pscustomobject]@{ Name = 'hidden-focus'; Format = 'Csv'; Type = 'FocusCost'; ScopeKind = 'Storage'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/example'; Container = 'billingdata'; RootFolder = 'costs' })
+                }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+
+                $choice = Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -Preselected Export
+
+                $choice.Export.Container | Should -Be 'billingdata'
+                Should -Invoke Find-CostExportFromStorage -Times 1 -Exactly -ParameterFilter { $KnownKeys.Count -eq 1 -and $KnownKeys.Keys -contains '/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/fixture/providers/microsoft.storage/storageaccounts/example|exports|costs|defined-actual' }
+            }
+
+            It 'Rejects <Scenario> export selection without choosing another source' -Tag 'GenericExportPicker' -ForEach @(
+                @{ Scenario = 'no candidates'; CandidateCount = 0; Format = 'Csv'; WrongTenant = $false; Expected = '*No export candidates*' }
+                @{ Scenario = 'ambiguous candidates'; CandidateCount = 2; Format = 'Csv'; WrongTenant = $false; Expected = '*Multiple export candidates*' }
+                @{ Scenario = 'Parquet'; CandidateCount = 1; Format = 'Parquet'; WrongTenant = $false; Expected = '*supports CSV*' }
+                @{ Scenario = 'tenant mismatch'; CandidateCount = 1; Format = 'Csv'; WrongTenant = $true; Expected = '*selected tenant*' }
+            ) {
+                $candidateTotal = $CandidateCount
+                $candidateFormat = $Format
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Set-Variable -Name NonInteractive -Value $true -Scope Local
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -in @('Select-DataSource', 'Select-ExportSource', 'Write-FinOpsConsole') }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                Mock Find-CostExport {
+                    for ($candidateIndex = 0; $candidateIndex -lt $candidateTotal; $candidateIndex++) {
+                        [pscustomobject]@{ Name = "example-$candidateIndex"; Format = $candidateFormat; Type = 'FocusCost'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/example'; Container = 'exports'; RootFolder = 'costs' }
+                    }
+                }
+                Mock Find-CostExportFromStorage { @() }
+                Mock Get-CostExportData { throw 'No export should be read.' }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example'; TenantId = $(if ($WrongTenant) { 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' } else { 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }) })
+
+                { Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -Preselected Export } | Should -Throw $Expected
+
+                Should -Invoke Get-CostExportData -Times 0 -Exactly
+                Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+                Should -Invoke Read-Host -Times 0 -Exactly
+                if ($WrongTenant) { Should -Invoke Find-CostExport -Times 0 -Exactly; Should -Invoke Find-CostExportFromStorage -Times 0 -Exactly }
+            }
+
+            It 'Keeps export cost scans off live APIs (read failure: <ReadFails>)' -Tag 'GenericExportRunner' -ForEach @(
+                @{ ReadFails = $false; Partial = $false }
+                @{ ReadFails = $true; Partial = $false }
+                @{ ReadFails = $false; Partial = $true }
+            ) {
+                $readFailure = $ReadFails
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -in @('Invoke-SelectedScans', 'Write-SectionHeader', 'Write-FinOpsConsole') }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                Mock Get-CostExportData {
+                    if ($readFailure) { throw 'Synthetic export part could not be read; coverage is incomplete.' }
+                    $exportRows = @(
+                        [pscustomobject]@{ SubAccountId = '11111111-1111-1111-1111-111111111111'; BilledCost = 100; EffectiveCost = 80; BillingCurrency = 'USD'; ChargePeriodStart = '2026-09-01'; ResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Compute/disks/example'; Tags = '{"CostCenter":"example"}' }
+                        [pscustomobject]@{ SubAccountId = '99999999-9999-9999-9999-999999999999'; BilledCost = 999; EffectiveCost = 900; BillingCurrency = 'EUR'; ChargePeriodStart = '2026-09-01'; ResourceId = '/subscriptions/99999999-9999-9999-9999-999999999999/resourceGroups/fixture/providers/Microsoft.Compute/disks/outside'; Tags = '{}' }
+                    )
+                    [pscustomobject]@{ Rows = $exportRows; ColMap = Resolve-ExportColumns -Header $exportRows[0].PSObject.Properties.Name; Currency = 'USD'; CostBasis = 'FocusCost'; DataDate = [datetime]'2026-10-01' }
+                }
+                Mock Get-CostData { throw 'Live cost calls are prohibited in export mode.' }
+                Mock Get-ResourceCosts { throw 'Live cost calls are prohibited in export mode.' }
+                Mock Get-CostByTag { throw 'Live cost calls are prohibited in export mode.' }
+                Mock Get-CostTrend { throw 'Live cost calls are prohibited in export mode.' }
+                Mock Get-UnitEconomics { throw 'Live cost calls are prohibited in export mode.' }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example subscription'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+                $source = @{ Source = 'Export'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'; Environment = 'AzureCloud'; Export = [pscustomobject]@{ Name = 'example-focus'; Format = 'Csv' } }
+                if ($Partial) { $subscriptions += [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'No returned rows'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' } }
+                $modules = @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag', 'Get-CostTrend', 'Get-UnitEconomics') | ForEach-Object { @{ Fn = $_; Name = $_; Selected = $true } }
+
+                $result = Invoke-SelectedScans -Modules $modules -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -DataSource $source
+
+                if ($ReadFails) {
+                    foreach ($scan in @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag', 'Get-CostTrend')) { $result["_error_$scan"] | Should -Match 'export.*incomplete' }
+                }
+                else {
+                    $result['Get-CostData'][$subscriptions[0].Id].Actual | Should -Be 100
+                    $result['Get-CostData'].Count | Should -Be 1
+                    $result['Get-ResourceCosts'][0].Actual | Should -Be 100
+                    $result['Get-CostByTag'].CostByTag.CostCenter[0].Cost | Should -Be 100
+                    $result['Get-CostTrend'].Months[0].Cost | Should -Be 100
+                    $result['Get-CostTrend'].BySubscription.Count | Should -Be 1
+                    $result['Get-CostTrend'].CoverageIncomplete | Should -Be $Partial
+                    $result['Get-CostTrend'].SelectedSubscriptionCount | Should -Be $subscriptions.Count
+                    $result['_source_Export'].ScannedSubs | Should -Be 1
+                    $result['_source_Export'].TotalSubs | Should -Be $subscriptions.Count
+                    if ($Partial) { $result['Get-CostTrend'].UnverifiedSubscriptionIds | Should -Contain $subscriptions[1].Id }
+                }
+                $result['_error_Get-UnitEconomics'] | Should -Match 'not supported.*export'
+                Should -Invoke Get-CostExportData -Times 1 -Exactly
+                foreach ($scan in @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag', 'Get-CostTrend', 'Get-UnitEconomics')) { Should -Invoke $scan -Times 0 -Exactly }
+                Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+                Should -Invoke Invoke-FOHubKustoQuery -ModuleName FinOpsMultitool -Times 0 -Exactly
+            }
+
+            It 'Runs the public launcher from an ordinary export without a Hub or live cost query' -Tag 'GenericExportRunner' {
+                $env:FINOPS_HUB_KUSTO_URI = 'https://unused.example.kusto.windows.net'
+                Mock Find-CostExport {
+                    @([pscustomobject]@{ Name = 'example-export'; Format = 'Csv'; Type = 'ActualCost'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/example'; Container = 'exports'; RootFolder = 'costs' })
+                }
+                Mock Find-CostExportFromStorage { @() }
+                Mock Get-CostExportData {
+                    [pscustomobject]@{ CostBasis = 'ActualCost'; DataDate = [datetime]'2026-10-01'; Rows = @([pscustomobject]@{ SubscriptionId = '11111111-1111-1111-1111-111111111111'; Cost = 125; Currency = 'USD'; Date = '2026-09-30' }) }
+                }
+                $reportRoot = Join-Path $TestDrive 'ordinary-export-public'
+
+                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -DataSource Export -Scans Get-CostData -NonInteractive -OutputPath $reportRoot -ErrorAction Stop
+
+                $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+                $rows = @(Import-Csv -LiteralPath (Join-Path $run 'Get-CostData.csv'))
+                $rows[0].Actual | Should -Be '125'
+                $rows[0].ForecastSource | Should -Be 'Unavailable'
+                Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw | Should -Match 'Cost Management export \(example-export\)'
+                Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+                Should -Invoke Invoke-FOHubKustoQuery -ModuleName FinOpsMultitool -Times 0 -Exactly
+                Should -Invoke Search-AzGraph -Times 0 -Exactly
+                Should -Invoke Read-Host -Times 0 -Exactly
             }
 
             It 'Preserves the interactive Kusto choice without rediscovering the provider' -Tag 'SourceSelectionIsolation' {
@@ -606,7 +792,7 @@ function Invoke-FinOpsMultitool {
                 }
                 else {
                     { Invoke-SelectedScans -Modules $modules -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -DataSource $source } |
-                        Should -Throw '*Synthetic runner provider failure*'
+                    Should -Throw '*Synthetic runner provider failure*'
                     Should -Invoke Read-FinOpsHubData -Times 0 -Exactly
                 }
                 Should -Invoke Resolve-FOHubProvider -Times 1 -Exactly
@@ -955,7 +1141,7 @@ function Invoke-FinOpsMultitool {
                 $cmd = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit'
                 $set = $cmd.Parameters['DataSource'].Attributes |
                 Where-Object { $_ -is [System.Management.Automation.ValidateSetAttribute] }
-                $set.ValidValues | Should -Be @('Hub', 'API', 'GraphOnly')
+                $set.ValidValues | Should -Be @('Hub', 'Export', 'API', 'GraphOnly')
             }
         }
 

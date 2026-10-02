@@ -135,12 +135,13 @@ function Get-StorageBlobList {
     $out = [System.Collections.Generic.List[PSCustomObject]]::new()
     $marker = $null
     $listed = $false
+    $markers = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     do {
         $listUri = "$BlobBase/$Container`?restype=container&comp=list"
         if ($Prefix) { $listUri += "&prefix=$([uri]::EscapeDataString($Prefix))" }
         if ($marker) { $listUri += "&marker=$([uri]::EscapeDataString($marker))" }
         $resp = Invoke-StorageBlobRest -Uri $listUri -StorageToken $StorageToken
-        if (-not $resp) { break }
+        if (-not $resp) { throw 'Export blob listing failed; listing coverage is incomplete.' }
         $listed = $true
 
         # Normalize the response into an XmlDocument.
@@ -155,7 +156,7 @@ function Get-StorageBlobList {
             if ($i -gt 0) { $txt = $txt.Substring($i) }
             try { $doc = New-Object System.Xml.XmlDocument; $doc.LoadXml($txt) } catch { $doc = $null }
         }
-        if (-not $doc -or -not $doc.EnumerationResults) { break }
+        if (-not $doc -or -not $doc.EnumerationResults) { throw 'Export blob listing returned invalid XML; listing coverage is incomplete.' }
 
         $nodes = @()
         if ($doc.EnumerationResults.Blobs -and $doc.EnumerationResults.Blobs.Blob) {
@@ -170,6 +171,7 @@ function Get-StorageBlobList {
         }
         $marker = $null
         if ($doc.EnumerationResults.NextMarker) { $marker = ([string]$doc.EnumerationResults.NextMarker).Trim() }
+        if ($marker -and (-not $markers.Add($marker) -or $markers.Count -ge 10000)) { throw 'Export blob listing pagination did not complete.' }
     } while ($marker)
 
     return [PSCustomObject]@{ Blobs = $out; Listed = $listed }
@@ -186,11 +188,12 @@ function Get-StorageContainerList {
     $out    = [System.Collections.Generic.List[string]]::new()
     $marker = $null
     $listed = $false
+    $markers = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     do {
         $listUri = "$BlobBase/?comp=list"
         if ($marker) { $listUri += "&marker=$([uri]::EscapeDataString($marker))" }
         $resp = Invoke-StorageBlobRest -Uri $listUri -StorageToken $StorageToken
-        if (-not $resp) { break }
+        if (-not $resp) { throw 'Export container listing failed; listing coverage is incomplete.' }
         $listed = $true
 
         $doc = $null
@@ -202,7 +205,7 @@ function Get-StorageContainerList {
             if ($i -gt 0) { $txt = $txt.Substring($i) }
             try { $doc = New-Object System.Xml.XmlDocument; $doc.LoadXml($txt) } catch { $doc = $null }
         }
-        if (-not $doc -or -not $doc.EnumerationResults) { break }
+        if (-not $doc -or -not $doc.EnumerationResults) { throw 'Export container listing returned invalid XML; listing coverage is incomplete.' }
 
         $nodes = @()
         if ($doc.EnumerationResults.Containers -and $doc.EnumerationResults.Containers.Container) {
@@ -212,6 +215,7 @@ function Get-StorageContainerList {
 
         $marker = $null
         if ($doc.EnumerationResults.NextMarker) { $marker = ([string]$doc.EnumerationResults.NextMarker).Trim() }
+        if ($marker -and (-not $markers.Add($marker) -or $markers.Count -ge 10000)) { throw 'Export container listing pagination did not complete.' }
     } while ($marker)
 
     return [PSCustomObject]@{ Containers = $out; Listed = $listed }
@@ -330,6 +334,10 @@ function Select-CostExportData {
     $covered = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
     $rows = [System.Collections.Generic.List[object]]::new()
     $currency = $null
+    # FOCUS permits a null SubAccountId on tenant-level charges such as MCA
+    # purchases and refunds. They belong to no subscription, so a scoped read
+    # excludes and counts them rather than failing the whole export.
+    $unattributedRows = 0
     $columnMap = @{ Cost = 'Cost'; SubscriptionId = 'SubscriptionId'; Currency = 'Currency' }
     $optional = @('Date', 'SubscriptionName', 'ResourceGroup', 'ResourceId', 'ServiceName', 'Tags')
     foreach ($column in $optional) { if ($sourceMap.$column) { $columnMap[$column] = $column } }
@@ -339,6 +347,10 @@ function Select-CostExportData {
         if (-not $rawId -and $sourceMap.ResourceId) { $rawId = [string]$row.($sourceMap.ResourceId) }
         $parsedId = [guid]::Empty
         if ($rawId -match '^/subscriptions/([0-9a-fA-F-]{36})(?:/|$)') { $rawId = $Matches[1] }
+        if ([string]::IsNullOrWhiteSpace($rawId)) {
+            if ($expected.Count -gt 0) { $unattributedRows++; continue }
+            throw 'An export row has no subscription ID; coverage is incomplete.'
+        }
         if (-not [guid]::TryParse($rawId, [ref]$parsedId)) { throw 'An export row has no valid subscription ID; coverage is incomplete.' }
         $subscriptionId = $parsedId.ToString()
         if ($expected.Count -gt 0 -and -not $expected.Contains($subscriptionId)) { continue }
@@ -349,6 +361,7 @@ function Select-CostExportData {
         else { [string]$ExportData.Currency }
         if ([string]::IsNullOrWhiteSpace($rowCurrency)) { throw 'An export row has no billing currency; cost results are incomplete.' }
         $rowCurrency = $rowCurrency.Trim().ToUpperInvariant()
+        if ($rowCurrency -notmatch '^[A-Z]{3}$' -or $rowCurrency -in @('XXX', 'XTS')) { throw 'An export row has an invalid billing currency; cost results are incomplete.' }
         if ($currency -and $currency -ne $rowCurrency) { throw 'Multiple billing currencies cannot be combined into one export cost total.' }
         $currency = $rowCurrency
         $normalized = [ordered]@{ Cost = $amount; SubscriptionId = $subscriptionId; Currency = $currency }
@@ -374,6 +387,7 @@ function Select-CostExportData {
         PeriodsBySubscription = $period.PeriodsBySubscription
         RowCount = $rows.Count; NoData = ($rows.Count -eq 0); CostBasis = 'ActualCost'
         CoveredSubscriptionIds = @($covered); SelectedSubscriptionIds = @($expected)
+        UnattributedRowCount = $unattributedRows
         ExportCount = $ExportData.ExportCount
         Headers = @($columnMap.Keys); NoCostColumn = $false; CoverageIncomplete = $false
     }
@@ -407,23 +421,76 @@ function Find-CostExport {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][object[]]$Subscriptions,
-        [string]$Environment = 'AzureCloud'
+        [string]$Environment = 'AzureCloud',
+        [switch]$SkipRunHistory,
+        [switch]$IncludeManagementGroups,
+        [switch]$IncludeBillingAccounts,
+        [string]$TenantId
     )
 
     $apiVer = '2023-08-01'
     $found = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $scopes = [Collections.Generic.List[object]]::new()
+    $selectedIds = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 
     foreach ($sub in $Subscriptions) {
-        $scope = "/subscriptions/$($sub.Id)"
-        $path = "$scope/providers/Microsoft.CostManagement/exports?api-version=$apiVer"
-        $resp = Invoke-AzRestMethodWithRetry -Path $path -Method GET
-        if (-not $resp -or $resp.StatusCode -ne 200) { continue }
+        $subscriptionGuid = [guid]::Empty
+        if (-not [guid]::TryParse([string]$sub.Id, [ref]$subscriptionGuid)) { throw 'Export discovery requires a valid selected subscription ID.' }
+        if ($selectedIds.Add($subscriptionGuid.ToString())) { $scopes.Add([pscustomobject]@{ Id = "/subscriptions/$($sub.Id)"; Kind = 'Subscription'; Label = $sub.Name; SubscriptionId = $sub.Id; SubscriptionName = $sub.Name }) }
+    }
+    if ($IncludeManagementGroups -or $IncludeBillingAccounts) {
+        $context = Get-AzContext -ErrorAction Stop
+        if ([string]::IsNullOrWhiteSpace($TenantId) -or -not $context -or $context.Tenant.Id -ne $TenantId -or -not $selectedIds.Count -or
+            @($Subscriptions | Where-Object { $_.TenantId -ne $TenantId }).Count -gt 0) { throw 'Extended export discovery requires the verified selected tenant and subscriptions.' }
+    }
+    if ($IncludeManagementGroups) {
+        try {
+            $ancestry = Search-AzGraphSafe -Query "resourcecontainers | where type =~ 'microsoft.resources/subscriptions' | project subscriptionId, ancestors = properties.managementGroupAncestorsChain" -Subscription @($selectedIds) -First 1000 -All
+            $groups = @{}
+            foreach ($row in @($ancestry.Data)) {
+                if (-not $selectedIds.Contains([string]$row.subscriptionId)) { continue }
+                $ancestors = if ($row.ancestors -is [string]) { @($row.ancestors | ConvertFrom-Json -ErrorAction Stop) } else { @($row.ancestors) }
+                foreach ($group in $ancestors) {
+                    if ([string]$group.name -notmatch '^[a-zA-Z0-9_.()-]{1,90}$') { Write-Warning 'An invalid management-group ancestor was excluded from export discovery.'; continue }
+                    $groups[[string]$group.name] = if ($group.displayName) { [string]$group.displayName } else { [string]$group.name }
+                }
+            }
+            if ($groups.Count -gt 50) { Write-Warning 'Export discovery is limited to 50 selected-subscription management-group ancestors; other ancestor scopes remain unverified.' }
+            foreach ($groupName in @($groups.Keys | Sort-Object | Select-Object -First 50)) {
+                $scopes.Add([pscustomobject]@{ Id = "/providers/Microsoft.Management/managementGroups/$groupName"; Kind = 'ManagementGroup'; Label = "Management group: $($groups[$groupName])"; SubscriptionId = $null; SubscriptionName = $null })
+            }
+        }
+        catch { Write-Warning "Management-group export discovery is incomplete: $($_.Exception.Message)" }
+    }
+    if ($IncludeBillingAccounts) {
+        try {
+            $billingResponse = Invoke-AzRestMethodWithRetry -Path '/providers/Microsoft.Billing/billingAccounts?api-version=2024-04-01' -Method GET
+            $billingAccounts = @(foreach ($page in (Get-CostQueryResponsePage -FirstResponse $billingResponse -Context 'export billing accounts' -RootNextLink)) { ($page.Content | ConvertFrom-Json -ErrorAction Stop).value })
+            $billingAccounts = @($billingAccounts | Where-Object { $_.name -match '^[a-zA-Z0-9_.():-]+$' -and $_.id -eq "/providers/Microsoft.Billing/billingAccounts/$($_.name)" })
+            $billingScope = Get-FinOpsBillingScope -BillingAccounts $billingAccounts -Subscriptions $Subscriptions
+            if ($billingScope.CoverageIncomplete) { Write-Warning $billingScope.Reason }
+            foreach ($account in @($billingScope.Accounts)) {
+                $scopes.Add([pscustomobject]@{ Id = $account.id; Kind = 'BillingAccount'; Label = "Billing account: $($account.properties.displayName)"; SubscriptionId = $null; SubscriptionName = $null })
+            }
+        }
+        catch { Write-Warning "Billing-account export discovery is incomplete: $($_.Exception.Message)" }
+    }
 
-        $list = $null
-        try { $list = ($resp.Content | ConvertFrom-Json).value } catch { continue }
+    $scopeIndex = 0
+    foreach ($scopeRecord in $scopes) {
+        $scopeIndex++
+        Write-Progress -Id 71 -Activity 'Reading Cost Management export definitions' -Status "Scope $scopeIndex of $($scopes.Count): $([regex]::Replace([string]$scopeRecord.Label, '[\p{Cc}\p{Cf}]', ' '))" -PercentComplete ([int](100 * $scopeIndex / $scopes.Count))
+        $scope = $scopeRecord.Id
+        $path = "$scope/providers/Microsoft.CostManagement/exports?api-version=$apiVer"
+        try {
+            $resp = Invoke-AzRestMethodWithRetry -Path $path -Method GET
+            $list = @(foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -Context "export definitions for $($scopeRecord.Label)" -RootNextLink)) { ($page.Content | ConvertFrom-Json -ErrorAction Stop).value })
+        }
+        catch { Write-Warning "Export definition discovery is incomplete for $($scopeRecord.Label): $($_.Exception.Message)"; continue }
         if (-not $list) { continue }
 
         foreach ($exp in $list) {
+            if (-not $exp -or [string]::IsNullOrWhiteSpace($exp.name) -or $exp.name -match '[/\\\x00-\x1f]' -or $exp.name -in @('.', '..')) { Write-Warning 'An export definition returned an invalid name and was not selected.'; continue }
             $def = $exp.properties.definition
             $dest = $exp.properties.deliveryInfo.destination
             $format = if ($exp.properties.format) { $exp.properties.format } else { 'Csv' }
@@ -431,7 +498,8 @@ function Find-CostExport {
             # Resolve the latest run date from run history (best-effort)
             $lastRun = $null
             try {
-                $rhPath = "$scope/providers/Microsoft.CostManagement/exports/$($exp.name)/runHistory?api-version=$apiVer"
+                $rhPath = "$scope/providers/Microsoft.CostManagement/exports/$([uri]::EscapeDataString($exp.name))/runHistory?api-version=$apiVer"
+                if (-not $SkipRunHistory) {
                 $rh = Invoke-AzRestMethodWithRetry -Path $rhPath -Method GET
                 if ($rh -and $rh.StatusCode -eq 200) {
                     $runs = ($rh.Content | ConvertFrom-Json).value
@@ -444,6 +512,7 @@ function Find-CostExport {
                         if ($dates) { $lastRun = $dates[0] }
                     }
                 }
+                }
             }
             catch {
                 Write-Verbose "Non-fatal: $($_.Exception.Message)"
@@ -451,9 +520,11 @@ function Find-CostExport {
 
             [void]$found.Add([PSCustomObject]@{
                     Name              = $exp.name
-                    SubId             = $sub.Id
-                    SubName           = $sub.Name
+                    SubId             = $scopeRecord.SubscriptionId
+                    SubName           = $scopeRecord.SubscriptionName
                     Scope             = $scope
+                    ScopeKind         = $scopeRecord.Kind
+                    ScopeLabel        = $scopeRecord.Label
                     Type              = $def.type
                     Granularity       = $def.dataSet.granularity
                     Format            = $format
@@ -465,6 +536,7 @@ function Find-CostExport {
                 })
         }
     }
+    Write-Progress -Id 71 -Activity 'Reading Cost Management export definitions' -Completed
 
     return $found
 }
@@ -478,13 +550,23 @@ function Get-ExportStorageCandidates {
     param([Parameter(Mandatory)][object[]]$Subscriptions)
 
     $out = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $subIndex = 0
     foreach ($sub in $Subscriptions) {
+        $subIndex++
+        Write-Progress -Id 72 -Activity 'Listing storage accounts for export discovery' -Status "Subscription $subIndex of $($Subscriptions.Count)" -PercentComplete ([int](100 * $subIndex / $Subscriptions.Count))
         $path = "/subscriptions/$($sub.Id)/providers/Microsoft.Storage/storageAccounts?api-version=2023-01-01"
-        $resp = Invoke-AzRestMethodWithRetry -Path $path -Method GET
-        if (-not $resp -or $resp.StatusCode -ne 200) { continue }
-        $accts = $null
-        try { $accts = ($resp.Content | ConvertFrom-Json).value } catch { continue }
+        $subscriptionGuid = [guid]::Empty
+        if (-not [guid]::TryParse([string]$sub.Id, [ref]$subscriptionGuid)) { throw 'Storage discovery requires a valid selected subscription ID.' }
+        try {
+            $resp = Invoke-AzRestMethodWithRetry -Path $path -Method GET
+            $accts = @(foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -Context "export storage accounts for $($sub.Name)" -RootNextLink)) { ($page.Content | ConvertFrom-Json -ErrorAction Stop).value })
+        }
+        catch { Write-Warning "Export storage discovery is incomplete for $($sub.Name): $($_.Exception.Message)"; continue }
         foreach ($a in $accts) {
+            if ($a.name -cnotmatch '^[a-z0-9]{3,24}$' -or $a.id -notmatch "^/subscriptions/$([regex]::Escape([string]$sub.Id))/resourceGroups/[^/]+/providers/Microsoft\.Storage/storageAccounts/$([regex]::Escape([string]$a.name))$") {
+                Write-Warning 'A storage candidate did not match the selected subscription and was excluded.'
+                continue
+            }
             [void]$out.Add([PSCustomObject]@{
                     Name       = $a.name
                     ResourceId = $a.id
@@ -494,6 +576,7 @@ function Get-ExportStorageCandidates {
                 })
         }
     }
+    Write-Progress -Id 72 -Activity 'Listing storage accounts for export discovery' -Completed
     return $out
 }
 
@@ -519,25 +602,71 @@ function Find-CostExportFromStorage {
     $seen   = @{}
 
     $token = $null
-    try { $token = Get-PlainAccessToken -ResourceUrl 'https://storage.azure.com' }
-    catch { Write-Warning "Storage-first discovery: token error: $($_.Exception.Message)"; return $found }
 
     # Only probe containers whose name looks like a cost-export drop. Keeps the
     # scan fast and avoids listing unrelated data (diagnostics, backups, etc.).
     $containerPattern = 'export|msexports|ingestion|finops|cost|focus'
 
     $stores = @(Get-ExportStorageCandidates -Subscriptions $Subscriptions)
+    $storeIndex = 0
     foreach ($sa in $stores) {
+        $storeIndex++
+        Write-Progress -Id 73 -Activity 'Scanning storage accounts for cost export containers' -Status "Storage account $storeIndex of $($stores.Count): $($sa.Name)" -PercentComplete ([int](100 * $storeIndex / $stores.Count))
         $blobBase = "https://$($sa.Name).$suffix"
 
-        $cl = Get-StorageContainerList -BlobBase $blobBase -StorageToken $token
-        if (-not $cl.Listed) { continue }
-        $containers = @($cl.Containers | Where-Object { $_ -match $containerPattern })
+        $containerNames = @()
+        try {
+            $containerResponse = Invoke-AzRestMethodWithRetry -Path "$($sa.ResourceId)/blobServices/default/containers?api-version=2023-01-01" -Method GET
+            $containerNames = @(foreach ($page in (Get-CostQueryResponsePage -FirstResponse $containerResponse -Context "container metadata for $($sa.Name)" -RootNextLink)) {
+                foreach ($item in @(($page.Content | ConvertFrom-Json -ErrorAction Stop).value)) {
+                    if ([string]$item.name -match '^\$') { continue }
+                    if ($item.name -cnotmatch '^[a-z0-9](?:[a-z0-9-]{1,61})[a-z0-9]$' -or $item.name.Contains('--')) { throw 'Container metadata returned an invalid name.' }
+                    [string]$item.name
+                }
+            })
+        }
+        catch {
+            $metadataIssue = $_.Exception.Message
+            try {
+                if (-not $token) { $token = Get-PlainAccessToken -ResourceUrl 'https://storage.azure.com' }
+                $containerWarning = @()
+                $cl = Get-StorageContainerList -BlobBase $blobBase -StorageToken $token -WarningAction SilentlyContinue -WarningVariable containerWarning
+                if (-not $cl.Listed) { throw 'Container listing could not be verified.' }
+                $containerNames = @($cl.Containers)
+            }
+            catch {
+                Write-Warning "Export storage discovery for $($sa.Name) was skipped because its containers could not be listed. $($_.Exception.Message)"
+                Write-Verbose "Container metadata lookup: $metadataIssue"
+                foreach ($warning in @($containerWarning)) { Write-Verbose ([string]$warning) }
+                continue
+            }
+        }
+        $knownContainers = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+        foreach ($key in $KnownKeys.Keys) {
+            $parts = [string]$key -split '\|', 4
+            if ($parts.Count -ge 2 -and $parts[0] -eq $sa.ResourceId) { [void]$knownContainers.Add($parts[1]) }
+        }
+        $containers = @($containerNames | Where-Object { $_ -match $containerPattern -or $knownContainers.Contains($_) } | Select-Object -Unique)
+        if (-not $containers.Count) { continue }
+        if (-not $token) {
+            try { $token = Get-PlainAccessToken -ResourceUrl 'https://storage.azure.com' }
+            catch {
+                Write-Warning "Storage-first discovery could not acquire a storage token: $($_.Exception.Message)"
+                Write-Progress -Id 73 -Activity 'Scanning storage accounts for cost export containers' -Completed
+                return $found
+            }
+        }
 
         foreach ($container in $containers) {
-            $listed = Get-StorageBlobList -BlobBase $blobBase -Container $container -Prefix '' -StorageToken $token
+            $blobWarnings = @()
+            try { $listed = Get-StorageBlobList -BlobBase $blobBase -Container $container -Prefix '' -StorageToken $token -WarningAction SilentlyContinue -WarningVariable blobWarnings }
+            catch {
+                Write-Warning "Export discovery in $($sa.Name)/$container is incomplete: $($_.Exception.Message)"
+                foreach ($warning in @($blobWarnings)) { Write-Verbose ([string]$warning) }
+                continue
+            }
             if (-not $listed.Listed) { continue }
-            $csvBlobs = @($listed.Blobs | Where-Object { $_.Name -match '\.csv(\.gz)?$' })
+            $csvBlobs = @($listed.Blobs | Where-Object { $_.Name -match '\.(csv(\.gz)?|parquet)$' })
             if ($csvBlobs.Count -eq 0) { continue }
 
             # Group CSV parts by their export folder = path before the
@@ -564,7 +693,7 @@ function Find-CostExportFromStorage {
                 $name = $segs[-1]
                 $root = if ($segs.Count -gt 1) { ($segs[0..($segs.Count - 2)] -join '/') } else { '' }
 
-                $key = ("$($sa.ResourceId)|$container|$name").ToLowerInvariant()
+                $key = ("$($sa.ResourceId)|$container|$root|$name").ToLowerInvariant()
                 if ($KnownKeys.ContainsKey($key) -or $seen.ContainsKey($key)) { continue }
                 $seen[$key] = $true
 
@@ -587,7 +716,7 @@ function Find-CostExportFromStorage {
                         ScopeLabel        = "Storage: $($sa.Name)/$container"
                         Type              = $type
                         Granularity       = 'Daily'
-                        Format            = 'Csv'
+                        Format            = if (@($parts | Where-Object Name -Match '\.parquet$').Count) { 'Parquet' } else { 'Csv' }
                         Partitioned       = $partitioned
                         StorageResourceId = $sa.ResourceId
                         Container         = $container
@@ -597,6 +726,7 @@ function Find-CostExportFromStorage {
             }
         }
     }
+    Write-Progress -Id 73 -Activity 'Scanning storage accounts for cost export containers' -Completed
 
     return $found
 }
@@ -617,55 +747,26 @@ function Get-CostExportData {
     }
 
     # Parse the storage account name from its ARM resource id
-    if ($Export.StorageResourceId -notmatch '/storageAccounts/([^/]+)') {
-        Write-Warning "  Could not parse storage account from export destination."
-        return [PSCustomObject]@{ Rows = @(); DataDate = $null; Currency = 'USD' }
-    }
+    if ($Export.StorageResourceId -notmatch '^/subscriptions/[^/]+/resourceGroups/[^/]+/providers/Microsoft\.Storage/storageAccounts/([a-z0-9]{3,24})$') { throw 'The selected export has an invalid storage resource ID.' }
     $account = $Matches[1]
     $suffix = Get-ExportBlobSuffix -Environment $Environment
     $blobBase = "https://$account.$suffix"
-    $container = $Export.Container
-    $root = ($Export.RootFolder).Trim('/')
+    $container = [string]$Export.Container
+    if ($container -cnotmatch '^[a-z0-9](?:[a-z0-9-]{1,61})[a-z0-9]$' -or $container.Contains('--')) { throw 'The selected export has an invalid container name.' }
+    $root = ([string]$Export.RootFolder).Trim('/')
+    $exportName = [string]$Export.Name
+    if ([string]::IsNullOrWhiteSpace($exportName) -or $exportName -match '[/\\\x00-\x1f]' -or $exportName -in @('.', '..') -or
+        $root -match '(?:^|/)\.{1,2}(?:/|$)|[\\\x00-\x1f]') { throw 'The selected export has an invalid folder path.' }
 
     $token = $null
     try { $token = Get-PlainAccessToken -ResourceUrl 'https://storage.azure.com' }
     catch { Write-Warning "  Storage token error: $($_.Exception.Message)"; return [PSCustomObject]@{ Rows = @(); DataDate = $null; Currency = 'USD' } }
 
-    # Export layouts vary:
-    #   Standard Cost Management export : {root}/{name}/{dateRange}/{runId}/*.csv
-    #   FinOps Hub (manifest) export    : subscriptions/{subId}/{name}/{dateRange}/{runTs}/{runId}/*.csv
-    # Try progressively looser prefixes until CSV data blobs are found. The
-    # subscription-scoped path is tried first so we don't accidentally pick up
-    # a different export's data from a whole-container scan.
-    $candidates = [System.Collections.Generic.List[string]]::new()
-    if ($Export.SubId) { [void]$candidates.Add("subscriptions/$($Export.SubId)/$($Export.Name)/") }
-    if ($root) {
-        [void]$candidates.Add("$root/$($Export.Name)/")
-        [void]$candidates.Add("$root/")
-    }
-    [void]$candidates.Add("$($Export.Name)/")
-    [void]$candidates.Add('')
-
-    $blobs = [System.Collections.Generic.List[PSCustomObject]]::new()
-    $csvBlobs = @()
-    $anyListed = $false
-    $seen = @{}
-    foreach ($prefix in $candidates) {
-        if ($seen.ContainsKey($prefix)) { continue }
-        $seen[$prefix] = $true
-
-        $listed = Get-StorageBlobList -BlobBase $blobBase -Container $container -Prefix $prefix -StorageToken $token
-        if ($listed.Listed) { $anyListed = $true }
-        $blobs = $listed.Blobs
-
-        $csvBlobs = @($blobs | Where-Object { $_.Name -match '\.csv(\.gz)?$' })
-        if ($csvBlobs.Count -gt 0) { break }
-    }
-
-    if (-not $anyListed) {
-        Write-Warning "  Could not list export blobs (storage access denied? needs Storage Blob Data Reader)."
-        return [PSCustomObject]@{ Rows = @(); DataDate = $null; Currency = 'USD'; AccessDenied = $true }
-    }
+    $prefix = if ($root) { "$root/$exportName/" } else { "$exportName/" }
+    $listed = Get-StorageBlobList -BlobBase $blobBase -Container $container -Prefix $prefix -StorageToken $token
+    if (-not $listed.Listed) { throw 'The selected export folder could not be listed; cost coverage is incomplete.' }
+    $blobs = @($listed.Blobs | Where-Object { ([string]$_.Name).StartsWith($prefix, [StringComparison]::Ordinal) })
+    $csvBlobs = @($blobs | Where-Object { $_.Name -match '\.csv(\.gz)?$' })
 
     if ($csvBlobs.Count -eq 0) {
         $hasParquet = @($blobs | Where-Object { $_.Name -match '\.parquet$' }).Count -gt 0
@@ -679,8 +780,30 @@ function Get-CostExportData {
     # A partitioned export writes multiple CSV parts in the same run folder.
     # Group by the run folder (everything up to the last '/') of the newest blob.
     $runFolder = ($newest.Name -replace '/[^/]+$', '/')
-    $runParts = @($csvBlobs | Where-Object { $_.Name -like "$runFolder*" })
+    $runParts = @($csvBlobs | Where-Object { ($_.Name -replace '/[^/]+$', '/') -ceq $runFolder })
     if ($runParts.Count -eq 0) { $runParts = @($newest) }
+
+    # Improved exports write manifest.json beside the parts, declaring every
+    # partition in the run. Without this check a run that is still being written,
+    # or one whose parts are partly unreadable, would total up as if complete.
+    $manifestBlob = @($blobs | Where-Object { ([string]$_.Name) -ceq ($runFolder + 'manifest.json') })[0]
+    if ($manifestBlob) {
+        $manifestEncoded = (($manifestBlob.Name -split '/' | ForEach-Object { [uri]::EscapeDataString($_) }) -join '/')
+        $manifestBytes = Get-StorageBlobBytes -Uri "$blobBase/$container/$manifestEncoded" -StorageToken $token
+        if (-not $manifestBytes) { throw 'The export run manifest could not be read; cost coverage is incomplete.' }
+        $manifest = $null
+        try { $manifest = [System.Text.Encoding]::UTF8.GetString($manifestBytes) | ConvertFrom-Json -ErrorAction Stop }
+        catch { throw 'The export run manifest could not be parsed; cost coverage is incomplete.' }
+        $declared = @($manifest.blobs)
+        if ($declared.Count -gt 0) {
+            $foundNames = [Collections.Generic.HashSet[string]]::new([string[]]@($runParts | ForEach-Object { [string]$_.Name }), [StringComparer]::Ordinal)
+            $declaredNames = @($declared | ForEach-Object { ([string]$_.blobName).TrimStart('/') } | Where-Object { $_ })
+            $missing = @($declaredNames | Where-Object { -not $foundNames.Contains($_) })
+            if ($declared.Count -ne $runParts.Count -or $missing.Count -gt 0) {
+                throw "The export run declares $($declared.Count) partition(s) but $($runParts.Count) readable CSV part(s) matched; cost coverage is incomplete."
+            }
+        }
+    }
 
     $dataDate = ($runParts | Sort-Object LastModified -Descending | Select-Object -First 1).LastModified
 
@@ -689,7 +812,8 @@ function Get-CostExportData {
     $colMap = $null
     $firstHeader = @()
     foreach ($part in $runParts) {
-        $blobUri = "$blobBase/$container/$([uri]::EscapeUriString($part.Name))"
+        $encodedName = (($part.Name -split '/' | ForEach-Object { [uri]::EscapeDataString($_) }) -join '/')
+        $blobUri = "$blobBase/$container/$encodedName"
         $bytes = Get-StorageBlobBytes -Uri $blobUri -StorageToken $token
         if (-not $bytes) { throw "Export part '$($part.Name)' could not be read; cost coverage is incomplete." }
         $csvText = $null
@@ -816,7 +940,9 @@ function ConvertTo-ResourceCostsFromExport {
         $rid = if ($cm.ResourceId) { "$($r.$($cm.ResourceId))".Trim() } else { '' }
         $subId = [string]$r.($cm.SubscriptionId)
         $cost = ConvertTo-ExportAmount "$($r.$($cm.Cost))"
-        $key = if ($rid) { $rid.ToLower() } else { "$subId|non-resource charges" }
+        # Classic exports can carry a bare instance name, so the subscription has
+        # to be part of the key or same-named resources would merge across them.
+        $key = if ($rid) { "$subId|$($rid.ToLower())" } else { "$subId|non-resource charges" }
         if (-not $agg.ContainsKey($key)) {
             $rg = if ($cm.ResourceGroup) { "$($r.$($cm.ResourceGroup))" } else { '' }
             if (-not $rg -and $rid -match '/resourcegroups/([^/]+)/') { $rg = $Matches[1] }
@@ -922,10 +1048,18 @@ function ConvertTo-CostTrendFromExport {
     $subAgg = @{}   # subId -> ( yyyy-MM -> @{ Cost; Date } )
     foreach ($r in $ExportData.Rows) {
         $dt = $null
-        try { $dt = [datetime]"$($r.$($cm.Date))" } catch { throw 'An export row has an invalid date; cost trend coverage is incomplete.' }
+        $rawDate = $r.($cm.Date)
+        try {
+            $dt = if ($rawDate -is [datetime]) { $rawDate.ToUniversalTime() }
+            elseif ([string]$rawDate -match '^\d{8}$') { [datetime]::ParseExact([string]$rawDate, 'yyyyMMdd', [cultureinfo]::InvariantCulture, [Globalization.DateTimeStyles]::AssumeUniversal).ToUniversalTime() }
+            else { [datetimeoffset]::Parse([string]$rawDate, [cultureinfo]::InvariantCulture, [Globalization.DateTimeStyles]::AssumeUniversal).UtcDateTime }
+        }
+        catch { throw 'An export row has an invalid date; cost trend coverage is incomplete.' }
         $cost = ConvertTo-ExportAmount "$($r.$($cm.Cost))"
-        $firstOfMo = Get-Date -Year $dt.Year -Month $dt.Month -Day 1 -Hour 0 -Minute 0 -Second 0
-        $key = $dt.ToString('yyyy-MM')
+        $firstOfMo = $dt.Date.AddDays(1 - $dt.Day)
+        # Invariant culture keeps the key Gregorian; a Hijri or Buddhist host
+        # calendar would otherwise split one month across two trend rows.
+        $key = $dt.ToString('yyyy-MM', [cultureinfo]::InvariantCulture)
 
         if (-not $agg.ContainsKey($key)) { $agg[$key] = @{ Cost = 0.0; Date = $firstOfMo } }
         $agg[$key].Cost += $cost

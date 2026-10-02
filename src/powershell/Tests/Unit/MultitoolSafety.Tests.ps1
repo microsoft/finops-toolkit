@@ -2753,7 +2753,237 @@ Describe 'FinOps Multitool cost math' {
             }
         }
 
-        It 'Rejects a failed CSV partition instead of returning the readable part' {
+        It 'Retains readable exports when another account denies container discovery' -Tag 'AutomaticExportDiscovery' {
+            InModuleScope FinOpsMultitool {
+                $storagePrefix = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/'
+                Mock Get-ExportStorageCandidates {
+                    @([pscustomobject]@{ Name = 'deniedstore'; ResourceId = "${storagePrefix}deniedstore"; SubId = '11111111-1111-1111-1111-111111111111' }, [pscustomobject]@{ Name = 'readablestore'; ResourceId = "${storagePrefix}readablestore"; SubId = '11111111-1111-1111-1111-111111111111' })
+                }
+                Mock Invoke-AzRestMethodWithRetry { [pscustomobject]@{ StatusCode = 403; Content = '{}' } }
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Get-StorageContainerList {
+                    if ($BlobBase -like '*deniedstore.*') { throw 'Synthetic container listing HTTP 403.' }
+                    @{ Listed = $true; Containers = @('exports') }
+                }
+                Mock Get-StorageBlobList {
+                    @{ Listed = $true; Blobs = @([pscustomobject]@{ Name = 'costs/focus/20260901-20260930/run/part.csv'; LastModified = [datetime]'2026-10-01' }) }
+                }
+
+                $result = @(Find-CostExportFromStorage -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example' }) -WarningAction SilentlyContinue -WarningVariable discoveryWarnings)
+
+                $result.Count | Should -Be 1
+                $result[0].StorageResourceId | Should -Be "${storagePrefix}readablestore"
+                @($discoveryWarnings).Count | Should -Be 1
+                Should -Invoke Get-StorageContainerList -Times 2 -Exactly
+                Should -Invoke Get-StorageBlobList -Times 1 -Exactly -ParameterFilter { $BlobBase -eq 'https://readablestore.blob.core.windows.net' -and $Container -eq 'exports' }
+            }
+        }
+
+        It 'Stops extended export discovery before requests on a tenant mismatch' -Tag 'AutomaticExportDiscovery' {
+            InModuleScope FinOpsMultitool {
+                Mock Get-AzContext { [pscustomobject]@{ Tenant = @{ Id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' } } }
+                Mock Search-AzGraphSafe { throw 'No resource query is allowed.' }
+                Mock Invoke-AzRestMethodWithRetry { throw 'No ARM request is allowed.' }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+
+                { Find-CostExport -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -IncludeManagementGroups -IncludeBillingAccounts } | Should -Throw '*verified selected tenant*'
+
+                Should -Invoke Search-AzGraphSafe -Times 0 -Exactly
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly
+            }
+        }
+
+        It 'Uses container metadata to find exports without probing unrelated account data' -Tag 'AutomaticExportDiscovery' {
+            InModuleScope FinOpsMultitool {
+                $storagePrefix = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/'
+                Mock Get-ExportStorageCandidates {
+                    @([pscustomobject]@{ Name = 'applicationstore'; ResourceId = "${storagePrefix}applicationstore"; SubId = '11111111-1111-1111-1111-111111111111' }, [pscustomobject]@{ Name = 'exportstore'; ResourceId = "${storagePrefix}exportstore"; SubId = '11111111-1111-1111-1111-111111111111' })
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $containerName = if ($Path -like '*applicationstore/*') { 'appdata' } else { 'exports' }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @(@{ name = '$web' }, @{ name = $containerName }, @{ name = '$logs' }) } | ConvertTo-Json -Depth 5) }
+                }
+                Mock Get-StorageContainerList { throw 'Blob-service container enumeration must not run when metadata is readable.' }
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Get-StorageBlobList {
+                    @{ Listed = $true; Blobs = @([pscustomobject]@{ Name = 'costs/focus/20260901-20260930/run/part.csv'; LastModified = [datetime]'2026-10-01' }) }
+                }
+
+                $result = @(Find-CostExportFromStorage -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example' }))
+
+                $result.Count | Should -Be 1
+                $result[0].Container | Should -Be 'exports'
+                Should -Invoke Get-StorageContainerList -Times 0 -Exactly
+                Should -Invoke Get-StorageBlobList -Times 1 -Exactly -ParameterFilter { $BlobBase -eq 'https://exportstore.blob.core.windows.net' -and $Container -eq 'exports' }
+                Should -Invoke Get-PlainAccessToken -Times 1 -Exactly
+            }
+        }
+
+        It 'Finds central exports only at selected-subscription ancestors and linked billing accounts' -Tag 'AutomaticExportDiscovery' {
+            InModuleScope FinOpsMultitool {
+                $selectedId = '11111111-1111-1111-1111-111111111111'
+                Mock Get-AzContext { [pscustomobject]@{ Tenant = @{ Id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' } } }
+                Mock Search-AzGraphSafe {
+                    @{ Data = @(
+                        [pscustomobject]@{ subscriptionId = $selectedId; ancestors = @(@{ name = 'platform'; displayName = 'Example platform' }, @{ name = 'platform'; displayName = 'Example platform' }) }
+                        [pscustomobject]@{ subscriptionId = '99999999-9999-9999-9999-999999999999'; ancestors = @(@{ name = 'unrelated'; displayName = 'Outside scope' }) }
+                    ) }
+                }
+                Mock Get-FinOpsBillingScope {
+                    [pscustomobject]@{ Accounts = @($BillingAccounts | Where-Object name -EQ 'linked'); Resolved = $true; CoverageIncomplete = $false }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -eq '/providers/Microsoft.Billing/billingAccounts?api-version=2024-04-01') {
+                        return [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @(@{ name = 'linked'; id = '/providers/Microsoft.Billing/billingAccounts/linked'; properties = @{ displayName = 'Example billing' } }, @{ name = 'outside'; id = '/providers/Microsoft.Billing/billingAccounts/outside'; properties = @{ displayName = 'Unrelated billing' } }) } | ConvertTo-Json -Depth 6) }
+                    }
+                    if ($Path -like '/subscriptions/*') { return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' } }
+                    if ($Path -notmatch '/managementGroups/platform/|/billingAccounts/linked/') { throw 'Unexpected wider scope.' }
+                    $exportName = if ($Path -match 'managementGroups') { 'management-export' } else { 'billing-export' }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @(@{ name = $exportName; properties = @{ format = 'Csv'; definition = @{ type = 'FocusCost' }; deliveryInfo = @{ destination = @{ resourceId = "/subscriptions/$selectedId/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/example"; container = 'billingdata'; rootFolderPath = 'costs' } } } }) } | ConvertTo-Json -Depth 9) }
+                }
+                $subscriptions = @([pscustomobject]@{ Id = $selectedId; Name = 'Example'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+
+                $result = @(Find-CostExport -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -IncludeManagementGroups -IncludeBillingAccounts -SkipRunHistory)
+
+                $result.Count | Should -Be 2
+                $result.ScopeKind | Should -Contain 'ManagementGroup'
+                $result.ScopeKind | Should -Contain 'BillingAccount'
+                $result.Container | Select-Object -Unique | Should -Be 'billingdata'
+                Should -Invoke Search-AzGraphSafe -Times 1 -Exactly -ParameterFilter { @($Subscription).Count -eq 1 -and $Subscription[0] -eq '11111111-1111-1111-1111-111111111111' -and $All }
+                Should -Invoke Get-FinOpsBillingScope -Times 1 -Exactly -ParameterFilter { @($Subscriptions).Count -eq 1 -and $Subscriptions[0].Id -eq '11111111-1111-1111-1111-111111111111' }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly -ParameterFilter { $Path -match '/managementGroups/unrelated/|/billingAccounts/outside/|/managementGroups\?' }
+            }
+        }
+
+        It 'Uses consistent UTC export months under <CultureName>' -Tag 'GenericExportStorage' -ForEach @(
+            @{ CultureName = 'en-US' }
+            @{ CultureName = 'en-GB' }
+            @{ CultureName = 'de-DE' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ CultureName = $CultureName } {
+                param($CultureName)
+                $originalCulture = [Threading.Thread]::CurrentThread.CurrentCulture
+                try {
+                    [Threading.Thread]::CurrentThread.CurrentCulture = [cultureinfo]::GetCultureInfo($CultureName)
+                    $rows = @(
+                        [pscustomobject]@{ SubscriptionId = '11111111-1111-1111-1111-111111111111'; Cost = 10; Currency = 'USD'; Date = '20260930' }
+                        [pscustomobject]@{ SubscriptionId = '11111111-1111-1111-1111-111111111111'; Cost = 20; Currency = 'USD'; Date = '2026-10-01T00:30:00+02:00' }
+                    )
+                    $result = ConvertTo-CostTrendFromExport -ExportData ([pscustomobject]@{ Rows = $rows; CostBasis = 'ActualCost' })
+                    $result.Months.Count | Should -Be 1
+                    $result.Months[0].Cost | Should -Be 30
+                    $result.Months[0].MonthDate | Should -Be ([datetime]::new(2026, 9, 1, 0, 0, 0, [DateTimeKind]::Utc))
+                    $result.Months[0].MonthDate.Kind | Should -Be ([DateTimeKind]::Utc)
+                }
+                finally { [Threading.Thread]::CurrentThread.CurrentCulture = $originalCulture }
+            }
+        }
+
+        It 'Reads all selected-export parts from the same run (gzip: <Compressed>)' -Tag 'GenericExportStorage' -ForEach @(
+            @{ Compressed = $false }
+            @{ Compressed = $true }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Compressed = $Compressed } {
+                param($Compressed)
+                $fixturePartSuffix = if ($Compressed) { '.csv.gz' } else { '.csv' }
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Get-StorageBlobList {
+                    @{ Listed = $true; Blobs = @(
+                            [pscustomobject]@{ Name = "costs/selected/20260901-20260930/run/part#1$fixturePartSuffix"; LastModified = [datetime]'2026-10-01' }
+                            [pscustomobject]@{ Name = "costs/selected/20260901-20260930/run/part2$fixturePartSuffix"; LastModified = [datetime]'2026-10-01' }
+                            [pscustomobject]@{ Name = "costs/selected/20260901-20260930/run/nested/other$fixturePartSuffix"; LastModified = [datetime]'2026-09-01' }
+                        )
+                    }
+                }
+                $fixturePartBytes = [Text.Encoding]::UTF8.GetBytes("SubscriptionId,Cost,Currency,Date`n11111111-1111-1111-1111-111111111111,10,USD,2026-09-30")
+                if ($Compressed) {
+                    $buffer = [IO.MemoryStream]::new()
+                    $gzip = [IO.Compression.GZipStream]::new($buffer, [IO.Compression.CompressionMode]::Compress, $true)
+                    try { $gzip.Write($fixturePartBytes, 0, $fixturePartBytes.Length) }
+                    finally { $gzip.Dispose() }
+                    $fixturePartBytes = $buffer.ToArray()
+                    $buffer.Dispose()
+                }
+                Mock Get-StorageBlobBytes { , $fixturePartBytes }
+                $export = [pscustomobject]@{ Name = 'selected'; Format = 'Csv'; Type = 'ActualCost'; RootFolder = 'costs'; Container = 'exports'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/examplestorage' }
+
+                $result = Get-CostExportData -Export $export
+
+                $result.RowCount | Should -Be 2
+                $result.CostBasis | Should -Be 'ActualCost'
+                Should -Invoke Get-StorageBlobBytes -Times 2 -Exactly
+                Should -Invoke Get-StorageBlobBytes -Times 1 -Exactly -ParameterFilter { $Uri -like '*part%231.csv*' }
+                Should -Invoke Get-StorageBlobBytes -Times 0 -Exactly -ParameterFilter { $Uri -like '*nested*' }
+            }
+        }
+
+        It 'Follows <Kind> discovery pages within the selected subscription' -Tag 'GenericExportStorage' -ForEach @(
+            @{ Kind = 'definitions' }
+            @{ Kind = 'storage accounts' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Kind = $Kind } {
+                param($Kind)
+                $discoveryKind = $Kind
+                $subscriptionId = '11111111-1111-1111-1111-111111111111'
+                Mock Invoke-AzRestMethodWithRetry {
+                    $number = if ($Path -like '*page=2') { 2 } else { 1 }
+                    $item = if ($discoveryKind -eq 'definitions') {
+                        @{ name = "export$number"; properties = @{ format = 'Csv'; definition = @{ type = 'ActualCost' }; deliveryInfo = @{ destination = @{ resourceId = "/subscriptions/$subscriptionId/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/example"; container = 'exports'; rootFolderPath = 'costs' } } } }
+                    }
+                    else { @{ name = "storage$number"; id = "/subscriptions/$subscriptionId/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/storage$number" } }
+                    $payload = @{ value = @($item) }
+                    if ($number -eq 1) { $payload.nextLink = "$Path&page=2" }
+                    [pscustomobject]@{ StatusCode = 200; Content = ($payload | ConvertTo-Json -Depth 10) }
+                }
+                $subscriptions = @([pscustomobject]@{ Id = $subscriptionId; Name = 'Example' })
+
+                $result = if ($Kind -eq 'definitions') { @(Find-CostExport -Subscriptions $subscriptions -SkipRunHistory) } else { @(Get-ExportStorageCandidates -Subscriptions $subscriptions) }
+
+                $result.Count | Should -Be 2
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter { $Method -eq 'GET' -and $Path -like '/subscriptions/11111111-1111-1111-1111-111111111111/*' }
+            }
+        }
+
+        It 'Keeps a selected export inside its exact folder' -Tag 'GenericExportStorage' {
+            InModuleScope FinOpsMultitool {
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Get-StorageBlobList {
+                    @{ Listed = $true; Blobs = @([pscustomobject]@{ Name = 'another-export/20260901-20260930/run/part.csv'; LastModified = [datetime]'2026-10-01' }) }
+                }
+                Mock Get-StorageBlobBytes { throw 'A different export must not be downloaded.' }
+                $export = [pscustomobject]@{ Name = 'selected'; Format = 'Csv'; RootFolder = 'costs'; Container = 'exports'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/examplestorage' }
+
+                $result = Get-CostExportData -Export $export
+
+                $result.NoData | Should -BeTrue
+                Should -Invoke Get-StorageBlobList -Times 1 -Exactly -ParameterFilter { $Prefix -ceq 'costs/selected/' }
+                Should -Invoke Get-StorageBlobBytes -Times 0 -Exactly
+            }
+        }
+
+        It 'Rejects <Failure> storage pagination for <Listing>' -Tag 'GenericExportStorage' -ForEach @(
+            @{ Failure = 'failed second page'; Listing = 'blobs'; Repeat = $false }
+            @{ Failure = 'repeated marker'; Listing = 'blobs'; Repeat = $true }
+            @{ Failure = 'failed second page'; Listing = 'containers'; Repeat = $false }
+            @{ Failure = 'repeated marker'; Listing = 'containers'; Repeat = $true }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Listing = $Listing; Repeat = $Repeat } {
+                param($Listing, $Repeat)
+                $fixtureListing = $Listing
+                $repeatMarker = $Repeat
+                Mock Invoke-StorageBlobRest {
+                    if ($Uri -like '*marker=*' -and -not $repeatMarker) { return $null }
+                    '<EnumerationResults><Blobs/><Containers/><NextMarker>next-page</NextMarker></EnumerationResults>'
+                }
+                {
+                    if ($fixtureListing -eq 'blobs') { Get-StorageBlobList -BlobBase 'https://example.blob.core.windows.net' -Container 'exports' -StorageToken 'synthetic-token' }
+                    else { Get-StorageContainerList -BlobBase 'https://example.blob.core.windows.net' -StorageToken 'synthetic-token' }
+                } | Should -Throw '*listing*'
+                Should -Invoke Invoke-StorageBlobRest -Times 2 -Exactly
+            }
+        }
+
+        It 'Rejects a failed CSV partition instead of returning the readable part' -Tag 'GenericExportStorage' {
             InModuleScope FinOpsMultitool {
                 Mock Get-PlainAccessToken { 'test-token' }
                 Mock Get-StorageBlobList {
@@ -2769,6 +2999,67 @@ Describe 'FinOps Multitool cost math' {
                 }
                 $export = [pscustomobject]@{ Name = 'export'; Format = 'Csv'; RootFolder = ''; Container = 'exports'; StorageResourceId = '/subscriptions/test/resourceGroups/test/providers/Microsoft.Storage/storageAccounts/test' }
                 { Get-CostExportData -Export $export } | Should -Throw '*part2*incomplete*'
+            }
+        }
+
+        It 'Rejects an export run missing a manifest-declared partition' -Tag 'GenericExportStorage' {
+            InModuleScope FinOpsMultitool {
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Get-StorageBlobList {
+                    @{ Listed = $true; Blobs = @(
+                            [pscustomobject]@{ Name = 'costs/selected/20260901-20260930/run/part_0.csv'; LastModified = [datetime]'2026-10-01' }
+                            [pscustomobject]@{ Name = 'costs/selected/20260901-20260930/run/manifest.json'; LastModified = [datetime]'2026-10-01' }
+                        )
+                    }
+                }
+                Mock Get-StorageBlobBytes {
+                    if ($Uri -like '*manifest.json') {
+                        return , ([Text.Encoding]::UTF8.GetBytes('{"blobs":[{"blobName":"costs/selected/20260901-20260930/run/part_0.csv"},{"blobName":"costs/selected/20260901-20260930/run/part_1.csv"}]}'))
+                    }
+                    , ([Text.Encoding]::UTF8.GetBytes("SubscriptionId,Cost,Currency,Date`n11111111-1111-1111-1111-111111111111,100,USD,2026-09-30"))
+                }
+                $export = [pscustomobject]@{ Name = 'selected'; Format = 'Csv'; Type = 'ActualCost'; RootFolder = 'costs'; Container = 'exports'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/examplestorage' }
+
+                { Get-CostExportData -Export $export } | Should -Throw '*declares 2 partition*incomplete*'
+            }
+        }
+
+        It 'Excludes tenant-level export rows with no subscription instead of failing the read' -Tag 'GenericExportStorage' {
+            InModuleScope FinOpsMultitool {
+                $subscriptionId = '11111111-1111-1111-1111-111111111111'
+                $exportRows = @(
+                    [pscustomobject]@{ SubAccountId = "/subscriptions/$subscriptionId"; BilledCost = 10; BillingCurrency = 'USD'; ChargePeriodStart = '2026-09-01' }
+                    [pscustomobject]@{ SubAccountId = ''; BilledCost = 250; BillingCurrency = 'USD'; ChargePeriodStart = '2026-09-01' }
+                )
+                $exportData = [pscustomobject]@{ Rows = $exportRows; ColMap = (Resolve-ExportColumns -Header $exportRows[0].PSObject.Properties.Name); Currency = 'USD'; CostBasis = 'FocusCost'; DataDate = [datetime]'2026-10-01' }
+                $subscriptions = @([pscustomobject]@{ Id = $subscriptionId; Name = 'Example' })
+
+                $result = Select-CostExportData -ExportData $exportData -Subscriptions $subscriptions
+
+                $result.RowCount | Should -Be 1
+                $result.UnattributedRowCount | Should -Be 1
+            }
+        }
+
+        It 'Keeps same-named resources in different subscriptions separate' -Tag 'GenericExportStorage' {
+            InModuleScope FinOpsMultitool {
+                $first = '11111111-1111-1111-1111-111111111111'
+                $second = '22222222-2222-2222-2222-222222222222'
+                $exportRows = @(
+                    [pscustomobject]@{ SubscriptionId = $first; InstanceName = 'shared-vm'; Cost = 10; Currency = 'USD'; Date = '2026-09-30' }
+                    [pscustomobject]@{ SubscriptionId = $second; InstanceName = 'shared-vm'; Cost = 20; Currency = 'USD'; Date = '2026-09-30' }
+                )
+                $exportData = [pscustomobject]@{ Rows = $exportRows; ColMap = (Resolve-ExportColumns -Header $exportRows[0].PSObject.Properties.Name); Currency = 'USD'; CostBasis = 'ActualCost'; DataDate = [datetime]'2026-10-01' }
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = $first; Name = 'First' }
+                    [pscustomobject]@{ Id = $second; Name = 'Second' }
+                )
+
+                $result = @(ConvertTo-ResourceCostsFromExport -ExportData $exportData -Subscriptions $subscriptions)
+
+                $result.Count | Should -Be 2
+                @($result | Where-Object { $_.Actual -eq 10 }).Count | Should -Be 1
+                @($result | Where-Object { $_.Actual -eq 20 }).Count | Should -Be 1
             }
         }
 

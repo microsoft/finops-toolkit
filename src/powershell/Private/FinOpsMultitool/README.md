@@ -46,19 +46,24 @@ On an interactive launch, the TUI checks for an existing `Az.Accounts` session a
 
 ### 2. Data source selection
 
-During interactive source selection, you can choose Cost Management API or Resource Graph only. FinOps Hub is also offered when a hub is detected:
+During interactive source selection, you can choose Cost Management API, Resource Graph only, or **Cost Management exports (CSV storage)**. FinOps Hub is also offered when a hub is detected. Exports don't require a Hub.
 
 Automatic Hub discovery queries only the selected subscriptions in the verified Azure context. If a Hub can't be verified, discovery failures remain visible, interactive runs still offer API or GraphOnly, and `-NonInteractive` defaults to API without changing scope. This applies even when every discovery probe fails. An explicit Hub request still stops if no configured endpoint or detected storage account is available. Explicit API and GraphOnly selections skip Hub discovery.
 
 If provider discovery throws for a detected Hub, the tool warns and checks that Hub's storage reader. Storage sizing and reachability warnings still apply. The selected storage path is carried into the scan runner without repeating provider discovery. A configured Kusto endpoint or a failed Kusto cost query doesn't silently switch to storage or API.
 
-| Source                  | Description                                                                                                                                      |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **FinOps Hub**          | Reads available cost data from the hub. Kusto summarizes data in the engine; the storage reader is for small datasets.                           |
-| **Cost Management API** | Queries currently available cost data through the Cost Management REST API. Doesn't preload hub data.                                            |
-| **Resource Graph only** | Excludes cost-dependent scans and orphan cost enrichment. Remaining scans can still use Azure Monitor metrics, Advisor, policy, and carbon APIs. |
+| Source                      | Description                                                                                                                                                                       |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **FinOps Hub**              | Reads available cost data from the hub. Kusto summarizes data in the engine; the storage reader is for small datasets.                                                            |
+| **Cost Management exports** | Discovers existing CSV/CSV.gz exports and reads one selected destination. Uses ActualCost or FOCUS BilledCost, filters row subscriptions, and leaves missing coverage unverified. |
+| **Cost Management API**     | Queries currently available cost data through the Cost Management REST API. Doesn't preload hub data.                                                                             |
+| **Resource Graph only**     | Excludes cost-dependent scans and orphan cost enrichment. Remaining scans can still use Azure Monitor metrics, Advisor, policy, and carbon APIs.                                  |
 
 When the **FinOps Hub** source is chosen, the tool prefers the hub's **Kusto database** (Azure Data Explorer / Fabric, or a local ftklocal emulator) and pushes aggregation into the engine, returning only summarized results. This is the scalable path for large customer datasets — it never loads the raw cost rows into PowerShell. See [FinOps Hub data paths](#finops-hub-data-paths) below. The storage-export reader remains as a small-dataset fallback.
+
+Use `-DataSource Export` to request ordinary export discovery explicitly. The picker first reads export definitions for the selected subscriptions, their management-group ancestors, and billing accounts linked to those subscriptions, reporting progress per scope and the number found. Storage-first discovery then always runs, deduped against those definitions, because a cross-tenant scan can see some subscriptions' exports while a central management-group export stays invisible to Cost Management. It uses Azure Resource Manager container metadata before blob-service enumeration, probes containers whose names contain `export`, `msexports`, `ingestion`, `finops`, `cost`, or `focus` plus any container a visible definition names, and reports progress per storage account. You choose an export; you don't need to know its container name. A definition found at a management-group or billing-account scope can deliver to storage outside the selected subscriptions, and that destination is read. Readable candidates remain available when other probes fail, and candidates this path cannot read are listed as such. Discovery warnings are summarized, with details under `-Verbose`. Storage Blob Data Reader or equivalent data access and storage network access are still required to read the chosen data. This path does not create or run exports, ingest local files, or parse Parquet. Reads stay inside the chosen export folder; when the selected run has a manifest, every declared partition must be readable or the run is reported as incomplete. It loads CSV parts into memory, so use a compatible Kusto database for very large datasets.
+
+Choose one export when prompted; exports aren't combined automatically. Unattended Export mode requires exactly one candidate. Cost totals, resource costs, cost by tag, and trends use only matching export rows. Trend history is limited to the chosen run's dates. Separate live financial scans are excluded; inventory and metrics scans can still query Azure in the selected scope. Failed or unsupported export reads never switch to API costs. Missing subscriptions are unverified, not zero, and neither blob timestamps nor observed row dates prove billing completeness.
 
 ### 3. Scan selection
 

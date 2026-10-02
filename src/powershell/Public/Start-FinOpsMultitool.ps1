@@ -45,11 +45,21 @@
 
     .PARAMETER DataSource
     Optional data source, which skips the data source prompt. Hub reads a configured
-    Kusto endpoint or a discovered FinOps hub. API queries Cost Management directly, and
+    Kusto endpoint or a discovered FinOps hub. Export discovers existing CSV/CSV.gz Cost
+    Management exports without requiring a hub, looking at definitions for the selected
+    subscriptions, their management-group ancestors, and linked billing accounts, and at
+    storage accounts in the selected subscriptions. A definition found at a wider scope can
+    deliver to storage outside the selected subscriptions, and that destination is read. It
+    reads one chosen export and filters rows to the selected subscriptions. ActualCost or FOCUS
+    BilledCost is required; Parquet and local-file input aren't supported on this path.
+    API queries Cost Management directly, and
     GraphOnly skips cost-dependent scans and orphan cost enrichment; remaining scans can
     still use Azure Monitor, Advisor, policy, and carbon APIs. API and GraphOnly ignore FINOPS_HUB_KUSTO_URI and
     don't preload hub data. An explicit Hub selection fails if no hub source is available.
-    Select API separately to run a live scan.
+    Select API separately to run a live scan. Export also ignores FINOPS_HUB_KUSTO_URI;
+    a failed export read never switches to live costs. NonInteractive Export requires
+    exactly one readable discovered candidate. Export mode supports cost totals, resource costs,
+    cost by tag, and the months present in that export run; separate financial API scans are excluded.
 
     .PARAMETER NonInteractive
     Runs without prompting, for automation and scheduled jobs. Every choice comes from the
@@ -95,7 +105,7 @@ function Start-FinOpsMultitool {
         [string[]]$Scans,
 
         [Parameter()]
-        [ValidateSet('Hub', 'API', 'GraphOnly')]
+        [ValidateSet('Hub', 'Export', 'API', 'GraphOnly')]
         [string]$DataSource,
 
         [Parameter()]
