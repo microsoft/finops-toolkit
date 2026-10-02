@@ -46,6 +46,10 @@
 .PARAMETER OutputFile
     Name of the output CSV file containing the analysis results.
 
+.PARAMETER OutputStream
+    Optional writable stream for the CSV instead of a local file. The stream must report Length.
+    The caller owns the stream. Returns row, request, subscription, and byte counts when a stream is supplied.
+
 .EXAMPLE
     Import-Module ./AzVMQuotaUsage/AzVMQuotaUsage.psm1
     $token = ConvertTo-SecureString (az account get-access-token --resource https://management.azure.com --query accessToken -o tsv) -AsPlainText -Force
@@ -97,7 +101,10 @@ function Get-AzVMQuotaUsage {
         [int]$ConcurrentRequests = 16,
 
         [Parameter(Mandatory = $false, HelpMessage = "Output file name")]
-        [string]$OutputFile = "QuotaQuery.csv"
+        [string]$OutputFile = "QuotaQuery.csv",
+
+        [Parameter(Mandatory = $false, HelpMessage = "Caller-owned CSV output stream with a Length property")]
+        [IO.Stream]$OutputStream
     )
 
     # Set error handling and output preferences
@@ -123,10 +130,16 @@ function Get-AzVMQuotaUsage {
     $client.Timeout = [TimeSpan]::FromSeconds(120)
     $client.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new(
         'Bearer', [System.Net.NetworkCredential]::new('', $AccessToken).Password)
-    $outputPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutputFile)
     $writer = $null
     try {
-        $writer = [IO.StreamWriter]::new($outputPath, $false, [Text.UTF8Encoding]::new($false))
+        if ($OutputStream) {
+            if (-not $OutputStream.CanWrite) { throw 'The CSV output stream is not writable.' }
+            $writer = [IO.StreamWriter]::new($OutputStream, [Text.UTF8Encoding]::new($false), 65536, $true)
+        }
+        else {
+            $outputPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutputFile)
+            $writer = [IO.StreamWriter]::new($outputPath, $false, [Text.UTF8Encoding]::new($false))
+        }
         $writer.WriteLine($csvHeaderString)
 
         $usageSources = @(
@@ -251,4 +264,7 @@ function Get-AzVMQuotaUsage {
     Write-Host "Output written to $OutputFile"
     $end = Get-Date
     Write-Host "Processed $($subscriptions.Count) subscriptions in $([math]::Round((New-TimeSpan -Start $begin -End $end).TotalSeconds, 2)) seconds"
+    if ($OutputStream) {
+        [pscustomobject]@{ Rows = $progress.Rows; Requests = $progress.Requests; Subscriptions = $progress.Subscriptions; Bytes = $OutputStream.Length }
+    }
 }

@@ -5,6 +5,10 @@ param($Timer)
 
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot '../AzVMQuotaUsage/AzVMQuotaUsage.psm1')
+if (-not ('FinOpsToolkit.QuotaBlobStream' -as [type]))
+{
+    Add-Type -Path (Join-Path $PSScriptRoot 'QuotaBlobStream.cs')
+}
 
 function Get-IdentityToken
 {
@@ -22,9 +26,11 @@ function Get-IdentityToken
 
 function Write-Manifest
 {
-    param ([string] $CsvPath, [string] $BlobName, [int] $RowCount, [string] $Scope, [string] $Type, [string] $Version, [string] $ExportName)
+    param ([string] $CsvPath, [string] $BlobName, [long] $RowCount, [string] $Scope, [string] $Type, [string] $Version,
+        [string] $ExportName, [long] $ByteCount = -1, [string] $Sha256, [switch] $Uploaded)
 
-    $bytes = (Get-Item -LiteralPath $CsvPath).Length
+    $bytes = if ($ByteCount -ge 0) { $ByteCount } else { (Get-Item -LiteralPath $CsvPath).Length }
+    $hash = if ($Sha256) { $Sha256 } else { (Get-FileHash -LiteralPath $CsvPath -Algorithm SHA256).Hash.ToLowerInvariant() }
     $manifest = [ordered] @{
         manifestVersion = '2024-04-01'
         byteCount       = $bytes
@@ -32,7 +38,7 @@ function Write-Manifest
         dataRowCount    = $RowCount
         blobs           = @(@{
                 blobName = $BlobName; byteCount = $bytes; rowCount = $RowCount
-                sha256 = (Get-FileHash -LiteralPath $CsvPath -Algorithm SHA256).Hash.ToLowerInvariant()
+                sha256 = $hash
             })
         exportConfig    = @{
             exportName  = $ExportName
@@ -48,7 +54,7 @@ function Write-Manifest
     }
     $manifestPath = Join-Path (Split-Path $CsvPath) 'manifest.json'
     $manifest | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $manifestPath -Encoding utf8NoBOM
-    [pscustomobject] @{ CsvPath = $CsvPath; ManifestPath = $manifestPath; BlobName = $BlobName }
+    [pscustomobject] @{ CsvPath = $CsvPath; ManifestPath = $manifestPath; BlobName = $BlobName; Uploaded = $Uploaded.IsPresent }
 }
 
 $settingsStorage = "https://$($env:HUB_STORAGE_ACCOUNT).blob.core.windows.net"
@@ -86,22 +92,36 @@ try
     }
     catch { Write-Warning "Savings plan collection failed: $($_.Exception.Message)" }
 
+    $quotaStream = $null
+    $uploadClient = $null
     try
     {
         $quotaBlobName = "quota/$runId/Quota.csv"
         $quotaCsvPath = Join-Path $outputDirectory $quotaBlobName
         $null = New-Item -ItemType Directory -Path (Split-Path $quotaCsvPath) -Force
-        Get-AzVMQuotaUsage -AccessToken $armToken -AccessTokenProvider { Get-IdentityToken 'https://management.azure.com/' } -OutputFile $quotaCsvPath
-        $quotaRows = -1
-        foreach ($line in [IO.File]::ReadLines($quotaCsvPath)) { $quotaRows++ }
-        $files.Add((Write-Manifest -CsvPath $quotaCsvPath -BlobName $quotaBlobName -RowCount $quotaRows `
+        $uploadClient = [Net.Http.HttpClient]::new()
+        $uploadClient.Timeout = [TimeSpan]::FromSeconds(120)
+        $quotaStream = [FinOpsToolkit.QuotaBlobStream]::new(
+            [uri]"$exportStorage/msexports/$quotaBlobName",
+            [Func[securestring]]{ Get-IdentityToken 'https://storage.azure.com/' }, $uploadClient)
+        $quota = Get-AzVMQuotaUsage -AccessToken $armToken -AccessTokenProvider { Get-IdentityToken 'https://management.azure.com/' } `
+            -OutputStream $quotaStream -OutputFile $quotaBlobName
+        $quotaStream.Complete()
+        $files.Add((Write-Manifest -CsvPath $quotaCsvPath -BlobName $quotaBlobName -RowCount $quota.Rows `
+                    -ByteCount $quota.Bytes -Sha256 $quotaStream.Sha256 -Uploaded `
                     -Scope "/tenants/$($env:AZURE_TENANT_ID)" -Type Quota -Version '1.0' -ExportName Quota))
+        Write-Output "Quota CSV committed: subscriptions=$($quota.Subscriptions); requests=$($quota.Requests); rows=$($quota.Rows); bytes=$($quota.Bytes); blocks=$($quotaStream.BlockCount)."
     }
     catch { Write-Warning "Quota collection failed: $($_.Exception.Message)" }
+    finally
+    {
+        if ($quotaStream) { $quotaStream.Dispose() }
+        if ($uploadClient) { $uploadClient.Dispose() }
+    }
     if (-not $files.Count) { throw 'No files were produced.' }
 
     $storageToken = Get-IdentityToken 'https://storage.azure.com/'
-    foreach ($file in $files)
+    foreach ($file in $files | Where-Object { -not $_.Uploaded })
     {
         $blob = ($file.BlobName -split '/' | ForEach-Object { [uri]::EscapeDataString($_) }) -join '/'
         $csvUri = "$exportStorage/msexports/$blob"

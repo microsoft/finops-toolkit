@@ -162,5 +162,36 @@ Describe 'HubsQuotaCollection' {
             { Get-AzVMQuotaUsage -AccessToken $script:token -OutputFile $script:output } | Should -Throw '*No accessible subscriptions*'
             Test-Path $script:output | Should -BeFalse
         }
+
+        It 'Writes the same CSV to a caller-owned stream without creating a local file' {
+            $file = Join-Path $TestDrive 'Expected.csv'
+            Get-AzVMQuotaUsage -AccessToken $script:token -ConcurrentSubscriptions 3 -OutputFile $file
+            $stream = [IO.MemoryStream]::new()
+            try {
+                $result = Get-AzVMQuotaUsage -AccessToken $script:token -ConcurrentSubscriptions 3 `
+                    -OutputStream $stream -OutputFile $script:output
+                [Convert]::ToBase64String($stream.ToArray()) | Should -Be ([Convert]::ToBase64String([IO.File]::ReadAllBytes($file)))
+                $result.Rows | Should -Be 182
+                $result.Requests | Should -Be 175
+                $result.Subscriptions | Should -Be 7
+                $result.Bytes | Should -Be $stream.Length
+                $stream.CanWrite | Should -BeTrue
+                Test-Path $script:output | Should -BeFalse
+            }
+            finally { $stream.Dispose() }
+        }
+
+        It 'Propagates collection failure without closing or publishing the caller-owned stream' {
+            $script:throwSecondBatch = $true
+            $stream = [IO.MemoryStream]::new()
+            try {
+                { Get-AzVMQuotaUsage -AccessToken $script:token -ConcurrentSubscriptions 3 -OutputStream $stream } |
+                    Should -Throw '*Simulated collection failure*'
+                $stream.CanWrite | Should -BeTrue
+                Test-Path $script:output | Should -BeFalse
+                @([Text.Encoding]::UTF8.GetString($stream.ToArray()) -split '\r?\n' | Where-Object { $_ }).Count | Should -Be 79
+            }
+            finally { $stream.Dispose() }
+        }
     }
 }
