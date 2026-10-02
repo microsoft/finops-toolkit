@@ -91,7 +91,7 @@ try
         $quotaBlobName = "quota/$runId/Quota.csv"
         $quotaCsvPath = Join-Path $outputDirectory $quotaBlobName
         $null = New-Item -ItemType Directory -Path (Split-Path $quotaCsvPath) -Force
-        Get-AzVMQuotaUsage -AccessToken $armToken -OutputFile $quotaCsvPath
+        Get-AzVMQuotaUsage -AccessToken $armToken -AccessTokenProvider { Get-IdentityToken 'https://management.azure.com/' } -OutputFile $quotaCsvPath
         $quotaRows = -1
         foreach ($line in [IO.File]::ReadLines($quotaCsvPath)) { $quotaRows++ }
         $files.Add((Write-Manifest -CsvPath $quotaCsvPath -BlobName $quotaBlobName -RowCount $quotaRows `

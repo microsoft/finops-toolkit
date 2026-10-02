@@ -3,7 +3,7 @@ title: How to create and update FinOps hubs
 description: This tutorial helps you create a new or update an existing FinOps hubs instance in Azure or Microsoft Fabric.
 author: flanakin
 ms.author: micflan
-ms.date: 10/01/2026
+ms.date: 10/02/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -215,6 +215,8 @@ When the quota and savings plan collector Function app is deployed, the template
 The Function app sends telemetry using the existing recommendations managed identity, with **Monitoring Metrics Publisher** access scoped to Application Insights. Local authentication is disabled. The workspace uses pay-as-you-go pricing and a 30-day default retention period. Telemetry ingestion and retention can incur Azure Monitor charges.
 
 Open the Function app's **Application Insights** page to inspect execution duration, success or failure, exceptions, and collector logs. Execution requests and exceptions aren't sampled. Other telemetry can be sampled. In the Log Analytics workspace, query `AppRequests`, `AppExceptions`, and `AppTraces`. Telemetry uses Azure Monitor public endpoints, including when the Function app uses private storage networking.
+
+The collector uses a 4-GiB instance and processes quota data in batches of up to 64 subscriptions, with up to 16 concurrent ARM requests per subscription. Request queues and zone mappings are limited to the current batch. CSV rows are written as responses arrive. The Function obtains a managed identity token before each batch so long runs don't reuse an expired token. `Quota progress` logs report completed subscriptions, requests, rows, and file bytes every 30 seconds while responses are processed, and at each batch boundary. Check that these counts increase; a running host or a missing completion record doesn't prove collection progress.
 
 <br>
 
