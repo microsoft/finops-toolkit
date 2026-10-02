@@ -57,7 +57,7 @@ function Get-QuotaDetails {
         [string[]]$SKUs
     )
 
-    Write-Verbose "Processing: $($Subscription.subscriptionId) - $($Subscription.displayName) - $Location"
+    Write-Host "Processing: $($Subscription.subscriptionId) - $($Subscription.displayName) - $Location"
 
     # Index physical zone numbers by logical zone once per location
     $physicalZones = @{}

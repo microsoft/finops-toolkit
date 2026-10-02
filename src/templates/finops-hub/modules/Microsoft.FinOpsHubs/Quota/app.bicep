@@ -21,7 +21,6 @@ var packageFiles = {
   'host.json': loadTextContent('host.json')
   'CollectQuota/function.json': loadTextContent('CollectQuota/function.json')
   'CollectQuota/run.ps1': loadTextContent('CollectQuota/run.ps1')
-  'CollectQuota/QuotaBlobStream.cs': loadTextContent('CollectQuota/QuotaBlobStream.cs')
   'AzVMQuotaUsage/AzVMQuotaUsage.psm1': loadTextContent('AzVMQuotaUsage/AzVMQuotaUsage.psm1')
   'AzVMQuotaUsage/Private/Get-ArmCollection.ps1': loadTextContent('AzVMQuotaUsage/Private/Get-ArmCollection.ps1')
   'AzVMQuotaUsage/Private/Get-ArmResponses.ps1': loadTextContent('AzVMQuotaUsage/Private/Get-ArmResponses.ps1')
@@ -232,7 +231,7 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
         }
       }
       scaleAndConcurrency: {
-        instanceMemoryMB: 4096
+        instanceMemoryMB: 2048
         maximumInstanceCount: 1
       }
       runtime: {

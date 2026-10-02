@@ -20,16 +20,11 @@
     Quota is written at the family level on usage rows and restrictions at the SKU level on SKU rows.
     Join them on the SKU family, which matches the ResourceName of the family's ComputeUsage row.
     Sends concurrent ARM requests for all subscriptions and regions through one HTTP client.
-    Keeps request queues and zone mappings for one subscription batch at a time and streams rows to one CSV.
     Zones are always reported as physical zones for cross-subscription deployment planning.
     Uses Azure Resource Manager REST calls only; does not use or change Azure PowerShell context.
 
 .PARAMETER AccessToken
     ARM bearer token with Reader access to the target subscriptions.
-
-.PARAMETER AccessTokenProvider
-    Optional callback that returns an ARM token as a secure string before each subscription batch.
-    Use this for long-running collection so later batches do not reuse an expired token.
 
 .PARAMETER SKUs
     Array of VM SKU names to write SKU rows for. If not specified, uses all VM SKUs returned for each region.
@@ -45,10 +40,6 @@
 
 .PARAMETER OutputFile
     Name of the output CSV file containing the analysis results.
-
-.PARAMETER OutputStream
-    Optional writable stream for the CSV instead of a local file. The stream must report Length.
-    The caller owns the stream. Returns row, request, subscription, and byte counts when a stream is supplied.
 
 .EXAMPLE
     Import-Module ./AzVMQuotaUsage/AzVMQuotaUsage.psm1
@@ -86,14 +77,10 @@ function Get-AzVMQuotaUsage {
         [Parameter(Mandatory = $true, HelpMessage = "ARM bearer token")]
         [securestring]$AccessToken,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Callback returning a secure ARM token before each batch")]
-        [scriptblock]$AccessTokenProvider,
-
         [Parameter(Mandatory = $false, HelpMessage = "e.g. @('Standard_D2s_v3', 'Standard_D4s_v3')")]
         [string[]]$SKUs = @(),
 
         [Parameter(Mandatory = $false, HelpMessage = "Maximum subscriptions scanned at a time")]
-        [ValidateRange(1, [int]::MaxValue)]
         [int]$ConcurrentSubscriptions = 64,
 
         [Parameter(Mandatory = $false, HelpMessage = "Maximum ARM requests in flight within each subscription")]
@@ -101,10 +88,7 @@ function Get-AzVMQuotaUsage {
         [int]$ConcurrentRequests = 16,
 
         [Parameter(Mandatory = $false, HelpMessage = "Output file name")]
-        [string]$OutputFile = "QuotaQuery.csv",
-
-        [Parameter(Mandatory = $false, HelpMessage = "Caller-owned CSV output stream with a Length property")]
-        [IO.Stream]$OutputStream
+        [string]$OutputFile = "QuotaQuery.csv"
     )
 
     # Set error handling and output preferences
@@ -117,7 +101,6 @@ function Get-AzVMQuotaUsage {
 
     # List all accessible subscriptions and physical locations
     $subscriptions = @(Get-Subscriptions -AccessToken $AccessToken)
-    if (-not $subscriptions.Count) { throw 'No accessible subscriptions were returned for quota collection.' }
     $Locations = Get-Locations -SubscriptionId $subscriptions[0].subscriptionId -AccessToken $AccessToken | Sort-Object
 
     $skuScope = if ($SKUs.Count -eq 0) { 'all VM SKUs' } else { "$($SKUs.Count) SKUs" }
@@ -130,18 +113,31 @@ function Get-AzVMQuotaUsage {
     $client.Timeout = [TimeSpan]::FromSeconds(120)
     $client.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new(
         'Bearer', [System.Net.NetworkCredential]::new('', $AccessToken).Password)
+    $outputPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutputFile)
     $writer = $null
     try {
-        if ($OutputStream) {
-            if (-not $OutputStream.CanWrite) { throw 'The CSV output stream is not writable.' }
-            $writer = [IO.StreamWriter]::new($OutputStream, [Text.UTF8Encoding]::new($false), 65536, $true)
-        }
-        else {
-            $outputPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutputFile)
-            $writer = [IO.StreamWriter]::new($outputPath, $false, [Text.UTF8Encoding]::new($false))
-        }
+        $writer = [IO.StreamWriter]::new($outputPath, $false, [Text.UTF8Encoding]::new($false))
         $writer.WriteLine($csvHeaderString)
 
+        # Get zone peering information for physical zone mapping and write each location as an AvailabilityZoneMapping row
+        Write-Host "Get Zone Peering Information for $($subscriptions.Count) subscriptions"
+        $zoneRequests = [System.Collections.Generic.List[object]]::new()
+        foreach ($subscription in $subscriptions) {
+            $zoneRequests.Add(@{ Subscription = $subscription; Path = "/subscriptions/$($subscription.subscriptionId)/locations?api-version=2022-12-01" })
+        }
+        $zoneMappings = @{}
+        Get-ArmResponses $zoneRequests $client $ConcurrentSubscriptions $ConcurrentRequests | ForEach-Object {
+            $subscriptionId = $PSItem.Request.Subscription.subscriptionId
+            if ($PSItem.Error -or $PSItem.Data.Count -eq 0) {
+                Write-Host "No Zone Peering Information found for subscription $subscriptionId $($PSItem.Error)" -ForegroundColor Yellow
+            }
+            foreach ($region in $PSItem.Data | Where-Object { $_.type -eq 'Region' }) {
+                $zoneMappings["$subscriptionId|$($region.name)"] = $region.availabilityZoneMappings
+            }
+            Get-ResourceDetails -Subscription $PSItem.Request.Subscription -Resources $PSItem.Data -SourceType 'AvailabilityZoneMapping' | ForEach-Object { $writer.WriteLine($PSItem) }
+        }
+
+        # Queue the VM SKU request and the usage request of each provider for each subscription and location
         $usageSources = @(
             @{ Provider = 'Microsoft.Compute'; ApiVersion = '2024-07-01'; SourceType = 'ComputeUsage' }
             @{ Provider = 'Microsoft.Web'; ApiVersion = '2024-11-01'; SourceType = 'AppServiceUsage' }
@@ -154,105 +150,53 @@ function Get-AzVMQuotaUsage {
             @{ Provider = 'Microsoft.Storage'; ApiVersion = '2025-06-01'; SourceType = 'StorageUsage' }
             @{ Provider = 'Microsoft.DBforPostgreSQL'; ApiVersion = '2026-04-01-preview'; SourceType = 'PostgreSqlUsage'; UsagePath = 'resourceType/flexibleServers/usages'; ResourceType = 'Microsoft.DBforPostgreSQL/locations/resourceType/usages' }
         )
-        $progress = @{ Requests = 0L; Rows = 0L; Subscriptions = 0 }
-        $totalRequests = [long]$subscriptions.Count * (3 + $Locations.Count * (1 + $usageSources.Count))
-        $progressClock = [Diagnostics.Stopwatch]::StartNew()
-        $reportProgress = {
-            param([switch]$Force)
-            if ($Force -or $progressClock.Elapsed.TotalSeconds -ge 30) {
-                $writer.Flush()
-                Write-Host "Quota progress: subscriptions=$($progress.Subscriptions)/$($subscriptions.Count); requests=$($progress.Requests)/$totalRequests; rows=$($progress.Rows); bytes=$($writer.BaseStream.Length)"
-                $progressClock.Restart()
+        $requests = [System.Collections.Generic.List[object]]::new()
+        foreach ($subscription in $subscriptions) {
+            $scope = "/subscriptions/$($subscription.subscriptionId)"
+
+            # Queue the capacity reservation group and disk lists of each subscription
+            $requests.Add(@{ SourceType = 'CapacityReservation'; IsResourceList = $true; Subscription = $subscription; Path = "$scope/providers/Microsoft.Compute/capacityReservationGroups?api-version=2026-04-01" })
+            $requests.Add(@{ SourceType = 'PremiumSSDv2Disk'; IsResourceList = $true; Subscription = $subscription; Path = "$scope/providers/Microsoft.Compute/disks?api-version=2026-03-02" })
+            foreach ($location in $Locations) {
+                $skuFilter = [uri]::EscapeDataString("location eq '$location'")
+                $requests.Add(@{ SourceType = 'ComputeResourceSku'; Subscription = $subscription; Location = $location; Path = "$scope/providers/Microsoft.Compute/skus?api-version=2021-07-01&`$filter=$skuFilter" })
+                foreach ($source in $usageSources) {
+                    # Most providers list usages at locations/{location}/usages; others set UsagePath and ResourceType
+                    $usagePath = $source.UsagePath ?? 'usages'
+                    $requests.Add(@{
+                            SourceType = $source.SourceType; ResourceType = $source.ResourceType ?? "$($source.Provider)/locations/usages"; UsagePath = $usagePath
+                            Subscription = $subscription; Location = $location
+                            Path = "$scope/providers/$($source.Provider)/locations/$location/$($usagePath)?api-version=$($source.ApiVersion)"
+                        })
+                }
             }
         }
-        & $reportProgress -Force
 
-        # Bound queued requests and zone mappings by the existing subscription concurrency limit.
-        for ($offset = 0; $offset -lt $subscriptions.Count; $offset += $ConcurrentSubscriptions) {
-            if ($AccessTokenProvider) {
-                $batchToken = & $AccessTokenProvider
-                if ($batchToken -isnot [securestring]) { throw 'The ARM token provider must return one secure string.' }
-                $client.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new(
-                    'Bearer', [System.Net.NetworkCredential]::new('', $batchToken).Password)
+        # Build rows as soon as each response arrives and stream them to one output file
+        Get-ArmResponses $requests $client $ConcurrentSubscriptions $ConcurrentRequests | ForEach-Object {
+            $request = $PSItem.Request
+            if ($PSItem.Error) {
+                # Skip this response only; the other responses of the location are still written
+                Write-Warning "Failed Querying: $($request.Subscription.subscriptionId) - $($request.Location) - $($request.SourceType) - $($PSItem.Error)"
+                return
             }
-            $batch = @($subscriptions[$offset..([math]::Min($offset + $ConcurrentSubscriptions - 1, $subscriptions.Count - 1))])
-            $zoneRequests = [System.Collections.Generic.List[object]]::new()
-            foreach ($subscription in $batch) {
-                $zoneRequests.Add(@{ Subscription = $subscription; Path = "/subscriptions/$($subscription.subscriptionId)/locations?api-version=2022-12-01" })
+            if ($request.IsResourceList) {
+                Get-ResourceDetails -Subscription $request.Subscription -Resources $PSItem.Data -SourceType $request.SourceType | ForEach-Object { $writer.WriteLine($PSItem) }
+                return
             }
-            $zoneMappings = @{}
-            Get-ArmResponses $zoneRequests $client $ConcurrentSubscriptions $ConcurrentRequests | ForEach-Object {
-                $progress.Requests++
-                $subscriptionId = $PSItem.Request.Subscription.subscriptionId
-                if ($PSItem.Error -or $PSItem.Data.Count -eq 0) {
-                    Write-Warning "No zone mapping information found for subscription $subscriptionId $($PSItem.Error)"
-                }
-                foreach ($region in $PSItem.Data | Where-Object { $_.type -eq 'Region' }) {
-                    $zoneMappings["$subscriptionId|$($region.name)"] = $region.availabilityZoneMappings
-                }
-                Get-ResourceDetails -Subscription $PSItem.Request.Subscription -Resources $PSItem.Data -SourceType 'AvailabilityZoneMapping' | ForEach-Object {
-                    $writer.WriteLine($PSItem)
-                    $progress.Rows++
-                }
-                & $reportProgress
+            $isSkus = $request.SourceType -eq 'ComputeResourceSku'
+            $quotaParams = @{
+                Subscription             = $request.Subscription
+                Location                 = $request.Location
+                ComputeSkus              = if ($isSkus) { $PSItem.Data } else { @() }
+                Usage                    = if ($isSkus) { @() } else { $PSItem.Data }
+                UsageResourceType        = $request.ResourceType
+                UsageSourceType          = $request.SourceType
+                UsagePath                = $request.UsagePath
+                AvailabilityZoneMappings = $zoneMappings["$($request.Subscription.subscriptionId)|$($request.Location)"]
+                SKUs                     = $SKUs
             }
-            $zoneRequests.Clear()
-
-            $requests = [System.Collections.Generic.List[object]]::new()
-            foreach ($subscription in $batch) {
-                $scope = "/subscriptions/$($subscription.subscriptionId)"
-                $requests.Add(@{ SourceType = 'CapacityReservation'; IsResourceList = $true; Subscription = $subscription; Path = "$scope/providers/Microsoft.Compute/capacityReservationGroups?api-version=2026-04-01" })
-                $requests.Add(@{ SourceType = 'PremiumSSDv2Disk'; IsResourceList = $true; Subscription = $subscription; Path = "$scope/providers/Microsoft.Compute/disks?api-version=2026-03-02" })
-                foreach ($location in $Locations) {
-                    $skuFilter = [uri]::EscapeDataString("location eq '$location'")
-                    $requests.Add(@{ SourceType = 'ComputeResourceSku'; Subscription = $subscription; Location = $location; Path = "$scope/providers/Microsoft.Compute/skus?api-version=2021-07-01&`$filter=$skuFilter" })
-                    foreach ($source in $usageSources) {
-                        $usagePath = $source.UsagePath ?? 'usages'
-                        $requests.Add(@{
-                                SourceType = $source.SourceType; ResourceType = $source.ResourceType ?? "$($source.Provider)/locations/usages"; UsagePath = $usagePath
-                                Subscription = $subscription; Location = $location
-                                Path = "$scope/providers/$($source.Provider)/locations/$location/$($usagePath)?api-version=$($source.ApiVersion)"
-                            })
-                    }
-                }
-            }
-
-            Get-ArmResponses $requests $client $ConcurrentSubscriptions $ConcurrentRequests | ForEach-Object {
-                $progress.Requests++
-                $request = $PSItem.Request
-                if ($PSItem.Error) {
-                    Write-Warning "Failed Querying: $($request.Subscription.subscriptionId) - $($request.Location) - $($request.SourceType) - $($PSItem.Error)"
-                }
-                elseif ($request.IsResourceList) {
-                    Get-ResourceDetails -Subscription $request.Subscription -Resources $PSItem.Data -SourceType $request.SourceType | ForEach-Object {
-                        $writer.WriteLine($PSItem)
-                        $progress.Rows++
-                    }
-                }
-                else {
-                    $isSkus = $request.SourceType -eq 'ComputeResourceSku'
-                    $quotaParams = @{
-                        Subscription             = $request.Subscription
-                        Location                 = $request.Location
-                        ComputeSkus              = if ($isSkus) { $PSItem.Data } else { @() }
-                        Usage                    = if ($isSkus) { @() } else { $PSItem.Data }
-                        UsageResourceType        = $request.ResourceType
-                        UsageSourceType          = $request.SourceType
-                        UsagePath                = $request.UsagePath
-                        AvailabilityZoneMappings = $zoneMappings["$($request.Subscription.subscriptionId)|$($request.Location)"]
-                        SKUs                     = $SKUs
-                    }
-                    Get-QuotaDetails @quotaParams | ForEach-Object {
-                        $writer.WriteLine($PSItem)
-                        $progress.Rows++
-                    }
-                }
-                & $reportProgress
-            }
-            $requests.Clear()
-            $zoneMappings.Clear()
-            $progress.Subscriptions += $batch.Count
-            & $reportProgress -Force
+            Get-QuotaDetails @quotaParams | ForEach-Object { $writer.WriteLine($PSItem) }
         }
     }
     finally {
@@ -264,7 +208,4 @@ function Get-AzVMQuotaUsage {
     Write-Host "Output written to $OutputFile"
     $end = Get-Date
     Write-Host "Processed $($subscriptions.Count) subscriptions in $([math]::Round((New-TimeSpan -Start $begin -End $end).TotalSeconds, 2)) seconds"
-    if ($OutputStream) {
-        [pscustomobject]@{ Rows = $progress.Rows; Requests = $progress.Requests; Subscriptions = $progress.Subscriptions; Bytes = $OutputStream.Length }
-    }
 }

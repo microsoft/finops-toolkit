@@ -216,8 +216,6 @@ The Function app sends telemetry using the existing recommendations managed iden
 
 Open the Function app's **Application Insights** page to inspect execution duration, success or failure, exceptions, and collector logs. Execution requests and exceptions aren't sampled. Other telemetry can be sampled. In the Log Analytics workspace, query `AppRequests`, `AppExceptions`, and `AppTraces`. Telemetry uses Azure Monitor public endpoints, including when the Function app uses private storage networking.
 
-The collector uses a 4-GiB instance and processes quota data in batches of up to 64 subscriptions, with up to 16 concurrent ARM requests per subscription. Request queues and zone mappings are limited to the current batch. Quota CSV rows stream to Azure Storage in blocks of up to 8 MiB, without storing the full CSV on the Function's temporary disk. The CSV is committed only after collection succeeds, and its manifest contains the streamed byte count, row count, and SHA-256 hash. The Function obtains a managed identity token before each subscription batch and each storage request so long runs don't reuse an expired token. `Quota progress` logs report completed subscriptions, requests, rows, and CSV bytes every 30 seconds while responses are processed, and at each batch boundary. Check that these counts increase; a running host or a missing completion record doesn't prove collection progress.
-
 <br>
 
 ## Optional: Configure Fabric access

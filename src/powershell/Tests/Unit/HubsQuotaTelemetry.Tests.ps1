@@ -83,7 +83,7 @@ Describe 'HubsQuotaTelemetry' {
         @($template.resources.functionApp.identity.userAssignedIdentities.PSObject.Properties).Count | Should -Be 1
         $template.resources.functionApp.identity.userAssignedIdentities.PSObject.Properties.Name |
             Should -Match "parameters\('core'\)\.recommendationsIdentity\.id"
-        $template.resources.functionApp.properties.functionAppConfig.scaleAndConcurrency.instanceMemoryMB | Should -Be 4096
+        $template.resources.functionApp.properties.functionAppConfig.scaleAndConcurrency.instanceMemoryMB | Should -Be 2048
         $template.resources.functionApp.properties.functionAppConfig.scaleAndConcurrency.maximumInstanceCount | Should -Be 1
         $packageConfigs['CollectQuota/function.json'].bindings | Select-Object -ExpandProperty schedule |
             Should -Be '0 1 1 * * *'
