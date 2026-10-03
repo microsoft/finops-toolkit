@@ -694,16 +694,41 @@ console.log('Credit, numeric, and unavailable sorting passed');
             $html.Contains('Example subscription 001 [00000000-0000-0000-0000-000000000001]') | Should -BeTrue
         }
 
-        It 'Escapes terminal control sequences while preserving host colors' {
+        It 'Splits formatted table rows cleanly for <LineEnding> output' -Tag 'TableLineEndings' -ForEach @(
+            @{ LineEnding = 'CRLF'; Separator = "`r`n" }
+            @{ LineEnding = 'LF'; Separator = "`n" }
+        ) {
+            $splitters = @($launcherAst.FindAll({
+                        $args[0] -is [System.Management.Automation.Language.BinaryExpressionAst] -and
+                        $args[0].Operator -eq 'Isplit' -and $args[0].Left.Extent.Text -eq '$_.TrimEnd()'
+                    }, $true))
+            $splitters.Count | Should -Be 3
+            $expectedLines = @('Name           Cost', '----           ----', 'demo-resource 12.50')
+            $formattedTable = ($expectedLines -join $Separator) + $Separator
             $captured = [Collections.Generic.List[string]]::new()
             Mock Write-Host { [void]$captured.Add([string]$Object) }
-            $payload = "$([char]27)[2J$([char]27)]52;c;synthetic$([char]7)$([char]0x202E)"
+
+            foreach ($splitter in $splitters) {
+                $lines = @($formattedTable | ForEach-Object ([scriptblock]::Create($splitter.Extent.Text)))
+                $lines | Should -Be $expectedLines
+                foreach ($line in $lines) { Write-ColorizedLine -Text $line }
+            }
+
+            ($captured -join '') | Should -Not -Match '\\u000[AD]|[\p{Cc}\p{Cf}]'
+            Should -Invoke Write-Host -Times 9 -Exactly -ParameterFilter { $Object -ne '' -and $NoNewline }
+        }
+
+        It 'Escapes terminal control sequences while preserving host colors' -Tag 'TableLineEndings' {
+            $captured = [Collections.Generic.List[string]]::new()
+            Mock Write-Host { [void]$captured.Add([string]$Object) }
+            $payload = "$([char]27)[2J$([char]27)]52;c;synthetic$([char]7)$([char]0x202E)`r`n"
 
             Write-FinOpsConsole -Object $payload -ForegroundColor Yellow -NoNewline
 
             $captured[0] | Should -Not -Match '[\p{Cc}\p{Cf}]'
             $captured[0] | Should -Match '\\u001B\[2J'
             $captured[0] | Should -Match '\\u0007\\u202E'
+            $captured[0] | Should -Match '\\u000D\\u000A'
             Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { $ForegroundColor -eq 'Yellow' -and $NoNewline }
         }
 

@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/01/2026
+ms.date: 10/03/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -67,6 +67,7 @@ The following section lists features and enhancements that are currently in deve
     - Added sticky table headers, row numbers, sorting, resizable columns, and expanded views to the local HTML report without changing CSV data.
     - Added an explicit ordinary Cost Management CSV export source without requiring a FinOps hub, with selected-scope coverage, reads limited to the chosen export folder, manifest-verified partitions, and no silent live-cost fallback. Discovery reports progress per scope and per storage account.
 - **Fixed**
+  - Fixed literal `\u000D` text appearing at the ends of terminal table rows on Windows ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
   - Fixed AI token totals using inconsistent account and deployment measurements, and kept same-named deployments in different accounts separate.
   - Fixed commitment SKU and kind metadata, incomplete fallback pagination, and unavailable utilization appearing as measured zero.
   - Clarified budget sampling and CPU units, distinguished storage lookup failures from missing permissions, and added private launcher help and read-only regression checks.

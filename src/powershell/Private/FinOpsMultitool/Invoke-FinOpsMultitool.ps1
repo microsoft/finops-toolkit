@@ -2150,7 +2150,7 @@ function Invoke-FinOpsMultitool {
                                 [PSCustomObject]@{ Month = $_.Month; Cost = Format-BudgetAmount -Value $_.Cost -Currency $_.Currency; Currency = $_.Currency }
                             }
                             @($subRows) | Format-Table -AutoSize | Out-String | ForEach-Object {
-                                $lines = $_.TrimEnd() -split "`n" | Where-Object { $_.Trim() }
+                                $lines = $_.TrimEnd() -split '\r?\n' | Where-Object { $_.Trim() }
                                 $hdrDone = $false
                                 foreach ($ln in $lines) {
                                     if (-not $hdrDone) {
@@ -2443,7 +2443,7 @@ function Invoke-FinOpsMultitool {
                         $budgetRows = @($rows)
                         # Render header manually
                         $headerStr = @($budgetRows) | Select-Object $validCols | Format-Table -AutoSize | Out-String |
-                        ForEach-Object { $_.TrimEnd() -split "`n" | Where-Object { $_.Trim() } }
+                        ForEach-Object { $_.TrimEnd() -split '\r?\n' | Where-Object { $_.Trim() } }
                         if ($headerStr.Count -ge 2) {
                             Write-FinOpsConsole "    $($headerStr[0])" -ForegroundColor Cyan
                             Write-FinOpsConsole "    $($headerStr[1])" -ForegroundColor DarkCyan
@@ -2466,7 +2466,7 @@ function Invoke-FinOpsMultitool {
                     }
                     else {
                         $tableLines = @($rows) | Select-Object $validCols | Format-Table -AutoSize | Out-String |
-                        ForEach-Object { $_.TrimEnd() -split "`n" | Where-Object { $_.Trim() } }
+                        ForEach-Object { $_.TrimEnd() -split '\r?\n' | Where-Object { $_.Trim() } }
                         $headerDone = $false
                         foreach ($line in $tableLines) {
                             if (-not $headerDone) {
