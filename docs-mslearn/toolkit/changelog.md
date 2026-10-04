@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/03/2026
+ms.date: 10/04/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -74,6 +74,7 @@ The following section lists features and enhancements that are currently in deve
   - Rejected explicit empty scan lists instead of running the default scans.
   - Fixed malformed budget records counting toward confirmed budget coverage.
   - Preserved budget inventory failures and partial coverage in budget history reports.
+  - Rejected unsafe export blob paths and invalid fallback container names, and escaped control characters in storage-discovery diagnostics.
   - Fixed AI token totals using inconsistent account and deployment measurements, and kept same-named deployments in different accounts separate.
   - Fixed commitment SKU and kind metadata, incomplete fallback pagination, and unavailable utilization appearing as measured zero.
   - Clarified budget sampling and CPU units, distinguished storage lookup failures from missing permissions, and added private launcher help and read-only regression checks.

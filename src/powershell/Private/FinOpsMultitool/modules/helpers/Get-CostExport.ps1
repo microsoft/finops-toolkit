@@ -561,7 +561,7 @@ function Get-ExportStorageCandidates {
             $resp = Invoke-AzRestMethodWithRetry -Path $path -Method GET
             $accts = @(foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -Context "export storage accounts for $($sub.Name)" -RootNextLink)) { ($page.Content | ConvertFrom-Json -ErrorAction Stop).value })
         }
-        catch { Write-Warning "Export storage discovery is incomplete for $($sub.Name): $($_.Exception.Message)"; continue }
+        catch { Write-Warning ([regex]::Replace("Export storage discovery is incomplete for $($sub.Name): $($_.Exception.Message)", '[\p{Cc}\p{Cf}]', ' ')); continue }
         foreach ($a in $accts) {
             if ($a.name -cnotmatch '^[a-z0-9]{3,24}$' -or $a.id -notmatch "^/subscriptions/$([regex]::Escape([string]$sub.Id))/resourceGroups/[^/]+/providers/Microsoft\.Storage/storageAccounts/$([regex]::Escape([string]$a.name))$") {
                 Write-Warning 'A storage candidate did not match the selected subscription and was excluded.'
@@ -620,7 +620,7 @@ function Find-CostExportFromStorage {
             $containerNames = @(foreach ($page in (Get-CostQueryResponsePage -FirstResponse $containerResponse -Context "container metadata for $($sa.Name)" -RootNextLink)) {
                 foreach ($item in @(($page.Content | ConvertFrom-Json -ErrorAction Stop).value)) {
                     if ([string]$item.name -match '^\$') { continue }
-                    if ($item.name -cnotmatch '^[a-z0-9](?:[a-z0-9-]{1,61})[a-z0-9]$' -or $item.name.Contains('--')) { throw 'Container metadata returned an invalid name.' }
+                    if ($item.name -cnotmatch '^[a-z0-9](?:[a-z0-9-]{1,61})[a-z0-9]\z' -or $item.name.Contains('--')) { throw 'Container metadata returned an invalid name.' }
                     [string]$item.name
                 }
             })
@@ -632,12 +632,18 @@ function Find-CostExportFromStorage {
                 $containerWarning = @()
                 $cl = Get-StorageContainerList -BlobBase $blobBase -StorageToken $token -WarningAction SilentlyContinue -WarningVariable containerWarning
                 if (-not $cl.Listed) { throw 'Container listing could not be verified.' }
-                $containerNames = @($cl.Containers)
+                $containerNames = @(foreach ($containerName in $cl.Containers) {
+                        if ([string]$containerName -match '^\$') { continue }
+                        if ($containerName -isnot [string] -or $containerName -cnotmatch '^[a-z0-9](?:[a-z0-9-]{1,61})[a-z0-9]\z' -or $containerName.Contains('--')) {
+                            throw 'Container listing returned an invalid name.'
+                        }
+                        $containerName
+                    })
             }
             catch {
-                Write-Warning "Export storage discovery for $($sa.Name) was skipped because its containers could not be listed. $($_.Exception.Message)"
-                Write-Verbose "Container metadata lookup: $metadataIssue"
-                foreach ($warning in @($containerWarning)) { Write-Verbose ([string]$warning) }
+                Write-Warning ([regex]::Replace("Export storage discovery for $($sa.Name) was skipped because its containers could not be listed. $($_.Exception.Message)", '[\p{Cc}\p{Cf}]', ' '))
+                Write-Verbose ([regex]::Replace("Container metadata lookup: $metadataIssue", '[\p{Cc}\p{Cf}]', ' '))
+                foreach ($warning in @($containerWarning)) { Write-Verbose ([regex]::Replace([string]$warning, '[\p{Cc}\p{Cf}]', ' ')) }
                 continue
             }
         }
@@ -651,7 +657,7 @@ function Find-CostExportFromStorage {
         if (-not $token) {
             try { $token = Get-PlainAccessToken -ResourceUrl 'https://storage.azure.com' }
             catch {
-                Write-Warning "Storage-first discovery could not acquire a storage token: $($_.Exception.Message)"
+                Write-Warning ([regex]::Replace("Storage-first discovery could not acquire a storage token: $($_.Exception.Message)", '[\p{Cc}\p{Cf}]', ' '))
                 Write-Progress -Id 73 -Activity 'Scanning storage accounts for cost export containers' -Completed
                 return $found
             }
@@ -661,8 +667,8 @@ function Find-CostExportFromStorage {
             $blobWarnings = @()
             try { $listed = Get-StorageBlobList -BlobBase $blobBase -Container $container -Prefix '' -StorageToken $token -WarningAction SilentlyContinue -WarningVariable blobWarnings }
             catch {
-                Write-Warning "Export discovery in $($sa.Name)/$container is incomplete: $($_.Exception.Message)"
-                foreach ($warning in @($blobWarnings)) { Write-Verbose ([string]$warning) }
+                Write-Warning ([regex]::Replace("Export discovery in $($sa.Name)/$container is incomplete: $($_.Exception.Message)", '[\p{Cc}\p{Cf}]', ' '))
+                foreach ($warning in @($blobWarnings)) { Write-Verbose ([regex]::Replace([string]$warning, '[\p{Cc}\p{Cf}]', ' ')) }
                 continue
             }
             if (-not $listed.Listed) { continue }
@@ -752,7 +758,7 @@ function Get-CostExportData {
     $suffix = Get-ExportBlobSuffix -Environment $Environment
     $blobBase = "https://$account.$suffix"
     $container = [string]$Export.Container
-    if ($container -cnotmatch '^[a-z0-9](?:[a-z0-9-]{1,61})[a-z0-9]$' -or $container.Contains('--')) { throw 'The selected export has an invalid container name.' }
+    if ($container -cnotmatch '^[a-z0-9](?:[a-z0-9-]{1,61})[a-z0-9]\z' -or $container.Contains('--')) { throw 'The selected export has an invalid container name.' }
     $root = ([string]$Export.RootFolder).Trim('/')
     $exportName = [string]$Export.Name
     if ([string]::IsNullOrWhiteSpace($exportName) -or $exportName -match '[/\\\x00-\x1f]' -or $exportName -in @('.', '..') -or
@@ -766,6 +772,11 @@ function Get-CostExportData {
     $listed = Get-StorageBlobList -BlobBase $blobBase -Container $container -Prefix $prefix -StorageToken $token
     if (-not $listed.Listed) { throw 'The selected export folder could not be listed; cost coverage is incomplete.' }
     $blobs = @($listed.Blobs | Where-Object { ([string]$_.Name).StartsWith($prefix, [StringComparison]::Ordinal) })
+    foreach ($blob in $blobs) {
+        if ([string]$blob.Name -match '(?:^|/)\.{1,2}(?:/|$)|[\\\p{Cc}\p{Cf}]') {
+            throw 'The selected export listing contains an unsafe blob path; no export data was downloaded.'
+        }
+    }
     $csvBlobs = @($blobs | Where-Object { $_.Name -match '\.csv(\.gz)?$' })
 
     if ($csvBlobs.Count -eq 0) {

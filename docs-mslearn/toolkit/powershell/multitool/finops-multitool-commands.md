@@ -3,7 +3,7 @@ title: FinOps multitool commands
 description: Learn about PowerShell commands in the FinOpsToolkit module that scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 10/01/2026
+ms.date: 10/04/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -15,7 +15,7 @@ ms.reviewer: micflan
 
 The FinOps multitool PowerShell commands help you scan an Azure environment for cost optimization, governance, and FinOps insights. Findings are grounded in your live resource state and cover cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance.
 
-The multitool provides one scan engine with two interfaces:
+The multitool supports two ways to investigate FinOps data:
 
 - **Terminal UI (TUI)** – An interactive terminal experience launched with [Start-FinOpsMultitool](start-finopsmultitool.md). It surfaces 26 of the 30 scans.
 - **Agent skills** – A set of skills that describe which investigation answers a question, the queries behind it, and how to read the results.
@@ -107,9 +107,9 @@ An explicit `-DataSource API` or `-DataSource GraphOnly` takes precedence over `
 
 Ordinary Cost Management exports are a separate source: select **Cost Management exports (CSV storage)** or use `-DataSource Export`. No hub is required. Discovery first reads export definitions for the selected subscriptions, their management-group ancestors, and linked billing accounts, reporting progress per scope. It then scans storage accounts in those subscriptions and merges anything Cost Management can't see, reporting progress per storage account. Container names are discovered automatically, so you don't enter them; that scan looks at containers whose names contain `export`, `msexports`, `ingestion`, `finops`, `cost`, or `focus`, plus any container a visible definition names. Unavailable locations produce summarized warnings, with details under `-Verbose`. The reader requires ActualCost or FOCUS BilledCost and storage data and network access; it doesn't create exports, read local files, or parse Parquet. Unattended runs require exactly one readable candidate. When the chosen run has a manifest, every declared partition must be readable or the run is reported as incomplete. Supported views are cost totals, resource costs, cost by tag, and the months present in that export run. Separate financial API scans are excluded, while inventory scans can still query Azure. Reads remain inside the chosen folder, filter row subscriptions, and retain partial coverage as unverified instead of filling gaps with live costs. Use Kusto for very large datasets because this CSV reader loads parts into memory.
 
-Automatic Hub discovery queries only the selected subscriptions in the verified Azure context. When a Hub can't be verified, discovery failures remain visible, interactive runs still offer API or GraphOnly, and `-NonInteractive` defaults to API without changing scope, even if every probe fails. An explicit Hub request that can't be satisfied still stops instead of switching sources.
+Automatic hub discovery queries only the selected subscriptions in the verified Azure context. When a hub can't be verified, discovery failures remain visible, interactive runs still offer API or GraphOnly, and `-NonInteractive` defaults to API without changing scope, even if every probe fails. An explicit `-DataSource Hub` request that can't be satisfied still stops instead of switching sources.
 
-Provider-discovery exceptions for a detected Hub warn and fall back to that Hub's storage-reader checks. Existing size and reachability warnings still apply. The scan runner keeps the selected storage path without repeating provider discovery. Explicit Kusto endpoint failures and failed Kusto cost queries don't silently switch sources.
+Provider-discovery exceptions for a detected hub warn and fall back to that hub's storage-reader checks. Existing size and reachability warnings still apply. The scan runner keeps the selected storage path without repeating provider discovery. Explicit Kusto endpoint failures and failed Kusto cost queries don't silently switch sources.
 
 GraphOnly excludes cost-dependent scans and orphan cost enrichment. Remaining scans can still use Azure Monitor, Advisor, policy, and carbon APIs. Dependencies can't re-enable an excluded cost scan.
 

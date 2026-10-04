@@ -2804,6 +2804,71 @@ Describe 'FinOps Multitool cost math' {
             }
         }
 
+        It 'Validates fallback containers for <ContainerCase>' -Tag 'ExportReaderHardening' -ForEach @(
+            @{ ContainerCase = 'system containers with exports'; ContainerName = 'exports'; ExpectedCount = 1 }
+            @{ ContainerCase = 'path traversal'; ContainerName = 'exports/../private'; ExpectedCount = 0 }
+            @{ ContainerCase = 'query text'; ContainerName = 'exports?comp=list'; ExpectedCount = 0 }
+            @{ ContainerCase = 'invalid separators'; ContainerName = 'cost--exports'; ExpectedCount = 0 }
+            @{ ContainerCase = 'uppercase'; ContainerName = 'CostExports'; ExpectedCount = 0 }
+            @{ ContainerCase = 'trailing newline'; ContainerName = "exports`n"; ExpectedCount = 0 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ ContainerName = $ContainerName; ExpectedCount = $ExpectedCount } {
+                param($ContainerName, $ExpectedCount)
+                $fixtureContainerName = $ContainerName
+                Mock Get-ExportStorageCandidates { @([pscustomobject]@{ Name = 'fixturestore'; ResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/fixturestore'; SubId = '11111111-1111-1111-1111-111111111111' }) }
+                Mock Invoke-AzRestMethodWithRetry { [pscustomobject]@{ StatusCode = 403; Content = '{}' } }
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Get-StorageContainerList { @{ Listed = $true; Containers = @('$web', $fixtureContainerName, '$logs') } }
+                Mock Get-StorageBlobList { @{ Listed = $true; Blobs = @([pscustomobject]@{ Name = 'costs/focus/20260901-20260930/run/part.csv'; LastModified = [datetime]'2026-10-01' }) } }
+
+                $result = @(Find-CostExportFromStorage -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' }) -WarningAction SilentlyContinue -WarningVariable warnings)
+
+                $result.Count | Should -Be $ExpectedCount
+                Should -Invoke Get-StorageBlobList -Times $ExpectedCount -Exactly
+                Should -Invoke Get-StorageBlobList -Times 0 -Exactly -ParameterFilter { $Container -ne 'exports' }
+                if ($ExpectedCount -eq 0) { $warnings | Should -Not -BeNullOrEmpty }
+            }
+        }
+
+        It 'Escapes failed storage-account discovery diagnostics' -Tag 'ExportReaderHardening' {
+            InModuleScope FinOpsMultitool {
+                $fixtureControlText = "fixture$([char]27)[2J$([char]0x202E)`r`nmessage"
+                $warnings = [Collections.Generic.List[string]]::new()
+                Mock Write-Warning { $warnings.Add([string]$Message) }
+                Mock Invoke-AzRestMethodWithRetry { throw $fixtureControlText }
+
+                $result = @(Get-ExportStorageCandidates -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = $fixtureControlText }))
+
+                $result.Count | Should -Be 0
+                $warnings.Count | Should -Be 1
+                ($warnings -join '') | Should -Not -Match '[\p{Cc}\p{Cf}]'
+                ($warnings -join '') | Should -Match 'incomplete'
+            }
+        }
+
+        It 'Escapes failed storage discovery diagnostics' -Tag 'ExportReaderHardening' {
+            InModuleScope FinOpsMultitool {
+                $fixtureControlText = "fixture$([char]27)[2J$([char]0x202E)`r`nmessage"
+                $warnings = [Collections.Generic.List[string]]::new()
+                $verboseMessages = [Collections.Generic.List[string]]::new()
+                Mock Write-Warning { $warnings.Add([string]$Message) }
+                Mock Write-Verbose { $verboseMessages.Add([string]$Message) }
+                Mock Get-ExportStorageCandidates { @([pscustomobject]@{ Name = 'fixturestore'; ResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/fixturestore'; SubId = '11111111-1111-1111-1111-111111111111' }) }
+                Mock Invoke-AzRestMethodWithRetry { throw "Metadata: $fixtureControlText" }
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Get-StorageContainerList { throw "Containers: $fixtureControlText" }
+
+                $result = @(Find-CostExportFromStorage -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' }) -Verbose)
+
+                $result.Count | Should -Be 0
+                $warnings.Count | Should -Be 1
+                $verboseMessages.Count | Should -BeGreaterThan 0
+                ($warnings -join '') | Should -Not -Match '[\p{Cc}\p{Cf}]'
+                ($verboseMessages -join '') | Should -Not -Match '[\p{Cc}\p{Cf}]'
+                ($verboseMessages -join '') | Should -Match 'Metadata'
+            }
+        }
+
         It 'Stops extended export discovery before requests on a tenant mismatch' -Tag 'AutomaticExportDiscovery' {
             InModuleScope FinOpsMultitool {
                 Mock Get-AzContext { [pscustomobject]@{ Tenant = @{ Id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' } } }
@@ -2982,6 +3047,32 @@ Describe 'FinOps Multitool cost math' {
 
                 $result.NoData | Should -BeTrue
                 Should -Invoke Get-StorageBlobList -Times 1 -Exactly -ParameterFilter { $Prefix -ceq 'costs/selected/' }
+                Should -Invoke Get-StorageBlobBytes -Times 0 -Exactly
+            }
+        }
+
+        It 'Rejects unsafe returned export blob paths for <PathCase> before downloading' -Tag 'ExportReaderHardening' -ForEach @(
+            @{ PathCase = 'parent segment'; RelativePath = 'run/../part.csv' }
+            @{ PathCase = 'current segment'; RelativePath = 'run/./part.csv' }
+            @{ PathCase = 'backslash'; RelativePath = 'run/..\part.csv' }
+            @{ PathCase = 'terminal control'; RelativePath = "run/$([char]27)part.csv" }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ RelativePath = $RelativePath } {
+                param($RelativePath)
+                $fixtureBlobName = "costs/selected/$RelativePath"
+                $fixtureManifestName = ($fixtureBlobName -replace '/[^/]+$', '/manifest.json')
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Get-StorageBlobList {
+                    @{ Listed = $true; Blobs = @(
+                            [pscustomobject]@{ Name = $fixtureBlobName; LastModified = [datetime]'2026-10-01' }
+                            [pscustomobject]@{ Name = $fixtureManifestName; LastModified = [datetime]'2026-10-01' }
+                        ) }
+                }
+                Mock Get-StorageBlobBytes { throw 'Unsafe paths must not reach a download.' }
+                $export = [pscustomobject]@{ Name = 'selected'; Format = 'Csv'; Type = 'ActualCost'; RootFolder = 'costs'; Container = 'exports'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/fixturestore' }
+
+                { Get-CostExportData -Export $export } | Should -Throw '*unsafe blob path*'
+
                 Should -Invoke Get-StorageBlobBytes -Times 0 -Exactly
             }
         }
