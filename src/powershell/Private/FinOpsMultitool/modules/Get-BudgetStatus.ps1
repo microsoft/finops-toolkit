@@ -118,6 +118,13 @@ function Get-BudgetStatus {
                 $budgetRows = @(foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -RootNextLink -Context "budgets for $($sub.Name)")) {
                         ($page.Content | ConvertFrom-Json -ErrorAction Stop).value
                     })
+                foreach ($budgetRecord in $budgetRows) {
+                    if ($budgetRecord -isnot [pscustomobject] -or $budgetRecord.name -isnot [string] -or
+                        [string]::IsNullOrWhiteSpace($budgetRecord.name) -or $budgetRecord.properties -isnot [pscustomobject] -or
+                        @($budgetRecord.properties.PSObject.Properties).Count -eq 0) {
+                        throw 'The budget list contains an invalid record; budget coverage is unverified.'
+                    }
+                }
                 if ($budgetRows.Count -gt 0) {
                     $subsWithBudget++
                     foreach ($budget in $budgetRows) {

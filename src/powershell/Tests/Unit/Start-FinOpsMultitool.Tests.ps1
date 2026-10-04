@@ -987,6 +987,34 @@ function Invoke-FinOpsMultitool {
                 Should -Invoke Read-Host -Times 0 -Exactly
             }
 
+            It 'Rejects an explicit <ScanCase> scan list at the <Entry> entry point' -Tag 'EmptyScanSelection' -ForEach @(
+                @{ Entry = 'public'; ScanCase = 'empty'; RequestedScans = @() }
+                @{ Entry = 'public'; ScanCase = 'null'; RequestedScans = $null }
+                @{ Entry = 'public'; ScanCase = 'empty-name'; RequestedScans = @('') }
+                @{ Entry = 'public'; ScanCase = 'null-element'; RequestedScans = @('Get-PolicyInventory', $null) }
+                @{ Entry = 'private'; ScanCase = 'empty'; RequestedScans = @() }
+                @{ Entry = 'private'; ScanCase = 'null'; RequestedScans = $null }
+                @{ Entry = 'private'; ScanCase = 'empty-name'; RequestedScans = @('') }
+                @{ Entry = 'private'; ScanCase = 'null-element'; RequestedScans = @('Get-PolicyInventory', $null) }
+            ) {
+                $entryCommand = 'Start-FinOpsMultitool'
+                if ($Entry -eq 'private') {
+                    $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                    $launcher = $launcherAst.Find({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -eq 'Invoke-FinOpsMultitool' }, $true)
+                    . ([scriptblock]::Create($launcher.Extent.Text))
+                    $entryCommand = 'Invoke-FinOpsMultitool'
+                }
+                Mock Import-Module { throw 'Module import must not be reached.' }
+
+                $failure = try { & $entryCommand -Scans $RequestedScans -NonInteractive -DataSource API -ErrorAction Stop } catch { $_ }
+
+                $failure.FullyQualifiedErrorId | Should -Match '^ParameterArgumentValidationError'
+                $failure.Exception.Message | Should -Match 'Scans'
+                Should -Invoke Import-Module -Times 0 -Exactly
+                Should -Invoke Get-AzContext -Times 0 -Exactly
+                Should -Invoke Connect-AzAccount -Times 0 -Exactly
+            }
+
             It 'Does not infer missing tags from an incomplete inventory' {
                 $env:FINOPS_HUB_KUSTO_URI = $null
                 $reportRoot = Join-Path $TestDrive 'incomplete-tag-inventory'
@@ -1006,7 +1034,80 @@ function Invoke-FinOpsMultitool {
                 $html | Should -Not -Match 'Tag coverage is critically low|strong tagging discipline'
             }
 
-            It 'Does not declare policies missing when their inventory is <InventoryState>' -ForEach @(
+            It 'Blocks missing-tag recommendations when Hub tag parsing fails' -Tag 'HubTagReadFailure' {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                $reportRoot = Join-Path $TestDrive 'unreadable-hub-tags'
+                Mock Search-AzGraph { [pscustomobject]@{ name = 'fixture'; resourceGroup = 'fixture'; subscriptionId = '11111111-1111-1111-1111-111111111111'; location = 'eastus' } }
+                Mock Resolve-FOHubProvider { @{ Found = $false } }
+                Mock Read-FinOpsHubData {
+                    @([pscustomobject]@{ ResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Compute/disks/fixture'; SubAccountId = '11111111-1111-1111-1111-111111111111'; BilledCost = 10; BillingCurrency = 'USD'; ChargePeriodStart = '2026-09-01'; Tags = '{"Owner":' })
+                }
+                Mock Invoke-AzRestMethodWithRetry { [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
+                Mock Get-TagRecommendations { throw 'Unreadable Hub tags must not become missing-tag recommendations.' }
+
+                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-TagRecommendations -DataSource Hub -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+
+                $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
+                $results['Get-TagInventory'].CoverageIncomplete | Should -BeTrue
+                $results['_error_Get-TagRecommendations'] | Should -Match 'No tags are assumed missing'
+                Should -Invoke Get-TagRecommendations -Times 0 -Exactly
+                $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+                (Import-Csv -LiteralPath (Join-Path $run 'Get-TagRecommendations.csv')).Status | Should -Be 'Error'
+                Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw | Should -Match 'No tags are assumed missing'
+                Get-Content -LiteralPath (Join-Path $run 'ScanSummary.txt') -Raw | Should -Match 'No tags are assumed missing'
+            }
+
+            It 'Runs policy recommendations with <AssignmentCount> verified assignments in an <CollectionKind>' -Tag 'PolicyEmptyCollection' -ForEach @(
+                @{ AssignmentCount = 0; CollectionKind = 'array' }
+                @{ AssignmentCount = 1; CollectionKind = 'array' }
+                @{ AssignmentCount = 2; CollectionKind = 'array' }
+                @{ AssignmentCount = 0; CollectionKind = 'inventory list' }
+                @{ AssignmentCount = 1; CollectionKind = 'inventory list' }
+                @{ AssignmentCount = 2; CollectionKind = 'inventory list' }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                $reportRoot = Join-Path $TestDrive "policy-assignments-$AssignmentCount-$CollectionKind"
+                $definitionIds = @(
+                    '/providers/Microsoft.Authorization/policyDefinitions/726aca4c-86e9-4b04-b0c5-073027359532'
+                    '/providers/Microsoft.Authorization/policyDefinitions/96670d01-0a4d-4649-9c89-2d3abc0a5025'
+                )
+                $fixtureAssignments = @(for ($assignmentIndex = 0; $assignmentIndex -lt $AssignmentCount; $assignmentIndex++) {
+                        [pscustomobject]@{
+                            PolicyDefId = $definitionIds[$assignmentIndex]
+                            AssignmentId = "/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Authorization/policyAssignments/fixture-$assignmentIndex"
+                            AssignmentName = "Fixture $assignmentIndex"
+                            Scope = '/subscriptions/11111111-1111-1111-1111-111111111111'
+                            Effect = 'Audit'; EnforcementMode = 'Default'; Origin = 'Direct'
+                        }
+                    })
+                if ($CollectionKind -eq 'inventory list') {
+                    $inventoryAssignments = [Collections.Generic.List[pscustomobject]]::new()
+                    foreach ($assignment in $fixtureAssignments) { $inventoryAssignments.Add($assignment) }
+                    $fixtureAssignments = $inventoryAssignments
+                }
+                Mock Get-PolicyInventory {
+                    [pscustomobject]@{ Assignments = $fixtureAssignments; AssignmentCount = $fixtureAssignments.Count; CoverageIncomplete = $false; HasComplianceData = $false }
+                }
+                Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool { throw 'Direct policy fixtures must not query Azure.' }
+
+                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-PolicyRecommendations -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+
+                $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
+                $results.ContainsKey('_error_Get-PolicyRecommendations') | Should -BeFalse
+                $results['Get-PolicyRecommendations'].Assigned.Count | Should -Be $AssignmentCount
+                $results['Get-PolicyRecommendations'].Missing.Count | Should -Be ($results['Get-PolicyRecommendations'].Analysis.Count - $AssignmentCount)
+                $results['Get-PolicyInventory'].Assignments.Count | Should -Be $AssignmentCount
+                $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+                $csv = @(Import-Csv -LiteralPath (Join-Path $run 'Get-PolicyRecommendations.csv'))
+                $csv.Status | Should -Contain 'Missing'
+                foreach ($reportName in @('FinOpsReport.html', 'ScanSummary.txt')) {
+                    Get-Content -LiteralPath (Join-Path $run $reportName) -Raw | Should -Not -Match 'Cannot bind argument|No policies are assumed missing'
+                }
+                Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+                Should -Invoke Read-Host -Times 0 -Exactly
+            }
+
+            It 'Does not declare policies missing when their inventory is <InventoryState>' -Tag 'PolicyEmptyCollection' -ForEach @(
                 @{ InventoryState = 'failed' }
                 @{ InventoryState = 'incomplete' }
             ) {
@@ -1026,6 +1127,69 @@ function Invoke-FinOpsMultitool {
                 $results['_error_Get-PolicyRecommendations'] | Should -Match 'No policies are assumed missing'
                 $results['Get-PolicyRecommendations'] | Should -BeNullOrEmpty
                 Should -Invoke Get-PolicyRecommendations -Times 0 -Exactly
+            }
+
+            It 'Preserves <InventoryState> budget inventory evidence in history reports' -Tag 'BudgetHistoryDependency' -ForEach @(
+                @{ InventoryState = 'failed'; HasBudgets = $false; Incomplete = $true; ExpectError = $true }
+                @{ InventoryState = 'incomplete empty'; HasBudgets = $false; Incomplete = $true; ExpectError = $true }
+                @{ InventoryState = 'sampled empty'; HasBudgets = $false; Incomplete = $true; ExpectError = $true }
+                @{ InventoryState = 'partial'; HasBudgets = $true; Incomplete = $true; ExpectError = $false }
+                @{ InventoryState = 'complete empty'; HasBudgets = $false; Incomplete = $false; ExpectError = $false }
+                @{ InventoryState = 'complete'; HasBudgets = $true; Incomplete = $false; ExpectError = $false }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                $reportRoot = Join-Path $TestDrive "budget-history-$InventoryState"
+                $fixtureInventoryState = $InventoryState
+                $fixtureIncomplete = $Incomplete
+                $fixtureBudgets = @()
+                if ($HasBudgets) {
+                    $fixtureBudgets = @([pscustomobject]@{
+                            SubscriptionId = '11111111-1111-1111-1111-111111111111'; Subscription = 'Fixture'
+                            BudgetName = 'fixture'; Amount = 100; Currency = 'USD'; Category = 'Cost'; TimeGrain = 'Monthly'
+                            Scope = '/subscriptions/11111111-1111-1111-1111-111111111111'; Filter = $null
+                            TimePeriod = @{ startDate = '2020-01-01'; endDate = '2030-12-31' }
+                        })
+                }
+                $currentMonth = (Get-Date).ToUniversalTime().Date
+                $currentMonth = $currentMonth.AddDays(1 - $currentMonth.Day)
+                $fixtureHistoryMonths = @(foreach ($monthIndex in 1..6) {
+                        [pscustomobject]@{ MonthDate = $currentMonth.AddMonths(-$monthIndex); Month = $currentMonth.AddMonths(-$monthIndex).ToString('MMM yyyy'); Cost = 12.5; Currency = 'USD' }
+                    })
+                Mock Get-CostData { @{ '11111111-1111-1111-1111-111111111111' = @{ Actual = 12.5; Forecast = $null; Currency = 'USD' } } }
+                Mock Get-CostTrend { @{ Months = $fixtureHistoryMonths; BySubscription = @{ '11111111-1111-1111-1111-111111111111' = $fixtureHistoryMonths }; HasData = $true } }
+                Mock Get-BudgetStatus {
+                    if ($fixtureInventoryState -eq 'failed') { throw 'Synthetic budget inventory failed.' }
+                    [pscustomobject]@{ Budgets = $fixtureBudgets; TotalBudgets = $fixtureBudgets.Count; HasData = ($fixtureBudgets.Count -gt 0); CoverageIncomplete = $fixtureIncomplete; Sampled = ($fixtureInventoryState -eq 'sampled empty'); Note = $(if ($fixtureIncomplete) { 'Synthetic budget inventory is incomplete.' } else { $null }) }
+                }
+                Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool { throw 'History must use the complete cached fixture.' }
+
+                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-BudgetHistory -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+
+                $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
+                $results.ContainsKey('_error_Get-BudgetHistory') | Should -Be $ExpectError
+                $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+                $csv = @(Import-Csv -LiteralPath (Join-Path $run 'Get-BudgetHistory.csv'))
+                $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+                $summary = Get-Content -LiteralPath (Join-Path $run 'ScanSummary.txt') -Raw
+                if ($ExpectError) {
+                    $results['_error_Get-BudgetHistory'] | Should -Match 'budget inventory'
+                    $csv.Status | Should -Be 'Error'
+                    $html | Should -Match 'budget inventory'
+                    $summary | Should -Match 'Budget History: ERROR:'
+                }
+                elseif ($HasBudgets) {
+                    @($results['Get-BudgetHistory']).Count | Should -Be 6
+                    @($results['Get-BudgetHistory'] | Where-Object { $_.ActualSpend -ne 12.5 }).Count | Should -Be 0
+                    if ($Incomplete) {
+                        $csv.CoverageIncomplete | Should -Contain 'True'
+                        $csv.Note | Should -Contain $results['Get-BudgetHistory'][0].Note
+                        $html | Should -Match 'Budget history covers only'
+                        $summary | Should -Match 'Budget History: Limited data:'
+                    }
+                    else { $results['Get-BudgetHistory'].CoverageIncomplete | Should -Not -Contain $true }
+                }
+                else { $csv.Status | Should -Be 'No data'; $summary | Should -Match 'Budget History: No data' }
+                Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
             }
 
             It 'Preserves a caught payload-scan error in every report format' {

@@ -1413,6 +1413,8 @@ function ConvertTo-TagInventoryFromHub {
     $totalResources = 0
     $taggedCount = 0
     $untaggedResources = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $tagReadErrors = [System.Collections.Generic.List[string]]::new()
+    $unverifiedTagResourceCount = 0
     $seenResources = @{}
     $props = $HubData[0].PSObject.Properties.Name
 
@@ -1438,12 +1440,19 @@ function ConvertTo-TagInventoryFromHub {
         else { 'unknown' }
 
         # Parse Tags JSON
-        $tagsJson = if ($props -contains 'Tags') { $row.Tags } else { $null }
         $tagDict = $null
-        if ($tagsJson -and $tagsJson.Trim() -ne '' -and $tagsJson.Trim() -ne '{}') {
-            try { $tagDict = ConvertTo-HashtableFromJson -Json $tagsJson } catch {
-                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+        try {
+            if ($row.PSObject.Properties.Name -notcontains 'Tags') { throw 'The Tags column is missing.' }
+            $tagsJson = $row.Tags
+            if ($null -ne $tagsJson -and $tagsJson -isnot [string]) { throw 'Tags must contain JSON text.' }
+            if (-not [string]::IsNullOrWhiteSpace($tagsJson)) {
+                $tagDict = ConvertTo-HashtableFromJson -Json $tagsJson
             }
+        }
+        catch {
+            $tagReadErrors.Add("Tags for '$resId': $($_.Exception.Message)")
+            $unverifiedTagResourceCount++
+            continue
         }
 
         if ($tagDict -and $tagDict.Count -gt 0) {
@@ -1497,8 +1506,11 @@ function ConvertTo-TagInventoryFromHub {
         }
     }
 
-    $untaggedCount = $totalResources - $taggedCount
-    $coverage = if ($totalResources -gt 0) { [math]::Round(($taggedCount / $totalResources) * 100, 1) } else { 0 }
+    $untaggedCount = $totalResources - $taggedCount - $unverifiedTagResourceCount
+    $coverageIncomplete = $tagReadErrors.Count -gt 0
+    $coverage = if ($coverageIncomplete) { $null } elseif ($totalResources -gt 0) { [math]::Round(($taggedCount / $totalResources) * 100, 1) } else { 0 }
+    $note = if ($coverageIncomplete) { "Hub tag inventory coverage is incomplete: tags could not be read for $unverifiedTagResourceCount resource(s). Unreadable tags are not counted as missing." } else { $null }
+    if ($note) { Write-Warning $note }
 
     return [PSCustomObject]@{
         TagNames          = $tagNamesOut
@@ -1509,6 +1521,10 @@ function ConvertTo-TagInventoryFromHub {
         TagCoverage       = $coverage
         UntaggedResources = @($untaggedResources)
         Source            = 'Hub'
+        CoverageIncomplete = $coverageIncomplete
+        ReadErrors        = $tagReadErrors.ToArray()
+        UnverifiedTagResourceCount = $unverifiedTagResourceCount
+        Note              = $note
     }
 }
 

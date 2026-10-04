@@ -61,6 +61,8 @@ function Get-CommitmentUtilization {
 
     # Why billing-scope correlation produced nothing, when it produced nothing.
     $scopeResolutionReason = $null
+    $scopeCoverageIncomplete = $false
+    $scopeResolutionErrors = @()
 
     # -- Step 0: Resolve the billing scopes that own the scanned subscriptions --
     # Both commitment APIs are billing-scoped. A subscription-scoped path answers
@@ -74,9 +76,11 @@ function Get-CommitmentUtilization {
         if ($baResp.StatusCode -eq 200) {
             $allAccounts = @(foreach ($page in (Get-CostQueryResponsePage -FirstResponse $baResp -Context 'commitment billing accounts' -RootNextLink)) { ($page.Content | ConvertFrom-Json).value })
             $scope = Get-FinOpsBillingScope -BillingAccounts $allAccounts -Subscriptions $Subscriptions
-            if (-not $scope.Resolved) {
-                $scopeResolutionReason = $scope.Reason
-                Write-Warning "  $($scope.Reason)"
+            $scopeCoverageIncomplete = [bool]$scope.CoverageIncomplete
+            $scopeResolutionErrors = @($scope.ReadErrors | Where-Object { $_ })
+            if (-not $scope.Resolved -or $scopeCoverageIncomplete) {
+                $scopeResolutionReason = (@($scope.Reason) + $scopeResolutionErrors | Where-Object { $_ } | Select-Object -Unique) -join ' '
+                Write-Warning "  $scopeResolutionReason"
             }
 
             foreach ($ba in @($scope.Accounts)) {
@@ -331,7 +335,7 @@ function Get-CommitmentUtilization {
             $utilFailures.Add("$identity : Average utilization is missing or invalid.")
         }
     }
-    $coverageIncomplete = $accessDenied -or $utilFailures.Count -gt 0 -or @($commitmentScopes).Count -eq 0 -or $unscopedFallback
+    $coverageIncomplete = $scopeCoverageIncomplete -or $accessDenied -or $utilFailures.Count -gt 0 -or @($commitmentScopes).Count -eq 0 -or $unscopedFallback
 
     # -- Step 4: Calculate summary stats --
     $riAvgUtil = $null
@@ -362,7 +366,7 @@ function Get-CommitmentUtilization {
         'Access denied reading reservation/savings-plan utilization (needs Cost Management Reader / billing-scope access). The zero counts below reflect missing access, NOT confirmed absence of commitments.'
     }
     elseif ($coverageIncomplete) {
-        'Commitment coverage is incomplete. Missing results do not establish the absence of reservations or savings plans.'
+        "Commitment coverage is incomplete. Missing results do not establish the absence of reservations or savings plans. $scopeResolutionReason".TrimEnd()
     }
     elseif ($riCount -eq 0 -and $spCount -eq 0) {
         'No reservations or savings plans found in scope.'
@@ -387,6 +391,7 @@ function Get-CommitmentUtilization {
         RIAvgUtilization         = $riAvgUtil
         SPAvgUtilization         = $spAvgUtil
         CoverageIncomplete       = $coverageIncomplete
+        ScopeResolutionErrors    = $scopeResolutionErrors
         MetadataErrors           = $metadataErrors.ToArray()
         AverageBasis             = 'Unweighted mean of the latest returned period per commitment'
         UnderutilizedRIs         = $underutilized

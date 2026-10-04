@@ -42,6 +42,7 @@
     Optional list of scans to run, replacing the default selection. Accepts either the
     scan function name, such as Get-OrphanedResources, or its menu label, such as
     'Orphaned Resources'. Use 'All' on its own to select every scan. An unrecognized name is an error.
+    Explicit null or empty lists, and empty entries, are rejected before the tool starts.
 
     .PARAMETER DataSource
     Optional data source, which skips the data source prompt. Hub reads a configured
@@ -102,6 +103,7 @@ function Start-FinOpsMultitool {
         [string]$OutputPath,
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [string[]]$Scans,
 
         [Parameter()]

@@ -1264,7 +1264,7 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
     }
 
     Context 'Paged billing discovery' {
-        It 'Retains incomplete membership evidence after a partial <FailurePath> match' -ForEach @(
+        It 'Retains incomplete membership evidence after a partial <FailurePath> match' -Tag 'CommitmentScopeCoverage' -ForEach @(
             @{ FailurePath = 'membership page' }
             @{ FailurePath = 'subscription lookup' }
             @{ FailurePath = 'empty lookup' }
@@ -1297,8 +1297,11 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
                         }
                         return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[{"properties":{"subscriptionId":"22222222-2222-2222-2222-222222222222"}}]}' }
                     }
-                    if ($Path -like '*/billingAccounts?*') {
+                    if ($Path -match '/billingAccounts\?') {
                         return [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @($accounts) } | ConvertTo-Json -Depth 7) }
+                    }
+                    if ($Path -match '/readable/.*reservationSummaries\?') {
+                        return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[{"properties":{"reservationId":"fixture-reservation","reservationOrderId":"fixture-order","skuName":"fixture-sku","kind":"Compute","avgUtilizationPercentage":100,"minUtilizationPercentage":100,"maxUtilizationPercentage":100,"usageDate":"2026-09-01"}}]}' }
                     }
                     [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' }
                 }
@@ -1306,6 +1309,7 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
                 $scope = Get-FinOpsBillingScope -BillingAccounts $accounts -Subscriptions $subscriptions
                 $billing = Get-BillingStructure -Subscriptions $subscriptions
                 $macc = Get-MaccCommitment -Subscriptions $subscriptions
+                $utilization = Get-CommitmentUtilization -Subscriptions $subscriptions
 
                 $scope.Resolved | Should -BeTrue
                 $scope.Accounts[0].name | Should -Be 'readable'
@@ -1317,6 +1321,13 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
                 $macc.CoverageIncomplete | Should -BeTrue
                 $macc.Reason | Should -Match $expectedReason
                 $macc.Reason | Should -Not -Match 'No MACC commitment found'
+                $utilization.RICount | Should -Be 1
+                $utilization.Reservations[0].AvgUtilization | Should -Be 100
+                $utilization.CoverageIncomplete | Should -BeTrue
+                $utilization.RIAvgUtilization | Should -BeNullOrEmpty
+                $utilization.SPAvgUtilization | Should -BeNullOrEmpty
+                $utilization.ScopeResolutionErrors | Should -Not -BeNullOrEmpty
+                $utilization.Note | Should -Match $expectedReason
             }
         }
 

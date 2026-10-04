@@ -3289,6 +3289,51 @@ Describe 'FinOps Multitool cost math' {
             }
         }
 
+        It 'Keeps unreadable Hub tags unverified for <TagCase>' -Tag 'HubTagReadFailure' -ForEach @(
+            @{ TagCase = 'malformed JSON'; Tags = '{"Owner":'; MissingColumn = $false }
+            @{ TagCase = 'non-object JSON'; Tags = '["Owner"]'; MissingColumn = $false }
+            @{ TagCase = 'non-string value'; Tags = '{"Owner":123}'; MissingColumn = $false }
+            @{ TagCase = 'missing column'; Tags = $null; MissingColumn = $true }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Tags = $Tags; MissingColumn = $MissingColumn } {
+                param($Tags, $MissingColumn)
+                $unreadable = [pscustomobject]@{ ResourceId = '/subscriptions/test/resources/unreadable'; Tags = $Tags }
+                if ($MissingColumn) { $unreadable.PSObject.Properties.Remove('Tags') }
+                $rows = @(
+                    [pscustomobject]@{ ResourceId = '/subscriptions/test/resources/tagged'; Tags = '{"Owner":"team-a"}' }
+                    $unreadable
+                    [pscustomobject]@{ ResourceId = '/subscriptions/test/resources/untagged'; Tags = '{}' }
+                )
+
+                $inventory = ConvertTo-TagInventoryFromHub -HubData $rows -WarningVariable warnings
+
+                $inventory.TotalResources | Should -Be 3
+                $inventory.TaggedCount | Should -Be 1
+                $inventory.UntaggedCount | Should -Be 1
+                $inventory.UnverifiedTagResourceCount | Should -Be 1
+                $inventory.CoverageIncomplete | Should -BeTrue
+                $inventory.TagCoverage | Should -BeNullOrEmpty
+                $inventory.ReadErrors.Count | Should -Be 1
+                $inventory.Note | Should -Match 'incomplete'
+                $warnings | Should -Not -BeNullOrEmpty
+                $inventory.TagNames.Owner.Values[0].Value | Should -Be 'team-a'
+                $inventory.UntaggedResources.ResourceName | Should -Not -Contain 'unreadable'
+            }
+        }
+
+        It 'Retains confirmed empty Hub tags for <TagCase>' -Tag 'HubTagReadFailure' -ForEach @(
+            @{ TagCase = 'empty object'; Tags = '{}' }
+            @{ TagCase = 'null value'; Tags = $null }
+            @{ TagCase = 'empty string'; Tags = '' }
+        ) {
+            $inventory = ConvertTo-TagInventoryFromHub -HubData @([pscustomobject]@{ ResourceId = '/subscriptions/test/resources/untagged'; Tags = $Tags })
+
+            $inventory.UntaggedCount | Should -Be 1
+            $inventory.TagCoverage | Should -Be 0
+            $inventory.CoverageIncomplete | Should -BeFalse
+            $inventory.ReadErrors.Count | Should -Be 0
+        }
+
         It 'Handles case-variant tag keys within the same hub record without double counting' {
             InModuleScope FinOpsMultitool {
                 $rows = @(

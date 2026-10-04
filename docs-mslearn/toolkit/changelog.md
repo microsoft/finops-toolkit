@@ -68,6 +68,12 @@ The following section lists features and enhancements that are currently in deve
     - Added an explicit ordinary Cost Management CSV export source without requiring a FinOps hub, with selected-scope coverage, reads limited to the chosen export folder, manifest-verified partitions, and no silent live-cost fallback. Discovery reports progress per scope and per storage account.
 - **Fixed**
   - Fixed literal `\u000D` text appearing at the ends of terminal table rows on Windows ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
+  - Fixed policy recommendations failing when a complete inventory contains no policy assignments ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
+  - Fixed incomplete billing-scope discovery appearing as complete commitment utilization.
+  - Kept unreadable Hub tags unverified instead of counting them as missing tags.
+  - Rejected explicit empty scan lists instead of running the default scans.
+  - Fixed malformed budget records counting toward confirmed budget coverage.
+  - Preserved budget inventory failures and partial coverage in budget history reports.
   - Fixed AI token totals using inconsistent account and deployment measurements, and kept same-named deployments in different accounts separate.
   - Fixed commitment SKU and kind metadata, incomplete fallback pagination, and unavailable utilization appearing as measured zero.
   - Clarified budget sampling and CPU units, distinguished storage lookup failures from missing permissions, and added private launcher help and read-only regression checks.

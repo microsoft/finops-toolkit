@@ -69,6 +69,35 @@ Describe 'Budget coverage reporting' {
         $r.TotalSubs | Should -Be 2
     }
 
+    It 'Does not count a <RecordCase> budget response as verified coverage' -Tag 'MalformedBudgetCoverage' -ForEach @(
+        @{ RecordCase = 'missing record fields'; Body = '{"value":[{}]}' }
+        @{ RecordCase = 'null record'; Body = '{"value":[null]}' }
+        @{ RecordCase = 'missing properties'; Body = '{"value":[{"name":"invalid"}]}' }
+        @{ RecordCase = 'string properties'; Body = '{"value":[{"name":"invalid","properties":"unreadable"}]}' }
+        @{ RecordCase = 'array properties'; Body = '{"value":[{"name":"invalid","properties":[]}]}' }
+        @{ RecordCase = 'empty properties'; Body = '{"value":[{"name":"invalid","properties":{}}]}' }
+        @{ RecordCase = 'blank name'; Body = '{"value":[{"name":" ","properties":{"amount":100}}]}' }
+        @{ RecordCase = 'partial list'; Body = '{"value":[{"name":"partial","properties":{"amount":100,"timeGrain":"Monthly","category":"Cost"}},{}]}' }
+    ) {
+        $fixtureBody = $Body
+        Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool {
+            if ($Path -match $script:SubA) { [pscustomobject]@{ StatusCode = 200; Content = $script:OneBudget } }
+            else { [pscustomobject]@{ StatusCode = 200; Content = $fixtureBody } }
+        }
+
+        $result = Get-BudgetStatus -Subscriptions $script:TwoSubs -WarningAction SilentlyContinue
+
+        $result.TotalBudgets | Should -Be 1
+        $result.SubsWithBudget | Should -Be 1
+        $result.SubsWithoutBudget | Should -Be 0
+        $result.UnreadableSubs | Should -Be 1
+        $result.ScannedSubs | Should -Be 1
+        $result.CoverageIncomplete | Should -BeTrue
+        $result.BudgetCoverage | Should -BeNullOrEmpty
+        $result.Note | Should -Match 'could not be queried'
+        $result.Budgets[0].BudgetName | Should -Be 'monthly-budget'
+    }
+
     It 'Suppresses the coverage percentage when a subscription could not be read' {
         Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool {
             if ($Path -match $script:SubA) { [PSCustomObject]@{ StatusCode = 200; Content = $script:OneBudget } }

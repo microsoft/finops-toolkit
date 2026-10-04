@@ -71,6 +71,8 @@ Use arrow-key menus to select scans when your host supports them. Other hosts us
 
 Use `-Scans All` on its own to select every menu scan. GraphOnly removes cost-dependent scans from that selection, including budget history, unit economics, AI workload metrics, and MACC. Dependencies can't re-enable excluded scans.
 
+An explicit null or empty `-Scans` list is rejected before the tool starts. Omit the parameter to use the normal menu or unattended defaults.
+
 | Key       | Action             |
 | --------- | ------------------ |
 | `↑` / `↓` | Navigate scan list |
@@ -83,6 +85,8 @@ Use `-Scans All` on its own to select every menu scan. GraphOnly removes cost-de
 ### 4. Scan execution
 
 Selected scans run sequentially with a progress bar. Supported scans reuse available hub summaries or preloaded rows. The tool reports hub query failures as scan errors and doesn't silently switch data sources. It reports AI metrics from a Kusto-only hub as unavailable. Select **Cost Management API** to run a separate live AI scan.
+
+Incomplete billing-scope discovery leaves overall commitment utilization unavailable. Unreadable Hub tags and malformed budget records remain unverified, rather than counting as missing tags or confirmed budget coverage. Budget history retains usable rows from a partial inventory with a coverage note; failed or incomplete inventory with no usable budgets produces an error instead of a clean empty result.
 
 Inventory scans that request all Resource Graph pages fail when a page is unreadable, a continuation token repeats, or the page limit is reached. A full page without a continuation token is also unverified, even if the true result happens to equal the page size. Resource queries retain `id`, which [Resource Graph requires for continuation tokens](https://learn.microsoft.com/powershell/module/az.resourcegraph/search-azgraph#example-3). These scans don't report an unverified inventory as complete.
 

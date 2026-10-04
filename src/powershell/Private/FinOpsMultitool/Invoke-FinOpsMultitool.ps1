@@ -48,6 +48,7 @@ function Invoke-FinOpsMultitool {
     param(
         [string]$SubscriptionId,
         [string]$OutputPath,
+        [ValidateNotNullOrEmpty()]
         [string[]]$Scans,
         [ValidateSet('Hub', 'Export', 'API', 'GraphOnly')]
         [string]$DataSource,
@@ -1327,10 +1328,11 @@ function Invoke-FinOpsMultitool {
                             $results['Get-PolicyInventory'].CoverageIncomplete) {
                             throw 'Policy recommendations are unavailable because the policy inventory did not complete. No policies are assumed missing.'
                         }
+                        # Keep an empty array from becoming null at parameter binding.
                         $assignments = if ($results.ContainsKey('Get-PolicyInventory') -and $results['Get-PolicyInventory'].Assignments) {
                             $results['Get-PolicyInventory'].Assignments
                         }
-                        else { @() }
+                        else { , @() }
                         $output = & $fn -ExistingAssignments $assignments; break
                     }
                     'Get-BudgetStatus' {
@@ -1344,12 +1346,26 @@ function Invoke-FinOpsMultitool {
                     'Get-BudgetHistory' {
                         # Depends on Budget Status — reuse the budgets it already found
                         $budgetResult = if ($results.ContainsKey('Get-BudgetStatus')) { $results['Get-BudgetStatus'] } else { $null }
+                        if ($results.ContainsKey('_error_Get-BudgetStatus') -or -not $budgetResult) {
+                            throw "Budget history is unavailable because the budget inventory failed. $($results['_error_Get-BudgetStatus'])"
+                        }
                         $budgetRows = if ($budgetResult -and $budgetResult.Budgets) { @($budgetResult.Budgets) } else { @() }
+                        if ($budgetResult.CoverageIncomplete -and $budgetRows.Count -eq 0) {
+                            throw "Budget history is unavailable because the budget inventory is incomplete. $($budgetResult.Note)"
+                        }
                         if ($budgetRows.Count -gt 0) {
                             # Reuse Cost Trend's already-fetched monthly spend so we don't
                             # re-hit the throttle-prone Cost Management Query API.
                             $trendResult = if ($results.ContainsKey('Get-CostTrend')) { $results['Get-CostTrend'] } else { $null }
                             $output = & $fn -Budgets $budgetRows -MonthsBack 6 -CostTrend $trendResult
+                            if ($budgetResult.CoverageIncomplete) {
+                                $coverageNote = "Budget history covers only the available budget definitions. $($budgetResult.Note)".TrimEnd()
+                                if (-not $output) { throw "Budget history is unavailable because the budget inventory is incomplete. $($budgetResult.Note)" }
+                                foreach ($historyRow in @($output)) {
+                                    $historyNote = (@($historyRow.Note, $coverageNote) | Where-Object { $_ }) -join ' '
+                                    $historyRow | Add-Member -NotePropertyMembers @{ CoverageIncomplete = $true; Note = $historyNote } -Force
+                                }
+                            }
                         }
                         else {
                             $output = @()
