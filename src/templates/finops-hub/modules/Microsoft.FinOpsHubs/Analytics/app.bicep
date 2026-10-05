@@ -28,6 +28,12 @@ param core CoreMetadata
 @maxLength(22)
 param clusterName string = ''
 
+@description('Optional. Enable disk encryption on the Azure Data Explorer cluster. Can only be enabled during cluster creation. Default: false.')
+param enableAdxDiskEncryption bool = false
+
+@description('Optional. Enable double encryption on the Azure Data Explorer cluster. Can only be enabled during cluster creation. Default: false.')
+param enableAdxDoubleEncryption bool = false
+
 // https://learn.microsoft.com/azure/templates/microsoft.kusto/clusters?pivots=deployment-language-bicep#azuresku
 @description('Optional. Name of the Azure Data Explorer SKU. Default: "Dev(No SLA)_Standard_E2a_v4".')
 @allowed([
@@ -306,6 +312,8 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = if (useAzure) {
   }
   properties: {
     enableStreamingIngest: true
+    enableDiskEncryption: enableAdxDiskEncryption
+    enableDoubleEncryption: enableAdxDoubleEncryption
     enableAutoStop: false
     publicNetworkAccess: app.hub.options.privateRouting ? 'Disabled' : 'Enabled'
     // TODO: Figure out why this is breaking upgrades
