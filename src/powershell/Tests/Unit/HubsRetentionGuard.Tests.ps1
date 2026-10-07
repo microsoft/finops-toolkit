@@ -36,12 +36,12 @@ Describe 'HubsRetentionGuard' {
         }
 
         It 'Should not unconditionally overwrite ingestion retention' {
-            $content | Should -Not -Match '\$json\.retention\.ingestion\.months\s*=\s*\[Int32\]::Parse\(\$env:ingestionRetentionInMonths\)\s*$' `
+            $content | Should -Not -Match '\$json\.retention\.ingestion\.months\s*=\s*\[Int32\]::Parse\(\$env:ingestionRetentionInMonths\)' `
                 -Because 'a direct assignment (rather than a max guard) was the source of the #2206 regression'
         }
 
         It 'Should not unconditionally overwrite final retention' {
-            $content | Should -Not -Match '\$json\.retention\.final\.months\s*=\s*\[Int32\]::Parse\(\$env:finalRetentionInMonths\)\s*$' `
+            $content | Should -Not -Match '\$json\.retention\.final\.months\s*=\s*\[Int32\]::Parse\(\$env:finalRetentionInMonths\)' `
                 -Because 'a direct assignment (rather than a max guard) was the source of the #2206 regression'
         }
     }
