@@ -22,8 +22,8 @@ module hubWithAdxEncryption '../main.bicep' = {
     hubName: '${uniqueName}-adx'
     location: location
     dataExplorerName: '${uniqueName}-adx'
-    enableAdxDiskEncryption: true
-    enableAdxDoubleEncryption: true
+    enableDataExplorerDiskEncryption: true
+    enableDataExplorerDoubleEncryption: true
   }
 }
 
