@@ -148,6 +148,13 @@ var ftkReleaseUri = indexOf(finOpsToolkitVersion, '-dev') != -1
 var useFabric = !empty(fabricQueryUri)
 var useAzure = !useFabric && !empty(clusterName)
 
+var diskEncryptionProperties = !enableAdxDiskEncryption ? {} : {
+  enableDiskEncryption: true
+}
+var doubleEncryptionProperties = !enableAdxDoubleEncryption ? {} : {
+  enableDoubleEncryption: true
+}
+
 // cSpell:ignore ftkver, privatelink
 var dataExplorerDnsSuffixLookup = {
   AzureCloud: 'kusto.windows.net'
@@ -312,8 +319,8 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = if (useAzure) {
   }
   properties: {
     enableStreamingIngest: true
-    enableDiskEncryption: enableAdxDiskEncryption
-    enableDoubleEncryption: enableAdxDoubleEncryption
+    ...diskEncryptionProperties
+    ...doubleEncryptionProperties
     enableAutoStop: false
     publicNetworkAccess: app.hub.options.privateRouting ? 'Disabled' : 'Enabled'
     // TODO: Figure out why this is breaking upgrades

@@ -672,6 +672,20 @@
                 }
               },
               {
+                "name": "enableAdxDiskEncryption",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable Data Explorer disk encryption",
+                "toolTip": "Enable disk encryption for the Azure Data Explorer cluster. This setting can only be enabled when the cluster is created.",
+                "defaultValue": false
+              },
+              {
+                "name": "enableAdxDoubleEncryption",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable Data Explorer double encryption",
+                "toolTip": "Enable double encryption for the Azure Data Explorer cluster. This setting can only be enabled when the cluster is created.",
+                "defaultValue": false
+              },
+              {
                 "name": "rawDays",
                 "type": "Microsoft.Common.TextBox",
                 "label": "Raw data retention (days)",
@@ -1006,6 +1020,8 @@
       "enableNatGateway": "[steps('advanced').networking.enableNatGateway]",
       "virtualNetworkAddressPrefix": "[steps('advanced').networking.virtualNetworkAddressPrefix]",
       "dataExplorerSku": "[steps('pricing').dataExplorer.dataExplorerSku]",
+      "enableAdxDiskEncryption": "[steps('retention').dataExplorer.enableAdxDiskEncryption]",
+      "enableAdxDoubleEncryption": "[steps('retention').dataExplorer.enableAdxDoubleEncryption]",
       "exportRetentionInDays": "[steps('retention').storage.msexportsDays]",
       "ingestionRetentionInMonths": "[steps('retention').storage.ingestionMonths]",
       "dataExplorerRawRetentionInDays": "[steps('retention').dataExplorer.rawDays]",
