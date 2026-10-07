@@ -426,6 +426,7 @@ Describe 'Cost Management query pagination' {
                 $queryBodies = [Collections.Generic.List[object]]::new()
                 Mock Get-Date { $capturedUtc.ToLocalTime() }
                 Mock Resolve-CostMgId { if ($fixturePath -eq 'ManagementGroup') { 'fixture-mg' } }
+                Mock Test-CostMgCoverage { $true }
                 Mock Write-Host { }
                 Mock Get-AzContext { throw 'Resource metadata tests must not read Azure context.' }
                 Mock Invoke-RestMethod { throw 'Resource metadata tests must not send HTTP requests.' }
@@ -449,7 +450,7 @@ Describe 'Cost Management query pagination' {
                     [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
                 }
                 $subscriptions = @([pscustomobject]@{ Id = $subId; Name = 'Example subscription'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
-                $costData = @{ $subId = @{ Actual = 150; Forecast = 150 } }
+                $costData = @{ $subId = @{ Actual = 150; Forecast = 150; ForecastSource = 'Forecast'; Currency = 'USD' } }
 
                 $rows = @(Get-ResourceCosts -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -CostData $costData -RestrictToSelected)
 
@@ -510,6 +511,7 @@ Describe 'Cost Management query pagination' {
                 param($QueryPath)
 
                 Mock Resolve-CostMgId { if ($QueryPath -ne 'PerSubscription') { 'test-management-group' } }
+                Mock Test-CostMgCoverage { $true }
                 Mock Get-Date { [datetime]'2026-09-16T12:00:00Z' }
                 Mock Get-Date { [datetime]'2026-09-01T00:00:00' } -ParameterFilter { $Day -eq 1 }
                 Mock Invoke-AzRestMethodWithRetry {
@@ -555,7 +557,7 @@ Describe 'Cost Management query pagination' {
             }
         }
 
-        It 'Rejects incomplete per-resource <Operation> results' -ForEach @(
+        It 'Withholds incomplete per-resource <Operation> results' -ForEach @(
             @{ Operation = 'query' }
             @{ Operation = 'forecast' }
         ) {
@@ -573,7 +575,19 @@ Describe 'Cost Management query pagination' {
                     [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 10) }
                 }
                 $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'test' })
-                { Get-ResourceCosts -Subscriptions $subscriptions } | Should -Throw '*incomplete*'
+                if ($Operation -eq 'query') {
+                    { Get-ResourceCosts -Subscriptions $subscriptions } | Should -Throw '*incomplete*'
+                    return
+                }
+
+                $result = @(Get-ResourceCosts -Subscriptions $subscriptions -WarningVariable forecastWarnings -WarningAction SilentlyContinue)
+
+                $result.Count | Should -Be 1
+                $result[0].Actual | Should -Be 100
+                $result[0].Forecast | Should -BeNullOrEmpty
+                $result[0].ForecastSource | Should -Be 'Unavailable'
+                $result[0].CostIssue | Should -Match 'unavailable.*incomplete'
+                @($forecastWarnings | Where-Object { "$_" -match 'unavailable.*incomplete' }).Count | Should -Be 1
             }
         }
     }
@@ -1043,6 +1057,7 @@ Describe 'Cost Management query pagination' {
                 $initialResponse = $FirstPage
                 Mock Search-AzGraphSafe { [pscustomobject]@{ Data = @() } }
                 Mock Resolve-CostMgId { if ($scanName -eq 'SavingsFallback') { 'test-management-group' } }
+                Mock Test-CostMgCoverage { $true }
                 Mock Get-StorageAccountUsedGb { 0.0 }
                 Mock Invoke-AzRestMethodWithRetry {
                     if ($Path -like '*page=2') { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
@@ -1077,7 +1092,6 @@ Describe 'Cost Management query pagination' {
             @{ Scan = 'Trend' }
             @{ Scan = 'TrendPartial' }
             @{ Scan = 'Forecast' }
-            @{ Scan = 'ResourceForecast' }
             @{ Scan = 'Savings' }
             @{ Scan = 'BudgetHistory' }
             @{ Scan = 'AI' }
@@ -1097,12 +1111,6 @@ Describe 'Cost Management query pagination' {
                     [pscustomobject]@{ Data = $rows }
                 }
                 Mock Invoke-AzRestMethodWithRetry {
-                    if ($scanName -eq 'ResourceForecast' -and $Path -notlike '*forecast*') {
-                        return [pscustomobject]@{
-                            StatusCode = 200
-                            Content    = '{"properties":{"columns":[{"name":"Cost"},{"name":"ResourceId"},{"name":"ResourceGroupName"},{"name":"Currency"}],"rows":[[100,"/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test/providers/Microsoft.Compute/disks/test","test","USD"]]}}'
-                        }
-                    }
                     if ($scanName -eq 'Forecast' -and $Path -notlike '*forecast*') {
                         return [pscustomobject]@{
                             StatusCode = 200
@@ -1130,7 +1138,6 @@ Describe 'Cost Management query pagination' {
                     switch ($scanName) {
                         { $_ -in 'Trend', 'TrendPartial' } { Get-CostTrend -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions }
                         'Forecast' { Get-CostDataPerSubscription -Subscriptions $subscriptions }
-                        'ResourceForecast' { Get-ResourceCosts -Subscriptions $subscriptions }
                         'Savings' { Get-SavingsRealized -Subscriptions $subscriptions }
                         'BudgetHistory' { Get-BudgetHistory -Budgets $budgets -MonthsBack 1 }
                         'AI' { Get-AIWorkloadMetrics -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions }
@@ -1371,7 +1378,7 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
         It 'Preserves contract probe failures beside subscription inference' {
             InModuleScope FinOpsMultitool {
                 Mock Invoke-AzRestMethodWithRetry {
-                    if ($Path -like '/subscriptions/*') { return [pscustomobject]@{ StatusCode = 200; Content = '{"properties":{"subscriptionPolicies":{"quotaId":"EnterpriseAgreement"}}}' } }
+                    if ($Path -like '/subscriptions/*') { return [pscustomobject]@{ StatusCode = 200; Content = '{"subscriptionPolicies":{"quotaId":"EnterpriseAgreement"}}' } }
                     [pscustomobject]@{ StatusCode = 503; Content = '{}' }
                 }
 
@@ -1681,6 +1688,7 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
                 $failManagementGroup = $UseFallback
                 Mock Search-AzGraphSafe { [pscustomobject]@{ Data = @() } }
                 Mock Resolve-CostMgId { 'test-management-group' }
+                Mock Test-CostMgCoverage { $true }
                 Mock Get-StorageAccountUsedGb { 0.0 }
                 Mock Invoke-AzRestMethodWithRetry {
                     $request = $Payload | ConvertFrom-Json

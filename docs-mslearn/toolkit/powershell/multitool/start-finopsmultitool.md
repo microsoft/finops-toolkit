@@ -3,7 +3,7 @@ title: Start-FinOpsMultitool command
 description: Launch the FinOps multitool interactive terminal UI to scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 10/04/2026
+ms.date: 10/07/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -21,7 +21,7 @@ Results appear in the terminal and are saved automatically on the machine runnin
 
 In the HTML report, large subscription selections appear as a count with an expandable scope list. Result tables with more than 25 rows support local filtering and pagination. Long tag-value and policy-assignment lists stay in expandable details, and wide tables scroll within their section. CSV exports retain the full returned data regardless of the current HTML filter or page.
 
-The command requires PowerShell 7 or later and the `Az.Accounts`, `Az.ResourceGraph`, and `Az.Storage` modules. Validation for this change was performed on Windows; native macOS/Linux behavior and the `dotnet restore` path haven't been exercised.
+The command requires PowerShell 7 or later and the `Az.Accounts`, `Az.ResourceGraph`, and `Az.Storage` modules. For console modes and the macOS Parquet limitation, see [Terminal support](#terminal-support) and [FinOps hub data paths](#finops-hub-data-paths).
 
 Most scans need Reader or Cost Management Reader access on the target scope. Account scans (billing structure, contract info, and MACC commitment) also need agreement-specific billing access: [Billing account reader or Billing profile reader for a Microsoft Customer Agreement](/azure/cost-management-billing/manage/understand-mca-roles), or [Enterprise Administrator (read only) for an Enterprise Agreement](/azure/cost-management-billing/manage/understand-ea-roles). Grant access at the scope the scan reads. Commitment utilization reads at billing account or billing profile scope, so it needs that same billing access. The carbon scan needs Reader or Carbon Optimization Reader assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
 
@@ -44,6 +44,7 @@ Start-FinOpsMultitool `
     [-Scans <string[]>] `
     [-DataSource <string>] `
     [-NonInteractive] `
+    [-Accessible] `
     [<CommonParameters>]
 ```
 
@@ -58,6 +59,7 @@ Start-FinOpsMultitool `
 | `‑Scans`          | Optional. Runs the specified scans instead of the default selection. Accepts a scan command name, such as `Get-OrphanedResources`, or its menu label, such as `Orphaned Resources`. Use `All` on its own to select every menu scan, including Billing Structure. An unrecognized name returns an error.                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `‑DataSource`     | Optional. Sets the data source and skips the data source prompt. Valid values are `Hub`, `Export`, `API`, and `GraphOnly`. `Export` reads one existing CSV or CSV.gz Cost Management export instead of querying live costs, and doesn't require a hub; it needs ActualCost or FOCUS BilledCost, plus Storage Blob Data Reader and network access to the export destination. Parquet and local files aren't supported on that path, and an unattended `Export` run requires exactly one readable candidate. `Export`, `API`, and `GraphOnly` take precedence over `FINOPS_HUB_KUSTO_URI` and don't preload hub data. An explicit `Hub` selection fails if no configured Kusto endpoint or hub storage is available. Select `API` separately for a live scan. |
 | `‑NonInteractive` | Optional. Runs without prompting and requires an existing authenticated Azure context. Every choice comes from the parameters or their defaults. Reports are saved automatically, even when `-OutputPath` is omitted.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `-Accessible`     | Optional. Uses numbered prompts without clearing the screen or repainting menu rows. Stays in the signed-in tenant. `-NonInteractive` takes precedence and disables all prompts when both switches are set.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 <br>
 
@@ -72,6 +74,14 @@ Start-FinOpsMultitool
 ```
 
 Launches the terminal UI. You're prompted to authenticate, select a tenant if needed, and choose the subscriptions and modules to scan.
+
+### Use numbered prompts
+
+```powershell
+Start-FinOpsMultitool -Accessible
+```
+
+Uses numbered subscription and scan prompts in any console. The screen isn't cleared, and menu rows aren't repainted. This mode stays in the signed-in tenant; sign in separately before using a different tenant.
 
 ### Scope to a single subscription
 
@@ -117,9 +127,11 @@ Reports are plaintext, not encrypted, and can contain sensitive cost and resourc
 
 ## Terminal support
 
-The tool uses arrow-key menus when the console supports them. Consoles that can't drive those menus, such as PowerShell remoting sessions and some editor terminals, automatically fall back to numbered prompts that read one line at a time. Both paths run the same scans and produce the same results.
+The tool uses arrow-key menus when the console supports them. Consoles that can't drive those menus, such as PowerShell remoting sessions and some editor terminals, automatically fall back to numbered prompts that read one line at a time. Use `-Accessible` to select this mode in a console that supports cursor addressing. Both paths run the same scans and produce the same results.
 
-Use `-NonInteractive` when nothing can answer a prompt, such as a build agent.
+Use `-NonInteractive` when nothing can answer a prompt, such as a build agent. It disables prompts even when `-Accessible` is also set.
+
+In accessible mode, three invalid or blank source-menu answers cancel the run instead of selecting a source. Hub-to-API confirmation prompts require an explicit yes or no; invalid or blank input cancels without starting a scan.
 
 ## Resource Graph only
 
@@ -132,6 +144,8 @@ Use `-NonInteractive` when nothing can answer a prompt, such as a build agent.
 When you select [FinOps Hub](../../hubs/finops-hubs-overview.md), the tool prefers the configured or discovered Kusto database. Kusto aggregates the data and returns summaries without loading raw cost records into PowerShell. To query a local hub, set `FINOPS_HUB_KUSTO_URI` to its endpoint. A configured endpoint doesn't require a discovered storage account. When no Kusto endpoint is configured or discovered, the tool reads hub storage exports, which is intended for smaller datasets. A failed query remains an error; it doesn't silently switch sources. For more information, see [FinOps multitool commands](finops-multitool-commands.md).
 
 Reading Parquet exports prepares a pinned reader using NuGet on Windows or .NET SDK 8 or later on Linux. NuGet signed-package verification [isn't supported on macOS](/dotnet/core/tools/nuget-signed-package-verification#macos); use a configured Kusto source or available hub CSV exports there. Package signatures and hashes are checked before loading cached assemblies. An unavailable verifier leaves the cache unloaded but intact. If the reader can't be prepared, the tool warns you with the reason and attempts the hub's `msexports` CSV instead of normalized Parquet data. A failed export read remains an error, not zero cost.
+
+On macOS, Parquet setup returns the unsupported-verification reason before invoking a package client or downloading packages. It doesn't disable signature checks or automatically select a Kusto endpoint.
 
 <br>
 

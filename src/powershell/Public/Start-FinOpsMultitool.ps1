@@ -22,8 +22,8 @@
     Az.ResourceGraph, Az.Storage) and Reader access on the target scope.
 
     Consoles that cannot drive the arrow-key menus, such as remoting sessions and some
-    editor terminals, automatically fall back to numbered prompts. Use NonInteractive to
-    run with no prompts at all.
+    editor terminals, automatically fall back to numbered prompts. Use Accessible to
+    select numbered prompts in any console, or NonInteractive to run with no prompts at all.
 
     .PARAMETER SubscriptionId
     Optional subscription ID in the current tenant. An unresolved or mismatched
@@ -71,6 +71,11 @@
     Requires an existing Azure context; authenticate with the intended identity using
     Connect-AzAccount before running. Reports are saved automatically even when OutputPath is omitted.
 
+    .PARAMETER Accessible
+    Uses numbered prompts without clearing the screen or repainting menu rows, even in a
+    console that supports them. Stays in the signed-in tenant; sign in separately to change tenants.
+    NonInteractive takes precedence and disables all prompts when both switches are supplied.
+
     .EXAMPLE
     Start-FinOpsMultitool
 
@@ -111,7 +116,10 @@ function Start-FinOpsMultitool {
         [string]$DataSource,
 
         [Parameter()]
-        [switch]$NonInteractive
+        [switch]$NonInteractive,
+
+        [Parameter()]
+        [switch]$Accessible
     )
 
     if ($PSVersionTable.PSVersion.Major -lt 7) {

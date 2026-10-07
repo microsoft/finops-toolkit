@@ -31,11 +31,12 @@ function Resolve-FinOpsRequestUri {
 }
 
 function Get-PlainAccessToken {
+    [CmdletBinding()]
     param([string]$ResourceUrl)
     if ([string]::IsNullOrWhiteSpace($ResourceUrl)) { $ResourceUrl = Get-FinOpsArmEndpoint }
     $null = Resolve-FinOpsRequestUri -Uri $ResourceUrl
-    $tok = (Get-AzAccessToken -ResourceUrl $ResourceUrl).Token
-    if ($tok -is [securestring]) {
+    $tok = (Get-AzAccessToken -ResourceUrl $ResourceUrl -ErrorAction Stop).Token
+    $plainToken = if ($tok -is [securestring]) {
         $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($tok)
         # PtrToStringBSTR, not PtrToStringAuto: a BSTR is always UTF-16, but Auto
         # picks the platform default and truncates the token to one char on macOS.
@@ -43,4 +44,8 @@ function Get-PlainAccessToken {
         finally { [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
     }
     else { $tok }
+    if ($plainToken -isnot [string] -or [string]::IsNullOrWhiteSpace($plainToken)) {
+        throw 'Azure authentication returned no usable access token.'
+    }
+    return $plainToken
 }

@@ -53,16 +53,16 @@ Add a grouping to the dataset:
 }
 ```
 
-**When this returns nothing but resources are clearly tagged**, there are two causes and they need different advice:
+**When this returns nothing but resources are clearly tagged**, there are two usual causes and they need different advice:
 
-1. **The tag isn't enabled as a cost-allocation dimension.** Cost Management only dimensions cost by tags that have been explicitly enabled in settings. This is the usual cause and it's a settings change, not a tagging problem.
-2. **Month-to-date lag.** Tag-dimensioned data populates behind raw cost. Early in a month it can be empty even when configured correctly.
+1. **The tags aren't on the resources that incur the cost.** Cost data includes tags applied directly to resources. Resource group and subscription tags reach usage records only when [tag inheritance](https://learn.microsoft.com/azure/cost-management-billing/costs/enable-tag-inheritance) is enabled, and some resource types don't include tags in usage data.
+2. **The tags are newer than the usage.** Tags aren't applied to historical usage, and a new tag can take up to 24 hours to appear in cost data.
 
-Confirm the tag is applied to resources first (see `tags-and-policy.md`), then check the setting. Reporting "no cost by that tag" without distinguishing these sends people to re-tag an estate that's already tagged.
+Confirm the tag is applied to the resources that incur the cost first (see `tags-and-policy.md`). If the allocation tags live on resource groups or subscriptions, recommend tag inheritance. Reporting "no cost by that tag" without distinguishing these sends people to re-tag an estate that's already tagged.
 
 ## Reading cost results
 
-- **Billed versus effective cost.** When `BilledCost` is zero — common for commitment-covered usage — fall back to `EffectiveCost`. Treating zero as zero spend undercounts anything covered by a reservation or savings plan. Hub queries and API queries must apply the same rule or the two paths disagree.
+- **Billed versus effective cost.** `BilledCost` is what's invoiced: a commitment purchase appears when it's billed, and the usage it covers shows zero. `EffectiveCost` spreads the purchase across the usage it covers. Choose one basis per question and use it on every row: billed for invoice reconciliation, effective for showback, unit economics, and trend. Never replace a zero `BilledCost` with `EffectiveCost`; the total then counts the commitment twice, once as the purchase and again as covered usage. Hub queries and API queries must use the same basis or the two paths disagree.
 - **Amortized versus actual.** Actual cost shows a reservation purchase as a lump on the purchase date. Amortized spreads it across the term. Use amortized for unit economics and trend; use actual for invoice reconciliation. Say which one you used.
 - **Currency.** Multi-billing-account estates can mix currencies. Never sum across them without converting, and state the currency in the headline number.
 - **Month-to-date is not a month.** Comparing an in-progress month against complete months in a trend produces a fake decline. Either exclude the current month or annotate it.

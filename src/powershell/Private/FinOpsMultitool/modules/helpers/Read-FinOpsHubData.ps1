@@ -20,8 +20,8 @@ param()
 # Prefers parquet from the ingestion container (normalized FOCUS);
 # falls back to CSV from msexports if ingestion is empty.
 # Parquet.Net + all transitive deps are restored with whichever NuGet client the
-# host has (nuget.exe on Windows, the dotnet SDK elsewhere), honouring the
-# machine's configured feeds.
+# host supports (nuget.exe on Windows, the dotnet SDK on Linux), honouring the
+# machine's configured feeds. Parquet setup is unavailable on macOS.
 #
 # 1. Checks ingestion container for parquet (preferred)
 # 2. Falls back to msexports CSV if no parquet found
@@ -300,6 +300,9 @@ function Resolve-NuGetClient {
     $isWin = if ($null -ne $IsWindows) { $IsWindows } else { $true }
 
     if (-not $isWin) {
+        if ($IsMacOS) {
+            return [PSCustomObject]@{ Kind = $null; Path = $null; Reason = 'NuGet signed-package verification is not supported on macOS; use a configured Kusto endpoint or available CSV exports' }
+        }
         $dotnet = Get-Command dotnet -CommandType Application -ErrorAction SilentlyContinue
         if (-not $dotnet) {
             return [PSCustomObject]@{ Kind = $null; Path = $null; Reason = 'the .NET SDK is not installed (dotnet is not on PATH)' }
@@ -825,6 +828,68 @@ function Measure-FinOpsHubSize {
     return Get-FinOpsHubSizeClass -Items $collected.ToArray() -LargeThresholdBytes $LargeThresholdBytes -MaxFiles $MaxFiles -Truncated:$truncated
 }
 
+function ConvertTo-FinOpsHubManifestTime {
+    param($Value)
+
+    # Manifest times are UTC. ConvertFrom-Json can turn them into local DateTime
+    # values, so normalize before comparing export runs.
+    if ($Value -is [datetime]) {
+        if ($Value.Kind -eq [DateTimeKind]::Local) { return $Value.ToUniversalTime() }
+        return [datetime]::SpecifyKind($Value, [DateTimeKind]::Utc)
+    }
+    $parsed = [datetimeoffset]::MinValue
+    if ([datetimeoffset]::TryParse([string]$Value, [cultureinfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::AssumeUniversal, [ref]$parsed)) { return $parsed.UtcDateTime }
+    return $null
+}
+
+function Read-FinOpsHubExportManifest {
+    param($Context, [string]$Path, [string]$TempDir)
+
+    $localFile = Join-Path $TempDir "$([guid]::NewGuid().ToString('N'))-manifest.json"
+    try {
+        Get-AzDataLakeGen2ItemContent -Context $Context -FileSystem 'msexports' -Path $Path -Destination $localFile -Force -ErrorAction Stop | Out-Null
+        $manifest = Get-Content -LiteralPath $localFile -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        throw "Hub export manifest '$Path' couldn't be read; cost coverage is incomplete. $($_.Exception.Message)"
+    }
+    finally {
+        Remove-Item -LiteralPath $localFile -Force -ErrorAction SilentlyContinue
+    }
+
+    # The caller checks counts after it knows the run's scope, so a malformed
+    # manifest for another subscription doesn't stop the read.
+    $blobCount = 0L
+    $rowCount = 0L
+    $hasRowCount = $manifest.PSObject.Properties.Name -contains 'dataRowCount'
+    $blobCountValid = $null -eq $manifest.blobCount -or [long]::TryParse([string]$manifest.blobCount, [System.Globalization.NumberStyles]::None, [cultureinfo]::InvariantCulture, [ref]$blobCount)
+    $rowCountValid = -not $hasRowCount -or $null -eq $manifest.dataRowCount -or [long]::TryParse([string]$manifest.dataRowCount, [System.Globalization.NumberStyles]::None, [cultureinfo]::InvariantCulture, [ref]$rowCount)
+    $countsValid = $blobCountValid -and $rowCountValid
+    $type = if ($manifest.exportConfig.type -is [string]) { $manifest.exportConfig.type.Trim() } else { '' }
+    $run = [pscustomobject]@{
+        Type        = $type
+        IsCost      = $type -eq 'FocusCost'
+        Scope       = $null
+        Period      = $null
+        Submitted   = $null
+        CountsValid = $countsValid
+        BlobCount   = $blobCount
+        # Like ingestion, treat a run without blobs or data rows as empty.
+        HasRows     = $countsValid -and $blobCount -gt 0 -and (-not $hasRowCount -or $rowCount -gt 0)
+        Parts       = @(@($manifest.blobs) | Where-Object { $null -ne $_ } | ForEach-Object { ([string]$_.blobName).TrimStart('/') })
+    }
+
+    $exportId = [string]$manifest.exportConfig.resourceId
+    $scopeEnd = $exportId.IndexOf('/providers/Microsoft.CostManagement/exports/', [System.StringComparison]::OrdinalIgnoreCase)
+    if ($scopeEnd -gt 0) { $run.Scope = $exportId.Substring(0, $scopeEnd).ToLowerInvariant() }
+    # The scope is printed, so one with control or format characters can't be trusted.
+    if ($run.Scope -match '[\p{Cc}\p{Cf}]') { $run.Scope = $null }
+    $runStart = ConvertTo-FinOpsHubManifestTime $manifest.runInfo.startDate
+    if ($runStart) { $run.Period = $runStart.ToString('yyyyMM', [cultureinfo]::InvariantCulture) }
+    $run.Submitted = ConvertTo-FinOpsHubManifestTime $manifest.runInfo.submittedTime
+    return $run
+}
+
 function Read-FinOpsHubData {
     [CmdletBinding()]
     param(
@@ -842,7 +907,12 @@ function Read-FinOpsHubData {
         # subscription it ingests, so without this a scoped scan reports on
         # subscriptions the user did not select.
         [Parameter()]
-        [string[]]$SubscriptionIds
+        [string[]]$SubscriptionIds,
+
+        # Larger hubs belong on the Kusto path; this reader is for small datasets.
+        [Parameter()]
+        [ValidateRange(1, 1000000)]
+        [int]$MaxManifests = 2000
     )
 
     Write-Host "    Connecting to Hub storage: $StorageAccountName" -ForegroundColor DarkGray
@@ -917,48 +987,105 @@ function Read-FinOpsHubData {
         if ($allData.Count -eq 0) {
             Write-Host "    No parquet in ingestion — reading CSV from msexports..." -ForegroundColor DarkGray
 
-            $csvBlobs = @(Get-AzDataLakeGen2ChildItem -Context $ctx -FileSystem 'msexports' -Recurse -ErrorAction Stop |
-                Where-Object { -not $_.IsDirectory -and $_.Path -like '*.csv' })
+            $storedPaths = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+            $storedSizes = [System.Collections.Generic.Dictionary[string, object]]::new([System.StringComparer]::Ordinal)
+            foreach ($item in @(Get-AzDataLakeGen2ChildItem -Context $ctx -FileSystem 'msexports' -Recurse -ErrorAction Stop | Where-Object { -not $_.IsDirectory })) {
+                $storedPath = (([string]$item.Path) -replace '\\', '/').TrimStart('/')
+                [void]$storedPaths.Add($storedPath)
+                $storedSizes[$storedPath] = $item.Length
+            }
 
-            if ($csvBlobs.Count -gt 0) {
-                # Export layout is: .../<billingPeriod>/<runTimestamp>/<guid>/part_*.csv
-                # where billingPeriod = yyyyMMdd-yyyyMMdd and runTimestamp = 12 digits.
-                # Group by billing period, and within each period keep only the latest
-                # run. Walking periods newest-first and skipping empty ones means a
-                # just-started current month (header-only export) falls back to the
-                # latest populated period instead of returning nothing.
-                $periods = [ordered]@{}
-                foreach ($blob in $csvBlobs) {
-                    $period = [regex]::Match($blob.Path, '(\d{8}-\d{8})').Value
-                    $run = [regex]::Match($blob.Path, '[\\/](\d{12})[\\/]').Groups[1].Value
-                    if (-not $period) { $period = Split-Path (Split-Path $blob.Path -Parent) -Parent }
-                    if (-not $periods.Contains($period)) {
-                        $periods[$period] = @{ Runs = [ordered]@{} }
-                    }
-                    if (-not $periods[$period].Runs.Contains($run)) {
-                        $periods[$period].Runs[$run] = [System.Collections.Generic.List[object]]::new()
-                    }
-                    $periods[$period].Runs[$run].Add($blob)
+            # Every export run writes manifest.json listing its parts, and hub
+            # ingestion reads only runs that have one. Like ingestion, file each run
+            # under its manifest's month and keep the latest FOCUS cost run with rows
+            # for each export scope and month: other scopes hold other costs, earlier
+            # runs of the same scope repeat them, and ingestion skips empty runs.
+            $manifestPaths = @($storedPaths | Where-Object { $_ -match '(?:^|/)manifest\.json$' } | Sort-Object)
+            if ($manifestPaths.Count -gt $MaxManifests) {
+                throw "Hub storage holds $($manifestPaths.Count) export manifests, more than the $MaxManifests this storage reader checks; cost coverage is incomplete. Use the hub's Kusto database (Azure Data Explorer or Microsoft Fabric) or the Cost Management API instead."
+            }
+            if ($manifestPaths.Count -gt 0) { Write-Host "    Reading $($manifestPaths.Count) export manifest(s)..." -ForegroundColor DarkGray }
+            $listedPaths = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+            $periods = @{}
+            # Manifests that can't be verified, with the month each one could affect.
+            $unverified = [System.Collections.Generic.List[object]]::new()
+            $folderMonthPattern = '^(?:.*/)?(\d{6})\d{2}-\d{8}/'
+            foreach ($manifestPath in $manifestPaths) {
+                # Export manifests are a few KB, so a much larger file isn't downloaded.
+                if ($storedSizes[$manifestPath] -gt 1MB) {
+                    $unverified.Add([pscustomobject]@{ Month = [regex]::Match($manifestPath, $folderMonthPattern).Groups[1].Value; Reason = "Hub export manifest '$manifestPath' is larger than 1 MB, so it wasn't read; cost coverage is incomplete." })
+                    continue
                 }
+                try { $exportRun = Read-FinOpsHubExportManifest -Context $ctx -Path $manifestPath -TempDir $tempDir }
+                catch {
+                    # Only the run folder can date a manifest that can't be read.
+                    $unverified.Add([pscustomobject]@{ Month = [regex]::Match($manifestPath, $folderMonthPattern).Groups[1].Value; Reason = $_.Exception.Message })
+                    continue
+                }
+                foreach ($part in $exportRun.Parts) { [void]$listedPaths.Add($part) }
+                if ($exportRun.Type -and -not $exportRun.IsCost) { continue }
+                # Another subscription's export can't hold costs for the selected subscriptions.
+                $scopeSubscription = [guid]::Empty
+                if ($wanted.Count -gt 0 -and $exportRun.Scope -match '^/subscriptions/([^/]+)(?:/|$)' -and
+                    [guid]::TryParse($Matches[1], [ref]$scopeSubscription) -and -not $wanted.ContainsKey($scopeSubscription.ToString())) { continue }
+                if ($exportRun.CountsValid -and -not $exportRun.HasRows) { continue }
+                $problem = if (-not $exportRun.Type) { "doesn't identify its dataset" }
+                elseif (-not $exportRun.CountsValid) { 'has invalid blob or row counts' }
+                elseif (-not $exportRun.Scope -or -not $exportRun.Period) { "doesn't identify its export scope and month" }
+                if ($problem) {
+                    $month = if ($exportRun.Period) { $exportRun.Period } else { [regex]::Match($manifestPath, $folderMonthPattern).Groups[1].Value }
+                    $unverified.Add([pscustomobject]@{ Month = $month; Reason = "Hub export manifest '$manifestPath' $problem; cost coverage is incomplete." })
+                    continue
+                }
+                if (-not $periods.ContainsKey($exportRun.Period)) { $periods[$exportRun.Period] = @{} }
+                if (-not $periods[$exportRun.Period].ContainsKey($exportRun.Scope)) { $periods[$exportRun.Period][$exportRun.Scope] = [System.Collections.Generic.List[object]]::new() }
+                $periods[$exportRun.Period][$exportRun.Scope].Add($exportRun)
+            }
+            $unlisted = @($storedPaths | Where-Object { $_ -match '\.csv(?:\.gz)?$' -and -not $listedPaths.Contains($_) }).Count
+            if ($unlisted -gt 0) { Write-Warning "Skipped $unlisted CSV file(s) in msexports that no readable export manifest lists." }
 
-                # Newest billing period first.
-                $orderedPeriods = $periods.Keys | Sort-Object -Descending
-                $periodsLoaded = 0
+            # Newest month first. A month without rows, such as a just-started
+            # current month, falls back to the latest populated month.
+            $periodsLoaded = 0
+            $readParts = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+            foreach ($period in @($periods.Keys | Sort-Object -Descending)) {
+                if ($periodsLoaded -ge $Months) { break }
+                # A manifest that can't be verified might hold this month or a newer one.
+                $blocking = @($unverified | Where-Object { -not $_.Month -or $_.Month -ge $period })
+                if ($blocking.Count -gt 0) { throw $blocking[0].Reason }
 
-                foreach ($period in $orderedPeriods) {
-                    if ($periodsLoaded -ge $Months) { break }
+                $periodRows = 0
+                foreach ($scope in @($periods[$period].Keys | Sort-Object)) {
+                    $runs = @($periods[$period][$scope])
+                    if ($runs.Count -gt 1) {
+                        $runs = @($runs | Sort-Object -Property Submitted -Descending)
+                        if (@($runs | Where-Object { -not $_.Submitted }).Count -gt 0 -or $runs[0].Submitted -eq $runs[1].Submitted) {
+                            throw "Hub CSV exports for $scope in $period contain runs that can't be ordered; cost coverage is incomplete."
+                        }
+                    }
+                    $run = $runs[0]
+                    $parts = @($run.Parts)
+                    $uniqueParts = [System.Collections.Generic.HashSet[string]]::new([string[]]$parts, [System.StringComparer]::Ordinal)
+                    if ($parts.Count -ne $run.BlobCount -or $uniqueParts.Count -ne $parts.Count -or @($parts | Where-Object { [string]::IsNullOrWhiteSpace($_) }).Count -gt 0) {
+                        throw "The latest $period export run for $scope has an invalid part list; cost coverage is incomplete."
+                    }
+                    $missing = @($parts | Where-Object { -not $storedPaths.Contains($_) }).Count
+                    if ($missing -gt 0) {
+                        throw "The latest $period export run for $scope lists $missing part(s) that aren't in msexports. Hub ingestion might have removed them, or the run is still being written; cost coverage is incomplete."
+                    }
+                    if (@($parts | Where-Object { $_ -notmatch '\.csv$' }).Count -gt 0) {
+                        throw "The latest $period export run for $scope isn't uncompressed CSV, so it can't be read here; cost coverage is incomplete."
+                    }
+                    if (@($parts | Where-Object { -not $readParts.Add($_) }).Count -gt 0) {
+                        throw "The latest $period export run for $scope lists a part that another export run also lists, so its costs would be counted twice; cost coverage is incomplete."
+                    }
+                    Write-Host "    $period $scope — latest run has $($parts.Count) CSV file(s)" -ForegroundColor DarkGray
 
-                    # Latest run within this period.
-                    $latestRunKey = $periods[$period].Runs.Keys | Sort-Object -Descending | Select-Object -First 1
-                    $runBlobs = $periods[$period].Runs[$latestRunKey]
-                    Write-Host "    Period $period — latest run has $($runBlobs.Count) CSV file(s)" -ForegroundColor DarkGray
-
-                    $periodRows = 0
-                    foreach ($blob in $runBlobs) {
-                        $localFile = Join-Path $tempDir "$([guid]::NewGuid().ToString('N'))-$(Split-Path $blob.Path -Leaf)"
+                    foreach ($part in $parts) {
+                        $localFile = Join-Path $tempDir "$([guid]::NewGuid().ToString('N'))-$(Split-Path $part -Leaf)"
                         try {
-                            Get-AzDataLakeGen2ItemContent -Context $ctx -FileSystem 'msexports' -Path $blob.Path -Destination $localFile -Force -ErrorAction Stop | Out-Null
-                            $rows = Import-Csv -Path $localFile -ErrorAction Stop
+                            Get-AzDataLakeGen2ItemContent -Context $ctx -FileSystem 'msexports' -Path $part -Destination $localFile -Force -ErrorAction Stop | Out-Null
+                            $rows = Import-Csv -LiteralPath $localFile -ErrorAction Stop
                             if ($rows -and @($rows).Count -gt 0) {
                                 $loadedFormat = 'CSV'
                                 foreach ($row in $rows) { $allData.Add($row) }
@@ -972,19 +1099,23 @@ function Read-FinOpsHubData {
                             Remove-Item -LiteralPath $localFile -Force -ErrorAction SilentlyContinue
                         }
                     }
+                }
 
-                    if ($periodRows -gt 0) {
-                        Write-Host "    Loaded $periodRows rows from period $period" -ForegroundColor DarkGray
-                        $periodsLoaded++
-                    }
-                    else {
-                        Write-Host "    Period $period had no rows — skipping to next" -ForegroundColor DarkGray
-                    }
+                if ($periodRows -gt 0) {
+                    Write-Host "    Loaded $periodRows rows from $period" -ForegroundColor DarkGray
+                    $periodsLoaded++
+                }
+                else {
+                    Write-Host "    $period had no rows — skipping to next" -ForegroundColor DarkGray
                 }
             }
-            else {
-                Write-Host "    No cost data found in Hub storage" -ForegroundColor Yellow
+
+            if ($unverified.Count -gt 0) {
+                # What's left is older than every month read, so it matters only if a requested month is still missing.
+                if ($periodsLoaded -lt $Months) { throw $unverified[0].Reason }
+                Write-Warning ([regex]::Replace("Ignored $($unverified.Count) export manifest(s) that couldn't be verified and are dated before the months read. $($unverified[0].Reason)", '[\p{Cc}\p{Cf}]', ' '))
             }
+            if ($periodsLoaded -eq 0) { Write-Host "    No cost data found in Hub storage" -ForegroundColor Yellow }
         }
     }
     finally {
@@ -1106,7 +1237,8 @@ function ConvertTo-ResourceCostsFromHub {
         elseif ($props -contains 'BillingCurrencyCode' -and $row.BillingCurrencyCode) { $row.BillingCurrencyCode }
         else { $costSchema.Currency }
 
-        $key = $resId
+        # Charges without a resource ID share a fallback path; keep subscriptions separate.
+        $key = "$(Get-FinOpsHubRowSubscriptionId $row)|$resId"
         if (-not $resourceMap.ContainsKey($key)) {
             $subscriptionPeriod = $costSchema.PeriodsBySubscription[(Get-FinOpsHubRowSubscriptionId $row)]
             $resourceMap[$key] = [PSCustomObject]@{
@@ -1513,18 +1645,18 @@ function ConvertTo-TagInventoryFromHub {
     if ($note) { Write-Warning $note }
 
     return [PSCustomObject]@{
-        TagNames          = $tagNamesOut
-        TagCount          = $tagNamesOut.Count
-        TotalResources    = $totalResources
-        TaggedCount       = $taggedCount
-        UntaggedCount     = $untaggedCount
-        TagCoverage       = $coverage
-        UntaggedResources = @($untaggedResources)
-        Source            = 'Hub'
-        CoverageIncomplete = $coverageIncomplete
-        ReadErrors        = $tagReadErrors.ToArray()
+        TagNames                   = $tagNamesOut
+        TagCount                   = $tagNamesOut.Count
+        TotalResources             = $totalResources
+        TaggedCount                = $taggedCount
+        UntaggedCount              = $untaggedCount
+        TagCoverage                = $coverage
+        UntaggedResources          = @($untaggedResources)
+        Source                     = 'Hub'
+        CoverageIncomplete         = $coverageIncomplete
+        ReadErrors                 = $tagReadErrors.ToArray()
         UnverifiedTagResourceCount = $unverifiedTagResourceCount
-        Note              = $note
+        Note                       = $note
     }
 }
 

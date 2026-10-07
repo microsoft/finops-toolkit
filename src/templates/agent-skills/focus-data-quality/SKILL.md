@@ -45,11 +45,11 @@ Reference: https://learn.microsoft.com/cloud-computing/finops/focus/what-is-focu
 | **Scope coverage** | A subscription/account missing | Export scope too narrow, or RBAC on the export |
 | **Row counts vs prior period** | Sudden drop | Failed export run or partial ingestion |
 | **Total vs portal** | Material mismatch | Billed-vs-effective confusion, missing scope, or currency mix |
-| **Tag dimension empty** | Tags blank in cost data | Tag not enabled as a cost-allocation dimension (common — see `cost-allocation`) |
+| **Tag dimension empty** | Tags blank in cost data | Tags are on resource groups or subscriptions without tag inheritance, are newer than the usage, or the resource type doesn't include tags in usage data (see `cost-allocation`) |
 
 ## Mapping native exports to FOCUS
 
-When data comes from a legacy/native Azure cost export rather than a FOCUS export, map before analyzing: cost-in-billing-currency → `BilledCost`, amortized cost → `EffectiveCost`, list price × quantity → `ListCost`, meter/service → `ServiceName`, resource id → `ResourceName`. The FinOps hub does this automatically on ingestion; defer to the `finops-toolkit` skill's `focus/mapping.md` for the full crosswalk.
+When data comes from a legacy/native Azure cost export rather than a FOCUS export, map before analyzing: cost-in-billing-currency → `BilledCost`, amortized cost → `EffectiveCost`, list price × quantity → `ListCost`, meter/service → `ServiceName`, resource id → `ResourceId` (with the resource name in `ResourceName`). The FinOps hub does this automatically on ingestion; defer to the `finops-toolkit` skill's `focus/mapping.md` for the full crosswalk.
 
 ## Hand-offs
 

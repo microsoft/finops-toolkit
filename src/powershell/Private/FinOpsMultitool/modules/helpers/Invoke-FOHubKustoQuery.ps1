@@ -86,42 +86,105 @@ function Invoke-FOHubKustoQuery {
         $resp = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body `
             -TimeoutSec $TimeoutSec -MaximumRedirection 0 -ErrorAction Stop
 
-        # v1 response: { Tables: [ { TableName, Columns:[{ColumnName,...}], Rows:[[...]] } ] }
-        # The primary result set is the first table.
-        $table = $null
-        if ($resp.Tables -and @($resp.Tables).Count -gt 0) {
-            $table = @($resp.Tables)[0]
-        }
-        if (-not $table) {
-            return @{ Ok = $true; Rows = @(); RowCount = 0; Error = $null }
+        if (($resp -isnot [System.Collections.IDictionary] -and $resp -isnot [PSCustomObject]) -or
+            $resp.Tables -isnot [System.Collections.IList]) {
+            throw 'The Kusto response does not contain a valid Tables array.'
         }
 
-        $colNames = @($table.Columns | ForEach-Object { $_.ColumnName })
-        $rows = foreach ($r in @($table.Rows)) {
-            $obj = [ordered]@{}
-            for ($i = 0; $i -lt $colNames.Count; $i++) {
-                $obj[$colNames[$i]] = $r[$i]
+        # Validate every table, including query status, before returning the primary rows.
+        $tables = [System.Collections.Generic.List[object]]::new()
+        $statusIndexes = [System.Collections.Generic.HashSet[int]]::new()
+        for ($tableIndex = 0; $tableIndex -lt $resp.Tables.Count; $tableIndex++) {
+            $table = $resp.Tables[$tableIndex]
+            if (($table -isnot [System.Collections.IDictionary] -and $table -isnot [PSCustomObject]) -or
+                $table.Columns -isnot [System.Collections.IList] -or $table.Rows -isnot [System.Collections.IList]) {
+                throw 'The Kusto response contains an invalid table.'
             }
-            [PSCustomObject]$obj
+            if ($null -ne $table.TableName -and $table.TableName -isnot [string]) {
+                throw 'The Kusto response contains an invalid table name.'
+            }
+            $columnNames = [System.Collections.Generic.List[string]]::new()
+            $seenNames = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+            foreach ($column in $table.Columns) {
+                if ($column -isnot [System.Collections.IDictionary] -and $column -isnot [PSCustomObject]) {
+                    throw 'The Kusto response contains an invalid column descriptor.'
+                }
+                $columnName = $column.ColumnName
+                if ($columnName -isnot [string] -or [string]::IsNullOrWhiteSpace($columnName) -or -not $seenNames.Add($columnName)) {
+                    throw 'The Kusto response contains a missing or duplicate column name.'
+                }
+                $columnNames.Add($columnName)
+            }
+            $mappedRows = [System.Collections.Generic.List[object]]::new()
+            foreach ($row in $table.Rows) {
+                if ($row -isnot [System.Collections.IList] -or $row.Count -ne $table.Columns.Count) {
+                    throw 'The Kusto response contains a row that does not match its columns.'
+                }
+                $values = [ordered]@{}
+                for ($columnIndex = 0; $columnIndex -lt $columnNames.Count; $columnIndex++) {
+                    $values[$columnNames[$columnIndex]] = $row[$columnIndex]
+                }
+                $mappedRows.Add([PSCustomObject]$values)
+            }
+            $tables.Add([PSCustomObject]@{ Columns = $columnNames.ToArray(); Rows = $mappedRows.ToArray() })
+            if ($table.TableName -eq 'QueryStatus' -or
+                ($tableIndex -gt 0 -and $seenNames.Contains('Severity') -and $seenNames.Contains('StatusDescription'))) {
+                $null = $statusIndexes.Add($tableIndex)
+            }
         }
-        $rows = @($rows)
+        if ($tables.Count -gt 1) {
+            $contents = $tables[$tables.Count - 1]
+            if ($contents.Columns -contains 'Ordinal' -or $contents.Columns -contains 'Kind' -or
+                $resp.Tables[$tables.Count - 1].TableName -eq 'TableOfContents') {
+                if ($contents.Columns -notcontains 'Ordinal' -or $contents.Columns -notcontains 'Kind' -or $contents.Columns -notcontains 'Name') {
+                    throw 'The Kusto response contains an incomplete table-of-contents schema.'
+                }
+                foreach ($entry in $contents.Rows) {
+                    if ($entry.Kind -isnot [string] -or $entry.Name -isnot [string]) {
+                        throw 'The Kusto response contains an invalid table-of-contents entry.'
+                    }
+                    if ($entry.Kind -ne 'QueryStatus') { continue }
+                    if (($entry.Ordinal -isnot [int] -and $entry.Ordinal -isnot [long]) -or
+                        $entry.Ordinal -lt 0 -or $entry.Ordinal -ge ($tables.Count - 1)) {
+                        throw 'The Kusto response contains an invalid query-status table reference.'
+                    }
+                    $null = $statusIndexes.Add([int]$entry.Ordinal)
+                }
+            }
+        }
+        foreach ($statusIndex in $statusIndexes) {
+            $statusTable = $tables[$statusIndex]
+            if ($statusTable.Columns -notcontains 'Severity' -or $statusTable.Rows.Count -eq 0) {
+                throw 'The Kusto response contains an invalid query status.'
+            }
+            foreach ($status in $statusTable.Rows) {
+                if ($status.Severity -isnot [int] -and $status.Severity -isnot [long]) {
+                    throw 'The Kusto response contains an invalid query severity.'
+                }
+                if ($status.Severity -le 2) { throw "The Kusto response reports a partial query failure: $($status.StatusDescription)" }
+            }
+        }
+        $rows = @()
+        if ($tables.Count) { $rows = @($tables[0].Rows) }
 
         return @{ Ok = $true; Rows = $rows; RowCount = $rows.Count; Error = $null }
     }
     catch {
         $msg = $_.Exception.Message
         # Surface the Kusto error body when present (one-api error envelope).
-        $detail = $null
-        try {
-            $respStream = $_.Exception.Response.GetResponseStream()
-            if ($respStream) {
-                $reader = New-Object System.IO.StreamReader($respStream)
-                $detail = $reader.ReadToEnd()
-                $reader.Dispose()
+        $detail = $_.ErrorDetails.Message
+        if (-not $detail) {
+            try {
+                $respStream = $_.Exception.Response.GetResponseStream()
+                if ($respStream) {
+                    $reader = New-Object System.IO.StreamReader($respStream)
+                    $detail = $reader.ReadToEnd()
+                    $reader.Dispose()
+                }
             }
-        }
-        catch {
-            Write-Verbose "Non-fatal: $($_.Exception.Message)"
+            catch {
+                Write-Verbose "Non-fatal: $($_.Exception.Message)"
+            }
         }
         if ($detail) {
             try {

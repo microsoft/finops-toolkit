@@ -163,7 +163,8 @@ function Get-AnomalyAlerts {
         AnomalyAlertCount   = $anomalyCount
         ActiveAlertCount    = $activeCount
         BudgetAlertCount    = $budgetCount
-        ConfiguredRuleCount = $configuredRules.Count
+        # Disabled or expired rules don't detect anything, so they don't count as coverage.
+        ConfiguredRuleCount = @($configuredRules | Where-Object { $_.Status -eq 'Enabled' }).Count
         HasData             = ($triggeredAlerts.Count -gt 0 -or $configuredRules.Count -gt 0)
     }
 }

@@ -2,7 +2,7 @@
 name: azure-policy-governance
 description: Use when the user wants to enforce cost governance with Azure Policy — require or inherit tags, restrict regions/SKUs/resource types, audit untagged resources, or generate Bicep/ARM policy assignments. Pairs with the finops-multitool policy scans to close governance gaps.
 license: MIT
-compatibility: Requires Azure CLI authentication and Resource Policy Contributor (or equivalent) to assign policy. Read-only auditing needs only Reader. Verify built-in policy definition IDs against Microsoft Learn before generating templates.
+compatibility: Requires Azure CLI authentication. Reader is enough to audit and to generate templates. The user assigns the generated policy, which requires Resource Policy Contributor or equivalent. Verify built-in policy definition IDs against Microsoft Learn before generating templates.
 metadata:
   author: microsoft
   version: "1.0"
@@ -11,7 +11,7 @@ allowed-tools: az pwsh
 
 # Azure Policy for cost governance
 
-Enforce the guardrails that make FinOps allocation and waste-control durable: tag requirements, tag inheritance, region/SKU restrictions, and audit policies. This skill turns governance gaps into deployable policy.
+Enforce the guardrails that make FinOps allocation and waste-control durable: tag requirements, tag inheritance, region/SKU restrictions, and audit policies. This skill turns governance gaps into deployable policy for the user to review and apply. Don't assign policy or start remediation yourself; the FinOps skills are read-only.
 
 ## When to use this skill
 
@@ -23,7 +23,7 @@ Use it when the user wants to enforce or audit tagging, restrict what can be dep
 2. **Gap analysis** — policy recommendations (missing tagging/region/SKU guardrails).
 3. **Verify definition IDs** — built-in policy IDs change rarely but must be confirmed. Use the Microsoft Learn MCP / docs before emitting any ID into a template. Do not ship an ID from memory.
 4. **Generate** — produce Bicep or ARM for the assignment(s), parameterized and scoped.
-5. **Stage effects** — deploy as `Audit`/`AuditIfNotExists` first, review compliance, then escalate to `Deny`/`Modify`. Never lead with `Deny` on an existing environment.
+5. **Stage effects** — recommend that the user deploy `Audit`/`AuditIfNotExists` first, review compliance, then move to `Deny`/`Modify`. Never lead with `Deny` on an existing environment.
 
 ## Core cost-governance policies
 
@@ -37,7 +37,7 @@ Use it when the user wants to enforce or audit tagging, restrict what can be dep
 | Allowed resource types | "Allowed resource types" | Deny |
 | Allowed VM SKUs | "Allowed virtual machine size SKUs" | Deny |
 
-`Modify` and `DeployIfNotExists` policies require a managed identity on the assignment with rights to remediate. Generate a remediation task after assignment so existing resources are brought into compliance, not just new ones.
+`Modify` and `DeployIfNotExists` policies require a managed identity on the assignment with rights to remediate. Tell the user to create a remediation task after they assign the policy, so existing resources are brought into compliance, not just new ones.
 
 ## Effect sequencing (safe rollout)
 

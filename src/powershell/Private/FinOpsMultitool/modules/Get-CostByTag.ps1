@@ -361,9 +361,10 @@ function Get-CostByTag {
     $usedTimeframe = 'MonthToDate'
     $timeframes = @('MonthToDate', 'Custom')
 
-    # Per-tag aggregation: tagName -> (tagValue -> accumulated cost)
+    # Per-tag aggregation: tagName -> (tagValue -> accumulated cost). Tag values
+    # are case-sensitive in Azure, so 'Prod' and 'prod' stay separate.
     $tagAgg = @{}
-    foreach ($t in $tagsToQuery) { $tagAgg[$t] = @{} }
+    foreach ($t in $tagsToQuery) { $tagAgg[$t] = [System.Collections.Generic.Dictionary[string, double]]::new([System.StringComparer]::Ordinal) }
     $currencySeen = $null
     $subsQueried = 0
     $subsFailed = 0
@@ -375,7 +376,7 @@ function Get-CostByTag {
     # True allocation coverage, counted once per resource. The per-tag totals
     # cannot answer this: a resource appears as untagged under every tag it
     # lacks, so summing across tags double-counts the same spend.
-    $allocTagNames = if (Get-Command Get-CafAllocationTag -ErrorAction SilentlyContinue) { Get-CafAllocationTag } else { @('CostCenter', 'Customer', 'Project', 'Environment', 'Application', 'Owner', 'BusinessUnit', 'Department', 'Team', 'Service', 'WorkloadName') }
+    $allocTagNames = if (Get-Command Get-CafAllocationTag -ErrorAction SilentlyContinue) { Get-CafAllocationTag } else { @('CostCenter', 'Customer', 'Project', 'Environment', 'Application', 'ApplicationName', 'Owner', 'BusinessUnit', 'Department', 'Team', 'OpsTeam', 'Service', 'WorkloadName') }
     $allocatedCost = 0.0   # resource carries at least one allocation tag
     $unallocatedCost = 0.0   # resource carries none
     $resourceCostSeen = 0.0   # allocated + unallocated, excludes non-resource charges
@@ -393,7 +394,7 @@ function Get-CostByTag {
             if ($tf -eq 'Custom' -and ($returnedRows -gt 0 -or $subsFailed -gt 0)) { break }
             if ($tf -eq 'Custom') {
                 Write-Host '  MonthToDate returned no cost rows - querying last month...' -ForegroundColor Yellow
-                foreach ($t in $tagsToQuery) { $tagAgg[$t] = @{} }
+                foreach ($t in $tagsToQuery) { $tagAgg[$t] = [System.Collections.Generic.Dictionary[string, double]]::new([System.StringComparer]::Ordinal) }
                 $subsQueried = 0; $subsFailed = 0; $grandTotal = 0.0
                 $allocatedCost = 0.0; $unallocatedCost = 0.0; $resourceCostSeen = 0.0
                 $currencySeen = $null; $returnedRows = 0
@@ -480,8 +481,8 @@ function Get-CostByTag {
 
                             if ([string]::IsNullOrWhiteSpace($row.ResourceId)) {
                                 foreach ($t in $tagsToQuery) {
-                                    $cur = [double]$tagAgg[$t]['(non-resource charges)']
-                                    $tagAgg[$t]['(non-resource charges)'] = $cur + $cost
+                                    if (-not $tagAgg[$t].ContainsKey('(non-resource charges)')) { $tagAgg[$t]['(non-resource charges)'] = 0.0 }
+                                    $tagAgg[$t]['(non-resource charges)'] += $cost
                                 }
                                 continue
                             }
@@ -504,8 +505,8 @@ function Get-CostByTag {
                                     }
                                 }
                                 if ([string]::IsNullOrWhiteSpace($val)) { $val = '(untagged)' }
-                                $cur = [double]$tagAgg[$t][$val]
-                                $tagAgg[$t][$val] = $cur + $cost
+                                if (-not $tagAgg[$t].ContainsKey($val)) { $tagAgg[$t][$val] = 0.0 }
+                                $tagAgg[$t][$val] += $cost
                             }
 
                             # Count this resource once toward allocation coverage.

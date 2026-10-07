@@ -155,6 +155,7 @@ function Get-FixtureStat {
                 Mock Get-AzDataLakeGen2ChildItem {
                     if ($FileSystem -eq 'ingestion') { return @() }
                     [pscustomobject]@{ IsDirectory = $false; Path = 'fixture/20260901-20260930/202609201200/run/part.csv' }
+                    [pscustomobject]@{ IsDirectory = $false; Path = 'fixture/20260901-20260930/202609201200/run/manifest.json' }
                 }
                 Mock Get-AzDataLakeGen2ItemContent {
                     $probe.Path = Split-Path $Destination -Parent
@@ -438,6 +439,39 @@ function Get-FixtureStat {
     }
 
     Context 'Client resolution' {
+
+        It 'Selects the documented client behavior for <Case>' -Tag 'PackagePlatform' -ForEach @(
+            @{ Case = 'macOS'; FixtureMacOS = $true; SdkPresent = $true; SdkLines = @('8.0.400 [/fixture/sdk]'); ExpectedKind = $null; Reason = 'not supported on macOS'; ExpectedLookups = 0 }
+            @{ Case = 'Linux without dotnet'; FixtureMacOS = $false; SdkPresent = $false; SdkLines = @(); ExpectedKind = $null; Reason = 'not installed'; ExpectedLookups = 1 }
+            @{ Case = 'Linux runtime only'; FixtureMacOS = $false; SdkPresent = $true; SdkLines = @(); ExpectedKind = $null; Reason = 'only the .NET runtime'; ExpectedLookups = 1 }
+            @{ Case = 'Linux older SDK'; FixtureMacOS = $false; SdkPresent = $true; SdkLines = @('7.0.400 [/fixture/sdk]'); ExpectedKind = $null; Reason = 'older than 8.0'; ExpectedLookups = 1 }
+            @{ Case = 'Linux supported SDK'; FixtureMacOS = $false; SdkPresent = $true; SdkLines = @('7.0.400 [/fixture/sdk]', '8.0.400 [/fixture/sdk]'); ExpectedKind = 'dotnet'; Reason = $null; ExpectedLookups = 1 }
+        ) {
+            $definition = (Get-Command Resolve-NuGetClient).Definition.Replace('$IsWindows', '$fixtureWindows').Replace('$IsMacOS', '$FixtureMacOS')
+            $probe = [scriptblock]::Create($definition)
+            Set-Variable -Name fixtureWindows -Value $false -Scope Local
+            $lookups = [Collections.Generic.List[string]]::new()
+            Mock Get-Command {
+                $lookups.Add([string]$Name)
+                if ($SdkPresent) { @{ Source = 'Invoke-FixtureDotnet' } }
+            } -ParameterFilter { $Name -eq 'dotnet' -and $CommandType -eq 'Application' }
+            function Invoke-FixtureDotnet {
+                $args.Count | Should -Be 1
+                $args[0] | Should -Be '--list-sdks'
+                $SdkLines
+            }
+            Mock Invoke-WebRequest { throw 'Non-Windows package setup must not download nuget.exe.' }
+
+            $result = & $probe -CachePath $TestDrive
+
+            $result.Kind | Should -Be $ExpectedKind
+            $lookups.Count | Should -Be $ExpectedLookups
+            if ($Reason) { $result.Reason | Should -Match $Reason }
+            else {
+                $result.Reason | Should -BeNullOrEmpty
+                $result.Path | Should -Be 'Invoke-FixtureDotnet'
+            }
+        }
 
         It 'Reports a runtime identifier shaped os-arch' {
             Get-FinOpsNativeRid | Should -Match '^(win|osx|linux)-(x64|x86|arm64|arm)$'

@@ -49,7 +49,7 @@ function Get-ContractInfo {
             if (-not $subResp -or $subResp.StatusCode -ne 200) { throw "Subscription contract probe returned HTTP $($subResp.StatusCode)." }
             if ($subResp.StatusCode -eq 200) {
                 $subDetail = ($subResp.Content | ConvertFrom-Json)
-                $quotaId = $subDetail.properties.subscriptionPolicies.quotaId
+                $quotaId = $subDetail.subscriptionPolicies.quotaId
 
                 $mapped = switch -Regex ($quotaId) {
                     'EnterpriseAgreement' { @{ Agreement = 'EnterpriseAgreement'; Friendly = 'Enterprise Agreement (EA)' } }
@@ -87,48 +87,42 @@ function Get-ContractInfo {
         if ($result.value -and $result.value.Count -gt 0) {
             $matchedAccount = $null
 
-            if ($result.value.Count -eq 1) {
-                # Single billing account in scope - unambiguous.
-                $matchedAccount = $result.value[0]
+            # Billing accounts are visible across every tenant the signed-in
+            # identity can reach, and even a single visible account can belong to
+            # another tenant. Picking by agreement type alone can surface an
+            # unrelated account, so confirm the account owns one of the scanned
+            # subscriptions before trusting it. Prefer the inferred agreement.
+            $scanIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+            foreach ($sc in $subsToCheck) { if ($sc.Id) { [void]$scanIds.Add([string]$sc.Id) } }
+
+            $candidates = if ($inferredAgreement) {
+                @($result.value | Where-Object { $_.properties.agreementType -eq $inferredAgreement })
             }
-            else {
-                # Multiple billing accounts are visible across every tenant the
-                # signed-in identity can reach. Picking by agreement type alone
-                # can surface an account from an unrelated tenant, so confirm the
-                # account actually owns one of the scanned subscriptions before
-                # trusting it. Prefer candidates matching the inferred agreement.
-                $scanIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
-                foreach ($sc in $subsToCheck) { if ($sc.Id) { [void]$scanIds.Add([string]$sc.Id) } }
+            else { @() }
+            if (-not $candidates -or $candidates.Count -eq 0) { $candidates = @($result.value) }
 
-                $candidates = if ($inferredAgreement) {
-                    @($result.value | Where-Object { $_.properties.agreementType -eq $inferredAgreement })
-                }
-                else { @() }
-                if (-not $candidates -or $candidates.Count -eq 0) { $candidates = @($result.value) }
-
-                foreach ($cand in $candidates) {
-                    if ($scanIds.Count -eq 0) { break }
-                    try {
-                        $bsPath = "/providers/Microsoft.Billing/billingAccounts/$($cand.name)/billingSubscriptions?api-version=2024-04-01"
-                        $bsResp = Invoke-AzRestMethodWithRetry -Path $bsPath -Method GET
-                        $bsData = Get-FinOpsListResult -FirstResponse $bsResp -Context "billing membership for $($cand.name)"
-                        if ($bsResp -and $bsResp.StatusCode -eq 200 -and $bsResp.Content) {
-                            $owns = $false
-                            foreach ($bs in @($bsData.value)) {
-                                $bsSubId = if ($bs.properties.subscriptionId) { [string]$bs.properties.subscriptionId } else { [string]$bs.name }
-                                if ($scanIds.Contains($bsSubId)) { $owns = $true; break }
-                            }
-                            if ($owns) { $matchedAccount = $cand; break }
+            foreach ($cand in $candidates) {
+                if ($scanIds.Count -eq 0) { break }
+                try {
+                    $bsPath = "/providers/Microsoft.Billing/billingAccounts/$($cand.name)/billingSubscriptions?api-version=2024-04-01"
+                    $bsResp = Invoke-AzRestMethodWithRetry -Path $bsPath -Method GET
+                    $bsData = Get-FinOpsListResult -FirstResponse $bsResp -Context "billing membership for $($cand.name)"
+                    if ($bsResp -and $bsResp.StatusCode -eq 200 -and $bsResp.Content) {
+                        $owns = $false
+                        foreach ($bs in @($bsData.value)) {
+                            $bsSubId = if ($bs.properties.subscriptionId) { [string]$bs.properties.subscriptionId } else { [string]$bs.name }
+                            if ($scanIds.Contains($bsSubId)) { $owns = $true; break }
                         }
-                    }
-                    catch {
-                        $probeErrors.Add("$($cand.name): $($_.Exception.Message)")
-                        Write-Warning "Contract billing membership probe failed for $($cand.name): $($_.Exception.Message)"
+                        if ($owns) { $matchedAccount = $cand; break }
                     }
                 }
-                # No account could be confirmed to own the scanned subscription -
-                # fall through to the subscription-accurate quotaId inference.
+                catch {
+                    $probeErrors.Add("$($cand.name): $($_.Exception.Message)")
+                    Write-Warning "Contract billing membership probe failed for $($cand.name): $($_.Exception.Message)"
+                }
             }
+            # No account could be confirmed to own the scanned subscription -
+            # fall through to the subscription-accurate quotaId inference.
 
             if (-not $matchedAccount) { throw "No billing account confirmed for the scanned subscription" }
 

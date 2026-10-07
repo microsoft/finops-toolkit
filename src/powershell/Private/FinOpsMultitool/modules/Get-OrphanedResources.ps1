@@ -357,10 +357,16 @@ resources
                     for ($cIdx = 0; $cIdx -lt $costResult.properties.columns.Count; $cIdx++) {
                         $costCols[$costResult.properties.columns[$cIdx].name] = $cIdx
                     }
+                    if (-not $costCols.ContainsKey('Currency')) { throw 'Cost response did not expose the expected Currency column.' }
                     foreach ($costRow in $costResult.properties.rows) {
                         $rid = [string]$costRow[$costCols['ResourceId']]
                         # Resource Graph and Cost Management disagree on ID casing.
-                        if ($rid) { $costMap[$rid.ToLowerInvariant()] = [math]::Round([double]$costRow[$costCols['Cost']], 2) }
+                        if ($rid) {
+                            $costMap[$rid.ToLowerInvariant()] = [pscustomobject]@{
+                                Amount   = [math]::Round([double]$costRow[$costCols['Cost']], 2)
+                                Currency = ([string]$costRow[$costCols['Currency']]).Trim().ToUpperInvariant()
+                            }
+                        }
                     }
                 }
                 if (-not $costPeriodLabel) { $costPeriodLabel = $usedLabel }
@@ -375,27 +381,40 @@ resources
 
     foreach ($orphan in $allOrphans) {
         $ridKey = if ($orphan.ResourceId) { ([string]$orphan.ResourceId).ToLowerInvariant() } else { $null }
-        $ownCost = if ($ridKey -and $costMap.ContainsKey($ridKey)) { $costMap[$ridKey] } else { $null }
+        $ownParts = @(if ($ridKey -and $costMap.ContainsKey($ridKey)) { $costMap[$ridKey] })
 
         # A deallocated VM bills nothing on its own object, so fold in its disks.
-        $attachedCost = $null
+        $attachedParts = @()
         if ($orphan.PSObject.Properties['ChildResourceIds']) {
             foreach ($childId in @($orphan.ChildResourceIds)) {
                 $childKey = ([string]$childId).ToLowerInvariant()
-                if ($costMap.ContainsKey($childKey)) {
-                    if ($null -eq $attachedCost) { $attachedCost = 0 }
-                    $attachedCost += $costMap[$childKey]
-                }
+                if ($costMap.ContainsKey($childKey)) { $attachedParts += $costMap[$childKey] }
             }
         }
 
-        $combined = if ($null -eq $ownCost -and $null -eq $attachedCost) { $null } else { [math]::Round(([double]$ownCost + [double]$attachedCost), 2) }
+        $parts = @($ownParts) + @($attachedParts)
+        $partCurrencies = @($parts | ForEach-Object { $_.Currency } | Select-Object -Unique)
+        $combined = $null
+        $attachedCost = $null
+        $orphanCurrency = $null
+        if ($partCurrencies.Count -eq 1) {
+            $orphanCurrency = [string]$partCurrencies[0]
+            $combined = [math]::Round(($parts | Measure-Object -Property Amount -Sum).Sum, 2)
+            if ($attachedParts.Count -gt 0) { $attachedCost = [math]::Round(($attachedParts | Measure-Object -Property Amount -Sum).Sum, 2) }
+        }
+        elseif ($partCurrencies.Count -gt 1) {
+            [void]$costFailures.Add("$($orphan.ResourceName): costs use multiple billing currencies")
+        }
         $orphan | Add-Member -NotePropertyName MonthlyCost -NotePropertyValue $combined -Force
-        $orphan | Add-Member -NotePropertyName AttachedCost -NotePropertyValue $(if ($null -ne $attachedCost) { [math]::Round($attachedCost, 2) } else { $null }) -Force
+        $orphan | Add-Member -NotePropertyName AttachedCost -NotePropertyValue $attachedCost -Force
+        $orphan | Add-Member -NotePropertyName Currency -NotePropertyValue $orphanCurrency -Force
     }
 
     $costed = @($allOrphans | Where-Object { $null -ne $_.MonthlyCost })
-    $totalMonthlyCost = if ($costed.Count -gt 0) { [math]::Round((($costed | Measure-Object -Property MonthlyCost -Sum).Sum), 2) } else { $null }
+    $costCurrencies = @($costed | ForEach-Object { $_.Currency } | Select-Object -Unique)
+    $totalCurrency = if ($costCurrencies.Count -eq 1) { [string]$costCurrencies[0] } else { $null }
+    $totalMonthlyCost = if ($costed.Count -gt 0 -and $totalCurrency) { [math]::Round((($costed | Measure-Object -Property MonthlyCost -Sum).Sum), 2) } else { $null }
+    if ($costCurrencies.Count -gt 1) { [void]$costFailures.Add('Observed costs use multiple billing currencies, so no combined total is shown') }
     $costAvailable = ($costQueried -gt 0)
     $costIssue = if ($costFailures.Count -gt 0) { ($costFailures | Select-Object -Unique) -join '; ' } else { $null }
     if ($costed.Count -gt 0) {
@@ -419,6 +438,7 @@ resources
         TotalCount    = $allOrphans.Count
         HasData       = ($allOrphans.Count -gt 0)
         MonthlyCost   = $totalMonthlyCost
+        Currency      = $totalCurrency
         CostedCount   = $costed.Count
         CostAvailable = $costAvailable
         CostPeriod    = $costPeriodLabel

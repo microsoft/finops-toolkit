@@ -63,6 +63,272 @@ Describe 'FinOps Hub Kusto provider' {
         }
     }
 
+    Context 'Direct provider transport' {
+        It 'Maps named columns, null cells, and numeric credits while preserving the request contract' -Tag 'ProviderTransport' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-RestMethod {
+                    '{"Tables":[{"TableName":"PrimaryResult","Columns":[{"ColumnName":"Currency"},{"ColumnName":"Actual"},{"ColumnName":"Label"}],"Rows":[["USD",0,null],["USD",-12.5,"credit"]]},{"TableName":"QueryStatus","Columns":[{"ColumnName":"Severity"},{"ColumnName":"StatusDescription"}],"Rows":[[4,"Query completed successfully"]]}]}' | ConvertFrom-Json
+                }
+
+                $result = Invoke-FOHubKustoQuery -ClusterUri 'https://fixture.eastus.kusto.windows.net/' -Database 'Fixture Hub' -Query 'print Actual=0' -AccessToken 'synthetic-token' -TimeoutSec 17
+
+                $result.Ok | Should -BeTrue
+                $result.RowCount | Should -Be 2
+                $result.Rows[0].Actual | Should -Be 0
+                $result.Rows[0].Label | Should -BeNullOrEmpty
+                $result.Rows[1].Actual | Should -Be -12.5
+                $result.Rows[1].Currency | Should -Be 'USD'
+                Should -Invoke Invoke-RestMethod -Times 1 -Exactly -ParameterFilter {
+                    $request = $Body | ConvertFrom-Json
+                    $Uri -eq 'https://fixture.eastus.kusto.windows.net/v1/rest/query' -and
+                    $Method -eq 'Post' -and $TimeoutSec -eq 17 -and $MaximumRedirection -eq 0 -and
+                    $Headers.Authorization -eq 'Bearer synthetic-token' -and
+                    $request.db -eq 'Fixture Hub' -and $request.csl -eq 'print Actual=0'
+                }
+            }
+        }
+
+        It 'Keeps a valid zero-row table as successful empty data' -Tag 'ProviderTransport' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-RestMethod { '{"Tables":[{"TableName":"PrimaryResult","Columns":[{"ColumnName":"Actual"}],"Rows":[]}]}' | ConvertFrom-Json }
+
+                $result = Invoke-FOHubKustoQuery -ClusterUri 'http://localhost:8082' -Query 'print Actual=0 | take 0'
+
+                $result.Ok | Should -BeTrue
+                $result.RowCount | Should -Be 0
+                @($result.Rows).Count | Should -Be 0
+                $result.Error | Should -BeNullOrEmpty
+            }
+        }
+
+        It 'Uses v1 status <Severity> with omitted metadata column <OmitColumn>' -Tag 'ProviderTransport', 'ProviderReviewFollowup' -ForEach @(
+            @{ Severity = 4; ExpectedSuccess = $true; OmitColumn = $null; FailurePattern = 'partial query failure' }
+            @{ Severity = 2; ExpectedSuccess = $false; OmitColumn = $null; FailurePattern = 'partial query failure' }
+            @{ Severity = 1; ExpectedSuccess = $false; OmitColumn = $null; FailurePattern = 'partial query failure' }
+            @{ Severity = 4; ExpectedSuccess = $false; OmitColumn = 'Name'; FailurePattern = 'incomplete table-of-contents schema' }
+            @{ Severity = 4; ExpectedSuccess = $false; OmitColumn = 'Kind'; FailurePattern = 'incomplete table-of-contents schema' }
+            @{ Severity = 4; ExpectedSuccess = $false; OmitColumn = 'Ordinal'; FailurePattern = 'incomplete table-of-contents schema' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Severity = $Severity; ExpectedSuccess = $ExpectedSuccess; OmitColumn = $OmitColumn; FailurePattern = $FailurePattern } {
+                param($Severity, $ExpectedSuccess, $OmitColumn, $FailurePattern)
+                $fixtureResponse = @'
+{"Tables":[
+  {"TableName":"Table_0","Columns":[{"ColumnName":"Actual"}],"Rows":[[10]]},
+  {"TableName":"Table_1","Columns":[{"ColumnName":"Value"}],"Rows":[["{}"]]},
+  {"TableName":"Table_2","Columns":[{"ColumnName":"Severity"},{"ColumnName":"StatusDescription"}],"Rows":[[4,"Fixture query status"]]},
+  {"TableName":"Table_3","Columns":[{"ColumnName":"Ordinal"},{"ColumnName":"Kind"},{"ColumnName":"Name"},{"ColumnName":"Id"},{"ColumnName":"PrettyName"}],"Rows":[[0,"QueryResult","PrimaryResult","a",""],[1,"QueryProperties","@ExtendedProperties","b",""],[2,"QueryStatus","QueryStatus","c",""]]}
+]}
+'@ | ConvertFrom-Json
+                $fixtureResponse.Tables[2].Rows[0][0] = $Severity
+                if ($OmitColumn) {
+                    $contents = $fixtureResponse.Tables[3]
+                    $removedIndex = [array]::IndexOf(@($contents.Columns.ColumnName), $OmitColumn)
+                    $keptIndexes = @(0..($contents.Columns.Count - 1) | Where-Object { $_ -ne $removedIndex })
+                    $contents.Columns = @($contents.Columns[$keptIndexes])
+                    $contents.Rows = @(foreach ($row in $contents.Rows) { , @($row[$keptIndexes]) })
+                }
+                Mock Invoke-RestMethod { $fixtureResponse }
+
+                $result = Invoke-FOHubKustoQuery -ClusterUri 'http://localhost:8082' -Query 'print Actual=10'
+
+                $result.Ok | Should -Be $ExpectedSuccess
+                if ($ExpectedSuccess) {
+                    $result.RowCount | Should -Be 1
+                    $result.Rows[0].Actual | Should -Be 10
+                }
+                else {
+                    $result.RowCount | Should -Be 0
+                    @($result.Rows).Count | Should -Be 0
+                    $result.Error | Should -Match $FailurePattern
+                }
+            }
+        }
+
+        It 'Rejects <Case> without returning partial rows' -Tag 'ProviderTransport' -ForEach @(
+            @{ Case = 'null response'; Response = 'null' }
+            @{ Case = 'missing tables'; Response = '{}' }
+            @{ Case = 'non-array tables'; Response = '{"Tables":{}}' }
+            @{ Case = 'null table'; Response = '{"Tables":[null]}' }
+            @{ Case = 'missing columns'; Response = '{"Tables":[{"Rows":[[10]]}]}' }
+            @{ Case = 'missing rows'; Response = '{"Tables":[{"Columns":[{"ColumnName":"Actual"}]}]}' }
+            @{ Case = 'blank column name'; Response = '{"Tables":[{"Columns":[{"ColumnName":" "}],"Rows":[[10]]}]}' }
+            @{ Case = 'case-colliding columns'; Response = '{"Tables":[{"Columns":[{"ColumnName":"Cost"},{"ColumnName":"cost"}],"Rows":[[10,20]]}]}' }
+            @{ Case = 'array-valued column name'; Response = '{"Tables":[{"Columns":[{"ColumnName":["Actual","Currency"]}],"Rows":[[10,"USD"]]}]}' }
+            @{ Case = 'empty-array column name'; Response = '{"Tables":[{"Columns":[{"ColumnName":[]}],"Rows":[[]]}]}' }
+            @{ Case = 'invalid status reference'; Response = '{"Tables":[{"TableName":"Table_0","Columns":[{"ColumnName":"Actual"}],"Rows":[[10]]},{"TableName":"Table_1","Columns":[{"ColumnName":"Ordinal"},{"ColumnName":"Kind"},{"ColumnName":"Name"}],"Rows":[[9,"QueryStatus","QueryStatus"]]}]}' }
+            @{ Case = 'non-scalar table name'; Response = '{"Tables":[{"TableName":["Table_0"],"Columns":[{"ColumnName":"Actual"}],"Rows":[[10]]}]}' }
+            @{ Case = 'non-scalar status kind'; Response = '{"Tables":[{"TableName":"Table_0","Columns":[{"ColumnName":"Actual"}],"Rows":[[10]]},{"TableName":"Table_1","Columns":[{"ColumnName":"Ordinal"},{"ColumnName":"Kind"},{"ColumnName":"Name"}],"Rows":[[0,["QueryStatus","Ignored"],"QueryStatus"]]}]}' }
+            @{ Case = 'short row after valid data'; Response = '{"Tables":[{"Columns":[{"ColumnName":"Actual"},{"ColumnName":"Currency"}],"Rows":[[10,"USD"],[20]]}]}' }
+            @{ Case = 'long row'; Response = '{"Tables":[{"Columns":[{"ColumnName":"Actual"}],"Rows":[[10,20]]}]}' }
+            @{ Case = 'scalar row'; Response = '{"Tables":[{"Columns":[{"ColumnName":"Actual"}],"Rows":[10]}]}' }
+            @{ Case = 'partial query failure'; Response = '{"Tables":[{"TableName":"PrimaryResult","Columns":[{"ColumnName":"Actual"}],"Rows":[[10]]},{"TableName":"QueryStatus","Columns":[{"ColumnName":"Severity"},{"ColumnName":"StatusDescription"}],"Rows":[[2,"Partial query failure"]]}]}' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Response = $Response } {
+                param($Response)
+                $fixtureResponse = $Response | ConvertFrom-Json
+                Mock Invoke-RestMethod { $fixtureResponse }
+
+                $result = Invoke-FOHubKustoQuery -ClusterUri 'http://localhost:8082' -Query 'print Actual=10'
+
+                $result.Ok | Should -BeFalse
+                $result.RowCount | Should -Be 0
+                @($result.Rows).Count | Should -Be 0
+                $result.Error | Should -Not -BeNullOrEmpty
+            }
+        }
+
+        It 'Returns a transport error without success-shaped data' -Tag 'ProviderTransport' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-RestMethod { throw 'Synthetic transport failure.' }
+
+                $result = Invoke-FOHubKustoQuery -ClusterUri 'http://localhost:8082' -Query 'print Actual=10'
+
+                $result.Ok | Should -BeFalse
+                $result.RowCount | Should -Be 0
+                @($result.Rows).Count | Should -Be 0
+                $result.Error | Should -Match 'Synthetic transport failure'
+            }
+        }
+
+        It 'Reads PowerShell 7 Kusto error details from <Field>' -Tag 'ProviderTransport' -ForEach @(
+            @{ Field = '@message' }
+            @{ Field = 'message' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Field = $Field } {
+                param($Field)
+                $fixtureError = [Management.Automation.ErrorRecord]::new([InvalidOperationException]::new('HTTP 400 Bad Request'), 'FixtureHttpError', [Management.Automation.ErrorCategory]::InvalidOperation, $null)
+                $fixtureError.ErrorDetails = [Management.Automation.ErrorDetails]::new((@{ error = @{ $Field = 'Synthetic Kusto query could not resolve Costs.' } } | ConvertTo-Json))
+                Mock Invoke-RestMethod { throw $fixtureError }
+
+                $result = Invoke-FOHubKustoQuery -ClusterUri 'http://localhost:8082' -Query 'Costs | take 1'
+
+                $result.Ok | Should -BeFalse
+                $result.Error | Should -Be 'Kusto query failed: Synthetic Kusto query could not resolve Costs.'
+                @($result.Rows).Count | Should -Be 0
+            }
+        }
+
+        It 'Stops before transport when provider token acquisition fails' -Tag 'ProviderTransport' {
+            InModuleScope FinOpsMultitool {
+                Mock Get-PlainAccessToken { throw 'Synthetic authentication failure.' }
+                Mock Invoke-FOHubKustoQuery { throw 'Transport must not run after authentication fails.' }
+
+                $result = Invoke-FOHubProviderQuery -Provider @{ ClusterUri = 'https://fixture.eastus.kusto.windows.net'; Database = 'Hub'; UseAuth = $true } -Query 'print Actual=10'
+
+                $result.Ok | Should -BeFalse
+                $result.RowCount | Should -Be 0
+                @($result.Rows).Count | Should -Be 0
+                $result.Error | Should -Match 'Could not acquire a Kusto token.*Synthetic authentication failure'
+                Should -Invoke Invoke-FOHubKustoQuery -Times 0 -Exactly
+            }
+        }
+
+        It 'Rejects an unusable provider token for <Case> before transport' -Tag 'ProviderTransport' -ForEach @(
+            @{ Case = 'null'; Token = $null }
+            @{ Case = 'empty'; Token = '' }
+            @{ Case = 'whitespace'; Token = '   ' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Token = $Token } {
+                param($Token)
+                $fixtureToken = $Token
+                Mock Get-PlainAccessToken { $fixtureToken }
+                Mock Invoke-FOHubKustoQuery { throw 'An authenticated provider must not send an anonymous request.' }
+
+                $result = Invoke-FOHubProviderQuery -Provider @{ ClusterUri = 'https://fixture.eastus.kusto.windows.net'; Database = 'Hub'; UseAuth = $true } -Query 'print Actual=10'
+
+                $result.Ok | Should -BeFalse
+                @($result.Rows).Count | Should -Be 0
+                $result.Error | Should -Match 'token'
+                Should -Invoke Invoke-FOHubKustoQuery -Times 0 -Exactly
+            }
+        }
+
+        It 'Makes shared token acquisition fail for <Case>' -Tag 'ProviderTransport' -ForEach @(
+            @{ Case = 'nonterminating authentication error'; Nonterminating = $true }
+            @{ Case = 'empty token result'; Nonterminating = $false }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Nonterminating = $Nonterminating } {
+                param($Nonterminating)
+                $fixtureNonterminating = $Nonterminating
+                Mock Get-AzAccessToken {
+                    if ($fixtureNonterminating) {
+                        Write-Error 'Synthetic authentication failure.'
+                        return [pscustomobject]@{ Token = 'must-not-be-returned' }
+                    }
+                    [pscustomobject]@{ Token = $null }
+                }
+
+                { Get-PlainAccessToken -ResourceUrl 'https://fixture.eastus.kusto.windows.net' } | Should -Throw
+                Should -Invoke Get-AzAccessToken -Times 1 -Exactly -ParameterFilter { $ErrorAction -eq 'Stop' }
+            }
+        }
+
+        It 'Retains valid plain and secure token values' -Tag 'ProviderTransport' {
+            InModuleScope FinOpsMultitool {
+                Mock Get-AzAccessToken { [pscustomobject]@{ Token = 'synthetic-token' } }
+                Get-PlainAccessToken -ResourceUrl 'https://fixture.eastus.kusto.windows.net' | Should -Be 'synthetic-token'
+                $fixtureSecureToken = [securestring]::new()
+                try {
+                    foreach ($character in 'synthetic-token'.ToCharArray()) { $fixtureSecureToken.AppendChar($character) }
+                    $fixtureSecureToken.MakeReadOnly()
+                    Mock Get-AzAccessToken { [pscustomobject]@{ Token = $fixtureSecureToken } }
+                    Get-PlainAccessToken -ResourceUrl 'https://fixture.eastus.kusto.windows.net' | Should -Be 'synthetic-token'
+                }
+                finally { $fixtureSecureToken.Dispose() }
+            }
+        }
+
+        It 'Builds literal tag filters for quotes and trailing backslashes' -Tag 'ProviderTransport' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-FOHubKustoQuery {
+                    @{ Ok = $true; Rows = @(
+                        [pscustomobject]@{ _CostValidation = $true; _InvalidCosts = 0; _CurrencyCount = 1; _SourceRows = 1; _MissingSubscriptions = 0 }
+                        [pscustomobject]@{ TagKey = '*TOTAL*'; TagValue = '*TOTAL*'; Cost = 10; Currency = 'USD' }
+                    ) }
+                }
+
+                $null = Get-FOHubCostByTag -Provider @{ ClusterUri = 'http://localhost:8082'; Database = 'Hub'; UseAuth = $false } -TagKeys @('owner"label', 'path\', 'both\"tail')
+
+                Should -Invoke Invoke-FOHubKustoQuery -Times 1 -Exactly -ParameterFilter {
+                    $Query.Contains('| where k in~ ("owner\"label", "path\\", "both\\\"tail")')
+                }
+            }
+        }
+
+        It 'Normalizes scope GUIDs and rejects an invalid mixed scope before transport' -Tag 'ProviderTransport' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-FOHubKustoQuery { throw 'Invalid scope must not reach transport.' }
+
+                Get-FOHubScopeClause -SubscriptionIds @('AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA') | Should -Be '| where SubAccountId has_any (dynamic(["aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"]))'
+                { Get-FOHubCostSummary -Provider @{ ClusterUri = 'http://localhost:8082'; Database = 'Hub'; UseAuth = $false } -SubscriptionIds @('11111111-1111-1111-1111-111111111111', 'invalid"scope') } | Should -Throw '*Refusing to drop the scope filter*'
+                Should -Invoke Invoke-FOHubKustoQuery -Times 0 -Exactly
+            }
+        }
+
+        It 'Rejects the invalid explicit override <Endpoint> before discovery or authentication' -Tag 'ProviderTransport' -ForEach @(
+            @{ Endpoint = 'not a URI' }
+            @{ Endpoint = 'http://example.test' }
+            @{ Endpoint = 'https://fixture.eastus.kusto.windows.net/?unexpected=true' }
+            @{ Endpoint = 'https://user:password@example.test' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Endpoint = $Endpoint } {
+                param($Endpoint)
+                $previousUri = $env:FINOPS_HUB_KUSTO_URI
+                try {
+                    $env:FINOPS_HUB_KUSTO_URI = $Endpoint
+                    Mock Search-AzGraphSafe { throw 'Invalid override must not trigger discovery.' }
+                    Mock Get-PlainAccessToken { throw 'Invalid override must not acquire a token.' }
+
+                    { Resolve-FOHubProvider } | Should -Throw
+
+                    Should -Invoke Search-AzGraphSafe -Times 0 -Exactly
+                    Should -Invoke Get-PlainAccessToken -Times 0 -Exactly
+                }
+                finally { $env:FINOPS_HUB_KUSTO_URI = $previousUri }
+            }
+        }
+    }
+
     Context 'Endpoint security' {
         It 'Rejects unsafe endpoint <Endpoint> before requesting a token or sending a request' -ForEach @(
             @{ Endpoint = 'http://example.test' }
@@ -140,6 +406,40 @@ Describe 'FinOps Hub Kusto provider' {
     }
 
     Context 'Resolve-FOHubProvider - discovery and none' {
+        It 'Distinguishes <Outcome> discovery from an empty successful lookup' -Tag 'ProviderDiscovery' -ForEach @(
+            @{ Outcome = 'exception'; ExpectedWarnings = 1 }
+            @{ Outcome = 'null response'; ExpectedWarnings = 1 }
+            @{ Outcome = 'empty success'; ExpectedWarnings = 0 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Outcome = $Outcome; ExpectedWarnings = $ExpectedWarnings } {
+                param($Outcome, $ExpectedWarnings)
+                $previousUri = $env:FINOPS_HUB_KUSTO_URI
+                try {
+                    $env:FINOPS_HUB_KUSTO_URI = $null
+                    $fixtureOutcome = $Outcome
+                    Mock Search-AzGraphSafe {
+                        if ($fixtureOutcome -eq 'exception') { throw "Denied$([char]27)[2J$([char]0x202e)`r`nquery" }
+                        if ($fixtureOutcome -eq 'null response') { return $null }
+                        @{ Data = @() }
+                    }
+
+                    $result = Resolve-FOHubProvider -Subscriptions @('11111111-1111-1111-1111-111111111111') -WarningAction SilentlyContinue -WarningVariable warnings
+
+                    $result.Found | Should -BeFalse
+                    $result.Mode | Should -Be 'None'
+                    @($warnings).Count | Should -Be $ExpectedWarnings
+                    if ($ExpectedWarnings) {
+                        ($warnings -join '') | Should -Match 'Kusto.*could not be verified'
+                        ($warnings -join '') | Should -Not -Match '[\p{Cc}\p{Cf}]'
+                    }
+                    Should -Invoke Search-AzGraphSafe -Times 1 -Exactly -ParameterFilter {
+                        @($Subscription).Count -eq 1 -and $Subscription[0] -eq '11111111-1111-1111-1111-111111111111' -and $First -eq 1
+                    }
+                }
+                finally { $env:FINOPS_HUB_KUSTO_URI = $previousUri }
+            }
+        }
+
         It 'Uses a cluster already discovered on the decision object' {
             $decision = [PSCustomObject]@{ KustoClusterUri = 'https://disc.westus.kusto.windows.net'; KustoDatabase = 'Hub'; HubVersion = '0.10' }
             $p = Resolve-FOHubProvider -Decision $decision

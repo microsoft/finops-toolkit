@@ -100,7 +100,10 @@ function Invoke-FOHubProviderQuery {
     try { $null = Resolve-FinOpsRequestUri -Uri $Provider.ClusterUri -AllowAnonymousLoopback:(-not $Provider.UseAuth) }
     catch { return @{ Ok = $false; Rows = @(); RowCount = 0; Error = $_.Exception.Message } }
     if ($Provider.UseAuth) {
-        try { $token = Get-PlainAccessToken -ResourceUrl $Provider.ClusterUri }
+        try {
+            $token = Get-PlainAccessToken -ResourceUrl $Provider.ClusterUri -ErrorAction Stop
+            if ($token -isnot [string] -or [string]::IsNullOrWhiteSpace($token)) { throw 'Authentication returned no usable token.' }
+        }
         catch { return @{ Ok = $false; Rows = @(); RowCount = 0; Error = "Could not acquire a Kusto token for $($Provider.ClusterUri): $($_.Exception.Message)" } }
     }
     return Invoke-FOHubKustoQuery -ClusterUri $Provider.ClusterUri -Database $Provider.Database -Query $Query -AccessToken $token
@@ -203,6 +206,7 @@ resources
 | take 1
 "@
         $res = Search-AzGraphSafe -Query $clusterQuery -Subscription @($Subscriptions) -First 1
+        if ($null -eq $res) { throw 'Resource Graph did not return a readable discovery response.' }
         if ($res -and $res.Data -and @($res.Data).Count -gt 0) {
             $row = @($res.Data)[0]
             if ($row.clusterUri) {
@@ -221,7 +225,7 @@ resources
     }
     catch {
         # Discovery failed - fall through to None (storage fallback).
-        Write-Verbose "Non-fatal: $($_.Exception.Message)"
+        Write-Warning ([regex]::Replace("Kusto provider discovery could not be verified: $($_.Exception.Message)", '[\p{Cc}\p{Cf}]', ' '))
     }
 
     return @{ Found = $false; Mode = 'None'; ClusterUri = $null; Database = $null; UseAuth = $false; HubVersion = $null; Source = 'None' }

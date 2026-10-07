@@ -214,7 +214,7 @@ Describe 'FinOps Multitool safety' {
                         @{ name = 'fourth'; properties = @{} }
                     )
                 }
-                else { @(@{ name = 'rule'; kind = 'InsightAlert'; properties = @{} }, @{ name = 'other'; kind = 'Email'; properties = @{} }) }
+                else { @(@{ name = 'rule'; kind = 'InsightAlert'; properties = @{ status = 'Enabled' } }, @{ name = 'other'; kind = 'Email'; properties = @{} }) }
                 [pscustomobject]@{ StatusCode = 200; Content = (@{ value = $items } | ConvertTo-Json -Depth 9) }
             }
 
@@ -1071,6 +1071,31 @@ console.log('Credit, numeric, and unavailable sorting passed');
             Get-Content -LiteralPath (Join-Path $run 'ScanSummary.txt') -Raw | Should -Match 'Cost by Tag: Limited data: Cost coverage is incomplete'
         }
 
+        It 'Shows unavailable resource forecasts without failing actual resource costs' {
+            $reportRoot = Join-Path $TestDrive 'resource-forecast-gap'
+            $periodStart = [datetime]::new(2026, 9, 1, 0, 0, 0, [DateTimeKind]::Utc)
+            $periodEnd = [datetime]::new(2026, 9, 15, 0, 0, 0, [DateTimeKind]::Utc)
+            $rows = @(
+                [pscustomobject]@{ Subscription = 'A'; SubscriptionId = '11111111-1111-1111-1111-111111111111'; ResourceGroup = 'fixture'; ResourceType = 'Managed Disk'; ResourceName = 'disk-a'; ResourcePath = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Compute/disks/disk-a'; Actual = 100; ActualPeriod = '2026-09-01 00:00 to 2026-09-15 00:00 UTC (query window)'; ActualPeriodStart = $periodStart; ActualPeriodEnd = $periodEnd; ActualPeriodSource = 'Query window'; Forecast = 150; ForecastSource = 'Forecast'; Currency = 'USD' }
+                [pscustomobject]@{ Subscription = 'B'; SubscriptionId = '22222222-2222-2222-2222-222222222222'; ResourceGroup = 'fixture'; ResourceType = 'Managed Disk'; ResourceName = 'disk-b'; ResourcePath = '/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/fixture/providers/Microsoft.Compute/disks/disk-b'; Actual = 80; ActualPeriod = '2026-09-01 00:00 to 2026-09-15 00:00 UTC (query window)'; ActualPeriodStart = $periodStart; ActualPeriodEnd = $periodEnd; ActualPeriodSource = 'Query window'; Forecast = $null; ForecastSource = 'Unavailable'; Currency = 'USD'; CostIssue = 'Resource forecasts for B are unavailable; actual costs are kept. Resource forecast returned HTTP 429; results are incomplete.' }
+            )
+            $modules = @(@{ Fn = 'Get-ResourceCosts'; Name = 'Resource Costs'; Selected = $true; Category = 'Cost Analysis' })
+
+            $null = Show-ResultsSummary -Results @{ 'Get-ResourceCosts' = $rows } -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $html | Should -Match '>Limited data</td>'
+            $html | Should -Match 'Resource forecasts for B are unavailable'
+            Get-Content -LiteralPath (Join-Path $run 'ScanSummary.txt') -Raw | Should -Match 'Resource Costs: Limited data: Resource forecasts for B are unavailable'
+            $csv = @(Import-Csv -LiteralPath (Join-Path $run 'Get-ResourceCosts.csv'))
+            $csv.Count | Should -Be 2
+            @($csv | Where-Object ResourceName -EQ 'disk-a')[0].ForecastSource | Should -Be 'Forecast'
+            @($csv | Where-Object ResourceName -EQ 'disk-b')[0].Actual | Should -Be '80'
+            @($csv | Where-Object ResourceName -EQ 'disk-b')[0].ForecastSource | Should -Be 'Unavailable'
+            @($csv | Where-Object ResourceName -EQ 'disk-b')[0].CostIssue | Should -Match 'HTTP 429'
+        }
+
         It 'Keeps incompatible recommendation savings separate in rendered reports' {
             $reportRoot = Join-Path $TestDrive 'recommendation-currencies'
             $recommendations = @(
@@ -1484,6 +1509,7 @@ console.log('Credit, numeric, and unavailable sorting passed');
             Mock Write-Host { }
             Mock Write-Host -ModuleName FinOpsMultitool { }
             Mock Resolve-CostMgId -ModuleName FinOpsMultitool { 'fixture-mg' }
+            Mock Test-CostMgCoverage -ModuleName FinOpsMultitool { $true }
             Mock Get-Date -ModuleName FinOpsMultitool { [datetime]::new(2026, 10, 1, 0, 30, 0, [DateTimeKind]::Utc) }
             Mock Get-AzContext -ModuleName FinOpsMultitool { throw 'Resource report fixtures must not read an Azure context.' }
             Mock Invoke-RestMethod -ModuleName FinOpsMultitool { throw 'Resource report fixtures must not send HTTP requests.' }
@@ -2193,6 +2219,7 @@ console.log('Credit, numeric, and unavailable sorting passed');
         It 'Discards a failed management-group attempt including its currency' {
             InModuleScope FinOpsMultitool {
                 Mock Resolve-CostMgId { 'test-management-group' }
+                Mock Test-CostMgCoverage { $true }
                 Mock Search-AzGraphSafe { @{ Data = @() } }
                 Mock Invoke-AzRestMethodWithRetry {
                     $request = $Payload | ConvertFrom-Json
@@ -2213,12 +2240,14 @@ console.log('Credit, numeric, and unavailable sorting passed');
                     [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second' }
                 )
 
-                $result = Get-SavingsRealized -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -WarningAction SilentlyContinue
+                $result = Get-SavingsRealized -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -WarningAction SilentlyContinue -WarningVariable savingsWarnings
 
                 $result.Currency | Should -Be 'EUR'
                 $result.CommitmentSavingsMonthToDate | Should -Be 133.33
                 $result.Details.Currency | Select-Object -Unique | Should -Be 'EUR'
                 @($result.Details | Where-Object Type -EQ 'Waste').Count | Should -Be 2
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter { $Path -like '/providers/Microsoft.Management/*' }
+                @($savingsWarnings | Where-Object { "$_" -match 'benefit query returned HTTP 503' }).Count | Should -Be 1
             }
         }
 
@@ -2909,15 +2938,65 @@ Describe 'FinOps Multitool cost math' {
             }
         }
 
+        It 'Scans only the given storage accounts and shows exports found and slow Azure responses' -Tag 'AutomaticExportDiscovery' {
+            InModuleScope FinOpsMultitool {
+                $storagePrefix = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/'
+                $titles = [Collections.Generic.List[string]]::new()
+                Mock Get-ExportStorageCandidates { throw 'Given storage accounts must not be listed again.' }
+                Mock Write-Progress { if (-not $Completed) { $titles.Add([string]$Activity) } }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*exportstore/*') { [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @(@{ name = 'exports' }) } | ConvertTo-Json -Depth 5) } }
+                    else { [pscustomobject]@{ StatusCode = 408; Content = '{}' } }
+                }
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Get-StorageContainerList { @{ Listed = $true; Containers = @('appdata') } }
+                Mock Get-StorageBlobList { @{ Listed = $true; Blobs = @([pscustomobject]@{ Name = 'costs/focus/20260901-20260930/run/part.csv'; LastModified = [datetime]'2026-10-01' }) } }
+                $stores = @('exportstore', 'slowstore', 'laststore' | ForEach-Object { [pscustomobject]@{ Name = $_; ResourceId = "$storagePrefix$_"; SubId = '11111111-1111-1111-1111-111111111111' } })
+
+                $result = @(Find-CostExportFromStorage -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example' }) -StorageAccounts $stores -WarningAction SilentlyContinue)
+
+                $result.Count | Should -Be 1
+                Should -Invoke Get-ExportStorageCandidates -Times 0 -Exactly
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 3 -Exactly
+                ($titles -join '|') | Should -Be ((
+                        'Scanning storage accounts for exports',
+                        'Scanning storage accounts for exports (1 export found so far)',
+                        'Scanning storage accounts for exports (1 export found so far; some requests were throttled or timed out)'
+                    ) -join '|')
+            }
+        }
+
+        It 'Skips supplied storage accounts that fail the discovery checks' -Tag 'ExportReaderHardening' {
+            InModuleScope FinOpsMultitool {
+                $warnings = [Collections.Generic.List[string]]::new()
+                Mock Write-Warning { $warnings.Add([string]$Message) }
+                Mock Invoke-AzRestMethodWithRetry { throw 'An unchecked storage account must not be requested.' }
+                Mock Get-PlainAccessToken { throw 'An unchecked storage account must not receive a token.' }
+                $stores = @(
+                    [pscustomobject]@{ Name = 'attacker.example/x'; ResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/attacker.example/x'; SubId = '11111111-1111-1111-1111-111111111111' }
+                    [pscustomobject]@{ Name = 'otherstore'; ResourceId = '/subscriptions/99999999-9999-9999-9999-999999999999/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/otherstore'; SubId = '99999999-9999-9999-9999-999999999999' }
+                    [pscustomobject]@{ Name = 'mismatchstore'; ResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/otherstore'; SubId = '11111111-1111-1111-1111-111111111111' }
+                )
+
+                $result = @(Find-CostExportFromStorage -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example' }) -StorageAccounts $stores)
+
+                $result.Count | Should -Be 0
+                $warnings.Count | Should -Be 3
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly
+                Should -Invoke Get-PlainAccessToken -Times 0 -Exactly
+            }
+        }
+
         It 'Finds central exports only at selected-subscription ancestors and linked billing accounts' -Tag 'AutomaticExportDiscovery' {
             InModuleScope FinOpsMultitool {
                 $selectedId = '11111111-1111-1111-1111-111111111111'
                 Mock Get-AzContext { [pscustomobject]@{ Tenant = @{ Id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' } } }
                 Mock Search-AzGraphSafe {
                     @{ Data = @(
-                        [pscustomobject]@{ subscriptionId = $selectedId; ancestors = @(@{ name = 'platform'; displayName = 'Example platform' }, @{ name = 'platform'; displayName = 'Example platform' }) }
-                        [pscustomobject]@{ subscriptionId = '99999999-9999-9999-9999-999999999999'; ancestors = @(@{ name = 'unrelated'; displayName = 'Outside scope' }) }
-                    ) }
+                            [pscustomobject]@{ subscriptionId = $selectedId; ancestors = @(@{ name = 'platform'; displayName = 'Example platform' }, @{ name = 'platform'; displayName = 'Example platform' }) }
+                            [pscustomobject]@{ subscriptionId = '99999999-9999-9999-9999-999999999999'; ancestors = @(@{ name = 'unrelated'; displayName = 'Outside scope' }) }
+                        )
+                    }
                 }
                 Mock Get-FinOpsBillingScope {
                     [pscustomobject]@{ Accounts = @($BillingAccounts | Where-Object name -EQ 'linked'); Resolved = $true; CoverageIncomplete = $false }
@@ -3066,7 +3145,8 @@ Describe 'FinOps Multitool cost math' {
                     @{ Listed = $true; Blobs = @(
                             [pscustomobject]@{ Name = $fixtureBlobName; LastModified = [datetime]'2026-10-01' }
                             [pscustomobject]@{ Name = $fixtureManifestName; LastModified = [datetime]'2026-10-01' }
-                        ) }
+                        )
+                    }
                 }
                 Mock Get-StorageBlobBytes { throw 'Unsafe paths must not reach a download.' }
                 $export = [pscustomobject]@{ Name = 'selected'; Format = 'Csv'; Type = 'ActualCost'; RootFolder = 'costs'; Container = 'exports'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/fixturestore' }
@@ -3549,9 +3629,21 @@ Describe 'FinOps Multitool cost math' {
                     if ($FileSystem -eq 'ingestion') {
                         if ($useParquet) { [pscustomobject]@{ Name = 'part.parquet'; Path = 'Costs/2026/09/part.parquet'; IsDirectory = $false } }
                     }
-                    else { [pscustomobject]@{ Name = 'part.csv'; Path = 'export/20260901-20260930/202609180001/run/part.csv'; IsDirectory = $false } }
+                    else {
+                        [pscustomobject]@{ Name = 'part.csv'; Path = 'export/20260901-20260930/202609180001/run/part.csv'; IsDirectory = $false }
+                        [pscustomobject]@{ Name = 'manifest.json'; Path = 'export/20260901-20260930/202609180001/run/manifest.json'; IsDirectory = $false }
+                    }
                 }
-                Mock Get-AzDataLakeGen2ItemContent { }
+                Mock Get-AzDataLakeGen2ItemContent {
+                    if ($Path -like '*manifest.json') {
+                        Set-Content -LiteralPath $Destination -Value (@{
+                                blobCount = 1; dataRowCount = 1
+                                exportConfig = @{ type = 'FocusCost'; resourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.CostManagement/exports/export' }
+                                runInfo = @{ submittedTime = '2026-09-18T00:01:00Z'; startDate = '2026-09-01T00:00:00' }
+                                blobs = @(@{ blobName = 'export/20260901-20260930/202609180001/run/part.csv' })
+                            } | ConvertTo-Json -Depth 4)
+                    }
+                }
                 Mock Read-ParquetFile { [pscustomobject]@{ BilledCost = 10; BillingCurrency = 'USD'; x_SkuTier = 'Premium' } }
                 Mock Import-Csv { [pscustomobject]@{ BilledCost = 10; BillingCurrency = 'USD' } }
 
@@ -3641,14 +3733,26 @@ Describe 'FinOps Multitool cost math' {
                     @(
                         [pscustomobject]@{ Name = "part1.$extension"; Path = "export/20260901-20260930/202609170001/run/part1.$extension"; IsDirectory = $false }
                         [pscustomobject]@{ Name = "part2.$extension"; Path = "export/20260901-20260930/202609170001/run/part2.$extension"; IsDirectory = $false }
+                        if ($useCsv) { [pscustomobject]@{ Name = 'manifest.json'; Path = 'export/20260901-20260930/202609170001/run/manifest.json'; IsDirectory = $false } }
                     )
                 }
-                Mock Get-AzDataLakeGen2ItemContent { if ($Path -like '*part2*') { throw 'Simulated download failure.' } }
+                Mock Get-AzDataLakeGen2ItemContent {
+                    if ($Path -like '*manifest.json') {
+                        Set-Content -LiteralPath $Destination -Value (@{
+                                blobCount = 2; dataRowCount = 2
+                                exportConfig = @{ type = 'FocusCost'; resourceId = '/subscriptions/44444444-4444-4444-4444-444444444444/providers/Microsoft.CostManagement/exports/export' }
+                                runInfo = @{ submittedTime = '2026-09-17T00:01:00Z'; startDate = '2026-09-01T00:00:00' }
+                                blobs = @(@{ blobName = 'export/20260901-20260930/202609170001/run/part1.csv' }, @{ blobName = 'export/20260901-20260930/202609170001/run/part2.csv' })
+                            } | ConvertTo-Json -Depth 4)
+                        return
+                    }
+                    if ($Path -like '*part2*') { throw 'Simulated download failure.' }
+                }
                 Mock Read-ParquetFile { [pscustomobject]@{ BilledCost = 100; BillingCurrency = 'USD'; SubAccountId = '44444444-4444-4444-4444-444444444444' } }
                 Mock Import-Csv { [pscustomobject]@{ BilledCost = 100; BillingCurrency = 'USD'; SubAccountId = '44444444-4444-4444-4444-444444444444' } }
 
                 { Read-FinOpsHubData -StorageAccountName 'test' -ResourceGroupName 'test' -SubscriptionIds @('44444444-4444-4444-4444-444444444444') } |
-                Should -Throw '*incomplete*'
+                Should -Throw $(if ($useCsv) { '*Hub CSV read failed*' } else { '*Hub ingestion read failed*' })
             }
         }
 
@@ -3823,6 +3927,7 @@ Describe 'FinOps Multitool cost math' {
                 Mock Get-VmSizeCapability { @{ VCpu = 2; MemGb = 8 } }
                 Mock Get-StorageAccountUsedGb { 0.9 }
                 Mock Resolve-CostMgId { if ($fixtureCostPath -eq 'management group') { 'fixture' } else { $null } }
+                Mock Test-CostMgCoverage { $true }
                 Mock Invoke-AzRestMethodWithRetry {
                     $rows = @()
                     if ($Path -like '*/managementGroups/*' -or $Path -like '*/11111111-1111-1111-1111-111111111111/*') { $rows += , @(100, 'Virtual Machines', 'USD') }
@@ -3845,6 +3950,9 @@ Describe 'FinOps Multitool cost math' {
                     $result.$field | Should -BeNullOrEmpty -Because "$field requires comparable currencies"
                 }
                 $result.CostIssue | Should -Match 'currenc'
+                $result.CostScope | Should -Be $(if ($CostPath -eq 'management group') { 'mg:fixture' } else { 'per-sub' })
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times $(if ($CostPath -eq 'management group') { 1 } else { 0 }) -Exactly -ParameterFilter { $Path -like '*/managementGroups/*' }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times $(if ($CostPath -eq 'management group') { 0 } else { 2 }) -Exactly -ParameterFilter { $Path -like '/subscriptions/*' }
                 foreach ($kpiId in @('cost-per-gb-stored', 'hourly-cost-per-cpu-core', 'effective-avg-compute-cost-per-core')) {
                     $value = Get-KpiComputedValue -KpiId $kpiId -Data $result
                     $value.Value | Should -BeNullOrEmpty

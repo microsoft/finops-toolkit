@@ -23,6 +23,7 @@ function Get-OptimizationAdvice {
     )
 
     $allRecs = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $readErrors = [System.Collections.Generic.List[string]]::new()
 
     # Build subscription ID list and name lookup
     $subIds = @($Subscriptions | ForEach-Object { $_.Id })
@@ -34,7 +35,7 @@ function Get-OptimizationAdvice {
 advisorresources
 | where type == 'microsoft.advisor/recommendations'
 | where properties.category == 'Cost'
-| project subscriptionId,
+| project id, subscriptionId,
     shortDescriptionProblem  = tostring(properties.shortDescription.problem),
     shortDescriptionSolution = tostring(properties.shortDescription.solution),
     impact          = tostring(properties.impact),
@@ -47,14 +48,10 @@ advisorresources
 
     try {
         Write-Host "  Querying Advisor cost recommendations via Resource Graph..." -ForegroundColor Cyan
-        $allRows = [System.Collections.Generic.List[object]]::new()
-        $skipToken = $null
-
-        do {
-            $result = Search-AzGraphSafe -Query $query -Subscription $subIds -First 1000 -SkipToken $skipToken
-            if ($result -and $result.Data) { foreach ($r in $result.Data) { [void]$allRows.Add($r) } }
-            $skipToken = if ($result) { $result.SkipToken } else { $null }
-        } while ($skipToken)
+        # -All follows continuation tokens and fails on unreadable or truncated pages.
+        $result = Search-AzGraphSafe -Query $query -Subscription $subIds -First 1000 -All
+        if (-not $result) { throw 'Advisor recommendations could not be read from Resource Graph; results are incomplete.' }
+        $allRows = @($result.Data)
 
         Write-Host "  Retrieved $($allRows.Count) Advisor cost recommendations." -ForegroundColor Cyan
 
@@ -107,8 +104,7 @@ advisorresources
             try {
                 $advPath = "/subscriptions/$($sub.Id)/providers/Microsoft.Advisor/recommendations?api-version=2023-01-01&`$filter=Category eq 'Cost'"
                 $advResp = Invoke-AzRestMethodWithRetry -Path $advPath -Method GET
-                if ($advResp.StatusCode -ne 200) { continue }
-                $advResult = ($advResp.Content | ConvertFrom-Json)
+                $advResult = Get-FinOpsListResult -FirstResponse $advResp -Context "Advisor recommendations for $($sub.Name)"
 
                 foreach ($item in $advResult.value) {
                     $rec = $item.properties
@@ -145,6 +141,7 @@ advisorresources
                     })
                 }
             } catch {
+                [void]$readErrors.Add("$($sub.Name): $($_.Exception.Message)")
                 Write-Warning "  Advisor query failed for $($sub.Name): $($_.Exception.Message)"
             }
         }
@@ -177,6 +174,9 @@ advisorresources
         EstimatedAnnualSavings = $savingsSummary.Total
         Currency            = $savingsSummary.Currency
         CostIssue           = $savingsSummary.CostIssue
+        CoverageIncomplete  = ($readErrors.Count -gt 0)
+        ReadErrors          = @($readErrors)
+        Note                = if ($readErrors.Count -gt 0) { "Advisor recommendations are incomplete. $($readErrors -join ' ')" } else { $null }
         Summary             = "$($allRecs.Count) optimization recommendations; estimated annual savings: $(Format-BudgetAmount -Value $savingsSummary.Total -Currency $savingsSummary.Currency)"
     }
 }

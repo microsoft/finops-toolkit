@@ -88,7 +88,7 @@ function Get-SavingsRealized {
 
     # Build a Cost Management query body with the requested grouping dimensions
     function New-SavingsQueryBody {
-        param([string]$Type, [string[]]$Dimensions)
+        param([string]$Type, [string[]]$Dimensions, [hashtable]$SubscriptionFilter)
         $query = @{
             type      = $Type
             timeframe = 'Custom'
@@ -99,9 +99,13 @@ function Get-SavingsRealized {
                 grouping    = @($Dimensions | ForEach-Object { @{ type = 'Dimension'; name = $_ } })
             }
         }
+        $filters = @()
         if ($Type -eq 'AmortizedCost') {
-            $query.dataset.filter = @{ dimensions = @{ name = 'ChargeType'; operator = 'In'; values = @('Usage') } }
+            $filters += @{ dimensions = @{ name = 'ChargeType'; operator = 'In'; values = @('Usage') } }
         }
+        if ($SubscriptionFilter) { $filters += $SubscriptionFilter }
+        if ($filters.Count -eq 1) { $query.dataset.filter = $filters[0] }
+        elseif ($filters.Count -gt 1) { $query.dataset.filter = @{ and = $filters } }
         $query | ConvertTo-Json -Depth 10
     }
 
@@ -141,6 +145,8 @@ function Get-SavingsRealized {
         if (-not $Result -or -not $Result.properties.rows) { return $rows }
         $m = Get-SavingsColMap -Columns $Result.properties.columns
         foreach ($row in $Result.properties.rows) {
+            # A management-group response can include subscriptions outside the selection.
+            if ($m.SubscriptionId -ge 0 -and -not $subNameById.ContainsKey([string]$row[$m.SubscriptionId])) { continue }
             $currency = Assert-SavingsCurrency -Row $row -Columns $m
             $charge = if ($m.ChargeType -ge 0) { [string]$row[$m.ChargeType] } else { '' }
             if ($charge -match 'UnusedReservation') {
@@ -171,6 +177,7 @@ function Get-SavingsRealized {
         if ($Result -and $Result.properties.rows) {
             $m = Get-SavingsColMap -Columns $Result.properties.columns
             foreach ($row in $Result.properties.rows) {
+                if ($m.SubscriptionId -ge 0 -and -not $subNameById.ContainsKey([string]$row[$m.SubscriptionId])) { continue }
                 $currency = Assert-SavingsCurrency -Row $row -Columns $m
                 $pm = if ($m.PricingModel -ge 0) { [string]$row[$m.PricingModel] } else { '' }
                 if ([double]$row[$m.Cost] -lt 0) {
@@ -244,12 +251,14 @@ function Get-SavingsRealized {
     elseif ($hasCommitments) {
         # -- Strategy 1: MG-scope grouped by SubscriptionId (2 calls, per-sub attribution) --
         $mgScopeId = if ($TenantId) { Resolve-CostMgId -TenantId $TenantId } else { $null }
+        if ($mgScopeId -and -not (Test-CostMgCoverage -ManagementGroupId $mgScopeId -TenantId $TenantId -Subscriptions $Subscriptions)) { $mgScopeId = $null }
         if ($mgScopeId) {
             try {
                 Write-Host "  Calculating savings (MG scope, grouped by subscription)..." -ForegroundColor Cyan
                 $mgPath = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+                $subFilter = Get-CostSubscriptionFilter -Subscriptions $Subscriptions
 
-                $actualBody = New-SavingsQueryBody -Type 'ActualCost' -Dimensions @('SubscriptionId', 'ChargeType')
+                $actualBody = New-SavingsQueryBody -Type 'ActualCost' -Dimensions @('SubscriptionId', 'ChargeType') -SubscriptionFilter $subFilter
                 $actualResp = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload $actualBody
                 if ($actualResp.StatusCode -in @(401, 403)) {
                     Set-MgCostScopeFailed
@@ -263,7 +272,7 @@ function Get-SavingsRealized {
                     foreach ($d in (Read-SavingsActual -Result $actualResult)) { [void]$details.Add($d) }
                 }
 
-                $amortBody = New-SavingsQueryBody -Type 'AmortizedCost' -Dimensions @('SubscriptionId', 'PricingModel')
+                $amortBody = New-SavingsQueryBody -Type 'AmortizedCost' -Dimensions @('SubscriptionId', 'PricingModel') -SubscriptionFilter $subFilter
                 $amortResp = Invoke-AzRestMethodWithRetry -Path $mgPath -Method POST -Payload $amortBody
                 if (-not $amortResp -or $amortResp.StatusCode -ne 200) {
                     throw "MG-scope savings benefit query returned HTTP $($amortResp.StatusCode); results are incomplete."

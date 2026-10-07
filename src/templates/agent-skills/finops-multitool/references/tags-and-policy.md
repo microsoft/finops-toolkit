@@ -59,7 +59,7 @@ Other things worth flagging:
 - **Tags on resources but not on resource groups.** Inherited allocation models silently fail.
 - **Reserved prefixes.** Tags beginning `hidden-` or `microsoft` are platform-managed; exclude them from coverage math.
 
-A tag is only useful for cost allocation if it's also enabled as a **cost-allocation dimension** in Cost Management settings. High tag coverage with no cost-by-tag data almost always means that setting was never turned on. See `cost-analysis.md`.
+A tag is only useful for cost allocation if it's on the usage records. Cost data includes tags applied directly to resources. Resource group and subscription tags need tag inheritance in Cost Management, and tags aren't applied to historical usage. High tag coverage with no cost-by-tag data usually means the tags live on resource groups or were added recently. See `cost-analysis.md`.
 
 ## Policy inventory
 

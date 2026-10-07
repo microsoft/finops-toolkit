@@ -40,11 +40,14 @@ function Invoke-FinOpsMultitool {
     # Selects Hub, Export, API, or GraphOnly. An unavailable explicit source does not fall back silently.
     # .PARAMETER NonInteractive
     # Disables prompts. Requires an existing Azure context; this switch does not sign in.
+    # .PARAMETER Accessible
+    # Uses numbered prompts without clearing the screen or repainting menus. NonInteractive disables all prompts.
     # .EXAMPLE
     # Invoke-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource API -NonInteractive
     # Runs the cost-data scan for one selected subscription and saves reports locally.
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'NonInteractive', Justification = 'Read by the nested picker functions, which PSScriptAnalyzer does not trace into.')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Accessible', Justification = 'Read by nested console helpers to disable cursor-driven interaction.')]
     param(
         [string]$SubscriptionId,
         [string]$OutputPath,
@@ -52,7 +55,8 @@ function Invoke-FinOpsMultitool {
         [string[]]$Scans,
         [ValidateSet('Hub', 'Export', 'API', 'GraphOnly')]
         [string]$DataSource,
-        [switch]$NonInteractive
+        [switch]$NonInteractive,
+        [switch]$Accessible
     )
 
     if ($PSVersionTable.PSVersion.Major -lt 7) {
@@ -212,7 +216,9 @@ function Invoke-FinOpsMultitool {
     #  BANNER
     # =====================================================================
     function Show-Banner {
-        try { Clear-Host } catch { Write-Debug "Clear-Host is unavailable in this host: $_" }
+        if (-not $Accessible) {
+            try { Clear-Host } catch { Write-Debug "Clear-Host is unavailable in this host: $_" }
+        }
 
         # Version comes from the toolkit so the TUI and the module cannot drift.
         # Get-VersionNumber is a sibling private function, absent when this script runs standalone.
@@ -269,6 +275,7 @@ function Invoke-FinOpsMultitool {
     # expose $Host.UI.RawUI, and there ReadKey blocks forever rather than failing,
     # so probe a real console operation instead of testing for the object.
     function Test-FinOpsRichConsole {
+        if ($Accessible) { return $false }
         if ($null -ne $script:FinOpsRichConsole) { return $script:FinOpsRichConsole }
         $rich = $true
         try { $null = [Console]::CursorTop } catch { $rich = $false }
@@ -317,7 +324,7 @@ function Invoke-FinOpsMultitool {
     #  DATA SOURCE PICKER
     # =====================================================================
     function Select-ExportSource {
-        param([string]$TenantId, [array]$Subscriptions)
+        param([string]$TenantId, [array]$Subscriptions, [switch]$OfferApiFallback)
 
         $context = Get-AzContext -ErrorAction Stop
         if (-not $context -or $context.Tenant.Id -ne $TenantId -or -not $Subscriptions.Count -or
@@ -339,16 +346,27 @@ function Invoke-FinOpsMultitool {
         foreach ($export in $exports) {
             if ($export.StorageResourceId -and $export.Container -and $export.Name) { $knownKeys["$($export.StorageResourceId)|$($export.Container)|$(([string]$export.RootFolder).Trim('/'))|$($export.Name)".ToLowerInvariant()] = $true }
         }
-        # Always runs and is deduped against the definitions above: a cross-tenant
+        # Runs even when definitions exist and is deduped against them: a cross-tenant
         # scan commonly sees some subscriptions' exports while a central
         # management-group export stays invisible to Cost Management.
         Write-FinOpsConsole '  Scanning storage accounts in the selected subscriptions for exports Cost Management cannot see...' -ForegroundColor Cyan
         $definitionCount = $exports.Count
-        try { $exports += @(Find-CostExportFromStorage -Subscriptions $Subscriptions -Environment $environmentName -KnownKeys $knownKeys -WarningAction SilentlyContinue -WarningVariable storageWarnings) }
+        $storageSkipped = $false
+        try {
+            $stores = @(Get-ExportStorageCandidates -Subscriptions $Subscriptions -WarningAction SilentlyContinue -WarningVariable storageWarnings)
+            if ($stores.Count -gt 100 -and -not $NonInteractive) {
+                Write-FinOpsConsole "  Found $($stores.Count) storage accounts. Azure allows 100 container listings per 5 minutes in each subscription and region, so scanning them all can be slow." -ForegroundColor Yellow
+                Write-FinOpsConsole "  Scan all $($stores.Count) storage accounts? " -ForegroundColor White -NoNewline
+                Write-FinOpsConsole '(N = skip the storage scan)' -ForegroundColor DarkGray
+                $storageSkipped = (Read-FinOpsAnswer '  Select [Y/N]: ') -notmatch '^(?i)(y|yes)$'
+            }
+            if ($storageSkipped) { $discoveryIssues.Add("Export storage: skipped $($stores.Count) storage accounts by choice, so exports Cost Management can't see weren't checked.") }
+            else { $exports += @(Find-CostExportFromStorage -Subscriptions $Subscriptions -StorageAccounts $stores -Environment $environmentName -KnownKeys $knownKeys -WarningAction SilentlyContinue -WarningVariable +storageWarnings) }
+        }
         catch { $discoveryIssues.Add("Export storage: $($_.Exception.Message)") }
         if ($storageWarnings.Count) { Write-FinOpsConsole "  Storage discovery reported $($storageWarnings.Count) warning(s). Unreadable locations were skipped, not treated as empty. Available export choices are retained; use -Verbose for details." -ForegroundColor Yellow }
         foreach ($warning in @($storageWarnings)) { Write-Verbose ([regex]::Replace([string]$warning, '[\p{Cc}\p{Cf}]', ' ')) }
-        Write-FinOpsConsole "  Additional exports found directly in storage: $($exports.Count - $definitionCount)." -ForegroundColor DarkGray
+        if (-not $storageSkipped) { Write-FinOpsConsole "  Additional exports found directly in storage: $($exports.Count - $definitionCount)." -ForegroundColor DarkGray }
         foreach ($issue in $discoveryIssues) { Write-FinOpsConsole "  $issue" -ForegroundColor Yellow }
         $seen = @{}
         $candidates = @($exports | Where-Object {
@@ -359,6 +377,13 @@ function Invoke-FinOpsMultitool {
                 return $true
             } | Sort-Object Name, StorageResourceId, Container)
         if (-not $candidates.Count) {
+            if ($OfferApiFallback) {
+                Write-FinOpsConsole ''
+                Write-FinOpsConsole '  No export candidates could be verified for the selected subscriptions.' -ForegroundColor Yellow
+                Write-FinOpsConsole '  Use the live Cost Management API instead? ' -ForegroundColor White -NoNewline
+                Write-FinOpsConsole '(N = stop without scanning)' -ForegroundColor DarkGray
+                if ((Read-FinOpsAnswer '  Select [Y/N]: ') -match '^(?i)(y|yes)$') { return @{ Source = 'API'; HubStorage = $null } }
+            }
             throw 'No export candidates could be verified. Some definitions or destinations may be inaccessible; this does not establish that no exports exist. Check access and network connectivity to the intended export destination, then retry with -Verbose for details.'
         }
         Write-FinOpsConsole '  Export data will be filtered to the selected subscriptions. Missing coverage will not be filled with live API costs.' -ForegroundColor DarkGray
@@ -474,16 +499,17 @@ function Invoke-FinOpsMultitool {
             Write-FinOpsConsole "  - Pre-processed data from your Hub's ingestion pipeline" -ForegroundColor DarkGray
             Write-FinOpsConsole "       Faster, consistent, includes normalized/amortized costs" -ForegroundColor DarkGray
             Write-FinOpsConsole ""
-            Write-FinOpsConsole "  [2] Cost Management API" -ForegroundColor Yellow -NoNewline
-            Write-FinOpsConsole "  - Query Azure Cost Management REST APIs directly" -ForegroundColor DarkGray
-            Write-FinOpsConsole "       Real-time, no Hub required, subject to API throttling" -ForegroundColor DarkGray
-            Write-FinOpsConsole ""
-            Write-FinOpsConsole "  [3] Resource Graph only" -ForegroundColor DarkGray -NoNewline
-            Write-FinOpsConsole "  - Skip cost modules, run governance/optimization scans only" -ForegroundColor DarkGray
-            Write-FinOpsConsole ""
-            Write-FinOpsConsole '  [4] Cost Management exports (CSV storage)' -ForegroundColor Cyan
+            Write-FinOpsConsole '  [2] Cost Management exports (CSV storage)' -ForegroundColor Cyan
             Write-FinOpsConsole '       Discover existing exports without requiring a FinOps Hub' -ForegroundColor DarkGray
             Write-FinOpsConsole ''
+            Write-FinOpsConsole "  [3] Cost Management API" -ForegroundColor Yellow -NoNewline
+            Write-FinOpsConsole "  - Query Azure Cost Management REST APIs directly" -ForegroundColor DarkGray
+            Write-FinOpsConsole "       Real-time, no Hub required, subject to API throttling" -ForegroundColor DarkGray
+            Write-FinOpsConsole "       Best for smaller tenants or when no exports exist" -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
+            Write-FinOpsConsole "  [4] Resource Graph only" -ForegroundColor DarkGray -NoNewline
+            Write-FinOpsConsole "  - Skip cost modules, run governance/optimization scans only" -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
 
             $attempts = 0
             while ($true) {
@@ -527,7 +553,12 @@ function Invoke-FinOpsMultitool {
                             Write-FinOpsConsole "  Use the live Cost Management API instead? " -ForegroundColor White -NoNewline
                             Write-FinOpsConsole "(N = continue with the Hub anyway)" -ForegroundColor DarkGray
                             $useApi = Read-FinOpsAnswer '  Select [Y/N]: '
-                            if ($useApi -notmatch '^(?i)(n|no)$') {
+                            for ($attempt = 1; $useApi -notmatch '^(?i)(y|yes|n|no)$'; $attempt++) {
+                                if ($Accessible -or $attempt -ge 3) { throw 'No valid data source was selected. No scan was started.' }
+                                Write-FinOpsConsole '  Enter Y or N.' -ForegroundColor Yellow
+                                $useApi = Read-FinOpsAnswer '  Select [Y/N]: '
+                            }
+                            if ($useApi -match '^(?i)(y|yes)$') {
                                 return @{ Source = 'API'; HubStorage = $hubStorage }
                             }
                             return @{ Source = 'Hub'; HubStorage = $hubStorage; HubProviderResolved = $true }
@@ -556,19 +587,21 @@ function Invoke-FinOpsMultitool {
                         Write-FinOpsConsole "  Switch to the live Cost Management API instead? " -ForegroundColor White -NoNewline
                         Write-FinOpsConsole "(N = continue with the storage reader)" -ForegroundColor DarkGray
                         $useApi = Read-FinOpsAnswer '  Select [Y/N]: '
+                        if ($Accessible -and $useApi -notmatch '^(?i)(y|yes|n|no)$') { throw 'No valid data source was selected. No scan was started.' }
                         if ($useApi -match '^(?i)(y|yes)$') {
                             return @{ Source = 'API'; HubStorage = $hubStorage }
                         }
                         return @{ Source = 'Hub'; HubStorage = $hubStorage; HubProviderResolved = $true }
                     }
-                    '2' { return @{ Source = 'API'; HubStorage = $hubStorage } }
-                    '3' { return @{ Source = 'GraphOnly'; HubStorage = $hubStorage } }
-                    '4' { return Select-ExportSource -TenantId $TenantId -Subscriptions $Subscriptions }
+                    '2' { return Select-ExportSource -TenantId $TenantId -Subscriptions $Subscriptions -OfferApiFallback }
+                    '3' { return @{ Source = 'API'; HubStorage = $hubStorage } }
+                    '4' { return @{ Source = 'GraphOnly'; HubStorage = $hubStorage } }
                     default {
                         $attempts++
                         # A console that cannot take input returns empty forever, so only give
                         # up there. A real terminal keeps asking until it gets an answer.
                         if ($attempts -ge 3 -and -not (Test-FinOpsRichConsole)) {
+                            if ($Accessible) { throw 'No valid data source was selected. No scan was started.' }
                             Write-FinOpsConsole "  No valid selection. Using the FinOps Hub." -ForegroundColor Yellow
                             return @{ Source = 'Hub'; HubStorage = $hubStorage }
                         }
@@ -585,27 +618,29 @@ function Invoke-FinOpsMultitool {
                 Write-FinOpsConsole "  No FinOps Hub found in selected subscriptions." -ForegroundColor DarkGray
             }
             Write-FinOpsConsole ""
-            Write-FinOpsConsole "  [1] Cost Management API" -ForegroundColor Yellow -NoNewline
-            Write-FinOpsConsole "  - Query Azure Cost Management REST APIs directly" -ForegroundColor DarkGray
-            Write-FinOpsConsole "       Real-time, subject to API throttling on large tenants" -ForegroundColor DarkGray
-            Write-FinOpsConsole ""
-            Write-FinOpsConsole "  [2] Resource Graph only" -ForegroundColor DarkGray -NoNewline
-            Write-FinOpsConsole "  - Skip cost modules, run governance/optimization scans only" -ForegroundColor DarkGray
-            Write-FinOpsConsole ""
-            Write-FinOpsConsole '  [3] Cost Management exports (CSV storage)' -ForegroundColor Cyan
+            Write-FinOpsConsole '  [1] Cost Management exports (CSV storage)' -ForegroundColor Cyan
             Write-FinOpsConsole '       Discover existing exports without requiring a FinOps Hub' -ForegroundColor DarkGray
             Write-FinOpsConsole ''
+            Write-FinOpsConsole "  [2] Cost Management API" -ForegroundColor Yellow -NoNewline
+            Write-FinOpsConsole "  - Query Azure Cost Management REST APIs directly" -ForegroundColor DarkGray
+            Write-FinOpsConsole "       Real-time, subject to API throttling on large tenants" -ForegroundColor DarkGray
+            Write-FinOpsConsole "       Best for smaller tenants or when no exports exist" -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
+            Write-FinOpsConsole "  [3] Resource Graph only" -ForegroundColor DarkGray -NoNewline
+            Write-FinOpsConsole "  - Skip cost modules, run governance/optimization scans only" -ForegroundColor DarkGray
+            Write-FinOpsConsole ""
 
             $attempts = 0
             while ($true) {
                 $choice = Read-FinOpsAnswer '  Select [1/2/3]: '
                 switch ($choice) {
-                    '1' { return @{ Source = 'API'; HubStorage = $null } }
-                    '2' { return @{ Source = 'GraphOnly'; HubStorage = $null } }
-                    '3' { return Select-ExportSource -TenantId $TenantId -Subscriptions $Subscriptions }
+                    '1' { return Select-ExportSource -TenantId $TenantId -Subscriptions $Subscriptions -OfferApiFallback }
+                    '2' { return @{ Source = 'API'; HubStorage = $null } }
+                    '3' { return @{ Source = 'GraphOnly'; HubStorage = $null } }
                     default {
                         $attempts++
                         if ($attempts -ge 3 -and -not (Test-FinOpsRichConsole)) {
+                            if ($Accessible) { throw 'No valid data source was selected. No scan was started.' }
                             Write-FinOpsConsole "  No valid selection. Using the Cost Management API." -ForegroundColor Yellow
                             return @{ Source = 'API'; HubStorage = $null }
                         }
@@ -1148,47 +1183,42 @@ function Invoke-FinOpsMultitool {
                     Write-FinOpsConsole "  Could not verify tag coverage via ARG: $($_.Exception.Message)" -ForegroundColor DarkGray
                 }
 
-                if ($DataSource.Source -eq 'Hub') {
+                try {
+                    $hubCostData = ConvertTo-CostDataFromHub -HubData $hubRaw
+                }
+                catch {
+                    $hubScanErrors['Get-CostData'] = $_.Exception.Message
+                    $hubCostData = $null
+                }
+                try {
+                    $hubResourceCosts = ConvertTo-ResourceCostsFromHub -HubData $hubRaw
+                }
+                catch {
+                    $hubScanErrors['Get-ResourceCosts'] = $_.Exception.Message
+                    $hubResourceCosts = $null
+                }
+                $currentMonth = (Get-Date).ToUniversalTime()
+                $currentMonth = $currentMonth.Date.AddDays(1 - $currentMonth.Day)
+                $forecastSubscriptions = @($Subscriptions | Where-Object {
+                        $entry = if ($hubCostData) { $hubCostData[$_.Id] } else { $null }
+                        $entry -and $null -ne $entry.ActualPeriodStart -and $null -ne $entry.ActualPeriodEnd -and
+                        $entry.ActualPeriodStart -ge $currentMonth -and $entry.ActualPeriodEnd -lt $currentMonth.AddMonths(1)
+                    })
+                if ($hubCostData -and $forecastSubscriptions.Count -gt 0) {
                     try {
-                        $hubCostData = ConvertTo-CostDataFromHub -HubData $hubRaw
-                    }
-                    catch {
-                        $hubScanErrors['Get-CostData'] = $_.Exception.Message
-                        $hubCostData = $null
-                    }
-                    try {
-                        $hubResourceCosts = ConvertTo-ResourceCostsFromHub -HubData $hubRaw
-                    }
-                    catch {
-                        $hubScanErrors['Get-ResourceCosts'] = $_.Exception.Message
-                        $hubResourceCosts = $null
-                    }
-                    $currentMonth = (Get-Date).ToUniversalTime()
-                    $currentMonth = $currentMonth.Date.AddDays(1 - $currentMonth.Day)
-                    $forecastSubscriptions = @($Subscriptions | Where-Object {
-                            $entry = if ($hubCostData) { $hubCostData[$_.Id] } else { $null }
-                            $entry -and $null -ne $entry.ActualPeriodStart -and $null -ne $entry.ActualPeriodEnd -and
-                            $entry.ActualPeriodStart -ge $currentMonth -and $entry.ActualPeriodEnd -lt $currentMonth.AddMonths(1)
-                        })
-                    if ($hubCostData -and $forecastSubscriptions.Count -gt 0) {
-                        try {
-                            $liveCost = Get-CostData -TenantId $TenantId -Subscriptions $forecastSubscriptions -RestrictToSelected
-                            foreach ($subId in $forecastSubscriptions.Id) {
-                                $forecast = $liveCost[$subId]
-                                if ($forecast -and $forecast.ForecastSource -eq 'Forecast' -and $forecast.Currency -eq $hubCostData[$subId].Currency) {
-                                    $hubCostData[$subId].Forecast = $forecast.Forecast
-                                    $hubCostData[$subId].ForecastSource = 'Cost Management API (current month)'
-                                }
+                        $liveCost = Get-CostData -TenantId $TenantId -Subscriptions $forecastSubscriptions -RestrictToSelected
+                        foreach ($subId in $forecastSubscriptions.Id) {
+                            $forecast = $liveCost[$subId]
+                            if ($forecast -and $forecast.ForecastSource -eq 'Forecast' -and $forecast.Currency -eq $hubCostData[$subId].Currency) {
+                                $hubCostData[$subId].Forecast = $forecast.Forecast
+                                $hubCostData[$subId].ForecastSource = 'Cost Management API (current month)'
                             }
                         }
-                        catch { Write-FinOpsConsole "  Live forecast unavailable; hub actuals remain available. $($_.Exception.Message)" -ForegroundColor Yellow }
                     }
+                    catch { Write-FinOpsConsole "  Live forecast unavailable; hub actuals remain available. $($_.Exception.Message)" -ForegroundColor Yellow }
+                }
 
-                    Write-FinOpsConsole "  Hub data loaded: $(@($hubRaw).Count) cost records, $($hubTagInventory.TagCount) tags, $($hubTagInventory.TagCoverage)% coverage" -ForegroundColor Green
-                }
-                else {
-                    Write-FinOpsConsole "  Hub tag data ready: $($hubTagInventory.TagCount) tags, $($hubTagInventory.TagCoverage)% coverage" -ForegroundColor DarkGray
-                }
+                Write-FinOpsConsole "  Hub data loaded: $(@($hubRaw).Count) cost records, $($hubTagInventory.TagCount) tags, $($hubTagInventory.TagCoverage)% coverage" -ForegroundColor Green
             }
             else {
                 $hubRaw = $null
@@ -1418,6 +1448,7 @@ function Invoke-FinOpsMultitool {
                             $params['RestrictToSelected'] = $true
                         }
                         if ($fn -eq 'Get-OrphanedResources' -and $DataSource.Source -in @('GraphOnly', 'Export')) { $params.SkipCost = $true }
+                        if ($fn -eq 'Get-ResourceCosts' -and $results['Get-CostData'] -is [hashtable]) { $params.CostData = $results['Get-CostData'] }
                         $output = & $fn @params
                     }
                 }
@@ -1967,7 +1998,7 @@ function Invoke-FinOpsMultitool {
             switch ($mod.Fn) {
                 'Get-OrphanedResources' {
                     if ($data.MonthlyCost) {
-                        Write-FinOpsConsole "    Observed cost ($($data.CostPeriod)): $('{0:C2}' -f [double]$data.MonthlyCost) across $($data.CostedCount) of $($data.TotalCount) resources" -ForegroundColor White
+                        Write-FinOpsConsole "    Observed cost ($($data.CostPeriod)): $(Format-BudgetAmount -Value $data.MonthlyCost -Currency $data.Currency) across $($data.CostedCount) of $($data.TotalCount) resources" -ForegroundColor White
                     }
                     if ($data.CostIssue) {
                         Write-FinOpsConsole "    Cost column incomplete - $($data.CostIssue)" -ForegroundColor Yellow
@@ -1981,7 +2012,7 @@ function Invoke-FinOpsMultitool {
                             ResourceName  = $_.ResourceName
                             ResourceGroup = $_.ResourceGroup
                         }
-                        $o[$costCol] = if ($null -ne $_.MonthlyCost) { '{0:C2}' -f [double]$_.MonthlyCost } else { $noCost }
+                        $o[$costCol] = if ($null -ne $_.MonthlyCost) { Format-BudgetAmount -Value $_.MonthlyCost -Currency $_.Currency } else { $noCost }
                         $o['Detail'] = $_.Detail
                         [PSCustomObject]$o
                     }
@@ -2703,8 +2734,8 @@ function Invoke-FinOpsMultitool {
                             Get-CafAllocationTag
                         }
                         else {
-                            @('CostCenter', 'Customer', 'Project', 'Environment', 'Application',
-                                'Owner', 'BusinessUnit', 'Department', 'Team', 'Service', 'WorkloadName')
+                            @('CostCenter', 'Customer', 'Project', 'Environment', 'Application', 'ApplicationName',
+                                'Owner', 'BusinessUnit', 'Department', 'Team', 'OpsTeam', 'Service', 'WorkloadName')
                         }
                         # Prefer the per-resource allocation figure so the guidance
                         # and the FinOps KPI report the same number. Falls back to
@@ -2969,8 +3000,9 @@ function Invoke-FinOpsMultitool {
                         )
                     }
                     elseif ($rules -eq 0) {
+                        $noRuleMessage = if (@($data.ConfiguredRules).Count -gt 0) { 'Anomaly alert rules exist but none are enabled. Enable a rule for early spend warnings.' } else { 'No anomaly detection rules configured. Set up Cost Management anomaly alerts for early spend warnings.' }
                         $guidanceItems = @(
-                            @{ Severity = 'Yellow'; Message = "No anomaly detection rules configured. Set up Cost Management anomaly alerts for early spend warnings." }
+                            @{ Severity = 'Yellow'; Message = $noRuleMessage }
                             @{ Severity = 'Yellow'; Message = "Anomaly detection is built into Azure Cost Management at no extra cost."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges' }
                         )
                     }
@@ -3040,7 +3072,10 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-OptimizationAdvice' {
-                    if ($data.CostIssue) {
+                    if ($data.CoverageIncomplete) {
+                        $guidanceItems = @(@{ Severity = 'Yellow'; Message = [string]$data.Note })
+                    }
+                    elseif ($data.CostIssue) {
                         $guidanceItems = @(@{ Severity = 'Yellow'; Message = [string]$data.CostIssue })
                     }
                     elseif ($data.Recommendations -and @($data.Recommendations).Count -gt 0) {
@@ -3718,7 +3753,7 @@ h2[id] { scroll-margin-top: 85px; }
                 switch ($fn) {
                     'Get-OrphanedResources' {
                         if ($data.MonthlyCost) {
-                            [void]$htmlSb.Append("<p>Observed cost ($([System.Net.WebUtility]::HtmlEncode([string]$data.CostPeriod))): <span class=`"money`">$('{0:C2}' -f [double]$data.MonthlyCost)</span> across $($data.CostedCount) of $($data.TotalCount) resources</p>")
+                            [void]$htmlSb.Append("<p>Observed cost ($([System.Net.WebUtility]::HtmlEncode([string]$data.CostPeriod))): <span class=`"money`">$([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.MonthlyCost -Currency $data.Currency)))</span> across $($data.CostedCount) of $($data.TotalCount) resources</p>")
                         }
                         if ($data.CostIssue) {
                             [void]$htmlSb.Append("<div class=`"guidance yellow`">Cost column incomplete: $([System.Net.WebUtility]::HtmlEncode([string]$data.CostIssue)). An empty cost cell below means the lookup failed, not that the resource is free.</div>")
@@ -3732,7 +3767,7 @@ h2[id] { scroll-margin-top: 85px; }
                                 ResourceName  = $_.ResourceName
                                 ResourceGroup = $_.ResourceGroup
                             }
-                            $o[$costColHtml] = if ($null -ne $_.MonthlyCost) { '{0:C2}' -f [double]$_.MonthlyCost } else { $noCostHtml }
+                            $o[$costColHtml] = if ($null -ne $_.MonthlyCost) { Format-BudgetAmount -Value $_.MonthlyCost -Currency $_.Currency } else { $noCostHtml }
                             $o['Detail'] = $_.Detail
                             [PSCustomObject]$o
                         }
@@ -4711,6 +4746,7 @@ h2[id] { scroll-margin-top: 85px; }
 
     # Step 4: Run
     $results = Invoke-SelectedScans -Modules $finalModules -Subscriptions $subs -TenantId $tenantId -DataSource $sourceChoice -PermissionInfo $permissionInfo
+    # Keep the documented drill-down name; each run overwrites any global value, including one set by the caller.
     $global:FinOpsResults = $results
 
     # Step 5: Summary + export

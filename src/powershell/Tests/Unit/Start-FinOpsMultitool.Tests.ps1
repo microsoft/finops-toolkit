@@ -129,7 +129,8 @@ function Invoke-FinOpsMultitool {
         [string]$OutputPath,
         [string[]]$Scans,
         [string]$DataSource,
-        [switch]$NonInteractive
+        [switch]$NonInteractive,
+        [switch]$Accessible
     )
     [pscustomobject]@{
         SubscriptionId = $SubscriptionId
@@ -137,6 +138,7 @@ function Invoke-FinOpsMultitool {
         Scans = $Scans
         DataSource = $DataSource
         NonInteractive = $NonInteractive.IsPresent
+        Accessible = $Accessible.IsPresent
         BoundParameters = @($PSBoundParameters.Keys)
     }
 }
@@ -178,6 +180,45 @@ function Invoke-FinOpsMultitool {
 
                 $result.NonInteractive | Should -BeFalse
                 $result.BoundParameters | Should -Contain 'NonInteractive'
+            }
+
+            It 'Forwards Accessible when explicitly set to <Enabled>' -Tag 'AccessibleMode' -ForEach @(
+                @{ Enabled = $true }
+                @{ Enabled = $false }
+            ) {
+                $result = Start-FinOpsMultitool -Accessible:$Enabled
+
+                $result.Accessible | Should -Be $Enabled
+                $result.BoundParameters | Should -Contain 'Accessible'
+                $result.NonInteractive | Should -BeFalse
+            }
+        }
+
+        Context 'Accessible console selection' {
+            BeforeEach {
+                $tuiPath = Join-Path $PSScriptRoot '../../Private/FinOpsMultitool/Invoke-FinOpsMultitool.ps1'
+                $tuiAst = [Management.Automation.Language.Parser]::ParseFile($tuiPath, [ref]$null, [ref]$null)
+                foreach ($definition in $tuiAst.FindAll({
+                            param($node)
+                            $node -is [Management.Automation.Language.FunctionDefinitionAst] -and
+                            $node.Name -in @('Test-FinOpsRichConsole', 'Write-FinOpsConsole')
+                        }, $true)) {
+                    . ([scriptblock]::Create($definition.Extent.Text))
+                }
+                $script:PreviousRichConsole = $script:FinOpsRichConsole
+                $script:FinOpsRichConsole = $true
+                Mock Write-Host { }
+            }
+
+            AfterEach { $script:FinOpsRichConsole = $script:PreviousRichConsole }
+
+            It 'Overrides a cached rich console only when Accessible is <Enabled>' -Tag 'AccessibleMode' -ForEach @(
+                @{ Enabled = $true }
+                @{ Enabled = $false }
+            ) {
+                Set-Variable -Name Accessible -Value $Enabled -Scope Local
+
+                Test-FinOpsRichConsole | Should -Be (-not $Accessible)
             }
         }
 
@@ -250,6 +291,48 @@ function Invoke-FinOpsMultitool {
                 Remove-Module FinOpsMultitool -ErrorAction SilentlyContinue
             }
 
+            It 'Completes an accessible launch with NonInteractive set to <Unattended>' -Tag 'AccessibleMode' -ForEach @(
+                @{ Unattended = $false }
+                @{ Unattended = $true }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                $answers = [Collections.Generic.Queue[string]]::new()
+                $answers.Enqueue('S')
+                $answers.Enqueue('1')
+                $answers.Enqueue('')
+                Mock Read-Host { if ($answers.Count) { $answers.Dequeue() } else { throw 'Unexpected prompt.' } }
+                Mock Get-AzTenant {
+                    @(
+                        [pscustomobject]@{ TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'; Name = 'Selected tenant' }
+                        [pscustomobject]@{ TenantId = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'; Name = 'Other tenant' }
+                    )
+                }
+                Mock Get-AzSubscription {
+                    $first = [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First subscription'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'; State = 'Enabled' }
+                    if ($SubscriptionId) { return $first }
+                    @($first, [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second subscription'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'; State = 'Enabled' })
+                }
+                $parameters = @{
+                    Accessible = $true
+                    NonInteractive = $Unattended
+                    Scans = @('Get-CostData')
+                    DataSource = 'API'
+                    OutputPath = (Join-Path $TestDrive 'accessible-reports')
+                    ErrorAction = 'Stop'
+                }
+                if ($Unattended) { $parameters.SubscriptionId = '11111111-1111-1111-1111-111111111111' }
+
+                Start-FinOpsMultitool @parameters
+
+                $result = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
+                $result.ContainsKey('_error_Get-CostData') | Should -BeFalse
+                $result['Get-CostData']['11111111-1111-1111-1111-111111111111'].Actual | Should -Be 100
+                Should -Invoke Clear-Host -Times 0 -Exactly
+                Should -Invoke Read-Host -Times $(if ($Unattended) { 0 } else { 3 }) -Exactly
+                Should -Invoke Connect-AzAccount -Times 0 -Exactly
+                Should -Invoke Get-AzSubscription -Times 0 -Exactly -ParameterFilter { $TenantId -ne 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }
+            }
+
             It 'Runs the real public launcher and exports reports for <Mode>' -ForEach @(
                 @{ Mode = 'API'; Source = 'API'; HubUri = $null; NeedsToken = $false }
                 @{ Mode = 'ApiWithKustoOverride'; Source = 'API'; HubUri = 'http://localhost:8082'; NeedsToken = $false }
@@ -319,7 +402,7 @@ function Invoke-FinOpsMultitool {
                             $args[0].Name -in @('Select-DataSource', 'Select-ExportSource', 'Read-FinOpsAnswer', 'Write-FinOpsConsole', 'Test-FinOpsRichConsole')
                         }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
                 $answers = [Collections.Generic.Queue[string]]::new()
-                $answers.Enqueue('3')
+                $answers.Enqueue('1')
                 $answers.Enqueue('1')
                 Mock Read-FinOpsAnswer { if ($answers.Count) { $answers.Dequeue() } else { '' } }
                 Mock Test-FinOpsRichConsole { $false }
@@ -328,6 +411,7 @@ function Invoke-FinOpsMultitool {
                     @([pscustomobject]@{ Name = 'example-focus'; Format = 'Csv'; Type = 'FocusCost'; SubId = '11111111-1111-1111-1111-111111111111'; ScopeKind = 'Subscription'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/examplestorage'; Container = 'exports'; RootFolder = 'cost'; LastRunDate = '2026-10-01' })
                 }
                 Mock Find-CostExportFromStorage { @() }
+                Mock Get-ExportStorageCandidates { @() }
                 $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example subscription'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
 
                 $choice = Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -Preselected $Preselected
@@ -349,6 +433,7 @@ function Invoke-FinOpsMultitool {
                 foreach ($definition in $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -in @('Select-DataSource', 'Select-ExportSource', 'Write-FinOpsConsole', 'Read-FinOpsAnswer') }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
                 Mock Read-FinOpsAnswer { '1' }
                 Mock Find-CostExport { @() }
+                Mock Get-ExportStorageCandidates { @() }
                 Mock Find-CostExportFromStorage {
                     Write-Warning 'Synthetic storage probe HTTP 403.'
                     Write-Warning 'Synthetic second storage probe HTTP 403.'
@@ -377,6 +462,7 @@ function Invoke-FinOpsMultitool {
                 Mock Find-CostExport {
                     @([pscustomobject]@{ Name = 'defined-actual'; Format = 'Csv'; Type = 'ActualCost'; ScopeKind = 'Subscription'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/example'; Container = 'exports'; RootFolder = 'costs' })
                 }
+                Mock Get-ExportStorageCandidates { @() }
                 Mock Find-CostExportFromStorage {
                     @([pscustomobject]@{ Name = 'hidden-focus'; Format = 'Csv'; Type = 'FocusCost'; ScopeKind = 'Storage'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/example'; Container = 'billingdata'; RootFolder = 'costs' })
                 }
@@ -406,6 +492,7 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 Mock Find-CostExportFromStorage { @() }
+                Mock Get-ExportStorageCandidates { @() }
                 Mock Get-CostExportData { throw 'No export should be read.' }
                 $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example'; TenantId = $(if ($WrongTenant) { 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' } else { 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }) })
 
@@ -415,6 +502,77 @@ function Invoke-FinOpsMultitool {
                 Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
                 Should -Invoke Read-Host -Times 0 -Exactly
                 if ($WrongTenant) { Should -Invoke Find-CostExport -Times 0 -Exactly; Should -Invoke Find-CostExportFromStorage -Times 0 -Exactly }
+            }
+
+            It 'Offers the API only by explicit menu answer when no export is found: <Case>' -Tag 'GenericExportPicker' -ForEach @(
+                @{ Case = 'no Hub, answer Y'; HubAvailable = $false; Preselected = $null; Answers = @('1', 'Y'); ExpectedSource = 'API' }
+                @{ Case = 'Hub found, answer yes'; HubAvailable = $true; Preselected = $null; Answers = @('2', 'yes'); ExpectedSource = 'API' }
+                @{ Case = 'answer N'; HubAvailable = $false; Preselected = $null; Answers = @('1', 'N'); ExpectedSource = $null }
+                @{ Case = 'empty answer'; HubAvailable = $false; Preselected = $null; Answers = @('1', ''); ExpectedSource = $null }
+                @{ Case = 'explicit Export parameter'; HubAvailable = $false; Preselected = 'Export'; Answers = @(); ExpectedSource = $null }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Set-Variable -Name NonInteractive -Value $false -Scope Local
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -in @('Select-DataSource', 'Select-ExportSource', 'Read-FinOpsAnswer', 'Write-FinOpsConsole') }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                $answerQueue = [Collections.Generic.Queue[string]]::new([string[]]$Answers)
+                Mock Read-FinOpsAnswer { if ($answerQueue.Count) { $answerQueue.Dequeue() } else { throw 'Unexpected prompt.' } }
+                Mock Search-AzGraph { if ($HubAvailable) { [pscustomobject]@{ name = 'fixturehub'; resourceGroup = 'fixture' } } else { @() } }
+                Mock Resolve-FOHubProvider { throw 'Only the Hub choice may resolve a Hub provider.' }
+                Mock Find-CostExport { @() }
+                Mock Find-CostExportFromStorage { @() }
+                Mock Get-ExportStorageCandidates { @() }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+
+                if ($ExpectedSource) {
+                    $choice = Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -Preselected $Preselected
+                    $choice.Source | Should -Be $ExpectedSource
+                    $choice.Export | Should -BeNullOrEmpty
+                }
+                else {
+                    { Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -Preselected $Preselected } | Should -Throw '*No export candidates*'
+                }
+                Should -Invoke Read-FinOpsAnswer -Times $Answers.Count -Exactly
+                Should -Invoke Write-Host -Times $(if ($Preselected) { 0 } else { 1 }) -Exactly -ParameterFilter { $Object -like '*live Cost Management API instead*' }
+                Should -Invoke Find-CostExport -Times 1 -Exactly
+                Should -Invoke Resolve-FOHubProvider -Times 0 -Exactly
+            }
+
+            It 'Asks before scanning more than 100 storage accounts: <Case>' -Tag 'AutomaticExportDiscovery' -ForEach @(
+                @{ Case = 'scan all'; StoreCount = 101; Unattended = $false; Answers = @('Y', '1'); ExpectPrompt = $true; ExpectScan = $true }
+                @{ Case = 'skip'; StoreCount = 101; Unattended = $false; Answers = @('N'); ExpectPrompt = $true; ExpectScan = $false }
+                @{ Case = 'empty answer'; StoreCount = 101; Unattended = $false; Answers = @(''); ExpectPrompt = $true; ExpectScan = $false }
+                @{ Case = '100 accounts'; StoreCount = 100; Unattended = $false; Answers = @('1'); ExpectPrompt = $false; ExpectScan = $true }
+                @{ Case = 'unattended'; StoreCount = 101; Unattended = $true; Answers = @(); ExpectPrompt = $false; ExpectScan = $true }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Set-Variable -Name NonInteractive -Value $Unattended -Scope Local
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -in @('Select-DataSource', 'Select-ExportSource', 'Read-FinOpsAnswer', 'Write-FinOpsConsole') }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                $answerQueue = [Collections.Generic.Queue[string]]::new([string[]]$Answers)
+                Mock Read-FinOpsAnswer { if ($answerQueue.Count) { $answerQueue.Dequeue() } else { throw 'Unexpected prompt.' } }
+                Mock Find-CostExport { @() }
+                Mock Get-ExportStorageCandidates {
+                    foreach ($storeIndex in 1..$StoreCount) { [pscustomobject]@{ Name = "store$storeIndex"; ResourceId = "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/store$storeIndex"; SubId = '11111111-1111-1111-1111-111111111111' } }
+                }
+                Mock Find-CostExportFromStorage {
+                    @([pscustomobject]@{ Name = 'storage-focus'; Format = 'Csv'; Type = 'FocusCost'; ScopeKind = 'Storage'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/store1'; Container = 'exports'; RootFolder = 'costs' })
+                }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+
+                if ($ExpectScan) {
+                    $choice = Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -Preselected Export
+                    $choice.Export.Name | Should -Be 'storage-focus'
+                }
+                else {
+                    { Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -Preselected Export } | Should -Throw '*No export candidates*'
+                    Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { $Object -like '*skipped 101 storage accounts by choice*' }
+                }
+                Should -Invoke Get-ExportStorageCandidates -Times 1 -Exactly
+                Should -Invoke Find-CostExportFromStorage -Times $(if ($ExpectScan) { 1 } else { 0 }) -Exactly -ParameterFilter { @($StorageAccounts).Count -eq $StoreCount }
+                Should -Invoke Write-Host -Times $(if ($ExpectPrompt) { 1 } else { 0 }) -Exactly -ParameterFilter { $Object -like '*Scan all * storage accounts`?*' }
+                Should -Invoke Write-Host -Times $(if ($ExpectScan) { 1 } else { 0 }) -Exactly -ParameterFilter { $Object -like '*Additional exports found directly in storage*' }
+                Should -Invoke Read-FinOpsAnswer -Times $Answers.Count -Exactly
             }
 
             It 'Keeps export cost scans off live APIs (read failure: <ReadFails>)' -Tag 'GenericExportRunner' -ForEach @(
@@ -474,6 +632,7 @@ function Invoke-FinOpsMultitool {
                     @([pscustomobject]@{ Name = 'example-export'; Format = 'Csv'; Type = 'ActualCost'; StorageResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/example'; Container = 'exports'; RootFolder = 'costs' })
                 }
                 Mock Find-CostExportFromStorage { @() }
+                Mock Get-ExportStorageCandidates { @() }
                 Mock Get-CostExportData {
                     [pscustomobject]@{ CostBasis = 'ActualCost'; DataDate = [datetime]'2026-10-01'; Rows = @([pscustomobject]@{ SubscriptionId = '11111111-1111-1111-1111-111111111111'; Cost = 125; Currency = 'USD'; Date = '2026-09-30' }) }
                 }
@@ -490,6 +649,72 @@ function Invoke-FinOpsMultitool {
                 Should -Invoke Invoke-FOHubKustoQuery -ModuleName FinOpsMultitool -Times 0 -Exactly
                 Should -Invoke Search-AzGraph -Times 0 -Exactly
                 Should -Invoke Read-Host -Times 0 -Exactly
+            }
+
+            It 'Cancels invalid accessible source input for <Case>' -Tag 'AccessibleMode', 'AccessibleSourceChoice' -ForEach @(
+                @{ Case = 'no hub, invalid'; HubAvailable = $false; InputValue = 'x'; Confirmation = $false; Reachable = $true; PromptCount = 3 }
+                @{ Case = 'no hub, blank'; HubAvailable = $false; InputValue = ''; Confirmation = $false; Reachable = $true; PromptCount = 3 }
+                @{ Case = 'hub, invalid'; HubAvailable = $true; InputValue = 'x'; Confirmation = $false; Reachable = $true; PromptCount = 3 }
+                @{ Case = 'hub, blank'; HubAvailable = $true; InputValue = ''; Confirmation = $false; Reachable = $true; PromptCount = 3 }
+                @{ Case = 'unreachable hub, invalid confirmation'; HubAvailable = $true; InputValue = 'x'; Confirmation = $true; Reachable = $false; PromptCount = 2 }
+                @{ Case = 'unreachable hub, blank confirmation'; HubAvailable = $true; InputValue = ''; Confirmation = $true; Reachable = $false; PromptCount = 2 }
+                @{ Case = 'large hub, invalid confirmation'; HubAvailable = $true; InputValue = 'x'; Confirmation = $true; Reachable = $true; PromptCount = 2 }
+                @{ Case = 'large hub, blank confirmation'; HubAvailable = $true; InputValue = ''; Confirmation = $true; Reachable = $true; PromptCount = 2 }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Set-Variable -Name Accessible -Value $true -Scope Local
+                Set-Variable -Name NonInteractive -Value $false -Scope Local
+                $launcherAst = [Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({
+                            param($node)
+                            $node -is [Management.Automation.Language.FunctionDefinitionAst] -and
+                            $node.Name -in @('Select-DataSource', 'Test-FinOpsRichConsole', 'Read-FinOpsAnswer', 'Write-FinOpsConsole')
+                        }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                $answers = [Collections.Generic.Queue[string]]::new()
+                if ($Confirmation) { $answers.Enqueue('1') }
+                $answers.Enqueue($InputValue)
+                Mock Read-Host { if ($answers.Count) { $answers.Dequeue() } else { $InputValue } }
+                Mock Search-AzGraph { if ($HubAvailable) { [pscustomobject]@{ name = 'fixturehub'; resourceGroup = 'fixture' } } else { @() } }
+                Mock Resolve-FOHubProvider { @{ Found = $false } }
+                Mock Measure-FinOpsHubSize { @{ Known = $false; Reachable = $Reachable; IsLarge = $true; Display = 'unknown' } }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+
+                { Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions } | Should -Throw '*No valid data source was selected*'
+
+                Should -Invoke Read-Host -Times $PromptCount -Exactly
+                Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+                Should -Invoke Invoke-FOHubKustoQuery -ModuleName FinOpsMultitool -Times 0 -Exactly
+                Should -Invoke Read-FinOpsHubData -Times 0 -Exactly
+            }
+
+            It 'Requires Y or N before switching an unreachable Hub to the API: <Case>' -Tag 'SourceSelectionIsolation' -ForEach @(
+                @{ Case = 'blank then Y'; RichConsole = $true; Answers = @('1', '', 'Y'); ExpectedSource = 'API' }
+                @{ Case = 'invalid then N'; RichConsole = $true; Answers = @('1', 'x', 'N'); ExpectedSource = 'Hub' }
+                @{ Case = 'yes'; RichConsole = $true; Answers = @('1', 'yes'); ExpectedSource = 'API' }
+                @{ Case = 'three blanks in a console that cannot prompt'; RichConsole = $false; Answers = @('1', '', '', ''); ExpectedSource = $null }
+                @{ Case = 'three invalid answers in a full terminal'; RichConsole = $true; Answers = @('1', 'x', 'x', 'x'); ExpectedSource = $null }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Set-Variable -Name Accessible -Value $false -Scope Local
+                Set-Variable -Name NonInteractive -Value $false -Scope Local
+                $launcherAst = [Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -in @('Select-DataSource', 'Test-FinOpsRichConsole', 'Read-FinOpsAnswer', 'Write-FinOpsConsole') }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                $answerQueue = [Collections.Generic.Queue[string]]::new([string[]]$Answers)
+                Mock Read-FinOpsAnswer { if ($answerQueue.Count) { $answerQueue.Dequeue() } else { throw 'Unexpected prompt.' } }
+                Mock Test-FinOpsRichConsole { $RichConsole }
+                Mock Search-AzGraph { [pscustomobject]@{ name = 'fixturehub'; resourceGroup = 'fixture' } }
+                Mock Resolve-FOHubProvider { @{ Found = $false } }
+                Mock Measure-FinOpsHubSize { @{ Known = $false; Reachable = $false; IsLarge = $true; Display = 'unknown' } }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+
+                if ($ExpectedSource) {
+                    $choice = Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions
+                    $choice.Source | Should -Be $ExpectedSource
+                }
+                else {
+                    { Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions } | Should -Throw '*No valid data source was selected*'
+                }
+                Should -Invoke Read-FinOpsAnswer -Times $Answers.Count -Exactly
             }
 
             It 'Preserves the interactive Kusto choice without rediscovering the provider' -Tag 'SourceSelectionIsolation' {
@@ -519,11 +744,11 @@ function Invoke-FinOpsMultitool {
 
             It 'Keeps <ProbeState> Hub discovery in the selected tenant for <Mode>' -Tag 'SourceSelectionIsolation', 'MergeBlockerDiscovery' -ForEach @(
                 @{ ProbeState = 'partial'; AllProbesFail = $false; Mode = 'noninteractive'; Unattended = $true; Answer = '1'; ExpectedSource = 'API' }
-                @{ ProbeState = 'partial'; AllProbesFail = $false; Mode = 'interactive API'; Unattended = $false; Answer = '1'; ExpectedSource = 'API' }
-                @{ ProbeState = 'partial'; AllProbesFail = $false; Mode = 'interactive GraphOnly'; Unattended = $false; Answer = '2'; ExpectedSource = 'GraphOnly' }
+                @{ ProbeState = 'partial'; AllProbesFail = $false; Mode = 'interactive API'; Unattended = $false; Answer = '2'; ExpectedSource = 'API' }
+                @{ ProbeState = 'partial'; AllProbesFail = $false; Mode = 'interactive GraphOnly'; Unattended = $false; Answer = '3'; ExpectedSource = 'GraphOnly' }
                 @{ ProbeState = 'failed'; AllProbesFail = $true; Mode = 'noninteractive'; Unattended = $true; Answer = '1'; ExpectedSource = 'API' }
-                @{ ProbeState = 'failed'; AllProbesFail = $true; Mode = 'interactive API'; Unattended = $false; Answer = '1'; ExpectedSource = 'API' }
-                @{ ProbeState = 'failed'; AllProbesFail = $true; Mode = 'interactive GraphOnly'; Unattended = $false; Answer = '2'; ExpectedSource = 'GraphOnly' }
+                @{ ProbeState = 'failed'; AllProbesFail = $true; Mode = 'interactive API'; Unattended = $false; Answer = '2'; ExpectedSource = 'API' }
+                @{ ProbeState = 'failed'; AllProbesFail = $true; Mode = 'interactive GraphOnly'; Unattended = $false; Answer = '3'; ExpectedSource = 'GraphOnly' }
             ) {
                 $env:FINOPS_HUB_KUSTO_URI = $null
                 Set-Variable -Name NonInteractive -Value $Unattended -Scope Local
@@ -559,6 +784,36 @@ function Invoke-FinOpsMultitool {
                 Should -Invoke Set-AzContext -Times 0 -Exactly
                 Should -Invoke Connect-AzAccount -Times 0 -Exactly
                 Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
+            }
+
+            It 'Maps source choice <Answer> to <ExpectedSource> when a Hub is <HubState>' -Tag 'SourceSelectionIsolation' -ForEach @(
+                @{ HubState = 'found'; HubAvailable = $true; Answer = '2'; ExpectedSource = 'Export' }
+                @{ HubState = 'found'; HubAvailable = $true; Answer = '3'; ExpectedSource = 'API' }
+                @{ HubState = 'found'; HubAvailable = $true; Answer = '4'; ExpectedSource = 'GraphOnly' }
+                @{ HubState = 'missing'; HubAvailable = $false; Answer = '1'; ExpectedSource = 'Export' }
+                @{ HubState = 'missing'; HubAvailable = $false; Answer = '2'; ExpectedSource = 'API' }
+                @{ HubState = 'missing'; HubAvailable = $false; Answer = '3'; ExpectedSource = 'GraphOnly' }
+            ) {
+                $env:FINOPS_HUB_KUSTO_URI = $null
+                Set-Variable -Name NonInteractive -Value $false -Scope Local
+                $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
+                foreach ($definition in $launcherAst.FindAll({
+                            $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                            $args[0].Name -in @('Select-DataSource', 'Select-ExportSource', 'Read-FinOpsAnswer', 'Write-FinOpsConsole')
+                        }, $true)) { . ([scriptblock]::Create($definition.Extent.Text)) }
+                Mock Read-FinOpsAnswer { $Answer }
+                Mock Select-ExportSource { @{ Source = 'Export'; HubStorage = $null } }
+                Mock Search-AzGraph { if ($HubAvailable) { [pscustomobject]@{ name = 'fixturehub'; resourceGroup = 'fixture' } } else { @() } }
+                Mock Resolve-FOHubProvider { throw 'Only the Hub choice may resolve a Hub provider.' }
+                $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
+                $expectedExportCalls = if ($ExpectedSource -eq 'Export') { 1 } else { 0 }
+
+                $choice = Select-DataSource -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions
+
+                $choice.Source | Should -Be $ExpectedSource
+                Should -Invoke Read-FinOpsAnswer -Times 1 -Exactly
+                Should -Invoke Select-ExportSource -Times $expectedExportCalls -Exactly
+                Should -Invoke Resolve-FOHubProvider -Times 0 -Exactly
             }
 
             It 'Rejects <ScopeProblem> subscription ownership before source discovery' -Tag 'SourceSelectionIsolation' -ForEach @(

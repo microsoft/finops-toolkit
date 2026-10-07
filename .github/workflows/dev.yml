@@ -70,7 +70,7 @@ jobs:
           $names = @(
               'AzGraphPagination', 'BudgetCoverage', 'CommitmentUtilizationDedupe'
               'CostQueryPagination', 'CurrencyLabel', 'FOHubProvider', 'HubSizeProbe'
-              'MultitoolSafety', 'ParquetPackageClient', 'PolicyEffect'
+              'MultitoolResultIntegrity', 'MultitoolSafety', 'ParquetPackageClient', 'PolicyEffect'
               'RetryJitter', 'Start-FinOpsMultitool'
           )
           $paths = @($names | ForEach-Object {

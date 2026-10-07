@@ -35,8 +35,8 @@ $script:KpiCatalog = $null
 # resources and would give a misleading untagged figure. Single source of truth
 # shared by the KPI compute and the TUI cost-by-tag guidance so they agree.
 function Get-CafAllocationTag {
-    return @('CostCenter', 'Customer', 'Project', 'Environment', 'Application',
-        'Owner', 'BusinessUnit', 'Department', 'Team', 'Service', 'WorkloadName')
+    return @('CostCenter', 'Customer', 'Project', 'Environment', 'Application', 'ApplicationName',
+        'Owner', 'BusinessUnit', 'Department', 'Team', 'OpsTeam', 'Service', 'WorkloadName')
 }
 
 function Get-KpiCatalog {

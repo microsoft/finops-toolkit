@@ -21,7 +21,7 @@ param()
 #   heuristic only when the SKUs API is unavailable for a region.
 # - Storage GB combines provisioned managed-disk size (Resource Graph) and
 #   Storage-account used capacity (Azure Monitor UsedCapacity metric, one
-#   call per account); failures fall back to disk-only with a note.
+#   call per account); an unreadable account makes cost per GB unavailable.
 # - Costs are month-to-date amortized, scoped to the selected subscriptions,
 #   grouped by meter category, with a per-subscription fallback when the
 #   management-group scope is not accessible.
@@ -119,8 +119,8 @@ function Add-MeterCosts {
 # Managed disks are captured separately via Resource Graph. This adds the
 # data-plane used capacity of Storage accounts via the Azure Monitor metrics
 # API (UsedCapacity, account-level, emitted once per day). One metrics call
-# per account; a failed account is skipped so it never breaks the scan.
-# Returns used GB, or $null when the account inventory could not be read.
+# per account. Returns used GB, or $null when any account can't be read:
+# a partial capacity total would overstate cost per GB.
 function Get-StorageAccountUsedGb {
     param([string[]]$SubIds)
 
@@ -146,25 +146,31 @@ resources
     $timespan = "$($start.ToString('yyyy-MM-ddTHH:mm:ssZ'))/$($end.ToString('yyyy-MM-ddTHH:mm:ssZ'))"
 
     $totalBytes = 0.0
-    $queried = 0
-    foreach ($a in $accounts) {
-        if ($queried -ge 500) { break }   # safety bound on call fan-out
-        $queried++
+    $unreadable = [math]::Max(0, $accounts.Count - 500)
+    foreach ($a in @($accounts | Select-Object -First 500)) {
         try {
             $path = "$($a.id)/providers/Microsoft.Insights/metrics?api-version=2018-01-01&metricnames=UsedCapacity&aggregation=Average&interval=P1D&timespan=$timespan"
             $resp = Invoke-AzRestMethodWithRetry -Path $path -Method GET
-            if (-not $resp -or $resp.StatusCode -ne 200 -or -not $resp.Content) { continue }
+            if (-not $resp -or $resp.StatusCode -ne 200 -or -not $resp.Content) { $unreadable++; continue }
             $json = $resp.Content | ConvertFrom-Json
+            $measured = $false
             foreach ($metric in @($json.value)) {
                 foreach ($ts in @($metric.timeseries)) {
-                    $points = @($ts.data) | Where-Object { $null -ne $_.average }
-                    if ($points.Count -gt 0) { $totalBytes += [double]$points[-1].average }
+                    $points = @(@($ts.data) | Where-Object { $null -ne $_.average })
+                    if ($points.Count -gt 0) { $totalBytes += [double]$points[-1].average; $measured = $true }
                 }
             }
+            # An account with no reported measurement isn't known to be empty.
+            if (-not $measured) { $unreadable++ }
         }
         catch {
-            Write-Verbose "Non-fatal: $($_.Exception.Message)"
+            $unreadable++
+            Write-Verbose "Storage capacity read failed: $($_.Exception.Message)"
         }
+    }
+    if ($unreadable -gt 0) {
+        Write-Warning "  Storage-account used capacity couldn't be read for $unreadable of $($accounts.Count) account(s)."
+        return $null
     }
     return [math]::Round($totalBytes / 1GB, 1)
 }
@@ -224,6 +230,7 @@ resources
 
     # -- 2: Provisioned storage (managed disk GB) -------------------------
     $diskGb = 0
+    $diskOk = $false
     try {
         $diskQuery = @"
 resources
@@ -231,8 +238,10 @@ resources
 | summarize totalGb = sum(toint(properties.diskSizeGB))
 "@
         $result = Search-AzGraphSafe -Query $diskQuery -Subscription $subIds -First 1000
-        $rows = if ($result) { @($result.Data) } else { @() }
+        if (-not $result) { throw 'Managed disk inventory returned no response.' }
+        $rows = @($result.Data)
         if ($rows.Count -gt 0 -and $null -ne $rows[0].totalGb) { $diskGb = [double]$rows[0].totalGb }
+        $diskOk = $true
         Write-Host "    Provisioned disk: $diskGb GB" -ForegroundColor Gray
     }
     catch {
@@ -270,6 +279,7 @@ resources
     $mgFailed = $false
     try {
         $mgScopeId = Resolve-CostMgId -TenantId $TenantId
+        if ($mgScopeId -and -not (Test-CostMgCoverage -ManagementGroupId $mgScopeId -TenantId $TenantId -Subscriptions $Subscriptions)) { $mgScopeId = $null }
         if ($mgScopeId) {
             $dataset = @{
                 granularity = 'None'
@@ -361,7 +371,7 @@ resources
     $costAvailable = $costOk -and -not $costIssue
     $costPerVCpu = if ($costAvailable -and $totalVCpu -gt 0) { $computeCost / $totalVCpu } else { $null }
     $costPerVm = if ($costAvailable -and $vmCount -gt 0) { $computeCost / $vmCount } else { $null }
-    $costPerGb = if ($costAvailable -and $totalGb -gt 0) { $storageCost / $totalGb } else { $null }
+    $costPerGb = if ($costAvailable -and $diskOk -and $blobFileOk -and $totalGb -gt 0) { $storageCost / $totalGb } else { $null }
     $costPerGbRam = if ($costAvailable -and $totalMemGb -gt 0) { $computeCost / $totalMemGb } else { $null }
 
     $totalKnown = if ($costAvailable) { $computeCost + $storageCost } else { $null }
@@ -382,8 +392,8 @@ resources
     if ($totalGb -eq 0 -and $vmCount -gt 0) {
         $notes += 'No storage GB found - VMs may use ephemeral OS disks and no Storage accounts hold data.'
     }
-    if (-not $blobFileOk) {
-        $notes += 'Storage-account used capacity unavailable (metrics not readable) - cost per GB reflects managed disks only.'
+    if (-not $diskOk -or -not $blobFileOk) {
+        $notes += 'Storage capacity could not be read for every managed disk and storage account, so cost per GB stored is unavailable.'
     }
     if (-not $vcpuExact) {
         $notes += 'Some vCPU/RAM values approximated from VM size names (SKU capability lookup unavailable for a region).'

@@ -593,7 +593,8 @@ function Find-CostExportFromStorage {
     param(
         [Parameter(Mandatory)][object[]]$Subscriptions,
         [string]$Environment = 'AzureCloud',
-        [hashtable]$KnownKeys
+        [hashtable]$KnownKeys,
+        [object[]]$StorageAccounts
     )
 
     if (-not $KnownKeys) { $KnownKeys = @{} }
@@ -607,16 +608,32 @@ function Find-CostExportFromStorage {
     # scan fast and avoids listing unrelated data (diagnostics, backups, etc.).
     $containerPattern = 'export|msexports|ingestion|finops|cost|focus'
 
-    $stores = @(Get-ExportStorageCandidates -Subscriptions $Subscriptions)
+    $stores = @(if ($PSBoundParameters.ContainsKey('StorageAccounts')) { $StorageAccounts } else { Get-ExportStorageCandidates -Subscriptions $Subscriptions })
+    $selectedIds = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($sub in $Subscriptions) { [void]$selectedIds.Add([string]$sub.Id) }
     $storeIndex = 0
+    $slowResponses = $false
     foreach ($sa in $stores) {
         $storeIndex++
-        Write-Progress -Id 73 -Activity 'Scanning storage accounts for cost export containers' -Status "Storage account $storeIndex of $($stores.Count): $($sa.Name)" -PercentComplete ([int](100 * $storeIndex / $stores.Count))
+        # The storage token goes to this account's host, so supplied accounts get the same checks as discovered ones.
+        if ([string]$sa.Name -cnotmatch '^[a-z0-9]{3,24}\z' -or -not $selectedIds.Contains([string]$sa.SubId) -or
+            [string]$sa.ResourceId -notmatch "^/subscriptions/$([regex]::Escape([string]$sa.SubId))/resourceGroups/[^/]+/providers/Microsoft\.Storage/storageAccounts/$([regex]::Escape([string]$sa.Name))\z") {
+            Write-Warning 'A storage candidate did not match the selected subscriptions and was skipped.'
+            continue
+        }
+        # Narrow consoles cut off the end of the status, so running notes go in the title.
+        $notes = @()
+        if ($found.Count) { $notes += "$($found.Count) export$(if ($found.Count -ne 1) { 's' }) found so far" }
+        if ($slowResponses) { $notes += 'some requests were throttled or timed out' }
+        $activity = 'Scanning storage accounts for exports' + $(if ($notes) { " ($($notes -join '; '))" })
+        Write-Progress -Id 73 -Activity $activity -Status "Storage account $storeIndex of $($stores.Count): $($sa.Name)" -PercentComplete ([int](100 * $storeIndex / $stores.Count))
         $blobBase = "https://$($sa.Name).$suffix"
 
         $containerNames = @()
         try {
             $containerResponse = Invoke-AzRestMethodWithRetry -Path "$($sa.ResourceId)/blobServices/default/containers?api-version=2023-01-01" -Method GET
+            # 408 means the call outlived its timeout, usually while Az PowerShell retried a 429.
+            if ($containerResponse.StatusCode -in 408, 429) { $slowResponses = $true }
             $containerNames = @(foreach ($page in (Get-CostQueryResponsePage -FirstResponse $containerResponse -Context "container metadata for $($sa.Name)" -RootNextLink)) {
                 foreach ($item in @(($page.Content | ConvertFrom-Json -ErrorAction Stop).value)) {
                     if ([string]$item.name -match '^\$') { continue }
@@ -658,7 +675,7 @@ function Find-CostExportFromStorage {
             try { $token = Get-PlainAccessToken -ResourceUrl 'https://storage.azure.com' }
             catch {
                 Write-Warning ([regex]::Replace("Storage-first discovery could not acquire a storage token: $($_.Exception.Message)", '[\p{Cc}\p{Cf}]', ' '))
-                Write-Progress -Id 73 -Activity 'Scanning storage accounts for cost export containers' -Completed
+                Write-Progress -Id 73 -Activity 'Scanning storage accounts for exports' -Completed
                 return $found
             }
         }
@@ -705,7 +722,7 @@ function Find-CostExportFromStorage {
 
                 $parts   = $groups[$folder]
                 $lastRun = ($parts | ForEach-Object { $_.LastModified } | Where-Object { $_ } | Sort-Object -Descending | Select-Object -First 1)
-                $partitioned = (@($parts | Where-Object { $_.Name -match 'part_' }).Count -gt 1)
+                $partitioned = (@($parts | Where-Object { $_.Name -match '/part_\d+(?:_\d+)?\.csv(?:\.gz)?$' }).Count -gt 1)
 
                 # Infer the cost type from the folder name (best-effort, display only)
                 $type = if ($name -match 'amortiz') { 'AmortizedCost' }
@@ -732,7 +749,7 @@ function Find-CostExportFromStorage {
             }
         }
     }
-    Write-Progress -Id 73 -Activity 'Scanning storage accounts for cost export containers' -Completed
+    Write-Progress -Id 73 -Activity 'Scanning storage accounts for exports' -Completed
 
     return $found
 }
@@ -798,6 +815,12 @@ function Get-CostExportData {
     # partition in the run. Without this check a run that is still being written,
     # or one whose parts are partly unreadable, would total up as if complete.
     $manifestBlob = @($blobs | Where-Object { ([string]$_.Name) -ceq ($runFolder + 'manifest.json') })[0]
+    # Partitioned and run-ID folders come from exports that always write a manifest.
+    $requiresManifest = [bool]$Export.Partitioned -or $runFolder -match '/[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}/$' -or
+        @($runParts | Where-Object { $_.Name -match '/part_\d+(?:_\d+)?\.csv(?:\.gz)?$' }).Count -gt 0
+    if (-not $manifestBlob -and $requiresManifest) {
+        throw 'The export run has no manifest.json, so it might still be writing or be incomplete. No export data was read.'
+    }
     if ($manifestBlob) {
         $manifestEncoded = (($manifestBlob.Name -split '/' | ForEach-Object { [uri]::EscapeDataString($_) }) -join '/')
         $manifestBytes = Get-StorageBlobBytes -Uri "$blobBase/$container/$manifestEncoded" -StorageToken $token
@@ -806,14 +829,22 @@ function Get-CostExportData {
         try { $manifest = [System.Text.Encoding]::UTF8.GetString($manifestBytes) | ConvertFrom-Json -ErrorAction Stop }
         catch { throw 'The export run manifest could not be parsed; cost coverage is incomplete.' }
         $declared = @($manifest.blobs)
-        if ($declared.Count -gt 0) {
-            $foundNames = [Collections.Generic.HashSet[string]]::new([string[]]@($runParts | ForEach-Object { [string]$_.Name }), [StringComparer]::Ordinal)
-            $declaredNames = @($declared | ForEach-Object { ([string]$_.blobName).TrimStart('/') } | Where-Object { $_ })
-            $missing = @($declaredNames | Where-Object { -not $foundNames.Contains($_) })
-            if ($declared.Count -ne $runParts.Count -or $missing.Count -gt 0) {
-                throw "The export run declares $($declared.Count) partition(s) but $($runParts.Count) readable CSV part(s) matched; cost coverage is incomplete."
-            }
+        if ($declared.Count -eq 0) { throw 'The export run manifest lists no partitions; cost coverage is incomplete.' }
+        $foundNames = [Collections.Generic.HashSet[string]]::new([string[]]@($runParts | ForEach-Object { [string]$_.Name }), [StringComparer]::Ordinal)
+        $declaredNames = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+        $invalidDeclarations = 0
+        foreach ($declaration in $declared) {
+            $declaredName = ([string]$declaration.blobName).TrimStart('/')
+            if ([string]::IsNullOrWhiteSpace($declaredName) -or -not $declaredNames.Add($declaredName)) { $invalidDeclarations++ }
         }
+        if ($invalidDeclarations -gt 0 -or -not $declaredNames.SetEquals($foundNames)) {
+            throw "The export run declares $($declared.Count) partition(s) but $($runParts.Count) readable CSV part(s) matched; cost coverage is incomplete."
+        }
+    }
+    elseif ($runParts.Count -gt 1 -and $runFolder -match '/\d{8}-\d{8}/$' -and
+        @($runParts | Where-Object { ([string]$_.Name).Substring($runFolder.Length) -notmatch ('^' + [regex]::Escape($exportName) + '_[^/]+\.csv(?:\.gz)?$') }).Count -eq 0) {
+        # Legacy unpartitioned exports add a month-to-date snapshot on each run; only the newest is current.
+        $runParts = @($newest)
     }
 
     $dataDate = ($runParts | Sort-Object LastModified -Descending | Select-Object -First 1).LastModified

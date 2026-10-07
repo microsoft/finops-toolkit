@@ -11,7 +11,7 @@ allowed-tools: az pwsh
 
 # Azure Monitor workbooks for FinOps
 
-The FinOps toolkit ships Azure Monitor workbooks that surface governance and optimization findings directly in the Azure portal — no external BI tool required. This skill covers deploying, reading, and customizing them.
+The FinOps toolkit ships Azure Monitor workbooks that surface governance and optimization findings directly in the Azure portal — no external BI tool required. This skill explains how to deploy, read, and customize them. Give the user the deployment steps; don't deploy a workbook yourself, because the FinOps skills are read-only.
 
 ## When to use this skill
 

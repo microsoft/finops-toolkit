@@ -27,11 +27,13 @@ function Set-MgCostScopeFailed {
 # for this tenant. Falls back to per-subscription when none work.
 $script:CostMgId = $null
 $script:CostMgTenantId = $null
+$script:CostMgCoverage = @{}
 
 function Reset-CostMgScope {
     $script:CostMgId = $null
     $script:CostMgTenantId = $null
     $script:MgCostScopeFailed = $false
+    $script:CostMgCoverage = @{}
 }
 
 function Resolve-CostMgId {
@@ -108,6 +110,45 @@ function Resolve-CostMgId {
 
     Set-MgCostScopeFailed
     return $null
+}
+
+# -- Selected-Subscription Coverage -----------------------------------------
+# Resolve-CostMgId returns the first management group that accepts a cost
+# query, which might not contain every selected subscription. Scans that can't
+# detect a missing subscription in their grouped response confirm membership
+# first. An unverified scope makes the caller query subscriptions individually.
+function Test-CostMgCoverage {
+    param(
+        [Parameter(Mandatory)][string]$ManagementGroupId,
+        [Parameter(Mandatory)][string]$TenantId,
+        [object[]]$Subscriptions
+    )
+
+    $ids = @($Subscriptions | ForEach-Object { [string]$_.Id } | Where-Object { $_ } | Sort-Object -Unique)
+    if ($ids.Count -eq 0) { return $false }
+    if ($ManagementGroupId -eq $TenantId) { return $true }
+
+    $key = "$ManagementGroupId|$($ids -join ',')".ToLowerInvariant()
+    if ($script:CostMgCoverage.ContainsKey($key)) { return $script:CostMgCoverage[$key] }
+
+    $covered = $false
+    try {
+        $ancestry = Search-AzGraphSafe -Query "resourcecontainers | where type =~ 'microsoft.resources/subscriptions' | project subscriptionId, ancestors = properties.managementGroupAncestorsChain" -Subscription $ids -First 1000 -All
+        $members = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+        foreach ($row in @($ancestry.Data)) {
+            $ancestors = if ($row.ancestors -is [string]) { @($row.ancestors | ConvertFrom-Json -ErrorAction Stop) } else { @($row.ancestors) }
+            if (@($ancestors | Where-Object { [string]$_.name -eq $ManagementGroupId }).Count -gt 0) { [void]$members.Add([string]$row.subscriptionId) }
+        }
+        $covered = @($ids | Where-Object { -not $members.Contains($_) }).Count -eq 0
+    }
+    catch {
+        Write-Verbose "Management-group membership could not be verified: $($_.Exception.Message)"
+    }
+    if (-not $covered) {
+        Write-Host "  Management group '$ManagementGroupId' isn't verified to contain every selected subscription. This scan queries the selected subscriptions individually." -ForegroundColor Yellow
+    }
+    $script:CostMgCoverage[$key] = $covered
+    return $covered
 }
 
 # -- Shared Subscription-Scope Filter -------------------------------------

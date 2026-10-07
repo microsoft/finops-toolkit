@@ -42,6 +42,7 @@ function Get-ResourceCosts {
     # per-resource Cost Management query only returns ActualCost (MTD), so a
     # native forecast is not available. Project to month-end (Actual / dayOfMonth
     # * daysInMonth) so Forecast is a real projection instead of equal to Actual.
+    # ForecastSource records whether a row uses this projection or a Cost Management forecast.
     $now = (Get-Date).ToUniversalTime()
     $costPeriodEnd = $now.AddTicks(-($now.Ticks % [TimeSpan]::TicksPerSecond))
     $costPeriodStart = $costPeriodEnd.Date.AddDays(1 - $costPeriodEnd.Day)
@@ -135,6 +136,7 @@ function Get-ResourceCosts {
     # subs' resources are returned - avoids the slow per-subscription fan-out
     # that triggers 429 throttling.
     $mgScopeId = if ($TenantId) { Resolve-CostMgId -TenantId $TenantId } else { $null }
+    if ($mgScopeId -and -not (Test-CostMgCoverage -ManagementGroupId $mgScopeId -TenantId $TenantId -Subscriptions $Subscriptions)) { $mgScopeId = $null }
     $subFilter = if ($RestrictToSelected) { Get-CostSubscriptionFilter -Subscriptions $Subscriptions } else { $null }
     if ($mgScopeId) {
         try {
@@ -196,6 +198,7 @@ function Get-ResourceCosts {
                                     ActualPeriodEnd = $costPeriodEnd
                                     ActualPeriodSource = 'Query window'
                                     Forecast      = [math]::Round($cost * $forecastMult, 2)
+                                    ForecastSource = 'Linear projection'
                                     Currency      = $currency
                                 })
                         }
@@ -212,13 +215,18 @@ function Get-ResourceCosts {
                         foreach ($entry in $CostData.GetEnumerator()) {
                             $a = $entry.Value.Actual
                             $f = $entry.Value.Forecast
-                            if ($a -gt 0 -and $f -gt $a) { $ratios[$entry.Key.ToLower()] = $f / $a }
+                            $isForecast = if ($null -ne $entry.Value.ForecastSource) { $entry.Value.ForecastSource -eq 'Forecast' } else { $f -gt $a }
+                            if ($a -gt 0 -and $null -ne $f -and $isForecast) { $ratios[$entry.Key.ToLower()] = @{ Ratio = $f / $a; Currency = ([string]$entry.Value.Currency).Trim().ToUpperInvariant() } }
+                            # Forecast spend with no actual cost to apportion by can't be split across resources.
+                            elseif ($null -ne $f -and $isForecast -and $f -ne 0) { $ratios[$entry.Key.ToLower()] = @{ Ratio = $null; Currency = '' } }
                         }
                         foreach ($r in $allRows) {
                             if ($r.ResourcePath -match '/subscriptions/([^/]+)/') {
                                 $sid = $Matches[1].ToLower()
                                 if ($ratios.ContainsKey($sid)) {
-                                    $r.Forecast = [math]::Round($r.Actual * $ratios[$sid], 2)
+                                    $splittable = $null -ne $ratios[$sid].Ratio -and $ratios[$sid].Currency -and $ratios[$sid].Currency -eq ([string]$r.Currency).Trim().ToUpperInvariant()
+                                    $r.Forecast = if ($splittable) { [math]::Round($r.Actual * $ratios[$sid].Ratio, 2) } else { $null }
+                                    $r.ForecastSource = if ($splittable) { 'Forecast' } else { 'Unavailable' }
                                 }
                             }
                         }
@@ -312,6 +320,7 @@ function Get-ResourceCosts {
                                     ActualPeriodEnd = $costPeriodEnd
                                     ActualPeriodSource = 'Query window'
                                     Forecast      = [math]::Round($cost * $forecastMult, 2)
+                                    ForecastSource = 'Linear projection'
                                     Currency      = $currency
                                 }
                             }
@@ -335,16 +344,30 @@ function Get-ResourceCosts {
             foreach ($entry in $actualMap.Values) { $subTotalActual += $entry.Actual }
 
             $subForecast = $subTotalActual  # default: same as actual
+            $hasForecast = $false
+            $forecastIssue = $null
+            $forecastCurrencyMismatch = $false
+            $forecastUnapportionable = $false
+            $actualCurrencies = @($actualMap.Values | ForEach-Object { ([string]$_.Currency).Trim().ToUpperInvariant() } | Select-Object -Unique)
 
-            # Use CostData ratio if available (avoids extra API call)
-            if ($CostData -and $CostData.ContainsKey($sub.Id)) {
-                $cd = $CostData[$sub.Id]
-                if ($cd.Forecast -gt $cd.Actual -and $cd.Actual -gt 0) {
+            # Use a verified Cost Data forecast when there is one (avoids an extra API call).
+            # Entries without one fall through to the forecast API.
+            $cd = if ($CostData -and $CostData.ContainsKey($sub.Id)) { $CostData[$sub.Id] } else { $null }
+            $cdIsForecast = $null -ne $cd -and $null -ne $cd.Forecast -and $(if ($null -ne $cd.ForecastSource) { $cd.ForecastSource -eq 'Forecast' } else { $cd.Forecast -gt $cd.Actual })
+            if ($cdIsForecast -and $cd.Actual -gt 0) {
+                $cdCurrency = ([string]$cd.Currency).Trim().ToUpperInvariant()
+                if ($cdCurrency -and $actualCurrencies.Count -eq 1 -and $cdCurrency -eq [string]$actualCurrencies[0]) {
                     $subForecast = $subTotalActual * ($cd.Forecast / $cd.Actual)
+                    $hasForecast = $true
                 }
+                else { $forecastCurrencyMismatch = $true }
+            }
+            elseif ($cdIsForecast -and $cd.Forecast -ne 0 -and $subTotalActual -le 0) {
+                # Forecast spend with no actual cost to apportion by can't be split across resources.
+                $forecastUnapportionable = $true
             }
             elseif (-not $skipForecast) {
-                # Only call forecast API for small tenants without CostData
+                # Only call the forecast API for small tenants without a usable Cost Data forecast
                 try {
                     $now = (Get-Date).ToUniversalTime()
                     $monthEnd = (Get-Date -Year $now.Year -Month $now.Month -Day 1).AddMonths(1).AddDays(-1)
@@ -374,18 +397,24 @@ function Get-ResourceCosts {
                     if ($fResp.StatusCode -eq 200) {
                         $forecastTotal = 0.0
                         $rowCount = 0
+                        $forecastCurrencies = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
                         foreach ($responsePage in (Get-CostQueryResponsePage -FirstResponse $fResp -Payload $fBody -Context "resource forecast for $($sub.Name)")) {
                             $fResult = $responsePage.Content | ConvertFrom-Json
                             if ($fResult.properties.rows.Count -eq 0) { continue }
                             $costIndex = Get-CostColumnIndex -Columns $fResult.properties.columns -Names @('cost', 'pretaxcost', 'costusd')
-                            if ($costIndex -lt 0) { throw 'Forecast response did not expose the expected Cost column.' }
+                            $currencyIndex = Get-CostColumnIndex -Columns $fResult.properties.columns -Names @('currency')
+                            if ($costIndex -lt 0 -or $currencyIndex -lt 0) { throw 'Forecast response did not expose the expected Cost and Currency columns.' }
                             foreach ($row in $fResult.properties.rows) {
                                 $forecastTotal += [double]$row[$costIndex]
+                                [void]$forecastCurrencies.Add(([string]$row[$currencyIndex]).Trim().ToUpperInvariant())
                                 $rowCount++
                             }
                         }
                         if ($rowCount -gt 0) {
                             $subForecast = [math]::Round($forecastTotal, 2)
+                            $hasForecast = $true
+                            # Costs aren't converted, so a forecast in another currency can't scale these resources.
+                            $forecastCurrencyMismatch = $forecastCurrencies.Count -ne 1 -or $actualCurrencies.Count -ne 1 -or -not $forecastCurrencies.Contains([string]$actualCurrencies[0])
                         }
                         else {
                             throw 'Resource forecast returned no rows; results are incomplete.'
@@ -393,15 +422,26 @@ function Get-ResourceCosts {
                     }
                 }
                 catch {
-                    throw "Resource forecast query failed for $($sub.Name): $($_.Exception.Message)"
+                    $forecastIssue = "Resource forecasts for $($sub.Name) are unavailable; actual costs are kept. $($_.Exception.Message)"
+                    Write-Warning $forecastIssue
                 }
             }
 
             # Apply forecast ratio proportionally to each resource
-            if ($subTotalActual -gt 0 -and $subForecast -gt $subTotalActual) {
+            if ($forecastIssue -or $forecastCurrencyMismatch -or $forecastUnapportionable -or ($hasForecast -and $subTotalActual -le 0 -and $subForecast -ne 0)) {
+                # A failed forecast, one in another currency, or one without actual cost to apportion by can't be split across resources.
+                foreach ($entry in $actualMap.Values) {
+                    $entry.Forecast = $null
+                    $entry.ForecastSource = 'Unavailable'
+                    # Reports show CostIssue as limited data, so a failed request stays visible.
+                    if ($forecastIssue) { $entry | Add-Member -NotePropertyName CostIssue -NotePropertyValue $forecastIssue }
+                }
+            }
+            elseif ($subTotalActual -gt 0 -and $hasForecast) {
                 $ratio = $subForecast / $subTotalActual
                 foreach ($entry in $actualMap.Values) {
                     $entry.Forecast = [math]::Round($entry.Actual * $ratio, 2)
+                    $entry.ForecastSource = 'Forecast'
                 }
             }
 
