@@ -44,7 +44,7 @@ Describe 'HubsReservationPriceBackfill' {
 
         It 'Should still require x_SkuMeterId to attempt the backfill: <Name>' -ForEach $ingestionFiles {
             $content = Get-Content -Path $FullName -Raw
-            $content.Contains('isnotempty(x_SkuMeterId)') | Should -BeTrue -Because 'the meter ID is still required to identify the on-demand price to recover'
+            $content | Should -Match 'isnotempty\(x_SkuMeterId\)(?!\s+and\s+isnotempty\(x_SkuOfferId\))' -Because 'the meter ID is still required to identify the on-demand price to recover, without also requiring the EA-only offer ID (the negative lookahead rules out matching the pre-fix combined condition)'
         }
 
         It 'Should leave x_SkuOfferId in the reservation price lookup key: <Name>' -ForEach $ingestionFiles {
@@ -66,12 +66,12 @@ Describe 'HubsReservationPriceBackfill' {
 
         It 'Should cover an MCA blank offer ID case' {
             $harness = Get-Content -Path $harnessPath -Raw
-            $harness | Should -Match 'MCA' -Because 'the fixture set must exercise the blank-offer-ID case that silently broke MCA reservation pricing'
+            $harness | Should -Match 'mca-profile-1' -Because 'the fixture set must exercise the blank-offer-ID case that silently broke MCA reservation pricing (anchored on a fixture literal, not the header comment)'
         }
 
         It 'Should cover an EA offer ID differentiation case for regression safety' {
             $harness = Get-Content -Path $harnessPath -Raw
-            $harness | Should -Match 'EA' -Because 'EA already matched before the fix; the fixture set must prove the fix does not regress it, including the case where offer ID legitimately differentiates two rows'
+            $harness | Should -Match 'OFFER-EA-DEVTEST' -Because 'EA already matched before the fix; the fixture set must prove the fix does not regress it, including the case where offer ID legitimately differentiates two rows (anchored on a fixture literal, not the header comment)'
         }
     }
 }
