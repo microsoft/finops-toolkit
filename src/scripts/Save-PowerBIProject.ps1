@@ -219,6 +219,47 @@ function Import-TabularLibrary
     anonymous ones like a file on GitHub. Nothing here can answer those, and the refresh just
     stops until someone does, so each one is named as it appears.
 #>
+<#
+    .SYNOPSIS
+    Runs a TMSL command against the Power BI Desktop engine and reports what it's waiting on.
+
+    .DESCRIPTION
+    Engine commands block until they finish, so they run on their own thread. That leaves this
+    one free to report credential prompts and to give up at the deadline instead of hanging.
+#>
+function Invoke-EngineCommand([string] $Command, [string] $Description, [int] $Port, $MainWindow, $Process)
+{
+    $worker = [powershell]::Create()
+    $null = $worker.AddScript({
+            param($DllPath, $Port, $Command)
+            Add-Type -Path $DllPath
+            $server = New-Object Microsoft.AnalysisServices.Tabular.Server
+            $server.Connect("Data Source=localhost:$Port")
+            try { return @($server.Execute($Command) | ForEach-Object { $_.Messages } | Where-Object { $_.GetType().Name -eq 'XmlaError' } | ForEach-Object { $_.Description }) }
+            finally { $server.Disconnect() }
+        }).AddArgument($script:TabularDllPath).AddArgument($Port).AddArgument($Command)
+
+    $reported = New-Object System.Collections.Generic.HashSet[string]
+    $handle = $worker.BeginInvoke()
+    try
+    {
+        while (-not $handle.AsyncWaitHandle.WaitOne(2000))
+        {
+            Show-PendingPrompt $MainWindow $Process.Id $reported
+            if ((Get-Date) -ge $deadline)
+            {
+                $worker.Stop()
+                throw "$Description didn't finish within $TimeoutMinutes minutes.$(if ($reported.Count -gt 0) { " It was waiting on: $($reported -join ', ')" })"
+            }
+        }
+
+        $errors = @($worker.EndInvoke($handle))
+        if ($reported.Count -gt 0) { Write-Step "Continuing after $($reported.Count) prompt$(if ($reported.Count -ne 1) { 's' })..." }
+        return , $errors
+    }
+    finally { $worker.Dispose() }
+}
+
 function Show-PendingPrompt($MainWindow, [int] $ProcessId, [System.Collections.Generic.HashSet[string]] $Reported)
 {
     foreach ($window in @(Get-ProcessWindow $ProcessId))
@@ -348,33 +389,7 @@ try
         # Refresh policies only apply in the Power BI service
         $command = @{ refresh = @{ type = 'full'; applyRefreshPolicy = $false; objects = @(@{ database = $database.Name }) } } | ConvertTo-Json -Depth 5 -Compress
 
-        # The refresh blocks until it finishes, so it runs on its own thread. That leaves this one
-        # free to report credential prompts, which otherwise look like the command hanging.
-        $refresh = [powershell]::Create()
-        $null = $refresh.AddScript({
-                param($DllPath, $Port, $Command)
-                Add-Type -Path $DllPath
-                $worker = New-Object Microsoft.AnalysisServices.Tabular.Server
-                $worker.Connect("Data Source=localhost:$Port")
-                try { return @($worker.Execute($Command) | ForEach-Object { $_.Messages } | Where-Object { $_.GetType().Name -eq 'XmlaError' } | ForEach-Object { $_.Description }) }
-                finally { $worker.Disconnect() }
-            }).AddArgument($script:TabularDllPath).AddArgument($port).AddArgument($command)
-
-        $reported = New-Object System.Collections.Generic.HashSet[string]
-        $handle = $refresh.BeginInvoke()
-        while (-not $handle.AsyncWaitHandle.WaitOne(2000))
-        {
-            Show-PendingPrompt $mainWindow $desktop.Id $reported
-            if ((Get-Date) -ge $deadline)
-            {
-                $refresh.Stop()
-                throw "Data refresh didn't finish within $TimeoutMinutes minutes.$(if ($reported.Count -gt 0) { " It was waiting on: $($reported -join ', ')" })"
-            }
-        }
-
-        $errors = @($refresh.EndInvoke($handle))
-        $refresh.Dispose()
-        if ($reported.Count -gt 0) { Write-Step "Continuing after $($reported.Count) prompt$(if ($reported.Count -ne 1) { 's' })..." }
+        $errors = Invoke-EngineCommand $command 'Data refresh' $port $mainWindow $desktop
         if ($errors.Count -gt 0)
         {
             # The engine reports what went wrong but not where, and one failure cancels the whole
@@ -414,7 +429,7 @@ try
         # banner is about. Recalculating here means the saved report doesn't need that click.
         Write-Step 'Recalculating calculated columns and tables...'
         $calculate = @{ refresh = @{ type = 'calculate'; objects = @(@{ database = $database.Name }) } } | ConvertTo-Json -Depth 5 -Compress
-        $calculateErrors = @($server.Execute($calculate) | ForEach-Object { $_.Messages } | Where-Object { $_.GetType().Name -eq 'XmlaError' } | ForEach-Object { $_.Description })
+        $calculateErrors = Invoke-EngineCommand $calculate 'Recalculating' $port $mainWindow $desktop
         if ($calculateErrors.Count -gt 0) { throw "Recalculating failed:`n  $($calculateErrors -join "`n  ")" }
 
         $database.Refresh($true)
