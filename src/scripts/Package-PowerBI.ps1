@@ -29,7 +29,7 @@
     Optional. Reports what's done and what's left without changing anything. Default = false.
 
     .PARAMETER SensitivityLabel
-    Optional. Sensitivity label demo reports must have, if they have one. Default = "Public".
+    Optional. Sensitivity label demo reports must have, when the tenant has labels. Reports saved without any label pass. Default = "Public".
 
     .PARAMETER OpenDataUrl
     Optional. Public folder demo reports read open data from. Passed to Build-PowerBI. Must be a permanent location. Default = the open data files in the main branch.
@@ -173,7 +173,7 @@ function ConvertFrom-PbixJson([byte[]] $Bytes)
     Catches a report saved without data, saved from the wrong (unpruned) project, saved on the
     wrong page, saved with the wrong sensitivity label, or saved before the latest build.
 #>
-function Test-DemoPbix([string] $Path, $Report, [datetime] $BuiltAfter = [datetime]::MinValue, [string] $Label = 'Public')
+function Test-DemoPbix([string] $Path, $Report, [datetime] $BuiltAfter = [datetime]::MinValue, [string] $Label)
 {
     $issues = New-Object System.Collections.Generic.List[string]
 
@@ -199,7 +199,7 @@ function Test-DemoPbix([string] $Path, $Report, [datetime] $BuiltAfter = [dateti
     }
 
     # Labels other than the expected one can block people outside the organization from opening it
-    if ($entries -contains 'docProps/custom.xml')
+    if ($Label -and $entries -contains 'docProps/custom.xml')
     {
         try
         {
@@ -418,7 +418,7 @@ elseif ($state.Missing.Count -gt 0)
     Write-Host 'For each project that opens:'
     Write-Host '  1. Refresh the report so demo data is loaded.'
     Write-Host '  2. Select File > Save as, keep the release/pbix folder, and change the file type to PBIX.'
-    Write-Host "  3. Set the sensitivity to `"$SensitivityLabel`" when prompted."
+    if ($SensitivityLabel) { Write-Host "  3. Set the sensitivity to `"$SensitivityLabel`" when prompted." }
     Write-Host '  4. Close Power BI Desktop without saving other changes.'
     Write-Host ''
     Write-Host 'Queries are already trimmed and the Get started page is already selected, so there is nothing else to change.'

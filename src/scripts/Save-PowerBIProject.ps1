@@ -29,7 +29,7 @@
     Optional. Path of the PBIX file to save. Default = the PBIP path with a .pbix extension.
 
     .PARAMETER SensitivityLabel
-    Optional. Name of the sensitivity label to apply. Default = "Public".
+    Optional. Name of the sensitivity label to apply, when the tenant has labels. Skipped when Power BI Desktop doesn't offer any. Default = "Public".
 
     .PARAMETER TimeoutMinutes
     Optional. Maximum number of minutes to wait for Power BI Desktop to open and refresh the report. Default = 30.
@@ -437,7 +437,18 @@ try
     #region Sensitivity label
 
     # The Sensitivity button is only shown when the signed-in account has labels to apply
-    $sensitivity = Find-Element $mainWindow 'Sensitivity' @($types::SplitButton, $types::Button, $types::MenuItem)
+    # Tenants without labels still show the button, greyed out, so being there isn't enough
+    $sensitivity = if ($SensitivityLabel) { Find-Element $mainWindow 'Sensitivity' @($types::SplitButton, $types::Button, $types::MenuItem) } else { $null }
+    if ($sensitivity -and -not $sensitivity.Current.IsEnabled)
+    {
+        Write-Step 'Sensitivity labels are turned off here. Skipping.'
+        $sensitivity = $null
+    }
+    elseif (-not $SensitivityLabel)
+    {
+        Write-Step 'No sensitivity label requested. Skipping.'
+    }
+
     if ($sensitivity)
     {
         Write-Step "Applying the '$SensitivityLabel' sensitivity label..."
@@ -461,7 +472,7 @@ try
             Write-Warning "Could not apply the '$SensitivityLabel' label to $reportLabel ($($_.Exception.Message)). Set it by hand if validation reports it."
         }
     }
-    else
+    elseif ($SensitivityLabel)
     {
         Write-Step 'No sensitivity labels are available. Skipping.'
     }
