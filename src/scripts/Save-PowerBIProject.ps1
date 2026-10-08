@@ -561,6 +561,7 @@ try
 
     # Pick the PBIX file type first so the dialog doesn't append the PBIP extension
     $fileType = Find-Element $dialog $null @($types::ComboBox) 'FileTypeControlHost'
+    if (-not $fileType) { $fileType = Find-Element $dialog 'Save as type:' @($types::ComboBox) }
     if ($fileType)
     {
         $expand = $null
@@ -572,30 +573,57 @@ try
         if (-not $pbixType) { throw 'The Save as dialog has no PBIX file type.' }
         Invoke-Element $pbixType
         if ($expand) { try { $expand.Collapse() } catch { Write-Verbose 'File type list already closed.' } }
+        Start-Sleep -Milliseconds 500
+    }
+    else
+    {
+        Write-Verbose '  No file type list in the Save as dialog. Relying on the file extension.'
     }
 
-    # The file name box is normally AutomationId 1001, but that isn't guaranteed, so fall back to
-    # the box under the File name label and then to the only editable box in the dialog
-    $fileName = Find-Element $dialog $null @($types::Edit) '1001'
-    if (-not $fileName)
+    # The search box and the address bar are editable too, and writing a path into either one
+    # makes the dialog reject it. Candidates are tried in order and the value is read back.
+    $fileNameHost = Find-Element $dialog $null @($types::ComboBox) 'FileNameControlHost'
+    $candidates = New-Object System.Collections.Generic.List[object]
+    foreach ($candidate in @(
+            (Find-Element $dialog 'File name:' @($types::Edit)),
+            (Find-Element $dialog $null @($types::Edit) '1001'),
+            $(if ($fileNameHost) { Find-Element $fileNameHost $null @($types::Edit) })
+        ))
     {
-        $fileNameHost = Find-Element $dialog $null @($types::ComboBox) 'FileNameControlHost'
-        if ($fileNameHost) { $fileName = Find-Element $fileNameHost $null @($types::Edit) }
+        if ($candidate) { $candidates.Add($candidate) }
     }
-    if (-not $fileName)
+
+    @($dialog.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::Edit)))) `
+    | Where-Object { $_.Current.IsEnabled -and -not $_.Current.IsOffscreen } `
+    | Where-Object { "$($_.Current.Name) $($_.Current.AutomationId) $($_.Current.ClassName)" -notmatch '(?i)search|address|breadcrumb' } `
+    | ForEach-Object { $candidates.Add($_) }
+
+    $named = $false
+    foreach ($candidate in $candidates)
     {
-        $fileName = @($dialog.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::Edit)))) `
-        | Where-Object { $_.Current.IsEnabled -and -not $_.Current.IsOffscreen } `
-        | Select-Object -First 1
+        $value = $null
+        if (-not $candidate.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$value)) { continue }
+
+        try { $value.SetValue($Destination) }
+        catch
+        {
+            Write-Verbose "  Could not type into '$($candidate.Current.Name)': $($_.Exception.Message)"
+            continue
+        }
+
+        # The right box keeps what was typed. The wrong one rejects it or is replaced.
+        try { $named = $value.Current.Value -eq $Destination }
+        catch { $named = $false }
+        if ($named) { break }
+
+        Write-Verbose "  '$($candidate.Current.Name)' didn't keep the file name. Trying the next box."
     }
-    if (-not $fileName)
+
+    if (-not $named)
     {
         Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
-        throw "Could not find the file name box in the '$($dialog.Current.Name)' dialog [$($dialog.Current.ClassName)]."
+        throw "Could not type the file name into the '$($dialog.Current.Name)' dialog [$($dialog.Current.ClassName)]."
     }
-    $value = $null
-    if (-not $fileName.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$value)) { throw 'The file name box in the Save as dialog is read-only.' }
-    $value.SetValue($Destination)
 
     $saveButton = Find-Element $dialog $null @($types::Button) '1'
     if (-not $saveButton) { $saveButton = Find-Element $dialog 'Save' @($types::Button) }
