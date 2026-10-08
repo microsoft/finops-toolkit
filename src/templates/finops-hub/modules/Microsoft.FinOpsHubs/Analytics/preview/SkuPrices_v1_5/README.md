@@ -9,8 +9,8 @@ Draft FinOps hubs implementation of the FOCUS 1.5 **SKU Price** dataset ([FOCUS 
 | `SkuPrices_v1_5.kql` | Functions + build commands for `SkuPrices_v1_5`, `SkuPricesWide_v1_5`, `CostsWithSkuPriceIdv2`, and helper tables (`SkuPrices_v1_5_starts_table`, `SkuPriceIdv2_map`) |
 | `Build-SkuPrices.ps1` | Creates the functions and builds all tables, one price type at a time |
 | `Test-SkuPrices.ps1` | Validation: duplicates, row counts vs. source, price/discount match, required columns, ranges |
-| `SkuPrices_v1_5_scenarios.kql` | 13 scenarios, each with a query for both layouts |
-| `Test-SkuPriceScenarios.ps1` | Runs both queries per scenario, compares results, times them, writes JSON |
+| `SkuPrices_v1_5_scenarios.kql` | 14 scenarios, each with the most efficient query found for both layouts |
+| `Test-SkuPriceScenarios.ps1` | Runs both queries per scenario (3x), compares results, scores simplicity, time, CPU, memory, rows scanned, x_ usage |
 
 Scripts default to the `ftk-dev.westus` cluster, `Ingestion` database, and `fh-dev` Az context. Override with `-Cluster`, `-Database`, `-Context`.
 
@@ -66,27 +66,31 @@ Scenarios join `CostsWithSkuPriceIdv2` to prices on `SkuPriceId` + `ContractId` 
 
 * Rows by type: List 1,236,402; Contracted 1,236,402 (98.0% = List); Base 1,023,513 (94.0% = List); Effective 388,900
 * Validation: 18/19 checks pass; `PricingUnit` empty (see gaps)
-* Scenarios: 13/13 pass; all match except S06 and S12, which differ as expected
+* Scenarios: 14/14 pass; all match except S06 and S12, which differ as expected (Rows is correct)
 
 ## Scenarios
 
-| Id | Scenario | Rows: lines / joins | Columns: lines / joins |
-|---|---|---|---|
-| S01 | List price for a SKU | 4 / 0 | 3 / 0 |
-| S02 | Negotiated discount by service | 11 / 1 | 6 / 0 |
-| S03 | Base price drift from list | 10 / 1 | 5 / 0 |
-| S04 | Reservation price vs. on-demand | 11 / 1 | 11 / 1 |
-| S05 | Savings plan rate vs. on-demand | 10 / 1 | 10 / 1 |
-| S06 | Recent price changes by price type | 4 / 0 | 7 / 0 (differs: can't tell which price changed) |
-| S07 | Cheapest region for a VM size | 9 / 1 | 9 / 1 |
-| S08 | Verify billed unit prices | 14 / 2 | 9 / 1 |
-| S09 | Savings plan what-if for on-demand usage | 14 / 3 | 12 / 2 |
-| S10 | All prices for one SKU | 9 / 0 | 4 / 0 |
-| S11 | Estimate a planned workload | 10 / 1 | 8 / 1 |
-| S12 | Prices a billing account is eligible for | 9 / 0 | 12 / 0 (differs: list price hidden from other accounts) |
-| S13 | Usage rates vs. purchase fees | 3 / 0 | 6 / 0 |
+| Id | Scenario | Simpler | Faster | CPU | Memory | Rows scanned | FOCUS-only | Correct |
+|---|---|---|---|---|---|---|---|---|
+| S01 | List price for a SKU | Tie | Tie | Tie | Tie | Columns | Columns | Tie |
+| S02 | Negotiated discount by service | Columns | Columns | Columns | Columns | Columns | Columns | Tie |
+| S03 | Base price drift from list | Columns | Columns | Columns | Columns | Columns | Tie | Tie |
+| S04 | Reservation price vs. on-demand | Tie | Columns | Columns | Columns | Columns | Tie | Tie |
+| S05 | Savings plan rate vs. on-demand | Tie | Columns | Tie | Tie | Columns | Tie | Tie |
+| S06 | Recent price changes by price type | Rows | Tie | Tie | Tie | Columns | Rows | Rows |
+| S07 | Cheapest region for a VM size | Tie | Tie | Tie | Tie | Columns | Tie | Tie |
+| S08 | Verify billed unit prices | Columns | Tie | Tie | Columns | Columns | Columns | Tie |
+| S09 | Savings plan what-if for on-demand usage | Columns | Columns | Tie | Columns | Columns | Tie | Tie |
+| S10 | All prices for one SKU | Tie | Tie | Tie | Tie | Columns | Rows | Tie |
+| S11 | Estimate a planned workload | Columns | Tie | Tie | Columns | Columns | Columns | Tie |
+| S12 | Prices a billing account is eligible for | Rows | Tie | Columns | Tie | Columns | Rows | Rows |
+| S13 | Usage rates vs. purchase fees | Rows | Tie | Tie | Tie | Columns | Rows | Tie |
+| S14 | Backfill missing prices on cost data | Columns | Columns | Tie | Columns | Columns | Columns | Tie |
+| | **Wins (Rows / Columns)** | 3 / 6 | 0 / 6 | 0 / 4 | 0 / 7 | 0 / 14 | 4 / 5 | 2 / 0 |
 
-Covers 9 of 13 FOCUS PR 2595 queries plus 4 more (S03, S05, S06, S10). Not testable with this data: announced price changes, public vs. negotiated at a quantity, tier resolution, next tier (no future prices or tiers in EA price sheets), negotiated savings plan discount, multiple currencies, consumption currency. S12 (eligibility JSON) takes ~4 minutes in both layouts.
+Scores: winner per measure (Rows, Columns, or Tie within 15%). Simpler = operators + 2x joins + lets; Faster/CPU/Memory/Rows scanned = median of 3 server-measured runs; FOCUS-only = fewer distinct x_ columns referenced; Correct = which layout returns the right answer when they differ.
+
+Covers 9 of 13 FOCUS PR 2595 queries plus 5 more (S03, S05, S06, S10, S14 price backfill). Not testable with this data: announced price changes, public vs. negotiated at a quantity, tier resolution, next tier (no future prices or tiers in EA price sheets), negotiated savings plan discount, multiple currencies, consumption currency. Efficiency patterns: filter and project early, lookup with a small right side, limit prices to IDs/meters the query needs, evaluate eligibility once per distinct JSON value (S12: 4.5 min to 1.9 s). Cost scenarios use a price only when its block unit matches the charge's PricingUnit; S09 at list = 99.96% of billed.
 
 ## Gaps / TODO
 
