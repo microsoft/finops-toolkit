@@ -47,6 +47,7 @@ Scripts default to the `ftk-dev.westus` cluster, `Ingestion` database, and `fh-d
 | `Prices_final_v1_2` (14 monthly copies) | 18,778,328 | 2.51 GB |
 | `Prices_final_v1_2` (latest month) | 1,625,302 | 217 MB |
 | `SkuPrices_v1_5` (current prices) | 3,885,217 | 656 MB |
+| `SkuPricesWide_v1_5` (current prices, columns layout) | 1,625,302 | 329 MB |
 | `SkuPrices_v1_5` with full history (est.) | ~4.17M | ~0.70 GB |
 | ...skipping Base/Contracted rows equal to List (est.) | ~1.88M | ~0.32 GB |
 
