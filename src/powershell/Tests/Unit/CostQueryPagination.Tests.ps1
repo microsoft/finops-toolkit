@@ -922,16 +922,19 @@ Describe 'Cost Management query pagination' {
 
     Context 'Trend scope metadata' {
         It 'Retains scoped trends and explicit coverage for <Scenario>' -Tag 'ScopedCostTrend' -ForEach @(
-            @{ Scenario = 'complete grouped response'; QueryPath = 'ManagementGroup'; IncludeSecond = $true; EmptySingle = $false; ExpectedData = 2; ExpectedUnverified = 0; ExpectedEmpty = 0 }
-            @{ Scenario = 'partial grouped response'; QueryPath = 'ManagementGroup'; IncludeSecond = $false; EmptySingle = $false; ExpectedData = 1; ExpectedUnverified = 1; ExpectedEmpty = 0 }
-            @{ Scenario = 'empty subscription response'; QueryPath = 'PerSubscription'; IncludeSecond = $false; EmptySingle = $false; ExpectedData = 1; ExpectedUnverified = 0; ExpectedEmpty = 1 }
-            @{ Scenario = 'empty single-subscription response'; QueryPath = 'Single'; IncludeSecond = $false; EmptySingle = $true; ExpectedData = 0; ExpectedUnverified = 0; ExpectedEmpty = 1 }
+            @{ Scenario = 'complete grouped response'; QueryPath = 'ManagementGroup'; IncludeSecond = $true; EmptySingle = $false; IndividualResult = 'None'; ExpectedData = 2; ExpectedUnverified = 0; ExpectedEmpty = 0; ExpectedCalls = 1; ExpectedTotal = 30 }
+            @{ Scenario = 'omitted subscription without cost rows'; QueryPath = 'ManagementGroup'; IncludeSecond = $false; EmptySingle = $false; IndividualResult = 'Empty'; ExpectedData = 1; ExpectedUnverified = 0; ExpectedEmpty = 1; ExpectedCalls = 2; ExpectedTotal = 10 }
+            @{ Scenario = 'omitted subscription with cost rows'; QueryPath = 'ManagementGroup'; IncludeSecond = $false; EmptySingle = $false; IndividualResult = 'Data'; ExpectedData = 2; ExpectedUnverified = 0; ExpectedEmpty = 0; ExpectedCalls = 2; ExpectedTotal = 30 }
+            @{ Scenario = 'failed individual query'; QueryPath = 'ManagementGroup'; IncludeSecond = $false; EmptySingle = $false; IndividualResult = 'Fail'; ExpectedData = 1; ExpectedUnverified = 1; ExpectedEmpty = 0; ExpectedCalls = 2; ExpectedTotal = 10 }
+            @{ Scenario = 'empty subscription response'; QueryPath = 'PerSubscription'; IncludeSecond = $false; EmptySingle = $false; IndividualResult = 'None'; ExpectedData = 1; ExpectedUnverified = 0; ExpectedEmpty = 1; ExpectedCalls = 2; ExpectedTotal = 10 }
+            @{ Scenario = 'empty single-subscription response'; QueryPath = 'Single'; IncludeSecond = $false; EmptySingle = $true; IndividualResult = 'None'; ExpectedData = 0; ExpectedUnverified = 0; ExpectedEmpty = 1; ExpectedCalls = 1; ExpectedTotal = 0 }
         ) {
-            InModuleScope FinOpsMultitool -Parameters @{ QueryPath = $QueryPath; IncludeSecond = $IncludeSecond; EmptySingle = $EmptySingle; ExpectedData = $ExpectedData; ExpectedUnverified = $ExpectedUnverified; ExpectedEmpty = $ExpectedEmpty } {
-                param($QueryPath, $IncludeSecond, $EmptySingle, $ExpectedData, $ExpectedUnverified, $ExpectedEmpty)
+            InModuleScope FinOpsMultitool -Parameters @{ QueryPath = $QueryPath; IncludeSecond = $IncludeSecond; EmptySingle = $EmptySingle; IndividualResult = $IndividualResult; ExpectedData = $ExpectedData; ExpectedUnverified = $ExpectedUnverified; ExpectedEmpty = $ExpectedEmpty; ExpectedCalls = $ExpectedCalls; ExpectedTotal = $ExpectedTotal } {
+                param($QueryPath, $IncludeSecond, $EmptySingle, $IndividualResult, $ExpectedData, $ExpectedUnverified, $ExpectedEmpty, $ExpectedCalls, $ExpectedTotal)
                 $fixturePath = $QueryPath
                 $includeSecondRow = $IncludeSecond
                 $emptyOnlySubscription = $EmptySingle
+                $individualResponse = $IndividualResult
                 $firstId = '11111111-1111-1111-1111-111111111111'
                 $secondId = '22222222-2222-2222-2222-222222222222'
                 $outsideId = '99999999-9999-9999-9999-999999999999'
@@ -946,13 +949,19 @@ Describe 'Cost Management query pagination' {
                     [void]$queries.Add(($Payload | ConvertFrom-Json))
                     $columns = @(@{ name = 'Cost' }, @{ name = 'BillingMonth' }, @{ name = 'Currency' })
                     $rows = @()
-                    if ($fixturePath -eq 'ManagementGroup') {
+                    if ($fixturePath -eq 'ManagementGroup' -and $Path -like '/providers/Microsoft.Management/managementGroups/*') {
                         $columns += @{ name = 'SubscriptionId' }
                         $rows = @(
                             , @(10, '20260901', 'USD', $firstId)
                             if ($includeSecondRow) { , @(20, '20260901', 'USD', $secondId) }
                             , @(999, '20260901', 'EUR', $outsideId)
                         )
+                    }
+                    elseif ($individualResponse -eq 'Fail' -and $Path -like "*/$secondId/*") {
+                        return [pscustomobject]@{ StatusCode = 503; Content = '{}' }
+                    }
+                    elseif ($individualResponse -eq 'Data' -and $Path -like "*/$secondId/*") {
+                        $rows = @(, @(20, '20260901', 'USD'))
                     }
                     elseif (-not $emptyOnlySubscription -and $Path -like "*/$firstId/*") {
                         $rows = @(, @(10, '20260901', 'USD'))
@@ -981,11 +990,25 @@ Describe 'Cost Management query pagination' {
                 }
                 if ($fixturePath -eq 'ManagementGroup') {
                     $queries[0].dataset.filter.dimensions.values | Should -Be @($firstId, $secondId)
-                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times $ExpectedCalls -Exactly
                     $result.QueryScope | Should -Be '/providers/Microsoft.Management/managementGroups/fixture-mg'
-                    $result.Months[0].Cost | Should -Be $(if ($includeSecondRow) { 30 } else { 10 })
+                    $result.Months[0].Cost | Should -Be $ExpectedTotal
                     $result.Months[0].Currency | Should -Be 'USD'
+                    if ($includeSecondRow) { @($result.IndividuallyQueriedIds).Count | Should -Be 0 }
+                    else {
+                        @($result.IndividuallyQueriedIds) | Should -Be @($secondId)
+                        $queries[1].dataset.grouping | Should -BeNullOrEmpty
+                        $queries[1].dataset.filter | Should -BeNullOrEmpty
+                        Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter { $Path -like '/subscriptions/22222222-2222-2222-2222-222222222222/*' }
+                    }
                 }
+                if ($individualResponse -eq 'Fail') {
+                    @($result.QueryErrors).Count | Should -Be 1
+                    $result.QueryErrors[0] | Should -Match ([regex]::Escape("Example second [$secondId]"))
+                    $result.Note | Should -Match 'individual queries failed'
+                    $result.BySubscription[$firstId][0].Cost | Should -Be 10
+                }
+                else { @($result.QueryErrors).Count | Should -Be 0 }
                 if ($ExpectedUnverified) {
                     $result.UnverifiedSubscriptionIds | Should -Contain $secondId
                     $result.Note | Should -Match 'not verified'

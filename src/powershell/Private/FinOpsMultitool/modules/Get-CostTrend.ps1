@@ -41,6 +41,8 @@ function Get-CostTrend {
         }
     }
     $noDataSubscriptionIds = [System.Collections.Generic.List[string]]::new()
+    $individuallyQueriedIds = [System.Collections.Generic.List[string]]::new()
+    $queryErrors = [System.Collections.Generic.List[string]]::new()
     $queryScope = $null
 
     $body = @{
@@ -246,7 +248,43 @@ function Get-CostTrend {
                 if ($response.StatusCode -eq 200) {
                     $paged = Get-AllCostRow -FirstResponse $response -Payload $groupedBody -Context 'management-group cost trend'
                     if ($paged.Rows.Count -gt 0) {
-                        $entries = ConvertFrom-GroupedCostRow -Rows $paged.Rows -Columns $paged.Columns
+                        $entries = [System.Collections.Generic.List[PSCustomObject]]::new()
+                        foreach ($entry in @(ConvertFrom-GroupedCostRow -Rows $paged.Rows -Columns $paged.Columns)) { $entries.Add($entry) }
+                        if ($entries.Count -gt 0) {
+                            # The group omits selected subscriptions outside it and those without cost rows.
+                            $returnedIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+                            foreach ($entry in $entries) { [void]$returnedIds.Add([string]$entry.SubId) }
+                            $omittedIds = @($subscriptionNames.Keys | Where-Object { -not $returnedIds.Contains([string]$_) } | Sort-Object)
+                            if ($omittedIds.Count -gt 0) {
+                                Write-Host "  The management-group response omitted $($omittedIds.Count) selected subscription(s). Querying them individually..." -ForegroundColor Yellow
+                            }
+                            $i = 0
+                            foreach ($subId in $omittedIds) {
+                                $i++
+                                if ($i -eq 1 -or $i -eq $omittedIds.Count -or ($omittedIds.Count -gt 5 -and $i % [math]::Max(1, [int]($omittedIds.Count / 10)) -eq 0)) {
+                                    if (Get-Command Update-ScanStatus -ErrorAction SilentlyContinue) {
+                                        Update-ScanStatus "Querying omitted subscriptions for cost trend ($i/$($omittedIds.Count))..."
+                                    }
+                                }
+                                $individuallyQueriedIds.Add($subId)
+                                try {
+                                    $subResp = Invoke-AzRestMethodWithRetry -Path "/subscriptions/$subId/providers/Microsoft.CostManagement/query?api-version=2023-11-01" -Method POST -Payload $body
+                                    $subPaged = Get-AllCostRow -FirstResponse $subResp -Payload $body -Context "cost trend for $($subscriptionNames[$subId])"
+                                    $subMonths = @(ConvertFrom-TrendCostRow -Rows $subPaged.Rows -Columns $subPaged.Columns)
+                                }
+                                catch {
+                                    $queryErrors.Add("$($subscriptionNames[$subId]) [$subId]: $($_.Exception.Message)")
+                                    continue
+                                }
+                                if ($subMonths.Count -eq 0) { $noDataSubscriptionIds.Add($subId); continue }
+                                foreach ($subMonth in $subMonths) {
+                                    $entries.Add([PSCustomObject]@{ SubId = $subId; Month = $subMonth.Month; MonthDate = $subMonth.MonthDate; Cost = $subMonth.Cost; Currency = $subMonth.Currency })
+                                }
+                            }
+                            if ($queryErrors.Count -gt 0) {
+                                Write-Warning "$($queryErrors.Count) individual cost trend queries failed. Those subscriptions stay unverified and aren't counted as zero cost."
+                            }
+                        }
                         Set-TrendFromGrouped -Entries $entries
                         $groupedOk = ($months.Count -gt 0)
                     }
@@ -319,7 +357,7 @@ function Get-CostTrend {
         'The selected subscription set was not recorded. These results do not establish whole-tenant coverage.'
     }
     elseif ($unverifiedSubscriptionIds.Count -gt 0) {
-        "Trend coverage is not verified for $($unverifiedSubscriptionIds.Count) selected subscription(s) missing from the grouped response. Missing subscriptions are not treated as zero cost."
+        "Trend coverage is not verified for $($unverifiedSubscriptionIds.Count) selected subscription(s). The management-group response omitted them, and their individual queries failed. Missing subscriptions are not treated as zero cost."
     }
     elseif ($noDataSubscriptionIds.Count -gt 0) {
         "$($noDataSubscriptionIds.Count) selected subscription(s) returned no cost rows. No zero-valued months were added for them."
@@ -338,6 +376,8 @@ function Get-CostTrend {
         SubscriptionsWithData     = $bySubscription.Count
         NoDataSubscriptionIds     = $noDataSubscriptionIds.ToArray()
         UnverifiedSubscriptionIds = $unverifiedSubscriptionIds
+        IndividuallyQueriedIds    = $individuallyQueriedIds.ToArray()
+        QueryErrors               = $queryErrors.ToArray()
         CoverageIncomplete        = $coverageIncomplete
         CostBasis                 = 'ActualCost'
         CostPeriodStartUtc        = $periodStart

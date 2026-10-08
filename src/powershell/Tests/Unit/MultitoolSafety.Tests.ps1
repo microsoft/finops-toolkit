@@ -694,6 +694,37 @@ console.log('Credit, numeric, and unavailable sorting passed');
             $html.Contains('Example subscription 001 [00000000-0000-0000-0000-000000000001]') | Should -BeTrue
         }
 
+        It 'Groups each scan''s notes in one scrollable panel above its results' -Tag 'LargeReportLayout' {
+            $fixture = Get-ReportLayoutFixture
+            $reportRoot = Join-Path $TestDrive 'scan-notes-layout'
+            Mock Write-Host { }
+            Set-Variable -Name permissionInfo -Value @{} -Scope Local
+
+            $null = Show-ResultsSummary @fixture -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $html | Should -Match '\.scan-notes \{ max-height: 18rem; overflow-y: auto;'
+            $html | Should -Match '@media print \{[^@]*\.scan-notes \{ max-height: none; overflow: visible; \}'
+            $panelCount = [regex]::Matches($html, '<div class="scan-notes" role="region" tabindex="0" aria-label="[^"]+ notes">').Count
+            $panelCount | Should -BeGreaterThan 0
+            [regex]::Matches($html, '</h2><div class="scan-notes" role="region"').Count | Should -Be $panelCount
+            $html | Should -Not -Match 'aria-label="[^"]+ notes"></div>'
+            foreach ($scan in @(
+                    @{ Fn = 'Get-TagInventory'; Name = 'Tag Inventory'; Notes = @('Coverage: 96.4%', '30 tag-key spelling groups', 'Values are the distinct tag values in use') }
+                    @{ Fn = 'Get-PolicyRecommendations'; Name = 'Policy Recommendations'; Notes = @('Assignment coverage compares recommended definition IDs') }
+                )) {
+                $panelStart = $html.IndexOf("<h2 id=`"scan-$($scan.Fn)`" tabindex=`"-1`">$($scan.Name)</h2><div class=`"scan-notes`" role=`"region`" tabindex=`"0`" aria-label=`"$($scan.Name) notes`">")
+                $panelStart | Should -BeGreaterOrEqual 0 -Because $scan.Fn
+                $resultsStart = $html.IndexOf("id=`"table-$($scan.Fn)`"")
+                foreach ($note in $scan.Notes) {
+                    $noteIndex = $html.IndexOf($note, $panelStart)
+                    $noteIndex | Should -BeGreaterThan $panelStart -Because $note
+                    $noteIndex | Should -BeLessThan $resultsStart -Because $note
+                }
+            }
+        }
+
         It 'Splits formatted table rows cleanly for <LineEnding> output' -Tag 'TableLineEndings' -ForEach @(
             @{ LineEnding = 'CRLF'; Separator = "`r`n" }
             @{ LineEnding = 'LF'; Separator = "`n" }
@@ -1427,6 +1458,8 @@ console.log('Credit, numeric, and unavailable sorting passed');
                 $trend.CostPeriodStartUtc = [datetime]::new(2026, 4, 1, 0, 0, 0, [DateTimeKind]::Utc)
                 $trend.CostPeriodEndUtc = [datetime]::new(2026, 10, 1, 0, 30, 0, [DateTimeKind]::Utc)
                 $trend.Note = 'Coverage is not verified for one selected subscription. Missing subscriptions are not treated as zero cost.'
+                $trend.IndividuallyQueriedIds = @($emptyId, $missingId)
+                $trend.QueryErrors = @("Example unverified [$missingId]: HTTP 503 <b>retry</b>")
             }
             $modules = @(@{ Fn = 'Get-CostTrend'; Name = 'Cost Trend'; Selected = $true; Category = 'Cost Analysis' })
 
@@ -1460,6 +1493,18 @@ console.log('Credit, numeric, and unavailable sorting passed');
                 $html.Contains('Coverage metadata not recorded') | Should -BeTrue
                 $html.Contains('Oct 2026 (partial)') | Should -BeFalse
             }
+            $panelStart = $html.IndexOf('<h2 id="scan-Get-CostTrend" tabindex="-1">Cost Trend</h2><div class="scan-notes" role="region" tabindex="0" aria-label="Cost Trend notes">')
+            $panelStart | Should -BeGreaterOrEqual 0
+            $bodyStart = $html.IndexOf('<div class="cost-trend">')
+            foreach ($text in @("Returned rows: $expectedSubscriptions of 3 selected subscriptions", 'Query windows do not establish billing-data completeness.')) {
+                $html.IndexOf($text) | Should -BeGreaterThan $panelStart -Because $text
+                $html.IndexOf($text) | Should -BeLessThan $bodyStart -Because $text
+            }
+            $html.Contains('Queried individually: 2. Confirmed empty: 1. Unverified: 1.') | Should -Be $Recorded
+            $html.Contains('Failed individual queries (1)') | Should -Be $Recorded
+            $html.Contains('HTTP 503 &lt;b&gt;retry&lt;/b&gt;') | Should -Be $Recorded
+            $html.Contains('<b>retry</b>') | Should -BeFalse
+            if ($Recorded) { $html.IndexOf('Failed individual queries (1)') | Should -BeLessThan $bodyStart }
             $csv = Get-Content -LiteralPath (Join-Path $run 'Get-CostTrend.csv') -Raw
             $csv.Contains($firstId) | Should -Be (-not $AggregateOnly)
             $csv.Contains('Sep 2026') | Should -BeTrue
@@ -2306,6 +2351,7 @@ console.log('Credit, numeric, and unavailable sorting passed');
                 Mock Get-AhbVmRates { [pscustomobject]@{ HourlyPremium = 0.1 } }
                 $data = Get-SavingsRealized -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Fixture' })
                 $htmlSb = [System.Text.StringBuilder]::new()
+                $notesSb = [System.Text.StringBuilder]::new()
                 $guidanceItems = @()
                 $tableNote = $null
                 $switches = $launcherAst.FindAll({ $args[0] -is [System.Management.Automation.Language.SwitchStatementAst] }, $true)
@@ -2313,7 +2359,7 @@ console.log('Credit, numeric, and unavailable sorting passed');
                 $branches.Count | Should -Be 3
                 foreach ($branch in $branches) {
                     $body = ($branch.Item2.Statements | ForEach-Object { $_.Extent.Text }) -join "`n"
-                    . ([scriptblock]::Create("param(`$data, `$htmlSb)`n$body")) $data $htmlSb
+                    . ([scriptblock]::Create("param(`$data, `$htmlSb, `$notesSb)`n$body")) $data $htmlSb $notesSb
                 }
 
                 ($captured -join ' ') | Should -Match 'Estimated savings'
@@ -2322,10 +2368,10 @@ console.log('Credit, numeric, and unavailable sorting passed');
                 ($captured -join ' ') | Should -Not -Match 'Total monthly:|Annual:'
                 ($guidanceItems.Message -join ' ') | Should -Match 'Estimated savings'
                 ($guidanceItems.Message -join ' ') | Should -Not -Match 'Realizing|Run-level'
-                $htmlSb.ToString() | Should -Match 'Estimated commitment savings'
-                $htmlSb.ToString() | Should -Match 'EUR 66.67'
-                $htmlSb.ToString() | Should -Match 'USD 73.00'
-                $htmlSb.ToString() | Should -Match '730-hour'
+                $notesSb.ToString() | Should -Match 'Estimated commitment savings'
+                $notesSb.ToString() | Should -Match 'EUR 66.67'
+                $notesSb.ToString() | Should -Match 'USD 73.00'
+                $notesSb.ToString() | Should -Match '730-hour'
                 $tableNote | Should -Be $data.EstimateBasis
                 $kpi = Get-KpiComputedValue -KpiId 'effective-savings-rate' -Data $data
                 $kpi.Display | Should -Match 'estimated savings'
@@ -3564,13 +3610,14 @@ Describe 'FinOps Multitool cost math' {
                 $branches = @($switches.Clauses | Where-Object { $_.Item1.Value -eq 'Get-TagInventory' -and $_.Item2.Extent.Text.Contains('Top values') })
                 $branches.Count | Should -Be 2
                 $htmlSb = [System.Text.StringBuilder]::new()
+                $notesSb = [System.Text.StringBuilder]::new()
                 $rows = $null
                 $htmlRows = $null
                 Mock Write-Host { }
 
                 foreach ($branch in $branches) {
                     $body = ($branch.Item2.Statements | ForEach-Object { $_.Extent.Text }) -join "`n"
-                    . ([scriptblock]::Create("param(`$data, `$htmlSb)`n$body")) $data $htmlSb
+                    . ([scriptblock]::Create("param(`$data, `$htmlSb, `$notesSb)`n$body")) $data $htmlSb $notesSb
                 }
 
                 foreach ($projection in @(@{ Rows = $rows }, @{ Rows = $htmlRows })) {
@@ -4109,16 +4156,17 @@ Describe 'FinOps Multitool cost math' {
                     AIFootprint = @{ OpenAIAccounts = 1; AIServices = 0; MLWorkspaces = 0; SearchServices = 0; GpuVmCount = 0 }
                 }
                 $htmlSb = [System.Text.StringBuilder]::new()
+                $notesSb = [System.Text.StringBuilder]::new()
                 $guidanceItems = @()
                 foreach ($branch in $branches) {
                     $body = ($branch.Item2.Statements | ForEach-Object { $_.Extent.Text }) -join "`n"
-                    . ([scriptblock]::Create("param(`$data, `$htmlSb)`n$body")) $data $htmlSb
+                    . ([scriptblock]::Create("param(`$data, `$htmlSb, `$notesSb)`n$body")) $data $htmlSb $notesSb
                 }
 
                 ($captured -join ' ') | Should -Match '2026-08-01 to 2026-08-31'
                 ($captured -join ' ') | Should -Not -Match 'MTD'
-                $htmlSb.ToString() | Should -Match '2026-08-01 to 2026-08-31'
-                $htmlSb.ToString() | Should -Not -Match 'MTD'
+                $notesSb.ToString() | Should -Match '2026-08-01 to 2026-08-31'
+                $notesSb.ToString() | Should -Not -Match 'MTD'
                 ($guidanceItems.Message -join ' ') | Should -Match '2026-08-01 to 2026-08-31'
                 $kpi = Get-KpiComputedValue -KpiId 'token-consumption-metrics' -Data $data
                 $kpi.Display | Should -Match '2026-08-01 to 2026-08-31'

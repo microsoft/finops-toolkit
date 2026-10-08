@@ -3350,6 +3350,9 @@ tr:hover td { background: var(--surface); }
 .report-jump { color: var(--blue); text-underline-offset: 3px; }
 .evidence-state { font-weight: 600; white-space: nowrap; }
 .story-note { color: var(--muted); font-size: 13px; margin: 8px 0 20px; max-width: 85ch; }
+.scan-notes { max-height: 18rem; overflow-y: auto; margin: 12px 0 18px; padding: 0 16px; border: 1px solid var(--light-gray); border-radius: 6px; background: #FFFFFF; }
+.scan-notes:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.scan-notes > p, .scan-notes > div, .scan-notes > details { margin: 12px 0; }
 .tabs, .tab, .masthead h1, .masthead .eyebrow, .summary-card .label, th, h3, .story-caps, .kpi-name, .kpi-next-label { letter-spacing: 0; }
 h2[id] { scroll-margin-top: 85px; }
 @media (max-width: 640px) {
@@ -3417,6 +3420,7 @@ h2[id] { scroll-margin-top: 85px; }
     .report-grid .table-scroll { max-height: none; overflow: visible; }
     .report-grid th { position: static; }
     .report-grid tr[data-grid-match="true"] { display: table-row !important; }
+    .scan-notes { max-height: none; overflow: visible; }
 }
 </style>
 <noscript><style>.tabpane { display: block; } .tabs { display: none; }</style></noscript>
@@ -3726,6 +3730,8 @@ h2[id] { scroll-margin-top: 85px; }
                 [void]$htmlSb.Append("<h2 id=`"$scanAnchor`" tabindex=`"-1`">$eName</h2>")
                 # Anything appended past this point counts as content for the section.
                 $sectionMark = $htmlSb.Length
+                # Summaries, notes, and guidance render together in one scrollable panel under the heading.
+                $notesSb = [System.Text.StringBuilder]::new()
 
                 $errorKey = "_error_$fn"
                 if ($Results.ContainsKey($errorKey)) {
@@ -3756,10 +3762,10 @@ h2[id] { scroll-margin-top: 85px; }
                 switch ($fn) {
                     'Get-OrphanedResources' {
                         if ($data.MonthlyCost) {
-                            [void]$htmlSb.Append("<p>Observed cost ($([System.Net.WebUtility]::HtmlEncode([string]$data.CostPeriod))): <span class=`"money`">$([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.MonthlyCost -Currency $data.Currency)))</span> across $($data.CostedCount) of $($data.TotalCount) resources</p>")
+                            [void]$notesSb.Append("<p>Observed cost ($([System.Net.WebUtility]::HtmlEncode([string]$data.CostPeriod))): <span class=`"money`">$([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.MonthlyCost -Currency $data.Currency)))</span> across $($data.CostedCount) of $($data.TotalCount) resources</p>")
                         }
                         if ($data.CostIssue) {
-                            [void]$htmlSb.Append("<div class=`"guidance yellow`">Cost column incomplete: $([System.Net.WebUtility]::HtmlEncode([string]$data.CostIssue)). An empty cost cell below means the lookup failed, not that the resource is free.</div>")
+                            [void]$notesSb.Append("<div class=`"guidance yellow`">Cost column incomplete: $([System.Net.WebUtility]::HtmlEncode([string]$data.CostIssue)). An empty cost cell below means the lookup failed, not that the resource is free.</div>")
                         }
                         # 'n/a' when the lookup failed, '-' when it succeeded and the resource simply had no spend.
                         $noCostHtml = if ($data.CostAvailable) { '-' } else { 'n/a' }
@@ -3778,12 +3784,12 @@ h2[id] { scroll-margin-top: 85px; }
                         $tableNote = 'Cost is actual billed spend over the stated period, not a projection. A deallocated VM bills nothing on the VM object itself, so its attached managed disks are rolled into its row - those disks are excluded from the orphaned disk rows above, so nothing is double counted. A resource stopped part way through the period shows what it incurred while still running, so the ongoing saving is lower than the figure shown.'
                     }
                     'Get-IdleVMs' {
-                        [void]$htmlSb.Append("<p>Scanned $($data.ScannedVMs) running VMs</p>")
+                        [void]$notesSb.Append("<p>Scanned $($data.ScannedVMs) running VMs</p>")
                         $htmlRows = $data.IdleVMs
                         $htmlCols = @('VMName', 'ResourceGroup', 'VMSize', 'AvgCPU14d', 'Classification')
                     }
                     'Get-StorageTierAdvice' {
-                        [void]$htmlSb.Append("<p>$($data.TotalHotAccounts) Hot-tier accounts scanned</p>")
+                        [void]$notesSb.Append("<p>$($data.TotalHotAccounts) Hot-tier accounts scanned</p>")
                         $htmlRows = $data.Recommendations
                         $htmlCols = @('StorageAccount', 'ResourceGroup', 'CurrentTier', 'CapacityGB', 'Recommendation')
                     }
@@ -3800,13 +3806,13 @@ h2[id] { scroll-margin-top: 85px; }
                         $coverageLabel = if ($data.CoverageIncomplete -or $null -eq $data.TagCoverage) { 'Unverified' } else { [System.Net.WebUtility]::HtmlEncode("$($data.TagCoverage)%") }
                         $taggedLabel = if ($null -ne $data.TaggedCount) { [System.Net.WebUtility]::HtmlEncode([string]$data.TaggedCount) } else { 'Unknown' }
                         $untaggedLabel = if ($null -ne $data.UntaggedCount) { [System.Net.WebUtility]::HtmlEncode([string]$data.UntaggedCount) } else { 'Unknown' }
-                        [void]$htmlSb.Append("<p>Coverage: $coverageLabel &nbsp;|&nbsp; $taggedLabel tagged / $untaggedLabel untagged &nbsp;|&nbsp; $tagCountHtml</p>")
+                        [void]$notesSb.Append("<p>Coverage: $coverageLabel &nbsp;|&nbsp; $taggedLabel tagged / $untaggedLabel untagged &nbsp;|&nbsp; $tagCountHtml</p>")
                         if ($data.CaseVariants -and @($data.CaseVariants).Count -gt 0) {
-                            [void]$htmlSb.Append("<details class=`"tag-case-details`"><summary>$(@($data.CaseVariants).Count) tag-key spelling groups</summary><p>Azure resolves tag keys case-insensitively. Resource Graph and cost exports can report their spellings separately.</p><div class=`"detail-content`"><dl>")
+                            [void]$notesSb.Append("<details class=`"tag-case-details`"><summary>$(@($data.CaseVariants).Count) tag-key spelling groups</summary><p>Azure resolves tag keys case-insensitively. Resource Graph and cost exports can report their spellings separately.</p><div class=`"detail-content`"><dl>")
                             foreach ($variant in $data.CaseVariants) {
-                                [void]$htmlSb.Append("<dt>$([System.Net.WebUtility]::HtmlEncode([string]$variant.TagKey))</dt><dd>$([System.Net.WebUtility]::HtmlEncode([string]$variant.Detail))</dd>")
+                                [void]$notesSb.Append("<dt>$([System.Net.WebUtility]::HtmlEncode([string]$variant.TagKey))</dt><dd>$([System.Net.WebUtility]::HtmlEncode([string]$variant.Detail))</dd>")
                             }
-                            [void]$htmlSb.Append('</dl></div></details>')
+                            [void]$notesSb.Append('</dl></div></details>')
                         }
                         if ($data.TagNames) {
                             $htmlRows = $data.TagNames.GetEnumerator() | Sort-Object { $_.Value.TotalResources } -Descending | ForEach-Object {
@@ -3893,18 +3899,27 @@ h2[id] { scroll-margin-top: 85px; }
                             $periodLabel = $periodStart.ToString('yyyy-MM-dd HH:mm:ss', [cultureinfo]::InvariantCulture) + ' to ' + $periodEnd.ToString('yyyy-MM-dd HH:mm:ss', [cultureinfo]::InvariantCulture) + ' UTC'
                             $partialMonth = $periodEnd.Date.AddDays(1 - $periodEnd.Day)
                         }
-                        [void]$htmlSb.Append('<div class="cost-trend">')
-                        [void]$htmlSb.Append("<p class=`"story-summary`">$([System.Net.WebUtility]::HtmlEncode($coverageLabel))</p><p class=`"story-detail`">$basisLabel<br>$([System.Net.WebUtility]::HtmlEncode($periodLabel))</p>")
+                        [void]$notesSb.Append("<p class=`"story-summary`">$([System.Net.WebUtility]::HtmlEncode($coverageLabel))</p><p class=`"story-detail`">$basisLabel<br>$([System.Net.WebUtility]::HtmlEncode($periodLabel))</p>")
                         if (-not $coverageRecorded) {
-                            [void]$htmlSb.Append('<p class="guidance yellow">Coverage metadata not recorded. The aggregate is based on returned rows and is not a verified selected-scope or whole-tenant total.</p>')
+                            [void]$notesSb.Append('<p class="guidance yellow">Coverage metadata not recorded. The aggregate is based on returned rows and is not a verified selected-scope or whole-tenant total.</p>')
                         }
                         else {
-                            [void]$htmlSb.Append("<p class=`"story-detail`">Confirmed empty: $(@($data.NoDataSubscriptionIds).Count). Unverified: $(@($data.UnverifiedSubscriptionIds).Count).</p>")
-                            if ($data.Note) { [void]$htmlSb.Append("<p class=`"guidance yellow`">$([System.Net.WebUtility]::HtmlEncode([string]$data.Note))</p>") }
+                            $individualCount = @($data.IndividuallyQueriedIds | Where-Object { $_ }).Count
+                            $individualLabel = if ($individualCount -gt 0) { "Queried individually: $individualCount. " } else { '' }
+                            [void]$notesSb.Append("<p class=`"story-detail`">${individualLabel}Confirmed empty: $(@($data.NoDataSubscriptionIds).Count). Unverified: $(@($data.UnverifiedSubscriptionIds).Count).</p>")
+                            if ($data.Note) { [void]$notesSb.Append("<p class=`"guidance yellow`">$([System.Net.WebUtility]::HtmlEncode([string]$data.Note))</p>") }
+                            $trendQueryErrors = @($data.QueryErrors | Where-Object { $_ })
+                            if ($trendQueryErrors.Count -gt 0) {
+                                [void]$notesSb.Append("<details class=`"cell-details`"><summary>Failed individual queries ($($trendQueryErrors.Count))</summary><div class=`"detail-content`"><ul class=`"detail-list`">")
+                                foreach ($queryError in $trendQueryErrors) { [void]$notesSb.Append("<li>$([System.Net.WebUtility]::HtmlEncode([string]$queryError))</li>") }
+                                [void]$notesSb.Append('</ul></div></details>')
+                            }
                         }
                         if ($data.QueryScope) {
-                            [void]$htmlSb.Append("<details class=`"cell-details`"><summary>Query scope</summary><div class=`"detail-content`"><code>$([System.Net.WebUtility]::HtmlEncode([string]$data.QueryScope))</code></div></details>")
+                            [void]$notesSb.Append("<details class=`"cell-details`"><summary>Query scope</summary><div class=`"detail-content`"><code>$([System.Net.WebUtility]::HtmlEncode([string]$data.QueryScope))</code></div></details>")
                         }
+                        [void]$notesSb.Append('<p class="story-detail">Query windows do not establish billing-data completeness. Unreturned months are not filled with zero cost.</p>')
+                        [void]$htmlSb.Append('<div class="cost-trend">')
                         [void]$htmlSb.Append('<div class="trend-controls"><fieldset class="trend-modes"><legend>Trend view</legend><label for="trend-view-scope"><input type="radio" id="trend-view-scope" name="trend-view" value="aggregate" checked>Selected scope</label><label for="trend-view-subscription"><input type="radio" id="trend-view-subscription" name="trend-view" value="subscription">Subscription</label></fieldset>')
                         [void]$htmlSb.Append('<div class="trend-subscription-control" hidden><label for="trend-subscription">Subscription</label><select id="trend-subscription">')
                         foreach ($subscriptionId in $trendIds) {
@@ -3938,10 +3953,10 @@ h2[id] { scroll-margin-top: 85px; }
                             else { [void]$htmlSb.Append("<p class=`"guidance yellow`">$([System.Net.WebUtility]::HtmlEncode([string]$series.EmptyMessage)) No zero-valued months were added.</p>") }
                             [void]$htmlSb.Append('</div>')
                         }
-                        [void]$htmlSb.Append('<p class="story-detail">Query windows do not establish billing-data completeness. Unreturned months are not filled with zero cost.</p></div>')
+                        [void]$htmlSb.Append('</div>')
                     }
                     'Get-ReservationAdvice' {
-                        [void]$htmlSb.Append("<p>Est. annual savings: $([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.EstimatedAnnualSavings -Currency $data.Currency)))</p>")
+                        [void]$notesSb.Append("<p>Est. annual savings: $([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.EstimatedAnnualSavings -Currency $data.Currency)))</p>")
                         if ($data.CostIssue) { $tableNote = [string]$data.CostIssue }
 
                         # Wrapping a null in @() yields a one-element array, so filter before counting.
@@ -3993,8 +4008,8 @@ h2[id] { scroll-margin-top: 85px; }
                         $htmlCols = @('Resource', 'Type', 'SKU', 'Region', 'Qty', 'Term', 'Savings', 'Impact')
                     }
                     'Get-CommitmentUtilization' {
-                        [void]$htmlSb.Append("<p>Reservations: $($data.RICount) (average $(Format-ReportMetric $data.RIAvgUtilization -Format '0.#' -Suffix '%')) &nbsp;|&nbsp; Savings plans: $($data.SPCount) (average $(Format-ReportMetric $data.SPAvgUtilization -Format '0.#' -Suffix '%'))</p>")
-                        [void]$htmlSb.Append('<p class="story-note">Billing-scope results can include commitments beyond the selected subscriptions. Averages are unweighted and use the latest returned period per commitment. Missing metadata is not proof of denied access.</p>')
+                        [void]$notesSb.Append("<p>Reservations: $($data.RICount) (average $(Format-ReportMetric $data.RIAvgUtilization -Format '0.#' -Suffix '%')) &nbsp;|&nbsp; Savings plans: $($data.SPCount) (average $(Format-ReportMetric $data.SPAvgUtilization -Format '0.#' -Suffix '%'))</p>")
+                        [void]$notesSb.Append('<p class="story-note">Billing-scope results can include commitments beyond the selected subscriptions. Averages are unweighted and use the latest returned period per commitment. Missing metadata is not proof of denied access.</p>')
                         $htmlRows = @(
                             foreach ($reservation in @($data.Reservations | Where-Object { $_ })) {
                                 $name = if ($reservation.Name) { $reservation.Name } else { $reservation.ReservationId }
@@ -4006,14 +4021,14 @@ h2[id] { scroll-margin-top: 85px; }
                             }
                         )
                         $htmlCols = @('Type', 'Commitment', 'SKU', 'Kind', 'Avg utilization', 'Usage period')
-                        if ($data.Note) { [void]$htmlSb.Append("<p class=`"story-note`">$([System.Net.WebUtility]::HtmlEncode([string]$data.Note))</p>") }
-                        if ($data.MetadataErrors) { [void]$htmlSb.Append("<p class=`"guidance yellow`">Metadata could not be verified for $(@($data.MetadataErrors).Count) reservation(s). Available utilization and reservation IDs are retained.</p>") }
+                        if ($data.Note) { [void]$notesSb.Append("<p class=`"story-note`">$([System.Net.WebUtility]::HtmlEncode([string]$data.Note))</p>") }
+                        if ($data.MetadataErrors) { [void]$notesSb.Append("<p class=`"guidance yellow`">Metadata could not be verified for $(@($data.MetadataErrors).Count) reservation(s). Available utilization and reservation IDs are retained.</p>") }
                     }
                     'Get-SavingsRealized' {
-                        [void]$htmlSb.Append("<p>Estimated commitment savings ($([System.Net.WebUtility]::HtmlEncode([string]$data.Period))): <span class=`"money`">$([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.CommitmentSavingsMonthToDate -Currency $data.Currency)))</span></p>")
-                        [void]$htmlSb.Append("<p>RI: $([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.RISavingsMonthToDate -Currency $data.Currency))) &nbsp;|&nbsp; SP: $([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.SPSavingsMonthToDate -Currency $data.Currency)))</p>")
-                        [void]$htmlSb.Append("<p>AHB: <span class=`"money`">$([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.AHBSavingsMonthly -Currency $data.AHBCurrency)))</span> ($([System.Net.WebUtility]::HtmlEncode([string]$data.AHBPeriod)))</p>")
-                        if ($data.AHBIssue) { [void]$htmlSb.Append("<p>$([System.Net.WebUtility]::HtmlEncode([string]$data.AHBIssue))</p>") }
+                        [void]$notesSb.Append("<p>Estimated commitment savings ($([System.Net.WebUtility]::HtmlEncode([string]$data.Period))): <span class=`"money`">$([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.CommitmentSavingsMonthToDate -Currency $data.Currency)))</span></p>")
+                        [void]$notesSb.Append("<p>RI: $([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.RISavingsMonthToDate -Currency $data.Currency))) &nbsp;|&nbsp; SP: $([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.SPSavingsMonthToDate -Currency $data.Currency)))</p>")
+                        [void]$notesSb.Append("<p>AHB: <span class=`"money`">$([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.AHBSavingsMonthly -Currency $data.AHBCurrency)))</span> ($([System.Net.WebUtility]::HtmlEncode([string]$data.AHBPeriod)))</p>")
+                        if ($data.AHBIssue) { [void]$notesSb.Append("<p>$([System.Net.WebUtility]::HtmlEncode([string]$data.AHBIssue))</p>") }
                         if ($data.EstimateBasis) { $tableNote = [string]$data.EstimateBasis }
                     }
                     'Get-BudgetStatus' {
@@ -4021,7 +4036,7 @@ h2[id] { scroll-margin-top: 85px; }
                             "unverified (read $($data.ScannedSubs) of $($data.TotalSubs) subs)"
                         }
                         else { "$($data.BudgetCoverage)%" }
-                        [void]$htmlSb.Append("<p>Budgets: $($data.TotalBudgets) &nbsp;|&nbsp; At risk: $($data.AtRiskCount) &nbsp;|&nbsp; Over budget: $($data.OverBudgetCount) &nbsp;|&nbsp; Subscriptions with a budget: $htmlCoverage</p>")
+                        [void]$notesSb.Append("<p>Budgets: $($data.TotalBudgets) &nbsp;|&nbsp; At risk: $($data.AtRiskCount) &nbsp;|&nbsp; Over budget: $($data.OverBudgetCount) &nbsp;|&nbsp; Subscriptions with a budget: $htmlCoverage</p>")
                         $htmlRows = $data.Budgets | ForEach-Object {
                             $riskClass = switch ($_.Risk) { 'Over Budget' { 'severity-red' } 'On Track' { 'severity-green' } default { 'severity-yellow' } }
                             [PSCustomObject]@{
@@ -4036,7 +4051,7 @@ h2[id] { scroll-margin-top: 85px; }
                         $htmlCols = @('Budget', 'Amount', 'Spent', 'Forecast', 'PctUsed', 'Risk', 'Note')
                     }
                     'Get-AnomalyAlerts' {
-                        [void]$htmlSb.Append("<p>Total: $($data.TotalAlerts) &nbsp;|&nbsp; Anomaly: $($data.AnomalyAlertCount) &nbsp;|&nbsp; Active: $($data.ActiveAlertCount)</p>")
+                        [void]$notesSb.Append("<p>Total: $($data.TotalAlerts) &nbsp;|&nbsp; Anomaly: $($data.AnomalyAlertCount) &nbsp;|&nbsp; Active: $($data.ActiveAlertCount)</p>")
                         $htmlRows = $data.TriggeredAlerts | Select-Object -First 10 | ForEach-Object {
                             $label = if ($_.AlertLabel) { $_.AlertLabel } else { $_.AlertName }
                             [PSCustomObject]@{ Alert = $label; Type = $_.AlertType; Status = $_.Status; Subscription = $_.Subscription }
@@ -4044,7 +4059,7 @@ h2[id] { scroll-margin-top: 85px; }
                         $htmlCols = @('Alert', 'Type', 'Status', 'Subscription')
                     }
                     'Get-OptimizationAdvice' {
-                        [void]$htmlSb.Append("<p>Est. annual savings: $([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.EstimatedAnnualSavings -Currency $data.Currency))) &nbsp;|&nbsp; $($data.TotalCount) recommendations</p>")
+                        [void]$notesSb.Append("<p>Est. annual savings: $([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.EstimatedAnnualSavings -Currency $data.Currency))) &nbsp;|&nbsp; $($data.TotalCount) recommendations</p>")
                         if ($data.CostIssue) { $tableNote = [string]$data.CostIssue }
                         $htmlRows = $data.Recommendations | Sort-Object { if ($_.AnnualSavings) { [double]$_.AnnualSavings } else { 0 } } -Descending | Select-Object -First 25 | ForEach-Object {
                             [PSCustomObject]@{ Category = $_.Category; Impact = $_.Impact; Resource = $_.ResourceName; Problem = ($_.Problem -replace '(.{80}).+', '$1...'); Savings = "$(Format-BudgetAmount -Value $_.AnnualSavings -Currency $_.Currency)/yr" }
@@ -4097,7 +4112,7 @@ h2[id] { scroll-margin-top: 85px; }
                         $cUnit = [System.Net.WebUtility]::HtmlEncode([string]$data.Unit)
                         $emissions = if ($null -ne $data.TotalEmissionsKg) { "$($data.TotalEmissionsKg) $cUnit" } else { 'Unavailable' }
                         $changeLabel = if ($null -ne $data.ChangeRatio) { "$($data.ChangeRatio)%" } else { 'Unavailable' }
-                        [void]$htmlSb.Append("<p>Latest month ($cLatest): $emissions &nbsp;|&nbsp; month over month $changeLabel</p>")
+                        [void]$notesSb.Append("<p>Latest month ($cLatest): $emissions &nbsp;|&nbsp; month over month $changeLabel</p>")
                         if ($data.Note) { $tableNote = [string]$data.Note }
                         $htmlRows = $data.BySubscription | Where-Object { $_ } | ForEach-Object {
                             [PSCustomObject]@{ Subscription = $_.Subscription; Emissions = "$($_.EmissionsKg) kg" }
@@ -4109,15 +4124,15 @@ h2[id] { scroll-margin-top: 85px; }
                         $storageAmount = [System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.StorageCost -Currency $data.Currency))
                         $computeShare = if ($null -ne $data.ComputeSharePct) { [System.Net.WebUtility]::HtmlEncode("$($data.ComputeSharePct)% of VM compute + storage spend") } else { 'Unavailable' }
                         $storageShare = if ($null -ne $data.StorageSharePct) { [System.Net.WebUtility]::HtmlEncode("$($data.StorageSharePct)% of VM compute + storage spend") } else { 'Unavailable' }
-                        [void]$htmlSb.Append("<p>Compute: $computeAmount ($computeShare) over $($data.VmCount) VMs, $($data.TotalVCpu) vCPU, $($data.TotalMemoryGb) GB RAM</p>")
-                        [void]$htmlSb.Append("<p>Storage: $storageAmount ($storageShare) over $($data.TotalStorageGb) GB</p>")
+                        [void]$notesSb.Append("<p>Compute: $computeAmount ($computeShare) over $($data.VmCount) VMs, $($data.TotalVCpu) vCPU, $($data.TotalMemoryGb) GB RAM</p>")
+                        [void]$notesSb.Append("<p>Storage: $storageAmount ($storageShare) over $($data.TotalStorageGb) GB</p>")
                         $unitContext = Get-FinOpsUnitCostContext -Data $data
-                        [void]$htmlSb.Append("<p class=`"story-note`">$([System.Net.WebUtility]::HtmlEncode($unitContext.Summary))</p>")
-                        [void]$htmlSb.Append('<details class="calculation-details"><summary>Calculation and thresholds</summary>')
+                        [void]$notesSb.Append("<p class=`"story-note`">$([System.Net.WebUtility]::HtmlEncode($unitContext.Summary))</p>")
+                        [void]$notesSb.Append('<details class="calculation-details"><summary>Calculation and thresholds</summary>')
                         foreach ($description in @($unitContext.Formula, $unitContext.Capacity, $unitContext.Target)) {
-                            [void]$htmlSb.Append("<p>$([System.Net.WebUtility]::HtmlEncode($description))</p>")
+                            [void]$notesSb.Append("<p>$([System.Net.WebUtility]::HtmlEncode($description))</p>")
                         }
-                        [void]$htmlSb.Append('</details>')
+                        [void]$notesSb.Append('</details>')
                         $htmlRows = @(
                             [PSCustomObject]@{ Metric = 'Cost per vCPU'; Value = (Format-FinOpsUnitRate -Value $data.CostPerVCpu -Currency $data.Currency) }
                             [PSCustomObject]@{ Metric = 'Cost per GB RAM'; Value = (Format-FinOpsUnitRate -Value $data.CostPerGbRam -Currency $data.Currency) }
@@ -4128,7 +4143,7 @@ h2[id] { scroll-margin-top: 85px; }
                         if ($data.Note) { $tableNote = [string]$data.Note }
                     }
                     'Get-LegacyResources' {
-                        [void]$htmlSb.Append("<p>$($data.TotalCount) legacy or retiring resources found</p>")
+                        [void]$notesSb.Append("<p>$($data.TotalCount) legacy or retiring resources found</p>")
                         $htmlRows = $data.LegacyResources | Where-Object { $_ } | ForEach-Object {
                             [PSCustomObject]@{ Category = $_.Category; Resource = $_.ResourceName; Detail = $_.Detail; Impact = $_.Impact }
                         }
@@ -4143,9 +4158,9 @@ h2[id] { scroll-margin-top: 85px; }
                                 $periodLabel = ([datetime]$data.UsagePeriodStartUtc).ToUniversalTime().ToString('yyyy-MM-dd HH:mm:ss', [cultureinfo]::InvariantCulture) + ' to ' + ([datetime]$data.UsagePeriodEndUtc).ToUniversalTime().ToString('yyyy-MM-dd HH:mm:ss', [cultureinfo]::InvariantCulture) + ' UTC'
                             }
                             $aPeriod = [System.Net.WebUtility]::HtmlEncode($periodLabel)
-                            [void]$htmlSb.Append("<p>AI footprint &mdash; OpenAI/Foundry Tools: $($fp.OpenAIAccounts + $fp.AIServices) &nbsp;|&nbsp; ML workspaces: $($fp.MLWorkspaces) &nbsp;|&nbsp; AI Search: $($fp.SearchServices) &nbsp;|&nbsp; GPU VMs: $($fp.GpuVmCount)</p>")
-                            [void]$htmlSb.Append("<p>Period: $aPeriod<br>Tokens: $(Format-ReportMetric $data.TotalTokens) &nbsp;|&nbsp; Requests: $(Format-ReportMetric $data.TotalRequests) &nbsp;|&nbsp; AI account cost: $aiAmount</p>")
-                            [void]$htmlSb.Append('<p class="story-note">Cost covers Microsoft.CognitiveServices/accounts, not the ML, Search, or GPU inventory. Effective account rates are not per-model prices or a billing reconciliation. Incomplete usage leaves rates unavailable.</p>')
+                            [void]$notesSb.Append("<p>AI footprint &mdash; OpenAI/Foundry Tools: $($fp.OpenAIAccounts + $fp.AIServices) &nbsp;|&nbsp; ML workspaces: $($fp.MLWorkspaces) &nbsp;|&nbsp; AI Search: $($fp.SearchServices) &nbsp;|&nbsp; GPU VMs: $($fp.GpuVmCount)</p>")
+                            [void]$notesSb.Append("<p>Period: $aPeriod<br>Tokens: $(Format-ReportMetric $data.TotalTokens) &nbsp;|&nbsp; Requests: $(Format-ReportMetric $data.TotalRequests) &nbsp;|&nbsp; AI account cost: $aiAmount</p>")
+                            [void]$notesSb.Append('<p class="story-note">Cost covers Microsoft.CognitiveServices/accounts, not the ML, Search, or GPU inventory. Effective account rates are not per-model prices or a billing reconciliation. Incomplete usage leaves rates unavailable.</p>')
                             $accountRows = @($data.ByAccount | Where-Object { $_ })
                             if ($accountRows.Count -gt 0) {
                                 [void]$htmlSb.Append('<h3>Account costs</h3>')
@@ -4270,38 +4285,41 @@ h2[id] { scroll-margin-top: 85px; }
                     }
                     [void]$htmlSb.Append('</tbody></table></div>')
                     if ($tableNote) {
-                        [void]$htmlSb.Append("<p class=`"table-note`">$([System.Net.WebUtility]::HtmlEncode($tableNote))</p>")
+                        [void]$notesSb.Append("<p class=`"table-note`">$([System.Net.WebUtility]::HtmlEncode($tableNote))</p>")
                     }
                 }
 
                 $scanContext = Get-FinOpsScanContext -FunctionName $fn -Data $data
                 if ($scanContext) {
-                    [void]$htmlSb.Append("<p class=`"story-note`">$([System.Net.WebUtility]::HtmlEncode($scanContext.Summary))</p>")
-                    [void]$htmlSb.Append('<details class="calculation-details"><summary>Calculation and thresholds</summary>')
+                    [void]$notesSb.Append("<p class=`"story-note`">$([System.Net.WebUtility]::HtmlEncode($scanContext.Summary))</p>")
+                    [void]$notesSb.Append('<details class="calculation-details"><summary>Calculation and thresholds</summary>')
                     foreach ($description in $scanContext.Details) {
-                        [void]$htmlSb.Append("<p>$([System.Net.WebUtility]::HtmlEncode($description))</p>")
+                        [void]$notesSb.Append("<p>$([System.Net.WebUtility]::HtmlEncode($description))</p>")
                     }
-                    [void]$htmlSb.Append('</details>')
+                    [void]$notesSb.Append('</details>')
                 }
 
                 # Render guidance
                 if ($guidanceByFn.ContainsKey($fn)) {
                     foreach ($item in $guidanceByFn[$fn]) {
                         $gClass = switch ($item.Severity) { 'Red' { 'guidance red' } 'Yellow' { 'guidance yellow' } 'Green' { 'guidance green' } default { 'guidance' } }
-                        [void]$htmlSb.Append("<div class=`"$gClass`">$([System.Net.WebUtility]::HtmlEncode([string]$item.Message))")
+                        [void]$notesSb.Append("<div class=`"$gClass`">$([System.Net.WebUtility]::HtmlEncode([string]$item.Message))")
                         if ($item.Docs) {
                             $eDocs = [System.Net.WebUtility]::HtmlEncode([string]$item.Docs)
                             if ($item.Docs -match '^https?://') {
-                                [void]$htmlSb.Append("<br/><a href=`"$eDocs`">$eDocs</a>")
+                                [void]$notesSb.Append("<br/><a href=`"$eDocs`">$eDocs</a>")
                             }
                             else {
-                                [void]$htmlSb.Append("<br/>$eDocs")
+                                [void]$notesSb.Append("<br/>$eDocs")
                             }
                         }
-                        [void]$htmlSb.Append('</div>')
+                        [void]$notesSb.Append('</div>')
                     }
                 }
 
+                if ($notesSb.Length -gt 0) {
+                    [void]$htmlSb.Insert($sectionMark, "<div class=`"scan-notes`" role=`"region`" tabindex=`"0`" aria-label=`"$eName notes`">$($notesSb.ToString())</div>")
+                }
                 # A scan that produced no table and no summary would otherwise be a bare heading.
                 if ($htmlSb.Length -eq $sectionMark) {
                     [void]$htmlSb.Append('<div class="no-data">This scan ran but returned nothing to display.</div>')
