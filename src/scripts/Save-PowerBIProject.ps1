@@ -196,8 +196,44 @@ function Import-TabularLibrary
         Write-Verbose 'Installing the Analysis Services package...'
         Install-Package -Name Microsoft.AnalysisServices -ProviderName NuGet -Scope CurrentUser -Force | Out-Null
     }
-    $dllPath = "$((Get-Item (Get-Package Microsoft.AnalysisServices).Source).Directory)/lib/net8.0/Microsoft.AnalysisServices.Tabular.dll"
-    Add-Type -Path $dllPath
+    $script:TabularDllPath = "$((Get-Item (Get-Package Microsoft.AnalysisServices).Source).Directory)/lib/net8.0/Microsoft.AnalysisServices.Tabular.dll"
+    Add-Type -Path $script:TabularDllPath
+}
+
+<#
+    .SYNOPSIS
+    Reports Power BI Desktop windows that are waiting for someone to answer them.
+
+    .DESCRIPTION
+    Power BI Desktop asks for data source credentials the first time it reads a source, including
+    anonymous ones like a file on GitHub. Nothing here can answer those, and the refresh just
+    stops until someone does, so each one is named as it appears.
+#>
+function Show-PendingPrompt($MainWindow, [int] $ProcessId, [System.Collections.Generic.HashSet[string]] $Reported)
+{
+    foreach ($window in @(Get-ProcessWindow $ProcessId))
+    {
+        if ($MainWindow -and $window.Current.NativeWindowHandle -eq $MainWindow.Current.NativeWindowHandle) { continue }
+
+        $name = $window.Current.Name
+        if (-not $name) { continue }
+
+        # Either a known prompt title or any dialog offering to connect or sign in
+        $isPrompt = $name -match "(?i)sign in|sign-in|credential|authenticat|your account|access web content|connect to"
+        if (-not $isPrompt)
+        {
+            $isPrompt = [bool](@('Connect', 'Sign in') | Where-Object { Find-Element $window $_ @($types::Button) } | Select-Object -First 1)
+        }
+        if (-not $isPrompt) { continue }
+
+        if ($Reported.Add($name))
+        {
+            Write-Host ''
+            Write-Host "    ⚠️ ACTION NEEDED: Power BI Desktop is waiting on '$name'." -ForegroundColor Yellow
+            Write-Host '       Answer it in that window. Everything continues on its own afterward.' -ForegroundColor Yellow
+            Write-Host ''
+        }
+    }
 }
 
 <#
@@ -301,9 +337,34 @@ try
 
         # Refresh policies only apply in the Power BI service
         $command = @{ refresh = @{ type = 'full'; applyRefreshPolicy = $false; objects = @(@{ database = $database.Name }) } } | ConvertTo-Json -Depth 5 -Compress
-        $results = $server.Execute($command)
 
-        $errors = @($results | ForEach-Object { $_.Messages } | Where-Object { $_.GetType().Name -eq 'XmlaError' } | ForEach-Object { $_.Description })
+        # The refresh blocks until it finishes, so it runs on its own thread. That leaves this one
+        # free to report credential prompts, which otherwise look like the command hanging.
+        $refresh = [powershell]::Create()
+        $null = $refresh.AddScript({
+                param($DllPath, $Port, $Command)
+                Add-Type -Path $DllPath
+                $worker = New-Object Microsoft.AnalysisServices.Tabular.Server
+                $worker.Connect("Data Source=localhost:$Port")
+                try { return @($worker.Execute($Command) | ForEach-Object { $_.Messages } | Where-Object { $_.GetType().Name -eq 'XmlaError' } | ForEach-Object { $_.Description }) }
+                finally { $worker.Disconnect() }
+            }).AddArgument($script:TabularDllPath).AddArgument($port).AddArgument($command)
+
+        $reported = New-Object System.Collections.Generic.HashSet[string]
+        $handle = $refresh.BeginInvoke()
+        while (-not $handle.AsyncWaitHandle.WaitOne(2000))
+        {
+            Show-PendingPrompt $mainWindow $desktop.Id $reported
+            if ((Get-Date) -ge $deadline)
+            {
+                $refresh.Stop()
+                throw "Data refresh didn't finish within $TimeoutMinutes minutes.$(if ($reported.Count -gt 0) { " It was waiting on: $($reported -join ', ')" })"
+            }
+        }
+
+        $errors = @($refresh.EndInvoke($handle))
+        $refresh.Dispose()
+        if ($reported.Count -gt 0) { Write-Step "Continuing after $($reported.Count) prompt$(if ($reported.Count -ne 1) { 's' })..." }
         if ($errors.Count -gt 0)
         {
             # The engine reports what went wrong but not where, and one failure cancels the whole
