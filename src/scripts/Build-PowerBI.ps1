@@ -630,6 +630,14 @@ if (Test-Path $pbixDir)
     Get-ChildItem $pbixDir -Force `
     | Where-Object { $_.Name -match '^(?<name>[^.]+)\.(?<type>kql|storage)\.(pbip|Report|Dataset)$' -and $selectedTypes -contains $Matches.type -and $Matches.name -like "*$Name*" } `
     | Remove-Item -Recurse -Force
+
+    # A folder named like a PBIX is left over from an older build and blocks saving one
+    Get-ChildItem $pbixDir -Force -Directory `
+    | Where-Object { $_.Name -match '^(?<name>[^.]+)\.(?<type>kql|storage)\.pbix$' -and $selectedTypes -contains $Matches.type -and $Matches.name -like "*$Name*" } `
+    | ForEach-Object {
+        Write-Warning "Removing $($_.Name), which is a folder where a PBIX file belongs."
+        Remove-Item $_.FullName -Recurse -Force
+    }
     if ($Name -eq '*' -and $KQL -and $Storage) { Remove-Item "$pbixDir/.manifest.json" -Force -ErrorAction SilentlyContinue }
 }
 

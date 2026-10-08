@@ -361,6 +361,10 @@ try
     #region Open
 
     Write-Step "Opening $reportLabel in Power BI Desktop..."
+    if (Test-Path $Destination -PathType Container)
+    {
+        throw "$Destination is a folder, so Power BI Desktop can't save a file there. Delete it and try again."
+    }
     Remove-Item $Destination -Force -ErrorAction SilentlyContinue
     Remove-Item ([System.IO.Path]::ChangeExtension($Destination, '.error.png')) -Force -ErrorAction SilentlyContinue
 
@@ -548,9 +552,12 @@ try
 
     # Newer versions show a "Browse this device" option before the file dialog
     $dialog = Wait-Until -Description 'the Save as dialog' -Seconds 60 -Condition {
+        # Power BI Desktop has other dialogs of the same class, including Open. Typing a file name
+        # into one of those and pressing its default button does something else entirely.
         $fileDialog = Get-ProcessWindow $desktop.Id `
         | ForEach-Object { $_; @($_.FindAll($tree::Children, [System.Windows.Automation.Condition]::TrueCondition)) } `
         | Where-Object { $_.Current.ClassName -eq '#32770' } `
+        | Where-Object { (Find-Element $_ 'Save' @($types::Button)) -and -not (Find-Element $_ 'Open' @($types::Button)) } `
         | Select-Object -First 1
         if ($fileDialog) { return $fileDialog }
 
