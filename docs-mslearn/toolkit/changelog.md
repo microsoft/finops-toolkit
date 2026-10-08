@@ -58,6 +58,8 @@ The following section lists features and enhancements that are currently in deve
 
 - **Changed**
   - Switched the InstanceSizeFlexibility table in the storage and KQL shared datasets from the retired `ccmstorageprod` AutofitComboMeterData.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file, joined to reservation recommendations on the unique ARM SKU name ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+- **Fixed**
+  - Fixed incremental refresh not being detectable on the Costs table in storage reports. `RangeStart`/`RangeEnd` were only used inside the shared `ftk_Storage` function to skip whole files outside the requested range, so Power BI's Incremental refresh and archive settings dialog had no query to bind them to. The Costs query now also filters rows directly with `RangeStart`/`RangeEnd`, so incremental refresh can be configured and used without editing the query first. Also fixed `ChargePeriodStart` being normalized to `date` instead of `datetime` in the shared schema normalization query, which didn't match the `datetime`-typed `RangeStart`/`RangeEnd` parameters used for incremental refresh ([#2314](https://github.com/microsoft/finops-toolkit/issues/2314)).
 
 ### [Optimization Engine](optimization-engine/overview.md)
 
