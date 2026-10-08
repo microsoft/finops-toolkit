@@ -168,6 +168,27 @@ function Send-KeyInput($Window, [string] $Keys)
     [System.Windows.Forms.SendKeys]::SendWait($Keys)
 }
 
+<#
+    .SYNOPSIS
+    Writes what a window contains to a file, so a control that moved can be found without guessing.
+#>
+function Save-WindowTree($Window, [string] $Path)
+{
+    try
+    {
+        $lines = New-Object System.Collections.Generic.List[string]
+        $lines.Add("$($Window.Current.Name) [$($Window.Current.ClassName)]")
+        foreach ($element in @($Window.FindAll($tree::Descendants, [System.Windows.Automation.Condition]::TrueCondition)))
+        {
+            $current = $element.Current
+            $lines.Add("  $($current.ControlType.ProgrammaticName -replace '^ControlType\.', '')  name='$($current.Name)'  id='$($current.AutomationId)'  class='$($current.ClassName)'  enabled=$($current.IsEnabled)")
+        }
+        [System.IO.File]::WriteAllLines($Path, $lines)
+        Write-Host "    Saved what the dialog contains: $Path"
+    }
+    catch { Write-Verbose "Could not write the window tree: $($_.Exception.Message)" }
+}
+
 function Save-Screenshot([string] $Reason)
 {
     try
@@ -537,14 +558,36 @@ try
         if ($expand) { try { $expand.Collapse() } catch { Write-Verbose 'File type list already closed.' } }
     }
 
+    # The file name box is normally AutomationId 1001, but that isn't guaranteed, so fall back to
+    # the box under the File name label and then to the only editable box in the dialog
     $fileName = Find-Element $dialog $null @($types::Edit) '1001'
-    if (-not $fileName) { throw 'Could not find the file name box in the Save as dialog.' }
+    if (-not $fileName)
+    {
+        $fileNameHost = Find-Element $dialog $null @($types::ComboBox) 'FileNameControlHost'
+        if ($fileNameHost) { $fileName = Find-Element $fileNameHost $null @($types::Edit) }
+    }
+    if (-not $fileName)
+    {
+        $fileName = @($dialog.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::Edit)))) `
+        | Where-Object { $_.Current.IsEnabled -and -not $_.Current.IsOffscreen } `
+        | Select-Object -First 1
+    }
+    if (-not $fileName)
+    {
+        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
+        throw "Could not find the file name box in the '$($dialog.Current.Name)' dialog [$($dialog.Current.ClassName)]."
+    }
     $value = $null
     if (-not $fileName.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$value)) { throw 'The file name box in the Save as dialog is read-only.' }
     $value.SetValue($Destination)
 
     $saveButton = Find-Element $dialog $null @($types::Button) '1'
-    if (-not $saveButton) { throw 'Could not find the Save button in the Save as dialog.' }
+    if (-not $saveButton) { $saveButton = Find-Element $dialog 'Save' @($types::Button) }
+    if (-not $saveButton)
+    {
+        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
+        throw "Could not find the Save button in the '$($dialog.Current.Name)' dialog [$($dialog.Current.ClassName)]."
+    }
     Invoke-Element $saveButton
 
     # Wait for the file to be written, answering prompts Power BI Desktop shows while saving
