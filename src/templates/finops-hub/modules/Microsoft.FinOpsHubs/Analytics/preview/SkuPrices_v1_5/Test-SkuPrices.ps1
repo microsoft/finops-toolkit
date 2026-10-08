@@ -46,13 +46,14 @@ sheet
 | count
 '@ }
   'Source: duplicate rows on key (info)' = @{ Expect = $null; Csl = $sheet + 'sheet | summarize n = count() by BillingAccountId, SkuPriceIdv2, x_EffectivePeriodStart, PricingCurrency | where n > 1 | summarize Keys = count(), ExtraRows = sum(n - 1)' }
-  'Row count: List vs source' = @{ Expect = 0; Csl = $sheet + "let s = toscalar(sheet | where isnotnull(ListUnitPrice) and x_SkuPriceType != 'SavingsPlan' | summarize by SkuPriceIdv2, x_EffectivePeriodStart, PricingCurrency | count); SkuPrices_v1_5 | where x_UnitPriceType == 'List' | summarize Diff = count() - s, Rows = count(), Source = s" }
-  'Row count: Base vs source' = @{ Expect = 0; Csl = $sheet + "let s = toscalar(sheet | where isnotnull(x_BaseUnitPrice) and x_SkuPriceType != 'SavingsPlan' | summarize by BillingAccountId, SkuPriceIdv2, x_EffectivePeriodStart, PricingCurrency | count); SkuPrices_v1_5 | where x_UnitPriceType == 'Base' | summarize Diff = count() - s, Rows = count(), Source = s" }
-  'Row count: Contracted vs source' = @{ Expect = 0; Csl = $sheet + "let s = toscalar(sheet | where isnotnull(ContractedUnitPrice) and x_SkuPriceType != 'SavingsPlan' | summarize by BillingAccountId, SkuPriceIdv2, x_EffectivePeriodStart, PricingCurrency | count); SkuPrices_v1_5 | where x_UnitPriceType == 'Contracted' | summarize Diff = count() - s, Rows = count(), Source = s" }
-  'Row count: Effective vs source' = @{ Expect = 0; Csl = $sheet + "let s = toscalar(sheet | where isnotnull(x_EffectiveUnitPrice) | summarize by BillingAccountId, SkuPriceIdv2, x_EffectivePeriodStart, PricingCurrency | count); SkuPrices_v1_5 | where x_UnitPriceType == 'Effective' | summarize Diff = count() - s, Rows = count(), Source = s" }
-  'UnitPrice + discount match the source sheet' = @{ Expect = 0; Csl = $sheet + @'
+  'Current rows: List vs latest sheet' = @{ Expect = 0; Csl = $sheet + "let s = toscalar(sheet | where isnotnull(ListUnitPrice) and x_SkuPriceType != 'SavingsPlan' | summarize by SkuPriceIdv2, x_EffectivePeriodStart, PricingCurrency | count); SkuPrices_v1_5 | where x_UnitPriceType == 'List' and isnull(SkuPriceEffectiveEnd) | summarize Diff = count() - s, Rows = count(), Source = s" }
+  'Current rows: Base vs latest sheet' = @{ Expect = 0; Csl = $sheet + "let s = toscalar(sheet | where isnotnull(x_BaseUnitPrice) and x_SkuPriceType != 'SavingsPlan' | summarize by BillingAccountId, SkuPriceIdv2, x_EffectivePeriodStart, PricingCurrency | count); SkuPrices_v1_5 | where x_UnitPriceType == 'Base' and isnull(SkuPriceEffectiveEnd) | summarize Diff = count() - s, Rows = count(), Source = s" }
+  'Current rows: Contracted vs latest sheet' = @{ Expect = 0; Csl = $sheet + "let s = toscalar(sheet | where isnotnull(ContractedUnitPrice) and x_SkuPriceType != 'SavingsPlan' | summarize by BillingAccountId, SkuPriceIdv2, x_EffectivePeriodStart, PricingCurrency | count); SkuPrices_v1_5 | where x_UnitPriceType == 'Contracted' and isnull(SkuPriceEffectiveEnd) | summarize Diff = count() - s, Rows = count(), Source = s" }
+  'Current rows: Effective vs latest sheet' = @{ Expect = 0; Csl = $sheet + "let s = toscalar(sheet | where isnotnull(x_EffectiveUnitPrice) | summarize by BillingAccountId, SkuPriceIdv2, x_EffectivePeriodStart, PricingCurrency | count); SkuPrices_v1_5 | where x_UnitPriceType == 'Effective' and isnull(SkuPriceEffectiveEnd) | summarize Diff = count() - s, Rows = count(), Source = s" }
+  'Current UnitPrice + discount match the latest sheet' = @{ Expect = 0; Csl = $sheet + @'
 let s = sheet | summarize take_any(ListUnitPrice, x_BaseUnitPrice, ContractedUnitPrice, x_EffectiveUnitPrice) by SkuPriceIdv2, PricingCurrency;
 SkuPrices_v1_5
+| where isnull(SkuPriceEffectiveEnd)
 | lookup kind=leftouter s on $left.x_SkuPriceIdv2 == $right.SkuPriceIdv2, PricingCurrency
 | extend Src = case(x_UnitPriceType == 'List', ListUnitPrice, x_UnitPriceType == 'Base', x_BaseUnitPrice, x_UnitPriceType == 'Contracted', ContractedUnitPrice, x_EffectiveUnitPrice)
 | where isnull(Src) or UnitPrice != Src or (x_UnitPriceType != 'List' and abs(x_UnitPriceDiscount - (ListUnitPrice - UnitPrice)) > 1e-9)
@@ -78,22 +79,34 @@ SkuPrices_v1_5
   'Tier max <= tier min' = @{ Expect = 0; Csl = 'SkuPrices_v1_5 | where isnotnull(QuantityTierMaximum) and QuantityTierMaximum <= QuantityTierMinimum | count' }
   'SkuPriceId with >1 SkuId/PricingUnit/ChargeCategory' = @{ Expect = 0; Csl = 'SkuPrices_v1_5 | summarize s = dcount(SkuId), u = dcount(PricingUnit), c = dcount(ChargeCategory) by SkuPriceId | where s > 1 or u > 1 or c > 1 | count' }
   'Effective start distribution (info)' = @{ Expect = $null; Csl = "SkuPrices_v1_5 | summarize Rows = count() by Start = startofmonth(SkuPriceEffectiveStart), x_UnitPriceType | summarize Rows = sum(Rows), Types = make_set(x_UnitPriceType) by Start | order by Start asc" }
-  'Price changed after its effective start (sample of 2000 Contracted)' = @{ Expect = 0; Csl = @'
-let s = SkuPrices_v1_5 | where x_UnitPriceType == 'Contracted' | sample 2000 | project SkuPriceIdv2 = x_SkuPriceIdv2, PricingCurrency, Start = SkuPriceEffectiveStart, Cur = UnitPrice;
+  'Price changed inside its run, or run started late (sample of 2000 Contracted)' = @{ Expect = 0; Csl = @'
+let s = SkuPrices_v1_5 | where x_UnitPriceType == 'Contracted' | sample 2000 | project SkuPriceIdv2 = x_SkuPriceIdv2, PricingCurrency, Start = startofmonth(SkuPriceEffectiveStart), End = coalesce(SkuPriceEffectiveEnd, datetime(2100-01-01)), Cur = UnitPrice;
 Prices_final_v1_2
 | where x_SkuPriceType != 'SavingsPlan'
-| lookup kind=inner s on SkuPriceIdv2, PricingCurrency
-| summarize Changed = countif(x_EffectivePeriodStart >= Start and ContractedUnitPrice != Cur), PriorSame = countif(startofmonth(x_EffectivePeriodStart) == datetime_add('month', -1, Start) and ContractedUnitPrice == Cur) by SkuPriceIdv2, PricingCurrency
+| extend M = startofmonth(x_IngestionTime)
+| join kind=inner s on SkuPriceIdv2, PricingCurrency
+| summarize Changed = countif(M >= Start and M < End and ContractedUnitPrice != Cur), PriorSame = countif(M == datetime_add('month', -1, Start) and ContractedUnitPrice == Cur) by SkuPriceIdv2, PricingCurrency, Start
 | where Changed > 0 or PriorSame > 0
 | count
 '@ }
+  'Rows per type match runs table' = @{ Expect = 0; Csl = "SkuPrices_v1_5 | summarize Rows = count() by x_UnitPriceType | join kind=fullouter (SkuPrices_v1_5_runs_table | where x_UnitPriceType != 'Wide' | summarize Runs = count() by x_UnitPriceType) on x_UnitPriceType | summarize Diff = sum(abs(coalesce(Rows, 0) - coalesce(Runs, 0)))" }
+  'Wide: dupes on SkuPriceId + ContractId + currency + start' = @{ Expect = 0; Csl = 'SkuPricesWide_v1_5 | summarize n = count() by SkuPriceId, ContractId, PricingCurrency, SkuPriceEffectiveStart | where n > 1 | count' }
+  'Wide: overlapping effective periods' = @{ Expect = 0; Csl = @'
+SkuPricesWide_v1_5
+| project k = strcat(SkuPriceId, '|', ContractId, '|', PricingCurrency), SkuPriceEffectiveStart, SkuPriceEffectiveEnd
+| sort by k asc, SkuPriceEffectiveStart asc
+| where next(k) == k and (isnull(SkuPriceEffectiveEnd) or next(SkuPriceEffectiveStart) < SkuPriceEffectiveEnd)
+| count
+'@ }
+  'Wide: rows match runs table' = @{ Expect = 0; Csl = "SkuPricesWide_v1_5 | count | extend Runs = toscalar(SkuPrices_v1_5_runs_table | where x_UnitPriceType == 'Wide' | count) | project Diff = Count - Runs, Rows = Count, Runs" }
+  'Wide: current rows vs latest sheet' = @{ Expect = 0; Csl = $sheet + "let s = toscalar(sheet | summarize by BillingAccountId, SkuPriceIdv2, PricingCurrency | count); SkuPricesWide_v1_5 | where isnull(SkuPriceEffectiveEnd) | summarize Diff = count() - s, Rows = count(), Source = s" }
   'Savings plan rows not Effective' = @{ Expect = 0; Csl = "SkuPrices_v1_5 | where x_SkuPriceType == 'SavingsPlan' and x_UnitPriceType != 'Effective' | count" }
   'SkuPriceId with >1 tier minimum' = @{ Expect = 0; Csl = 'SkuPrices_v1_5 | summarize t = dcount(QuantityTierMinimum) by SkuPriceId | where t > 1 | count' }
   'Price types by CommitmentDiscountCategory (info)' = @{ Expect = $null; Csl = "SkuPrices_v1_5 | summarize Rows = count() by x_UnitPriceType, CommitmentDiscountCategory, ChargeCategory | order by x_UnitPriceType asc, Rows desc" }
   'Base/Contracted equal to List (info)' = @{ Expect = $null; Csl = @'
 SkuPrices_v1_5
-| where x_UnitPriceType in ('Base', 'Contracted')
-| lookup kind=leftouter (SkuPrices_v1_5 | where x_UnitPriceType == 'List' | project SkuPriceId, SkuPriceEffectiveStart, PricingCurrency, ListPrice = UnitPrice) on SkuPriceId, SkuPriceEffectiveStart, PricingCurrency
+| where x_UnitPriceType in ('Base', 'Contracted') and isnull(SkuPriceEffectiveEnd)
+| lookup kind=leftouter (SkuPrices_v1_5 | where x_UnitPriceType == 'List' and isnull(SkuPriceEffectiveEnd) | project SkuPriceId, PricingCurrency, ListPrice = UnitPrice) on SkuPriceId, PricingCurrency
 | summarize Rows = count(), SameAsList = countif(UnitPrice == ListPrice), NoList = countif(isnull(ListPrice)) by x_UnitPriceType
 '@ }
 }

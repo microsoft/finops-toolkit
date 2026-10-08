@@ -1,0 +1,228 @@
+<title>SKU Price Layouts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: tables side by side, then a scoreboard, then one collapsible card per scenario with the queries side by side (stacking on phones) */
+:root {
+  --bg: #f4f5f7; --surface: #ffffff; --ink: #1c2230; --muted: #5d6576; --line: #dde1e8; --code-bg: #f7f8fa;
+  --rows: #a4472a; --rows-soft: #f6e7e0; --cols: #1d6a73; --cols-soft: #dfeff0; --mon: #4b5568; --mon-soft: #e6e9ef;
+  --ok: #2f7a3e; --warn: #9a6a00; --kw: #6b3fa0; --str: #1d6a73; --cm: #8a91a0;
+  --display: "Newsreader", Georgia, "Times New Roman", serif;
+  --body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12151c; --surface: #1a1f29; --ink: #e6e9ef; --muted: #9aa3b4; --line: #2c3442; --code-bg: #151a23;
+  --rows: #e08a68; --rows-soft: #3a2620; --cols: #6cc3cc; --cols-soft: #18343a; --mon: #b4bccb; --mon-soft: #262c38;
+  --ok: #7cc98b; --warn: #e2b54d; --kw: #c4a2f0; --str: #7fd0d8; --cm: #6f7889; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12151c; --surface: #1a1f29; --ink: #e6e9ef; --muted: #9aa3b4; --line: #2c3442; --code-bg: #151a23;
+  --rows: #e08a68; --rows-soft: #3a2620; --cols: #6cc3cc; --cols-soft: #18343a; --mon: #b4bccb; --mon-soft: #262c38;
+  --ok: #7cc98b; --warn: #e2b54d; --kw: #c4a2f0; --str: #7fd0d8; --cm: #6f7889; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--body); }
+.wrap { max-width: 1280px; margin: 0 auto; padding-inline: 20px; padding-block: 32px 64px; display: grid; gap: 28px; }
+h1, h2 { font-family: var(--display); font-weight: 600; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(30px, 4vw, 42px); line-height: 1.1; }
+h2 { font-size: 24px; }
+h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0; font-weight: 600; }
+p { margin: 0; max-width: 78ch; }
+.muted { color: var(--muted); }
+header { display: grid; gap: 10px; }
+code, pre, .num { font-family: var(--mono); }
+.num { font-variant-numeric: tabular-nums; }
+section { display: grid; gap: 14px; }
+.tables { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.tcard { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--accent); border-radius: 10px; padding: 16px 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.tcard.mon { --accent: var(--mon); } .tcard.rows { --accent: var(--rows); } .tcard.cols { --accent: var(--cols); }
+.tname { font-weight: 600; color: var(--accent); }
+.tname code { font-size: 13px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat { display: grid; gap: 2px; }
+.stat b { font: 600 20px/1.1 var(--mono); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.ratio { font-size: 12.5px; color: var(--muted); }
+.tcard ul { margin: 0; padding-left: 18px; font-size: 13.5px; display: grid; gap: 4px; }
+.note { font-size: 13px; color: var(--muted); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; display: grid; gap: 12px; min-width: 0; }
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 7px 10px 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+td.c, th.c { text-align: center; padding-inline: 6px; }
+td.r, th.r { text-align: right; padding-left: 10px; }
+tfoot td { font-weight: 600; border-bottom: 0; }
+.w { display: inline-block; min-width: 64px; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; text-align: center; }
+.w.Rows { background: var(--rows-soft); color: var(--rows); } .w.Columns { background: var(--cols-soft); color: var(--cols); } .w.Monthly { background: var(--mon-soft); color: var(--mon); }
+.w.Tie { color: var(--muted); border: 1px solid var(--line); } .w.na { color: var(--muted); }
+.sub { display: block; font: 11px/1.3 var(--mono); color: var(--muted); margin-top: 2px; white-space: nowrap; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); }
+.controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.btn { font: 500 13px var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.btn:hover, .btn:focus-visible { border-color: var(--ink); outline: none; }
+details.scenario { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; scroll-margin-top: 16px; }
+details.scenario > summary { list-style: none; cursor: pointer; padding: 16px 22px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+details.scenario > summary::-webkit-details-marker { display: none; }
+details.scenario > summary::before { content: "▸"; color: var(--muted); font-size: 13px; }
+details.scenario[open] > summary::before { content: "▾"; }
+details.scenario > summary:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; border-radius: 12px; }
+.body { padding: 0 22px 22px; display: grid; gap: 14px; }
+.s-id { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.s-name { font-family: var(--display); font-size: 21px; font-weight: 600; }
+.pill { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; border: 1px solid currentColor; }
+.pill.same { color: var(--ok); } .pill.diff { color: var(--warn); }
+.q { font-size: 16px; }
+.src { font-size: 13px; color: var(--muted); }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px; }
+@media (max-width: 760px) { .pair { grid-template-columns: 1fr; } }
+.side { min-width: 0; display: grid; gap: 8px; align-content: start; }
+.side-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; padding-bottom: 6px; border-bottom: 2px solid var(--accent); }
+.side.Rows { --accent: var(--rows); } .side.Columns { --accent: var(--cols); } .side.Monthly { --accent: var(--mon); }
+.side-name { font-weight: 600; color: var(--accent); }
+.side-name code { font-size: 12.5px; }
+.metrics { display: flex; gap: 6px 12px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+.metrics b { color: var(--ink); font-weight: 600; }
+pre { margin: 0; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; font-size: 12.5px; line-height: 1.6; overflow-x: auto; white-space: pre; }
+.k { color: var(--kw); font-weight: 500; } .s { color: var(--str); } .c { color: var(--cm); }
+.result h3 { margin-bottom: 6px; }
+.result table { font-size: 12.5px; }
+.result td { font-family: var(--mono); white-space: nowrap; }
+.result td.lbl { font-family: var(--body); color: var(--muted); }
+.result th.Rows { color: var(--rows); } .result th.Columns { color: var(--cols); } .result th.Monthly { color: var(--mon); }
+.copy { font: 500 12px var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 3px 9px; cursor: pointer; }
+.copy:hover, .copy:focus-visible { border-color: var(--accent); outline: none; }
+footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
+@media (prefers-reduced-motion: no-preference) { .btn, .copy { transition: border-color .15s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h3>FOCUS 1.5 SKU Price · FinOps hubs preview · ftk-dev</h3>
+    <h1>One row per price type, or one row per price?</h1>
+    <p class="muted">The same Microsoft EA prices (14 months) loaded two ways and queried for 14 scenarios, 9 from FOCUS PR 2595. Cost-join scenarios also show today's monthly Prices table. Each query uses the cheapest pattern found for its layout.</p>
+  </header>
+
+  <section aria-label="Tables">
+    <h2>Tables</h2>
+    <div class="tables">__TABLES__</div>
+  </section>
+
+  <section aria-label="Scoreboard">
+    <h2>Scoreboard</h2>
+    <div class="panel">
+      <div class="tbl"><table id="scoreboard">
+        <thead><tr><th>Scenario</th><th class="c">Simpler</th><th class="c">Faster</th><th class="c">CPU</th><th class="c">Memory</th><th class="c">Rows scanned</th><th class="c">FOCUS-only</th><th class="c">Correct</th></tr></thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table></div>
+      <div class="legend">
+        <span><b>Simpler</b>: fewer operators + 2× joins + lets</span>
+        <span><b>Faster / CPU / Memory / Rows scanned</b>: median of 3 server-measured runs</span>
+        <span><b>FOCUS-only</b>: fewer distinct <code>x_</code> columns referenced</span>
+        <span><b>Correct</b>: same answer everywhere, or which layout is right</span>
+        <span>Within 15% (or a tiny absolute gap) of the runner-up is a tie. Values under each pill: Rows · Columns (· Monthly).</span>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Scenarios">
+    <div class="controls"><h2 style="margin-right:auto">Scenarios</h2><button class="btn" type="button" id="expand">Expand all</button><button class="btn" type="button" id="collapse">Collapse all</button></div>
+    <div id="scenarios" style="display:grid;gap:14px"></div>
+  </section>
+
+  <footer>
+    <p><strong>History.</strong> Both SKU Price tables hold all 14 months: one row per run of months with an unchanged price. Rows start a new row when that price type changes; Columns start a new row when any price on the row changes. Current prices have no effective end.</p>
+    <p><strong>Cost and Usage join.</strong> Costs <code>SkuPriceId</code> doesn't match the price sheet, so cost scenarios use <code>CostsWithSkuPriceIdv2</code>: a copy of Costs with <code>SkuPriceIdv2</code> looked up by price type, meter, offer, and term. Effective-dated prices are spread over the months they were in effect so each charge matches its month exactly, with no range join and no duplicated cost rows. Today's monthly table needs no spreading.</p>
+    <p><strong>Units.</strong> <code>PricingUnit</code> is empty on ftk-dev (no PricingUnits open data), so price sheet prices are per block (e.g., per 100 hours). Cost scenarios divide by the block size and use a price only when its unit matches the charge's <code>PricingUnit</code>.</p>
+    <p>Not testable with this data: the 4 PR 2595 queries on announced price changes and quantity tiers, negotiated savings plan discount (savings plan list price is dropped on ingestion), multiple currencies, consumption currency.</p>
+    <p>Source: draft PR microsoft/finops-toolkit#2339 (<code>Analytics/preview/SkuPrices_v1_5</code>). Generated __GENERATED__.</p>
+  </footer>
+</div>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function () {
+  const data = JSON.parse(document.getElementById('data').textContent);
+  const TABLE = { Rows: 'SkuPrices_v1_5', Columns: 'SkuPricesWide_v1_5', Monthly: 'Prices_final_v1_2' };
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const KW = /\b(where|project|project-away|project-rename|extend|summarize|join|lookup|kind|inner|leftouter|on|by|order|asc|desc|take|let|distinct|as|evaluate|top|and|or|in|count|countif|take_any|take_anyif|min|max|avg|round|abs|sum|sumif|dcount|make_list|make_set|strcat_array|array_sort_asc|arg_min|iff|coalesce|isnotnull|isnull|isempty|isnotempty|datetime|datetime_add|datetime_diff|startofmonth|range|tolong|todouble|narrow|materialize|mv-apply|mv-expand|datatable|parse_json|tostring|tobool|extract|tolower|strcat|substring|pack_array|bag_pack|hint\.materialized|true)\b/g;
+  function highlight(q) {
+    return q.split('\n').map(line => {
+      const ci = line.indexOf('//');
+      const code = ci >= 0 ? line.slice(0, ci) : line, cm = ci >= 0 ? line.slice(ci) : '';
+      const parts = code.split(/('[^']*')/g).map((p, i) => i % 2 ? '<span class="s">' + esc(p) + '</span>' : esc(p).replace(KW, '<span class="k">$1</span>'));
+      return parts.join('') + (cm ? '<span class="c">' + esc(cm) + '</span>' : '');
+    }).join('\n');
+  }
+  const ms = v => v == null ? '—' : (v >= 1000 ? (v / 1000).toFixed(1) + 's' : Math.round(v) + 'ms');
+  const mb = v => v == null ? '—' : (v >= 100 ? Math.round(v) : (+v).toFixed(1)) + 'MB';
+  const big = v => v == null ? '—' : (v >= 1e6 ? (v / 1e6).toFixed(2) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(0) + 'K' : v);
+  const fmt = v => v === null || v === undefined ? '' : (typeof v === 'number' && !Number.isInteger(v) ? (+v.toFixed(6)).toLocaleString('en-US', { maximumFractionDigits: 6 }) : typeof v === 'number' ? v.toLocaleString('en-US') : v);
+  const cx = s => s.Operators + 2 * s.Joins + s.Lets;
+  const pill = w => '<span class="w ' + (w === 'n/a' ? 'na' : w) + '">' + w + '</span>';
+  const subs = (s, f) => (s.Sides || ['Rows', 'Columns']).map(k => f(s[k])).join(' · ');
+  function cell(s, key, f) { return '<td class="c">' + pill((s.Score || {})[key]) + (f ? '<span class="sub">' + subs(s, f) + '</span>' : '') + '</td>'; }
+
+  // One table when every layout returns the same answer; one row is shown as label/value pairs
+  function resultHtml(s) {
+    const sides = s.Sides || ['Rows', 'Columns'];
+    const first = s[sides[0]];
+    if (!first || !first.Columns) return '';
+    const label = s.Check ? 'Result (summary check appended for testing)' : 'Result';
+    if (s.Match) {
+      const rows = first.Data || [];
+      if (rows.length === 1) {
+        return '<div class="result"><h3>' + label + ' · same in all layouts</h3><div class="tbl"><table><tbody>' +
+          first.Columns.map((c, i) => '<tr><td class="lbl">' + esc(c) + '</td><td class="r">' + esc(fmt(rows[0][i])) + '</td></tr>').join('') + '</tbody></table></div></div>';
+      }
+      return '<div class="result"><h3>' + label + ' · same in all layouts</h3><div class="tbl"><table><thead><tr>' + first.Columns.map(c => '<th>' + esc(c) + '</th>').join('') +
+        '</tr></thead><tbody>' + rows.map(r => '<tr>' + r.map(v => '<td>' + esc(fmt(v)) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div></div>';
+    }
+    // Differ: line the layouts up by row label (first column) and value column
+    const keyOf = r => String(r[0]);
+    const keys = [...new Set(sides.flatMap(k => (s[k].Data || []).map(keyOf)))];
+    const valCols = first.Columns.slice(1);
+    let head = '<tr><th>' + esc(first.Columns[0]) + '</th>' + valCols.map(c => sides.map(k => '<th class="r ' + k + '">' + esc(c) + ' · ' + k + '</th>').join('')).join('') + '</tr>';
+    let body = keys.map(key => '<tr><td>' + esc(key) + '</td>' + valCols.map((c, i) => sides.map(k => {
+      const row = (s[k].Data || []).find(r => keyOf(r) === key); return '<td class="r">' + (row ? esc(fmt(row[i + 1])) : '—') + '</td>';
+    }).join('')).join('') + '</tr>').join('');
+    return '<div class="result"><h3>' + label + ' · differs</h3><div class="tbl"><table><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div></div>';
+  }
+  function sideHtml(k, q, s) {
+    return '<div class="side ' + k + '">' +
+      '<div class="side-head"><span class="side-name">' + k + ' <code>' + TABLE[k] + '</code></span>' +
+      '<button class="copy" type="button" data-q="' + esc(q) + '">Copy query</button></div>' +
+      '<div class="metrics"><span><b class="num">' + s.Operators + '</b> operators</span><span><b class="num">' + s.Joins + '</b> joins</span><span><b class="num">' + ms(s.Ms) + '</b></span><span><b class="num">' + ms(s.CpuMs) + '</b> CPU</span><span><b class="num">' + mb(s.MemoryMB) + '</b></span><span><b class="num">' + big(s.RowsScanned) + '</b> scanned</span></div>' +
+      '<pre><code>' + highlight(q) + '</code></pre></div>';
+  }
+  const board = document.querySelector('#scoreboard tbody'), foot = document.querySelector('#scoreboard tfoot'), main = document.getElementById('scenarios');
+  const keys = ['Simpler', 'Faster', 'Cpu', 'Memory', 'Scanned', 'Portable', 'Correct'];
+  data.forEach(s => {
+    board.insertAdjacentHTML('beforeend', '<tr><td><a href="#' + s.Id + '">' + s.Id + '</a> ' + esc(s.Name) + '</td>' +
+      cell(s, 'Simpler', cx) + cell(s, 'Faster', x => ms(x.Ms)) + cell(s, 'Cpu', x => ms(x.CpuMs)) + cell(s, 'Memory', x => mb(x.MemoryMB)) +
+      cell(s, 'Scanned', x => big(x.RowsScanned)) + cell(s, 'Portable', x => x.XColumns) + cell(s, 'Correct') + '</tr>');
+    const same = (s.Expect || '').startsWith('same');
+    const p = s.Match ? '<span class="pill same">Same answer</span>' : '<span class="pill diff">' + (same ? 'Different' : 'Different (expected)') + '</span>';
+    const why = same ? '' : '<p class="src">' + esc((s.Expect || '').replace(/^different\s*\(?/, '').replace(/\)$/, '')) + '</p>';
+    const check = s.Check ? '<p class="src">Testing appends <code>' + esc(s.Check) + '</code> to every query so results can be compared.</p>' : '';
+    main.insertAdjacentHTML('beforeend',
+      '<details class="scenario" id="' + s.Id + '"' + (s.Match ? '' : ' open') + '>' +
+      '<summary><span class="s-id">' + s.Id + '</span><span class="s-name">' + esc(s.Name) + '</span>' + p + '</summary>' +
+      '<div class="body"><p class="q">' + esc(s.Question) + '</p><p class="src">Source: ' + esc(s.Source) + '</p>' + why + check +
+      '<div class="pair">' + (s.Sides || ['Rows', 'Columns']).map(k => sideHtml(k, s[k + 'Query'], s[k])).join('') + '</div>' + resultHtml(s) + '</div></details>');
+  });
+  const per = k => { const t = { Rows: 0, Columns: 0, Monthly: 0 }; data.forEach(s => { const w = (s.Score || {})[k]; if (t[w] !== undefined) t[w]++; }); return t.Rows + ' · ' + t.Columns + (t.Monthly ? ' · ' + t.Monthly : ''); };
+  foot.innerHTML = '<tr><td>Wins (Rows · Columns · Monthly)</td>' + keys.map(k => '<td class="c num">' + per(k) + '</td>').join('') + '</tr>';
+  document.getElementById('expand').addEventListener('click', () => document.querySelectorAll('details.scenario').forEach(d => d.open = true));
+  document.getElementById('collapse').addEventListener('click', () => document.querySelectorAll('details.scenario').forEach(d => d.open = false));
+  // Opening a scenario from the scoreboard expands it
+  board.addEventListener('click', e => { const a = e.target.closest('a'); if (a) { const d = document.querySelector(a.getAttribute('href')); if (d) d.open = true; } });
+  document.addEventListener('click', e => {
+    const b = e.target.closest('.copy'); if (!b) return;
+    const done = () => { const t = b.textContent; b.textContent = 'Copied'; setTimeout(() => b.textContent = t, 1200); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(b.dataset.q).then(done, () => select(b));
+    else select(b);
+  });
+  function select(b) { const pre = b.closest('.side').querySelector('pre'); const r = document.createRange(); r.selectNodeContents(pre); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); }
+})();
+</script>

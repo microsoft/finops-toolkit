@@ -1,17 +1,21 @@
 <#
 .SYNOPSIS
-Rebuilds SkuPrices_v1_5 on ftk-dev from Prices_final_v1_2 using SkuPrices_v1_5.kql.
+Rebuilds the FOCUS 1.5 SkuPrices preview tables on a hub from Prices_final_v1_2 and Costs_final_v1_2 using SkuPrices_v1_5.kql.
 
 .DESCRIPTION
-Creates or updates SkuPrices_v1_5_build from the KQL file, then builds the table one price type at a time
-(List replaces the table and its schema; Base, Contracted, and Effective append) to stay within memory.
+1. Creates or updates every function in the KQL file.
+2. Builds SkuPrices_v1_5_runs_table (runs of unchanged prices) for each price type and the wide layout.
+3. Builds SkuPrices_v1_5 (rows layout) one month and price type at a time, and SkuPricesWide_v1_5 (columns layout) one month at a time.
+4. Builds SkuPriceIdv2_map and CostsWithSkuPriceIdv2 (Costs copy with SkuPriceIdv2) one month at a time.
+Small steps keep each query within memory on small clusters.
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
   [string] $Cluster = 'https://ftk-dev.westus.kusto.windows.net',
   [string] $Database = 'Ingestion',
   [string] $Context = 'fh-dev',
-  [string] $KqlPath = "$PSScriptRoot/SkuPrices_v1_5.kql"
+  [string] $KqlPath = "$PSScriptRoot/SkuPrices_v1_5.kql",
+  [switch] $SkipCosts
 )
 
 $ErrorActionPreference = 'Stop'
@@ -26,6 +30,17 @@ function Invoke-Kusto {
   param([string] $Csl, [string] $Endpoint = 'mgmt')
   $body = @{ db = $Database; csl = $Csl; properties = @{ Options = @{ servertimeout = '01:00:00' } } } | ConvertTo-Json -Depth 5
   (Invoke-RestMethod -Uri "$Cluster/v1/rest/$Endpoint" -Method Post -Headers $headers -Body $body -TimeoutSec 3600).Tables[0]
+}
+
+# Run one command, timing it; the first command for a table replaces it, the rest append
+function Invoke-Step([string] $Table, [string] $Query, [ref] $First, [string] $Label) {
+  $csl = if ($First.Value) { ".set-or-replace $Table with (folder = 'FOCUS 1.5 preview', recreate_schema = true) <| $Query" } else { ".append $Table <| $Query" }
+  if ($PSCmdlet.ShouldProcess($Table, $csl)) {
+    $sw = [Diagnostics.Stopwatch]::StartNew()
+    Invoke-Kusto $csl | Out-Null
+    Write-Host "$Label done in $([int]$sw.Elapsed.TotalSeconds)s"
+  }
+  $First.Value = $false
 }
 
 # 1. Functions from the KQL file (every .create-or-alter function block, in order)
@@ -44,55 +59,34 @@ while (($start = $raw.IndexOf('.create-or-alter function', $pos)) -ge 0) {
   $pos = $end
 }
 
-# 2. Effective starts table, one price type at a time
-foreach ($type in 'List', 'Base', 'Contracted', 'Effective') {
-  $csl = if ($type -eq 'List') { ".set-or-replace SkuPrices_v1_5_starts_table with (folder = 'FOCUS 1.5 preview', recreate_schema = true) <| SkuPrices_v1_5_starts('$type')" }
-         else { ".append SkuPrices_v1_5_starts_table <| SkuPrices_v1_5_starts('$type')" }
-  if ($PSCmdlet.ShouldProcess('SkuPrices_v1_5_starts_table', $csl)) {
-    $sw = [Diagnostics.Stopwatch]::StartNew()
-    Invoke-Kusto $csl | Out-Null
-    Write-Host "Starts $type done in $([int]$sw.Elapsed.TotalSeconds)s"
-  }
-}
+$types = 'List', 'Base', 'Contracted', 'Effective'
 
-# 3. Build the table one price type at a time
-$steps = [ordered]@{
-  List       = ".set-or-replace SkuPrices_v1_5 with (folder = 'FOCUS 1.5 preview', recreate_schema = true) <| SkuPrices_v1_5_build('List')"
-  Base       = ".append SkuPrices_v1_5 <| SkuPrices_v1_5_build('Base')"
-  Contracted = ".append SkuPrices_v1_5 <| SkuPrices_v1_5_build('Contracted')"
-  Effective  = ".append SkuPrices_v1_5 <| SkuPrices_v1_5_build('Effective')"
-}
-foreach ($type in $steps.Keys) {
-  if ($PSCmdlet.ShouldProcess('SkuPrices_v1_5', $steps[$type])) {
-    $sw = [Diagnostics.Stopwatch]::StartNew()
-    Invoke-Kusto $steps[$type] | Out-Null
-    Write-Host "$type done in $([int]$sw.Elapsed.TotalSeconds)s"
-  }
-}
-
-# 4. Comparison table (one row per price, price types as columns)
-$csl = ".set-or-replace SkuPricesWide_v1_5 with (folder = 'FOCUS 1.5 preview', recreate_schema = true) <| SkuPricesWide_v1_5_build()"
-if ($PSCmdlet.ShouldProcess('SkuPricesWide_v1_5', $csl)) {
-  $sw = [Diagnostics.Stopwatch]::StartNew()
-  Invoke-Kusto $csl | Out-Null
-  Write-Host "Wide done in $([int]$sw.Elapsed.TotalSeconds)s"
-}
-
-# 5. SkuPriceIdv2 map, then a Costs copy with SkuPriceIdv2, one month at a time
-$csl = ".set-or-replace SkuPriceIdv2_map with (folder = 'FOCUS 1.5 preview', recreate_schema = true) <| SkuPriceIdv2_map_build()"
-if ($PSCmdlet.ShouldProcess('SkuPriceIdv2_map', $csl)) { Invoke-Kusto $csl | Out-Null; Write-Host 'Map done' }
-$months = (Invoke-Kusto 'Costs_final_v1_2 | summarize by M = startofmonth(ChargePeriodStart) | order by M asc' 'query').Rows | ForEach-Object { ([datetime]$_[0]).ToString('yyyy-MM-dd') }
+# 2. Runs of unchanged prices, per price type and for the wide layout
 $first = $true
+$parts = 8  # Hash partitions of keys, to stay within memory
+foreach ($type in $types + 'Wide') { for ($p = 0; $p -lt $parts; $p++) { Invoke-Step 'SkuPrices_v1_5_runs_table' "SkuPrices_v1_5_runs_build('$type', $p, $parts)" ([ref]$first) "Runs $type $p" } }
+
+# 3. Rows and columns layouts, one month (and price type) at a time
+$months = (Invoke-Kusto 'Prices_final_v1_2 | summarize by M = startofmonth(x_IngestionTime) | order by M asc' 'query').Rows | ForEach-Object { ([datetime]$_[0]).ToString('yyyy-MM-dd') }
+$firstRows = $true; $firstWide = $true
 foreach ($m in $months) {
-  $csl = if ($first) { ".set-or-replace CostsWithSkuPriceIdv2 with (folder = 'FOCUS 1.5 preview', recreate_schema = true) <| CostsWithSkuPriceIdv2_build(datetime($m))" }
-         else { ".append CostsWithSkuPriceIdv2 <| CostsWithSkuPriceIdv2_build(datetime($m))" }
-  if ($PSCmdlet.ShouldProcess('CostsWithSkuPriceIdv2', $csl)) { Invoke-Kusto $csl | Out-Null; Write-Host "Costs $m done" }
-  $first = $false
+  foreach ($type in $types) { Invoke-Step 'SkuPrices_v1_5' "SkuPrices_v1_5_build('$type', datetime($m))" ([ref]$firstRows) "Rows $m $type" }
+  Invoke-Step 'SkuPricesWide_v1_5' "SkuPricesWide_v1_5_build(datetime($m))" ([ref]$firstWide) "Wide $m"
 }
 
-# 6. Verify
-$counts = Invoke-Kusto 'SkuPrices_v1_5 | summarize Rows = count() by x_UnitPriceType' 'query'
-$counts.Rows | ForEach-Object { Write-Host "$($_[0]): $($_[1])" }
-$columns = (Invoke-Kusto 'SkuPrices_v1_5 | getschema | project ColumnName' 'query').Rows | ForEach-Object { $_[0] }
-$sorted = [string[]] $columns.Clone(); [Array]::Sort($sorted, [StringComparer]::Ordinal)
-Write-Host "Columns: $($columns.Count); alphabetical: $(-not (Compare-Object $columns $sorted -SyncWindow 0))"
+# 4. SkuPriceIdv2 map, then a Costs copy with SkuPriceIdv2, one month at a time
+if (-not $SkipCosts) {
+  $first = $true
+  Invoke-Step 'SkuPriceIdv2_map' 'SkuPriceIdv2_map_build()' ([ref]$first) 'Map'
+  $costMonths = (Invoke-Kusto 'Costs_final_v1_2 | summarize by M = startofmonth(ChargePeriodStart) | order by M asc' 'query').Rows | ForEach-Object { ([datetime]$_[0]).ToString('yyyy-MM-dd') }
+  $first = $true
+  foreach ($m in $costMonths) { Invoke-Step 'CostsWithSkuPriceIdv2' "CostsWithSkuPriceIdv2_build(datetime($m))" ([ref]$first) "Costs $m" }
+}
+
+# 5. Verify
+foreach ($t in 'SkuPrices_v1_5', 'SkuPricesWide_v1_5') {
+  $c = (Invoke-Kusto "$t | summarize Rows = count(), Current = countif(isnull(SkuPriceEffectiveEnd))" 'query').Rows[0]
+  $columns = (Invoke-Kusto "$t | getschema | project ColumnName" 'query').Rows | ForEach-Object { $_[0] }
+  $sorted = [string[]] $columns.Clone(); [Array]::Sort($sorted, [StringComparer]::Ordinal)
+  Write-Host "${t}: $($c[0]) rows ($($c[1]) current); $($columns.Count) columns; alphabetical: $(-not (Compare-Object $columns $sorted -SyncWindow 0))"
+}

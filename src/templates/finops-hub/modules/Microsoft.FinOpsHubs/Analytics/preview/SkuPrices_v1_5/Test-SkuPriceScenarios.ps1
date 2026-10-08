@@ -14,7 +14,7 @@ param(
   [string] $Database = 'Ingestion',
   [string] $Context = 'fh-dev',
   [string] $Path = "$PSScriptRoot/SkuPrices_v1_5_scenarios.kql",
-  [string] $OutFile = (Join-Path ([IO.Path]::GetTempPath()) "SkuPrices_v1_5_scenarios.results.json"),
+  [string] $OutFile = (Join-Path ([IO.Path]::GetTempPath()) 'SkuPrices_v1_5_scenarios.results.json'),
   [int] $Runs = 3,
   [string[]] $Only
 )
@@ -76,25 +76,38 @@ $scenarios = foreach ($block in ($text -split '(?m)^// ## ') | Select-Object -Sk
   $lines = $block -split "`n"
   $id, $name = $lines[0].Trim() -split ' ', 2
   $meta = @{}
-  foreach ($l in $lines) { if ($l -match '^// (Question|Source|Expect): (.+)$') { $meta[$Matches[1]] = $Matches[2].Trim() } }
-  $rowsQuery = (($block -split '(?m)^// ### Rows\s*$')[1] -split '(?m)^// ### Columns\s*$')[0]
-  $colsQuery = ($block -split '(?m)^// ### Columns\s*$')[1]
-  [pscustomobject]@{ Id = $id; Name = $name.Trim(); Question = $meta.Question; Source = $meta.Source; Expect = $meta.Expect; RowsQuery = $rowsQuery.Trim(); ColumnsQuery = $colsQuery.Trim() }
+  foreach ($l in $lines) { if ($l -match '^// (Question|Source|Expect|Check): (.+)$') { $meta[$Matches[1]] = $Matches[2].Trim() } }
+  $q = @{}
+  foreach ($part in ($block -split '(?m)^(?=// ### (?:Rows|Columns|Monthly)\s*$)') | Select-Object -Skip 1) {
+    if ($part -match '^// ### (Rows|Columns|Monthly)') { $q[$Matches[1]] = ($part -replace '^// ### \w+\s*\n', '').Trim() }
+  }
+  [pscustomobject]@{ Id = $id; Name = $name.Trim(); Question = $meta.Question; Source = $meta.Source; Expect = $meta.Expect; Check = $meta.Check; Queries = $q }
 }
 if ($Only) { $scenarios = $scenarios | Where-Object Id -in $Only }
 
+# Winner among sides: lowest value wins; within 15% (or a tiny absolute gap) of the runner-up is a tie
+function Get-Winner([hashtable] $values, [double] $minGap = 0) {
+  $v = $values.GetEnumerator() | Where-Object { $null -ne $_.Value } | Sort-Object Value
+  if (@($v).Count -lt 2) { return 'n/a' }
+  $best = $v[0]; $next = $v[1]; $hi = [math]::Max([double]$best.Value, [double]$next.Value)
+  if ($hi -eq 0 -or [math]::Abs($next.Value - $best.Value) -le [math]::Max($minGap, 0.15 * $hi)) { 'Tie' } else { $best.Key }
+}
+
 $results = foreach ($s in $scenarios) {
-  $runsBySide = @{ Rows = @(); Columns = @() }
-  $err = @{}
+  $sideNames = @('Rows', 'Columns', 'Monthly' | Where-Object { $s.Queries[$_] })
+  $runsBySide = @{}; $err = @{}
+  foreach ($side in $sideNames) { $runsBySide[$side] = @() }
   for ($i = 0; $i -lt $Runs; $i++) {
-    foreach ($side in $(if ($i % 2) { 'Columns', 'Rows' } else { 'Rows', 'Columns' })) {
+    $order = if ($i % 2) { [array]::Reverse(($o = @($sideNames))); $o } else { $sideNames }
+    foreach ($side in $order) {
       if ($err[$side]) { continue }
-      try { $runsBySide[$side] += Invoke-Kusto $s."${side}Query" } catch { $err[$side] = $_.Exception.Message }
+      $csl = $s.Queries[$side] + $(if ($s.Check) { "`n" + $s.Check } else { '' })
+      try { $runsBySide[$side] += Invoke-Kusto $csl } catch { $err[$side] = $_.Exception.Message }
     }
   }
-  $sides = @{}
-  foreach ($side in 'Rows', 'Columns') {
-    $q = $s."${side}Query"; $shape = Get-Shape $q; $rs = $runsBySide[$side]
+  $sides = [ordered]@{}
+  foreach ($side in $sideNames) {
+    $shape = Get-Shape $s.Queries[$side]; $rs = $runsBySide[$side]
     $sides[$side] = if ($err[$side]) { [pscustomobject]@{ Error = $err[$side] } } else {
       [pscustomobject]@{
         Ms = Get-Median ($rs.Ms); CpuMs = Get-Median ($rs.CpuMs); MemoryMB = Get-Median ($rs.MemoryMB); RowsScanned = Get-Median ($rs.RowsScanned)
@@ -105,29 +118,29 @@ $results = foreach ($s in $scenarios) {
       }
     }
   }
-  $R = $sides.Rows; $C = $sides.Columns
-  $match = -not $R.Error -and -not $C.Error -and $R.Signature -eq $C.Signature
+  $ok = @($sides.Values | Where-Object { -not $_.Error })
+  $hasError = $ok.Count -lt $sides.Count
+  $match = -not $hasError -and @($ok.Signature | Select-Object -Unique).Count -eq 1
   $expectSame = $s.Expect -like 'same*'
-  $status = if ($R.Error -or $C.Error) { 'ERROR' } elseif ($match -eq $expectSame) { 'PASS' } else { 'FAIL' }
-
-  # Winners: lower is better; within 15% (or tiny absolute gap) is a tie
-  function Win($r, $c, $minGap = 0) { if ($null -eq $r -or $null -eq $c) { return 'n/a' }; $hi = [math]::Max($r, $c); if ($hi -eq 0 -or [math]::Abs($r - $c) -le [math]::Max($minGap, 0.15 * $hi)) { 'Tie' } elseif ($r -lt $c) { 'Rows' } else { 'Columns' } }
+  $status = if ($hasError) { 'ERROR' } elseif ($match -eq $expectSame) { 'PASS' } else { 'FAIL' }
   $score = if ($status -ne 'ERROR') {
+    $m = { param($f) $h = @{}; foreach ($k in $sides.Keys) { $h[$k] = & $f $sides[$k] }; $h }
     [ordered]@{
-      Simpler = Win ($R.Operators + 2 * $R.Joins + $R.Lets) ($C.Operators + 2 * $C.Joins + $C.Lets) 1
-      Faster  = Win $R.Ms $C.Ms 50
-      Cpu     = Win $R.CpuMs $C.CpuMs 50
-      Memory  = Win $R.MemoryMB $C.MemoryMB 5
-      Scanned = Win $R.RowsScanned $C.RowsScanned
-      Portable = Win $R.XColumns $C.XColumns
-      Correct = if ($match) { 'Tie' } elseif ($s.Expect -match 'different') { 'Rows' } else { 'n/a' }
+      Simpler  = Get-Winner (& $m { param($x) $x.Operators + 2 * $x.Joins + $x.Lets }) 1
+      Faster   = Get-Winner (& $m { param($x) $x.Ms }) 50
+      Cpu      = Get-Winner (& $m { param($x) $x.CpuMs }) 50
+      Memory   = Get-Winner (& $m { param($x) $x.MemoryMB }) 5
+      Scanned  = Get-Winner (& $m { param($x) $x.RowsScanned })
+      Portable = Get-Winner (& $m { param($x) $x.XColumns })
+      Correct  = if ($match) { 'Tie' } elseif ($s.Expect -match 'different') { 'Rows' } else { 'n/a' }
     }
   }
-  Write-Host ("{0,-5} {1} {2,-42} rows {3,6}ms cpu {4,6}ms {5,6}MB {6,4}ops  cols {7,6}ms cpu {8,6}ms {9,6}MB {10,4}ops  match={11}" -f $status, $s.Id, $s.Name, $R.Ms, $R.CpuMs, $R.MemoryMB, $R.Operators, $C.Ms, $C.CpuMs, $C.MemoryMB, $C.Operators, $match)
-  if ($status -eq 'ERROR') { Write-Host "      Rows: $($R.Error)`n      Columns: $($C.Error)" }
-  [pscustomobject]@{ Id = $s.Id; Name = $s.Name; Question = $s.Question; Source = $s.Source; Expect = $s.Expect; Status = $status; Match = $match; Score = $score
-    RowsQuery = $s.RowsQuery; ColumnsQuery = $s.ColumnsQuery
-    Rows = $R | Select-Object * -ExcludeProperty Signature; Columns = $C | Select-Object * -ExcludeProperty Signature }
+  $line = ($sides.Keys | ForEach-Object { $x = $sides[$_]; "{0} {1}ms cpu {2}ms {3}MB {4}ops" -f $_, $x.Ms, $x.CpuMs, $x.MemoryMB, $x.Operators }) -join '  |  '
+  Write-Host ("{0,-5} {1} {2,-40} {3}  match={4}" -f $status, $s.Id, $s.Name, $line, $match)
+  if ($status -eq 'ERROR') { $sides.Keys | ForEach-Object { if ($sides[$_].Error) { Write-Host "      ${_}: $($sides[$_].Error)" } } }
+  $out = [ordered]@{ Id = $s.Id; Name = $s.Name; Question = $s.Question; Source = $s.Source; Expect = $s.Expect; Check = $s.Check; Status = $status; Match = $match; Score = $score; Sides = @($sideNames) }
+  foreach ($side in $sideNames) { $out["${side}Query"] = $s.Queries[$side]; $out[$side] = $sides[$side] | Select-Object * -ExcludeProperty Signature }
+  [pscustomobject]$out
 }
 
 $results | ConvertTo-Json -Depth 8 | Set-Content -Path $OutFile
