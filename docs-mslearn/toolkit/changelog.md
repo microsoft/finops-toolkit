@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 09/11/2026
+ms.date: 09/21/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -58,6 +58,8 @@ The following section lists features and enhancements that are currently in deve
 
 - **Changed**
   - Switched the InstanceSizeFlexibility table in the storage and KQL shared datasets from the retired `ccmstorageprod` AutofitComboMeterData.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file, joined to reservation recommendations on the unique ARM SKU name ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+- **Fixed**
+  - Fixed the storage reports failing to refresh when the Cost Management export uses the FOCUS 1.2 schema. The FOCUS 1.2 branch searched for a column named `SkuMeterName` instead of `SkuMeter`, and the surrounding block assumed the FOCUS 1.0 columns (`x_InvoiceId`, `x_PricingCurrency`, `x_SkuMeterName`) were always present, which fails for a storage container that holds only FOCUS 1.2 exports. Added a lint rule that fails the build when a Power Query column name doesn't exist ([#2332](https://github.com/microsoft/finops-toolkit/issues/2332)).
 
 ### [Optimization Engine](optimization-engine/overview.md)
 
