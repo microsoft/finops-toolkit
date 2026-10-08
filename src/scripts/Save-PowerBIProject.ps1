@@ -270,18 +270,18 @@ function Invoke-EngineCommand([string] $Command, [string] $Description, [int] $P
             Show-PendingPrompt $MainWindow $Process.Id $reported
 
             # Power BI Desktop shows a "Refresh now" banner the whole time an engine refresh runs,
-            # because it isn't driving it. Reporting what the engine has finished says more.
-            if ($Database -and ((Get-Date) - $lastProgress).TotalSeconds -ge 30)
+            # because it isn't driving it. Table states don't help either: the refresh is one
+            # transaction, so every table stays NoData until it commits. What the engine process
+            # is consuming is the signal that work is happening.
+            if (((Get-Date) - $lastProgress).TotalSeconds -ge 30)
             {
                 $lastProgress = Get-Date
-                try
+                $engine = Get-Process msmdsrv -ErrorAction SilentlyContinue | Sort-Object WorkingSet64 -Descending | Select-Object -First 1
+                if ($engine)
                 {
-                    $Database.Refresh($true)
-                    $tables = @($Database.Model.Tables)
-                    $ready = @($tables | Where-Object { @($_.Partitions | Where-Object { $_.State -ne [Microsoft.AnalysisServices.Tabular.ObjectState]::Ready }).Count -eq 0 })
-                    Write-Step "$($ready.Count)/$($tables.Count) tables loaded ($([int]((Get-Date) - $started).TotalMinutes) min)..."
+                    $elapsed = [int]((Get-Date) - $started).TotalMinutes
+                    Write-Step "Still loading: engine has used $([int]$engine.CPU)s CPU and $([int]($engine.WorkingSet64 / 1MB)) MB ($elapsed min elapsed)..."
                 }
-                catch { Write-Verbose "Could not read refresh progress: $($_.Exception.Message)" }
             }
             if ((Get-Date) -ge $deadline)
             {
