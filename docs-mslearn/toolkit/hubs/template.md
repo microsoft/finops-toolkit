@@ -3,7 +3,7 @@ title: FinOps hub template
 description: Learn about what's included in the FinOps hub template including parameters, resources, and outputs.
 author: flanakin
 ms.author: micflan
-ms.date: 08/24/2026
+ms.date: 09/09/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -122,6 +122,7 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       - `schemas/focuscost_1.0-preview(v1).json` – FOCUS 1.0-preview schema definition for parquet conversion.
       - `schemas/pricesheet_2023-05-01_ea.json` – Price sheet EA schema definition version 2023-05-01 for parquet conversion.
       - `schemas/pricesheet_2023-05-01_mca.json` – Price sheet MCA schema definition version 2023-05-01 for parquet conversion.
+      - `schemas/pricesheet_2024-08-01_mca.json` – Price sheet MCA schema definition version 2024-08-01 for parquet conversion.
       - `schemas/reservationdetails_2023-03-01.json` – Reservation details schema definition version 2023-03-01 for parquet conversion.
       - `schemas/reservationrecommendations_2023-05-01_ea.json` – Reservation recommendations EA schema definition version 2023-05-01 for parquet conversion.
       - `schemas/reservationrecommendations_2023-05-01_mca.json` – Reservation recommendations MCA schema definition version 2023-05-01 for parquet conversion.
