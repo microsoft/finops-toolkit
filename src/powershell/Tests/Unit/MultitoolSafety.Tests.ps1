@@ -706,6 +706,7 @@ console.log('Credit, numeric, and unavailable sorting passed');
             $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
             $html | Should -Match '\.scan-notes \{ max-height: 18rem; overflow-y: auto;'
             $html | Should -Match '@media print \{[^@]*\.scan-notes \{ max-height: none; overflow: visible; \}'
+            $html | Should -Match '@media print \{[^@]*\.scan-notes \.detail-content \{ max-height: none; overflow: visible; \}'
             $panelCount = [regex]::Matches($html, '<div class="scan-notes" role="region" tabindex="0" aria-label="[^"]+ notes">').Count
             $panelCount | Should -BeGreaterThan 0
             [regex]::Matches($html, '</h2><div class="scan-notes" role="region"').Count | Should -Be $panelCount
@@ -1501,10 +1502,10 @@ console.log('Credit, numeric, and unavailable sorting passed');
                 $html.IndexOf($text) | Should -BeLessThan $bodyStart -Because $text
             }
             $html.Contains('Queried individually: 2. Confirmed empty: 1. Unverified: 1.') | Should -Be $Recorded
-            $html.Contains('Failed individual queries (1)') | Should -Be $Recorded
+            $html.Contains('Subscriptions not added (1)') | Should -Be $Recorded
             $html.Contains('HTTP 503 &lt;b&gt;retry&lt;/b&gt;') | Should -Be $Recorded
             $html.Contains('<b>retry</b>') | Should -BeFalse
-            if ($Recorded) { $html.IndexOf('Failed individual queries (1)') | Should -BeLessThan $bodyStart }
+            if ($Recorded) { $html.IndexOf('Subscriptions not added (1)') | Should -BeLessThan $bodyStart }
             $csv = Get-Content -LiteralPath (Join-Path $run 'Get-CostTrend.csv') -Raw
             $csv.Contains($firstId) | Should -Be (-not $AggregateOnly)
             $csv.Contains('Sep 2026') | Should -BeTrue

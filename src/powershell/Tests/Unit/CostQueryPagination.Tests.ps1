@@ -926,6 +926,7 @@ Describe 'Cost Management query pagination' {
             @{ Scenario = 'omitted subscription without cost rows'; QueryPath = 'ManagementGroup'; IncludeSecond = $false; EmptySingle = $false; IndividualResult = 'Empty'; ExpectedData = 1; ExpectedUnverified = 0; ExpectedEmpty = 1; ExpectedCalls = 2; ExpectedTotal = 10 }
             @{ Scenario = 'omitted subscription with cost rows'; QueryPath = 'ManagementGroup'; IncludeSecond = $false; EmptySingle = $false; IndividualResult = 'Data'; ExpectedData = 2; ExpectedUnverified = 0; ExpectedEmpty = 0; ExpectedCalls = 2; ExpectedTotal = 30 }
             @{ Scenario = 'failed individual query'; QueryPath = 'ManagementGroup'; IncludeSecond = $false; EmptySingle = $false; IndividualResult = 'Fail'; ExpectedData = 1; ExpectedUnverified = 1; ExpectedEmpty = 0; ExpectedCalls = 2; ExpectedTotal = 10 }
+            @{ Scenario = 'omitted subscription in another currency'; QueryPath = 'ManagementGroup'; IncludeSecond = $false; EmptySingle = $false; IndividualResult = 'Currency'; ExpectedData = 1; ExpectedUnverified = 1; ExpectedEmpty = 0; ExpectedCalls = 2; ExpectedTotal = 10 }
             @{ Scenario = 'empty subscription response'; QueryPath = 'PerSubscription'; IncludeSecond = $false; EmptySingle = $false; IndividualResult = 'None'; ExpectedData = 1; ExpectedUnverified = 0; ExpectedEmpty = 1; ExpectedCalls = 2; ExpectedTotal = 10 }
             @{ Scenario = 'empty single-subscription response'; QueryPath = 'Single'; IncludeSecond = $false; EmptySingle = $true; IndividualResult = 'None'; ExpectedData = 0; ExpectedUnverified = 0; ExpectedEmpty = 1; ExpectedCalls = 1; ExpectedTotal = 0 }
         ) {
@@ -962,6 +963,9 @@ Describe 'Cost Management query pagination' {
                     }
                     elseif ($individualResponse -eq 'Data' -and $Path -like "*/$secondId/*") {
                         $rows = @(, @(20, '20260901', 'USD'))
+                    }
+                    elseif ($individualResponse -eq 'Currency' -and $Path -like "*/$secondId/*") {
+                        $rows = @(, @(20, '20260901', 'EUR'))
                     }
                     elseif (-not $emptyOnlySubscription -and $Path -like "*/$firstId/*") {
                         $rows = @(, @(10, '20260901', 'USD'))
@@ -1002,11 +1006,13 @@ Describe 'Cost Management query pagination' {
                         Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter { $Path -like '/subscriptions/22222222-2222-2222-2222-222222222222/*' }
                     }
                 }
-                if ($individualResponse -eq 'Fail') {
+                if ($individualResponse -in @('Fail', 'Currency')) {
                     @($result.QueryErrors).Count | Should -Be 1
                     $result.QueryErrors[0] | Should -Match ([regex]::Escape("Example second [$secondId]"))
-                    $result.Note | Should -Match 'individual queries failed'
+                    $result.Note | Should -Match 'individual results couldn''t be added'
                     $result.BySubscription[$firstId][0].Cost | Should -Be 10
+                    $result.BySubscription.ContainsKey($secondId) | Should -BeFalse
+                    if ($individualResponse -eq 'Currency') { $result.QueryErrors[0] | Should -Match 'billed in EUR, but the trend total for that month is in USD' }
                 }
                 else { @($result.QueryErrors).Count | Should -Be 0 }
                 if ($ExpectedUnverified) {

@@ -253,7 +253,11 @@ function Get-CostTrend {
                         if ($entries.Count -gt 0) {
                             # The group omits selected subscriptions outside it and those without cost rows.
                             $returnedIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
-                            foreach ($entry in $entries) { [void]$returnedIds.Add([string]$entry.SubId) }
+                            $monthCurrency = @{}
+                            foreach ($entry in $entries) {
+                                [void]$returnedIds.Add([string]$entry.SubId)
+                                $monthCurrency[$entry.MonthDate.ToString('yyyy-MM')] = $entry.Currency
+                            }
                             $omittedIds = @($subscriptionNames.Keys | Where-Object { -not $returnedIds.Contains([string]$_) } | Sort-Object)
                             if ($omittedIds.Count -gt 0) {
                                 Write-Host "  The management-group response omitted $($omittedIds.Count) selected subscription(s). Querying them individually..." -ForegroundColor Yellow
@@ -271,18 +275,29 @@ function Get-CostTrend {
                                     $subResp = Invoke-AzRestMethodWithRetry -Path "/subscriptions/$subId/providers/Microsoft.CostManagement/query?api-version=2023-11-01" -Method POST -Payload $body
                                     $subPaged = Get-AllCostRow -FirstResponse $subResp -Payload $body -Context "cost trend for $($subscriptionNames[$subId])"
                                     $subMonths = @(ConvertFrom-TrendCostRow -Rows $subPaged.Rows -Columns $subPaged.Columns)
+                                    # A month billed in another currency can't join that month's total, so the subscription stays unverified.
+                                    $subCurrency = @{}
+                                    foreach ($subMonth in $subMonths) {
+                                        $monthKey = $subMonth.MonthDate.ToString('yyyy-MM')
+                                        $expectedCurrency = if ($subCurrency.ContainsKey($monthKey)) { $subCurrency[$monthKey] } else { $monthCurrency[$monthKey] }
+                                        if ($expectedCurrency -and $expectedCurrency -ne $subMonth.Currency) {
+                                            throw "$($subMonth.Month) is billed in $($subMonth.Currency), but the trend total for that month is in $expectedCurrency."
+                                        }
+                                        $subCurrency[$monthKey] = $subMonth.Currency
+                                    }
                                 }
                                 catch {
                                     $queryErrors.Add("$($subscriptionNames[$subId]) [$subId]: $($_.Exception.Message)")
                                     continue
                                 }
                                 if ($subMonths.Count -eq 0) { $noDataSubscriptionIds.Add($subId); continue }
+                                foreach ($monthKey in $subCurrency.Keys) { $monthCurrency[$monthKey] = $subCurrency[$monthKey] }
                                 foreach ($subMonth in $subMonths) {
                                     $entries.Add([PSCustomObject]@{ SubId = $subId; Month = $subMonth.Month; MonthDate = $subMonth.MonthDate; Cost = $subMonth.Cost; Currency = $subMonth.Currency })
                                 }
                             }
                             if ($queryErrors.Count -gt 0) {
-                                Write-Warning "$($queryErrors.Count) individual cost trend queries failed. Those subscriptions stay unverified and aren't counted as zero cost."
+                                Write-Warning "$($queryErrors.Count) omitted subscription(s) couldn't be added to the cost trend. They stay unverified and aren't counted as zero cost."
                             }
                         }
                         Set-TrendFromGrouped -Entries $entries
@@ -357,7 +372,7 @@ function Get-CostTrend {
         'The selected subscription set was not recorded. These results do not establish whole-tenant coverage.'
     }
     elseif ($unverifiedSubscriptionIds.Count -gt 0) {
-        "Trend coverage is not verified for $($unverifiedSubscriptionIds.Count) selected subscription(s). The management-group response omitted them, and their individual queries failed. Missing subscriptions are not treated as zero cost."
+        "Trend coverage is not verified for $($unverifiedSubscriptionIds.Count) selected subscription(s). The management-group response omitted them, and their individual results couldn't be added: the query failed, or a month's currency differed from the trend total. Missing subscriptions are not treated as zero cost."
     }
     elseif ($noDataSubscriptionIds.Count -gt 0) {
         "$($noDataSubscriptionIds.Count) selected subscription(s) returned no cost rows. No zero-valued months were added for them."

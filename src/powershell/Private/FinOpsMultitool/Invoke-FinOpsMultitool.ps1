@@ -3135,7 +3135,7 @@ function Invoke-FinOpsMultitool {
                         $periodLabel = if ($data.Period -eq 'MonthToDate') { 'Month to date' } elseif ($data.Period) { [string]$data.Period } else { 'Unknown period' }
                         $guidanceItems = @(
                             @{ Severity = 'Yellow'; Message = "Effective AI rate: $($data.Currency) $($data.CostPer1KTokens) per 1K tokens across $($data.TotalTokens) tokens ($periodLabel). Track this as your core AI unit-economics KPI." }
-                            @{ Severity = 'Yellow'; Message = "Compare model deployments above — shift high-volume traffic to cheaper SKUs (e.g., gpt-4o-mini) and reserve premium models for tasks that need them." }
+                            @{ Severity = 'Yellow'; Message = "Compare the model deployments in the token usage table — shift high-volume traffic to cheaper SKUs (e.g., gpt-4o-mini) and reserve premium models for tasks that need them." }
                             @{ Severity = 'Yellow'; Message = "For steady, predictable token volume, evaluate Provisioned Throughput Units (PTUs) — they can beat pay-as-you-go at scale."; Docs = 'https://learn.microsoft.com/azure/ai-services/openai/concepts/provisioned-throughput' }
                         )
                     }
@@ -3421,6 +3421,7 @@ h2[id] { scroll-margin-top: 85px; }
     .report-grid th { position: static; }
     .report-grid tr[data-grid-match="true"] { display: table-row !important; }
     .scan-notes { max-height: none; overflow: visible; }
+    .scan-notes .detail-content { max-height: none; overflow: visible; }
 }
 </style>
 <noscript><style>.tabpane { display: block; } .tabs { display: none; }</style></noscript>
@@ -3781,7 +3782,7 @@ h2[id] { scroll-margin-top: 85px; }
                             [PSCustomObject]$o
                         }
                         $htmlCols = @('Category', 'ResourceName', 'ResourceGroup', $costColHtml, 'Detail')
-                        $tableNote = 'Cost is actual billed spend over the stated period, not a projection. A deallocated VM bills nothing on the VM object itself, so its attached managed disks are rolled into its row - those disks are excluded from the orphaned disk rows above, so nothing is double counted. A resource stopped part way through the period shows what it incurred while still running, so the ongoing saving is lower than the figure shown.'
+                        $tableNote = 'Cost is actual billed spend over the stated period, not a projection. A deallocated VM bills nothing on the VM object itself, so its attached managed disks are rolled into its row - those disks are excluded from the orphaned disk rows, so nothing is double counted. A resource stopped part way through the period shows what it incurred while still running, so the ongoing saving is lower than the figure shown.'
                     }
                     'Get-IdleVMs' {
                         [void]$notesSb.Append("<p>Scanned $($data.ScannedVMs) running VMs</p>")
@@ -3910,7 +3911,7 @@ h2[id] { scroll-margin-top: 85px; }
                             if ($data.Note) { [void]$notesSb.Append("<p class=`"guidance yellow`">$([System.Net.WebUtility]::HtmlEncode([string]$data.Note))</p>") }
                             $trendQueryErrors = @($data.QueryErrors | Where-Object { $_ })
                             if ($trendQueryErrors.Count -gt 0) {
-                                [void]$notesSb.Append("<details class=`"cell-details`"><summary>Failed individual queries ($($trendQueryErrors.Count))</summary><div class=`"detail-content`"><ul class=`"detail-list`">")
+                                [void]$notesSb.Append("<details class=`"cell-details`"><summary>Subscriptions not added ($($trendQueryErrors.Count))</summary><div class=`"detail-content`"><ul class=`"detail-list`">")
                                 foreach ($queryError in $trendQueryErrors) { [void]$notesSb.Append("<li>$([System.Net.WebUtility]::HtmlEncode([string]$queryError))</li>") }
                                 [void]$notesSb.Append('</ul></div></details>')
                             }
