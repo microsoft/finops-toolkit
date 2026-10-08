@@ -598,13 +598,16 @@ try
     | Where-Object { "$($_.Current.Name) $($_.Current.AutomationId) $($_.Current.ClassName)" -notmatch '(?i)search|address|breadcrumb' } `
     | ForEach-Object { $candidates.Add($_) }
 
+    # The dialog opens in the folder the project was opened from, which is where the PBIX goes.
+    # Typing just the name avoids the path separators the dialog rejects in a file name.
+    $fileNameOnly = [System.IO.Path]::GetFileName($Destination)
     $named = $false
     foreach ($candidate in $candidates)
     {
         $value = $null
         if (-not $candidate.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$value)) { continue }
 
-        try { $value.SetValue($Destination) }
+        try { $value.SetValue($fileNameOnly) }
         catch
         {
             Write-Verbose "  Could not type into '$($candidate.Current.Name)': $($_.Exception.Message)"
@@ -612,7 +615,7 @@ try
         }
 
         # The right box keeps what was typed. The wrong one rejects it or is replaced.
-        try { $named = $value.Current.Value -eq $Destination }
+        try { $named = $value.Current.Value -eq $fileNameOnly }
         catch { $named = $false }
         if ($named) { break }
 
@@ -633,6 +636,20 @@ try
         throw "Could not find the Save button in the '$($dialog.Current.Name)' dialog [$($dialog.Current.ClassName)]."
     }
     Invoke-Element $saveButton
+
+    # A rejected file name leaves a message box on screen and the dialog open behind it
+    Start-Sleep -Seconds 2
+    $complaint = @(Get-ProcessWindow $desktop.Id | Where-Object { $_.Current.ClassName -eq '#32770' -and -not (Find-Element $_ $null @($types::Edit) '1001') }) `
+    | Where-Object { @($_.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::Text)))) | Where-Object { $_.Current.Name -match "(?i)file name|can't|cannot|invalid" } } `
+    | Select-Object -First 1
+    if ($complaint)
+    {
+        $message = (@($complaint.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::Text)))) | ForEach-Object { $_.Current.Name }) -join ' '
+        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
+        $ok = Find-Element $complaint 'OK' @($types::Button)
+        if ($ok) { Invoke-Element $ok }
+        throw "The Save as dialog rejected the file name: $message"
+    }
 
     # Wait for the file to be written, answering prompts Power BI Desktop shows while saving
     Wait-Until -Description "$([System.IO.Path]::GetFileName($Destination)) to be saved" -Seconds 600 -Condition {
