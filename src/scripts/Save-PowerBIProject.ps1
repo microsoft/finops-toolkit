@@ -136,11 +136,21 @@ function Find-Element($Root, [string] $Name, [System.Windows.Automation.ControlT
 
 function Invoke-Element($Element)
 {
-    $pattern = $null
-    if ($Element.TryGetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern, [ref]$pattern)) { $pattern.Invoke(); return }
-    if ($Element.TryGetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern, [ref]$pattern)) { $pattern.Select(); return }
-    if ($Element.TryGetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern, [ref]$pattern)) { $pattern.Expand(); return }
-    if ($Element.TryGetCurrentPattern([System.Windows.Automation.TogglePattern]::Pattern, [ref]$pattern)) { $pattern.Toggle(); return }
+    $attempts = @(
+        @{ Pattern = [System.Windows.Automation.InvokePattern]::Pattern; Action = { param($p) $p.Invoke() } }
+        @{ Pattern = [System.Windows.Automation.SelectionItemPattern]::Pattern; Action = { param($p) $p.Select() } }
+        @{ Pattern = [System.Windows.Automation.ExpandCollapsePattern]::Pattern; Action = { param($p) $p.Expand() } }
+        @{ Pattern = [System.Windows.Automation.TogglePattern]::Pattern; Action = { param($p) $p.Toggle() } }
+    )
+    foreach ($attempt in $attempts)
+    {
+        $pattern = $null
+        if (-not $Element.TryGetCurrentPattern($attempt.Pattern, [ref]$pattern)) { continue }
+
+        # A control can report a pattern and still refuse it, so the next one is tried instead
+        try { & $attempt.Action $pattern; return }
+        catch { Write-Verbose "  $($attempt.Pattern.ProgrammaticName) failed: $($_.Exception.Message)" }
+    }
 
     # Some Power BI Desktop controls only respond to a real click
     $rect = $Element.Current.BoundingRectangle
@@ -431,16 +441,25 @@ try
     if ($sensitivity)
     {
         Write-Step "Applying the '$SensitivityLabel' sensitivity label..."
-        Invoke-Element $sensitivity
-        $label = Wait-Until -Description "the '$SensitivityLabel' sensitivity label" -Seconds 15 -Condition {
-            foreach ($window in @($mainWindow) + @(Get-ProcessWindow $desktop.Id))
-            {
-                $item = Find-Element $window $SensitivityLabel @($types::MenuItem, $types::ListItem, $types::Button, $types::RadioButton, $types::CheckBox)
-                if ($item) { return $item }
+        try
+        {
+            Invoke-Element $sensitivity
+            $label = Wait-Until -Description "the '$SensitivityLabel' sensitivity label" -Seconds 15 -Condition {
+                foreach ($window in @($mainWindow) + @(Get-ProcessWindow $desktop.Id))
+                {
+                    $item = Find-Element $window $SensitivityLabel @($types::MenuItem, $types::ListItem, $types::Button, $types::RadioButton, $types::CheckBox)
+                    if ($item) { return $item }
+                }
             }
+            Invoke-Element $label
+            Start-Sleep -Seconds 1
         }
-        Invoke-Element $label
-        Start-Sleep -Seconds 1
+        catch
+        {
+            # Saving is the expensive part, so a label that can't be set doesn't stop it. The
+            # label is checked when the saved file is validated.
+            Write-Warning "Could not apply the '$SensitivityLabel' label to $reportLabel ($($_.Exception.Message)). Set it by hand if validation reports it."
+        }
     }
     else
     {
