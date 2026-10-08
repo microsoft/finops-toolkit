@@ -248,7 +248,7 @@ function Import-TabularLibrary
     Engine commands block until they finish, so they run on their own thread. That leaves this
     one free to report credential prompts and to give up at the deadline instead of hanging.
 #>
-function Invoke-EngineCommand([string] $Command, [string] $Description, [int] $Port, $MainWindow, $Process)
+function Invoke-EngineCommand([string] $Command, [string] $Description, [int] $Port, $MainWindow, $Process, $Database)
 {
     $worker = [powershell]::Create()
     $null = $worker.AddScript({
@@ -262,11 +262,27 @@ function Invoke-EngineCommand([string] $Command, [string] $Description, [int] $P
 
     $reported = New-Object System.Collections.Generic.HashSet[string]
     $handle = $worker.BeginInvoke()
+    $lastProgress = Get-Date
     try
     {
         while (-not $handle.AsyncWaitHandle.WaitOne(2000))
         {
             Show-PendingPrompt $MainWindow $Process.Id $reported
+
+            # Power BI Desktop shows a "Refresh now" banner the whole time an engine refresh runs,
+            # because it isn't driving it. Reporting what the engine has finished says more.
+            if ($Database -and ((Get-Date) - $lastProgress).TotalSeconds -ge 30)
+            {
+                $lastProgress = Get-Date
+                try
+                {
+                    $Database.Refresh($true)
+                    $tables = @($Database.Model.Tables)
+                    $ready = @($tables | Where-Object { @($_.Partitions | Where-Object { $_.State -ne [Microsoft.AnalysisServices.Tabular.ObjectState]::Ready }).Count -eq 0 })
+                    Write-Step "$($ready.Count)/$($tables.Count) tables loaded ($([int]((Get-Date) - $started).TotalMinutes) min)..."
+                }
+                catch { Write-Verbose "Could not read refresh progress: $($_.Exception.Message)" }
+            }
             if ((Get-Date) -ge $deadline)
             {
                 $worker.Stop()
@@ -410,7 +426,7 @@ try
         # Refresh policies only apply in the Power BI service
         $command = @{ refresh = @{ type = 'full'; applyRefreshPolicy = $false; objects = @(@{ database = $database.Name }) } } | ConvertTo-Json -Depth 5 -Compress
 
-        $errors = Invoke-EngineCommand $command 'Data refresh' $port $mainWindow $desktop
+        $errors = Invoke-EngineCommand $command 'Data refresh' $port $mainWindow $desktop $database
         if ($errors.Count -gt 0)
         {
             # The engine reports what went wrong but not where, and one failure cancels the whole
