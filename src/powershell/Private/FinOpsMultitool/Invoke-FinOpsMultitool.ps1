@@ -1131,9 +1131,7 @@ function Invoke-FinOpsMultitool {
             }
             catch {
                 Write-FinOpsConsole "  Hub data load failed: $($_.Exception.Message)" -ForegroundColor Yellow
-                if ($DataSource.Source -eq 'Hub') {
-                    foreach ($scan in @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag', 'Get-AIWorkloadMetrics')) { $hubScanErrors[$scan] = $_.Exception.Message }
-                }
+                foreach ($scan in @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag', 'Get-AIWorkloadMetrics')) { $hubScanErrors[$scan] = $_.Exception.Message }
                 $hubRaw = $null
             }
             if ($hubRaw -and @($hubRaw).Count -gt 0) {
@@ -1222,14 +1220,12 @@ function Invoke-FinOpsMultitool {
             }
             else {
                 $hubRaw = $null
-                if ($DataSource.Source -eq 'Hub') {
-                    foreach ($scan in @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag', 'Get-AIWorkloadMetrics')) {
-                        if (-not $hubScanErrors.ContainsKey($scan)) { $hubScanErrors[$scan] = 'No hub data is available; cost coverage is incomplete.' }
-                    }
-                    Write-FinOpsConsole '  Hub data is unavailable. Select API as the data source to run a separate live scan.' -ForegroundColor Yellow
+                foreach ($scan in @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag', 'Get-AIWorkloadMetrics')) {
+                    if (-not $hubScanErrors.ContainsKey($scan)) { $hubScanErrors[$scan] = 'No hub data is available; cost coverage is incomplete.' }
                 }
+                Write-FinOpsConsole '  Hub data is unavailable. Select API as the data source to run a separate live scan.' -ForegroundColor Yellow
             }
-            if ($DataSource.Source -eq 'Hub') { Write-FinOpsConsole "" }
+            Write-FinOpsConsole ""
         }
 
         $exportData = $null
@@ -1252,17 +1248,24 @@ function Invoke-FinOpsMultitool {
                 if (-not $exportData.Rows.Count) { throw 'No cost rows match the selected subscriptions.' }
                 $exportSubscriptions = @($Subscriptions | Where-Object { $_.Id -in $exportData.CoveredSubscriptionIds })
                 $missingIds = @($Subscriptions.Id | Where-Object { $_ -notin $exportData.CoveredSubscriptionIds })
+                $unattributedNote = ''
+                if ($exportData.UnattributedRowCount -gt 0) {
+                    $rowLabel = if ($exportData.UnattributedRowCount -eq 1) { 'row' } else { 'rows' }
+                    $amounts = @($exportData.UnattributedCost | ForEach-Object { Format-BudgetAmount -Value $_.Cost -Currency $_.Currency }) -join '; '
+                    $unattributedNote = " Not included in these subscription totals: $($exportData.UnattributedRowCount) export $rowLabel with no subscription ($amounts), such as purchases or refunds billed outside a subscription."
+                }
                 $exportCoverage = [pscustomobject]@{
                     Name = $DataSource.Export.Name; CoverageIncomplete = ($missingIds.Count -gt 0)
                     CoveredSubscriptionIds = @($exportData.CoveredSubscriptionIds); UnverifiedSubscriptionIds = $missingIds
                     TotalSubs = $Subscriptions.Count; ScannedSubs = $exportSubscriptions.Count
+                    UnattributedRowCount = $exportData.UnattributedRowCount; UnattributedCost = @($exportData.UnattributedCost)
                     ActualPeriod = $exportData.ActualPeriod; DataDate = $exportData.DataDate
-                    Note = "Export rows cover $($exportSubscriptions.Count) of $($Subscriptions.Count) selected subscriptions. Subscriptions without returned rows are unverified, not zero cost. Export period: $($exportData.ActualPeriod)."
+                    Note = "Export rows cover $($exportSubscriptions.Count) of $($Subscriptions.Count) selected subscriptions. Subscriptions without returned rows are unverified, not zero cost. Export period: $($exportData.ActualPeriod).$unattributedNote"
                 }
                 $results['_source_Export'] = $exportCoverage
                 $DataSource.CoverageNote = $exportCoverage.Note
                 Write-FinOpsConsole "  Export loaded: $($exportData.RowCount) selected-scope rows; period $($exportData.ActualPeriod)." -ForegroundColor Green
-                Write-FinOpsConsole "  $($exportCoverage.Note)" -ForegroundColor $(if ($missingIds.Count) { 'Yellow' } else { 'DarkGray' })
+                Write-FinOpsConsole "  $($exportCoverage.Note)" -ForegroundColor $(if ($missingIds.Count -or $exportData.UnattributedRowCount) { 'Yellow' } else { 'DarkGray' })
             }
             catch { $exportIssue = "Selected export data is unavailable or incomplete: $($_.Exception.Message)" }
         }

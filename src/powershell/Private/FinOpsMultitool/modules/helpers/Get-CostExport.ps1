@@ -336,8 +336,19 @@ function Select-CostExportData {
     $currency = $null
     # FOCUS permits a null SubAccountId on tenant-level charges such as MCA
     # purchases and refunds. They belong to no subscription, so a scoped read
-    # excludes and counts them rather than failing the whole export.
+    # excludes them and reports their count and amount in each currency.
     $unattributedRows = 0
+    $unattributedCost = [System.Collections.Generic.SortedDictionary[string, double]]::new([System.StringComparer]::Ordinal)
+    $getRowCurrency = {
+        param($Row)
+        $value = if ($costColumn -eq 'CostInUSD') { 'USD' }
+        elseif ($sourceMap.Currency) { [string]$Row.($sourceMap.Currency) }
+        else { [string]$ExportData.Currency }
+        if ([string]::IsNullOrWhiteSpace($value)) { throw 'An export row has no billing currency; cost results are incomplete.' }
+        $value = $value.Trim().ToUpperInvariant()
+        if ($value -notmatch '^[A-Z]{3}$' -or $value -in @('XXX', 'XTS')) { throw 'An export row has an invalid billing currency; cost results are incomplete.' }
+        $value
+    }
     $columnMap = @{ Cost = 'Cost'; SubscriptionId = 'SubscriptionId'; Currency = 'Currency' }
     $optional = @('Date', 'SubscriptionName', 'ResourceGroup', 'ResourceId', 'ServiceName', 'Tags')
     foreach ($column in $optional) { if ($sourceMap.$column) { $columnMap[$column] = $column } }
@@ -348,20 +359,21 @@ function Select-CostExportData {
         $parsedId = [guid]::Empty
         if ($rawId -match '^/subscriptions/([0-9a-fA-F-]{36})(?:/|$)') { $rawId = $Matches[1] }
         if ([string]::IsNullOrWhiteSpace($rawId)) {
-            if ($expected.Count -gt 0) { $unattributedRows++; continue }
-            throw 'An export row has no subscription ID; coverage is incomplete.'
+            if ($expected.Count -eq 0) { throw 'An export row has no subscription ID; coverage is incomplete.' }
+            $excludedAmount = Get-HubCostValue -Row $row -Column $costColumn
+            $excludedCurrency = & $getRowCurrency $row
+            $excludedTotal = 0.0
+            [void]$unattributedCost.TryGetValue($excludedCurrency, [ref]$excludedTotal)
+            $unattributedCost[$excludedCurrency] = $excludedTotal + $excludedAmount
+            $unattributedRows++
+            continue
         }
         if (-not [guid]::TryParse($rawId, [ref]$parsedId)) { throw 'An export row has no valid subscription ID; coverage is incomplete.' }
         $subscriptionId = $parsedId.ToString()
         if ($expected.Count -gt 0 -and -not $expected.Contains($subscriptionId)) { continue }
 
         $amount = Get-HubCostValue -Row $row -Column $costColumn
-        $rowCurrency = if ($costColumn -eq 'CostInUSD') { 'USD' }
-        elseif ($sourceMap.Currency) { [string]$row.($sourceMap.Currency) }
-        else { [string]$ExportData.Currency }
-        if ([string]::IsNullOrWhiteSpace($rowCurrency)) { throw 'An export row has no billing currency; cost results are incomplete.' }
-        $rowCurrency = $rowCurrency.Trim().ToUpperInvariant()
-        if ($rowCurrency -notmatch '^[A-Z]{3}$' -or $rowCurrency -in @('XXX', 'XTS')) { throw 'An export row has an invalid billing currency; cost results are incomplete.' }
+        $rowCurrency = & $getRowCurrency $row
         if ($currency -and $currency -ne $rowCurrency) { throw 'Multiple billing currencies cannot be combined into one export cost total.' }
         $currency = $rowCurrency
         $normalized = [ordered]@{ Cost = $amount; SubscriptionId = $subscriptionId; Currency = $currency }
@@ -388,6 +400,7 @@ function Select-CostExportData {
         RowCount = $rows.Count; NoData = ($rows.Count -eq 0); CostBasis = 'ActualCost'
         CoveredSubscriptionIds = @($covered); SelectedSubscriptionIds = @($expected)
         UnattributedRowCount = $unattributedRows
+        UnattributedCost = @(foreach ($entry in $unattributedCost.GetEnumerator()) { [pscustomobject]@{ Currency = $entry.Key; Cost = $entry.Value } })
         ExportCount = $ExportData.ExportCount
         Headers = @($columnMap.Keys); NoCostColumn = $false; CoverageIncomplete = $false
     }

@@ -264,7 +264,8 @@ function Get-ResourceCosts {
             $basePath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement"
 
             # -- Actual cost grouped by resource ----------------------------
-            $actualMap = @{}
+            # A list, not a map: unattributed rows share an empty ID, and IDs can differ only by case.
+            $actualRows = [System.Collections.Generic.List[PSCustomObject]]::new()
             try {
                 Write-Host "  Querying resource costs for $($sub.Name)..." -ForegroundColor Cyan
                 $body = @{
@@ -307,7 +308,7 @@ function Get-ResourceCosts {
 
                                 $identity = Get-ResourceCostIdentity -ResourceId $resourceId -QuerySubscription $sub
 
-                                $actualMap[$resourceId] = [PSCustomObject]@{
+                                [void]$actualRows.Add([PSCustomObject]@{
                                     Subscription  = $identity.Subscription
                                     SubscriptionId = $identity.SubscriptionId
                                     ResourceGroup = $rg
@@ -322,7 +323,7 @@ function Get-ResourceCosts {
                                     Forecast      = [math]::Round($cost * $forecastMult, 2)
                                     ForecastSource = 'Linear projection'
                                     Currency      = $currency
-                                }
+                                })
                             }
                         }
                     }
@@ -341,14 +342,14 @@ function Get-ResourceCosts {
             # For large tenants (50+ subs), skip per-sub forecast API calls
             # and use CostData ratios if available.
             $subTotalActual = 0
-            foreach ($entry in $actualMap.Values) { $subTotalActual += $entry.Actual }
+            foreach ($entry in $actualRows) { $subTotalActual += $entry.Actual }
 
             $subForecast = $subTotalActual  # default: same as actual
             $hasForecast = $false
             $forecastIssue = $null
             $forecastCurrencyMismatch = $false
             $forecastUnapportionable = $false
-            $actualCurrencies = @($actualMap.Values | ForEach-Object { ([string]$_.Currency).Trim().ToUpperInvariant() } | Select-Object -Unique)
+            $actualCurrencies = @($actualRows | ForEach-Object { ([string]$_.Currency).Trim().ToUpperInvariant() } | Select-Object -Unique)
 
             # Use a verified Cost Data forecast when there is one (avoids an extra API call).
             # Entries without one fall through to the forecast API.
@@ -430,7 +431,7 @@ function Get-ResourceCosts {
             # Apply forecast ratio proportionally to each resource
             if ($forecastIssue -or $forecastCurrencyMismatch -or $forecastUnapportionable -or ($hasForecast -and $subTotalActual -le 0 -and $subForecast -ne 0)) {
                 # A failed forecast, one in another currency, or one without actual cost to apportion by can't be split across resources.
-                foreach ($entry in $actualMap.Values) {
+                foreach ($entry in $actualRows) {
                     $entry.Forecast = $null
                     $entry.ForecastSource = 'Unavailable'
                     # Reports show CostIssue as limited data, so a failed request stays visible.
@@ -439,14 +440,14 @@ function Get-ResourceCosts {
             }
             elseif ($subTotalActual -gt 0 -and $hasForecast) {
                 $ratio = $subForecast / $subTotalActual
-                foreach ($entry in $actualMap.Values) {
+                foreach ($entry in $actualRows) {
                     $entry.Forecast = [math]::Round($entry.Actual * $ratio, 2)
                     $entry.ForecastSource = 'Forecast'
                 }
             }
 
             # Collect rows from this sub
-            foreach ($entry in $actualMap.Values) {
+            foreach ($entry in $actualRows) {
                 [void]$allRows.Add($entry)
             }
         }

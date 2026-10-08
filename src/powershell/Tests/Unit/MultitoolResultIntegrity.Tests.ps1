@@ -312,6 +312,36 @@ Describe 'Multitool result scope, currency, and coverage' {
             }
         }
 
+        It 'Keeps every per-subscription resource cost row, including unattributed charges and IDs that differ only by case' {
+            InModuleScope FinOpsMultitool {
+                Mock Resolve-CostMgId { $null }
+                Mock Get-Date {
+                    if ($Year) { return [datetime]::new($Year, $Month, $Day, 0, 0, 0, [DateTimeKind]::Utc) }
+                    [datetime]::new(2026, 9, 15, 0, 0, 0, [DateTimeKind]::Utc)
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $disk = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/Fixture/providers/Microsoft.Compute/disks/disk'
+                    $rows = @(
+                        @(100.0, '', 'rg-a', 'USD'),
+                        @(25.0, '', 'rg-b', 'USD'),
+                        @(10.0, $disk, 'Fixture', 'USD'),
+                        @(5.0, $disk.ToLowerInvariant(), 'fixture', 'USD')
+                    )
+                    $properties = @{ columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' }, @{ name = 'ResourceGroupName' }, @{ name = 'Currency' }); rows = $rows }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
+                }
+                $costData = @{ '11111111-1111-1111-1111-111111111111' = @{ Actual = 140; Forecast = 280; ForecastSource = 'Forecast'; Currency = 'USD' } }
+
+                $result = @(Get-ResourceCosts -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'A' }) -CostData $costData)
+
+                $result.Count | Should -Be 4
+                ($result | Measure-Object Actual -Sum).Sum | Should -Be 140
+                ($result | Measure-Object Forecast -Sum).Sum | Should -Be 280
+                @($result | Where-Object { -not $_.ResourcePath }).Count | Should -Be 2
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly -ParameterFilter { $Path -match '/forecast\?' }
+            }
+        }
+
         It 'Labels month-to-date projections when more than 50 subscriptions skip the forecast request' {
             InModuleScope FinOpsMultitool {
                 Mock Resolve-CostMgId { $null }
@@ -838,6 +868,7 @@ Describe 'Multitool result scope, currency, and coverage' {
             @{ Failure = 'an unreadable page'; Status = 200; ExpectedCount = 2; Incomplete = $false }
             @{ Failure = 'an unreadable page'; Status = 403; ExpectedCount = 0; Incomplete = $true }
             @{ Failure = 'no Resource Graph response'; Status = 200; ExpectedCount = 2; Incomplete = $false }
+            @{ Failure = 'a non-numeric savings value'; Status = 200; ExpectedCount = 2; Incomplete = $false }
         ) {
             InModuleScope FinOpsMultitool -Parameters @{ Failure = $Failure; Status = $Status; ExpectedCount = $ExpectedCount; Incomplete = $Incomplete } {
                 param($Failure, $Status, $ExpectedCount, $Incomplete)
@@ -845,6 +876,13 @@ Describe 'Multitool result scope, currency, and coverage' {
                 $fixtureStatus = $Status
                 Mock Search-AzGraphSafe {
                     if ($fixtureFailure -eq 'no Resource Graph response') { return $null }
+                    if ($fixtureFailure -eq 'a non-numeric savings value') {
+                        $recommendation = @{ subscriptionId = '11111111-1111-1111-1111-111111111111'; shortDescriptionProblem = 'Right-size underused virtual machines'; shortDescriptionSolution = 'Resize'; impact = 'High'; impactedField = 'Microsoft.Compute/virtualMachines'; savingsAmount = ''; savingsCurrency = 'USD' }
+                        return @{ Data = @(
+                                [pscustomobject](@{ id = 'rec-a'; impactedValue = 'vm-a'; annualSavings = '100' } + $recommendation)
+                                [pscustomobject](@{ id = 'rec-b'; impactedValue = 'vm-b'; annualSavings = 'not available' } + $recommendation)
+                            ) }
+                    }
                     throw 'Resource Graph query failed after 1 page(s); results are incomplete.'
                 }
                 Mock Invoke-AzRestMethodWithRetry {
@@ -863,6 +901,31 @@ Describe 'Multitool result scope, currency, and coverage' {
                 if ($Incomplete) { $result.Note | Should -Match 'incomplete' }
                 else { $result.EstimatedAnnualSavings | Should -Be 150 }
                 Should -Invoke Search-AzGraphSafe -Times 1 -Exactly -ParameterFilter { $All -and $Query -match 'project id, subscriptionId' }
+            }
+        }
+
+        It 'Counts each reservation recommendation once when the Resource Graph read fails partway' {
+            InModuleScope FinOpsMultitool {
+                $fixtureRecommendation = @{ subscriptionId = '11111111-1111-1111-1111-111111111111'; shortDescriptionProblem = 'Consider virtual machine reserved instances'; shortDescriptionSolution = 'Buy reserved instances'; impact = 'High'; impactedField = 'Microsoft.Compute/virtualMachines'; savingsCurrency = 'USD'; term = 'P1Y'; region = 'eastus'; displayQty = '1' }
+                Mock Search-AzGraphSafe {
+                    @{ SkipToken = $null; Data = @(
+                            [pscustomobject](@{ recName = 'rec-a'; impactedValue = 'vm-a'; displaySKU = 'Standard_D2s_v5'; annualSavings = '100' } + $fixtureRecommendation)
+                            [pscustomobject](@{ recName = 'rec-b'; impactedValue = 'vm-b'; displaySKU = 'Standard_D4s_v5'; annualSavings = 'not available' } + $fixtureRecommendation)
+                        ) }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -notlike '*/Microsoft.Advisor/recommendations*') { return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' } }
+                    $items = foreach ($fixture in @(@('rec-a', 'vm-a', 'Standard_D2s_v5', '100'), @('rec-b', 'vm-b', 'Standard_D4s_v5', '50'))) {
+                        @{ name = $fixture[0]; properties = @{ impact = 'High'; impactedField = 'Microsoft.Compute/virtualMachines'; impactedValue = $fixture[1]; shortDescription = @{ problem = 'Consider virtual machine reserved instances'; solution = 'Buy reserved instances' }; extendedProperties = @{ annualSavingsAmount = $fixture[3]; savingsCurrency = 'USD'; term = 'P1Y'; displaySKU = $fixture[2]; region = 'eastus'; displayQty = '1' } } }
+                    }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @($items) } | ConvertTo-Json -Depth 8) }
+                }
+
+                $result = Get-ReservationAdvice -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'A' }) -WarningAction SilentlyContinue
+
+                $result.TotalAdvisorCount | Should -Be 2
+                @($result.AdvisorRecommendations | ForEach-Object { $_.DuplicateCount }) | Should -Be @(1, 1)
+                $result.EstimatedAnnualSavings | Should -Be 150
             }
         }
 

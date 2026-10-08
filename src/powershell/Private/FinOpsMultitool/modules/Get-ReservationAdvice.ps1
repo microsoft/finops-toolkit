@@ -108,6 +108,8 @@ advisorresources
         }
     }
     catch {
+        # The fallback rereads every subscription, so rows read before the failure would count twice.
+        $allRecommendations.Clear()
         Write-Warning "  Advisor Resource Graph query failed: $($_.Exception.Message)"
         Write-Warning "  Falling back to per-subscription REST calls..."
 

@@ -3226,6 +3226,8 @@ Describe 'FinOps Multitool cost math' {
                 $exportRows = @(
                     [pscustomobject]@{ SubAccountId = "/subscriptions/$subscriptionId"; BilledCost = 10; BillingCurrency = 'USD'; ChargePeriodStart = '2026-09-01' }
                     [pscustomobject]@{ SubAccountId = ''; BilledCost = 250; BillingCurrency = 'USD'; ChargePeriodStart = '2026-09-01' }
+                    [pscustomobject]@{ SubAccountId = ''; BilledCost = -50; BillingCurrency = 'USD'; ChargePeriodStart = '2026-09-01' }
+                    [pscustomobject]@{ SubAccountId = ''; BilledCost = 30; BillingCurrency = 'EUR'; ChargePeriodStart = '2026-09-01' }
                 )
                 $exportData = [pscustomobject]@{ Rows = $exportRows; ColMap = (Resolve-ExportColumns -Header $exportRows[0].PSObject.Properties.Name); Currency = 'USD'; CostBasis = 'FocusCost'; DataDate = [datetime]'2026-10-01' }
                 $subscriptions = @([pscustomobject]@{ Id = $subscriptionId; Name = 'Example' })
@@ -3233,7 +3235,9 @@ Describe 'FinOps Multitool cost math' {
                 $result = Select-CostExportData -ExportData $exportData -Subscriptions $subscriptions
 
                 $result.RowCount | Should -Be 1
-                $result.UnattributedRowCount | Should -Be 1
+                ($result.Rows | Measure-Object Cost -Sum).Sum | Should -Be 10
+                $result.UnattributedRowCount | Should -Be 3
+                @($result.UnattributedCost | ForEach-Object { '{0} {1}' -f $_.Currency, $_.Cost }) | Should -Be @('EUR 30', 'USD 200')
             }
         }
 

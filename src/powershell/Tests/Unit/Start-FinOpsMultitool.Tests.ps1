@@ -588,6 +588,7 @@ function Invoke-FinOpsMultitool {
                     $exportRows = @(
                         [pscustomobject]@{ SubAccountId = '11111111-1111-1111-1111-111111111111'; BilledCost = 100; EffectiveCost = 80; BillingCurrency = 'USD'; ChargePeriodStart = '2026-09-01'; ResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Compute/disks/example'; Tags = '{"CostCenter":"example"}' }
                         [pscustomobject]@{ SubAccountId = '99999999-9999-9999-9999-999999999999'; BilledCost = 999; EffectiveCost = 900; BillingCurrency = 'EUR'; ChargePeriodStart = '2026-09-01'; ResourceId = '/subscriptions/99999999-9999-9999-9999-999999999999/resourceGroups/fixture/providers/Microsoft.Compute/disks/outside'; Tags = '{}' }
+                        [pscustomobject]@{ SubAccountId = ''; BilledCost = 250; EffectiveCost = 250; BillingCurrency = 'USD'; ChargePeriodStart = '2026-09-01'; ResourceId = ''; Tags = '{}' }
                     )
                     [pscustomobject]@{ Rows = $exportRows; ColMap = Resolve-ExportColumns -Header $exportRows[0].PSObject.Properties.Name; Currency = 'USD'; CostBasis = 'FocusCost'; DataDate = [datetime]'2026-10-01' }
                 }
@@ -617,6 +618,8 @@ function Invoke-FinOpsMultitool {
                     $result['Get-CostTrend'].SelectedSubscriptionCount | Should -Be $subscriptions.Count
                     $result['_source_Export'].ScannedSubs | Should -Be 1
                     $result['_source_Export'].TotalSubs | Should -Be $subscriptions.Count
+                    $result['_source_Export'].UnattributedRowCount | Should -Be 1
+                    $result['_source_Export'].Note | Should -Match 'Not included in these subscription totals: 1 export row with no subscription \(USD 250\.00\)'
                     if ($Partial) { $result['Get-CostTrend'].UnverifiedSubscriptionIds | Should -Contain $subscriptions[1].Id }
                 }
                 $result['_error_Get-UnitEconomics'] | Should -Match 'not supported.*export'
