@@ -168,12 +168,14 @@ The PowerShell-based build system:
 
 ### Git Operations Policy
 
-This repository supports production infrastructure managing significant revenue. All git operations must be non-destructive and preserve full commit history.
+This repository supports production infrastructure managing significant revenue. All git operations on shared branches must be non-destructive and preserve full commit history. Personal branches may use history-rewriting operations, as described below, to keep PR history clean against `origin/dev`.
+
+**What counts as "shared":** `main`, `dev`, and `features/*` branches — branches multiple people commit to and pull from directly. A personal `{username}/{branch}` branch is not shared, even once it has an open PR with review or comment activity, since only its owner pushes to it.
 
 **Permitted operations:**
 
 - `git add`, `git commit`, `git push` (standard push only)
-- `git merge` (merge commits to integrate branches — the only permitted way to sync with `dev` or resolve conflicts)
+- `git merge` (merge commits to integrate branches — the only permitted way to sync a shared branch with `dev` or resolve its conflicts; on a personal `{username}/{branch}` branch, rebase is also permitted, see below)
 - `git checkout`, `git switch`, `git branch` (branch creation and switching)
 - `git worktree add`, `git worktree remove`, `git worktree prune` (worktree lifecycle)
 - `git fetch`, `git pull` (with merge, not rebase)
@@ -182,13 +184,13 @@ This repository supports production infrastructure managing significant revenue.
 
 **Prohibited operations:**
 
-- `git rebase` — rewrites commit history. Never permitted on shared branches. Not permitted as a conflict resolution strategy.
-- `git push --force` / `git push --force-with-lease` — destructive remote update. Never permitted.
+- `git rebase` — rewrites commit history. Never permitted on a shared branch (`main`, `dev`, `features/*`), including as a conflict resolution strategy on one. Permitted on a personal `{username}/{branch}` branch, including to sync with `dev` or resolve a conflict with it.
+- `git push --force` / `git push --force-with-lease` — destructive remote update. Never permitted on a shared branch (`main`, `dev`, `features/*`). Permitted on a personal `{username}/{branch}` branch, e.g. after a rebase.
 - `git reset --hard` to a state behind the remote (discarding pushed commits)
 - `git filter-branch`, `git reflog`-based history manipulation
-- Any operation that rewrites, reorders, squashes, or deletes commits that have been pushed to the remote
+- Any operation that rewrites, reorders, squashes, or deletes commits that have been pushed to the remote of a shared branch (`main`, `dev`, `features/*`)
 
-**Conflict resolution:** When a branch has merge conflicts with `dev`, the only permitted approach is `git merge origin/dev` into the feature branch. This creates a merge commit and preserves all history.
+**Conflict resolution:** When a shared branch has merge conflicts with `dev`, the only permitted approach is `git merge origin/dev` into it, creating a merge commit that preserves all history. On a personal `{username}/{branch}` branch, either `git merge origin/dev` or `git rebase origin/dev` is permitted.
 
 **Common conflict patterns in this repository:**
 
