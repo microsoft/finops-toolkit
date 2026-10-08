@@ -399,6 +399,14 @@ try
             throw "Data refresh failed:$detail"
         }
 
+        # A refresh through the engine leaves calculated columns, tables, and relationships stale,
+        # which is what Power BI Desktop's "calculated objects need to be manually refreshed"
+        # banner is about. Recalculating here means the saved report doesn't need that click.
+        Write-Step 'Recalculating calculated columns and tables...'
+        $calculate = @{ refresh = @{ type = 'calculate'; objects = @(@{ database = $database.Name }) } } | ConvertTo-Json -Depth 5 -Compress
+        $calculateErrors = @($server.Execute($calculate) | ForEach-Object { $_.Messages } | Where-Object { $_.GetType().Name -eq 'XmlaError' } | ForEach-Object { $_.Description })
+        if ($calculateErrors.Count -gt 0) { throw "Recalculating failed:`n  $($calculateErrors -join "`n  ")" }
+
         $database.Refresh($true)
         $notReady = @($database.Model.Tables `
             | Where-Object { @($_.Partitions | Where-Object { $_.State -ne [Microsoft.AnalysisServices.Tabular.ObjectState]::Ready }).Count -gt 0 } `
