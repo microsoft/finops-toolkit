@@ -598,9 +598,19 @@ try
     | Where-Object { "$($_.Current.Name) $($_.Current.AutomationId) $($_.Current.ClassName)" -notmatch '(?i)search|address|breadcrumb' } `
     | ForEach-Object { $candidates.Add($_) }
 
-    # The dialog opens in the folder the project was opened from, which is where the PBIX goes.
-    # Typing just the name avoids the path separators the dialog rejects in a file name.
-    $fileNameOnly = [System.IO.Path]::GetFileName($Destination)
+    # Typing just the name avoids the path separators the dialog rejects in a file name, but only
+    # when the dialog is already in the right folder. The address bar says where that is.
+    $destinationFolder = [System.IO.Path]::GetDirectoryName($Destination)
+    $address = @($dialog.FindAll($tree::Descendants, [System.Windows.Automation.Condition]::TrueCondition)) `
+    | Where-Object { $_.Current.Name -match '^Address: (?<path>.+)$' } `
+    | Select-Object -First 1
+
+    $currentFolder = if ($address -and $address.Current.Name -match '^Address: (?<path>.+)$') { $Matches.path.TrimEnd('\') } else { $null }
+    $inDestination = $currentFolder -and ($currentFolder -eq $destinationFolder.TrimEnd('\') -or (Split-Path $currentFolder -Leaf) -eq (Split-Path $destinationFolder -Leaf))
+    if (-not $currentFolder) { Write-Verbose '  The Save as dialog does not say what folder it is in. Using the full path.' }
+
+    $fileNameOnly = if ($inDestination) { [System.IO.Path]::GetFileName($Destination) } else { $Destination }
+    Write-Verbose "  Saving as '$fileNameOnly'$(if ($currentFolder) { " (dialog is in $currentFolder)" })"
     $named = $false
     foreach ($candidate in $candidates)
     {
