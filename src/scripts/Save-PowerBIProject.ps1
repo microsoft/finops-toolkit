@@ -553,13 +553,22 @@ try
     # Newer versions show a "Browse this device" option before the file dialog
     $dialog = Wait-Until -Description 'the Save as dialog' -Seconds 60 -Condition {
         # Power BI Desktop has other dialogs of the same class, including Open. Typing a file name
-        # into one of those and pressing its default button does something else entirely.
-        $fileDialog = Get-ProcessWindow $desktop.Id `
-        | ForEach-Object { $_; @($_.FindAll($tree::Children, [System.Windows.Automation.Condition]::TrueCondition)) } `
-        | Where-Object { $_.Current.ClassName -eq '#32770' } `
-        | Where-Object { (Find-Element $_ 'Save' @($types::Button)) -and -not (Find-Element $_ 'Open' @($types::Button)) } `
-        | Select-Object -First 1
+        # into one of those and pressing its default button does something else entirely, so the
+        # title decides, and a Save control is only used when a dialog has no title to go by.
+        $dialogs = @(Get-ProcessWindow $desktop.Id `
+            | ForEach-Object { $_; @($_.FindAll($tree::Children, [System.Windows.Automation.Condition]::TrueCondition)) } `
+            | Where-Object { $_.Current.ClassName -eq '#32770' })
+
+        $fileDialog = @($dialogs | Where-Object { $_.Current.Name -match '(?i)save' }) | Select-Object -First 1
+        if (-not $fileDialog)
+        {
+            $fileDialog = @($dialogs `
+                | Where-Object { -not $_.Current.Name -or $_.Current.Name -notmatch '(?i)open|import|confirm' } `
+                | Where-Object { Find-Element $_ 'Save' @($types::Button, $types::SplitButton) }) | Select-Object -First 1
+        }
         if ($fileDialog) { return $fileDialog }
+
+        foreach ($other in $dialogs) { Write-Verbose "  Ignoring the '$($other.Current.Name)' dialog." }
 
         $browse = Find-Element $mainWindow 'Browse this device' @($types::Button, $types::ListItem, $types::Hyperlink)
         if ($browse) { Invoke-Element $browse }
@@ -646,7 +655,7 @@ try
     }
 
     $saveButton = Find-Element $dialog $null @($types::Button) '1'
-    if (-not $saveButton) { $saveButton = Find-Element $dialog 'Save' @($types::Button) }
+    if (-not $saveButton) { $saveButton = Find-Element $dialog 'Save' @($types::Button, $types::SplitButton) }
     if (-not $saveButton)
     {
         Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
