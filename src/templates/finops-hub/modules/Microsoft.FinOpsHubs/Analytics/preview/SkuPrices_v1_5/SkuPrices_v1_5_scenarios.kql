@@ -5,6 +5,8 @@
 //
 // Both tables are built from the same Prices_final_v1_2 data by SkuPrices_v1_5.kql.
 // Queries use FOCUS columns where they exist; x_ columns only where FOCUS has no equivalent (meter, offer, term, price type).
+// Cost and Usage joins use CostsWithSkuPriceIdv2 (Costs_final_v1_2 + SkuPriceIdv2) on SkuPriceId + ContractId + PricingCurrency.
+// Prices are divided by the block size in x_PricingUnitDescription (e.g., "100 Hours") where per-unit prices matter.
 // Test-SkuPriceScenarios.ps1 runs each pair and compares results.
 //
 // Format: "// ## <id> <name>", "// Question: ...", "// Expect: same|different (<why>)", then "// ### Rows" and "// ### Columns" queries.
@@ -170,25 +172,32 @@ SkuPricesWide_v1_5
 
 // ## S08 Verify billed unit prices
 // Question: Do the list and contracted unit prices on last month's on-demand charges match the price list?
-// Source: dataset.md Relationships; PR 2595 "Compare Recorded Unit Prices with Published Rates"
+// Source: PR 2595 "Compare Recorded Unit Prices with Published Rates"; dataset.md Relationships
 // Expect: same
 // ### Rows
-let prices = SkuPrices_v1_5
-    | where ChargeCategory == 'Usage' and x_SkuPriceType == 'Consumption' and x_UnitPriceType in ('List', 'Contracted')
-    | summarize PriceList = take_anyif(UnitPrice, x_UnitPriceType == 'List'), PriceContracted = take_anyif(UnitPrice, x_UnitPriceType == 'Contracted') by x_SkuMeterId, x_SkuOfferId, PricingCurrency;
-Costs_final_v1_2
+let block = (d: string) { coalesce(todouble(extract(@'^([\d.]+)', 1, d)), 1.0) };
+let list = SkuPrices_v1_5
+    | where x_UnitPriceType == 'List'
+    | project SkuPriceId, PricingCurrency, PriceList = UnitPrice / block(x_PricingUnitDescription);
+let contracted = SkuPrices_v1_5
+    | where x_UnitPriceType == 'Contracted'
+    | project SkuPriceId, ContractId, PricingCurrency, PriceContracted = UnitPrice / block(x_PricingUnitDescription);
+CostsWithSkuPriceIdv2
 | where ChargePeriodStart >= datetime(2026-09-01) and ChargePeriodStart < datetime(2026-10-01)
 | where ChargeCategory == 'Usage' and isempty(CommitmentDiscountCategory)
-| lookup kind=leftouter prices on x_SkuMeterId, x_SkuOfferId, PricingCurrency
+| extend ContractId = tolower(strcat('/providers/microsoft.billing/billingaccounts/', x_BillingAccountId))
+| lookup kind=leftouter list on $left.SkuPriceIdv2 == $right.SkuPriceId, PricingCurrency
+| lookup kind=leftouter contracted on $left.SkuPriceIdv2 == $right.SkuPriceId, ContractId, PricingCurrency
 | summarize Charges = count(), Priced = countif(isnotnull(PriceList)), ListMatches = countif(abs(ListUnitPrice - PriceList) < 1e-6), ContractedMatches = countif(abs(ContractedUnitPrice - PriceContracted) < 1e-6)
 // ### Columns
+let block = (d: string) { coalesce(todouble(extract(@'^([\d.]+)', 1, d)), 1.0) };
 let prices = SkuPricesWide_v1_5
-    | where ChargeCategory == 'Usage' and x_SkuPriceType == 'Consumption'
-    | summarize PriceList = take_any(ListUnitPrice), PriceContracted = take_any(ContractedUnitPrice) by x_SkuMeterId, x_SkuOfferId, PricingCurrency;
-Costs_final_v1_2
+    | project SkuPriceId, ContractId, PricingCurrency, PriceList = ListUnitPrice / block(x_PricingUnitDescription), PriceContracted = ContractedUnitPrice / block(x_PricingUnitDescription);
+CostsWithSkuPriceIdv2
 | where ChargePeriodStart >= datetime(2026-09-01) and ChargePeriodStart < datetime(2026-10-01)
 | where ChargeCategory == 'Usage' and isempty(CommitmentDiscountCategory)
-| lookup kind=leftouter prices on x_SkuMeterId, x_SkuOfferId, PricingCurrency
+| extend ContractId = tolower(strcat('/providers/microsoft.billing/billingaccounts/', x_BillingAccountId))
+| lookup kind=leftouter prices on $left.SkuPriceIdv2 == $right.SkuPriceId, ContractId, PricingCurrency
 | summarize Charges = count(), Priced = countif(isnotnull(PriceList)), ListMatches = countif(abs(ListUnitPrice - PriceList) < 1e-6), ContractedMatches = countif(abs(ContractedUnitPrice - PriceContracted) < 1e-6)
 
 // ## S09 Savings plan what-if for on-demand usage
@@ -196,30 +205,32 @@ Costs_final_v1_2
 // Source: PR 2595 "Project the Effect of Moving Consumption to a Contracted Rate"; issue #2706
 // Expect: same
 // ### Rows
-let prices = SkuPrices_v1_5
-    | where ChargeCategory == 'Usage' and (x_SkuPriceType == 'Consumption' or (x_SkuPriceType == 'SavingsPlan' and x_SkuTerm == 12))
-    | summarize
-        PriceList       = take_anyif(UnitPrice, x_SkuPriceType == 'Consumption' and x_UnitPriceType == 'List'),
-        PriceContracted = take_anyif(UnitPrice, x_SkuPriceType == 'Consumption' and x_UnitPriceType == 'Contracted'),
-        PriceSavingsPlan = take_anyif(UnitPrice, x_SkuPriceType == 'SavingsPlan' and x_UnitPriceType == 'Effective')
-        by x_SkuMeterId, x_SkuOfferId, PricingCurrency;
-Costs_final_v1_2
+let block = (d: string) { coalesce(todouble(extract(@'^([\d.]+)', 1, d)), 1.0) };
+let list = SkuPrices_v1_5 | where x_UnitPriceType == 'List' | project SkuPriceId, PricingCurrency, PriceList = UnitPrice / block(x_PricingUnitDescription);
+let contracted = SkuPrices_v1_5 | where x_UnitPriceType == 'Contracted' | project SkuPriceId, ContractId, PricingCurrency, PriceContracted = UnitPrice / block(x_PricingUnitDescription);
+let savingsPlan = SkuPrices_v1_5 | where x_UnitPriceType == 'Effective' | project SkuPriceId, ContractId, PricingCurrency, PriceSavingsPlan = UnitPrice / block(x_PricingUnitDescription);
+CostsWithSkuPriceIdv2
 | where ChargePeriodStart >= datetime(2026-09-01) and ChargePeriodStart < datetime(2026-10-01)
 | where ChargeCategory == 'Usage' and isempty(CommitmentDiscountCategory) and ServiceName == 'Virtual Machines'
-| lookup kind=inner prices on x_SkuMeterId, x_SkuOfferId, PricingCurrency
+| extend ContractId = tolower(strcat('/providers/microsoft.billing/billingaccounts/', x_BillingAccountId))
+// No column links an on-demand price to its savings plan price; the IDs differ only by prefix
+| extend SavingsPlanSkuPriceId = strcat('SPU12', substring(SkuPriceIdv2, 3))
+| lookup kind=leftouter list on $left.SkuPriceIdv2 == $right.SkuPriceId, PricingCurrency
+| lookup kind=leftouter contracted on $left.SkuPriceIdv2 == $right.SkuPriceId, ContractId, PricingCurrency
+| lookup kind=leftouter savingsPlan on $left.SavingsPlanSkuPriceId == $right.SkuPriceId, ContractId, PricingCurrency
 | summarize AtList = round(sum(PricingQuantity * PriceList), 2), AtContracted = round(sum(PricingQuantity * PriceContracted), 2), AtSavingsPlan = round(sum(PricingQuantity * coalesce(PriceSavingsPlan, PriceContracted)), 2), Billed = round(sum(EffectiveCost), 2)
 // ### Columns
-let prices = SkuPricesWide_v1_5
-    | where ChargeCategory == 'Usage' and (x_SkuPriceType == 'Consumption' or (x_SkuPriceType == 'SavingsPlan' and x_SkuTerm == 12))
-    | summarize
-        PriceList       = take_anyif(ListUnitPrice, x_SkuPriceType == 'Consumption'),
-        PriceContracted = take_anyif(ContractedUnitPrice, x_SkuPriceType == 'Consumption'),
-        PriceSavingsPlan = take_anyif(x_EffectiveUnitPrice, x_SkuPriceType == 'SavingsPlan')
-        by x_SkuMeterId, x_SkuOfferId, PricingCurrency;
-Costs_final_v1_2
+let block = (d: string) { coalesce(todouble(extract(@'^([\d.]+)', 1, d)), 1.0) };
+let prices = SkuPricesWide_v1_5 | project SkuPriceId, ContractId, PricingCurrency, PriceList = ListUnitPrice / block(x_PricingUnitDescription), PriceContracted = ContractedUnitPrice / block(x_PricingUnitDescription);
+let savingsPlan = SkuPricesWide_v1_5 | project SkuPriceId, ContractId, PricingCurrency, PriceSavingsPlan = x_EffectiveUnitPrice / block(x_PricingUnitDescription);
+CostsWithSkuPriceIdv2
 | where ChargePeriodStart >= datetime(2026-09-01) and ChargePeriodStart < datetime(2026-10-01)
 | where ChargeCategory == 'Usage' and isempty(CommitmentDiscountCategory) and ServiceName == 'Virtual Machines'
-| lookup kind=inner prices on x_SkuMeterId, x_SkuOfferId, PricingCurrency
+| extend ContractId = tolower(strcat('/providers/microsoft.billing/billingaccounts/', x_BillingAccountId))
+// No column links an on-demand price to its savings plan price; the IDs differ only by prefix
+| extend SavingsPlanSkuPriceId = strcat('SPU12', substring(SkuPriceIdv2, 3))
+| lookup kind=leftouter prices on $left.SkuPriceIdv2 == $right.SkuPriceId, ContractId, PricingCurrency
+| lookup kind=leftouter savingsPlan on $left.SavingsPlanSkuPriceId == $right.SkuPriceId, ContractId, PricingCurrency
 | summarize AtList = round(sum(PricingQuantity * PriceList), 2), AtContracted = round(sum(PricingQuantity * PriceContracted), 2), AtSavingsPlan = round(sum(PricingQuantity * coalesce(PriceSavingsPlan, PriceContracted)), 2), Billed = round(sum(EffectiveCost), 2)
 
 // ## S10 All prices for one SKU
@@ -241,3 +252,72 @@ SkuPricesWide_v1_5
 | where x_SkuMeterId == '0404074d-2846-5fe5-bd12-2c8e858c3f30' and ChargeCategory == 'Usage'
 | project SkuPriceId, PricingCurrency, ListUnitPrice, BaseUnitPrice = x_BaseUnitPrice, ContractedUnitPrice, EffectiveUnitPrice = x_EffectiveUnitPrice
 | order by SkuPriceId asc
+
+// ## S11 Estimate a planned workload
+// Question: What would 2 D2 v5, 4 D4 v5, and 1 E8 v5 VMs in US East cost for a month at list and contracted rates?
+// Source: PR 2595 "Estimate the Cost of a Planned Workload"
+// Expect: same
+// ### Rows
+let block = (d: string) { coalesce(todouble(extract(@'^([\d.]+)', 1, d)), 1.0) };
+let plan = datatable(SkuPriceId: string, Quantity: real) [
+    'ODU_DZH318Z08M9X_008W_1 Compute Hour_MS-AZR-0017P', 1460,
+    'ODU_DZH318Z08M9X_007S_1 Compute Hour_MS-AZR-0017P', 2920,
+    'ODU_DZH318Z08M9J_003G_1 Compute Hour_MS-AZR-0017P', 730 ];
+SkuPrices_v1_5
+| where x_UnitPriceType in ('List', 'Contracted')
+| join kind=inner plan on SkuPriceId
+| extend Cost = Quantity * UnitPrice / block(x_PricingUnitDescription)
+| summarize AtList = round(sumif(Cost, x_UnitPriceType == 'List'), 2), AtContracted = round(sumif(Cost, x_UnitPriceType == 'Contracted'), 2)
+// ### Columns
+let block = (d: string) { coalesce(todouble(extract(@'^([\d.]+)', 1, d)), 1.0) };
+let plan = datatable(SkuPriceId: string, Quantity: real) [
+    'ODU_DZH318Z08M9X_008W_1 Compute Hour_MS-AZR-0017P', 1460,
+    'ODU_DZH318Z08M9X_007S_1 Compute Hour_MS-AZR-0017P', 2920,
+    'ODU_DZH318Z08M9J_003G_1 Compute Hour_MS-AZR-0017P', 730 ];
+SkuPricesWide_v1_5
+| join kind=inner plan on SkuPriceId
+| summarize AtList = round(sum(Quantity * ListUnitPrice / block(x_PricingUnitDescription)), 2), AtContracted = round(sum(Quantity * ContractedUnitPrice / block(x_PricingUnitDescription)), 2)
+
+// ## S12 Prices a billing account is eligible for
+// Question: How many prices of each type can a billing account with no agreement on this price list use?
+// Source: PR 2595 "Identify the Prices a Billing Account is Eligible For"; sku_price_eligibility_examples.md
+// Expect: different (columns scope the whole row to the agreement, so the public list price is hidden from other accounts)
+// ### Rows
+let account = '/providers/microsoft.billing/billingaccounts/1234567';
+SkuPrices_v1_5
+| mv-apply rule = SkuPriceEligibility.Inclusions on (
+    summarize Included = countif(rule.Dimension == 'BillingAccountId' and (
+        (rule.Operator == 'In' and set_has_element(rule.Values, account)) or
+        (rule.Operator == 'StartsWith' and account startswith tostring(rule.Values[0])))))
+| where tobool(SkuPriceEligibility.IsGlobalScope) or Included > 0
+| summarize Prices = count() by PriceType = x_UnitPriceType
+| order by PriceType asc
+// ### Columns
+let account = '/providers/microsoft.billing/billingaccounts/1234567';
+SkuPricesWide_v1_5
+| mv-apply rule = SkuPriceEligibility.Inclusions on (
+    summarize Included = countif(rule.Dimension == 'BillingAccountId' and (
+        (rule.Operator == 'In' and set_has_element(rule.Values, account)) or
+        (rule.Operator == 'StartsWith' and account startswith tostring(rule.Values[0])))))
+| where tobool(SkuPriceEligibility.IsGlobalScope) or Included > 0
+| summarize List = countif(isnotnull(ListUnitPrice)), Base = countif(isnotnull(x_BaseUnitPrice)), Contracted = countif(isnotnull(ContractedUnitPrice)), Effective = countif(isnotnull(x_EffectiveUnitPrice))
+| evaluate narrow()
+| project PriceType = Column, Prices = tolong(Value)
+| where Prices > 0
+| order by PriceType asc
+
+// ## S13 Usage rates vs. purchase fees
+// Question: How many prices of each type are usage rates vs. purchase fees?
+// Source: PR 2595 "Separate Usage Rates from Purchase Fees and Credit Values"
+// Expect: same
+// ### Rows
+SkuPrices_v1_5
+| summarize Prices = count() by ChargeCategory, PriceType = x_UnitPriceType
+| order by ChargeCategory asc, PriceType asc
+// ### Columns
+SkuPricesWide_v1_5
+| summarize List = countif(isnotnull(ListUnitPrice)), Base = countif(isnotnull(x_BaseUnitPrice)), Contracted = countif(isnotnull(ContractedUnitPrice)), Effective = countif(isnotnull(x_EffectiveUnitPrice)) by ChargeCategory
+| mv-expand kind = array p = bag_pack('List', List, 'Base', Base, 'Contracted', Contracted, 'Effective', Effective)
+| project ChargeCategory, PriceType = tostring(p[0]), Prices = tolong(p[1])
+| where Prices > 0
+| order by ChargeCategory asc, PriceType asc

@@ -71,14 +71,26 @@ foreach ($type in $steps.Keys) {
 }
 
 # 4. Comparison table (one row per price, price types as columns)
-$csl = ".set-or-replace SkuPricesWide_v1_5 with (folder = FOCUS 1.5 preview, recreate_schema = true) <| SkuPricesWide_v1_5_build()"
-if ($PSCmdlet.ShouldProcess(SkuPricesWide_v1_5, $csl)) {
+$csl = ".set-or-replace SkuPricesWide_v1_5 with (folder = 'FOCUS 1.5 preview', recreate_schema = true) <| SkuPricesWide_v1_5_build()"
+if ($PSCmdlet.ShouldProcess('SkuPricesWide_v1_5', $csl)) {
   $sw = [Diagnostics.Stopwatch]::StartNew()
   Invoke-Kusto $csl | Out-Null
   Write-Host "Wide done in $([int]$sw.Elapsed.TotalSeconds)s"
 }
 
-# 5. Verify
+# 5. SkuPriceIdv2 map, then a Costs copy with SkuPriceIdv2, one month at a time
+$csl = ".set-or-replace SkuPriceIdv2_map with (folder = 'FOCUS 1.5 preview', recreate_schema = true) <| SkuPriceIdv2_map_build()"
+if ($PSCmdlet.ShouldProcess('SkuPriceIdv2_map', $csl)) { Invoke-Kusto $csl | Out-Null; Write-Host 'Map done' }
+$months = (Invoke-Kusto 'Costs_final_v1_2 | summarize by M = startofmonth(ChargePeriodStart) | order by M asc' 'query').Rows | ForEach-Object { ([datetime]$_[0]).ToString('yyyy-MM-dd') }
+$first = $true
+foreach ($m in $months) {
+  $csl = if ($first) { ".set-or-replace CostsWithSkuPriceIdv2 with (folder = 'FOCUS 1.5 preview', recreate_schema = true) <| CostsWithSkuPriceIdv2_build(datetime($m))" }
+         else { ".append CostsWithSkuPriceIdv2 <| CostsWithSkuPriceIdv2_build(datetime($m))" }
+  if ($PSCmdlet.ShouldProcess('CostsWithSkuPriceIdv2', $csl)) { Invoke-Kusto $csl | Out-Null; Write-Host "Costs $m done" }
+  $first = $false
+}
+
+# 6. Verify
 $counts = Invoke-Kusto 'SkuPrices_v1_5 | summarize Rows = count() by x_UnitPriceType' 'query'
 $counts.Rows | ForEach-Object { Write-Host "$($_[0]): $($_[1])" }
 $columns = (Invoke-Kusto 'SkuPrices_v1_5 | getschema | project ColumnName' 'query').Rows | ForEach-Object { $_[0] }

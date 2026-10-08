@@ -224,4 +224,52 @@ SkuPricesWide_v1_5_build() {
 
 .set-or-replace SkuPricesWide_v1_5 with (folder = 'FOCUS 1.5 preview', recreate_schema = true) <| SkuPricesWide_v1_5_build()
 
+// 5. Costs copy with SkuPriceIdv2, so Cost and Usage can join to SkuPrices on SkuPriceId
+//    Costs has no x_SkuProductId/x_SkuMeterType, so the ID is looked up from prices by price type + meter + offer + term
+//    On-demand usage            -> on-demand price
+//    Reservation-covered usage  -> on-demand price (Microsoft has no usage price for reservations)
+//    Savings-plan-covered usage -> savings plan price for the term
+//    Reservation purchase       -> reservation price for the term, only when one ID matches
+//    Everything else            -> empty
+.create-or-alter function with (folder = 'FOCUS 1.5 preview', docstring = 'Hash of price type + charge category + meter + offer + term, used to look up SkuPriceIdv2')
+SkuPriceIdv2_key(priceType: string, chargeCategory: string, meterId: string, offerId: string, term: int) {
+    hash_xxhash64(strcat(priceType, '|', chargeCategory, '|', meterId, '|', offerId, '|', coalesce(term, 0)))
+}
+
+.create-or-alter function with (folder = 'FOCUS 1.5 preview', docstring = 'SkuPriceIdv2 per lookup key, only where one ID matches')
+SkuPriceIdv2_map_build() {
+    Prices_final_v1_2
+    | distinct x_SkuPriceType, ChargeCategory, x_SkuMeterId, x_SkuOfferId, x_SkuTerm, SkuPriceIdv2
+    | summarize hint.shufflekey = x_SkuMeterId Ids = make_set(SkuPriceIdv2, 2) by k = SkuPriceIdv2_key(x_SkuPriceType, ChargeCategory, x_SkuMeterId, x_SkuOfferId, x_SkuTerm), x_SkuMeterId
+    | where array_length(Ids) == 1
+    | project k, SkuPriceIdv2 = tostring(Ids[0])
+}
+
+.create-or-alter function with (folder = 'FOCUS 1.5 preview', skipvalidation = 'true', docstring = 'Costs_final_v1_2 for one month with SkuPriceIdv2 (reads SkuPriceIdv2_map)')
+CostsWithSkuPriceIdv2_build(month: datetime) {
+    let costs = Costs_final_v1_2
+        | where ChargePeriodStart >= month and ChargePeriodStart < datetime_add('month', 1, month)
+        | extend tmp_PriceType = case(
+            ChargeCategory == 'Usage' and CommitmentDiscountCategory == 'Spend',       'SavingsPlan',
+            ChargeCategory == 'Usage',                                                  'Consumption',
+            ChargeCategory == 'Purchase' and CommitmentDiscountType == 'Reservation',  'ReservedInstance',
+            '')
+        | extend tmp_k = SkuPriceIdv2_key(tmp_PriceType, ChargeCategory, x_SkuMeterId,
+            iff(tmp_PriceType == 'ReservedInstance', '', x_SkuOfferId),
+            iff(tmp_PriceType in ('SavingsPlan', 'ReservedInstance'), x_SkuTerm, int(null)));
+    // Only the keys this month needs, to keep the lookup small
+    let keys = costs | distinct tmp_k;
+    costs
+    | lookup kind=leftouter (SkuPriceIdv2_map | where k in (keys) | project tmp_k = k, SkuPriceIdv2) on tmp_k
+    | project-away tmp_*
+}
+
+// Build the map, then Costs one month at a time (Build-SkuPrices.ps1 loops over every month in Costs_final_v1_2)
+.set-or-replace SkuPriceIdv2_map with (folder = 'FOCUS 1.5 preview', recreate_schema = true) <| SkuPriceIdv2_map_build()
+
+.set-or-replace CostsWithSkuPriceIdv2 with (folder = 'FOCUS 1.5 preview', recreate_schema = true) <| CostsWithSkuPriceIdv2_build(datetime(2025-09-01))
+
+.append CostsWithSkuPriceIdv2 <| CostsWithSkuPriceIdv2_build(datetime(2025-10-01))
+
+// ...one .append per remaining month
 // Validation: Test-SkuPrices.ps1. Scenarios: SkuPrices_v1_5_scenarios.kql + Test-SkuPriceScenarios.ps1.
