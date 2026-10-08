@@ -1,0 +1,243 @@
+// FOCUS 1.5 SKU Price scenarios: row-per-price-type vs. column-per-price-type
+//
+// Rows    = SkuPrices_v1_5      one row per SkuPriceId x price type (x_UnitPriceType: List, Base, Contracted, Effective)
+// Columns = SkuPricesWide_v1_5  one row per SkuPriceId with ListUnitPrice, ContractedUnitPrice, x_BaseUnitPrice, x_EffectiveUnitPrice
+//
+// Both tables are built from the same Prices_final_v1_2 data by SkuPrices_v1_5.kql.
+// Queries use FOCUS columns where they exist; x_ columns only where FOCUS has no equivalent (meter, offer, term, price type).
+// Test-SkuPriceScenarios.ps1 runs each pair and compares results.
+//
+// Format: "// ## <id> <name>", "// Question: ...", "// Expect: same|different (<why>)", then "// ### Rows" and "// ### Columns" queries.
+
+// ## S01 List price for a SKU
+// Question: What is the public list price for this SKU price?
+// Source: PR 2595 "Find the List Prices in Force at a Point in Time"
+// Expect: same
+// ### Rows
+SkuPrices_v1_5
+| where SkuPriceId == 'ODU_DZH318Z0F6ZF_002N_1 Compute Hour_MS-AZR-0017P'
+| where x_UnitPriceType == 'List'
+| project SkuPriceId, PricingCurrency, ListUnitPrice = UnitPrice
+// ### Columns
+SkuPricesWide_v1_5
+| where SkuPriceId == 'ODU_DZH318Z0F6ZF_002N_1 Compute Hour_MS-AZR-0017P'
+| distinct SkuPriceId, PricingCurrency, ListUnitPrice
+
+// ## S02 Negotiated discount by service
+// Question: How much does the contract lower usage rates, by service?
+// Source: PR 2595 "Measure What Negotiation Reduces the Rate By"; appendix standard_and_negotiated_prices.md
+// Expect: same
+// ### Rows
+SkuPrices_v1_5
+| where x_UnitPriceType == 'Contracted' and ChargeCategory == 'Usage'
+| join kind=inner (
+    SkuPrices_v1_5
+    | where x_UnitPriceType == 'List'
+    | project SkuPriceId, PricingCurrency, ListUnitPrice = UnitPrice
+  ) on SkuPriceId, PricingCurrency
+| where ListUnitPrice > 0
+| summarize Prices = count(), Discounted = countif(UnitPrice < ListUnitPrice), AvgDiscountPercent = round(avg(100.0 * (ListUnitPrice - UnitPrice) / ListUnitPrice), 4) by PricingServiceName
+| order by Discounted desc, PricingServiceName asc
+| take 10
+// ### Columns
+SkuPricesWide_v1_5
+| where ChargeCategory == 'Usage' and isnotnull(ContractedUnitPrice)
+| where ListUnitPrice > 0
+| summarize Prices = count(), Discounted = countif(ContractedUnitPrice < ListUnitPrice), AvgDiscountPercent = round(avg(100.0 * (ListUnitPrice - ContractedUnitPrice) / ListUnitPrice), 4) by PricingServiceName
+| order by Discounted desc, PricingServiceName asc
+| take 10
+
+// ## S03 Base price drift from list
+// Question: Where has the public list price moved away from the price fixed in the agreement?
+// Source: PR 2595 ("Base" price type); research gap: PR 2424 has no column to tell Base from Contracted
+// Expect: same
+// ### Rows
+SkuPrices_v1_5
+| where x_UnitPriceType == 'Base'
+| join kind=inner (
+    SkuPrices_v1_5
+    | where x_UnitPriceType == 'List'
+    | project SkuPriceId, PricingCurrency, ListUnitPrice = UnitPrice
+  ) on SkuPriceId, PricingCurrency
+| summarize Prices = count(), ListAboveBase = countif(ListUnitPrice > UnitPrice), ListBelowBase = countif(ListUnitPrice < UnitPrice), MaxDriftPercent = round(max(iff(UnitPrice > 0, 100.0 * (ListUnitPrice - UnitPrice) / UnitPrice, real(null))), 4) by PricingServiceName
+| order by ListAboveBase + ListBelowBase desc, PricingServiceName asc
+| take 10
+// ### Columns
+SkuPricesWide_v1_5
+| where isnotnull(x_BaseUnitPrice) and isnotnull(ListUnitPrice)
+| summarize Prices = count(), ListAboveBase = countif(ListUnitPrice > x_BaseUnitPrice), ListBelowBase = countif(ListUnitPrice < x_BaseUnitPrice), MaxDriftPercent = round(max(iff(x_BaseUnitPrice > 0, 100.0 * (ListUnitPrice - x_BaseUnitPrice) / x_BaseUnitPrice, real(null))), 4) by PricingServiceName
+| order by ListAboveBase + ListBelowBase desc, PricingServiceName asc
+| take 10
+
+// ## S04 Reservation price vs. on-demand
+// Question: For each reservation term, what is the hourly rate and the savings vs. the on-demand contracted rate?
+// Source: PR 2595 "Evaluate the Purchase Terms Offered for a SKU"; appendix commitment_pricing.md
+// Expect: same
+// ### Rows
+SkuPrices_v1_5
+| where ChargeCategory == 'Purchase' and x_UnitPriceType == 'Contracted' and x_SkuPriceType == 'ReservedInstance' and x_SkuTerm >= 12
+| extend HourlyRate = UnitPrice / (x_SkuTerm * 730.0)
+| join kind=inner (
+    SkuPrices_v1_5
+    | where ChargeCategory == 'Usage' and x_UnitPriceType == 'Contracted' and x_SkuPriceType == 'Consumption' and x_SkuOfferId == 'MS-AZR-0017P'
+    | summarize OnDemandRate = min(UnitPrice) by x_SkuMeterId
+  ) on x_SkuMeterId
+| where OnDemandRate > 0
+| summarize Reservations = count(), AvgSavingsPercent = round(avg(100.0 * (OnDemandRate - HourlyRate) / OnDemandRate), 2) by Term = x_SkuTerm
+| order by Term asc
+// ### Columns
+SkuPricesWide_v1_5
+| where ChargeCategory == 'Purchase' and x_SkuPriceType == 'ReservedInstance' and isnotnull(ContractedUnitPrice) and x_SkuTerm >= 12
+| extend HourlyRate = ContractedUnitPrice / (x_SkuTerm * 730.0)
+| join kind=inner (
+    SkuPricesWide_v1_5
+    | where ChargeCategory == 'Usage' and x_SkuPriceType == 'Consumption' and x_SkuOfferId == 'MS-AZR-0017P'
+    | summarize OnDemandRate = min(ContractedUnitPrice) by x_SkuMeterId
+  ) on x_SkuMeterId
+| where OnDemandRate > 0
+| summarize Reservations = count(), AvgSavingsPercent = round(avg(100.0 * (OnDemandRate - HourlyRate) / OnDemandRate), 2) by Term = x_SkuTerm
+| order by Term asc
+
+// ## S05 Savings plan rate vs. on-demand
+// Question: For each savings plan term, how much lower is the savings plan rate than the on-demand contracted rate?
+// Source: issue #2706 (commitment unit price on covered usage); scope_and_evolution.md
+// Expect: same
+// ### Rows
+SkuPrices_v1_5
+| where x_UnitPriceType == 'Effective' and x_SkuPriceType == 'SavingsPlan'
+| join kind=inner (
+    SkuPrices_v1_5
+    | where ChargeCategory == 'Usage' and x_UnitPriceType == 'Contracted' and x_SkuPriceType == 'Consumption'
+    | summarize OnDemandRate = min(UnitPrice) by x_SkuMeterId, x_SkuOfferId
+  ) on x_SkuMeterId, x_SkuOfferId
+| where OnDemandRate > 0
+| summarize Prices = count(), AvgSavingsPercent = round(avg(100.0 * (OnDemandRate - UnitPrice) / OnDemandRate), 2) by Term = x_SkuTerm
+| order by Term asc
+// ### Columns
+SkuPricesWide_v1_5
+| where x_SkuPriceType == 'SavingsPlan' and isnotnull(x_EffectiveUnitPrice)
+| join kind=inner (
+    SkuPricesWide_v1_5
+    | where ChargeCategory == 'Usage' and x_SkuPriceType == 'Consumption'
+    | summarize OnDemandRate = min(ContractedUnitPrice) by x_SkuMeterId, x_SkuOfferId
+  ) on x_SkuMeterId, x_SkuOfferId
+| where OnDemandRate > 0
+| summarize Prices = count(), AvgSavingsPercent = round(avg(100.0 * (OnDemandRate - x_EffectiveUnitPrice) / OnDemandRate), 2) by Term = x_SkuTerm
+| order by Term asc
+
+// ## S06 Recent price changes by price type
+// Question: Which list, base, contracted, and savings plan prices changed since July 2026?
+// Source: appendix price_effectivity_and_currency.md; working-draft "Fluctuation Tracking of Unit Prices"
+// Expect: different (columns share one effective start per row, so a change to any price marks every price on the row as changed)
+// ### Rows
+SkuPrices_v1_5
+| where SkuPriceEffectiveStart >= datetime(2026-07-01)
+| summarize Changed = count() by PriceType = x_UnitPriceType
+| order by PriceType asc
+// ### Columns
+SkuPricesWide_v1_5
+| where SkuPriceEffectiveStart >= datetime(2026-07-01)
+| summarize List = countif(isnotnull(ListUnitPrice)), Base = countif(isnotnull(x_BaseUnitPrice)), Contracted = countif(isnotnull(ContractedUnitPrice)), Effective = countif(isnotnull(x_EffectiveUnitPrice))
+| evaluate narrow()
+| project PriceType = Column, Changed = tolong(Value)
+| where Changed > 0
+| order by PriceType asc
+
+// ## S07 Cheapest region for a VM size
+// Question: Which regions have the lowest list price for each Dv5 VM size?
+// Source: PR 2595 "Compare List Prices Across Regions"
+// Expect: same
+// ### Rows
+SkuPrices_v1_5
+| where x_UnitPriceType == 'List' and ChargeCategory == 'Usage' and x_SkuPriceType == 'Consumption'
+| where x_SkuMeterSubcategory == 'Dv5 Series' and x_SkuOfferId == 'MS-AZR-0017P'
+| summarize Price = min(UnitPrice) by x_SkuMeter, PricingRegionId
+| as hint.materialized = true T
+| join kind=inner (T | summarize MinPrice = min(Price), MaxPrice = max(Price), Regions = count() by x_SkuMeter) on x_SkuMeter
+| where Price == MinPrice
+| summarize CheapestRegions = strcat_array(array_sort_asc(make_list(PricingRegionId)), ", ") by x_SkuMeter, MinPrice, MaxPrice, Regions
+| order by x_SkuMeter asc
+// ### Columns
+SkuPricesWide_v1_5
+| where ChargeCategory == 'Usage' and x_SkuPriceType == 'Consumption' and isnotnull(ListUnitPrice)
+| where x_SkuMeterSubcategory == 'Dv5 Series' and x_SkuOfferId == 'MS-AZR-0017P'
+| summarize Price = min(ListUnitPrice) by x_SkuMeter, PricingRegionId
+| as hint.materialized = true T
+| join kind=inner (T | summarize MinPrice = min(Price), MaxPrice = max(Price), Regions = count() by x_SkuMeter) on x_SkuMeter
+| where Price == MinPrice
+| summarize CheapestRegions = strcat_array(array_sort_asc(make_list(PricingRegionId)), ", ") by x_SkuMeter, MinPrice, MaxPrice, Regions
+| order by x_SkuMeter asc
+
+// ## S08 Verify billed unit prices
+// Question: Do the list and contracted unit prices on last month's on-demand charges match the price list?
+// Source: dataset.md Relationships; PR 2595 "Compare Recorded Unit Prices with Published Rates"
+// Expect: same
+// ### Rows
+let prices = SkuPrices_v1_5
+    | where ChargeCategory == 'Usage' and x_SkuPriceType == 'Consumption' and x_UnitPriceType in ('List', 'Contracted')
+    | summarize PriceList = take_anyif(UnitPrice, x_UnitPriceType == 'List'), PriceContracted = take_anyif(UnitPrice, x_UnitPriceType == 'Contracted') by x_SkuMeterId, x_SkuOfferId, PricingCurrency;
+Costs_final_v1_2
+| where ChargePeriodStart >= datetime(2026-09-01) and ChargePeriodStart < datetime(2026-10-01)
+| where ChargeCategory == 'Usage' and isempty(CommitmentDiscountCategory)
+| lookup kind=leftouter prices on x_SkuMeterId, x_SkuOfferId, PricingCurrency
+| summarize Charges = count(), Priced = countif(isnotnull(PriceList)), ListMatches = countif(abs(ListUnitPrice - PriceList) < 1e-6), ContractedMatches = countif(abs(ContractedUnitPrice - PriceContracted) < 1e-6)
+// ### Columns
+let prices = SkuPricesWide_v1_5
+    | where ChargeCategory == 'Usage' and x_SkuPriceType == 'Consumption'
+    | summarize PriceList = take_any(ListUnitPrice), PriceContracted = take_any(ContractedUnitPrice) by x_SkuMeterId, x_SkuOfferId, PricingCurrency;
+Costs_final_v1_2
+| where ChargePeriodStart >= datetime(2026-09-01) and ChargePeriodStart < datetime(2026-10-01)
+| where ChargeCategory == 'Usage' and isempty(CommitmentDiscountCategory)
+| lookup kind=leftouter prices on x_SkuMeterId, x_SkuOfferId, PricingCurrency
+| summarize Charges = count(), Priced = countif(isnotnull(PriceList)), ListMatches = countif(abs(ListUnitPrice - PriceList) < 1e-6), ContractedMatches = countif(abs(ContractedUnitPrice - PriceContracted) < 1e-6)
+
+// ## S09 Savings plan what-if for on-demand usage
+// Question: What would last month's on-demand VM usage cost at list, contracted, and 1-year savings plan rates?
+// Source: PR 2595 "Project the Effect of Moving Consumption to a Contracted Rate"; issue #2706
+// Expect: same
+// ### Rows
+let prices = SkuPrices_v1_5
+    | where ChargeCategory == 'Usage' and (x_SkuPriceType == 'Consumption' or (x_SkuPriceType == 'SavingsPlan' and x_SkuTerm == 12))
+    | summarize
+        PriceList       = take_anyif(UnitPrice, x_SkuPriceType == 'Consumption' and x_UnitPriceType == 'List'),
+        PriceContracted = take_anyif(UnitPrice, x_SkuPriceType == 'Consumption' and x_UnitPriceType == 'Contracted'),
+        PriceSavingsPlan = take_anyif(UnitPrice, x_SkuPriceType == 'SavingsPlan' and x_UnitPriceType == 'Effective')
+        by x_SkuMeterId, x_SkuOfferId, PricingCurrency;
+Costs_final_v1_2
+| where ChargePeriodStart >= datetime(2026-09-01) and ChargePeriodStart < datetime(2026-10-01)
+| where ChargeCategory == 'Usage' and isempty(CommitmentDiscountCategory) and ServiceName == 'Virtual Machines'
+| lookup kind=inner prices on x_SkuMeterId, x_SkuOfferId, PricingCurrency
+| summarize AtList = round(sum(PricingQuantity * PriceList), 2), AtContracted = round(sum(PricingQuantity * PriceContracted), 2), AtSavingsPlan = round(sum(PricingQuantity * coalesce(PriceSavingsPlan, PriceContracted)), 2), Billed = round(sum(EffectiveCost), 2)
+// ### Columns
+let prices = SkuPricesWide_v1_5
+    | where ChargeCategory == 'Usage' and (x_SkuPriceType == 'Consumption' or (x_SkuPriceType == 'SavingsPlan' and x_SkuTerm == 12))
+    | summarize
+        PriceList       = take_anyif(ListUnitPrice, x_SkuPriceType == 'Consumption'),
+        PriceContracted = take_anyif(ContractedUnitPrice, x_SkuPriceType == 'Consumption'),
+        PriceSavingsPlan = take_anyif(x_EffectiveUnitPrice, x_SkuPriceType == 'SavingsPlan')
+        by x_SkuMeterId, x_SkuOfferId, PricingCurrency;
+Costs_final_v1_2
+| where ChargePeriodStart >= datetime(2026-09-01) and ChargePeriodStart < datetime(2026-10-01)
+| where ChargeCategory == 'Usage' and isempty(CommitmentDiscountCategory) and ServiceName == 'Virtual Machines'
+| lookup kind=inner prices on x_SkuMeterId, x_SkuOfferId, PricingCurrency
+| summarize AtList = round(sum(PricingQuantity * PriceList), 2), AtContracted = round(sum(PricingQuantity * PriceContracted), 2), AtSavingsPlan = round(sum(PricingQuantity * coalesce(PriceSavingsPlan, PriceContracted)), 2), Billed = round(sum(EffectiveCost), 2)
+
+// ## S10 All prices for one SKU
+// Question: Show every price type for one VM size in one region side by side.
+// Source: PR 2595 catalog discovery; FOCUS Cost and Usage ListUnitPrice/ContractedUnitPrice pairing
+// Expect: same
+// ### Rows
+SkuPrices_v1_5
+| where x_SkuMeterId == '0404074d-2846-5fe5-bd12-2c8e858c3f30' and ChargeCategory == 'Usage'
+| summarize
+    ListUnitPrice       = take_anyif(UnitPrice, x_UnitPriceType == 'List'),
+    BaseUnitPrice       = take_anyif(UnitPrice, x_UnitPriceType == 'Base'),
+    ContractedUnitPrice = take_anyif(UnitPrice, x_UnitPriceType == 'Contracted'),
+    EffectiveUnitPrice  = take_anyif(UnitPrice, x_UnitPriceType == 'Effective')
+    by SkuPriceId, PricingCurrency
+| order by SkuPriceId asc
+// ### Columns
+SkuPricesWide_v1_5
+| where x_SkuMeterId == '0404074d-2846-5fe5-bd12-2c8e858c3f30' and ChargeCategory == 'Usage'
+| project SkuPriceId, PricingCurrency, ListUnitPrice, BaseUnitPrice = x_BaseUnitPrice, ContractedUnitPrice, EffectiveUnitPrice = x_EffectiveUnitPrice
+| order by SkuPriceId asc

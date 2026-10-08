@@ -1,0 +1,227 @@
+// SkuPrices_v1_5 (PREVIEW): FOCUS 1.5 SKU Price dataset (FOCUS PR 2424 draft) built from Prices_final_v1_2
+// Run in the Ingestion database. Build-SkuPrices.ps1 runs everything below in order.
+//
+// Tables:
+//   SkuPrices_v1_5              One row per SkuPriceId x price type x contract x currency (x_UnitPriceType: List, Base, Contracted, Effective)
+//   SkuPricesWide_v1_5          Comparison layout: one row per SkuPriceId x contract x currency, price types as columns
+//   SkuPrices_v1_5_starts_table Build helper: first month of each price's current unchanged value
+//
+// Custom columns cover FOCUS 1.5 gaps: x_UnitPriceType (no price type column), x_SkuTerm (no term on usage prices).
+// Source columns that are not SKU Price columns get an x_ prefix (source SkuPriceId -> x_SkuPriceIdv1).
+// Built one price type at a time to stay within memory on small clusters.
+
+// 1. Effective start function: first month of the current unchanged run of each price across all monthly loads
+.create-or-alter function with (folder = 'FOCUS 1.5 preview', docstring = 'Original effective start per SKU price for one price type')
+SkuPrices_v1_5_starts(priceType: string) {
+    // Narrow history keyed by a 64-bit hash of SkuPriceId + ContractId + PricingCurrency (keeps memory low)
+    let hist = Prices_final_v1_2
+        | extend UnitPrice = case(
+            priceType == 'List',       ListUnitPrice,
+            priceType == 'Base',       x_BaseUnitPrice,
+            priceType == 'Contracted', ContractedUnitPrice,
+            priceType == 'Effective',  x_EffectiveUnitPrice,
+            real(null))
+        | where isnotnull(UnitPrice)
+        | where priceType == 'Effective' or x_SkuPriceType != 'SavingsPlan'
+        | extend ContractId = iff(priceType == 'List', '', tolower(strcat('/providers/microsoft.billing/billingaccounts/', x_BillingAccountId)))
+        | project k = hash_xxhash64(strcat(SkuPriceIdv2, '|', ContractId, '|', PricingCurrency)), M = startofmonth(x_IngestionTime), Start = x_EffectivePeriodStart, UnitPrice
+        | summarize hint.shufflekey = k UnitPrice = take_any(UnitPrice), Start = min(Start) by k, M;
+    // Current price = price in the most recent month for each key
+    let cur = hist | summarize hint.shufflekey = k arg_max(M, UnitPrice) by k | project k, Cur = UnitPrice;
+    // Last month the price differed from the current price
+    let lastDiff = hist
+        | join kind=inner hint.shufflekey = k cur on k
+        | where UnitPrice != Cur
+        | summarize hint.shufflekey = k LastDiff = max(M) by k;
+    hist
+    | join kind=leftouter hint.shufflekey = k lastDiff on k
+    | where isnull(LastDiff) or M > LastDiff
+    | summarize hint.shufflekey = k OriginalStart = min(Start) by k
+    | extend x_UnitPriceType = priceType
+}
+
+// 2. Build function (reads SkuPrices_v1_5_starts_table, built first)
+.create-or-alter function with (folder = 'FOCUS 1.5 preview', skipvalidation = 'true', docstring = 'FOCUS 1.5 SKU Price rows for one price type (List, Base, Contracted, Effective)')
+SkuPrices_v1_5_build(priceType: string) {
+    // Latest price sheet per billing account (by day, since one ingestion spans minutes)
+    let latestSheet = Prices_final_v1_2
+        | summarize tmp_LatestDay = max(startofday(x_IngestionTime)) by BillingAccountId;
+    // First time each price was seen (narrow scan)
+    let created = Prices_final_v1_2
+        | summarize hint.shufflekey = SkuPriceIdv2 SkuPriceCreated = min(x_IngestionTime) by SkuPriceIdv2;
+    let src = Prices_final_v1_2
+        | lookup kind=inner latestSheet on BillingAccountId
+        | where startofday(x_IngestionTime) == tmp_LatestDay
+        | extend UnitPrice = case(
+            priceType == 'List',       ListUnitPrice,
+            priceType == 'Base',       x_BaseUnitPrice,
+            priceType == 'Contracted', ContractedUnitPrice,
+            priceType == 'Effective',  x_EffectiveUnitPrice,
+            real(null))
+        | where isnotnull(UnitPrice)
+        // Savings plan rows carry only the SP rate; their list/base/contracted prices are copies of the on-demand meter's prices
+        | where priceType == 'Effective' or x_SkuPriceType != 'SavingsPlan'
+        | extend x_UnitPriceType = priceType
+        // List prices are public: no contract. Everything else belongs to the agreement: EA enrollment or MCA billing account (not the billing profile)
+        | extend ContractId = iff(priceType == 'List', '', tolower(strcat('/providers/microsoft.billing/billingaccounts/', x_BillingAccountId)))
+        // One row per key (collapses list prices repeated across billing accounts)
+        | summarize hint.shufflekey = SkuPriceIdv2 take_any(*) by SkuPriceIdv2, ContractId, x_EffectivePeriodStart, PricingCurrency
+        | extend tmp_TierGroup = strcat(x_SkuMeterId, '|', x_SkuPriceType, '|', x_SkuTerm, '|', x_SkuOfferId, '|', ContractId, '|', PricingCurrency, '|', x_EffectivePeriodStart);
+    // Tier max = next tier min for the same meter and price (only meters with more than one tier)
+    let tierMax = src
+        | summarize Tiers = make_set(x_SkuTier) by tmp_TierGroup
+        | where array_length(Tiers) > 1
+        | extend Tiers = array_sort_asc(Tiers)
+        | mv-expand with_itemindex = tmp_i x_SkuTier = Tiers to typeof(real)
+        | extend QuantityTierMaximum = todouble(Tiers[tmp_i + 1])
+        | project tmp_TierGroup, x_SkuTier, QuantityTierMaximum;
+    src
+    | lookup kind=leftouter tierMax on tmp_TierGroup, x_SkuTier
+    | lookup kind=leftouter created on SkuPriceIdv2
+    | extend tmp_k = hash_xxhash64(strcat(SkuPriceIdv2, "|", ContractId, "|", PricingCurrency))
+    | lookup kind=leftouter (SkuPrices_v1_5_starts_table | where x_UnitPriceType == priceType | project tmp_k = k, OriginalStart) on tmp_k
+    | extend x_SkuPriceIdv1 = SkuPriceId
+    | extend
+        PricingCurrencyCategory = 'Payable',
+        PricingRegionId         = x_SkuRegion,          // Region name, not ID; best available
+        PricingServiceName      = x_SkuMeterCategory,   // Meter category; price sheet has no service name
+        PurchaseDurationType    = iff(ChargeCategory != 'Purchase' or isnull(x_SkuTerm), '',
+                                    case(x_SkuTerm == 12, '1 Year', x_SkuTerm % 12 == 0, strcat(x_SkuTerm / 12, ' Years'), x_SkuTerm == 1, '1 Month', strcat(x_SkuTerm, ' Months'))),
+        PurchasePaymentModel    = '',                   // Not in the price sheet
+        QuantityTierMinimum     = coalesce(x_SkuTier, real(0)),
+        ServiceProviderName     = 'Microsoft',
+        SkuPriceDescription     = x_SkuDescription,
+        SkuPriceEffectiveEnd    = datetime(null),       // Current price; no known end (monthly sheet end is not a price end)
+        SkuPriceEffectiveStart  = coalesce(OriginalStart, x_EffectivePeriodStart),  // First month of the current unchanged price
+        SkuPriceEligibility     = iff(priceType == 'List',
+                                    dynamic({'IsGlobalScope': true}),
+                                    bag_pack('IsGlobalScope', false, 'InclusionOperator', 'Or', 'Inclusions',
+                                        pack_array(
+                                            // Matches the account itself (EA) and every billing profile under it (MCA)
+                                            bag_pack('Dimension', 'BillingAccountId', 'Operator', 'In', 'Values', pack_array(ContractId)),
+                                            bag_pack('Dimension', 'BillingAccountId', 'Operator', 'StartsWith', 'Values', pack_array(strcat(ContractId, '/')))))),
+        SkuPriceId              = SkuPriceIdv2,
+        SkuPriceLastUpdated     = x_IngestionTime,      // Last ingestion; provider date not available
+        // Discount vs. list for this row's price type (replaces the 6 wide discount columns)
+        x_UnitPriceDiscount        = iff(priceType == 'List', real(null), ListUnitPrice - UnitPrice),
+        x_UnitPriceDiscountPercent = iff(priceType == 'List' or ListUnitPrice == 0, real(null), 100.0 * (ListUnitPrice - UnitPrice) / ListUnitPrice)
+    // List rows are collapsed across billing accounts and MCA rows across billing profiles, so clear values that differ between them
+    | extend tmp_IsList = priceType == 'List', tmp_IsMca = x_BillingProfileId != x_BillingAccountId
+    | extend
+        BillingAccountName                   = iff(tmp_IsList or tmp_IsMca, '', BillingAccountName),  // MCA: profile name
+        x_BillingAccountId                   = iff(tmp_IsList, '', x_BillingAccountId),
+        x_BillingProfileId                   = iff(tmp_IsList or tmp_IsMca, '', x_BillingProfileId)
+    | project-away tmp_*, OriginalStart, BillingAccountId,  // EA: same as ContractId; MCA: profile-level, collapsed into ContractId
+        ListUnitPrice, ContractedUnitPrice, x_BaseUnitPrice, x_EffectiveUnitPrice,  // In UnitPrice + x_UnitPriceType
+        x_ContractedUnitPriceDiscount, x_ContractedUnitPriceDiscountPercent, x_EffectiveUnitPriceDiscount, x_EffectiveUnitPriceDiscountPercent,
+        x_TotalUnitPriceDiscount, x_TotalUnitPriceDiscountPercent,  // Replaced by x_UnitPriceDiscount(Percent)
+        x_EffectivePeriodStart, x_EffectivePeriodEnd  // Same as SkuPriceEffectiveStart/End
+    // Source columns that are not SKU Price columns become custom columns
+    | project-rename
+        x_BillingAccountName       = BillingAccountName,
+        x_BillingCurrency          = BillingCurrency,
+        x_CommitmentDiscountType   = CommitmentDiscountType,
+        x_CommitmentDiscountUnit   = CommitmentDiscountUnit,
+        x_PricingCategory          = PricingCategory,
+        x_SkuMeter                 = SkuMeter,
+        x_SkuPriceIdv2             = SkuPriceIdv2
+    // All columns in alphabetical order (FOCUS columns sort before x_ columns)
+    | project-reorder * asc
+}
+
+// 3. Comparison function: same prices in the one-row-per-price layout (all price types as columns)
+//    Same source, keys, and effective-start logic as SkuPrices_v1_5, so scenario queries can be compared side by side
+.create-or-alter function with (folder = 'FOCUS 1.5 preview', skipvalidation = 'true', docstring = 'FOCUS 1.5 SKU Price rows with one row per price and price types as columns (comparison layout)')
+SkuPricesWide_v1_5_build() {
+    let latestSheet = Prices_final_v1_2
+        | summarize tmp_LatestDay = max(startofday(x_IngestionTime)) by BillingAccountId;
+    let created = Prices_final_v1_2
+        | summarize hint.shufflekey = SkuPriceIdv2 SkuPriceCreated = min(x_IngestionTime) by SkuPriceIdv2;
+    let starts = SkuPrices_v1_5_starts_table | project k, x_UnitPriceType, OriginalStart;
+    let src = Prices_final_v1_2
+        | lookup kind=inner latestSheet on BillingAccountId
+        | where startofday(x_IngestionTime) == tmp_LatestDay
+        // Savings plan rows carry only the SP rate; their list/base/contracted prices are copies of the on-demand meter's prices
+        | extend tmp_IsSP = x_SkuPriceType == 'SavingsPlan'
+        | extend
+            ListUnitPrice                        = iff(tmp_IsSP, real(null), ListUnitPrice),
+            ContractedUnitPrice                  = iff(tmp_IsSP, real(null), ContractedUnitPrice),
+            x_BaseUnitPrice                      = iff(tmp_IsSP, real(null), x_BaseUnitPrice),
+            x_ContractedUnitPriceDiscount        = iff(tmp_IsSP, real(null), x_ContractedUnitPriceDiscount),
+            x_ContractedUnitPriceDiscountPercent = iff(tmp_IsSP, real(null), x_ContractedUnitPriceDiscountPercent)
+        // Every row carries a contracted price, so every row belongs to the agreement
+        | extend ContractId = tolower(strcat('/providers/microsoft.billing/billingaccounts/', x_BillingAccountId))
+        | summarize hint.shufflekey = SkuPriceIdv2 take_any(*) by SkuPriceIdv2, ContractId, x_EffectivePeriodStart, PricingCurrency
+        | extend tmp_TierGroup = strcat(x_SkuMeterId, '|', x_SkuPriceType, '|', x_SkuTerm, '|', x_SkuOfferId, '|', ContractId, '|', PricingCurrency, '|', x_EffectivePeriodStart);
+    let tierMax = src
+        | summarize Tiers = make_set(x_SkuTier) by tmp_TierGroup
+        | where array_length(Tiers) > 1
+        | extend Tiers = array_sort_asc(Tiers)
+        | mv-expand with_itemindex = tmp_i x_SkuTier = Tiers to typeof(real)
+        | extend QuantityTierMaximum = todouble(Tiers[tmp_i + 1])
+        | project tmp_TierGroup, x_SkuTier, QuantityTierMaximum;
+    src
+    | lookup kind=leftouter tierMax on tmp_TierGroup, x_SkuTier
+    | lookup kind=leftouter created on SkuPriceIdv2
+    // A row changes when any of its prices change, so its effective start is the latest start across its price types
+    | extend tmp_kList = hash_xxhash64(strcat(SkuPriceIdv2, '|', '', '|', PricingCurrency)), tmp_kAcct = hash_xxhash64(strcat(SkuPriceIdv2, '|', ContractId, '|', PricingCurrency))
+    | lookup kind=leftouter (starts | where x_UnitPriceType == 'List'       | project tmp_kList = k, tmp_StartList = OriginalStart) on tmp_kList
+    | lookup kind=leftouter (starts | where x_UnitPriceType == 'Base'       | project tmp_kAcct = k, tmp_StartBase = OriginalStart) on tmp_kAcct
+    | lookup kind=leftouter (starts | where x_UnitPriceType == 'Contracted' | project tmp_kAcct = k, tmp_StartContracted = OriginalStart) on tmp_kAcct
+    | lookup kind=leftouter (starts | where x_UnitPriceType == 'Effective'  | project tmp_kAcct = k, tmp_StartEffective = OriginalStart) on tmp_kAcct
+    | extend x_SkuPriceIdv1 = SkuPriceId
+    | extend
+        PricingCurrencyCategory = 'Payable',
+        PricingRegionId         = x_SkuRegion,
+        PricingServiceName      = x_SkuMeterCategory,
+        PurchaseDurationType    = iff(ChargeCategory != 'Purchase' or isnull(x_SkuTerm), '',
+                                    case(x_SkuTerm == 12, '1 Year', x_SkuTerm % 12 == 0, strcat(x_SkuTerm / 12, ' Years'), x_SkuTerm == 1, '1 Month', strcat(x_SkuTerm, ' Months'))),
+        PurchasePaymentModel    = '',
+        QuantityTierMinimum     = coalesce(x_SkuTier, real(0)),
+        ServiceProviderName     = 'Microsoft',
+        SkuPriceDescription     = x_SkuDescription,
+        SkuPriceEffectiveEnd    = datetime(null),
+        SkuPriceEffectiveStart  = coalesce(max_of(tmp_StartList, tmp_StartBase, tmp_StartContracted, tmp_StartEffective), x_EffectivePeriodStart),
+        // One eligibility for the whole row, even though the list price on it is public
+        SkuPriceEligibility     = bag_pack('IsGlobalScope', false, 'InclusionOperator', 'Or', 'Inclusions',
+                                    pack_array(
+                                        bag_pack('Dimension', 'BillingAccountId', 'Operator', 'In', 'Values', pack_array(ContractId)),
+                                        bag_pack('Dimension', 'BillingAccountId', 'Operator', 'StartsWith', 'Values', pack_array(strcat(ContractId, '/'))))),
+        SkuPriceId              = SkuPriceIdv2,
+        SkuPriceLastUpdated     = x_IngestionTime
+    | extend tmp_IsMca = x_BillingProfileId != x_BillingAccountId
+    | extend
+        BillingAccountName = iff(tmp_IsMca, '', BillingAccountName),
+        x_BillingProfileId = iff(tmp_IsMca, '', x_BillingProfileId)
+    | project-away tmp_*, BillingAccountId, x_EffectivePeriodStart, x_EffectivePeriodEnd
+    | project-rename
+        x_BillingAccountName     = BillingAccountName,
+        x_BillingCurrency        = BillingCurrency,
+        x_CommitmentDiscountType = CommitmentDiscountType,
+        x_CommitmentDiscountUnit = CommitmentDiscountUnit,
+        x_PricingCategory        = PricingCategory,
+        x_SkuMeter               = SkuMeter,
+        x_SkuPriceIdv2           = SkuPriceIdv2
+    | project-reorder * asc
+}
+
+// 4. Build the tables in this order (Build-SkuPrices.ps1 runs these), one price type at a time to stay within memory
+.set-or-replace SkuPrices_v1_5_starts_table with (folder = 'FOCUS 1.5 preview', recreate_schema = true) <| SkuPrices_v1_5_starts('List')
+
+.append SkuPrices_v1_5_starts_table <| SkuPrices_v1_5_starts('Base')
+
+.append SkuPrices_v1_5_starts_table <| SkuPrices_v1_5_starts('Contracted')
+
+.append SkuPrices_v1_5_starts_table <| SkuPrices_v1_5_starts('Effective')
+
+.set-or-replace SkuPrices_v1_5 with (folder = 'FOCUS 1.5 preview', recreate_schema = true) <| SkuPrices_v1_5_build('List')
+
+.append SkuPrices_v1_5 <| SkuPrices_v1_5_build('Base')
+
+.append SkuPrices_v1_5 <| SkuPrices_v1_5_build('Contracted')
+
+.append SkuPrices_v1_5 <| SkuPrices_v1_5_build('Effective')
+
+.set-or-replace SkuPricesWide_v1_5 with (folder = 'FOCUS 1.5 preview', recreate_schema = true) <| SkuPricesWide_v1_5_build()
+
+// Validation: Test-SkuPrices.ps1. Scenarios: SkuPrices_v1_5_scenarios.kql + Test-SkuPriceScenarios.ps1.
