@@ -575,25 +575,58 @@ try
         return $null
     }
 
-    # Pick the PBIX file type first so the dialog doesn't append the PBIP extension
+    # The file type has to be PBIX. Left on PBIP, Power BI Desktop saves a project, which writes
+    # folders named after what was typed instead of a file, and the save looks like it worked.
+    function Get-FileTypeValue($Combo)
+    {
+        $pattern = $null
+        if ($Combo.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$pattern)) { return $pattern.Current.Value }
+        $selected = @($Combo.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::ListItem)))) `
+        | Where-Object { $_.Current.IsOffscreen -eq $false } | Select-Object -First 1
+        return $selected.Current.Name
+    }
+
     $fileType = Find-Element $dialog $null @($types::ComboBox) 'FileTypeControlHost'
     if (-not $fileType) { $fileType = Find-Element $dialog 'Save as type:' @($types::ComboBox) }
-    if ($fileType)
+    if (-not $fileType)
     {
-        $expand = $null
-        if ($fileType.TryGetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern, [ref]$expand)) { $expand.Expand() }
-        Start-Sleep -Milliseconds 500
-        $pbixType = @($fileType.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::ListItem)))) `
-        | Where-Object { $_.Current.Name -match 'pbix' } `
+        $fileType = @($dialog.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::ComboBox)))) `
+        | Where-Object { "$($_.Current.Name) $(Get-FileTypeValue $_)" -match '(?i)pbix|pbip|power bi' } `
         | Select-Object -First 1
-        if (-not $pbixType) { throw 'The Save as dialog has no PBIX file type.' }
-        Invoke-Element $pbixType
-        if ($expand) { try { $expand.Collapse() } catch { Write-Verbose 'File type list already closed.' } }
-        Start-Sleep -Milliseconds 500
     }
-    else
+    if (-not $fileType)
     {
-        Write-Verbose '  No file type list in the Save as dialog. Relying on the file extension.'
+        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
+        throw "Could not find the file type list in the '$($dialog.Current.Name)' dialog, so the report would be saved as a project instead of a PBIX."
+    }
+
+    $expand = $null
+    if ($fileType.TryGetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern, [ref]$expand))
+    {
+        try { $expand.Expand() } catch { Write-Verbose "  Could not open the file type list: $($_.Exception.Message)" }
+    }
+    Start-Sleep -Milliseconds 500
+
+    $pbixType = @($fileType.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::ListItem)))) `
+    | Where-Object { $_.Current.Name -match '(?i)pbix' } `
+    | Select-Object -First 1
+    if ($pbixType) { Invoke-Element $pbixType }
+    elseif ($fileType.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$null))
+    {
+        $value = $null
+        $null = $fileType.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$value)
+        try { $value.SetValue('Power BI files (*.pbix)') } catch { Write-Verbose "  Could not set the file type: $($_.Exception.Message)" }
+    }
+    if ($expand) { try { $expand.Collapse() } catch { Write-Verbose '  File type list already closed.' } }
+    Start-Sleep -Milliseconds 500
+
+    # Saving as the wrong type makes a mess that's hard to recognize later, so stop before that
+    $selectedType = Get-FileTypeValue $fileType
+    Write-Verbose "  File type: $selectedType"
+    if ($selectedType -and $selectedType -notmatch '(?i)pbix')
+    {
+        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
+        throw "The Save as dialog is still set to '$selectedType'. Saving now would write a project, not a PBIX."
     }
 
     # The search box and the address bar are editable too, and writing a path into either one
@@ -666,14 +699,17 @@ try
     # A rejected file name leaves a message box on screen and the dialog open behind it
     Start-Sleep -Seconds 2
     $complaint = @(Get-ProcessWindow $desktop.Id | Where-Object { $_.Current.ClassName -eq '#32770' -and -not (Find-Element $_ $null @($types::Edit) '1001') }) `
-    | Where-Object { @($_.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::Text)))) | Where-Object { $_.Current.Name -match "(?i)file name|can't|cannot|invalid" } } `
+    | Where-Object { $_.Current.Name -match '(?i)confirm folder replace|replace' -or @($_.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::Text)))) | Where-Object { $_.Current.Name -match "(?i)file name|can't|cannot|invalid|merge this folder" } } `
     | Select-Object -First 1
     if ($complaint)
     {
         $message = (@($complaint.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::Text)))) | ForEach-Object { $_.Current.Name }) -join ' '
         Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
-        $ok = Find-Element $complaint 'OK' @($types::Button)
-        if ($ok) { Invoke-Element $ok }
+        foreach ($dismiss in 'No', 'Cancel', 'OK')
+        {
+            $button = Find-Element $complaint $dismiss @($types::Button)
+            if ($button) { Invoke-Element $button; break }
+        }
         throw "The Save as dialog rejected the file name: $message"
     }
 
