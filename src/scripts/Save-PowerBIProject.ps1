@@ -134,6 +134,23 @@ function Find-Element($Root, [string] $Name, [System.Windows.Automation.ControlT
     return $null
 }
 
+<#
+    .SYNOPSIS
+    Finds a control in a file dialog by automation id and window class.
+
+    .DESCRIPTION
+    The Windows file dialog reports almost everything as a pane, so control types can't be used to
+    tell its parts apart. Ids aren't unique either: the file name box and the address bar are both
+    1001, and only their window class separates them.
+#>
+function Find-DialogElement($Dialog, [string] $AutomationId, [string] $ClassName)
+{
+    $condition = New-Object System.Windows.Automation.PropertyCondition($props::AutomationIdProperty, $AutomationId)
+    return @($Dialog.FindAll($tree::Descendants, $condition)) `
+    | Where-Object { -not $ClassName -or $_.Current.ClassName -eq $ClassName } `
+    | Select-Object -First 1
+}
+
 function Invoke-Element($Element)
 {
     $attempts = @(
@@ -582,8 +599,8 @@ try
         return $null
     }
 
-    # The file type has to be PBIX. Left on PBIP, Power BI Desktop saves a project, which writes
-    # folders named after what was typed instead of a file, and the save looks like it worked.
+    # Power BI Desktop's Save as dialog has no file type list, so the extension decides the
+    # format. Typing a name ending in .pbix is what makes it save a file instead of a project.
     function Get-FileTypeValue($Combo)
     {
         $pattern = $null
@@ -597,15 +614,10 @@ try
     if (-not $fileType) { $fileType = Find-Element $dialog 'Save as type:' @($types::ComboBox) }
     if (-not $fileType)
     {
-        $fileType = @($dialog.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::ComboBox)))) `
-        | Where-Object { "$($_.Current.Name) $(Get-FileTypeValue $_)" -match '(?i)pbix|pbip|power bi' } `
-        | Select-Object -First 1
+        Write-Verbose '  No file type list in this dialog. The .pbix extension decides the format.'
     }
-    if (-not $fileType)
+    else
     {
-        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
-        throw "Could not find the file type list in the '$($dialog.Current.Name)' dialog, so the report would be saved as a project instead of a PBIX."
-    }
 
     $expand = $null
     if ($fileType.TryGetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern, [ref]$expand))
@@ -636,22 +648,26 @@ try
         throw "The Save as dialog is still set to '$selectedType'. Saving now would write a project, not a PBIX."
     }
 
+    }
+
     # The search box and the address bar are editable too, and writing a path into either one
     # makes the dialog reject it. Candidates are tried in order and the value is read back.
-    $fileNameHost = Find-Element $dialog $null @($types::ComboBox) 'FileNameControlHost'
     $candidates = New-Object System.Collections.Generic.List[object]
     foreach ($candidate in @(
+            (Find-DialogElement $dialog '1001' 'Edit'),
             (Find-Element $dialog 'File name:' @($types::Edit)),
-            (Find-Element $dialog $null @($types::Edit) '1001'),
-            $(if ($fileNameHost) { Find-Element $fileNameHost $null @($types::Edit) })
+            $(
+                $host_ = Find-Element $dialog $null @($types::ComboBox) 'FileNameControlHost'
+                if ($host_) { Find-Element $host_ $null @($types::Edit) }
+            )
         ))
     {
         if ($candidate) { $candidates.Add($candidate) }
     }
 
-    @($dialog.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::Edit)))) `
-    | Where-Object { $_.Current.IsEnabled -and -not $_.Current.IsOffscreen } `
-    | Where-Object { "$($_.Current.Name) $($_.Current.AutomationId) $($_.Current.ClassName)" -notmatch '(?i)search|address|breadcrumb' } `
+    @($dialog.FindAll($tree::Descendants, [System.Windows.Automation.Condition]::TrueCondition)) `
+    | Where-Object { $_.Current.IsEnabled -and -not $_.Current.IsOffscreen -and $_.Current.ClassName -eq 'Edit' } `
+    | Where-Object { "$($_.Current.Name) $($_.Current.AutomationId) $($_.Current.ClassName)" -notmatch '(?i)search|address|breadcrumb|toolbar' } `
     | ForEach-Object { $candidates.Add($_) }
 
     # Typing just the name avoids the path separators the dialog rejects in a file name, but only
@@ -694,7 +710,7 @@ try
         throw "Could not type the file name into the '$($dialog.Current.Name)' dialog [$($dialog.Current.ClassName)]."
     }
 
-    $saveButton = Find-Element $dialog $null @($types::Button) '1'
+    $saveButton = Find-DialogElement $dialog '1' 'Button'
     if (-not $saveButton) { $saveButton = Find-Element $dialog 'Save' @($types::Button, $types::SplitButton) }
     if (-not $saveButton)
     {
