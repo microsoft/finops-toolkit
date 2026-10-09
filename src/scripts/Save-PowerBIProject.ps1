@@ -361,12 +361,19 @@ try
     #region Open
 
     Write-Step "Opening $reportLabel in Power BI Desktop..."
-    if (Test-Path $Destination -PathType Container)
-    {
-        throw "$Destination is a folder, so Power BI Desktop can't save a file there. Delete it and try again."
+
+    # Saving as the wrong type writes folders named after the PBIX. Those block the next save, so
+    # anything named after the destination is cleared first. The project itself is named
+    # differently (CostSummary.storage.Report, not CostSummary.storage.pbix.Report) and is kept.
+    $destinationName = [System.IO.Path]::GetFileName($Destination)
+    Get-ChildItem ([System.IO.Path]::GetDirectoryName($Destination)) -Force -ErrorAction SilentlyContinue `
+    | Where-Object { $_.Name -eq $destinationName -or $_.Name -like "$destinationName.*" } `
+    | ForEach-Object {
+        if ($_.PSIsContainer) { Write-Verbose "  Removing $($_.Name), left over from a save that wrote a project instead of a file." }
+        Remove-Item $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
     }
-    Remove-Item $Destination -Force -ErrorAction SilentlyContinue
     Remove-Item ([System.IO.Path]::ChangeExtension($Destination, '.error.png')) -Force -ErrorAction SilentlyContinue
+    Remove-Item ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt')) -Force -ErrorAction SilentlyContinue
 
     $existing = @(Get-Process PBIDesktop -ErrorAction SilentlyContinue | ForEach-Object { $_.Id })
     Start-Process -FilePath $Path
