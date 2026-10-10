@@ -22,5 +22,5 @@ Costs()
 | extend PreviousBilledCost = prev(BilledCost)
 | extend PreviousEffectiveCost = prev(EffectiveCost)
 | project ChargePeriodStart,
-    BilledCostChangePct = iff(isempty(PreviousBilledCost), 0.0, toreal((BilledCost - PreviousBilledCost) * 100.0 / PreviousBilledCost)),
-    EffectiveCostChangePct = iff(isempty(PreviousEffectiveCost), 0.0, toreal((EffectiveCost - PreviousEffectiveCost) * 100.0 / PreviousEffectiveCost))
+    BilledCostChangePct = iff(isempty(PreviousBilledCost) or PreviousBilledCost == 0.0, 0.0, toreal((BilledCost - PreviousBilledCost) * 100.0 / PreviousBilledCost)),
+    EffectiveCostChangePct = iff(isempty(PreviousEffectiveCost) or PreviousEffectiveCost == 0.0, 0.0, toreal((EffectiveCost - PreviousEffectiveCost) * 100.0 / PreviousEffectiveCost))
