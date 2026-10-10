@@ -81,10 +81,19 @@ Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Windows.For
 
 # A type can't be redefined once it's loaded, so a session that ran an older copy of this script
 # keeps the methods it had. The name carries the shape of the type to avoid that.
-if (-not ('FinOpsToolkit.Win32v6' -as [type]))
+if (-not ('FinOpsToolkit.Win32v7' -as [type]))
 {
-    Add-Type -Namespace FinOpsToolkit -Name Win32v6 -MemberDefinition @'
-[DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindowEx(IntPtr parent, IntPtr after, string className, string windowName);
+    Add-Type -Namespace FinOpsToolkit -Name Win32v7 -MemberDefinition @'
+private delegate bool EnumProc(IntPtr hWnd, IntPtr lParam);
+[DllImport("user32.dll")] private static extern bool EnumChildWindows(IntPtr parent, EnumProc callback, IntPtr lParam);
+// The callback has to be compiled code. A PowerShell scriptblock passed as the delegate never
+// gets called, so the enumeration lives here and hands back a plain array.
+public static IntPtr[] GetDescendants(IntPtr parent)
+{
+    var found = new System.Collections.Generic.List<IntPtr>();
+    EnumChildWindows(parent, (h, l) => { found.Add(h); return true; }, IntPtr.Zero);
+    return found.ToArray();
+}
 [DllImport("user32.dll")] public static extern IntPtr GetParent(IntPtr hWnd);
 [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetClassName(IntPtr hWnd, System.Text.StringBuilder name, int count);
 [DllImport("user32.dll")] public static extern int GetDlgCtrlID(IntPtr hWnd);
@@ -99,54 +108,55 @@ if (-not ('FinOpsToolkit.Win32v6' -as [type]))
 
 <#
     .SYNOPSIS
-    Lists the child windows of a dialog with their class and control id.
+    Lists every window inside a dialog with its class, control id, and parent.
 
     .DESCRIPTION
     The file type list isn't in what UI Automation reports for this dialog, so its own window has
-    to be found to set it. Leaving it alone makes Power BI Desktop save a project, which looks
-    like a save that worked right up until the PBIX isn't there.
+    to be found to set it. It sits several levels down (the dialog hosts a DirectUI view that hosts
+    the combo boxes), so the whole tree is listed. Leaving it alone makes Power BI Desktop save a
+    project, which looks like a save that worked right up until the PBIX isn't there.
 #>
-function Get-ChildWindow([IntPtr] $Parent, [int] $Depth = 3)
+function Get-ChildWindow([IntPtr] $Parent)
 {
-    $found = New-Object System.Collections.Generic.List[object]
-    if ($Parent -eq [IntPtr]::Zero -or $Depth -le 0) { return , $found.ToArray() }
+    if ($Parent -eq [IntPtr]::Zero) { return , @() }
 
-    # A callback from PowerShell into EnumChildWindows doesn't survive the trip, so children are
-    # walked one at a time instead
-    $child = [FinOpsToolkit.Win32v6]::FindWindowEx($Parent, [IntPtr]::Zero, $null, $null)
-    while ($child -ne [IntPtr]::Zero)
+    $windows = foreach ($handle in [FinOpsToolkit.Win32v7]::GetDescendants($Parent))
     {
         $name = New-Object System.Text.StringBuilder 256
-        [FinOpsToolkit.Win32v6]::GetClassName($child, $name, $name.Capacity) | Out-Null
-        $found.Add([PSCustomObject]@{ Handle = $child; Class = $name.ToString(); Id = [FinOpsToolkit.Win32v6]::GetDlgCtrlID($child) })
-
-        $found.AddRange([object[]](Get-ChildWindow $child ($Depth - 1)))
-
-        $child = [FinOpsToolkit.Win32v6]::FindWindowEx($Parent, $child, $null, $null)
+        [FinOpsToolkit.Win32v7]::GetClassName($handle, $name, $name.Capacity) | Out-Null
+        [PSCustomObject]@{
+            Handle = $handle
+            Parent = [FinOpsToolkit.Win32v7]::GetParent($handle)
+            Class  = $name.ToString()
+            Id     = [FinOpsToolkit.Win32v7]::GetDlgCtrlID($handle)
+        }
     }
-
-    return , $found.ToArray()
+    return , @($windows)
 }
 
 <#
     .SYNOPSIS
     Sets a combo box in a file dialog to the entry matching a pattern.
 #>
-function Set-ComboSelection([IntPtr] $Combo, [IntPtr] $Dialog, [string] $Pattern)
+function Set-ComboSelection([IntPtr] $Combo, [string] $Pattern)
 {
-    $count = [int][FinOpsToolkit.Win32v6]::SendMessage($Combo, 0x0146, [IntPtr]::Zero, [IntPtr]::Zero) # CB_GETCOUNT
+    $count = [int][FinOpsToolkit.Win32v7]::SendMessage($Combo, 0x0146, [IntPtr]::Zero, [IntPtr]::Zero) # CB_GETCOUNT
     for ($i = 0; $i -lt $count; $i++)
     {
         $text = New-Object System.Text.StringBuilder 512
-        [FinOpsToolkit.Win32v6]::SendMessageString($Combo, 0x0148, [IntPtr]$i, $text) | Out-Null # CB_GETLBTEXT
+        [FinOpsToolkit.Win32v7]::SendMessageString($Combo, 0x0148, [IntPtr]$i, $text) | Out-Null # CB_GETLBTEXT
         if ($text.ToString() -notmatch $Pattern) { continue }
 
-        [FinOpsToolkit.Win32v6]::SendMessage($Combo, 0x014E, [IntPtr]$i, [IntPtr]::Zero) | Out-Null # CB_SETCURSEL
+        [FinOpsToolkit.Win32v7]::SendMessage($Combo, 0x014E, [IntPtr]$i, [IntPtr]::Zero) | Out-Null # CB_SETCURSEL
 
-        # The dialog only changes the extension when it hears the selection changed
-        $id = [FinOpsToolkit.Win32v6]::GetDlgCtrlID($Combo)
-        $wParam = [IntPtr](([int64]1 -shl 16) -bor ($id -band 0xFFFF)) # CBN_SELCHANGE
-        [FinOpsToolkit.Win32v6]::SendMessage($Dialog, 0x0111, $wParam, $Combo) | Out-Null # WM_COMMAND
+        # CB_SETCURSEL only moves the highlight. The dialog keeps its own file type and only
+        # follows it (and rewrites the extension in the file name) when the combo's parent hears
+        # CBN_SELENDOK, the notification a click on the list sends. Sending CBN_SELCHANGE, or
+        # sending either one to the dialog itself, changes what's drawn but not what gets saved.
+        $id = [FinOpsToolkit.Win32v7]::GetDlgCtrlID($Combo)
+        $wParam = [IntPtr](([int64]9 -shl 16) -bor ($id -band 0xFFFF)) # CBN_SELENDOK
+        $parent = [FinOpsToolkit.Win32v7]::GetParent($Combo)
+        [FinOpsToolkit.Win32v7]::SendMessage($parent, 0x0111, $wParam, $Combo) | Out-Null # WM_COMMAND
         return $text.ToString()
     }
     return $null
@@ -240,14 +250,14 @@ function Invoke-Element($Element)
     $rect = $Element.Current.BoundingRectangle
     $x = [int]($rect.X + $rect.Width / 2)
     $y = [int]($rect.Y + $rect.Height / 2)
-    [FinOpsToolkit.Win32v6]::SetCursorPos($x, $y) | Out-Null
-    [FinOpsToolkit.Win32v6]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero) # left down
-    [FinOpsToolkit.Win32v6]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero) # left up
+    [FinOpsToolkit.Win32v7]::SetCursorPos($x, $y) | Out-Null
+    [FinOpsToolkit.Win32v7]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero) # left down
+    [FinOpsToolkit.Win32v7]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero) # left up
 }
 
 function Send-KeyInput($Window, [string] $Keys)
 {
-    [FinOpsToolkit.Win32v6]::SetForegroundWindow([IntPtr]$Window.Current.NativeWindowHandle) | Out-Null
+    [FinOpsToolkit.Win32v7]::SetForegroundWindow([IntPtr]$Window.Current.NativeWindowHandle) | Out-Null
     Start-Sleep -Milliseconds 300
     [System.Windows.Forms.SendKeys]::SendWait($Keys)
 }
@@ -274,7 +284,7 @@ function Save-WindowTree($Window, [string] $Path, [IntPtr] $Handle = [IntPtr]::Z
         foreach ($child in (Get-ChildWindow $Handle))
         {
             $text = New-Object System.Text.StringBuilder 256
-            [FinOpsToolkit.Win32v6]::SendMessageString($child.Handle, 0x000D, [IntPtr]$text.Capacity, $text) | Out-Null # WM_GETTEXT
+            [FinOpsToolkit.Win32v7]::SendMessageString($child.Handle, 0x000D, [IntPtr]$text.Capacity, $text) | Out-Null # WM_GETTEXT
             $lines.Add("  class='$($child.Class)'  id=$($child.Id)  text='$($text.ToString())'")
         }
 
@@ -677,8 +687,8 @@ try
         return $null
     }
 
-    # Power BI Desktop's Save as dialog has no file type list, so the extension decides the
-    # format. Typing a name ending in .pbix is what makes it save a file instead of a project.
+    # The file type decides the format, not the extension typed: with the type left on project, a
+    # name ending in .pbix saves CostSummary.storage.pbix.pbip and its folders instead of a file.
     function Get-FileTypeValue($Combo)
     {
         $pattern = $null
@@ -698,18 +708,21 @@ try
         while ($walk -ne [IntPtr]::Zero)
         {
             $class = New-Object System.Text.StringBuilder 256
-            [FinOpsToolkit.Win32v6]::GetClassName($walk, $class, $class.Capacity) | Out-Null
+            [FinOpsToolkit.Win32v7]::GetClassName($walk, $class, $class.Capacity) | Out-Null
             if ($class.ToString() -eq '#32770') { $dialogHandle = $walk; break }
-            $walk = [FinOpsToolkit.Win32v6]::GetParent($walk)
+            $walk = [FinOpsToolkit.Win32v7]::GetParent($walk)
         }
         Write-Verbose "  Dialog window: $dialogHandle"
     }
 
     $selectedFileType = $null
     $children = Get-ChildWindow $dialogHandle
-    foreach ($combo in @($children | Where-Object { $_.Class -match '(?i)combobox' }))
+    # The file name box is a combo box too, and its history can mention a .pbix, so only a combo
+    # with no edit box inside it is the file type list
+    $editParents = @($children | Where-Object { $_.Class -eq 'Edit' } | ForEach-Object { $_.Parent })
+    foreach ($combo in @($children | Where-Object { $_.Class -match '(?i)combobox' -and $editParents -notcontains $_.Handle }))
     {
-        $selectedFileType = Set-ComboSelection $combo.Handle $dialogHandle '(?i)pbix'
+        $selectedFileType = Set-ComboSelection $combo.Handle '(?i)pbix'
         if ($selectedFileType) { break }
     }
 
@@ -832,14 +845,14 @@ try
                 continue
             }
 
-            $null = [FinOpsToolkit.Win32v6]::SendMessageW($handle, 0x000C, [IntPtr]::Zero, $fileNameOnly) # WM_SETTEXT
+            $null = [FinOpsToolkit.Win32v7]::SendMessageW($handle, 0x000C, [IntPtr]::Zero, $fileNameOnly) # WM_SETTEXT
             Start-Sleep -Milliseconds 300
         }
 
         $saveHandle = [IntPtr]$saveButton.Current.NativeWindowHandle
         if ($saveHandle -ne [IntPtr]::Zero)
         {
-            $null = [FinOpsToolkit.Win32v6]::SendMessage($saveHandle, 0x00F5, [IntPtr]::Zero, [IntPtr]::Zero) # BM_CLICK
+            $null = [FinOpsToolkit.Win32v7]::SendMessage($saveHandle, 0x00F5, [IntPtr]::Zero, [IntPtr]::Zero) # BM_CLICK
         }
         else
         {
