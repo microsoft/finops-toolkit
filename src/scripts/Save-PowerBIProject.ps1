@@ -81,10 +81,11 @@ Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Windows.For
 
 # A type can't be redefined once it's loaded, so a session that ran an older copy of this script
 # keeps the methods it had. The name carries the shape of the type to avoid that.
-if (-not ('FinOpsToolkit.Win32v5' -as [type]))
+if (-not ('FinOpsToolkit.Win32v6' -as [type]))
 {
-    Add-Type -Namespace FinOpsToolkit -Name Win32v5 -MemberDefinition @'
+    Add-Type -Namespace FinOpsToolkit -Name Win32v6 -MemberDefinition @'
 [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindowEx(IntPtr parent, IntPtr after, string className, string windowName);
+[DllImport("user32.dll")] public static extern IntPtr GetParent(IntPtr hWnd);
 [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetClassName(IntPtr hWnd, System.Text.StringBuilder name, int count);
 [DllImport("user32.dll")] public static extern int GetDlgCtrlID(IntPtr hWnd);
 [DllImport("user32.dll", EntryPoint = "SendMessageW", CharSet = CharSet.Unicode)] public static extern IntPtr SendMessageString(IntPtr hWnd, uint msg, IntPtr wParam, System.Text.StringBuilder lParam);
@@ -112,16 +113,16 @@ function Get-ChildWindow([IntPtr] $Parent, [int] $Depth = 3)
 
     # A callback from PowerShell into EnumChildWindows doesn't survive the trip, so children are
     # walked one at a time instead
-    $child = [FinOpsToolkit.Win32v5]::FindWindowEx($Parent, [IntPtr]::Zero, $null, $null)
+    $child = [FinOpsToolkit.Win32v6]::FindWindowEx($Parent, [IntPtr]::Zero, $null, $null)
     while ($child -ne [IntPtr]::Zero)
     {
         $name = New-Object System.Text.StringBuilder 256
-        [FinOpsToolkit.Win32v5]::GetClassName($child, $name, $name.Capacity) | Out-Null
-        $found.Add([PSCustomObject]@{ Handle = $child; Class = $name.ToString(); Id = [FinOpsToolkit.Win32v5]::GetDlgCtrlID($child) })
+        [FinOpsToolkit.Win32v6]::GetClassName($child, $name, $name.Capacity) | Out-Null
+        $found.Add([PSCustomObject]@{ Handle = $child; Class = $name.ToString(); Id = [FinOpsToolkit.Win32v6]::GetDlgCtrlID($child) })
 
         $found.AddRange([object[]](Get-ChildWindow $child ($Depth - 1)))
 
-        $child = [FinOpsToolkit.Win32v5]::FindWindowEx($Parent, $child, $null, $null)
+        $child = [FinOpsToolkit.Win32v6]::FindWindowEx($Parent, $child, $null, $null)
     }
 
     return , $found.ToArray()
@@ -133,19 +134,19 @@ function Get-ChildWindow([IntPtr] $Parent, [int] $Depth = 3)
 #>
 function Set-ComboSelection([IntPtr] $Combo, [IntPtr] $Dialog, [string] $Pattern)
 {
-    $count = [int][FinOpsToolkit.Win32v5]::SendMessage($Combo, 0x0146, [IntPtr]::Zero, [IntPtr]::Zero) # CB_GETCOUNT
+    $count = [int][FinOpsToolkit.Win32v6]::SendMessage($Combo, 0x0146, [IntPtr]::Zero, [IntPtr]::Zero) # CB_GETCOUNT
     for ($i = 0; $i -lt $count; $i++)
     {
         $text = New-Object System.Text.StringBuilder 512
-        [FinOpsToolkit.Win32v5]::SendMessageString($Combo, 0x0148, [IntPtr]$i, $text) | Out-Null # CB_GETLBTEXT
+        [FinOpsToolkit.Win32v6]::SendMessageString($Combo, 0x0148, [IntPtr]$i, $text) | Out-Null # CB_GETLBTEXT
         if ($text.ToString() -notmatch $Pattern) { continue }
 
-        [FinOpsToolkit.Win32v5]::SendMessage($Combo, 0x014E, [IntPtr]$i, [IntPtr]::Zero) | Out-Null # CB_SETCURSEL
+        [FinOpsToolkit.Win32v6]::SendMessage($Combo, 0x014E, [IntPtr]$i, [IntPtr]::Zero) | Out-Null # CB_SETCURSEL
 
         # The dialog only changes the extension when it hears the selection changed
-        $id = [FinOpsToolkit.Win32v5]::GetDlgCtrlID($Combo)
+        $id = [FinOpsToolkit.Win32v6]::GetDlgCtrlID($Combo)
         $wParam = [IntPtr](([int64]1 -shl 16) -bor ($id -band 0xFFFF)) # CBN_SELCHANGE
-        [FinOpsToolkit.Win32v5]::SendMessage($Dialog, 0x0111, $wParam, $Combo) | Out-Null # WM_COMMAND
+        [FinOpsToolkit.Win32v6]::SendMessage($Dialog, 0x0111, $wParam, $Combo) | Out-Null # WM_COMMAND
         return $text.ToString()
     }
     return $null
@@ -239,14 +240,14 @@ function Invoke-Element($Element)
     $rect = $Element.Current.BoundingRectangle
     $x = [int]($rect.X + $rect.Width / 2)
     $y = [int]($rect.Y + $rect.Height / 2)
-    [FinOpsToolkit.Win32v5]::SetCursorPos($x, $y) | Out-Null
-    [FinOpsToolkit.Win32v5]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero) # left down
-    [FinOpsToolkit.Win32v5]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero) # left up
+    [FinOpsToolkit.Win32v6]::SetCursorPos($x, $y) | Out-Null
+    [FinOpsToolkit.Win32v6]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero) # left down
+    [FinOpsToolkit.Win32v6]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero) # left up
 }
 
 function Send-KeyInput($Window, [string] $Keys)
 {
-    [FinOpsToolkit.Win32v5]::SetForegroundWindow([IntPtr]$Window.Current.NativeWindowHandle) | Out-Null
+    [FinOpsToolkit.Win32v6]::SetForegroundWindow([IntPtr]$Window.Current.NativeWindowHandle) | Out-Null
     Start-Sleep -Milliseconds 300
     [System.Windows.Forms.SendKeys]::SendWait($Keys)
 }
@@ -273,7 +274,7 @@ function Save-WindowTree($Window, [string] $Path, [IntPtr] $Handle = [IntPtr]::Z
         foreach ($child in (Get-ChildWindow $Handle))
         {
             $text = New-Object System.Text.StringBuilder 256
-            [FinOpsToolkit.Win32v5]::SendMessageString($child.Handle, 0x000D, [IntPtr]$text.Capacity, $text) | Out-Null # WM_GETTEXT
+            [FinOpsToolkit.Win32v6]::SendMessageString($child.Handle, 0x000D, [IntPtr]$text.Capacity, $text) | Out-Null # WM_GETTEXT
             $lines.Add("  class='$($child.Class)'  id=$($child.Id)  text='$($text.ToString())'")
         }
 
@@ -687,7 +688,23 @@ try
         return $selected.Current.Name
     }
 
+    # The dialog element doesn't always carry a window handle, but its file name box does, so the
+    # dialog's window is found by walking up from there.
     $dialogHandle = [IntPtr]$dialog.Current.NativeWindowHandle
+    if ($dialogHandle -eq [IntPtr]::Zero)
+    {
+        $anchor = Find-DialogElement $dialog '1001' 'Edit'
+        $walk = if ($anchor) { [IntPtr]$anchor.Current.NativeWindowHandle } else { [IntPtr]::Zero }
+        while ($walk -ne [IntPtr]::Zero)
+        {
+            $class = New-Object System.Text.StringBuilder 256
+            [FinOpsToolkit.Win32v6]::GetClassName($walk, $class, $class.Capacity) | Out-Null
+            if ($class.ToString() -eq '#32770') { $dialogHandle = $walk; break }
+            $walk = [FinOpsToolkit.Win32v6]::GetParent($walk)
+        }
+        Write-Verbose "  Dialog window: $dialogHandle"
+    }
+
     $selectedFileType = $null
     $children = Get-ChildWindow $dialogHandle
     foreach ($combo in @($children | Where-Object { $_.Class -match '(?i)combobox' }))
@@ -815,14 +832,14 @@ try
                 continue
             }
 
-            $null = [FinOpsToolkit.Win32v5]::SendMessageW($handle, 0x000C, [IntPtr]::Zero, $fileNameOnly) # WM_SETTEXT
+            $null = [FinOpsToolkit.Win32v6]::SendMessageW($handle, 0x000C, [IntPtr]::Zero, $fileNameOnly) # WM_SETTEXT
             Start-Sleep -Milliseconds 300
         }
 
         $saveHandle = [IntPtr]$saveButton.Current.NativeWindowHandle
         if ($saveHandle -ne [IntPtr]::Zero)
         {
-            $null = [FinOpsToolkit.Win32v5]::SendMessage($saveHandle, 0x00F5, [IntPtr]::Zero, [IntPtr]::Zero) # BM_CLICK
+            $null = [FinOpsToolkit.Win32v6]::SendMessage($saveHandle, 0x00F5, [IntPtr]::Zero, [IntPtr]::Zero) # BM_CLICK
         }
         else
         {
