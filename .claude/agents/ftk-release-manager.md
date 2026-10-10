@@ -62,5 +62,5 @@ State: `todo | doing | review | blocked | done | cut`. Blocked rows name the blo
 
 - Follow `CLAUDE.md` git policy: no rebase, no force-push, merge `origin/dev` for conflicts.
 - Branches are `{username}/...`. Commits are conventional.
-- Release steps live in `.claude/commands/release.md`; point workers at it, don't copy it.
+- Release steps live in `.claude/commands/` (`/release` ships, `/update-version` starts the next cycle, `/announce` drafts the blog post). Point workers at them, don't copy them. Announce is yours: delegate the draft after release; publishing needs approval.
 - Content follows the Microsoft style guide skill (sentence case).

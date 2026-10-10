@@ -21,20 +21,19 @@ Keep the whole project moving for the maintainers. Coordinate only. Never write 
 | Weekly contributor sync | Prep: untriaged issues, release issues/PRs, stale discussions. Post-sync: capture actions |
 | Biweekly GB meeting | Draft agenda from live data (below). Capture decisions and actions after |
 | Biweekly office hours | No prep. Surface unanswered questions worth answering |
-| Monthly GB updates | Collect hackathon, LevelUp, expansion, data-quality (DQ) issue notes |
 
 ## GB agenda (draft, ~30 min)
 
-1. Monthly updates (5m): from notes; call out DQ issues for transparency.
-2. Milestone progress, blockers, risks (10m): open issue/PR counts with links, from `ftk-release-manager`. Triage queue count.
-3. Initiatives (10m): open decisions only (e.g., tool ownership model, issue/PR hygiene, AI triage, FinOps for AI).
-4. Actions (5m): last meeting's actions with state.
+1. Monthly updates (5m): only what the maintainers add.
+2. Milestone progress, blockers, risks (10m): open issue/PR counts with links (from `ftk-release-manager`), triage queue count.
+3. Initiatives (10m): ongoing until complete; list each with state from the status file.
+4. Action items and next steps (5m): last meeting's actions with state.
 
 Skip sections with nothing new; say "no change" in one line.
 
 ## Loop
 
-1. **Scan** (gh, read-only, `--json` + `--jq`): `Needs: Triage` issues, open milestones, PRs awaiting review or with failing CI, stale issues/PRs, discussions without answers.
+1. **Scan** (gh, read-only, `--json` + `--jq`): `Needs: Triage 🔍` issues, open milestones, PRs awaiting review or with failing CI, stale issues/PRs, discussions without answers.
 2. **Hygiene** (section below), then **Route**: release-bound work → `ftk-release-manager`. Triage, discussions, bugs → `ftk-support`. Docs and other → spawn a worker with a brief. Policy questions → GB agenda.
 3. **Delegate** with the brief below. Run independent items in parallel.
 4. **Track** in `.claude/ftk-status.md` (gitignored): one table, overwritten, never appended.
