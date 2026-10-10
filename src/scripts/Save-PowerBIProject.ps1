@@ -706,19 +706,18 @@ try
         }
         else
         {
-            try
-            {
-                $candidate.SetFocus()
-                Start-Sleep -Milliseconds 300
-                $escaped = [regex]::Replace($fileNameOnly, '[+^%~(){}\[\]]', '{$0}')
-                [System.Windows.Forms.SendKeys]::SendWait("^a$escaped")
-                Start-Sleep -Milliseconds 300
-            }
-            catch
-            {
-                Write-Verbose "    Could not focus it: $($_.Exception.Message)"
-                continue
-            }
+            # Typing goes to whatever window is in front, and a background window can't take
+            # focus at all, so the dialog is brought forward before anything is typed.
+            [FinOpsToolkit.NativeMethods]::SetForegroundWindow([IntPtr]$dialog.Current.NativeWindowHandle) | Out-Null
+            Start-Sleep -Milliseconds 500
+
+            try { $candidate.SetFocus() }
+            catch { Write-Verbose "    Could not focus it ($($_.Exception.Message)). Typing into the dialog as it is." }
+
+            Start-Sleep -Milliseconds 300
+            $escaped = [regex]::Replace($fileNameOnly, '[+^%~(){}\[\]]', '{$0}')
+            [System.Windows.Forms.SendKeys]::SendWait("^a$escaped")
+            Start-Sleep -Milliseconds 300
         }
 
         Invoke-Element $saveButton
