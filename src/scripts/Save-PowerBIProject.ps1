@@ -83,6 +83,8 @@ Add-Type -Namespace FinOpsToolkit -Name NativeMethods -MemberDefinition @'
 [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
 [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
 [DllImport("user32.dll")] public static extern void mouse_event(uint flags, uint dx, uint dy, uint data, UIntPtr extra);
+[DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr SendMessageW(IntPtr hWnd, uint msg, IntPtr wParam, string lParam);
+[DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 '@ -ErrorAction SilentlyContinue
 
 $uia = [System.Windows.Automation.AutomationElement]
@@ -706,21 +708,29 @@ try
         }
         else
         {
-            # Typing goes to whatever window is in front, and a background window can't take
-            # focus at all, so the dialog is brought forward before anything is typed.
-            [FinOpsToolkit.NativeMethods]::SetForegroundWindow([IntPtr]$dialog.Current.NativeWindowHandle) | Out-Null
-            Start-Sleep -Milliseconds 500
+            # Windows refuses to give a background window focus, so typing can't be used at all.
+            # The text goes straight to the control instead, which needs neither focus nor the
+            # dialog to be in front.
+            $handle = [IntPtr]$candidate.Current.NativeWindowHandle
+            if ($handle -eq [IntPtr]::Zero)
+            {
+                Write-Verbose '    It has no window to write to.'
+                continue
+            }
 
-            try { $candidate.SetFocus() }
-            catch { Write-Verbose "    Could not focus it ($($_.Exception.Message)). Typing into the dialog as it is." }
-
-            Start-Sleep -Milliseconds 300
-            $escaped = [regex]::Replace($fileNameOnly, '[+^%~(){}\[\]]', '{$0}')
-            [System.Windows.Forms.SendKeys]::SendWait("^a$escaped")
+            $null = [FinOpsToolkit.NativeMethods]::SendMessageW($handle, 0x000C, [IntPtr]::Zero, $fileNameOnly) # WM_SETTEXT
             Start-Sleep -Milliseconds 300
         }
 
-        Invoke-Element $saveButton
+        $saveHandle = [IntPtr]$saveButton.Current.NativeWindowHandle
+        if ($saveHandle -ne [IntPtr]::Zero)
+        {
+            $null = [FinOpsToolkit.NativeMethods]::SendMessage($saveHandle, 0x00F5, [IntPtr]::Zero, [IntPtr]::Zero) # BM_CLICK
+        }
+        else
+        {
+            Invoke-Element $saveButton
+        }
 
         # Give the dialog a moment to either start writing or complain
         for ($wait = 0; $wait -lt 10; $wait++)
