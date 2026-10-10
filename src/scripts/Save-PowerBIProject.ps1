@@ -687,17 +687,42 @@ try
     foreach ($candidate in $candidates)
     {
         $value = $null
-        if (-not $candidate.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$value)) { continue }
-
-        try { $value.SetValue($fileNameOnly) }
-        catch
+        $hasValue = $candidate.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$value)
+        if ($hasValue)
         {
-            Write-Verbose "  Could not type into '$($candidate.Current.Name)': $($_.Exception.Message)"
-            continue
+            try { $value.SetValue($fileNameOnly) }
+            catch
+            {
+                Write-Verbose "  Could not type into '$($candidate.Current.Name)': $($_.Exception.Message)"
+                $hasValue = $false
+            }
+        }
+
+        if (-not $hasValue)
+        {
+            # The file name box is a legacy control exposed as a pane, so there's nothing to set.
+            # Focusing it and typing is how a person would do it, and works the same way.
+            try
+            {
+                $candidate.SetFocus()
+                Start-Sleep -Milliseconds 300
+                $escaped = [regex]::Replace($fileNameOnly, '[+^%~(){}\[\]]', '{$0}')
+                [System.Windows.Forms.SendKeys]::SendWait("^a$escaped")
+                Start-Sleep -Milliseconds 300
+            }
+            catch
+            {
+                Write-Verbose "  Could not focus '$($candidate.Current.Name)': $($_.Exception.Message)"
+                continue
+            }
         }
 
         # The right box keeps what was typed. The wrong one rejects it or is replaced.
-        try { $named = $value.Current.Value -eq $fileNameOnly }
+        try
+        {
+            $current = if ($hasValue) { $value.Current.Value } else { $candidate.Current.Name }
+            $named = $current -eq $fileNameOnly
+        }
         catch { $named = $false }
         if ($named) { break }
 
