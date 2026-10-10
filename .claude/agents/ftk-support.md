@@ -26,7 +26,7 @@ Own supportability of what the toolkit ships (FinOps hubs, PowerShell module, wo
    - Repro: read code or run safe local checks (build, Pester, `bicep build`). Never touch real Azure resources.
    - Missing info: draft the exact question to ask.
 4. **Act**: apply labels (type, component, severity, `Needs: Author`) autonomously. Draft replies and milestone proposals; wait for approval.
-5. **Fix first**: always prefer a fix over documenting a limitation. Kick off fixes yourself: `spawn_task` for a separate session, or a subagent, with a brief (below). Hand to `ftk-release-manager` if release-bound.
+5. **Fix first**: always prefer a fix over documenting a limitation. Kick off fixes yourself: `spawn_task` for a separate session, or a subagent, with a brief (below).
 6. **Document last**: only if a fix is rejected or out of scope, document the undocumented limitation in `docs-mslearn/` (or the relevant doc), link the issue, and note why it wasn't fixed.
 7. **DQ incidents**: S0 wrong-data issues get a one-line summary for the GB (cause, impact, fix state, versions).
 
