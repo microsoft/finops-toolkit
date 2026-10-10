@@ -191,6 +191,15 @@ function Test-DemoPbix([string] $Path, $Report, [datetime] $BuiltAfter = [dateti
         return $issues
     }
 
+    # A report saved with the enhanced metadata format has a Report folder instead of a layout.
+    # Templates are built in the old format and older Power BI Desktop versions can't open the
+    # new one, so the preview feature has to be off when demo reports are saved.
+    if ($entries -notcontains 'Report/Layout' -and @($entries | Where-Object { $_ -like 'Report/definition/*' }).Count -gt 0)
+    {
+        $issues.Add("was saved in the enhanced metadata format (PBIR). Turn off 'Store reports using enhanced metadata format (PBIR)' in Power BI Desktop under Options > Preview features, restart it, and save again.")
+        return $issues
+    }
+
     $missingParts = @('DataModel', 'Report/Layout', 'Metadata', 'Settings', 'Version') | Where-Object { $entries -notcontains $_ }
     if ($missingParts)
     {

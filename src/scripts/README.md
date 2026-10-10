@@ -609,6 +609,7 @@ Requirements:
 
 - Windows with Power BI Desktop installed and associated with `.pbip` files.
 - An interactive desktop session. Don't use the mouse or keyboard while it runs.
+- **Store reports using enhanced metadata format (PBIR)** turned off in Power BI Desktop under Options > Preview features. Reports saved with it on have no `Report/Layout` part, don't match the templates, and don't open in older Power BI Desktop versions. Validation rejects them.
 - Sign in to Power BI Desktop, and refresh one demo project by hand once so Power BI Desktop stores the credentials for the demo data source. Nothing here can sign in or answer a credential prompt. A sign-in window stops the script right away, and a missing credential fails the refresh with the error the engine reports.
 
 The sensitivity label is applied only when Power BI Desktop offers one and the control is enabled. Tenants without labels show the button greyed out, which is detected and skipped. A report saved without a label passes validation; a report saved with any label other than the expected one fails.
