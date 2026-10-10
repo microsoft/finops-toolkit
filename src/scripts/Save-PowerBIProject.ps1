@@ -671,7 +671,8 @@ try
 
     $dialogHandle = [IntPtr]$dialog.Current.NativeWindowHandle
     $selectedFileType = $null
-    foreach ($combo in @(Get-ChildWindow $dialogHandle | Where-Object { $_.Class -match '(?i)combobox' }))
+    $children = Get-ChildWindow $dialogHandle
+    foreach ($combo in @($children | Where-Object { $_.Class -match '(?i)combobox' }))
     {
         $selectedFileType = Set-ComboSelection $combo.Handle $dialogHandle '(?i)pbix'
         if ($selectedFileType) { break }
