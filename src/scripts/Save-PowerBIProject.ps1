@@ -79,11 +79,11 @@ $deadline = (Get-Date).AddMinutes($TimeoutMinutes)
 
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Windows.Forms, System.Drawing, System.IO.Compression.FileSystem
 
-# A type can't be redefined once it's loaded, so a session that ran an older copy of this script
-# keeps the methods it had. The name carries the shape of the type to avoid that.
-if (-not ('FinOpsToolkit.Win32v7' -as [type]))
-{
-    Add-Type -Namespace FinOpsToolkit -Name Win32v7 -MemberDefinition @'
+# A type can't be redefined once it's loaded, so a session that already ran this script keeps the
+# methods it had then, and editing this block would have no effect there. Compiling under a name
+# nothing has used yet sidesteps that, so a session never has to be restarted to pick up changes.
+$script:Win32Name = "Win32_$([guid]::NewGuid().ToString('N'))"
+Add-Type -Namespace FinOpsToolkit -Name $script:Win32Name -MemberDefinition @'
 private delegate bool EnumProc(IntPtr hWnd, IntPtr lParam);
 [DllImport("user32.dll")] private static extern bool EnumChildWindows(IntPtr parent, EnumProc callback, IntPtr lParam);
 // The callback has to be compiled code. A PowerShell scriptblock passed as the delegate never
@@ -104,7 +104,6 @@ public static IntPtr[] GetDescendants(IntPtr parent)
 [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr SendMessageW(IntPtr hWnd, uint msg, IntPtr wParam, string lParam);
 [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 '@
-}
 
 <#
     .SYNOPSIS
@@ -120,15 +119,15 @@ function Get-ChildWindow([IntPtr] $Parent)
 {
     if ($Parent -eq [IntPtr]::Zero) { return , @() }
 
-    $windows = foreach ($handle in [FinOpsToolkit.Win32v7]::GetDescendants($Parent))
+    $windows = foreach ($handle in $win32::GetDescendants($Parent))
     {
         $name = New-Object System.Text.StringBuilder 256
-        [FinOpsToolkit.Win32v7]::GetClassName($handle, $name, $name.Capacity) | Out-Null
+        $win32::GetClassName($handle, $name, $name.Capacity) | Out-Null
         [PSCustomObject]@{
             Handle = $handle
-            Parent = [FinOpsToolkit.Win32v7]::GetParent($handle)
+            Parent = $win32::GetParent($handle)
             Class  = $name.ToString()
-            Id     = [FinOpsToolkit.Win32v7]::GetDlgCtrlID($handle)
+            Id     = $win32::GetDlgCtrlID($handle)
         }
     }
     return , @($windows)
@@ -140,27 +139,29 @@ function Get-ChildWindow([IntPtr] $Parent)
 #>
 function Set-ComboSelection([IntPtr] $Combo, [string] $Pattern)
 {
-    $count = [int][FinOpsToolkit.Win32v7]::SendMessage($Combo, 0x0146, [IntPtr]::Zero, [IntPtr]::Zero) # CB_GETCOUNT
+    $count = [int]$win32::SendMessage($Combo, 0x0146, [IntPtr]::Zero, [IntPtr]::Zero) # CB_GETCOUNT
     for ($i = 0; $i -lt $count; $i++)
     {
         $text = New-Object System.Text.StringBuilder 512
-        [FinOpsToolkit.Win32v7]::SendMessageString($Combo, 0x0148, [IntPtr]$i, $text) | Out-Null # CB_GETLBTEXT
+        $win32::SendMessageString($Combo, 0x0148, [IntPtr]$i, $text) | Out-Null # CB_GETLBTEXT
         if ($text.ToString() -notmatch $Pattern) { continue }
 
-        [FinOpsToolkit.Win32v7]::SendMessage($Combo, 0x014E, [IntPtr]$i, [IntPtr]::Zero) | Out-Null # CB_SETCURSEL
+        $win32::SendMessage($Combo, 0x014E, [IntPtr]$i, [IntPtr]::Zero) | Out-Null # CB_SETCURSEL
 
         # CB_SETCURSEL only moves the highlight. The dialog keeps its own file type and only
         # follows it (and rewrites the extension in the file name) when the combo's parent hears
         # CBN_SELENDOK, the notification a click on the list sends. Sending CBN_SELCHANGE, or
         # sending either one to the dialog itself, changes what's drawn but not what gets saved.
-        $id = [FinOpsToolkit.Win32v7]::GetDlgCtrlID($Combo)
+        $id = $win32::GetDlgCtrlID($Combo)
         $wParam = [IntPtr](([int64]9 -shl 16) -bor ($id -band 0xFFFF)) # CBN_SELENDOK
-        $parent = [FinOpsToolkit.Win32v7]::GetParent($Combo)
-        [FinOpsToolkit.Win32v7]::SendMessage($parent, 0x0111, $wParam, $Combo) | Out-Null # WM_COMMAND
+        $parent = $win32::GetParent($Combo)
+        $win32::SendMessage($parent, 0x0111, $wParam, $Combo) | Out-Null # WM_COMMAND
         return $text.ToString()
     }
     return $null
 }
+
+$win32 = "FinOpsToolkit.$script:Win32Name" -as [type]
 
 $uia = [System.Windows.Automation.AutomationElement]
 $tree = [System.Windows.Automation.TreeScope]
@@ -250,14 +251,14 @@ function Invoke-Element($Element)
     $rect = $Element.Current.BoundingRectangle
     $x = [int]($rect.X + $rect.Width / 2)
     $y = [int]($rect.Y + $rect.Height / 2)
-    [FinOpsToolkit.Win32v7]::SetCursorPos($x, $y) | Out-Null
-    [FinOpsToolkit.Win32v7]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero) # left down
-    [FinOpsToolkit.Win32v7]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero) # left up
+    $win32::SetCursorPos($x, $y) | Out-Null
+    $win32::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero) # left down
+    $win32::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero) # left up
 }
 
 function Send-KeyInput($Window, [string] $Keys)
 {
-    [FinOpsToolkit.Win32v7]::SetForegroundWindow([IntPtr]$Window.Current.NativeWindowHandle) | Out-Null
+    $win32::SetForegroundWindow([IntPtr]$Window.Current.NativeWindowHandle) | Out-Null
     Start-Sleep -Milliseconds 300
     [System.Windows.Forms.SendKeys]::SendWait($Keys)
 }
@@ -284,7 +285,7 @@ function Save-WindowTree($Window, [string] $Path, [IntPtr] $Handle = [IntPtr]::Z
         foreach ($child in (Get-ChildWindow $Handle))
         {
             $text = New-Object System.Text.StringBuilder 256
-            [FinOpsToolkit.Win32v7]::SendMessageString($child.Handle, 0x000D, [IntPtr]$text.Capacity, $text) | Out-Null # WM_GETTEXT
+            $win32::SendMessageString($child.Handle, 0x000D, [IntPtr]$text.Capacity, $text) | Out-Null # WM_GETTEXT
             $lines.Add("  class='$($child.Class)'  id=$($child.Id)  text='$($text.ToString())'")
         }
 
@@ -708,9 +709,9 @@ try
         while ($walk -ne [IntPtr]::Zero)
         {
             $class = New-Object System.Text.StringBuilder 256
-            [FinOpsToolkit.Win32v7]::GetClassName($walk, $class, $class.Capacity) | Out-Null
+            $win32::GetClassName($walk, $class, $class.Capacity) | Out-Null
             if ($class.ToString() -eq '#32770') { $dialogHandle = $walk; break }
-            $walk = [FinOpsToolkit.Win32v7]::GetParent($walk)
+            $walk = $win32::GetParent($walk)
         }
         Write-Verbose "  Dialog window: $dialogHandle"
     }
@@ -845,14 +846,14 @@ try
                 continue
             }
 
-            $null = [FinOpsToolkit.Win32v7]::SendMessageW($handle, 0x000C, [IntPtr]::Zero, $fileNameOnly) # WM_SETTEXT
+            $null = $win32::SendMessageW($handle, 0x000C, [IntPtr]::Zero, $fileNameOnly) # WM_SETTEXT
             Start-Sleep -Milliseconds 300
         }
 
         $saveHandle = [IntPtr]$saveButton.Current.NativeWindowHandle
         if ($saveHandle -ne [IntPtr]::Zero)
         {
-            $null = [FinOpsToolkit.Win32v7]::SendMessage($saveHandle, 0x00F5, [IntPtr]::Zero, [IntPtr]::Zero) # BM_CLICK
+            $null = $win32::SendMessage($saveHandle, 0x00F5, [IntPtr]::Zero, [IntPtr]::Zero) # BM_CLICK
         }
         else
         {
