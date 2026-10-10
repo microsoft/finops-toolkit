@@ -79,13 +79,18 @@ $deadline = (Get-Date).AddMinutes($TimeoutMinutes)
 
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Windows.Forms, System.Drawing, System.IO.Compression.FileSystem
 
-Add-Type -Namespace FinOpsToolkit -Name NativeMethods -MemberDefinition @'
+# A type can't be redefined once it's loaded, so a session that ran an older copy of this script
+# keeps the methods it had. The name carries the shape of the type to avoid that.
+if (-not ('FinOpsToolkit.Win32v2' -as [type]))
+{
+    Add-Type -Namespace FinOpsToolkit -Name Win32v2 -MemberDefinition @'
 [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
 [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
 [DllImport("user32.dll")] public static extern void mouse_event(uint flags, uint dx, uint dy, uint data, UIntPtr extra);
 [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr SendMessageW(IntPtr hWnd, uint msg, IntPtr wParam, string lParam);
 [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
-'@ -ErrorAction SilentlyContinue
+'@
+}
 
 $uia = [System.Windows.Automation.AutomationElement]
 $tree = [System.Windows.Automation.TreeScope]
@@ -175,14 +180,14 @@ function Invoke-Element($Element)
     $rect = $Element.Current.BoundingRectangle
     $x = [int]($rect.X + $rect.Width / 2)
     $y = [int]($rect.Y + $rect.Height / 2)
-    [FinOpsToolkit.NativeMethods]::SetCursorPos($x, $y) | Out-Null
-    [FinOpsToolkit.NativeMethods]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero) # left down
-    [FinOpsToolkit.NativeMethods]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero) # left up
+    [FinOpsToolkit.Win32v2]::SetCursorPos($x, $y) | Out-Null
+    [FinOpsToolkit.Win32v2]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero) # left down
+    [FinOpsToolkit.Win32v2]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero) # left up
 }
 
 function Send-KeyInput($Window, [string] $Keys)
 {
-    [FinOpsToolkit.NativeMethods]::SetForegroundWindow([IntPtr]$Window.Current.NativeWindowHandle) | Out-Null
+    [FinOpsToolkit.Win32v2]::SetForegroundWindow([IntPtr]$Window.Current.NativeWindowHandle) | Out-Null
     Start-Sleep -Milliseconds 300
     [System.Windows.Forms.SendKeys]::SendWait($Keys)
 }
@@ -718,14 +723,14 @@ try
                 continue
             }
 
-            $null = [FinOpsToolkit.NativeMethods]::SendMessageW($handle, 0x000C, [IntPtr]::Zero, $fileNameOnly) # WM_SETTEXT
+            $null = [FinOpsToolkit.Win32v2]::SendMessageW($handle, 0x000C, [IntPtr]::Zero, $fileNameOnly) # WM_SETTEXT
             Start-Sleep -Milliseconds 300
         }
 
         $saveHandle = [IntPtr]$saveButton.Current.NativeWindowHandle
         if ($saveHandle -ne [IntPtr]::Zero)
         {
-            $null = [FinOpsToolkit.NativeMethods]::SendMessage($saveHandle, 0x00F5, [IntPtr]::Zero, [IntPtr]::Zero) # BM_CLICK
+            $null = [FinOpsToolkit.Win32v2]::SendMessage($saveHandle, 0x00F5, [IntPtr]::Zero, [IntPtr]::Zero) # BM_CLICK
         }
         else
         {
