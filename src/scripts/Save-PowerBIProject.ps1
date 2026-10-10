@@ -84,8 +84,7 @@ Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Windows.For
 if (-not ('FinOpsToolkit.Win32v4' -as [type]))
 {
     Add-Type -Namespace FinOpsToolkit -Name Win32v4 -MemberDefinition @'
-public delegate bool EnumChildProc(IntPtr hWnd, IntPtr lParam);
-[DllImport("user32.dll")] public static extern bool EnumChildWindows(IntPtr hWnd, EnumChildProc callback, IntPtr lParam);
+[DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindowEx(IntPtr parent, IntPtr after, string className, string windowName);
 [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetClassName(IntPtr hWnd, System.Text.StringBuilder name, int count);
 [DllImport("user32.dll")] public static extern int GetDlgCtrlID(IntPtr hWnd);
 [DllImport("user32.dll", EntryPoint = "SendMessageW", CharSet = CharSet.Unicode)] public static extern IntPtr SendMessageString(IntPtr hWnd, uint msg, IntPtr wParam, System.Text.StringBuilder lParam);
@@ -106,17 +105,25 @@ public delegate bool EnumChildProc(IntPtr hWnd, IntPtr lParam);
     to be found to set it. Leaving it alone makes Power BI Desktop save a project, which looks
     like a save that worked right up until the PBIX isn't there.
 #>
-function Get-ChildWindow([IntPtr] $Parent)
+function Get-ChildWindow([IntPtr] $Parent, [int] $Depth = 3)
 {
     $found = New-Object System.Collections.Generic.List[object]
-    $callback = [FinOpsToolkit.Win32v4+EnumChildProc] {
-        param([IntPtr] $handle, [IntPtr] $unused)
+    if ($Parent -eq [IntPtr]::Zero -or $Depth -le 0) { return , $found.ToArray() }
+
+    # A callback from PowerShell into EnumChildWindows doesn't survive the trip, so children are
+    # walked one at a time instead
+    $child = [FinOpsToolkit.Win32v4]::FindWindowEx($Parent, [IntPtr]::Zero, $null, $null)
+    while ($child -ne [IntPtr]::Zero)
+    {
         $name = New-Object System.Text.StringBuilder 256
-        [FinOpsToolkit.Win32v4]::GetClassName($handle, $name, $name.Capacity) | Out-Null
-        $found.Add([PSCustomObject]@{ Handle = $handle; Class = $name.ToString(); Id = [FinOpsToolkit.Win32v4]::GetDlgCtrlID($handle) })
-        return $true
+        [FinOpsToolkit.Win32v4]::GetClassName($child, $name, $name.Capacity) | Out-Null
+        $found.Add([PSCustomObject]@{ Handle = $child; Class = $name.ToString(); Id = [FinOpsToolkit.Win32v4]::GetDlgCtrlID($child) })
+
+        foreach ($descendant in (Get-ChildWindow $child ($Depth - 1))) { $found.Add($descendant) }
+
+        $child = [FinOpsToolkit.Win32v4]::FindWindowEx($Parent, $child, $null, $null)
     }
-    [FinOpsToolkit.Win32v4]::EnumChildWindows($Parent, $callback, [IntPtr]::Zero) | Out-Null
+
     return , $found.ToArray()
 }
 
@@ -248,7 +255,7 @@ function Send-KeyInput($Window, [string] $Keys)
     .SYNOPSIS
     Writes what a window contains to a file, so a control that moved can be found without guessing.
 #>
-function Save-WindowTree($Window, [string] $Path)
+function Save-WindowTree($Window, [string] $Path, [IntPtr] $Handle = [IntPtr]::Zero)
 {
     try
     {
@@ -262,7 +269,8 @@ function Save-WindowTree($Window, [string] $Path)
         # UI Automation hides some of this dialog, so its real child windows are listed too
         $lines.Add('')
         $lines.Add('Child windows:')
-        foreach ($child in (Get-ChildWindow ([IntPtr]$Window.Current.NativeWindowHandle)))
+        if ($Handle -eq [IntPtr]::Zero) { $Handle = [IntPtr]$Window.Current.NativeWindowHandle }
+        foreach ($child in (Get-ChildWindow $Handle))
         {
             $text = New-Object System.Text.StringBuilder 256
             [FinOpsToolkit.Win32v4]::SendMessageString($child.Handle, 0x000D, [IntPtr]$text.Capacity, $text) | Out-Null # WM_GETTEXT
@@ -732,7 +740,7 @@ try
     Write-Verbose "  File type: $selectedType"
     if ($selectedType -and $selectedType -notmatch '(?i)pbix')
     {
-        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
+        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt')) $dialogHandle
         throw "The Save as dialog is still set to '$selectedType'. Saving now would write a project, not a PBIX."
     }
 
@@ -775,7 +783,7 @@ try
     if (-not $saveButton) { $saveButton = Find-Element $dialog 'Save' @($types::Button, $types::SplitButton) }
     if (-not $saveButton)
     {
-        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
+        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt')) $dialogHandle
         throw "Could not find the Save button in the '$($dialog.Current.Name)' dialog [$($dialog.Current.ClassName)]."
     }
 
@@ -840,7 +848,7 @@ try
 
     if (-not $saved)
     {
-        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
+        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt')) $dialogHandle
         throw "Typed the file name into $($candidates.Count) box$(if ($candidates.Count -ne 1) { 'es' }) in the '$($dialog.Current.Name)' dialog and $([System.IO.Path]::GetFileName($Destination)) was never written."
     }
 
