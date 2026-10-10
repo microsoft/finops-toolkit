@@ -119,7 +119,7 @@ function Get-ChildWindow([IntPtr] $Parent, [int] $Depth = 3)
         [FinOpsToolkit.Win32v5]::GetClassName($child, $name, $name.Capacity) | Out-Null
         $found.Add([PSCustomObject]@{ Handle = $child; Class = $name.ToString(); Id = [FinOpsToolkit.Win32v5]::GetDlgCtrlID($child) })
 
-        foreach ($descendant in (Get-ChildWindow $child ($Depth - 1))) { $found.Add($descendant) }
+        $found.AddRange([object[]](Get-ChildWindow $child ($Depth - 1)))
 
         $child = [FinOpsToolkit.Win32v5]::FindWindowEx($Parent, $child, $null, $null)
     }
@@ -703,7 +703,10 @@ try
     }
     else
     {
-        Write-Warning "Could not set the Save as type to PBIX for $reportLabel. Power BI Desktop may save a project instead."
+        # Saving now writes a project, and the dialog is gone by the time that's noticed, so what
+        # it contains is recorded here, while it's still open
+        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt')) $dialogHandle
+        Write-Warning "Could not set the Save as type to PBIX for $reportLabel ($($children.Count) child windows). Power BI Desktop will save a project instead."
     }
 
     $fileType = Find-Element $dialog $null @($types::ComboBox) 'FileTypeControlHost'
