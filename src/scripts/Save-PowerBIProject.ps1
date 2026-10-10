@@ -259,6 +259,16 @@ function Save-WindowTree($Window, [string] $Path)
             $current = $element.Current
             $lines.Add("  $($current.ControlType.ProgrammaticName -replace '^ControlType\.', '')  name='$($current.Name)'  id='$($current.AutomationId)'  class='$($current.ClassName)'  enabled=$($current.IsEnabled)")
         }
+        # UI Automation hides some of this dialog, so its real child windows are listed too
+        $lines.Add('')
+        $lines.Add('Child windows:')
+        foreach ($child in (Get-ChildWindow ([IntPtr]$Window.Current.NativeWindowHandle)))
+        {
+            $text = New-Object System.Text.StringBuilder 256
+            [FinOpsToolkit.Win32v4]::SendMessageString($child.Handle, 0x000D, [IntPtr]$text.Capacity, $text) | Out-Null # WM_GETTEXT
+            $lines.Add("  class='$($child.Class)'  id=$($child.Id)  text='$($text.ToString())'")
+        }
+
         [System.IO.File]::WriteAllLines($Path, $lines)
         Write-Host "    Saved what the dialog contains: $Path"
     }
