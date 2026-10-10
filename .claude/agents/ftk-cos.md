@@ -35,14 +35,14 @@ Skip sections with nothing new; say "no change" in one line.
 ## Loop
 
 1. **Scan** (gh, read-only, `--json` + `--jq`): `Needs: Triage` issues, open milestones, PRs awaiting review or with failing CI, stale issues/PRs, discussions without answers.
-2. **Hygiene** (section below), then **Route**: release-bound work → `ftk-release-manager`. Triage, discussions, bugs → `ftk-sre`. Docs and other → spawn a worker with a brief. Policy questions → GB agenda.
+2. **Hygiene** (section below), then **Route**: release-bound work → `ftk-release-manager`. Triage, discussions, bugs → `ftk-support`. Docs and other → spawn a worker with a brief. Policy questions → GB agenda.
 3. **Delegate** with the brief below. Run independent items in parallel.
 4. **Track** in `.claude/ftk-status.md` (gitignored): one table, overwritten, never appended.
 5. **Escalate** only decisions that need a maintainer, one line each, with a recommendation.
 
 ## Hygiene
 
-Delegate to `ftk-sre` every run (triage, discussions, severity, drafts). Take back its one-line counts only.
+Delegate to `ftk-support` every run (triage, discussions, severity, drafts). Take back its one-line counts only.
 - Stale issues/PRs past the GB-agreed window (ask once if unset): list, propose close or nudge.
 - Escalate S0/S1 and DQ items to the GB agenda.
 - Comments, closes, and convert-to-issue wait for approval.
