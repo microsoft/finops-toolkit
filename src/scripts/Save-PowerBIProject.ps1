@@ -683,25 +683,29 @@ try
 
     $fileNameOnly = if ($inDestination) { [System.IO.Path]::GetFileName($Destination) } else { $Destination }
     Write-Verbose "  Saving as '$fileNameOnly'$(if ($currentFolder) { " (dialog is in $currentFolder)" })"
-    $named = $false
+    $saveButton = Find-DialogElement $dialog '1' 'Button'
+    if (-not $saveButton) { $saveButton = Find-Element $dialog 'Save' @($types::Button, $types::SplitButton) }
+    if (-not $saveButton)
+    {
+        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
+        throw "Could not find the Save button in the '$($dialog.Current.Name)' dialog [$($dialog.Current.ClassName)]."
+    }
+
+    # Whether a box is the right one can't be read reliably: these are legacy controls exposed as
+    # panes, with no value to read back and a name that doesn't always follow what was typed. The
+    # file appearing on disk is the only answer that matters, so each box is tried until it does.
+    $saved = $false
     foreach ($candidate in $candidates)
     {
-        $value = $null
-        $hasValue = $candidate.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$value)
-        if ($hasValue)
-        {
-            try { $value.SetValue($fileNameOnly) }
-            catch
-            {
-                Write-Verbose "  Could not type into '$($candidate.Current.Name)': $($_.Exception.Message)"
-                $hasValue = $false
-            }
-        }
+        Write-Verbose "  Typing the file name into '$($candidate.Current.Name)' [$($candidate.Current.ClassName)]..."
 
-        if (-not $hasValue)
+        $value = $null
+        if ($candidate.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$value))
         {
-            # The file name box is a legacy control exposed as a pane, so there's nothing to set.
-            # Focusing it and typing is how a person would do it, and works the same way.
+            try { $value.SetValue($fileNameOnly) } catch { Write-Verbose "    Could not set it: $($_.Exception.Message)" }
+        }
+        else
+        {
             try
             {
                 $candidate.SetFocus()
@@ -712,54 +716,40 @@ try
             }
             catch
             {
-                Write-Verbose "  Could not focus '$($candidate.Current.Name)': $($_.Exception.Message)"
+                Write-Verbose "    Could not focus it: $($_.Exception.Message)"
                 continue
             }
         }
 
-        # The right box keeps what was typed. The wrong one rejects it or is replaced.
-        try
+        Invoke-Element $saveButton
+
+        # Give the dialog a moment to either start writing or complain
+        for ($wait = 0; $wait -lt 10; $wait++)
         {
-            $current = if ($hasValue) { $value.Current.Value } else { $candidate.Current.Name }
-            $named = $current -eq $fileNameOnly
+            Start-Sleep -Seconds 1
+            if (Test-Path $Destination) { $saved = $true; break }
         }
-        catch { $named = $false }
-        if ($named) { break }
+        if ($saved) { break }
 
-        Write-Verbose "  '$($candidate.Current.Name)' didn't keep the file name. Trying the next box."
-    }
-
-    if (-not $named)
-    {
-        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
-        throw "Could not type the file name into the '$($dialog.Current.Name)' dialog [$($dialog.Current.ClassName)]."
-    }
-
-    $saveButton = Find-DialogElement $dialog '1' 'Button'
-    if (-not $saveButton) { $saveButton = Find-Element $dialog 'Save' @($types::Button, $types::SplitButton) }
-    if (-not $saveButton)
-    {
-        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
-        throw "Could not find the Save button in the '$($dialog.Current.Name)' dialog [$($dialog.Current.ClassName)]."
-    }
-    Invoke-Element $saveButton
-
-    # A rejected file name leaves a message box on screen and the dialog open behind it
-    Start-Sleep -Seconds 2
-    $complaint = @(Get-ProcessWindow $desktop.Id | Where-Object { $_.Current.ClassName -eq '#32770' -and -not (Find-Element $_ $null @($types::Edit) '1001') }) `
-    | Where-Object { $_.Current.Name -match '(?i)confirm folder replace|replace' -or @($_.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::Text)))) | Where-Object { $_.Current.Name -match "(?i)file name|can't|cannot|invalid|merge this folder" } } `
-    | Select-Object -First 1
-    if ($complaint)
-    {
-        $message = (@($complaint.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::Text)))) | ForEach-Object { $_.Current.Name }) -join ' '
-        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
-        foreach ($dismiss in 'No', 'Cancel', 'OK')
+        foreach ($window in @(Get-ProcessWindow $desktop.Id | Where-Object { $_.Current.ClassName -eq '#32770' -and -not (Find-DialogElement $_ '1001' 'Edit') }))
         {
-            $button = Find-Element $complaint $dismiss @($types::Button)
-            if ($button) { Invoke-Element $button; break }
+            $message = (@($window.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::Text)))) | ForEach-Object { $_.Current.Name }) -join ' '
+            Write-Verbose "    The dialog said: $($window.Current.Name). $message"
+            foreach ($dismiss in 'No', 'Cancel', 'OK')
+            {
+                $button = Find-Element $window $dismiss @($types::Button)
+                if ($button) { Invoke-Element $button; break }
+            }
         }
-        throw "The Save as dialog rejected the file name: $message"
     }
+
+    if (-not $saved)
+    {
+        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt'))
+        throw "Typed the file name into $($candidates.Count) box$(if ($candidates.Count -ne 1) { 'es' }) in the '$($dialog.Current.Name)' dialog and $([System.IO.Path]::GetFileName($Destination)) was never written."
+    }
+
+
 
     # Wait for the file to be written, answering prompts Power BI Desktop shows while saving
     Wait-Until -Description "$([System.IO.Path]::GetFileName($Destination)) to be saved" -Seconds 600 -Condition {
