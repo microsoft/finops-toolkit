@@ -563,7 +563,7 @@ Examples:
 
 [Package-PowerBI.ps1](./Package-PowerBI.ps1) packages the three Power BI release files and reports what's left to do.
 
-On Windows, `-Unattended` does everything with one command: build, save demo PBIX files with Power BI Desktop (using [Save-PowerBIProject](#-save-powerbiproject)), validate, and package. Don't use the mouse or keyboard while it runs.
+On Windows, `-Unattended` does everything with one command: build, save demo PBIX files with Power BI Desktop (using [Save-PowerBIProject](#-save-powerbiproject)), validate, and package. Don't use the mouse or keyboard while it runs. Expect about 10 minutes per report, or an hour for all six. If an earlier test build is still in `release/pbix` (made with `‑TestOpenDataUrl`), it stops and asks for `-Build` once to rebuild against the main branch.
 
 Without `-Unattended`, the command is resumable: run it, save the projects it opens, then run it again. Either way, it works out which steps are already done, does the next one, and validates the result.
 
@@ -605,7 +605,7 @@ Examples:
 
 [Save-PowerBIProject.ps1](./Save-PowerBIProject.ps1) opens one Power BI project in Power BI Desktop, refreshes its data, applies the sensitivity label, saves it as a PBIX file, and closes Power BI Desktop. `Package-PowerBI -Unattended` calls it for each demo report, so you usually don't need to run it directly.
 
-Data is refreshed through the Analysis Services engine that Power BI Desktop runs locally, so refresh errors stop the script instead of saving an empty report. Saving uses Windows UI Automation. If a step can't be automated, the script stops with a message that names the step and saves a screenshot next to the PBIX file (`*.error.png`). Save that report by hand and rerun `Package-PowerBI`.
+Data is refreshed through the Analysis Services engine that Power BI Desktop runs locally, so refresh errors stop the script instead of saving an empty report. When the engine can't refresh (it can't load every connector, like Azure Resource Graph), the refresh is retried with Power BI Desktop's own Refresh button. Saving uses Windows UI Automation. If a step can't be automated, the script stops with a message that names the step and saves a screenshot next to the PBIX file (`*.error.png`). Save that report by hand and rerun `Package-PowerBI`.
 
 Requirements:
 

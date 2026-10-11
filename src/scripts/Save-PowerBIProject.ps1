@@ -10,7 +10,9 @@
 
     1. Opens the project in Power BI Desktop.
     2. Refreshes the data model through the local Analysis Services engine that Power BI Desktop
-       runs, so refresh errors are reported instead of silently saving an empty report.
+       runs, so refresh errors are reported instead of silently saving an empty report. When the
+       engine can't refresh (it can't load every connector, like Azure Resource Graph), the refresh
+       is retried with Power BI Desktop's own Refresh button.
     3. Applies the sensitivity label, when Power BI Desktop offers one.
     4. Saves the report as a PBIX file with Save as.
     5. Closes Power BI Desktop.
