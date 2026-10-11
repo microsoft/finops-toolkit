@@ -567,6 +567,8 @@ On Windows, `-Unattended` does everything with one command: build, save demo PBI
 
 Without `-Unattended`, the command is resumable: run it, save the projects it opens, then run it again. Either way, it works out which steps are already done, does the next one, and validates the result.
 
+Demo reports are saved in whatever report format Power BI Desktop uses. Since September 2026 that's the enhanced report format (PBIR), which Desktop converts reports to when it saves them. Both formats are accepted, but a PBIR demo report needs Power BI Desktop from September 2026 or later to open.
+
 Saved PBIX files are checked for the mistakes that are easy to make by hand — saved without data, saved from the unpruned source project, saved on the wrong page, saved with the wrong sensitivity label, or saved before the latest build — so a missed step fails here instead of shipping. With `-Unattended`, files that fail these checks are saved again automatically.
 
 | Parameter           | Description                                                                                                                        |
@@ -609,7 +611,7 @@ Requirements:
 
 - Windows with Power BI Desktop installed and associated with `.pbip` files.
 - An interactive desktop session. Don't use the mouse or keyboard while it runs.
-- **Store reports using enhanced metadata format (PBIR)** turned off in Power BI Desktop under Options > Preview features. Reports saved with it on have no `Report/Layout` part, don't match the templates, and don't open in older Power BI Desktop versions. Validation rejects them.
+
 - Sign in to Power BI Desktop, and refresh one demo project by hand once so Power BI Desktop stores the credentials for the demo data source. Nothing here can sign in or answer a credential prompt. A sign-in window stops the script right away, and a missing credential fails the refresh with the error the engine reports.
 
 The sensitivity label is applied only when Power BI Desktop offers one and the control is enabled. Tenants without labels show the button greyed out, which is detected and skipped. A report saved without a label passes validation; a report saved with any label other than the expected one fails.

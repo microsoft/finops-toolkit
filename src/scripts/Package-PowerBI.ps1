@@ -146,7 +146,7 @@ function Get-ArchiveEntrySize([string] $Path, [string] $EntryName)
     .SYNOPSIS
     Parses a JSON part from a PBIX file, which Power BI writes as UTF-16LE.
 #>
-function ConvertFrom-PbixJson([byte[]] $Bytes)
+function ConvertFrom-PbixText([byte[]] $Bytes)
 {
     if ($Bytes.Length -ge 2 -and $Bytes[0] -eq 0xFF -and $Bytes[1] -eq 0xFE)
     {
@@ -162,7 +162,12 @@ function ConvertFrom-PbixJson([byte[]] $Bytes)
         $text = $text.TrimStart([char]0xFEFF)
     }
 
-    return $text | ConvertFrom-Json -Depth 100
+    return $text
+}
+
+function ConvertFrom-PbixJson([byte[]] $Bytes)
+{
+    return ConvertFrom-PbixText $Bytes | ConvertFrom-Json -Depth 100
 }
 
 <#
@@ -191,16 +196,13 @@ function Test-DemoPbix([string] $Path, $Report, [datetime] $BuiltAfter = [dateti
         return $issues
     }
 
-    # A report saved with the enhanced metadata format has a Report folder instead of a layout.
-    # Templates are built in the old format and older Power BI Desktop versions can't open the
-    # new one, so the preview feature has to be off when demo reports are saved.
-    if ($entries -notcontains 'Report/Layout' -and @($entries | Where-Object { $_ -like 'Report/definition/*' }).Count -gt 0)
-    {
-        $issues.Add("was saved in the enhanced metadata format (PBIR). Turn off 'Store reports using enhanced metadata format (PBIR)' in Power BI Desktop under Options > Preview features, restart it, and save again.")
-        return $issues
-    }
+    # Power BI Desktop writes the report either as one Report/Layout part or, since the enhanced
+    # report format (PBIR) became the default in September 2026, as files under Report/definition.
+    # Desktop converts a report to PBIR when it saves, so both have to be accepted.
+    $isPbir = $entries -notcontains 'Report/Layout' -and @($entries | Where-Object { $_ -like 'Report/definition/*' }).Count -gt 0
+    $reportPart = if ($isPbir) { 'Report/definition/report.json' } else { 'Report/Layout' }
 
-    $missingParts = @('DataModel', 'Report/Layout', 'Metadata', 'Settings', 'Version') | Where-Object { $entries -notcontains $_ }
+    $missingParts = @('DataModel', $reportPart, 'Metadata', 'Settings', 'Version') | Where-Object { $entries -notcontains $_ }
     if ($missingParts)
     {
         $missingParts | ForEach-Object { $issues.Add("is missing the $_ part. Save it again from Power BI Desktop.") }
@@ -230,9 +232,56 @@ function Test-DemoPbix([string] $Path, $Report, [datetime] $BuiltAfter = [dateti
         $issues.Add("has a $(Format-Size $dataModelSize) data model, so it was saved without loading demo data. Refresh the report before saving.")
     }
 
+    if ($isPbir)
+    {
+        # PBIR keeps one file per page and names the page it opens on, so the pages are read
+        # rather than indexed, and every file is searched for the version the build stamped in
+        $reportText = New-Object System.Text.StringBuilder
+        $pages = @{}
+        foreach ($entry in @($entries | Where-Object { $_ -like 'Report/definition/*' -and $_ -like '*.json' }))
+        {
+            $text = $null
+            try { $text = ConvertFrom-PbixText (Get-ArchiveEntry $Path $entry) }
+            catch { Write-Verbose "Could not read $entry from $Path" }
+            if (-not $text) { continue }
+
+            $null = $reportText.AppendLine($text)
+            if ($entry -match '^Report/definition/pages/(?<page>[^/]+)/page\.json$')
+            {
+                try { $pages[$Matches.page] = ($text | ConvertFrom-Json -Depth 100) } catch { Write-Verbose "Could not parse $entry" }
+            }
+        }
+
+        $activePage = $null
+        try { $activePage = (ConvertFrom-PbixJson (Get-ArchiveEntry $Path 'Report/definition/pages/pages.json')).activePageName }
+        catch { Write-Verbose "Could not read the page list from $Path" }
+
+        if ($activePage)
+        {
+            $active = $pages[$activePage]
+            if ($active -and $active.displayName -ne 'Get started')
+            {
+                $issues.Add("opens on '$($active.displayName)'. Switch to the Get started page and save again.")
+            }
+        }
+
+        $allText = $reportText.ToString()
+        if ($allText -match '\$\$ftkver\$\$|\$\$build-date\$\$')
+        {
+            $issues.Add("still has version placeholders, so it was saved from src/power-bi instead of release/pbix. Open the project from release/pbix and save again.")
+        }
+        elseif ($allText -notmatch [regex]::Escape($version))
+        {
+            $issues.Add("doesn't mention version $version, so it was saved from an older build. Rebuild and save again.")
+        }
+    }
+
     $layout = $null
-    try { $layout = ConvertFrom-PbixJson (Get-ArchiveEntry $Path 'Report/Layout') }
-    catch { $issues.Add("has a Report/Layout part that couldn't be read ($($_.Exception.Message)).") }
+    if (-not $isPbir)
+    {
+        try { $layout = ConvertFrom-PbixJson (Get-ArchiveEntry $Path 'Report/Layout') }
+        catch { $issues.Add("has a Report/Layout part that couldn't be read ($($_.Exception.Message)).") }
+    }
 
     if ($layout)
     {
