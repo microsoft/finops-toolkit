@@ -432,6 +432,52 @@ function Show-PendingPrompt($MainWindow, [int] $ProcessId, [System.Collections.G
 
 <#
     .SYNOPSIS
+    Refreshes the report with Power BI Desktop's own Refresh button and waits for it to finish.
+
+    .DESCRIPTION
+    Some connectors, like Azure Resource Graph, only load when Power BI Desktop runs the refresh
+    itself. The same refresh sent to the engine fails with "The import ... matches no exports",
+    and the tables that read from them come back empty. Returns the errors it found, if any.
+#>
+function Invoke-DesktopRefresh($MainWindow, $Process, $Database)
+{
+    $button = Wait-Until -Description 'the Refresh button' -Seconds 60 -Condition { Find-Element $MainWindow 'Refresh' @($types::Button, $types::SplitButton, $types::MenuItem) }
+    Invoke-Element $button
+
+    $reported = New-Object System.Collections.Generic.HashSet[string]
+    $lastProgress = Get-Date
+    while ((Get-Date) -lt $deadline)
+    {
+        Start-Sleep -Seconds 10
+        Show-PendingPrompt $MainWindow $Process.Id $reported
+
+        # Tables stay empty until the whole refresh commits, so all of them being ready means done
+        $Database.Refresh($true)
+        $notReady = @($Database.Model.Tables `
+            | Where-Object { @($_.Partitions | Where-Object { $_.State -ne [Microsoft.AnalysisServices.Tabular.ObjectState]::Ready }).Count -gt 0 })
+        if ($notReady.Count -eq 0) { return , @() }
+
+        # Desktop reports a failed refresh in a window, and the tables never become ready
+        foreach ($window in @(Get-ProcessWindow $Process.Id | Where-Object { $_.Current.NativeWindowHandle -ne $MainWindow.Current.NativeWindowHandle }))
+        {
+            $text = @($window.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::Text))) | ForEach-Object { $_.Current.Name }) -join ' '
+            if ("$($window.Current.Name) $text" -match "(?i)\b(error|failed|couldn't|could not|unable)\b")
+            {
+                return , @("Power BI Desktop showed '$($window.Current.Name)': $text")
+            }
+        }
+
+        if (((Get-Date) - $lastProgress).TotalSeconds -ge 60)
+        {
+            $lastProgress = Get-Date
+            Write-Step "Still refreshing in Power BI Desktop ($([int]((Get-Date) - $started).TotalMinutes) min elapsed)..."
+        }
+    }
+    return , @("Power BI Desktop didn't finish refreshing within $TimeoutMinutes minutes.")
+}
+
+<#
+    .SYNOPSIS
     Finds the port of the Analysis Services engine that a Power BI Desktop process started.
 #>
 function Get-DesktopEnginePort([int] $ProcessId)
@@ -544,6 +590,15 @@ try
         $command = @{ refresh = @{ type = 'full'; applyRefreshPolicy = $false; objects = @(@{ database = $database.Name }) } } | ConvertTo-Json -Depth 5 -Compress
 
         $errors = Invoke-EngineCommand $command 'Data refresh' $port $mainWindow $desktop $database
+        $refreshedByDesktop = $false
+        if ($errors.Count -gt 0)
+        {
+            # The engine can't load every connector (Azure Resource Graph, for one), so what it
+            # couldn't do is retried the way a person would: with Power BI Desktop's Refresh
+            Write-Step "The engine couldn't refresh the data. Trying Power BI Desktop's own refresh..."
+            $errors = Invoke-DesktopRefresh $mainWindow $desktop $database
+            $refreshedByDesktop = $errors.Count -eq 0
+        }
         if ($errors.Count -gt 0)
         {
             # The engine reports what went wrong but not where, and one failure cancels the whole
@@ -581,10 +636,14 @@ try
         # A refresh through the engine leaves calculated columns, tables, and relationships stale,
         # which is what Power BI Desktop's "calculated objects need to be manually refreshed"
         # banner is about. Recalculating here means the saved report doesn't need that click.
-        Write-Step 'Recalculating calculated columns and tables...'
-        $calculate = @{ refresh = @{ type = 'calculate'; objects = @(@{ database = $database.Name }) } } | ConvertTo-Json -Depth 5 -Compress
-        $calculateErrors = Invoke-EngineCommand $calculate 'Recalculating' $port $mainWindow $desktop
-        if ($calculateErrors.Count -gt 0) { throw "Recalculating failed:`n  $($calculateErrors -join "`n  ")" }
+        # Power BI Desktop's own refresh recalculates as part of it, so only the engine's needs this
+        if (-not $refreshedByDesktop)
+        {
+            Write-Step 'Recalculating calculated columns and tables...'
+            $calculate = @{ refresh = @{ type = 'calculate'; objects = @(@{ database = $database.Name }) } } | ConvertTo-Json -Depth 5 -Compress
+            $calculateErrors = Invoke-EngineCommand $calculate 'Recalculating' $port $mainWindow $desktop
+            if ($calculateErrors.Count -gt 0) { throw "Recalculating failed:`n  $($calculateErrors -join "`n  ")" }
+        }
 
         $database.Refresh($true)
         $notReady = @($database.Model.Tables `
