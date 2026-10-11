@@ -3,7 +3,7 @@ title: Get-FinOpsInstanceSizeFlexibility command
 description: Get the instance size flexibility group and ratio for an ARM SKU using the Get-FinOpsInstanceSizeFlexibility command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 09/02/2026
+ms.date: 10/11/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
