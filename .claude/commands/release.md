@@ -160,6 +160,8 @@ pwsh -Command "./src/scripts/Package-PowerBI.ps1 -Unattended"
 
 On other platforms, run `pwsh -Command "./src/scripts/Package-PowerBI.ps1 -Status"` and tell the user to run `Package-PowerBI.ps1 -Unattended` on a Windows machine with Power BI Desktop, then say "done".
 
+It takes about an hour (roughly 10 minutes per demo report). If it stops because the reports were built from a test open data URL ("isn't permanent"), rerun it once with `-Build` to rebuild against the main branch; don't use `-Build` otherwise, because it discards reports that are already saved.
+
 Relay its status output verbatim — it says exactly which step is next. If a report can't be saved automatically, relay the failed step and screenshot path, tell the user to run `Package-PowerBI.ps1 -Open` and save that project as PBIX (refresh, Save as PBIX in `release/pbix`, sensitivity "Public"), then say "done" so you can rerun the command to validate and package.
 
 If validation fails, show the reported issues verbatim. Each one names the file and the fix; don't guess at causes.
