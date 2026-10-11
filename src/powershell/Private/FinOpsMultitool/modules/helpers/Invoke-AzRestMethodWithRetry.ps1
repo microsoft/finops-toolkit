@@ -81,8 +81,11 @@ function Invoke-AzRestMethodWithRetry {
         [string]$Method = 'POST',
         [string]$Payload,
         [int]$MaxRetries = 3,
-        [int]$TimeoutSeconds = 60
+        [int]$TimeoutSeconds = 60,
+        [ValidateRange(0, 3600)]
+        [int]$MaxRetryWaitSeconds = 120
     )
+    $retryWaitSeconds = 0.0
     for ($attempt = 0; $attempt -le $MaxRetries; $attempt++) {
         $ps = [powershell]::Create()
         $ps.RunspacePool = $script:RunspacePool
@@ -94,7 +97,7 @@ function Invoke-AzRestMethodWithRetry {
                     $r = Invoke-AzRestMethod @params
                     $hdrs = @{}
                     if ($r.Headers) {
-                        foreach ($k in $r.Headers.Keys) { $hdrs[$k] = $r.Headers[$k] }
+                        foreach ($header in $r.Headers.GetEnumerator()) { $hdrs[$header.Key] = @($header.Value) }
                     }
                     [PSCustomObject]@{
                         StatusCode = $r.StatusCode
@@ -163,20 +166,31 @@ function Invoke-AzRestMethodWithRetry {
         if (-not ($isThrottled -or $isServerErr)) { return $resp }
         if ($attempt -eq $MaxRetries) { return $resp }
 
-        # Parse Retry-After header or default to exponential backoff. Both paths
-        # are jittered so parallel scans do not retry in lockstep.
-        $retryAfter = Get-JitteredDelay -BaseSeconds 10
-        if ($isThrottled -and $resp.Headers -and $resp.Headers['Retry-After']) {
-            $parsed = 0
-            if ([int]::TryParse($resp.Headers['Retry-After'], [ref]$parsed)) {
-                $retryAfter = Get-JitteredDelay -RetryAfterSeconds ([math]::Max($parsed, 5))
+        # Cost Management can return several throttle budgets; honor the longest server delay.
+        $serverDelay = -1
+        if ($resp.Headers) {
+            foreach ($headerName in $resp.Headers.Keys) {
+                if ($headerName -ne 'Retry-After' -and -not ($isThrottled -and $headerName -match '^x-ms-ratelimit-microsoft\.(costmanagement|consumption)(-.*)?-retry-after$')) { continue }
+                foreach ($headerValue in @($resp.Headers[$headerName])) {
+                    $parsed = 0
+                    if ([int]::TryParse([string]$headerValue, [ref]$parsed) -and $parsed -ge 0) {
+                        $serverDelay = [math]::Max($serverDelay, $parsed)
+                    }
+                }
             }
+        }
+        if ($serverDelay -ge 0) {
+            $retryAfter = Get-JitteredDelay -RetryAfterSeconds ([math]::Max($serverDelay, 5))
         }
         elseif ($isServerErr) {
             $retryAfter = Get-JitteredDelay -BaseSeconds ([math]::Min(2 * [math]::Pow(2, $attempt), 30))
         }
         else {
             $retryAfter = Get-JitteredDelay -BaseSeconds ([math]::Min(10 * [math]::Pow(2, $attempt), 60))
+        }
+        if ($retryAfter -gt ($MaxRetryWaitSeconds - $retryWaitSeconds)) {
+            Write-Warning "Azure returned HTTP $($resp.StatusCode); retry requires $([math]::Ceiling($retryAfter)) seconds, exceeding the remaining retry wait budget. No early retry was sent."
+            return $resp
         }
         $friendly = if ($isThrottled) { Get-NextThrottleMessage } else { "Azure returned $($resp.StatusCode) - retrying..." }
         Write-Host "  $friendly" -ForegroundColor Yellow
@@ -186,6 +200,7 @@ function Invoke-AzRestMethodWithRetry {
         }
 
         Wait-WithDispatcher -Milliseconds ($retryAfter * 1000)
+        $retryWaitSeconds += $retryAfter
     }
     return $resp
 }

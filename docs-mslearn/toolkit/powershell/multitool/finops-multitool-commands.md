@@ -3,7 +3,7 @@ title: FinOps multitool commands
 description: Learn about PowerShell commands in the FinOpsToolkit module that scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 10/07/2026
+ms.date: 10/10/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -71,6 +71,10 @@ Resource-cost API results include the requested UTC month-to-date window in HTML
 Management-group cost-scope discovery probes at most 25 distinct candidates: up to 24 non-root groups, followed by the tenant root. List pagination and the existing per-candidate retry budget are preserved; this isn't a limit on total HTTP requests. When the candidate list is capped, a warning explains that other groups remain unprobed. If no candidate succeeds, cost scans query the selected subscriptions individually. Cached scopes and discovery failures aren't reused for a different tenant.
 
 On the API path, **Cost by Tag** retains successful subscription queries when another subscription fails. Reports identify incomplete coverage and failed subscriptions, and whole-scope allocation KPIs remain unavailable. Failed continuation pages don't contribute partial costs. The scan rejects mixed-currency totals and incomplete tag maps; if no subscription can be read, it reports an error.
+
+**Cost Data** retains actual costs when a subscription's completed forecast response has no rows or returns HTTP 204 (No Content), and continues querying other subscriptions. Missing or skipped forecasts stay **Unavailable**, not zero or a copy of month-to-date spend. Management-group forecast currencies are validated before storing forecasts, so an empty fallback can't retain a forecast from a rejected group response. At subscription scope, failed requests, unreadable continuation pages, and incompatible currencies fail the scan. At management-group scope, a failed group forecast triggers subscription retries; the scan fails only if a required retry also fails. For response details, see [Forecast - Usage](/rest/api/cost-management/forecast/usage).
+
+HTTP 429 indicates throttling, not missing permissions. Cost queries and Cost by Tag batches respect numeric `Retry-After` and Cost Management/Consumption retry-after headers, using the longest valid delay. Shared REST calls allow up to 120 seconds of cumulative retry waiting by default, separately from request-attempt timeouts. A delay beyond the remaining budget returns the last error response with a warning rather than retrying early. Cost by Tag keeps HTTP 429 when a throttle delay won't fit its 120-second batch deadline; queued or in-flight requests can still time out. These limits apply per call or batch, not to the entire scan. Before rerunning, allow the throttle window to expire and consider a smaller scope or an existing cost export or FinOps hub for large datasets. The report's required-role text describes access prerequisites, not the cause of every error. For tag coverage gaps, inspect `FailedSubscriptions` to identify the actual failures. See [Data latency and rate limits](/azure/cost-management-billing/costs/manage-automation#data-latency-and-rate-limits).
 
 **Unit Economics** and **AI Workload Metrics** retain capacity or usage measurements when currency evidence is missing or mixed, but leave monetary totals and rates unavailable with an explanation. AI rates use matching account costs and usage rather than total AI spend, and incomplete metric reads suppress aggregate rates. A measured zero with known currency stays zero.
 

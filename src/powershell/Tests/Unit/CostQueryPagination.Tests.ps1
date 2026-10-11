@@ -2,7 +2,6 @@
 # Licensed under the MIT License.
 
 & "$PSScriptRoot/../Initialize-Tests.ps1"
-
 Describe 'Cost Management query pagination' {
 
     # Scoped to this Describe: Initialize-Tests.ps1 already declares a root-level
@@ -203,6 +202,103 @@ Describe 'Cost Management query pagination' {
     }
 
     Context 'Actual and forecast totals' {
+        It 'Keeps actual costs when one forecast is empty and continues to the next subscription (<QueryPath>, HTTP <EmptyStatus>)' -ForEach @(
+            @{ QueryPath = 'PerSubscription'; EmptyStatus = 200 }
+            @{ QueryPath = 'ManagementGroupFallback'; EmptyStatus = 200 }
+            @{ QueryPath = 'PerSubscription'; EmptyStatus = 204 }
+            @{ QueryPath = 'ManagementGroupFallback'; EmptyStatus = 204 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ QueryPath = $QueryPath; EmptyStatus = $EmptyStatus } {
+                param($QueryPath, $EmptyStatus)
+                $firstId = '11111111-1111-1111-1111-111111111111'
+                $secondId = '22222222-2222-2222-2222-222222222222'
+                Mock Resolve-CostMgId { 'test-management-group' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $isForecast = $Path -like '*forecast*'
+                    $isGroup = $Path -like '/providers/Microsoft.Management/*'
+                    if ($isForecast -and ($isGroup -or $Path -like "*/$firstId/*") -and $EmptyStatus -eq 204) {
+                        return [pscustomobject]@{ StatusCode = 204; Content = '' }
+                    }
+                    $properties = @{
+                        columns = @(@{ name = 'Cost' }, @{ name = 'SubscriptionId' }, @{ name = 'Currency' })
+                        rows = @()
+                    }
+                    if (-not $isForecast) {
+                        $properties.rows = @(
+                            if ($isGroup -or $Path -like "*/$firstId/*") { , @(100, $firstId, 'USD') }
+                            if ($isGroup -or $Path -like "*/$secondId/*") { , @(200, $secondId, 'USD') }
+                        )
+                    }
+                    elseif (-not $isGroup -and $Path -like "*/$secondId/*") {
+                        $properties.rows = @(, @(350, $secondId, 'USD'))
+                    }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = $firstId; Name = 'Example without forecast' }
+                    [pscustomobject]@{ Id = $secondId; Name = 'Example with forecast' }
+                )
+
+                $result = if ($QueryPath -eq 'PerSubscription') { Get-CostDataPerSubscription -Subscriptions $subscriptions }
+                else { Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -WarningAction SilentlyContinue }
+
+                $result.Count | Should -Be 2
+                $result[$firstId].Actual | Should -Be 100
+                $result[$firstId].Forecast | Should -BeNullOrEmpty
+                $result[$firstId].ForecastSource | Should -Be 'Unavailable'
+                $result[$firstId].Currency | Should -Be 'USD'
+                $result[$secondId].Actual | Should -Be 200
+                $result[$secondId].Forecast | Should -Be 350
+                $result[$secondId].ForecastSource | Should -Be 'Forecast'
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter {
+                    $Path -like '/subscriptions/22222222-2222-2222-2222-222222222222/providers/Microsoft.CostManagement/forecast*'
+                }
+            }
+        }
+
+        It 'Does not retain forecasts from a rejected management-group response after empty fallback (HTTP <FallbackStatus>)' -ForEach @(
+            @{ FallbackStatus = 200 }
+            @{ FallbackStatus = 204 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ FallbackStatus = $FallbackStatus } {
+                param($FallbackStatus)
+                $subscriptionIds = @('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222')
+                $forecastOrder = @{}
+                foreach ($subscriptionId in $subscriptionIds) { $forecastOrder[$subscriptionId] = 500 }
+                $mismatchId = @($forecastOrder.Keys)[-1]
+                Mock Resolve-CostMgId { 'test-management-group' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $isForecast = $Path -like '*forecast*'
+                    $isGroup = $Path -like '/providers/Microsoft.Management/*'
+                    if ($isForecast -and -not $isGroup -and $FallbackStatus -eq 204) {
+                        return [pscustomobject]@{ StatusCode = 204; Content = '' }
+                    }
+                    $rows = @()
+                    if ($isGroup) {
+                        $rows = @(foreach ($subscriptionId in $subscriptionIds) {
+                                $currency = if ($isForecast -and $subscriptionId -eq $mismatchId) { 'EUR' } else { 'USD' }
+                                $amount = if ($isForecast) { 500 } else { 100 }
+                                , @($amount, $subscriptionId, $currency)
+                            })
+                    }
+                    $properties = @{ columns = @(@{ name = 'Cost' }, @{ name = 'SubscriptionId' }, @{ name = 'Currency' }); rows = $rows }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @($subscriptionIds | ForEach-Object { [pscustomobject]@{ Id = $_; Name = 'Example subscription' } })
+
+                $result = Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -WarningAction SilentlyContinue
+
+                $result.Count | Should -Be 2
+                foreach ($subscriptionId in $subscriptionIds) {
+                    $result[$subscriptionId].Actual | Should -Be 100
+                    $result[$subscriptionId].Currency | Should -Be 'USD'
+                    $result[$subscriptionId].Forecast | Should -BeNullOrEmpty
+                    $result[$subscriptionId].ForecastSource | Should -Be 'Unavailable'
+                }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter { $Path -like '/subscriptions/*/forecast*' }
+            }
+        }
+
         It 'Keeps missing actuals unavailable and preserves forecast currency (<QueryPath>)' -ForEach @(
             @{ QueryPath = 'PerSubscription' }
             @{ QueryPath = 'ManagementGroup' }
@@ -1218,6 +1314,186 @@ param($Path, $Method, $Payload)
     }
 
     Context 'Cost-by-tag coverage and currency' {
+        It 'Keeps the real response when a job is already complete at timeout cleanup' {
+            InModuleScope FinOpsMultitool {
+                $sessionState = [Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
+                $sessionState.Commands.Add([Management.Automation.Runspaces.SessionStateFunctionEntry]::new('Invoke-AzRestMethod', @'
+[pscustomobject]@{ StatusCode = 429; Content = '{}'; Headers = @{ 'x-ms-ratelimit-microsoft.costmanagement-qpu-retry-after' = @('70') } }
+'@))
+                $pool = [runspacefactory]::CreateRunspacePool(1, 1, $sessionState, $Host)
+                $pool.Open()
+                $ps = [powershell]::Create()
+                $ps.RunspacePool = $pool
+                [void]$ps.AddScript({ Invoke-AzRestMethod -Path '/subscriptions/fixture' -Method POST })
+                $async = $ps.BeginInvoke()
+                try {
+                    $async.AsyncWaitHandle.WaitOne(5000) | Should -BeTrue
+                    $job = @{ PS = $ps; Async = $async; Result = $null }
+
+                    Complete-ParallelRestJob -Job $job -StopIfRunning
+
+                    $job.Result.StatusCode | Should -Be 429
+                    $job.Result.Headers['x-ms-ratelimit-microsoft.costmanagement-qpu-retry-after'] | Should -Contain '70'
+                }
+                finally {
+                    $ps.Dispose()
+                    $pool.Dispose()
+                }
+            }
+        }
+
+        It 'Stops a job that is still running at timeout cleanup and reports a 408 timeout' {
+            InModuleScope FinOpsMultitool {
+                $fixture = [hashtable]::Synchronized(@{ Stopped = $false })
+                $sessionState = [Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
+                $sessionState.Variables.Add([Management.Automation.Runspaces.SessionStateVariableEntry]::new('Fixture', $fixture, 'Synthetic stop marker'))
+                $sessionState.Commands.Add([Management.Automation.Runspaces.SessionStateFunctionEntry]::new('Invoke-AzRestMethod', @'
+try { Start-Sleep -Seconds 30 } finally { $Fixture.Stopped = $true }
+[pscustomobject]@{ StatusCode = 200; Content = '{}'; Headers = @{} }
+'@))
+                $pool = [runspacefactory]::CreateRunspacePool(1, 1, $sessionState, $Host)
+                $pool.Open()
+                $ps = [powershell]::Create()
+                $ps.RunspacePool = $pool
+                [void]$ps.AddScript({ Invoke-AzRestMethod -Path '/subscriptions/fixture' -Method POST })
+                $async = $ps.BeginInvoke()
+                try {
+                    $job = @{ PS = $ps; Async = $async; Result = $null }
+                    $async.IsCompleted | Should -BeFalse
+
+                    Complete-ParallelRestJob -Job $job -StopIfRunning
+
+                    $job.Result.StatusCode | Should -Be 408
+                    $job.Result.Content | Should -BeLike '*Timeout*'
+                    $fixture.Stopped | Should -BeTrue -Because 'the helper must stop the pipeline, not only label the result'
+                }
+                finally {
+                    $ps.Dispose()
+                    $pool.Dispose()
+                }
+            }
+        }
+
+        It 'Honors QPU backoff in tag batches and keeps retry exhaustion incomplete (<Scenario>)' -ForEach @(
+            @{ Scenario = 'recovery'; Recover = $true; HeaderDelay = '70'; ExpectedDelay = 70; ExpectedCalls = 2; ExpectedWaits = 1; Elapsed = 0; ExpectedStatus = 200 }
+            @{ Scenario = 'exhaustion'; Recover = $false; HeaderDelay = '30'; ExpectedDelay = 30; ExpectedCalls = 4; ExpectedWaits = 3; Elapsed = 0; ExpectedStatus = 429 }
+            @{ Scenario = 'missing delay'; Recover = $true; HeaderDelay = ''; ExpectedDelay = 10; ExpectedCalls = 2; ExpectedWaits = 1; Elapsed = 0; ExpectedStatus = 200 }
+            @{ Scenario = 'second wait exceeds deadline'; Recover = $false; HeaderDelay = '70'; ExpectedDelay = 70; ExpectedCalls = 2; ExpectedWaits = 1; Elapsed = 0; ExpectedStatus = 429 }
+            @{ Scenario = 'first wait exceeds deadline'; Recover = $false; HeaderDelay = '3600'; ExpectedDelay = 3600; ExpectedCalls = 1; ExpectedWaits = 0; Elapsed = 0; ExpectedStatus = 429 }
+            @{ Scenario = 'queued past deadline'; Recover = $false; HeaderDelay = '70'; ExpectedDelay = 70; ExpectedCalls = 0; ExpectedWaits = 0; Elapsed = 130; ExpectedStatus = 408 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Recover = $Recover; HeaderDelay = $HeaderDelay; ExpectedDelay = $ExpectedDelay; ExpectedCalls = $ExpectedCalls; ExpectedWaits = $ExpectedWaits; Elapsed = $Elapsed; ExpectedStatus = $ExpectedStatus } {
+                param($Recover, $HeaderDelay, $ExpectedDelay, $ExpectedCalls, $ExpectedWaits, $Elapsed, $ExpectedStatus)
+                Mock Search-AzGraphSafe { [pscustomobject]@{ Data = @() } }
+                $httpResponse = [Net.Http.HttpResponseMessage]::new([Net.HttpStatusCode]::TooManyRequests)
+                if ($HeaderDelay) { $null = $httpResponse.Headers.TryAddWithoutValidation('x-ms-ratelimit-microsoft.costmanagement-qpu-retry-after', $HeaderDelay) }
+                $fixture = [hashtable]::Synchronized(@{ Recover = $Recover; Headers = $httpResponse.Headers; Calls = 0; Delays = [Collections.Generic.List[int]]::new(); Now = [datetime]::UtcNow; Elapsed = $Elapsed })
+                $sessionState = [Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
+                $sessionState.Variables.Add([Management.Automation.Runspaces.SessionStateVariableEntry]::new('Fixture', $fixture, 'Synthetic tag batch responses'))
+                $sessionState.Commands.Add([Management.Automation.Runspaces.SessionStateFunctionEntry]::new('Invoke-AzRestMethod', @'
+param($Path, $Method, $Payload)
+$Fixture.Calls++
+if (-not $Fixture.Recover -or $Fixture.Calls -eq 1) {
+    return [pscustomobject]@{ StatusCode = 429; Content = '{}'; Headers = $Fixture.Headers }
+}
+[pscustomobject]@{
+    StatusCode = 200
+    Content = '{"properties":{"columns":[{"name":"Cost"},{"name":"ResourceId"},{"name":"Currency"}],"rows":[[125,"/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Compute/disks/fixture","USD"]]}}'
+    Headers = $Fixture.Headers
+}
+'@))
+                $sessionState.Commands.Add([Management.Automation.Runspaces.SessionStateFunctionEntry]::new('Get-Date', @'
+$Fixture.Now.ToLocalTime().AddSeconds($Fixture.Elapsed)
+'@))
+                $sessionState.Commands.Add([Management.Automation.Runspaces.SessionStateFunctionEntry]::new('Start-Sleep', @'
+param([int]$Seconds)
+$Fixture.Delays.Add($Seconds)
+$Fixture.Elapsed += $Seconds
+'@))
+                $pool = [runspacefactory]::CreateRunspacePool(1, 1, $sessionState, $Host)
+                $previousPool = $script:RunspacePool
+                try {
+                    $pool.Open()
+                    $script:RunspacePool = $pool
+                    $arguments = @{
+                        TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                        Subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example subscription' })
+                        ExistingTags = @{ CostCenter = @{ TotalResources = 1 } }
+                    }
+                    if ($Recover) {
+                        $result = Get-CostByTag @arguments
+                        ($result.CostByTag.CostCenter | Measure-Object Cost -Sum).Sum | Should -Be 125
+                        $result.CoverageIncomplete | Should -BeFalse
+                    }
+                    else { { Get-CostByTag @arguments } | Should -Throw "*$ExpectedStatus*incomplete*" }
+                    $fixture.Calls | Should -Be $ExpectedCalls
+                    $fixture.Delays.Count | Should -Be $ExpectedWaits
+                    foreach ($delay in $fixture.Delays) { $delay | Should -Be $ExpectedDelay }
+                }
+                finally {
+                    $script:RunspacePool = $previousPool
+                    $pool.Dispose()
+                    $httpResponse.Dispose()
+                }
+            }
+        }
+
+        It 'Records a throttled subscription beside successful subscriptions in one tag batch' {
+            InModuleScope FinOpsMultitool {
+                Mock Search-AzGraphSafe { [pscustomobject]@{ Data = @() } }
+                $httpResponse = [Net.Http.HttpResponseMessage]::new([Net.HttpStatusCode]::TooManyRequests)
+                $null = $httpResponse.Headers.TryAddWithoutValidation('x-ms-ratelimit-microsoft.costmanagement-qpu-retry-after', '3600')
+                $fixture = [hashtable]::Synchronized(@{ Headers = $httpResponse.Headers; Calls = 0; Delays = [Collections.Generic.List[int]]::new() })
+                $sessionState = [Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
+                $sessionState.Variables.Add([Management.Automation.Runspaces.SessionStateVariableEntry]::new('Fixture', $fixture, 'Synthetic tag batch responses'))
+                $sessionState.Commands.Add([Management.Automation.Runspaces.SessionStateFunctionEntry]::new('Invoke-AzRestMethod', @'
+param($Path, $Method, $Payload)
+$Fixture.Calls++
+$subscriptionId = ($Path -split '/')[2]
+if ($subscriptionId -like '22222222-*') {
+    return [pscustomobject]@{ StatusCode = 429; Content = '{}'; Headers = $Fixture.Headers }
+}
+$amount = if ($subscriptionId -like '11111111-*') { 100 } else { 25 }
+$row = @($amount, "/subscriptions/$subscriptionId/resourceGroups/fixture/providers/Microsoft.Compute/disks/fixture", 'USD')
+$properties = @{ columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' }, @{ name = 'Currency' }); rows = @(, $row) }
+[pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8); Headers = @{} }
+'@))
+                $sessionState.Commands.Add([Management.Automation.Runspaces.SessionStateFunctionEntry]::new('Start-Sleep', @'
+param([int]$Seconds)
+$Fixture.Delays.Add($Seconds)
+'@))
+                $pool = [runspacefactory]::CreateRunspacePool(1, 1, $sessionState, $Host)
+                $previousPool = $script:RunspacePool
+                try {
+                    $pool.Open()
+                    $script:RunspacePool = $pool
+                    $subscriptions = @(
+                        [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' }
+                        [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second' }
+                        [pscustomobject]@{ Id = '33333333-3333-3333-3333-333333333333'; Name = 'Third' }
+                    )
+                    $result = Get-CostByTag -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -ExistingTags @{ CostCenter = @{ TotalResources = 3 } }
+
+                    [double]($result.CostByTag.CostCenter | Measure-Object Cost -Sum).Sum | Should -Be 125
+                    $result.CoverageIncomplete | Should -BeTrue
+                    $result.ScannedSubs | Should -Be 2
+                    $result.TotalSubs | Should -Be 3
+                    @($result.FailedSubscriptions).Count | Should -Be 1
+                    $result.FailedSubscriptions[0].SubscriptionId | Should -Be $subscriptions[1].Id
+                    $result.FailedSubscriptions[0].StatusCode | Should -Be 429
+                    $result.SuccessfulSubscriptionIds | Should -Contain $subscriptions[0].Id
+                    $result.SuccessfulSubscriptionIds | Should -Contain $subscriptions[2].Id
+                    $fixture.Calls | Should -Be 3
+                    $fixture.Delays.Count | Should -Be 0
+                }
+                finally {
+                    $script:RunspacePool = $previousPool
+                    $pool.Dispose()
+                    $httpResponse.Dispose()
+                }
+            }
+        }
+
         It 'Handles <Scenario> without presenting invalid whole-scope costs' -ForEach @(
             @{ Scenario = 'denied subscription'; ExpectError = $false }
             @{ Scenario = 'failed continuation'; ExpectError = $false }

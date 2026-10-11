@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/07/2026
+ms.date: 10/10/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -100,6 +100,11 @@ The following section lists features and enhancements that are currently in deve
   - Reported the count and amount in each currency of export rows that have no subscription, such as purchases or refunds billed outside a subscription. These rows aren't included in subscription totals.
   - Fixed the cost trend leaving out selected subscriptions that the management-group query omitted, such as subscriptions outside that group. The scan now queries those subscriptions individually, and any it can't read or combine in one currency stay unverified instead of counting as zero cost.
   - Grouped each scan's summaries, notes, and guidance in the HTML report into one scrollable panel so long notes don't lengthen the page.
+  - Kept actual subscription costs when a forecast returns no rows or no content, leaving missing forecasts unavailable instead of failing Cost Data or substituting actual spend.
+  - Respected Cost Management throttling delays in cost queries and Cost by Tag batches, and stopped waiting after the final batch retry.
+  - Limited cumulative retry waiting per REST call and preserved throttling errors when the requested delay exceeds a Cost by Tag batch deadline.
+  - Fixed Cost by Tag batch cleanup so a request that finishes at the deadline keeps its real response instead of being reported as a timeout (HTTP 408).
+  - Prevented forecasts from a rejected management-group response from surviving an empty subscription retry.
   - Confirmed billing account ownership before reporting contract details, and counted only enabled anomaly alert rules as detection coverage.
   - Fixed FinOps hub CSV fallback reads to match hub ingestion: each export run counts toward the month in its manifest, and only the latest FOCUS cost run with rows is kept for each export scope and month, instead of adding runs together or dropping other scopes. Exports for unselected subscriptions are skipped, a manifest that can't be verified stops the read only when it could affect the months being read, and CSV files that no readable manifest lists are reported. The fallback checks at most 2,000 export manifests, doesn't download manifests over 1 MB, and stops instead of counting a file that two runs list. Fixed agreement detection from subscription metadata when billing account details can't be read.
   - Corrected agent skill guidance on billed and effective cost and on when tags appear in cost data, and replaced references to unavailable tools with the terminal UI data sources.

@@ -216,10 +216,14 @@ function Get-CostData {
         }
         if ($forecastSums.Count -gt 0) {
             foreach ($subId in $forecastSums.Keys) {
+                if ($costMap.ContainsKey($subId) -and $costMap[$subId].Currency -ne $forecastCurrencies[$subId]) {
+                    throw "Actual cost and forecast currency differ for $subId."
+                }
+            }
+            foreach ($subId in $forecastSums.Keys) {
                 if (-not $costMap.ContainsKey($subId)) {
                     $costMap[$subId] = @{ Actual = $null; Forecast = $null; Currency = $forecastCurrencies[$subId]; ActualPeriod = 'Month to date (UTC query window)' }
                 }
-                if ($costMap[$subId].Currency -ne $forecastCurrencies[$subId]) { throw "Actual cost and forecast currency differ for $subId." }
                 $costMap[$subId].Forecast = [math]::Round($forecastSums[$subId], 2)
                 $costMap[$subId].ForecastSource = 'Forecast'
             }
@@ -269,7 +273,7 @@ function Get-CostData {
                 } | ConvertTo-Json -Depth 10
 
                 $fResp = Invoke-AzRestMethodWithRetry -Path "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01" -Method POST -Payload $fBody
-                if (-not $fResp -or $fResp.StatusCode -ne 200) {
+                if (-not $fResp -or $fResp.StatusCode -notin @(200, 204)) {
                     throw "Forecast retry returned HTTP $($fResp.StatusCode); results are incomplete."
                 }
                 if ($fResp.StatusCode -eq 200) {
@@ -299,9 +303,6 @@ function Get-CostData {
                         $costMap[$sub.Id].ForecastSource = 'Forecast'
                         $hitCount++
                     }
-                    else {
-                        throw 'Forecast retry returned no rows; results are incomplete.'
-                    }
                 }
             }
             catch {
@@ -311,13 +312,11 @@ function Get-CostData {
         Write-Host "  Per-sub forecast: got data for $hitCount of $subCount subscriptions" -ForegroundColor $(if ($hitCount -gt 0) { 'Green' } else { 'Yellow' })
     }
 
-    # Subs without forecast data fall back to actual, which understates a
-    # full-month projection. Flag it so callers can label the number rather
-    # than present month-to-date spend as a forecast.
+    # Month-to-date actuals are not a substitute for a missing full-month forecast.
     foreach ($subId in @($costMap.Keys)) {
         if ($costMap[$subId].ForecastSource -ne 'Forecast') {
-            $costMap[$subId].Forecast = $costMap[$subId].Actual
-            $costMap[$subId].ForecastSource = 'Actual'
+            $costMap[$subId].Forecast = $null
+            $costMap[$subId].ForecastSource = 'Unavailable'
         }
     }
 
@@ -399,9 +398,7 @@ function Get-CostDataPerSubscription {
                 throw "Actual cost query returned HTTP $($resp.StatusCode); results are incomplete."
             }
 
-            # Forecast starts as actual so a sub with no forecast still reports a
-            # number; ForecastSource records that it is month-to-date, not a projection.
-            $costMap[$sub.Id] = @{ Actual = $actual; Forecast = $actual; Currency = $currency; ForecastSource = 'Actual'; ActualPeriod = 'Month to date (UTC query window)' }
+            $costMap[$sub.Id] = @{ Actual = $actual; Forecast = $null; Currency = $currency; ForecastSource = 'Unavailable'; ActualPeriod = 'Month to date (UTC query window)' }
 
             # Per-sub forecast (skipped for large tenants)
             if (-not $skipForecast) {
@@ -426,7 +423,7 @@ function Get-CostDataPerSubscription {
                     } | ConvertTo-Json -Depth 10
 
                     $fResp = Invoke-AzRestMethodWithRetry -Path "$path/forecast?api-version=2023-11-01" -Method POST -Payload $fBody
-                    if (-not $fResp -or $fResp.StatusCode -ne 200) {
+                    if (-not $fResp -or $fResp.StatusCode -notin @(200, 204)) {
                         throw "Forecast query returned HTTP $($fResp.StatusCode); results are incomplete."
                     }
                     if ($fResp.StatusCode -eq 200) {
@@ -452,9 +449,6 @@ function Get-CostDataPerSubscription {
                             $costMap[$sub.Id].Currency = $forecastCurrency
                             $costMap[$sub.Id].Forecast = [math]::Round($total, 2)
                             $costMap[$sub.Id].ForecastSource = 'Forecast'
-                        }
-                        else {
-                            throw 'Forecast query returned no rows; results are incomplete.'
                         }
                     }
                 }

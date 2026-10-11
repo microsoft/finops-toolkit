@@ -18,6 +18,36 @@ param()
 # This is the "Understand" pillar - cost allocation and showback.
 ###########################################################################
 
+function Complete-ParallelRestJob {
+    param(
+        [Parameter(Mandatory)][hashtable]$Job,
+        [switch]$StopIfRunning
+    )
+
+    # Decide before stopping: Stop() marks the async result completed, and EndInvoke on a stopped job throws.
+    $completed = $Job.Async.IsCompleted
+    if ($StopIfRunning -and -not $completed) {
+        try { $Job.PS.Stop() } catch { Write-Verbose "Non-fatal: $($_.Exception.Message)" }
+    }
+    if ($completed) {
+        try {
+            $raw = $Job.PS.EndInvoke($Job.Async)
+            $response = if ($raw -and $raw.Count -gt 0) { $raw[0] } else { $null }
+            if (-not $response) { $response = [PSCustomObject]@{ StatusCode = 0; Content = '{}'; Headers = @{} } }
+            if ($null -eq $response.Content) { $response = [PSCustomObject]@{ StatusCode = $response.StatusCode; Content = '{}'; Headers = $response.Headers } }
+        }
+        catch {
+            $response = [PSCustomObject]@{ StatusCode = 0; Content = '{}'; Headers = @{} }
+        }
+    }
+    else {
+        $response = [PSCustomObject]@{ StatusCode = 408; Content = '{"error":{"message":"Timeout"}}'; Headers = @{} }
+    }
+
+    $Job.PS.Dispose()
+    $Job.Result = $response
+}
+
 function Get-CostByTag {
     [CmdletBinding()]
     param(
@@ -280,28 +310,41 @@ function Get-CostByTag {
             [int]$TimeoutSeconds = 90
         )
         $pendingJobs = [System.Collections.Generic.List[hashtable]]::new()
+        $deadline = [datetime]::UtcNow.AddSeconds($TimeoutSeconds)
         foreach ($call in $Calls) {
             $ps = [powershell]::Create()
             $ps.RunspacePool = $script:RunspacePool
             [void]$ps.AddScript({
-                    param($path, $payload)
+                    param($path, $payload, [datetime]$deadline)
                     for ($attempt = 0; $attempt -le 3; $attempt++) {
+                        if ((Get-Date).ToUniversalTime() -ge $deadline) {
+                            return [PSCustomObject]@{ StatusCode = 408; Content = '{"error":{"message":"Batch deadline reached before the request could start."}}'; Headers = @{} }
+                        }
                         $params = @{ Path = $path; Method = 'POST'; ErrorAction = 'Stop' }
                         if ($payload) { $params['Payload'] = $payload }
                         try {
                             $r = Invoke-AzRestMethod @params
-                            if ($r.StatusCode -ne 429) {
-                                $hdrs = @{}
-                                if ($r.Headers) { foreach ($k in $r.Headers.Keys) { $hdrs[$k] = $r.Headers[$k] } }
-                                return [PSCustomObject]@{ StatusCode = $r.StatusCode; Content = $r.Content; Headers = $hdrs }
+                            $hdrs = @{}
+                            if ($r.Headers) {
+                                foreach ($header in $r.Headers.GetEnumerator()) { $hdrs[$header.Key] = @($header.Value) }
                             }
-                            # 429 — parse Retry-After or exponential backoff
-                            $retryAfter = 10
-                            if ($r.Headers -and $r.Headers['Retry-After']) {
-                                $parsed = 0
-                                if ([int]::TryParse($r.Headers['Retry-After'], [ref]$parsed)) { $retryAfter = [math]::Max($parsed, 5) }
+                            $response = [PSCustomObject]@{ StatusCode = $r.StatusCode; Content = $r.Content; Headers = $hdrs }
+                            if ($r.StatusCode -ne 429 -or $attempt -eq 3) { return $response }
+                            $serverDelay = -1
+                            if ($hdrs.Count -gt 0) {
+                                foreach ($headerName in $hdrs.Keys) {
+                                    if ($headerName -ne 'Retry-After' -and $headerName -notmatch '^x-ms-ratelimit-microsoft\.(costmanagement|consumption)(-.*)?-retry-after$') { continue }
+                                    foreach ($headerValue in @($hdrs[$headerName])) {
+                                        $parsed = 0
+                                        if ([int]::TryParse([string]$headerValue, [ref]$parsed) -and $parsed -ge 0) {
+                                            $serverDelay = [math]::Max($serverDelay, $parsed)
+                                        }
+                                    }
+                                }
                             }
-                            else { $retryAfter = [math]::Min(10 * [math]::Pow(2, $attempt), 60) }
+                            $retryAfter = if ($serverDelay -ge 0) { [math]::Max($serverDelay, 5) }
+                            else { [math]::Min(10 * [math]::Pow(2, $attempt), 60) }
+                            if ($retryAfter -ge ($deadline - (Get-Date).ToUniversalTime()).TotalSeconds) { return $response }
                             Start-Sleep -Seconds $retryAfter
                         }
                         catch {
@@ -309,29 +352,18 @@ function Get-CostByTag {
                         }
                     }
                     return [PSCustomObject]@{ StatusCode = 429; Content = '{"error":{"message":"Rate limited after retries"}}'; Headers = @{} }
-                }).AddArgument($call.Path).AddArgument($call.Body)
+                }).AddArgument($call.Path).AddArgument($call.Body).AddArgument($deadline)
             $async = $ps.BeginInvoke()
             [void]$pendingJobs.Add(@{ PS = $ps; Async = $async; Call = $call; Result = $null })
         }
 
         # Poll until all complete or timeout, keeping WPF UI responsive
-        $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
-        while ((Get-Date) -lt $deadline) {
+        while ([datetime]::UtcNow -lt $deadline) {
             $allDone = $true
             foreach ($job in $pendingJobs) {
                 if ($null -ne $job.Result) { continue }
                 if ($job.Async.IsCompleted) {
-                    try {
-                        $raw = $job.PS.EndInvoke($job.Async)
-                        $resp = if ($raw -and $raw.Count -gt 0) { $raw[0] } else { $null }
-                        if (-not $resp) { $resp = [PSCustomObject]@{ StatusCode = 0; Content = '{}'; Headers = @{} } }
-                        if ($null -eq $resp.Content) { $resp = [PSCustomObject]@{ StatusCode = $resp.StatusCode; Content = '{}'; Headers = @{} } }
-                        $job.Result = $resp
-                    }
-                    catch {
-                        $job.Result = [PSCustomObject]@{ StatusCode = 0; Content = '{}'; Headers = @{} }
-                    }
-                    $job.PS.Dispose()
+                    Complete-ParallelRestJob -Job $job
                 }
                 else { $allDone = $false }
             }
@@ -342,11 +374,7 @@ function Get-CostByTag {
         # Cleanup any timed-out jobs
         foreach ($job in $pendingJobs) {
             if ($null -eq $job.Result) {
-                try { $job.PS.Stop() } catch {
-                    Write-Verbose "Non-fatal: $($_.Exception.Message)"
-                }
-                $job.PS.Dispose()
-                $job.Result = [PSCustomObject]@{ StatusCode = 408; Content = '{"error":{"message":"Timeout"}}'; Headers = @{} }
+                Complete-ParallelRestJob -Job $job -StopIfRunning
             }
         }
         return $pendingJobs
