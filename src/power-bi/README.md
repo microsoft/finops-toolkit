@@ -17,7 +17,7 @@ Power BI reports use [Tabular Model Definition Language (TMDL)](https://learn.mi
 3. Enable the following features:
    1. Power BI Project (.pbip) save option
    2. Store semantic model using TMDL format
-4. **DO NOT** enable the "Store reports using enhanced metadata format (PBIR)"
+4. The "Store reports using enhanced metadata format (PBIR)" setting no longer applies. PBIR has been generally available and the default report format since September 2026, and Power BI Desktop converts reports to it when saving. Power BI Desktop keeps a backup of the previous format for 30 days under `%USERPROFILE%\Microsoft\Power BI Desktop Store App\TempSaves\Backups`.
 5. Select the **OK** button to save settings
 6. Restart Power BI
 

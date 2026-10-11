@@ -348,6 +348,39 @@ Describe 'Test-DemoPbix' {
         Test-DemoPbix "$TestDrive/extra.pbix" $report | Should -Match "1 table the report doesn't use \(Resources\)"
     }
 
+    It 'Passes a report saved in the enhanced report format' {
+        $parts = New-ValidParts
+        $parts.Remove('Report/Layout')
+        $parts['Report/definition/report.json'] = '{"$schema":"https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/1.0.0/schema.json"}'
+        $parts['Report/definition/pages/pages.json'] = '{"activePageName":"page1","pageOrder":["page1","page2"]}'
+        $parts['Report/definition/pages/page1/page.json'] = '{"name":"page1","displayName":"Get started"}'
+        $parts['Report/definition/pages/page1/visuals/v1/visual.json'] = '{"name":"v1","text":"FinOps toolkit v1.2.3"}'
+        New-TestPbix "$TestDrive/pbir.pbix" $parts
+        $result = Test-DemoPbix "$TestDrive/pbir.pbix" $report
+        $result.Count | Should -Be 0
+    }
+
+    It 'Fails an enhanced report saved on the wrong page' {
+        $parts = New-ValidParts
+        $parts.Remove('Report/Layout')
+        $parts['Report/definition/report.json'] = '{"name":"report"}'
+        $parts['Report/definition/pages/pages.json'] = '{"activePageName":"page2"}'
+        $parts['Report/definition/pages/page1/page.json'] = '{"name":"page1","displayName":"Get started"}'
+        $parts['Report/definition/pages/page2/page.json'] = '{"name":"page2","displayName":"Summary","text":"FinOps toolkit v1.2.3"}'
+        New-TestPbix "$TestDrive/pbirpage.pbix" $parts
+        Test-DemoPbix "$TestDrive/pbirpage.pbix" $report | Should -Match "opens on 'Summary'"
+    }
+
+    It 'Fails an enhanced report saved from an older build' {
+        $parts = New-ValidParts
+        $parts.Remove('Report/Layout')
+        $parts['Report/definition/report.json'] = '{"name":"report"}'
+        $parts['Report/definition/pages/pages.json'] = '{"activePageName":"page1"}'
+        $parts['Report/definition/pages/page1/page.json'] = '{"name":"page1","displayName":"Get started","text":"FinOps toolkit v1.2.2"}'
+        New-TestPbix "$TestDrive/pbirold.pbix" $parts
+        Test-DemoPbix "$TestDrive/pbirold.pbix" $report | Should -Match "doesn't mention version 1.2.3"
+    }
+
     It 'Fails a report saved before the latest build' {
         New-TestPbix "$TestDrive/stale.pbix" (New-ValidParts)
         (Get-Item "$TestDrive/stale.pbix").LastWriteTime = (Get-Date).AddHours(-2)
