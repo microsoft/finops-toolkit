@@ -229,6 +229,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '00a879e0-f555-53b4-aa7f-2722f716bc32'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '00a88915-363b-4454-9aac-8fdcabed472a'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '00a8c4e5-3386-58c7-a60e-9d01528d8992'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '00a92d33-2d92-4774-8499-57e6e48bef12'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '00aa1700-c004-5404-96e4-6561c3325b1f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '00aa4140-2795-5eb5-97dc-d43d61ec7288'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '00aa8a09-86c6-597c-a9ae-51c47fff3c27'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -382,6 +383,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '012e5b05-1291-50d3-8235-eb3beb113e68'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '012fa2ba-1038-5cbc-a3f4-3b57582264bb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '012ffb71-a3d9-5fcf-97b4-b9402cf2e847'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '01301071-169e-500e-aaa2-621aedc00f76'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '013073c0-8d99-5b9c-953b-abac0f2bd07e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0130e95b-1470-5f5c-ba34-d4d583288afa'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '01318dfb-0344-54c0-9dcd-193807a62313'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -1149,6 +1151,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '03402a69-e5b6-5d95-b25f-bbe682f6b491'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0340f051-6e70-5fd2-b0eb-e752f712a29e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '03427fe9-8b8d-4327-9b1d-0a5f5cb983de'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '03439b87-a91d-5f43-9ea3-59c541a01da5'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '034499f7-7405-4bd1-bb1e-3dc939c1fad2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0345357c-fc81-5dfe-82c6-0f44a9dcaaf3'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0345e13d-31d9-5179-9b5c-6388821b1f79'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -1561,6 +1564,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '04743e9a-1f92-55e3-84d5-daea0ec4d4a7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '04747909-677b-46ce-be41-06f92d65e1c4'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0474bff8-12dc-50f8-94fe-5a95a2e219ba'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '0475e85f-41e2-594d-9aa8-8ae8e166050f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '04764fe7-4be7-5610-898e-22e7c06837f7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '04765460-11e0-59c1-b5b5-0a4b0e879724'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0476be15-cd87-4c21-b56d-922f957a3971'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -1697,6 +1701,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '04d6a685-7a1e-460d-9b31-230eeb8dd003'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '04d759ac-ad37-5155-ac5f-d85289b2035b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '04d77227-6481-5d38-9b3c-1b9b74a5dfdf'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '04d82868-04b7-5b24-ab4e-4a514597c027'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '04d89670-63a6-550d-a1da-efdbdabf7bbd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '04dabff3-37da-55e0-9f7f-72e896ab59db'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '04dc3f3a-1fdd-5aa8-8869-dac625d227f7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -1775,6 +1780,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '0508ee94-af79-4c17-ae71-39095ad07084'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '050948c2-a1a0-5bbc-b762-5b4b67ffb93c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '05096e7b-7f47-5061-957e-b75950a4182b'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '050a219a-6607-5ce3-95f9-88727fa94799'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '050ae7a5-269f-5a02-9b08-0ab8572bb77d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '050ce798-c39c-545e-83de-53c4d004daca'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '050d3cf4-c7cb-51e3-b7cb-1d336c6c4e89'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -1952,6 +1958,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '056ed291-e14e-5ade-bc2b-ccdfce7f3d1d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '056efa76-fb71-5eb0-bee1-aa4262e7f156'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '056f3789-302d-5d5c-b89f-b52b782e5137'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '056fb07f-0270-47ef-a5b0-dc2778dc969f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '057014e2-efa2-5a42-8299-f5b4d1b42a4b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '05709106-c2db-5e34-8d5b-971ce0f5f8b7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0571bbac-f7f1-5c46-87e2-56bca47c3b93'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -2875,6 +2882,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '07f37820-9ffd-5e05-8e4f-351028b2ff67'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '07f38eb1-fd3b-5b45-bdc7-1be715e10928'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '07f4ace3-bad8-5f11-a0c1-664f226f2cdb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '07f5251d-19c4-54bd-8f86-7b9d56486258'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '07f546e2-517d-5382-89db-f5ba46a6e4a5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '07f57335-6bbd-503a-8f82-da2cdd0b1289'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '07f625c1-36fe-5c38-aef1-a09a58fe8725'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -3069,6 +3077,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '08850907-c7ec-59a7-aed8-9850a0036680'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '088528ca-2c53-5994-9107-38a20dedf3c7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '08859c96-e5da-593d-8359-d358f8eff830'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '08866513-bf6c-5af1-885b-3a2d1bb3c565'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '08869aa7-263e-52a7-becd-6bbb17a7c796'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0887c987-7e3f-536a-a178-7d5a9ba628de'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0887d5bc-305e-57d9-87a5-46622553e444'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -3497,6 +3506,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '09c2ac28-9213-5bcb-b809-d28a71b45805'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '09c45306-03d9-56f2-86db-4240da1b894b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '09c508e0-2f56-5e0e-90c3-d1c52c6a046e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '09c62172-6250-58a9-bb56-d74d00e0695c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '09c7749a-bdec-5a72-bb21-a5d5cdc99cd8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '09c813a8-9bc5-5732-9c89-46613fd506ea'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '09cab69b-555b-59bb-b83c-426b27ebb41c'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -3788,6 +3798,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '0a9950bc-8afa-5127-b278-e7936d5abc51'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0a99e716-cfbe-5ea2-80e5-ae0389249aef'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0a9a0e22-1e77-441f-9d1e-088ebea850c3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '0a9a92e0-1f11-5488-96a2-4879757ccd40'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0a9b72d6-9469-5a4a-b81f-e1eb151a9c59'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0a9d4383-b2d5-5fff-a67d-a7469aadce8c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0a9e5d1d-8792-59bd-bcc5-16d61d73f8db'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -3885,6 +3896,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '0adec3f7-8c7f-5088-8287-e3497f47f0f9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0ae2eb51-5e56-5eda-829b-8a19285394b7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0ae41831-5bf9-5084-bdae-358971a9ea40'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '0ae41a88-f122-5050-8c1a-b2126ba06003'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0ae49554-bf65-54e0-bd1a-4d2d8a051e80'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0ae70780-769f-5b2c-9c80-a138a8096ffd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0ae75bea-b298-585c-81f6-0d6fb647cb65'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -4166,6 +4178,8 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '0bacb28a-077c-5eba-8170-34a2018c5e90'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0bacf83b-b8f0-5556-a1f4-50851cf3ac15'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0bade1a9-fe44-5b6b-a5fb-63e7ffd28f8d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '0bae17e2-87fe-483d-80f0-a6e25ecf5e04'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '0bafd6ef-84bc-5952-b7d3-68438465c829'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0bafeb00-a3b8-59f9-840b-1367e188916b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0bb26d13-90ea-5c29-96a7-ad89772851f4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0bb31f49-dc2e-5645-9b74-288d6cc157cc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -4241,6 +4255,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '0be66b33-e05e-5166-992e-4d99b90858fb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0be7b263-e5de-553d-84c4-229ae6527a9a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0be7d006-fda6-4423-bbff-1d839d3231c7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '0be7d5fa-4f49-4157-8acc-658588e5460c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0be8296e-8c5a-58a9-8050-cd41e3e2df7e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0be8f2cf-3d20-5c21-bc6a-68a073e8d60f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0be9309f-9a48-5bed-b422-f500a61f7ac2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -4927,6 +4942,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '0dc1b800-702a-58ed-827d-1aff74df1a31'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0dc1f416-2927-5dfe-aab9-631329678099'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0dc24253-9a89-574d-a893-236e8d15abc4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '0dc291bb-f483-5408-bf7c-52b0af8a7ac5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0dc2fd3e-fe0b-4172-8c53-297851a3d2d1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0dc315c8-5f1f-52e1-bb76-ec0be2131c32'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0dc3df99-6e37-4b24-b851-2cff9777c94b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -5089,6 +5105,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '0e342ec6-6731-56a9-a737-de2528511079'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0e352709-0c9b-5829-8546-9807a575c0d3'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0e358d2d-b714-59fe-b559-8462caf03a78'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '0e365dc1-9b72-51d2-ae0d-08fc55cbe52a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0e3840bb-8cc8-588c-98a2-5fc1c5abcde6'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0e38644f-f3a1-56d0-88d2-5edfc0fa00e9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0e38ab9e-48ab-5f8f-8b49-ff6dc79f3bc7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -5211,6 +5228,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '0e88f4f0-8614-5e69-bf71-676ac8d3c707'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0e8a00ad-a29d-50f0-8be7-249245d6c5f1'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0e8a7616-8d50-4faf-9ed4-1ecd56eb38f2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '0e8b1a50-502e-548a-a8dd-d8fe1a2684e3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0e8b250a-0459-56e9-877e-cf2994144908'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0e8b555a-1c02-5c16-939f-71ae67a86bb3'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '0e8b80a5-70a2-5130-bcc9-695d7aaa1f65'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -6078,6 +6096,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '110c500d-0f33-597a-acf5-1266aaca5342'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '110c5388-d715-5b3f-9339-a654545fe32e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '110c5c41-cb55-5bfb-a7a2-1ff608f139e0'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '110d2fdc-a05d-57b7-99f0-dfc4bbaa965e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '110d37a2-dbba-5870-bf4e-cd4db50f9651'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '110dd6d9-d25e-4eff-9ee8-1f242e0fc16f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '110f6e8a-2aad-52fb-9c7b-a2877ca2af68'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -6534,12 +6553,14 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '124db183-5612-5c02-8717-33e71e0db698'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '124f039f-240e-505d-b8b6-050e334c752b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1250acc0-85ae-439f-a39c-f7b1f66087aa'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '1252041a-b1c7-587c-b026-f065c21e5986'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '125387ab-0620-4c63-afd5-1557f1b478cc'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1254b016-1c0e-56b5-b849-e08bf9f89b5a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '12563ae1-b04e-4c5d-9dc9-399fb51dbeac'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1256883f-9817-5e20-8f74-ee5b7e468aca'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1256ac6b-f074-5d8f-840f-0c27a46f85a8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1256cdaf-af4c-5745-b5d5-f428aaccab6e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '125808d8-85d8-4c10-a73c-1063698fb2e6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1258bf64-6b30-5095-93ee-b4f64392dd04'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '125a947c-c280-4827-8821-befd47e5981b'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '125afd45-f1db-580a-a140-e93086c24908'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -6710,6 +6731,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '12e0b44b-608b-5a95-a64a-d8f811b0c248'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '12e1532d-18d8-5c5e-9db9-93aec4111320'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '12e22b1e-9df9-5517-a25a-88786cb93fc3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '12e25d47-8be5-54a2-b9c1-1a36e827a67d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '12e2ddf9-38e8-5c9b-87dd-dd8295c69ab5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '12e2fccc-fc18-57ea-bb52-8b53fbaae904'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '12e46a64-5bbe-5ab8-b5d3-9fef80d021d9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -6828,6 +6850,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '133424b8-7513-51d1-bba2-5108634d0585'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '13342ae2-1bf1-4fcf-9edd-0db9a6fdfe6e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1334b333-35bb-50d0-8422-3acb20a9cf7e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '1334ff11-1cf7-528b-9da1-f03430bbecf7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '13366d26-531c-5b3a-b16b-5b2da950dee2'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1337b55f-6d81-5d3a-86ad-97336de9ce1a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1337b6bf-f56d-5fa1-9349-85c9205180ed'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -7602,6 +7625,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '1560f3e0-4c29-5a61-b3e9-9b4b486c6064'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '15610659-3e61-595a-ae03-893f538c82d1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '15615ef9-a35c-5ace-8d08-2e58f0ac7389'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '1563b6cf-c75a-5adb-9893-8e2666e17aa5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1564a8c0-7d3d-5000-8d88-e50c5d73b582'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1564afb7-f9f0-583a-a77c-2d08e13b51ab'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '15658566-99b2-589b-a1b1-c57e09debf44'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -7652,6 +7676,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '157f5a3b-c29c-586e-a718-07eaf2b2326f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '15818c6a-faaf-5495-88bc-75911f9398f0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '158240db-a15b-58c9-a9d8-fade630928b0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '15831c5a-e829-5ea3-8aff-0063ba6d7064'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1584e67f-bb45-5825-973a-1c8fd454ed5c'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '158563da-c226-4da1-9c2c-f177aa11602b'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '15862300-3927-52b1-bfca-a8866e684d36'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -7675,6 +7700,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '15935054-031a-5501-b57f-8259c65c7865'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '15943bd4-f458-50a3-8dc6-43197034729d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1596304b-01c1-48d5-866d-b1e67d5244c8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '1598689a-fadb-5cc5-a194-9f24cd59b430'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1598bb07-82b6-4d80-82e4-145913675ad9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1598d005-612f-556a-83bb-cab0b03d2c4a'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1599db38-15c5-5b26-bc5f-7deccf5d3002'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -7796,6 +7822,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '15f67184-e466-5ebc-9638-6f608ea62e2f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '15f68d78-999e-5377-a8f5-23d14b7c8122'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '15f7e66b-5cdc-567d-802e-c26461e53374'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '15f92e49-3f11-56d9-9325-f32ff21acb07'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '15f9c651-4000-5eaf-a7f0-ca1ed0c4b8b8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '15fa2bb2-035d-56ec-9820-f48db2fdf8dc'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '15fbd66f-bd8b-5280-bec2-e4a5ba781bf1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -7843,6 +7870,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '161eae39-beb7-5678-8875-9f3fdd58dbea'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '161edeb8-ac13-58a8-aad8-6f9fb095388d'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '161fe789-1b14-590f-b822-11e6462372f0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '161ffe31-7b19-565b-8ac4-f0e515199bc5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1620066d-5067-5815-82b3-e7ee8daf74f9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '16206574-bd45-58fd-84bd-7b9e7f356111'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '16211eea-555f-5571-9d83-4426571e7cb6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -8175,6 +8203,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '16fe1781-9dae-5d5d-b1f0-691f1cdf368a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '16ff92f4-dd4c-556c-acba-14fc5247e2d8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '17004f7d-a37c-5c95-a406-f5f6793ff913'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '1701b6bb-2ded-59a7-95f3-7a5cf610b09d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '17036837-6517-548a-a7aa-ab084c72f5c4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '17047441-fc8c-53b4-a50b-6e4cf8f50425'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1707b2a4-5bdb-5045-ab76-9f22cab6ab48'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -8209,6 +8238,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '17164a78-d6f6-5fff-853b-182c5a7bbe5c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '17168af5-51ca-5023-8b82-804b256a3ca7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1716e1ac-c5f4-5578-8a9a-ecaeb2da8e55'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '1716fea8-498d-554b-8dc9-271605971162'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '171719cf-9a7e-501c-8007-430479c391d5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '17178488-9430-5871-ac29-2ef7fb6791a5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1719b1dc-bdaa-51a7-b18e-d6a9f4149481'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -8234,6 +8264,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '17242530-8d13-5b4f-8977-14b0d453cf23'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '17249f41-2bcd-54ee-8d24-363749a2326e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '17258b34-a9e2-5c80-bc5f-26c237e8e0ce'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '17259a55-4577-53f6-9a0e-86e62dcc56de'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1725e64c-f4ca-537a-af2a-f1dae9736c2e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1725ffff-ae6d-555b-97db-11c24d8ffbf4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '17261d86-3a78-5baa-83d8-7a7868509903'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -8260,6 +8291,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '172fd74f-206c-53fe-98ce-6cc1a4d56511'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1730281d-3b61-5baf-b7e4-7cef1b70a108'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '17317630-04da-5852-b444-fb83490e6bc0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '17319e0f-449f-537a-a739-5c73a2965abc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1731a929-7993-5899-ba14-7949002070e8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '17328955-896c-54e6-bed8-4c26ab141297'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '17343ab0-d1c9-59c5-ae46-ade2b36186ed'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -8808,6 +8840,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '18d3ae11-8278-58eb-af4b-cf0d90ff8da5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '18d49c0f-69cc-5e0a-824c-2821cd210aff'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '18d4bde1-285f-5dc9-90ae-ff90a9ff57df'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '18d51f8d-8c62-5062-991e-966d227d7f6c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '18d584ee-9168-5424-8d71-3f70c2b6cc69'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '18d595a5-dfb4-4a57-8ef5-d6718a194493'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '18d5a857-793b-50a0-a40e-a6c4939bc6cd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -10011,6 +10044,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '1c08d44e-73a3-5d14-a055-501e9ccd74ea'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1c08e419-be2b-5462-ba41-b347f1db607b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1c0ce71e-b27f-51c1-acde-b5cfe8c3d3b9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '1c0d2a92-3fa1-50e1-a8af-4fc102a39c1f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1c0fa507-1a41-5bb9-bad5-0dd88f850948'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1c0fb48a-e518-53c2-ab56-6feddadbb9a3'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1c0fd066-89c3-569d-a6e5-b7586677c4e7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -10656,6 +10690,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '1dee7c84-725f-5db7-8b8e-26adcd833492'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1deee4cb-284d-5a2c-b59b-24ce58d30067'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1def0b27-ce3b-5586-b4bf-ff03ed71170b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '1df30523-aac4-5885-9fe7-58e88ae1a381'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1df6540f-f01d-5016-8257-2fd68dc8d7eb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1df6c10d-d0d6-5c0c-9aec-8790c34ac572'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1df7c0c9-2c91-5b20-a239-ffb0d3349b04'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -10783,6 +10818,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '1e4d38a9-c95d-5347-8127-ca3706b60a3a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1e4dd4e7-b303-59ae-9885-f908ba0aa85e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1e4fd597-3e5b-5e0b-b15a-b0dec85ab912'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '1e51eb76-0780-5b5a-acd6-f2e27529f7b1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1e51f089-c313-40a1-867a-3b9b6bebb631'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1e52c3fc-b4a7-5d6b-833a-d3fc8fc48c00'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1e53277d-d558-578b-814a-2fc3637b7dd9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -10861,6 +10897,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '1e7d878d-f37f-5925-916a-a73f5708e211'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1e7e3cce-1738-55fc-9b97-7775f690896c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1e7e4a0e-0e1c-5728-b4e0-34090c8c6728'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '1e7e6d17-768e-5dcf-9cdf-ac75d0054c7c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1e804805-8752-552f-9a39-820f521b8cf5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1e80fd24-f3d4-59e1-84df-db52d96cdb2b'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1e813b29-1311-52ea-a58d-432e6a8541e9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -11031,6 +11068,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '1ee2803b-c12a-5fcc-b082-0fac0274979e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1ee5158f-be41-52dc-89a6-e5ad502540c8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1ee544b4-d008-4f33-992f-4158003126c0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '1ee5784e-0969-5116-a9de-7730677efc1c'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1ee5d74a-1e5d-5ddf-91ea-f16575865108'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1ee7293d-346f-548f-802f-b0716088071a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1ee8f18c-4145-56e8-9dad-821dbac61cca'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -11074,6 +11112,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '1f01629f-ca4b-5222-ac9e-86f38fe9b3ac'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1f01a8a5-3680-449d-bd38-40c9ff08180b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1f02db5c-3730-525b-93a6-0921d3a44cc9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '1f02f997-e717-5e07-91cd-a6287fda843c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1f0405b8-5e40-500e-a72d-5f1bb435bf8c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1f0425b5-ad4d-4ec4-a165-1a8571f97732'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '1f059a27-5cca-5eb2-bd58-f52289ed9816'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -11629,6 +11668,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '2099baa0-ad19-5312-a981-9bb7bee9dc8b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2099ccfe-9c25-4ae2-9e35-6500db3b8e74'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '209a1052-e67f-5bb0-9975-d6a9c4cbd27a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '209a5d4e-77b1-5b90-9f9e-e07bfa0e603d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '209b0d56-6923-5bae-8de4-4652138ebd42'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '209b5958-79c7-53dc-a6ed-0352a25b7601'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '209b6528-77b4-5b61-a742-3937fdc33e37'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -11648,6 +11688,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '20ab429e-b559-5c23-abf3-5d4f312db5a8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '20ab9d56-8414-5726-8b5d-0771528af5af'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '20abb233-5cb3-5e25-bbc4-7f1e40aa0acc'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '20ac135a-53b3-5dc7-965f-b36304ea93e9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '20ac2d0d-552d-5dbd-8499-b73b5e66abed'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '20ac9254-7fc5-4e2e-8641-95923e2fc738'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '20acf488-c2de-5a96-99aa-f28f31e7f07e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -12461,6 +12502,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '22d81956-a487-5caa-973e-874545be18a7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '22d8e2a2-ee4a-51fc-b981-349d3b3df8ae'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '22d94c96-0f7e-53b7-9083-e14721e72627'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '22d94d33-7e97-59a7-b7f9-f94f72c01456'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '22da5cde-61c7-5cbb-b5d4-f0e2f2bc9712'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '22daa86d-856e-550d-930b-c9f0a9b99089'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '22daead0-83a1-5e6c-a242-c64c3337eeea'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -12512,6 +12554,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '22f6abb5-e7f9-5842-a5fa-0e0bcffbb4b3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '22f6d344-4ca2-5650-aa46-853034fc12a6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '22f74b87-aa1e-5223-8394-99d9c76fb617'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '22f8709e-584e-53b9-ab74-fbb2717cbf7e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '22fa9287-7ea4-5afe-9675-5b47f30e6613'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '22fc864a-4304-56de-87e9-0d9af344cd84'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '22fe1619-3637-5e0b-b6cd-702340ecc330'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -13065,6 +13108,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '249aace1-9d79-5665-afd2-8255cd68fa32'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '249b3498-f6d8-52e6-8e91-14d4e07275ff'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '249b8d77-6702-51ea-bf42-bce1e2426803'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '249dc17d-d16e-5899-bc07-51f428af499d'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '249e3043-2f48-543f-ab8b-8dc78d4db033'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '249e905f-03bb-5d72-843e-dacb8c819291'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '249f8c0a-e785-5713-807e-6ca5f8471c64'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -13229,6 +13273,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '250303ee-de61-46d8-9e31-ac0ed9c6ce98'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '25035f23-a0c1-5b7f-9fd1-fc6078bb06b3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2503aa38-697c-54e0-bb7d-9c6a23354884'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '2503b086-1f01-59b2-bf57-7c352ae2675f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2504e42d-6240-5797-a66e-57aa95c62bb1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '25057de0-4da7-5a59-bebd-3456b97cddfb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '250694ae-01ed-502c-83cd-e71f598f57d8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -13391,6 +13436,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '256cbeb4-e82d-50b8-a3d2-dafe9e4ff2f2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '256d378d-6a15-5db9-be72-2ef545919009'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '256d5340-512e-5ec5-848b-8a22dc6db110'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '256e070d-b60c-5f59-8d28-aaf1715204e6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '256e60d7-485c-5fa5-9083-a23b2854e837'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '256ed786-ce67-5530-9759-4ffe226cfd31'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '256f2215-bd23-5058-a2c5-1c5892d546a3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -13464,6 +13510,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '2598eb4e-3595-5df8-b27e-9c1b4035b43e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '259918cb-d1d9-59c1-b0e1-182478dde440'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '259ba7c0-df8b-59f3-81ba-fd1874d11758'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '259c0847-0f3e-52fa-9f6c-b21716583a9e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '259d2cdc-6924-5f78-b5b4-15c4cfe66182'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '259e69db-837c-550f-b351-dda4fbb5a69b'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '259e7cfb-90dc-541f-a6c4-d246e50f887f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -13730,6 +13777,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '2660c2cb-61cb-5b07-9f86-74fad96edefc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2660e8fa-fd3c-5055-9854-049dee33cae4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '26615230-f3af-5de0-8fb5-44db592b0603'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '2661e960-9771-5427-bbd0-b0c9f1ed2d7f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2661f53e-c52f-58b1-a283-2bc12328878d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '26629df5-fa06-5a31-b111-975e93a67662'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '26640afc-e780-5d36-88d8-409399a0683a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -15232,6 +15280,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '2a5b5aaa-44de-5854-a674-1f9966539ab2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2a5b6a65-c1dd-5447-a033-799636b1991b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2a5cea96-f82b-5e5b-a119-f807ac7c49a3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '2a5cfee2-8237-5aba-815c-567de2674f79'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2a5df6ae-573b-519a-9004-ff441b8c19fe'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2a604f7f-f6b6-58fe-ac28-3638eadb98ac'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2a6085c1-ad8f-5109-af53-bec668924124'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -15321,6 +15370,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '2aa9143e-275c-582b-876c-7ff56d3b5d74'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2aaa57bc-62ec-4b51-8277-1d559cf1a11e'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2aab637e-902f-523e-aebe-7d301ced1120'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '2aabc8ea-0e00-5c2a-9027-8e00fe4a01f9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2aac5a60-1242-595b-a960-4006c10c26d2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2aaca1d3-08b0-508c-bb23-b97c108a14e3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2aacb649-8781-5ed8-aef4-39da54dbd806'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -16754,6 +16804,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '2e7386d8-0aa5-595a-bc52-e0b24a235692'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2e73aba4-3097-59ea-a5b3-4514da1e9c0e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2e74e6df-2f4b-5fac-ac28-8ad893afeced'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '2e756559-3077-5ba0-9009-73d34c719d42'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2e756dc7-f4ea-5739-95df-89f313522dd9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2e770fc8-0d24-53a2-8791-dbf70786835b'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2e77f014-cb50-5b5a-af81-92c037216586'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -17018,6 +17069,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '2f39f3ac-17dd-5cef-80e1-bb5cde79ebae'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2f3a540c-5f05-4d29-94b1-522432d0d5fe'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2f3b23e1-30cb-53af-ab22-e50c270af2a7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '2f3b338d-48b5-580c-bc6d-78b3ee309e36'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2f3c0ba4-a006-59cb-b34f-d58074e54bb7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2f3c5b40-844c-5442-9538-4f095a20a048'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '2f3c5ed3-a187-4fb8-9d8b-02e36641e27b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -17533,6 +17585,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '30a12171-9b79-5cc1-9676-574f6028349e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '30a12466-e440-57d4-bfab-5c5fe7df19e9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '30a344b1-b846-5553-92a5-785e3e521796'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '30a35f6a-9705-5fe8-ad9b-efe02168574e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '30a4d900-c9bf-532f-a397-2a2116e88db1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '30a59732-c5d7-57e8-81d4-76b924b59767'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '30a7e2b9-6a93-5056-9f0f-0ce1c8a4d47e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -18074,6 +18127,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '32180bb0-a4a0-5ace-9a66-09f50397bf69'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3218122b-40cc-5370-94d3-30df628d08f5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3219ef6a-74ab-5c99-8c4e-6da538eab8ff'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '321a417b-49eb-5a32-aef1-7e0defcf816f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '321a4492-1e5b-5274-b9f3-538a92a581a6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '321ac46a-2496-5ae0-8f4e-a1b5a05e0a60'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '321b44c1-4ddd-5063-946c-bdf6a15f16be'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -18439,6 +18493,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '3300fbdb-b410-55f5-93c1-38c67f4cd0e4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '330149dc-8f6e-5193-b491-b5ffbefd821d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3301800d-6fa4-5f82-a5cb-4e3aaaebce06'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '3303039e-8d9b-5421-8c5c-66f99c1e132f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '330364c0-afc4-57c4-bf87-5b6974b401ed'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '33046e51-bdad-5374-9516-327b2b8a0d09'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '33049dd6-0d61-4472-849f-157a45f8392c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -18938,6 +18993,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '348047a6-7c1e-5bb0-b1e3-205d8e3108d6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '34824239-e822-5867-a1aa-d13c1e7413ed'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '34837147-e8e6-5467-bb31-d09a9a413473'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '3483789d-2df9-4879-b6f4-268e54859a24'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '348554e8-448b-5b94-ac02-a3e6aea3215b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3485d95a-76d3-5376-aa7e-730be6fbe0e5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '34864efb-450d-5fc4-9c7d-d4e7c1b72368'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -19169,6 +19225,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '352a26af-1be9-5334-a2d7-9ba8432a726f'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '352a3509-00cd-5915-9317-ea9be0dd3b86'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '352a353d-88d3-47f6-899e-465e3e336662'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '352b2d8c-1138-5479-a461-01a06f4b5740'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '352b3656-05a9-56ed-b9f6-1bb1b9384b0e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '352b4bb9-25f1-5f5d-bf50-0ef8fff0a329'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '352c56eb-4bdc-5c87-b152-ad6047217064'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -19178,6 +19235,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '352e3bde-5f39-5c12-8b9d-ac663e70cb56'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '352e3dea-19c7-57dc-a00e-b7dc0a62624e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '352f676e-7332-5623-9ff4-1158e5a1fdcf'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '352fba92-724b-50f4-a433-f5e415ce6c17'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '35318348-1971-5975-853e-4b320289b9ff'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3531adbf-4dc2-5e69-a12d-81936ffd069a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3532cf46-8a85-5886-9451-4fa017f285d1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -20154,6 +20212,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '37ca2e81-54e5-5c4b-bf2a-560e904213a9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '37ca6fee-3352-52cd-b327-2111743651e3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '37ccbe29-1b28-546c-81e5-25c5d377b411'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '37cd8044-e5f0-5be4-967b-5678862d0617'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '37cda5c5-99b6-5190-8f55-cc51a594421e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '37cdb5f8-888d-5cfc-9527-c051099e0245'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '37ce2874-a24b-51c9-ba68-92deb3066273'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -20346,6 +20405,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '38555454-235b-5140-bfaf-9b99fa59f9e0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3855d838-8320-54fb-9f2e-fc5aef4e4999'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '385a6b7c-bf3c-4787-a9b0-f97c0180537a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '385a9765-2a79-5c80-93e9-7096da51d234'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '385ac95b-2f63-50a5-aa7a-a91341fbbcdd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '385c4fb3-6388-5f41-b076-4b0d98fc9d9d'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '385cc0a3-8d66-5c79-ac9b-16baba63bbc4'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -22213,6 +22273,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '3d921e8d-0fcd-5b09-900b-aa376e6bb57a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3d92489d-7cb6-52fb-922a-a9b49f2719f5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3d943793-f799-5945-a4d9-f1f23c8c4be2'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '3d952ec1-3455-54fe-86ed-0ae4a5864088'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3d958eba-2e32-5e01-86ee-7e0bc4506fc0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3d9660ca-3f83-5bfa-93e7-7448305cbd01'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3d96b69f-819b-555f-95a5-cc756cb541a9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -23078,6 +23139,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '3fefc829-116c-596b-875e-13ec04e097ba'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3ff0b7ab-d88f-594c-943f-0c8ac474abe1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3ff11b8f-e7eb-5a71-86dd-dfb51155e1e6'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '3ff12f9f-80c4-58a4-8bb0-5098fb6122fb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3ff196a8-0ddf-549e-8af9-3c35a9c2a5da'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3ff1a58a-7a72-5079-a0b8-f47d3ebf16be'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '3ff1d697-354c-539f-a8ff-b3e907b7f5ff'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -23697,6 +23759,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '41a274e8-189a-5754-b5ee-0a3be21356ba'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '41a3f638-4bd0-49d5-9734-a3397deb5bff'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '41a4ae24-0482-58f4-8fbe-3aec0f0d4f48'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '41a4e3ef-c6f1-58d2-99f3-a00e8f1c42ae'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '41a5338f-4810-5030-b65d-1d714460509c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '41a96636-7684-5ffa-9087-f3bdd94bc24d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '41aa8163-edae-5b05-b701-d02ebb2804f0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -23751,6 +23814,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '41cb43aa-3598-58b9-9488-501b71fa9396'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '41cb80b2-81dc-5fd9-9181-6bf2d1df7ed3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '41cb8b3b-f7fe-5009-a7ad-4b31b92baa2f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '41cbce2d-ba9e-5c0f-b37d-0df38c4b4abf'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '41cbf453-061d-5eaf-adc2-291daf6b6d02'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '41cee0c9-57cc-56f0-b737-5383194c2108'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '41cfa109-993d-5770-a6d1-96f273adae01'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -24195,6 +24259,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '4300bf29-d504-5a98-bc84-e52b4782aab7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '430201d8-cad1-59fa-8699-b5ff14e47dea'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4302f4fa-768f-5594-9f9c-007e399eaf26'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '4305b280-5e66-5e1b-ab85-4d794c2718ab'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '430613ce-537b-5e4f-9732-e5ee29917dc5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '43067c35-08cb-58b2-ae0b-7685516b8440'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4307c21e-84d7-54a2-9fb0-eabeffcaa748'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -24327,6 +24392,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '436270bb-43e0-5a30-a362-c94397bea92a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4362a1e1-50a4-5d0d-bb77-0d3a63ffa8ab'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '43633ba2-0a94-5dc6-9747-9a4911fcdab5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '4363528d-e651-5484-8467-2fe51bc394d4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '43652f13-b545-5f95-aa49-8c0ce49ac300'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '43654149-06f0-54b5-818c-6ee3d1a4dafc'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4365b72e-6b54-541c-9b2c-76f1dcbe49f6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -24391,6 +24457,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '438cc16b-da19-49de-ac43-55fe9a99056d'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '438eb8b4-15cb-589d-9c9e-42bace9a8d56'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '438ebdf4-dc7f-57cc-9db3-22924a91de0c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '438ec92b-c547-5455-93d4-47ecae38c8ed'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '438edd19-0dbd-5d93-a1e8-6f1f0c6e3947'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '438ef95b-51d8-5e5b-ac36-d1138cf63d24'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '438f1fcd-2aa0-508f-92d1-d26331941e47'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -24544,6 +24611,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '43f9fc3c-d82d-576c-b1e6-dae37da11493'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '43fa6e45-48ef-5a4b-9057-088afa30e0d7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '43faf338-105c-5629-8c16-27974df381fe'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '43fb7b05-dbab-5bb1-8593-0f9707a76a57'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '43fbb4f6-28f0-5455-9745-38ebaf5991b8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '43fc2034-a8e3-5362-8cbe-60d8f45c931e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '43fcb49f-79a0-55fd-b25a-87a902e51397'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -24785,6 +24853,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '449fdaa3-b15a-5f21-b46c-d57b80c6c1cb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '44a17749-0b4f-5472-aa06-15772d1e64e3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '44a3041b-c517-5826-81de-a2beed7afba3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '44a38ad5-1952-5a21-964f-39eb1c6d2729'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '44a3ca9f-8f10-575b-901a-217fbd839966'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '44a3e239-240d-5215-a151-83f43f57ad2f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '44a4b0d4-b7b0-586c-850c-2590afc86322'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -24833,6 +24902,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '44c11114-de53-5691-b2ff-9bda5fd021c7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '44c1a438-ef9f-5ef2-ae6d-2562190e3523'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '44c1adb6-486a-5b87-ba09-1e60255c498c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '44c1f41c-a08c-5bb3-b5b4-77a9c6585512'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '44c30265-a96f-5205-801d-55be0c4186a6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '44c35a44-620f-5448-a2e8-f8143a13ab0c'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '44c47f99-af03-52fa-bad5-469ebd431e98'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -24975,6 +25045,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '451ee404-64b7-5567-b901-140ee18adf07'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '452035eb-2b88-56f7-a002-881a7192703d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4521ac4e-fd72-58ce-9c69-be4e44cf80d8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '45221c08-5cb8-44d5-abf5-0b963e3ffea4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '45238e57-0e5e-5883-894b-58ae4ad80c55'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4523fc4b-0ac9-5dff-9395-6a54c70c5cde'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4525a96a-e98b-5827-9d8c-47b699cd9af2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -26010,6 +26081,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '47effb92-82b1-5206-a234-83c54a1c4109'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '47f047c5-c254-586c-a32f-c74f1c1c3029'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '47f0cb8f-125b-4f8e-94a7-4d7d434dbca0'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '47f2ece0-c149-5ccf-a75d-d13ed0cc6cd8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '47f3a735-1c30-5999-a168-e4d9b676dd72'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '47f562b1-838d-5ede-acc0-faa2b0225d06'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '47f626ea-53b1-5775-afc8-9358217bfa70'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -26271,6 +26343,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '48b299ba-6ebd-5262-9174-f052b044ba70'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '48b2af77-8e4c-57ff-9314-9e0a5328399b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '48b2b0dd-e39c-573e-ba5c-3255b5c6e9cc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '48b2f891-ea81-5128-97fe-ba609e9c6783'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '48b3829f-f3a7-56b1-93be-ffed0151f6f2'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '48b4cd5a-a6c7-4727-ba0e-c8539177f9c6'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '48b68716-f998-525a-a627-712c7329a9de'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -26308,6 +26381,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '48d1c0ee-ece7-5dd1-ac64-4b570c2713fa'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '48d27bd3-d5a5-5447-b582-c6e5ba2d2fe1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '48d2f190-6d48-5937-bd84-4adc970d1e35'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '48d34b3b-9fbc-5198-942f-4f4fc245ce5f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '48d43d89-b3df-5688-9ba8-0e6bf502ff28'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '48d4dd95-125d-529f-9f6b-ffcba443dd0f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '48d502aa-2202-48e9-a68b-e46879c50795'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -26414,6 +26488,8 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '492399b6-abbb-5a0e-b12b-9a93bd938dfd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4923a297-be8b-557b-8085-29a4daf1f1a3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4924d621-a842-5f69-a83d-d82b43c0f0b8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '4925538f-0b2c-5704-96c0-256a0e14e258'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '49258bfc-130c-581d-9858-4f5c2108cf01'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4925e1f6-717b-513c-a6ee-3d81bcdbac91'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '49264374-1b5d-5cea-bc08-fd9afafdd35f'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4926a5af-a958-54e0-bfee-cab9bc9c414a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -26660,6 +26736,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '49cd9a0c-4bcd-503e-b229-efec4d735ab4'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '49ce45a2-d193-50ee-93be-9d3b3e004bf8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '49cf8b9a-6938-5a21-acfa-688442dd1cf8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '49cfd541-7844-558f-a645-6a1ee30f3a53'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '49d1b814-a341-5d52-952a-99de364f50df'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '49d23aa1-f778-57bd-95ea-c268aa452ec5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '49d5a309-cae4-4214-b15c-f64058de7571'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -26758,6 +26835,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '4a20b3b2-8a1c-5818-90dd-dd02095bc0e9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4a20fe38-b70a-56f0-8c95-16b864ef1453'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4a211ba5-4438-5dc0-b66c-5a5f58c26eae'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '4a22ef07-3f5b-5828-96dc-90368c55ac06'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4a230ca6-99d1-5d31-be7b-34daa1e89f46'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4a2379f4-ae38-5a33-adac-b751a8a38666'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4a240ab8-934a-5f4b-9873-5a7307be57ab'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -26907,6 +26985,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '4a840106-4c83-5517-8228-237884ce2764'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4a841ddd-2064-5e5c-bb14-790a1386f969'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4a84f768-011e-5c43-bfc2-ee109a1c299a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '4a855aab-663a-5841-b0d1-7183f3613f5d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4a859657-1d34-5c2e-8c8a-b18e2b6b89d0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4a86b157-61dd-5eaa-b282-170f9259be3f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4a8a65ea-9f3a-5eff-8ed6-05403eae1b3a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -27238,6 +27317,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '4b75ae50-e8a8-5765-aade-a592e5e34b70'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4b766e34-34e4-5f87-ae8e-9b30df164979'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4b780bd2-c908-5eef-8318-6ff33de05410'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '4b793122-643b-566e-b042-68758d1c5436'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4b797f40-c82a-5a96-9e2b-987d5904fc75'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4b79efa1-139a-5e1f-88b1-e306317bb297'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4b79f6f5-0837-51e7-9d29-8a3fc80fb131'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -27374,6 +27454,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '4be3877e-a0d4-5526-a90e-9463bb2ee82e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4be40f2a-13bf-5739-9a8e-048c13fc53e5'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4be464b0-9ccb-51c5-bd8f-64a7e2addcda'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '4be54d73-5811-5927-b131-b30254843a24'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4be57881-c904-5532-84df-74a627caac61'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4be59303-cb33-5a26-85df-209c357d70fa'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4be6665e-3cf1-5224-986f-6be6d948e7b4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -27821,6 +27902,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '4d1edfeb-df58-56f8-bf04-2ac64dc398ae'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4d1efeb7-4f9f-542b-a8bb-93d58b6e4ccb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4d1f2812-2405-5c02-aadc-43d51308a2e2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '4d1f71b1-6535-50cb-a3f4-e188bd7891b1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4d1fb7f3-b88b-5783-9cba-b29dec832b65'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4d2034a8-f9d5-5eef-8386-aa683d92ef72'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4d20d33f-20e9-5061-8f49-97172d722f27'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -28500,6 +28582,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '4eeda7ce-cbe7-504a-a57d-3a45211bfa34'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4eef1098-06d5-56f3-a235-662e470c1c80'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4ef062be-6c27-4d26-bef4-ea6e3a8924e7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '4ef08c19-ce66-5c41-b9ff-bddccd1c06b6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4ef1bcc2-75dd-531c-a161-86f28b321b44'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4ef2b3a2-7825-5180-8c47-b4fe79920439'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4ef3e51e-527f-5d5e-8763-faa0bd0f4110'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -28740,6 +28823,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '4f99337e-7987-4814-92fe-77c6e0cda1ca'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4f9a5958-8068-5aca-a4bf-f4cbb9f0569d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4f9aecb0-11e6-4988-8bfa-5b578d891c1c'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '4f9af32b-d35c-5a8a-9c6e-0f5f7fc807b1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4f9af5ff-48e3-5dac-8788-daba88e0fdc4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4f9b1396-a783-59c4-8607-66d041bd2850'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '4f9b2de8-6f73-5269-852f-fad7844a0ff9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -28889,6 +28973,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '5001d1d8-630a-52ba-bf94-f9477c2ca9d0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5002af8a-185b-4711-b1fe-95dd014d70e1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '50037a13-5ea5-5164-ab00-b51b106dab26'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '500648bf-c559-50e2-a1a2-a5859f31e5c9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '50065c2a-3015-586e-a9ca-e0a0999373ff'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5006959a-35ba-53bb-9004-8fd4ba98201a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '50083918-890d-5d33-ad28-3cb98f431e1b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -29272,6 +29357,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '511393c8-41fa-5603-85c0-0b24a76d2796'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '51160b4d-d8ac-500f-aa73-ef0647c5a0f2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '51170ac8-bb5e-5320-b1c2-34f1ad2a55fe'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '5118dc8a-d39e-5db6-8ec1-20830cf0f44b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '511965e4-f434-50fd-82d0-d1b254f2fa04'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '511987be-1fae-505d-94b9-50fddbcb1ad6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5119980d-ca81-5a8e-948f-b809911c456c'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -29718,6 +29804,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '5270a21e-8bd3-55e0-9ea0-97a5504249bd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '527433cd-7118-503b-ac3a-32f03e6e0ab8'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '52753122-88d4-5660-a841-54cc9f5200bf'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '527572fc-f5b1-5679-8ad0-8abd83218a82'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '527653db-487c-506e-add0-a79390abf0f1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '52770cd5-c679-52f1-b40e-bbe75f655ead'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5277a325-fb83-5b35-ae71-1fa63d85b0c1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -30380,6 +30467,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '542c619f-094d-5cb1-97ca-b39d4e58405f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '542d63dc-66bd-489c-bb8c-4580942655aa'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '542da6cb-03c4-504f-951c-1c43151727ca'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '542e1ea8-b673-54a9-bde3-972e91f32566'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '542e88c8-5e32-57cc-a720-0ad0d979f6b5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '542f1fdd-afeb-5979-abc1-78f3431c1a81'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '542f7c9d-22b3-5fc1-8f4e-7340c8dda8f9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -30801,6 +30889,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '554836ad-9315-5afe-9bfb-ec18d3f515ee'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '55491f62-60de-5238-8a35-4f3e05750746'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '554b4b7f-75d5-5442-b15e-5244be797b40'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '554bf392-e986-4f08-a7f4-bdb736b05e05'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '554c0b1e-d36a-5ac6-bd2e-b9dae1711602'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '554c1d7e-a597-4fee-9261-cd5ab8983bbc'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '554c9e7e-c644-5b71-911d-ff3f7716b81d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -30811,6 +30900,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '554ef04b-b1c8-5ea2-86c6-be009a6a28c5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '554f6b87-c0bc-4426-a36d-5a7307ae48a3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '55501127-10cb-50da-9a7f-e34bf685fcb1'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '55507aa7-e0f8-56c3-8744-d5b0ec810ee3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5552988e-8d3b-5421-93df-7f76ba6f7312'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5555fb3c-9e0c-5273-8323-1b981d03814d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '55572f25-491a-5683-a0f3-437a2cd999f3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -31102,6 +31192,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '561d4288-9153-52f7-9304-5231bfa52d52'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '561eb64a-3129-5255-b56a-cd9252ac6585'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5621e5de-307b-544b-afc0-38ad46d01d53'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '56220697-4be1-5de2-aead-b5cb5aeb0a4c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '56226e72-fefd-5a81-88fe-04a198d03358'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '56238796-26b8-52cf-9f69-3542fcc4bfc6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '56243b5d-fc83-5725-9cdc-1458594e4b84'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -31149,6 +31240,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '563dd013-8744-5254-875c-aac5dce233d3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '563efc43-ffb0-52c8-8571-10bc0e9749b6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '563f8229-4a94-5ba6-b116-1c8ecb4058db'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '563fac8b-4fab-5f5b-b1c4-512cce58bd33'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '563fc27f-797a-5c42-a096-8dc4447766dd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '56401de2-37a0-53cd-9c0e-462a70ce476f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '564065a8-cc78-5258-9c7a-a540f4f32c27'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -31400,6 +31492,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '56f2bb16-4dd8-58d7-bd3a-e8a7fa8d9b92'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '56f2bf3b-da4a-5deb-94b9-9abcfb6ad029'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '56f3c301-ac18-53cf-bc63-43d65ce57528'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '56f50990-c7db-5d29-b639-e9798213dfbd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '56f56bb1-245a-5cc5-80ae-1ea4165a5b2c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '56f5f542-2fa2-5eac-b2f6-11c452f9b60b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '56f69562-9847-5211-b295-05bd4b4d9012'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -31410,6 +31503,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '56fb5e46-8754-53d0-bbc6-d5effb9cb989'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '56fb7a93-ebd2-5bcc-a2dd-d82a4b0d1438'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '56fb8916-2e58-4880-8237-1c7ca0ae2b5e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '56fc71a5-793d-5be3-9b47-24ff4b813819'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '57006ddb-5f7f-5dd8-bd2c-be6203bbf682'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '57028985-e5c6-5518-a507-a6f9ed199fa2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5702f974-00ae-57ba-ba3d-7d3b71a4eb86'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -31723,6 +31817,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '57d32145-60d6-5417-acbf-1169cd4b1528'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '57d37763-368e-5d04-96a7-d6993e54b351'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '57d40e75-ca69-5c01-9e45-7f2f4f4a0fe8'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '57d57c44-216e-5956-a85d-48bbfe14bb88'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '57d595e0-88bf-5748-96d7-82eccb64e260'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '57d6733a-b116-5d6f-9da2-d2e0f562e777'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '57d68178-dde6-55f7-864e-e8ffb5d5f816'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -31840,6 +31935,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '581984c2-de4a-50ae-b7c3-baef750638c9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5819c993-fec9-5b90-ba12-5a61f8784ab5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '581a23e2-cfaa-5b05-8944-d044066b1b51'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '581a5d6c-b13f-5cdf-9c41-9e2f7569054f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '581b22a5-9843-58ff-8083-346f9feeba89'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '581b613e-105b-5129-a75f-d2ce25ee7862'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '581ccac5-2f35-5833-bcf7-be15baf9f450'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -32258,6 +32354,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '594369ae-29b4-5b1e-95c4-69cd54ea64d8'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '594394cf-136f-5315-a5af-a81c866ced2e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5943f5eb-7a8b-5fc5-94ca-d59202af0e98'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '594796a1-5989-50ba-945f-0c5d08fd51b6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5947cef0-bb9b-587a-897d-67d6fa2339aa'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5948a5cd-6a54-573c-89a1-a91c2552f862'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5948d736-a713-522d-aa8e-6c675da4765b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -32711,6 +32808,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '5a90f8c8-4490-520d-8f04-281ea303349f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5a91b755-c2c0-49d2-8070-3328a57ae006'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5a925b94-b999-5a3f-9288-5c5862ff24f3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '5a931512-ccbd-5195-bb6c-b0a3a2aff89d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5a944ee9-061a-40fe-ac21-e3026ecd2367'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5a947d42-311f-5e01-98f1-c7619652e419'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5a94ba88-aca4-50de-90e7-eabaadac6ed6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -33223,6 +33321,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '5beb6965-655c-5979-91e4-f9f18e6864ee'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5bebc46a-6a49-5d53-ae4c-59c1bda07d1f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5bebf65a-282f-55c1-8de7-8ae70bc66410'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '5bec0788-d828-52ce-bce7-765d2f24b4bc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5bec4552-8230-5f0b-98ca-25c945fde41e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5bed72a3-093f-53e7-b843-e94d4ddb384d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5bee45e3-354b-57c2-b01d-d7de85d3e301'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -33377,6 +33476,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '5c538e9f-ec10-5473-b653-2c3f1aafc466'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5c552021-8e55-5451-8fd8-b534c9aeea3c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5c554317-1e91-5ba1-be2b-d391ba4d6215'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '5c56d4dd-5033-5764-87a8-dc8b9ee39211'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5c5840a9-25fb-540e-af46-39ced078634f'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5c5865de-69c1-50f4-bf86-cbe4618a29d0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5c5a3002-cb82-53fa-b5d8-f58802842e57'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -34065,6 +34165,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '5e426bbc-6611-5c3b-ad69-c9a1ad30160f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5e44b0ce-3160-50e9-8e27-74da54954380'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5e45d02a-ed4c-5838-b20f-cb0e788cfc28'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '5e45d155-a05b-5dd8-9121-9175ee4aef1d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5e471d26-7e70-58f7-8bd7-f227da03fecf'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5e475966-41b0-52d6-9f09-43527118d301'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '5e479461-038d-5013-b902-7ae9e03b8197'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -34873,6 +34974,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '6078d395-f965-5ce2-a7ef-8ecc15b73eb1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6078fac1-029d-5899-a37d-9f15c2f67525'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '607a0023-394d-5dca-aec3-97a8b41c82fb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '607a2e70-96c0-546a-b7ef-0626b63e7731'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '607b6bec-f40f-545e-973e-6771f9323dd1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '607ceeaa-befd-510c-a38b-3ce704de7d39'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '607d0c8a-e041-560b-9486-4c19768bbbb8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -36207,6 +36309,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '6448393a-3287-5600-9947-b867f7b2f828'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '64496eb7-ff0c-4ae2-a4bc-c368a58db649'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6449c047-71b8-5741-b50f-ef90b0721a9e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '6449dca3-94eb-5b16-a87c-57ba5d19a42b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6449e8e2-1578-59d1-9727-bb909be4d4d8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '644a585e-7cac-4264-8be5-8e458e92ba00'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '644b11f0-f82b-524e-b0ac-d0f3d0ffc5bc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -37462,6 +37565,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '67b6f8c0-6ac2-5030-8240-669d225584fd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '67b704de-c2c0-4ced-bdf1-3fe2581916bf'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '67b7057a-6aa9-51ec-88c9-dd1c6d77e44a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '67b7a3a8-9268-5058-b806-35ad6432df3a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '67b91db4-5ec0-563d-8b67-29d129df6368'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '67ba0b4e-7861-5393-8b5a-b26e80cff8db'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '67ba6795-de0e-58e4-96d1-b6d8e666be85'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -37954,6 +38058,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '691f511d-86c2-5e50-a163-8dcae7029e02'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '691ff1d0-81a9-5824-aaec-770caef65ef6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6920aa8d-e40c-5084-8fd9-6edc6680b52a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '6921bac3-57c0-4687-8444-1f60eed1b1a4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6921dcc1-87b5-5af3-a44a-06bc62a87bc7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6922bd05-c826-5ef6-b66d-74485a4383f9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6922d70c-cbe7-5789-86b3-a1a69d92b009'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -38728,6 +38833,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '6b4d6c1f-9d3d-5be4-8f90-9081da8b3551'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6b4d9535-2532-5582-9572-c167c7a167d7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6b4dc186-2473-564e-b39a-d245c530b246'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '6b4e6f42-501c-52f8-bc6b-fcd80bb6573d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6b4e7580-4880-5567-8090-eb0ee3224866'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6b4ee0e2-9654-57b3-b23b-4b5e856d37fa'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6b4ef1b7-55e8-52cd-9555-a0d361d485e0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -38882,6 +38988,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '6bb16d0d-b906-4c22-843f-1788b8ce07f7'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6bb1706f-447c-5837-8eca-225ca33d68f2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6bb32063-b6a4-567e-b4b4-268e47ccb0b0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '6bb33761-f11a-5902-a358-f26001e2efc7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6bb34b32-7ff3-5b31-bbfb-fb41c514d2f1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6bb38a2c-eeb9-5a90-8368-79e4bcd837aa'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6bb47fab-e5a9-5819-8c98-fb91be4846e9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -40114,6 +40221,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '6efd3669-214d-58ea-8257-bec49977a7d0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6efe0541-3310-5b88-bbaa-6ac6584cd0b4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6eff6377-4891-51b1-ac2d-e52a77a2bd0d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '6f0186da-b43a-5c32-a245-184a4e61bb94'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6f0247a6-87fb-5444-854b-f1823e338d79'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6f025207-ea02-501c-83fa-96723b011b80'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6f03c605-4657-5406-a5fd-e223d5e521cf'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -40247,6 +40355,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '6f5a1630-5387-5be3-993b-a91d53d91fae'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6f5acffa-5d23-597b-8541-05e37621970d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6f5cd794-8921-5247-a598-1b822148a074'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '6f5cf214-efba-5cf4-93b7-63df566161d3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6f5e5cde-0cbb-445d-a10a-bd9c83c665a2'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6f5f5b39-89a9-591f-9775-3dff4e37fa46'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '6f6004d7-c68d-5437-931c-5046eecae885'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -41117,6 +41226,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '71f55f28-6a6f-5220-a448-2a861f1a2f66'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '71f581bf-9bcb-5842-becd-48ddb1e6dd7b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '71f5f17d-1035-4dc8-9624-02ff363021a7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '71f63405-54a7-5320-99b8-7abd489cd004'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '71f6b198-5310-59ea-a4cd-f6a2a9c867ec'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '71f6b9db-89d7-558b-a5c3-f15def0be72c'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '71f7052a-b259-5928-b57b-d6fbbc1c8cd1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -41609,6 +41719,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '734ac188-22a2-4c03-a35f-2ebc69b61280'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '734af6c3-941e-5271-8d83-bab6bc4e71b6'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '734b5ce5-11c8-5182-abe9-722659b6a890'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '734b802a-0a4e-490c-98dd-a4ca285d835b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '734b8a1f-8af2-5c34-a90d-62b44046c893'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '734c50aa-ea9d-54fd-91c6-3664a934bd19'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '734c96ae-de50-5534-9edb-ca93eb09fc2b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -42605,6 +42716,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '76031c3c-f170-571a-8896-2328e7c990bd'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7603cbab-5a7c-57bd-befa-da680c32c1c2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7604a844-fd11-5783-a2ff-35b9768207e5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '760522f9-9d18-51da-8b60-2605c5599692'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '760570a7-b2bc-5ac3-be30-e5f4107f8f74'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7605cb52-20e9-55a0-bddc-175b7e907f0d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '76063966-aebe-5250-a50e-9134d8f4ad10'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -42631,6 +42743,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '7610bfd2-2089-5adf-abd0-b1725f419cb2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7610e260-ef28-575e-a57a-47aa54a3ac45'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7610f477-bee3-46d9-b740-946dd5ef8e7d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '761128c6-88c0-5de8-8f38-4c89be5ec155'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '761185fa-179d-5b28-adb8-e2e5d910d9fb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7611c2bd-b242-4b19-a45a-91838332adf4'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '76125cdc-30a2-54f6-b28e-114e41fcb4cf'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -42710,6 +42823,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '763ae71f-0834-575a-a553-ffc789f13bd6'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '763ae844-590e-5b5f-89c9-3076d466ec48'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '763aece0-5a83-52c5-8126-2c5b60a3a3a5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '763af336-b491-5b72-b7b9-9965af0bc588'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '763b1f22-77d5-5005-8356-4e5db9ca3c83'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '763b7d1d-429c-5ede-9e2f-58cee08cda9f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '763c4019-238e-57e8-b410-2f5251435f4c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -43033,6 +43147,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '7704849a-5ab9-54f2-a4a2-6b54fd3e712c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '77049485-4c27-5359-b5d9-a66d3d138e6b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '77070b7e-69de-50aa-80b9-5071bab2d6d6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '77094d42-b79b-5b2e-a924-a81700834c45'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '77097203-c161-5874-ad51-54fd231d679e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7709bbca-cdcd-5e2b-bc3f-bb6552cb5305'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '770acc51-38ea-5f7a-865f-e5f1d81ba6c6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -43072,6 +43187,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '7728a072-c54b-5a86-9118-a5731310f0d2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7728ca34-c355-52c6-bec4-00d6a21d9df2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '772901aa-a62f-51ae-a600-7c048a949781'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '772a0cd9-af4a-53ec-90a7-75c8bc47be11'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '772b97d7-d0db-4c7c-ac8d-38d803b5d5cf'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '772b9b5f-fa45-5ea3-b9c3-2bdd81707ec9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '772cca93-bff1-5906-b00a-f4792ce34a48'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -43285,6 +43401,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '77b1fbd6-162c-5ddc-b498-6d4bb7f8334e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '77b3e35a-7164-5880-b692-1695c6c55a3d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '77b40fc7-5c2b-5d6b-ab17-9e079b11e4f1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '77b4e753-f2aa-5368-afcf-32eb28db7af2'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '77b4ecda-8b16-59a1-9ee2-7b5819301c68'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '77b73749-4c35-530e-96fa-c0e6c9d3c473'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '77b78f7e-0528-5081-a671-6e2a813b5ef7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -43394,6 +43511,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '78066e24-e9e2-5048-8755-8ca369c13c37'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '78078548-5161-5887-ad8e-0e95b63b7e17'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '78080194-c4d6-5303-aadc-03586c7ccb4b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '78099d0f-ed27-5b50-96d2-f60cb649664f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7809c096-fbdc-52bd-ab4e-562f2ca7eb96'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '780b2e77-1450-5599-9a4a-2edb17ea064a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '780c134d-60f1-5bf2-917b-89a8440da120'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -43477,6 +43595,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '78413c81-c7c7-5441-80e7-08a28760eda3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7841525f-d14c-5862-b988-4d406e48cc3e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '78468fc3-657c-5503-b893-a5adaf548290'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '78474552-7c29-5862-947e-f70fcc607e69'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7847846b-1cd4-5912-889e-e78f1bcdcf49'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7848664a-32ab-55b1-bbd8-a5aff0cbbb58'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '78490e2b-49f8-5994-b08c-878a63e9d0af'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -43648,6 +43767,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '78be9e66-1ca4-5afd-9af0-fea8a1243744'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '78c16545-6490-546d-962b-9fee260db40e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '78c3f31e-4f20-52f6-8e8e-bda27fa533ba'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '78c52fae-bbf9-5bf0-96ea-701e74c45adb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '78c56236-12cf-5e1a-aabb-099ff6c5e0a1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '78c5a523-dadb-5781-8ab2-fda3499d5434'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '78c5d63b-4a75-5021-a478-1d31b614af0f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -43783,6 +43903,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '792f2880-e326-5573-af74-f36b8a778209'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '792f2dd4-2050-5794-8a7a-ba8f8f9de022'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7930ad3d-08e3-57d7-acbf-99dd309afda6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '79310182-fb4d-54fd-8a0b-78cb666ba50b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7932e17a-8fbb-50a3-9a9e-037161d4092a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7934a802-5d27-418e-b887-5dbe5b15e529'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '79353121-df09-5e47-a765-1e652af14c99'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -43834,6 +43955,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '795021be-4309-5a4d-813d-5d713835564d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7950c7c2-6260-543c-9b98-91262ed864f9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7951041f-c91b-5984-8c68-36885632f12d'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '7951f44c-8a4d-5375-b8a1-34c3bb84bbda'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '79524824-caa7-53c8-a479-71023405cfc0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '79526a9f-95f0-51fc-aa6d-c084205b04be'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7952b993-b28f-5d11-b3ca-4755e20c709e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -44178,6 +44300,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '7a44563c-3229-5141-b656-7c2313a594e9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7a4460d5-775e-54e2-912b-66b61348c7aa'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7a4468ff-5cdb-4637-875c-7bd09da69ef9'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '7a44a707-991b-531c-8ad7-01276b35e3d0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7a452453-7603-5497-b6b1-2ed0545eafe9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7a459292-4e37-5a4a-811a-bbd6bf59e51c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7a4643b2-16ca-5e3a-bfc9-d118203d5886'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -44284,6 +44407,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '7a93a418-8dc3-5a8e-b8dd-10bd221ecac0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7a943629-f3ec-5d98-8b35-f03b764099e4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7a945532-cb5f-585a-94e3-aea788519b45'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '7a95cf84-c28f-5099-bad1-dd4d348c5c45'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7a95d87c-d918-5ff9-adb9-f87161374aec'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7a95ecb0-5c19-5966-8385-0fb8159b875d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7a9651f4-c94a-5aab-9c47-9374df97fb26'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -45624,6 +45748,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '7e3719ac-90cd-545c-927e-b04de00c0e8e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7e37bbc6-cc15-5a82-bd35-2b446df14d8a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7e37caea-e001-52ec-8c3f-40918df455c9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '7e37fa5b-e2ee-5fd0-80bc-3c9f2668d626'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7e385113-841c-5512-a261-424aec07314d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7e38aa75-0bf1-55a4-8892-b0beea05f75b'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7e3940e1-3f95-5fd2-af87-07a0997229b6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -45982,6 +46107,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '7f2db51d-a588-5170-bbac-efc99be2bdb3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7f2dcaf5-730a-564a-83c7-ba77ee157483'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7f2de3ff-9b98-5226-b542-113537185a27'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '7f2e0059-6443-59ad-a533-10cb33da4f36'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7f2eab4f-c22c-5f9e-af78-6738c3264618'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7f2f50a7-8f5f-5206-b84d-2a48d7784151'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7f2fd437-7bd5-5f38-b02a-f30a720eb24a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -46020,6 +46146,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '7f4384eb-7492-594b-8ad7-28321b06d09e'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7f439938-92b6-5536-967d-1ca34eed974f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7f43ac1a-0a7a-5462-9030-f1dbcce41581'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '7f43af83-371f-5521-b594-46da0f20fe6d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7f441e3f-792d-519a-a2dc-83fff380c45f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7f44635c-06f3-5567-8e8f-6c8194f16668'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '7f44bdba-1ae9-51c5-b29c-e9bd58d1a707'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -46368,6 +46495,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '802eb8eb-4941-5016-817e-f722358813f9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '802f4bb2-b906-48ef-93ba-fd5fca806ec1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '802f93a7-67ae-5559-a0a7-e7e21e5414bd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '803025fa-1d34-53e1-a05d-dcc6d3b61779'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '80310134-4252-5a30-9263-57db55883c34'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8032362e-0966-5dcb-8c61-df0e3c945579'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8032562d-beb3-5dd5-855b-45da3c15916c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -46599,6 +46727,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '80db2882-4e4e-527f-b1b7-36717412cb05'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '80db534a-3fbd-5821-9705-7e0733b2ec3e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '80dc32de-43ef-5984-b685-60e06b9e256c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '80dc57b1-b474-425b-838f-0aebe6ba51ed'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '80de5c04-4dee-50ee-9d44-ac38f83f0a71'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '80de891a-de28-51b9-ba5d-b554ad62aeff'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '80df8c74-131d-5b7b-bf38-d9b329633f2b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -46710,6 +46839,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '81278b10-07f4-5a0b-b5df-b2ba13376de5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '81291e5b-58d9-5220-854c-2c093b38f367'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '81298ab4-4b51-5347-90b0-c00e55540290'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '812a5bbe-5788-5a56-b761-89dd2e52a51d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '812b7e6a-d2d9-51df-bfc7-0cb774471caa'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '812c56b7-45b9-55bb-a8ab-e4aecd1cf85a'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '812cba8b-3fe8-53ca-9c4a-a260622e7616'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -47257,6 +47387,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '82cdb017-cdfe-50e1-a1e3-ea9098e1ab72'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '82cdf058-f213-52d7-ab68-214429d6db47'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '82cef088-c0ae-41c7-a7e3-93c83254a24e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '82cf0047-0472-577d-acb6-74d103b9cc9a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '82cf565d-2a56-5610-97ac-1c07df1d962e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '82d0c6cf-bf39-55da-8523-43212dec7324'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '82d0d3c5-c7d3-4e1a-98ae-8239d7ed620f'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -47363,6 +47494,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '831b7b78-b93c-524d-b2a0-3cc456489d2a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '831c2273-442e-5cfa-9532-0e1ec65c52c4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '831c4a65-90d0-5605-a448-8483927f3361'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '831c6ed0-9ce7-56d3-8231-b7af47492871'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '831d2949-4078-4ea9-addc-713e2b19229e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '831dc4fb-c0da-55c2-bdc5-4b3c6ee2d9bc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '831ff380-dfaf-50aa-bd1f-f74521d09fb9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -47698,6 +47830,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '84023412-3149-586e-9b4f-b010e34445e3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8402790e-7740-533e-b2a0-e05fd84ba421'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8402ce7a-4746-5146-9b41-929d2904b733'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '840352f9-08be-4f31-a5a6-d45803c60e8e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8403aaa0-ca7c-5da8-b4ae-e8a937fee763'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8404938a-1461-5732-9fd7-d7b1f42c909c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8404d124-4d53-5d66-a92f-42d786bc3eb4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -49486,6 +49619,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '890d70ad-d8fb-5abc-ae8d-5ce3d087cec2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '890daaff-c229-5f98-975c-557239169965'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '890e22be-55d1-5eee-a268-fd6bc76860db'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '890fee2d-e58e-5a18-a7ac-3134f51b3d24'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8910cb27-424a-530c-b40b-0ccc91fd79b6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '89135ab4-4a2b-5f60-a1ee-791cd623bfc3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '89143e41-a891-5800-90a4-d72edf1dcf4d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -50185,6 +50319,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '8ad33884-991f-5cf5-a474-edcdb06c7ff6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8ad3debc-431a-5635-a920-11ab138f5da4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8ad4fa3f-af15-5923-98ea-6b8fa93e8eee'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '8ad525eb-98e1-54aa-b3c5-d169b45dbe04'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8ad53801-6275-53cb-a5fe-141c18fc8948'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8ad61df0-de26-5f4f-b4d4-c02d1540ca67'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8ad74544-72e6-5ba9-9953-812718d2a371'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -50319,6 +50454,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '8b30361e-46f9-5e9d-bb22-b37aac82bc7f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8b30e86c-c7e9-5145-987b-f2e71d264df4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8b310c4b-d9c5-54b2-b776-2906bc2625fd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '8b3134e9-dd3c-5c31-a82a-a84332d7569a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8b3257b7-5790-50a8-a6d6-41bea1c5fd0d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8b32d04d-98f9-561c-a435-5ffc0edb59a3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8b336d04-f779-564a-b2f1-2ba4d3e7dedc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -50345,6 +50481,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '8b4138b6-87a8-56de-9071-3f6c8cff9e71'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8b413fea-ebec-5171-afdf-0f5814a5e2b4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8b423271-6956-5c65-9f07-147e4ce0760f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '8b4281e8-75f6-4426-bddc-4fc62a6ee430'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8b428bac-ac70-5685-942d-307ef9102185'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8b431db2-c54b-5fec-aec7-92b4121de5a7'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8b4640e2-d887-56c7-bf80-14f86ec0682a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -50414,6 +50551,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '8b6e1e59-4304-5cef-9269-892bc75e4758'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8b6f37b0-5e62-576d-bfbd-c4c49869058c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8b6fa8d6-70dd-55d0-aec2-66887c093067'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '8b6fb539-b3c2-52ce-ab19-07beae8839af'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8b7082b9-3b1f-5121-ba01-e1b416828f88'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8b70fc99-eb6f-5272-9a6f-f54e486839d8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8b72ace1-0db2-566e-8a0b-9c8474023448'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -51729,6 +51867,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '8f2ff121-3b1a-5e47-84a8-e4508201ed8e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8f305dcf-9c7f-5532-bd67-68e705b94bdc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8f309443-90b9-5e94-8844-72b1f9cab232'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '8f30a4d5-a444-5f71-b720-e2f7d1172002'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8f313e56-0059-57f4-9213-e6defa8ac745'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8f31e7cf-4159-5122-b7e1-f4d499afc9c5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8f3219f7-2876-5b59-8077-c53a1a1e517a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -51876,6 +52015,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '8f875f1b-8ccd-5d51-8d14-cd54c5df475a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8f886089-3ac0-5ef1-9db5-5ed141ee82f5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8f88fd9c-292c-5629-9f2c-b70fd19ab606'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '8f89de2d-5e65-4560-8d94-208ad84b4881'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8f8c308d-02a6-4ba8-aa9c-88a32c494f36'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8f8c453c-8556-5a7b-bb62-db0cedd57a02'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8f8d8aea-6d51-5051-9464-76a290e8006b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -51955,6 +52095,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '8fbcb5f3-f335-5ea9-92f8-ccda9d5d1b2c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8fbd9046-26e6-598d-a0f1-0539109f4975'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8fbd9eaf-b469-4e69-a09d-bdd66b1a3f6c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '8fbe1f6d-7389-5239-bfaa-c928843d6fe5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8fbf4625-4fe8-539b-a6e0-aa646c8ba285'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8fc0404c-29a2-5b38-be8e-1e895dbfaecb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '8fc05881-ebb7-5525-9213-6ff9b3d7585c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -52200,6 +52341,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '9074394c-fa48-5538-89ff-4db4b48b8306'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '90745314-dde3-47e1-8d8c-ed95b20da009'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '90755230-5161-532e-9eec-d22831b2bd6e'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '90756ffd-6b55-567f-9c64-e46f7c534465'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '90768882-5fd7-523f-b28f-bce8ad1a4c2f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9076b185-e2bb-55a3-8485-3c44df5e2760'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9076c134-82cf-58e1-8cf5-0ea0b65d79d2'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -52326,6 +52468,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '90c74373-b0a4-5a83-894f-b628ffbe7c22'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '90c77571-d831-5f40-b1ba-0283870e5ac3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '90ca0dc2-6aff-5f04-8a95-508c2841b2a6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '90ca5028-fe1c-51a8-aa50-7014c60c1420'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '90ca6bf1-e1e0-5e8e-845b-0d1622c69605'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '90ce0578-c423-55fc-90ad-7619e010a7e9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '90cece5d-e367-51da-9dce-cb3d3b4abed1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -52438,6 +52581,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '911c6df6-50d8-5fc7-8cf4-9a8b915303c3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '911c7d47-d3db-5c80-a481-baf16b8a4aeb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '911e6da3-5de1-527d-82ac-c8cf12f975f7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '911ef842-c4f4-5164-b8be-44d113a802b4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '911f185d-788f-507e-815c-b6fe53b86de9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9120605d-bca9-59be-bc38-668542425891'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '91211363-5022-5d3b-b588-9b4e764a7bc3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -53352,6 +53496,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '93c500f0-e938-5d34-8885-a939af4f4356'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '93c50d14-fec7-5069-b76c-f3a589c8a311'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '93c60d44-c06c-5524-be30-c678e9fcb06d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '93c612a2-4681-5bf6-8657-f780f6a68907'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '93c7e982-5668-5b28-87c7-b51b06749b7b'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '93c8aa61-834c-5ce5-9b40-8acf4f3e430b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '93cbcdfe-908b-5320-a221-b178de4ba01c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -53555,6 +53700,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '944c2dd3-8976-5f6d-92cf-ba914406b119'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '944d7089-a7bd-5d93-8dbc-aec957ec4483'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '944eb648-3eac-50fe-8a59-e90cd7dc825e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '945063f7-e4ad-50ae-89e5-b9d8fc90704f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '94533302-1569-56b9-9790-02b282a35941'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '945373e6-9bcc-5fb0-9c3c-0d6607a37fcb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9454a8a8-6c66-5e04-8fa6-5be6cd6dcae6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -53676,6 +53822,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '94b28416-f441-5e3f-83f2-e39030ea4141'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '94b29931-98c7-524e-a5f7-3637f321f3de'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '94b35d63-4421-4665-83ab-2bbeb3603dd8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '94b42548-fa8c-5e91-9560-32fe9c5528c7'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '94b6f299-88b5-51e8-99ef-0f41d3efa884'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '94b735a3-61a5-5a65-9c79-fd758a71aa74'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '94b85602-1114-50fa-9c2a-2e4a1bd2aea6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -53687,6 +53834,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '94bdac59-ae32-5047-813f-3734c2c3c805'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '94bdf81b-8b36-5f44-8afc-fb9e6f3a78cb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '94bf0248-54fd-40db-851b-7f31e93297f2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '94bf965c-383d-515e-84a8-c0a61492b851'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '94c100c2-f42b-5505-b600-c80a6f7d93e3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '94c19b1b-b0f6-5cff-b4c1-f4e128ca7a24'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '94c2cc63-affe-573e-8a61-46d5673ab02f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -54036,6 +54184,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '95bc4787-78f7-51a3-ac28-77259f64bf53'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '95bcc758-14d3-455f-b706-c121baf3caf5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '95bcebc1-b0ff-5b06-8567-f37a2b24f053'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '95be60ff-f3dd-54e9-b5b6-a6293262eb8f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '95c03617-549d-53bc-9746-ba0cb35aa43e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '95c09c43-f226-569f-9933-48941cf46309'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '95c14161-9635-5cad-85a6-48713f0513d4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -54190,6 +54339,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '96306900-7d83-5bcc-a752-7894d1de434b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '963089b3-069f-5961-9c72-e389d6f9d177'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9631b06b-8c99-5c48-b145-3326c9b7685f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '9631cfc6-5a87-5a46-a659-17afb08d78fd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '963291bc-7e0a-476c-9e22-f2d3ebde64fb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9632ce02-390f-5c02-b107-53de966bf6ff'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '963370ab-0614-53d0-933b-83faff43e5a5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -54773,6 +54923,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '97e44214-25dd-5c5e-8d2d-9a7a975dcbf4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '97e49886-8501-5a14-8030-342102724613'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '97e5371d-09b8-5032-a3fe-27857e560f4b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '97e57332-56a9-5638-b2e5-5c338a142899'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '97e68b82-7e35-578e-8ba6-544c0224445b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '97e705a5-d0a1-584f-b49f-c7cc3b63bdcb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '97e7bc14-9b17-50c3-b48c-52caf7a85c57'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -54886,6 +55037,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '98347a62-328a-5dc5-b58f-aceba16bf47d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9834a969-fa33-509f-b5b6-1f99efedf263'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9835e583-34d9-5b45-8945-037ff3f3d163'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '98362b68-0ae7-59e6-bc1f-ce9646dca857'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9837787c-95a7-4bdd-bb7b-b53c66bb1dc4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9839c4ae-e655-5475-812c-61111d197bbc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '983a2743-4d9e-51ae-9c81-0a7ca625cc29'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -55192,7 +55344,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '99015078-4aa4-5c5f-a109-2a4088a2d503'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9901e975-4e04-4745-9de7-fed0c8c5734b'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '99031330-31de-5181-99bc-a5ec2ddc173f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
-        ,[PSCustomObject]@{ MeterId = '99031618-6869-5409-9d5d-617a392fa088'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '99031618-6869-5409-9d5d-617a392fa088'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '99039e24-fdfa-54f7-964a-f199769a2ffa'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9903eb24-9a9c-5c73-b499-ac453934d482'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9903f48d-a8a5-568c-8239-5c7e1b466cbb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -55297,6 +55449,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '994d58df-fe91-5f7d-afdc-811ad390ceb8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '994d9d40-7649-5c1a-a2ba-8ccb582e7f3f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '994da008-133c-534b-a58a-a9f83c23d5e6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '994e6950-3dc1-5c5c-b68d-1f94d1fe52b6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '994e9fd5-2eee-5df6-adf0-b52283fdce6d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '994fbf4f-5ab3-5bd7-9a28-e4d4eb3e28c8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9950632c-0157-584c-b9a5-3ea79862268b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -55471,6 +55624,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '99cced05-bb77-522e-aa13-eaa97eec5535'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '99ce26b0-405f-5dd6-bf77-dc77c7fb9ac9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '99ce7f02-01a4-57aa-aa2f-f92624e84e07'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '99ced3ec-3f11-5abb-a493-450829551417'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '99cf6723-3a01-5a1a-b167-7d07968e11c3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '99d05b78-517b-57b1-a00f-831dbce486ef'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '99d0701c-fa6b-5825-a5f4-79baf489daad'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -55732,6 +55886,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '9a846976-456b-5d92-a0ce-a4f57c1172b7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9a846c8b-5303-5d7c-b47f-022d796421b6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9a87b38f-3108-59d5-a4e8-86094ea0a23d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '9a898318-ae60-5e4f-aeee-bf15500f96a8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9a8af1f2-f16a-5193-9768-b0d6681c67ce'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9a8c2ee6-9fb6-50cf-b665-0b2f72a295a4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9a8dbc1d-f214-5a8d-afea-03d4a6753381'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -56363,6 +56518,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '9c4e839a-bfbe-5160-8e22-cc0d72f94e03'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9c4f5dd3-39c8-58cc-921d-ffde8f27bed4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9c503b14-933f-5e94-8660-08b959035ddd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '9c515412-8911-4566-acca-4fc58f5b083b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9c517658-96fc-5f16-a093-9ab39acc3f52'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9c51e5ab-6b94-5dad-bbce-0b5e95ceaec3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9c543c8c-30c0-5c96-900f-26cf0065efb4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -56613,6 +56769,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '9d0a122d-ff8a-5539-bc79-4088a59dc8f1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9d0a2130-3be6-5d89-8120-a9a8afa8fe57'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9d0b096d-c1af-5542-8d3e-b6c054206aa2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '9d0bc5c6-9b95-590f-8992-8e2d687ae4e6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9d0c385b-192b-5175-b00d-9ec009dc90bf'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9d0ca7bc-df8f-547f-9022-c260bc277db7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9d0da7a1-b738-5a6a-9815-e22f5affb186'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -57087,6 +57244,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '9e4e8a81-0db7-5fb4-be4c-cf26f0dfb19e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9e4f172a-b314-5766-8d24-1644e916819a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9e4f90cd-6def-50f0-9645-a3bb238a16cd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '9e4fb626-a74d-5b6b-8ed8-8bba6ffb0814'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9e514cb4-ea25-5cf3-8c10-1f138ca960c4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9e51886d-f80b-50dd-a630-1e62edb496ba'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9e51b7ca-c739-59cb-934d-4c6f7fab84b0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -57126,6 +57284,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '9e6a5f27-5a79-5f84-a024-be8430734267'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9e6acebb-c311-5439-87ae-22367bbe39e3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9e6b0265-7178-5f14-a9ef-828e301078b8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '9e6b8c01-f110-50c6-98bc-cdf26f00c3c0'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9e6ca519-e3b7-53cc-b64f-a06caa575bf7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9e6d5588-eb86-5e7b-b5db-24905f6bc4d9'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9e6d83c8-dd6a-52c3-a6cd-0ba9fd92c377'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -57561,6 +57720,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '9f9c4b7c-9a0d-522a-92aa-e728206b5040'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9f9dac6b-7ba7-5a67-88aa-35e9e9e9b48b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9f9db6b5-bd9b-5a9c-a63e-1570ddae822b'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '9f9e3715-794b-5603-b93c-bd38bc6d6232'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9f9e54b3-0253-5381-a6e1-0148ec456b14'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9f9f09cc-0a4d-5b12-94bc-9035f97bf9b1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9f9f504f-73e5-5ac7-ae2f-ab9638ec6a47'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -57684,6 +57844,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = '9ffb1a77-a199-59d4-bc29-069ca97b43ce'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9ffb3362-0ecb-57f4-acc1-1bfb5f3490bc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9ffc0f65-048f-5dce-b4db-3539618a1cef'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = '9ffc8158-1198-561f-80e8-c8798527715c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9ffcc919-1fcf-5bd3-a3a8-9cba604bf0cb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9ffd1e6b-1883-5334-b945-aafae0badd6e'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = '9ffd5db4-8084-5a56-aa3a-3bf2da0c2033'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -57910,10 +58071,12 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'a09c0dbd-3b1b-5186-b6b0-1f6296b414f0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a09dfba4-6bdf-5358-84c1-7698b6c4a769'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a09e307f-eecc-5dd3-b998-ea5c414c7784'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'a09e9dcb-e424-50cf-b4ea-e33c3ce66a68'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a09f0fc9-70fc-5e3b-a3fe-1f7d9d518728'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a09f8b28-4036-5903-a360-e32ac5af6359'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a09fab76-b633-5234-b761-a7afa97c2b9d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a0a0b5b1-3dad-5754-9f6e-eab31f26b5b3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'a0a0bc05-2bd9-5607-a8b4-37c1daedc314'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a0a1729d-abe9-4ab3-9934-fa48acebb542'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a0a209ee-fabb-5269-b965-cdc10cd6df55'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a0a29890-09ad-5640-8719-d72aea39ecf8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -58073,6 +58236,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'a10d5d5f-667f-5e73-9fd3-96397cbfdf31'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a10d806a-af72-5065-8b94-e02ec4fc1b84'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a10dcb77-db3d-5e56-8300-225a555a6168'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'a10e48aa-9d50-5fbb-a5a3-ff317abeb894'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a1103bf1-40fb-57a8-a892-107b7bd08b54'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a1119af9-af7a-5695-aa4b-4e9a3cb337d6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a111dfde-11a3-50de-a610-810217e50412'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -58371,6 +58535,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'a1e6e1e4-bcf6-536b-a1b0-91fc5330d355'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a1e76d9a-3672-531f-a51e-62a60ff3d0a8'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a1e77870-f587-5e7c-a8a7-60ffb89b157c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'a1e96591-4cba-516a-b488-bb1911e4a1d0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a1ea1cd7-a112-54ae-a139-f4ad16c3960b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a1ea2817-d274-5171-8f14-b2ebd8e30e32'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a1ea8fbd-9717-52bb-bf17-ee649e5ad3a6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -58764,6 +58929,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'a2fa6f8b-3c50-549a-8d2b-c594db9cd0db'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a2fb703a-6389-4081-803f-15636e687140'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a2fcd9ba-330e-5f51-8e16-c91571140197'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'a2fd15f8-9280-5101-92df-bae8ae16b410'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a2fd7d50-6376-5eab-994b-7e86e50c65d1'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a2fe48a1-1ba2-503b-8daf-d79273c373c7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a2fe7423-7955-5b76-b4ce-fd23b9854683'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -60377,6 +60543,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'a75aba0a-5ece-5f12-a91a-9fb2f2d6702c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a75b09d8-092c-517f-a965-45ee6441791c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a75b1cb6-01e5-5470-adbd-72edbba4760e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'a75b93cc-63b3-56f0-a52e-cbd49b21848d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a75bf7a3-4478-5f23-90f2-740d1c4606be'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a75c4191-75f2-5a4e-b126-0b529576ffc0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a75d149d-d97e-502a-a623-70b893b63bab'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -61064,6 +61231,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'a9585c56-d177-4a5c-90c8-1b286fd590bd'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a95903aa-76d9-5e44-bc9c-e24287b4af38'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a95a1766-9184-5936-8b28-5c27b673a9f9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'a95c8f90-37a4-5031-936b-f3a536b3255d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a95ce171-e3d5-5f06-ac22-6143bc928d5e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a95ceab5-99e7-5a21-a7cb-f1caabd09bef'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'a95da8e8-4739-5b46-a6be-4df437c48da4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -61420,6 +61588,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'aa6faac2-492e-585d-b1f6-c99c7cd009c2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'aa6ffa99-7fe7-54d1-bc0e-9f689392ada3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'aa7111ae-253c-5ec0-8c41-343ab577acfe'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'aa711df6-66a0-5367-a7c7-8e902390b653'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'aa72181f-5773-5c93-8fbf-ed5754b4f5ac'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'aa73982e-312f-5a56-94c0-3731a031f64f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'aa746ffd-09e4-50be-8f87-2a9614046225'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -62030,6 +62199,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'ac145174-76e1-580f-a6bb-22e7c8022359'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ac145458-d5ed-56ec-9501-10dd0964dfa0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ac147372-c6f1-50b6-a95c-22fb398ade95'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'ac149ed9-9fb8-59ca-9f9e-568358e3ad1a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ac151034-66d8-54ef-8c06-598c63813e5f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ac15753f-595e-5108-9551-7488384217b6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ac171d2c-8f55-5366-ac7f-09ebe60f9364'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -62305,6 +62475,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'ace0fb1c-573b-5834-80ca-b4be77314277'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ace13c00-2c62-5f68-b5e7-9f7535838514'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ace1680c-31c8-5a54-8cab-6ab5c4c8d241'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'ace16f28-7df2-5730-a54a-fb5e14cdba9b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ace17df0-2104-53c6-be41-036136483a31'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ace24cc0-b47a-5fdb-beef-eda1aee05537'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ace30b39-5349-4478-a583-24001b1d38ea'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -62448,6 +62619,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'ad393a78-d593-5195-b6d2-e1160bde4bfc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ad3c1291-f0bc-50b9-a1aa-fa23637a91ac'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ad3c3b6f-63c5-5f31-9812-342ff90631b6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'ad3caf4d-df9f-4587-93b9-b9c979e55a9b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ad3d651b-b9ef-5209-9fd8-9018ff2223b5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ad3db77d-2273-5451-8c8b-9a61e1e7505c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ad3fbdb8-c7ce-5423-afba-3a9e2f4e49de'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -62894,6 +63066,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'ae79a1d3-12b0-4eee-b18b-2eafacf5cc73'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae79acad-0c05-40a6-8472-1212037cac20'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae79ad6d-9f5d-5be6-a16e-fb12fc9b4ce2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'ae7a5645-7dd6-539c-b9ce-af6659efdb74'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae7b09de-6f15-5241-8f5f-762f01ba1e93'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae7c1d12-42d2-5d39-ac16-a47c40d72b10'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae7c8e0c-9b63-5fa1-b068-b3bf475100a9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -62906,12 +63079,14 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'ae8439d3-5bac-5904-89ad-700c38459553'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae845d22-2c27-50f1-9cc8-5c28639e8aae'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae8497b1-d0f3-4c7d-865b-b36b1df2952c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'ae85774e-98ab-5dfb-931f-e14257d7a19d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae85f187-7997-5566-afbc-4e55f03ab951'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae864bd2-8ed4-5ce5-bcf3-7d95a8eb713e'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae8688ff-6e03-5aa3-9a13-27417fd77fbd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae86ac51-e7ca-543b-a95a-39cd70800f02'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae880f27-e371-5db5-8e47-e5aad8df23f3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae8c4f89-33c4-4674-9234-b50d0e16943b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'ae8cd572-1048-4cea-a34c-742964f4129e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae8cfc76-101c-524c-ad36-c51f189934cf'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae8d88a1-04e4-577f-8175-7208833d7a74'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae8e0b23-e118-555c-acec-422e6ac6cf23'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -62941,6 +63116,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'ae9b45d9-537c-4761-9136-f2b183e80b9c'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae9b9a8e-abe9-5009-b1ac-44891321d9f5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae9d3741-0833-55e9-b40a-060786dca9d4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'ae9d4d8e-950e-599c-82e4-d8290f4c22be'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae9d5c86-0aa4-5f02-8d7e-e63700dd8048'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae9d7351-acd8-50af-9656-856e2c4fc2a8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ae9fa8c4-bda8-5d30-93ba-053a436056c5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -63027,6 +63203,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'aed39227-9a35-5bf1-8459-6f72fd21b4ec'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'aed4918d-205d-53d3-be4a-fbd62c84bee2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'aed564b0-7447-5211-acad-f44b523e17fe'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'aed62259-cef8-55df-a91a-0dd002491416'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'aed64111-8c2a-4d51-8252-c7b35aee2cc5'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'aed789b8-48c9-5fcb-be8e-31d5a3bdaef5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'aed7c2d9-a001-5dae-91be-8ad789bd2245'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -63073,6 +63250,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'aeef6276-b71e-5407-a5a8-208845915631'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'aef001b3-e917-52b9-8bf5-e151a6fe01d9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'aef1820a-f78d-53af-8657-0af280b0dad4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'aef1af6a-3705-5ab0-9dd8-e781218d09fc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'aef24cac-9491-5962-bd5e-94511223db71'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'aef2f4a2-fffb-53fb-b3a2-15e36ff49ea2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'aef3651f-8dd5-51c6-ac35-8b4141421294'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -63109,6 +63287,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'af0a0033-6a73-52fc-a870-a47f41f7a80d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'af0a1fdc-8d26-5d29-a59b-646a35f48790'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'af0ab347-0f12-53c9-87dc-4c8b97c5466b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'af0ad7f6-ab08-415c-881a-96bdc84bfb04'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'af0adc7a-baf7-579c-b808-571d84386a42'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'af0bfa21-a0df-5951-99a7-51b8042fd7e1'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'af0c7051-f2b8-4301-92a9-0ccf0e878ccc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -63129,6 +63308,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'af176995-a307-42b2-91f0-4954f76b2551'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'af17a59b-e485-5c67-b49d-ce59e6558d03'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'af17cd42-6fe5-5532-99cc-01185ddae688'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'af181c1d-95be-56af-92a6-dc4b8121b8e6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'af18a485-6294-5f53-8bbc-9ed05855db76'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'af1945e6-29e7-4ce3-98ca-199c00ae71b8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'af197cec-8079-50a1-9d1e-349f743c4952'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -63635,6 +63815,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'b082e168-d42b-5171-b04f-8ef5301e8b7e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b083539a-60dd-5cba-bb78-be30ae931458'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b083e939-1dd0-53d6-ad13-1fec2f503f35'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'b085a15a-50ee-5ee8-8177-91a79191c9b9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b086482a-0e1e-53a3-b807-9529b091d6e4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b08768c4-1530-5d6f-92e2-b5990dcdf99a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b087c9e6-19de-549b-808d-67b3d2c3480a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -64120,6 +64301,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'b1b9decb-ce5a-5064-a307-a71f5d16fa6b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b1ba328d-d0db-5068-9281-06a2c7d3fdec'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b1ba3c07-f29f-51cf-ab02-b495b3736e58'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'b1bb59ff-1940-5725-90d3-ac38f88a1d87'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b1bb695d-c5fe-5508-b193-245ef70468cd'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b1bb7a50-3c14-4ce1-ba77-a9606035c601'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b1bb9e56-e28b-5721-8a31-084f30c15b66'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -64373,6 +64555,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'b264e246-15d9-58e8-8f9f-4911bd8149b3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b267026e-bec2-5e9b-8d35-3f6da8aae00c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b267b6f8-2c7d-5971-83ff-55f233c7683f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'b267d054-a3b0-5ecd-b4b0-eef57eeea4ae'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b26890a1-8cde-5b26-8c30-1adbfed93bce'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b269e761-dadf-56c5-8c7c-b47376a2a9bf'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b26a0795-f914-5b89-babd-f43c23353496'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -64490,6 +64673,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'b2bafb33-52d1-5d46-b9ef-21d50bb2a26e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b2bb5488-085e-495f-a8a2-24aeb812aa71'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b2bc3da6-99a7-483c-a691-dc3300e7fccd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'b2bc9bdf-62bb-525e-be91-69f2e169831b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b2bda084-a812-4203-a46e-a696ddc22f4c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b2bed43e-c448-4cd6-91fc-6b020db334f8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b2c0b34d-4e13-527c-8c7f-924926154d8f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -64828,6 +65012,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'b3a6170c-7f94-50a3-b5de-efd894258b87'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b3a64b35-b583-5d60-95a9-1fd6894d5e23'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b3a6f42b-02bf-4a11-a37c-8e9400a827dd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'b3a7da5e-7e9d-57fd-857d-36d431b62e1a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b3abd67b-45e6-5c4e-ae3d-486e36f3247e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b3abe4fd-d448-5d44-bde4-66d35959949f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b3acdaa9-844f-5de7-8f6b-e286fb519b49'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -64876,6 +65061,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'b3c6d4fd-2dac-5fe1-8ba2-8bb8857dfc50'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b3c71855-d7d9-5789-990a-824a9f3fa064'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b3c7b76c-588b-5229-b50c-efa10283a699'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'b3c8a076-2724-58d2-9a7d-599579ce5841'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b3c8bfa8-3f71-572f-bc78-d80c5ac40b67'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b3c8f9d7-fc04-5ca5-be97-91bca6df7179'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b3ca8a90-0609-530a-b299-df45f7141a74'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -64888,6 +65074,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'b3cf4f14-efc8-5eac-aaf3-f86c0879880e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b3d0b971-37ca-590b-8108-fb0beff10a9b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b3d2a300-3907-5b6a-9448-d0d2644ae2e3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'b3d2a3b4-7019-592f-bd29-a73e66161b38'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b3d35264-787a-52c3-9fa4-ebf5e516c37f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b3d3bf5e-35f1-5ea4-beb1-22eb52dc22b4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b3d4a524-fe47-5f90-b23e-2ae76944995d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -65149,6 +65336,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'b48d07b1-96a9-5589-a604-9cb61134af5d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b48f9c77-fbfc-5093-b6af-f171bf25f86b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b49106d9-89c1-5755-86d9-d7af274359b9'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'b491eb0b-f653-4165-b8eb-741fb3f3060d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b492895e-8094-5eaa-abb8-e6d853287faa'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b492a3c1-fa75-4eba-a34d-a9f4c9e7b1ba'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b4944032-7cae-5b04-a6fc-5d297c33e0c4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -65465,6 +65653,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'b5623742-d1f5-5f29-844d-b8119c40520a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b562a580-5777-5116-b9a2-d6b028d79ff3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b563c831-054a-50da-9ac9-d4b8dddfc005'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'b564ef7d-f16d-595f-ad2f-aac2ed16c49e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b5654f0c-1933-4a7a-ada3-b4404e994a60'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b566297c-467b-5780-97d5-edb268e87347'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b5673963-ec67-513c-b0fe-f5c7fe92a215'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -65501,6 +65690,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'b57b62f6-058e-5c78-9bdd-e8a8205631a9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b57ce490-08dd-5a18-ba32-79ec0d927c88'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b57d97f0-3c22-5a20-af2e-e1806db65d84'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'b57dc1db-805a-51b8-b141-d549913ade8f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b57dd66a-bc4f-5ecc-90d9-81bd87a693fb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b57e4764-3cfe-5e8a-a5af-7583b79345e7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b57f186c-fd84-494e-b2bf-e32d53fe3351'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -65511,6 +65701,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'b5819d43-b3b3-5337-8a6a-ee92f86e31bf'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b5824164-494f-462a-9a40-7c4cfd9d69d6'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b582f099-9a04-5002-b1cf-a520afcbde3c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'b5847bd0-a550-59d3-a6f0-58a02dcc839d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b585c484-af04-5d17-902d-4148c8618e4b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b586048f-81ed-5896-a95e-697d75b05a71'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b586903f-ece2-5442-9e24-32a2390711f7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -66571,6 +66762,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'b864a94f-f9cb-59fe-81c6-e93af63caced'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b864faa4-88e4-5241-84d9-be1458d688b5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b8665b46-bb41-5668-8d92-5fe4c3738acd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'b867bafa-1b62-58a2-bd10-f0ccbc55537a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b8684f72-c46d-5b5c-9d68-ae2cf6b1c3f7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b868d8ba-cd04-5b65-ab0f-eacaa15bd1e0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b869cd49-3178-55c7-945c-ff9d6c1b8109'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -67019,6 +67211,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'b997df7a-c005-53e4-ad5d-c8ba1f58fcab'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b99a03ea-8e9e-5544-a934-1db6aa6114a3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b99b4605-67d1-5ea2-aed4-886951bb9dd9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'b99bf603-3f8f-5afa-8f33-3ab399f5d983'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b99c209d-de3f-50f9-a323-63f2a1220332'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b99c78ed-5f6d-5707-9f8e-7436f36fe332'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b99da7b5-eee4-5edd-ae57-5f14b4d55d8d'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -67083,6 +67276,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'b9ca93ca-9931-545d-8c85-965d878129ff'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b9ca97ae-b8d8-5767-9a36-6f80db9a5ff5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b9ca9c27-9bb6-5637-bfd1-c6c88d6e94f4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'b9cb0fb4-9936-52b1-b561-4b45ff2814a3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b9cb6837-58c7-4551-9ab7-988d7924d22a'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b9cc073e-e72d-5f78-9e0f-4d961d827ec6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b9cc1245-c9cf-5adb-ac29-67aed1562552'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -67094,6 +67288,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'b9cf3193-5e6b-59ac-9907-4acaac9f925d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b9d0cfac-4a9e-4ac6-b631-0345ebd02360'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b9d16646-29ed-574b-89f9-9187bccaf909'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'b9d45eb8-f3ca-54d8-947b-ecbaa076eb8f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b9d5f5d8-d9e8-50fc-bdc6-9d07c29ab280'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b9d602ca-e58b-4450-bf52-b964aee6ff1b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'b9d71fa1-5c99-4a86-adc4-5e4d9aa2343b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -67597,6 +67792,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'bb215c0a-d47f-5a6d-8290-c9212c265efd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'bb224bf4-6fd9-5837-8d75-b28e7e054eb5'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'bb225fbf-facc-541e-8541-dc505690fdd1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'bb227b55-0a76-55d3-8fa1-2638b8bc4fb6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'bb2337fa-48ff-5f67-a686-62ba7bcd98f9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'bb240f00-c689-5822-a79a-2fd620429413'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'bb244f0b-a749-40ce-a97a-28ab7f4ffd03'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -68534,6 +68730,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'bd86be27-c61f-56fe-b450-a1f9ee4066ba'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'bd881cda-64a4-57c0-a0db-af0c9be74774'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'bd886a0f-bb0f-5275-881d-2ebe00a578ef'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'bd88e8a5-80a6-529d-a197-1680e33ca9ab'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'bd89174a-f6e0-5262-baa2-2ebd54fe3fb3'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'bd8ac99b-52d8-59ee-923a-634c63c2bc54'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'bd8bfedd-885b-5d00-9144-2e1aea935f71'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -68624,6 +68821,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'bdc4ca3f-7097-5bcc-b098-34e6ce1b7240'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'bdc52125-935b-52af-895d-32cfc7c2bb6c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'bdc524e0-515b-553d-a94e-a2097e212114'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'bdc53228-1493-5f57-bc59-af91f771046f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'bdc5c805-90a1-5b6d-9d68-1b0e220a347f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'bdc709fd-c6fa-5b20-8138-3db663c70bf6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'bdc7d9b8-a9cc-54af-b4c5-58f47f9a4c67'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -69948,6 +70146,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'c1a13166-ba2d-4a77-94f2-02f02d88a95c'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c1a223a4-dedc-5607-a37e-249a234bbf54'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c1a24589-53eb-508e-bd92-56b1cda4a5e4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'c1a2652d-0aa1-5216-9095-141e47e043e9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c1a4a935-f9aa-543b-bd18-8053394cac05'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c1a4ef1a-15a2-51de-bf4a-6b9968ac172b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c1a517be-6416-58d3-bad8-d47150be0e35'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -70056,6 +70255,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'c1f06069-eb84-472d-a10b-cd77dd13f318'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c1f0bb71-2b38-5ba5-b52b-0d1ec53449fd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c1f3a221-3307-5f0b-a54d-836bf1a20853'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'c1f4a7cc-87ba-5f9e-8da4-3831d9201420'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c1f5a686-5c55-51af-a6fa-bf2b32376cab'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c1f6220e-e4c0-54a0-822e-505c67b7c6bd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c1f670d6-c876-5154-b95e-ffc99d83734e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -70128,6 +70328,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'c2199c25-ca26-5ba4-893c-fcd909fb418f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c219c0c2-e669-58a3-b6ac-35cb5803168f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c21acb27-fcfd-5a38-9a30-ffc460671138'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'c21ccd79-b562-5a15-a229-4e43abf8bacd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c21ce5a6-1161-570c-8433-ff184e53bfb5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c21d315a-448d-5975-b9fc-cd1e0ac00aef'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c21e8a22-4079-5a5c-9544-fa6b9c4afbfd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -70262,6 +70463,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'c27c6ea2-71b6-5ddc-9192-ea4cd6bf0090'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c27c8f4c-6466-5cab-b435-9f0f1b163d18'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c27cc0d0-5c57-56fe-9c73-571b2f093910'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'c27d17c6-d389-54e9-9e26-ff8d001d342b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c27d3faa-9d2c-5778-bc86-07afbd1a12fc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c27d9b1a-30bd-5306-be2b-bef0b0e04426'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c2817ad9-c079-5048-a17e-72e7f3b7b263'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -70913,6 +71115,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'c46049cc-4350-5f23-bfe0-7dd180c05675'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c46110d9-241d-5c89-a459-747c6b70b55b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c4614605-4d9f-54e2-b6a0-ae7ad91d503e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'c461625e-12cd-5193-b19f-0ce2b944870c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c462b3ba-8a38-5013-abfd-86e42bee19fd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c4631345-7076-412d-85cf-e04353f65af5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c465c590-8d1a-512f-bdbc-346a545c1ca8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -70948,6 +71151,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'c47b67ee-6dab-53b6-a3e7-802042ff03ad'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c47da4f2-0916-5f5b-9c04-32a3748954e2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c47dda35-81f0-58c5-922c-98ef31932dd1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'c47e9551-1ac8-5264-8599-24564295dc7b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c47e9715-5446-51b6-8828-e6ce1674b7ff'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c47eb813-557c-52a9-b459-9eb8bddea7e9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c47ec217-8b9b-5d49-b075-f01d879ee41f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -71077,6 +71281,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'c4d35bf0-b5dd-407d-9d6c-a0f64ea333eb'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c4d5b349-dfe2-5e10-aabb-bd559e634ac3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c4d686c7-f551-5034-894e-1a0fa04a1bc8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'c4d765eb-3d9e-5d3c-9ceb-1dcfabee990d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c4d778f7-9b6b-518f-8c78-e11b4ae38d2d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c4d7bb63-fc73-528c-89a8-da3fe82075f5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c4d8317d-4a75-5618-baad-560253977df4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -71173,6 +71378,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'c51aee5c-bf70-5643-af5b-1b2583cb040b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c51b5250-a5aa-56f1-a324-44fc788a0eb5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c51ba8a9-4054-5532-b1c8-53a922995856'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'c51cb6b9-9995-52cd-b1a1-a6266236039d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c51d78dd-280e-5f75-a6a8-a05c4ad5a569'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c51de5a7-520e-535f-b1fd-1bd10a9cb513'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c51e9a49-b5dc-562a-9862-baaf23511f99'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -71643,6 +71849,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'c6521603-0e40-5d58-b79a-46ebb5e46320'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c6526534-0644-5d3a-8909-df3883fa9289'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c6527228-0119-5288-b6f8-94052d0c809b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'c655c6d8-b196-5821-92c0-691c85194854'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c65780c7-710b-54be-bdde-597c271c0d12'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c6580ebc-5833-5d87-b5ed-8f4e4599e6c8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c6591766-4259-5be9-a817-75ce5961b818'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -71755,6 +71962,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'c6a50172-c108-54a5-98fc-e1da5feff64e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c6a52c83-a139-54dd-8b8b-80066983611c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c6a543f1-5200-5453-bf6d-463a6f8c9138'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'c6a5f064-9ed6-5f29-bd62-25281ba8b144'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c6a6dfc5-e0bf-57e3-bbe6-947e7e243f2f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c6a6e177-7748-5a8a-ba0f-fa92aef4bfe2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'c6a717c0-806d-5075-9f6d-6cafde600b65'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -73445,6 +73653,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'cb3ae7d0-3a09-5060-a360-29e5ded316f8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cb3b1f6d-423b-5da3-856a-8ddf601d5df0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cb3f5b7e-fcb6-51e7-86b9-5575ae901189'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'cb3f8fb9-6a4b-597a-90f8-ed4ebe1a0738'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cb3ffb36-f993-59cb-b241-a7994242ef10'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cb4068d0-beb4-5f2e-a91a-772d151c49a8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cb40feb4-4e9d-58df-aa11-edc25011bfd3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -74403,6 +74612,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'cdbdd69b-89f0-57ba-af5d-861bc6a5c335'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cdbdf3ee-f7bb-532a-a101-187118aa17eb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cdbe7c20-0973-560a-8839-b03c963ab7d7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'cdbec1f7-44e1-5719-b4a7-b959b728413f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cdbf1776-09cf-56d9-b885-617c6a5b67ae'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cdbf6b73-a1ca-5175-999c-c2ffa85dbfdd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cdc0db50-47e0-5e75-835e-f3ef11ee2065'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -74815,6 +75025,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'cecb8a24-b134-5609-ae84-360001208ea1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cecbfba3-a2fa-4ddb-a677-6fa4761fcffd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cecc1138-f836-5c25-b137-2bc206c982bd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'cecc3c69-c92d-5576-8418-da94e7877acc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cecc5ded-47e5-5a96-ab05-c54ef63f4489'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cecc9d56-52c6-5fa9-a43a-bd330aa2e51e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cecdee9e-47f0-5fec-b364-1125362aa09e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -75184,6 +75395,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'cfd6933c-a333-53db-b516-35fbb18ad062'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cfd6b784-da5a-5a65-93df-cbdaa7d652bf'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cfd6bcdf-463e-55ca-9cd8-8f385e25b0d5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'cfd73ae6-1830-5079-99bc-9a939b050315'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cfd76683-645c-5636-81b0-fd156027f7c4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cfd907f4-90dd-5fb9-ae2a-8c075f876707'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cfda306b-a90e-5b64-85d4-f8697a4ffba0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -75244,6 +75456,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'cffeda1a-3179-4123-bf2b-c0090061fd27'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'cfff0c14-e4a4-526c-ab5e-a5790af88cb6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd0004f53-5cd4-572f-8f1a-a86f6f046ac5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'd0017e11-6f72-5946-b60c-d72732ad8ba9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd001b768-5fda-5edc-83a9-ab30fd9474d9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd001bd64-7470-5a77-a4ca-04946358f97f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd0024de1-f756-5260-848b-b766faea3b2f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -75549,7 +75762,6 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'd0e5f0ee-b6be-5832-9623-a6c42c5d3bbb'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd0e711bc-7477-5e1d-9af2-3ae05de3b23b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd0e89083-d907-503d-b1e0-7158589d5699'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
-        ,[PSCustomObject]@{ MeterId = 'd0e8cf9a-e52a-5e56-ae17-318d9a1ad5c1'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd0e9552a-377e-590b-b5cc-fd804dc02f43'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd0e985c7-4704-5531-a418-80f0fbb4e316'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd0e9ff0c-9f3d-50db-a07f-b2ded4afbef6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -75841,6 +76053,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'd1a45f7d-013d-57f4-a61f-198cb52ced13'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd1a54be5-342c-5f1b-8215-85cac9657183'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd1a6ea31-2f41-512d-8a85-542aca92773a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'd1a83a5d-0055-46da-935b-aaa756f9fff8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd1a8462e-5300-5706-a90a-d72f25de163b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd1a8c822-33cc-5249-b041-ce91ed7d448e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd1a978ef-48a1-59c6-8cb7-7f998894550d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -75912,6 +76125,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'd1db431f-d2d3-5a11-a194-e94d7815a585'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd1dc7b44-a10a-57fa-bf92-654cfefaef9b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd1dc8887-b074-5b5b-a74c-f8caa83cedc2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'd1dcb134-2aff-557d-a713-10e067395825'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd1de1e76-9386-59be-b500-06e3acbbdb9a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd1de3462-223e-54c6-ad92-90e88ce0bc22'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd1de5bd2-08de-506f-904d-80365453b1df'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -76818,6 +77032,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'd45e30a3-2b2b-541a-aba3-d526fe77b47b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd4625176-0dad-5c17-89d0-4e3cf1bb2c55'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd46266ca-0ddd-5c95-a41b-f850261db7cf'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'd46389f6-278c-54a5-a5cf-660e3f3306b5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd463d547-fce0-4475-a03c-9d3c25b5abd4'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd4643ded-4dd9-549a-88a7-6100ac65b726'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd465a4c1-475c-5e9f-879f-76e55a238363'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -77036,6 +77251,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'd4f40195-7a02-5106-b026-f61274315a0a'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd4f55435-8760-505d-9abe-cf139a0ff9e9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd4f65750-be3d-5592-95fe-df584e84b9a4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'd4f6597e-cd97-54d7-8286-a7319f4a9e9e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd4f66086-0fff-5d3c-9cb1-d481bc3fcfd9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd4f66b59-2821-5fba-853f-c27876f86e90'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd4f6a446-7f92-4d9d-9241-e79f2ce890a6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -77102,6 +77318,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'd5217eef-a25e-5c28-a99a-d2a2332129ac'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd5219a0a-b801-5c0e-a4e9-3e817376cf7d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd5235ac6-fb99-5dd4-aa08-b69168fee5f2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'd52401cc-c98e-5a44-a30e-11dbc7855f5b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd52489ed-d11a-5a30-9a45-444b15f48e33'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd5251ae2-59c8-5847-856c-9ab3133aa452'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd5253acc-ac84-565a-8f52-87e9c3b35e22'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -77240,6 +77457,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'd58d40bb-e053-40e3-a93c-da2c2ff23604'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd58de240-37ea-5eb9-8e4b-980c773ad472'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd58e164f-7fad-5246-bd15-6ac99ed51fdc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'd58e2f51-4641-50f0-8233-6f7c942a6128'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd58e65a3-b594-5241-8c27-7c626193058d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd58f2074-b72e-5b90-b461-5a03f1880e87'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd58fadd9-647d-51a8-8421-a503650a1943'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -77362,6 +77580,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'd5eae0da-34f0-5f0b-84de-1bfef28c9629'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd5ebf254-b1db-5a34-86e9-090d910ad6a2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd5ec21be-608a-5252-a289-66dbe8e594c1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'd5ed1e96-9a70-5864-a20d-29f31351457e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd5efeb7b-85ed-520a-bab9-28bbc3175c2a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd5f0a13c-2a7a-5e65-aaf2-d540536b6084'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd5f0aa0a-8026-590a-8d21-4313477db50c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -77662,6 +77881,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'd6d1e053-fc4d-4ad2-bfc8-eb43ef8cb7a0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd6d1e5db-6dcb-52ea-ae0f-3bdb56629255'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd6d2968d-dce3-59d8-8ec5-98875c7c254d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'd6d2cd94-615d-5ff6-9482-f675b35f745c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd6d2dcf8-b5ec-5fdf-a8cb-df8109226371'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd6d363f7-dc0f-5a92-8e85-5c69f234253e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd6d45c06-94d6-5555-9a10-3341267cacbd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -78033,6 +78253,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'd7d0693e-13b9-5419-a972-6a54c362422d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd7d30d06-56b0-5353-9685-7b6886ad0dd8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd7d3c283-4614-53a0-af39-0505c42efeae'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'd7d527f5-3312-4052-be4f-fbbdde8ab1bd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd7d5b51e-fe64-57e5-a2e4-9bd61c596193'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd7d7394a-04e5-5913-8800-a59776686c29'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd7d787da-9a97-5e01-95fb-71b0c9be25a3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -78159,6 +78380,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'd82d30b3-865b-59b8-87e3-d018c1442771'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd82dec80-8e5a-5f85-9394-b476d19daeda'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd82f49ee-bb59-4645-a1c7-604c452f5cde'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'd8303a88-caf1-5539-b7b1-9d1310778bb5'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd83143d4-30c4-5f85-beb3-4ee025101a9e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd8323729-6112-5ee2-b48d-94d37790b5d7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd832af59-ce1d-56ab-b843-9ce582d23e96'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -78285,6 +78507,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'd8842961-1278-5870-a856-f1cde2c53451'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd884b2f2-8637-5171-a4a1-beac68790541'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd884cc01-cad4-59f3-84b4-086ad8575993'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'd8857c4d-4ff3-53fe-9886-f5e8838e2741'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd886a1ff-b267-5832-8eea-4dd5e37f900e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd8870a73-c0d3-5782-be29-e74cf1cb4115'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'd8876c75-e852-555e-a44e-ef01701fb29f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -78863,6 +79086,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'da2b57ce-1bf0-5847-bba6-5af7eb347f35'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'da2c1905-4502-5418-ad6f-ab2d3b417a32'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'da2e0edd-90a4-5e7a-b5b7-9126d4557e9c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'da2ea29e-8cab-5392-b71d-ac92c0e8ce1b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'da2f9adc-1bb3-58f6-898f-0c2401672f22'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'da306f4e-ee26-4e91-a4b8-38f32ca917f2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'da30e76c-f439-53eb-8f4c-07501f7921ce'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -79048,6 +79272,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'dabc7887-c15f-56b2-90a7-f82dbf499a6a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dabd5991-9f43-504d-b556-59b567fdb9d7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dabdf119-4aa3-5598-8f9e-7c61c32c681f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'dabe3e92-b5fb-51b8-a7a8-89f04686729e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dabf1b81-0a1f-5f0a-bf67-b959ce3ef818'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dac07b23-537b-464f-b622-81c9698e20e8'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dac0bda1-8cfd-5024-8e06-0488b5bb0155'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -79201,6 +79426,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'db259729-004f-580a-96d2-60000599b639'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'db25de35-b675-5d2a-abf2-7b33d25fe16e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'db25f982-d679-506f-9851-ab2e151430e5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'db28432f-c3d1-50c1-9c6e-5ba46fc25cb4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'db28ed85-0350-55c0-86cd-a55b825ef2fa'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'db290fae-1fbb-53fd-a603-9b40a312530b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'db291728-af4e-5f92-98ad-26f693ec3dd0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -79597,6 +79823,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'dc4c9073-a43d-5d05-a4c4-6404d6748b65'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dc4ca720-d4a2-5dc7-88d5-017b2b43d7ed'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dc4d23d3-7b79-5bb6-935a-92af8757526a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'dc4e2555-aa4f-5c51-b5e6-a84e15012963'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dc4e7ec0-1e9d-59da-9863-28a538840d76'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dc4ea091-30be-502f-b7fe-f79d541be7a7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dc504df1-ee03-59a7-b29e-540c5bf7b581'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -79615,7 +79842,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'dc5b5a68-eaff-5dff-b4c2-3f0c9f659c18'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dc5b7678-46d8-5bf2-8fce-b195a7397824'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dc5c7bcb-3012-59f6-a909-48ba9e50dcda'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
-        ,[PSCustomObject]@{ MeterId = 'dc5d07a3-7915-5e95-921d-8beabf3c0c5a'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'dc5d07a3-7915-5e95-921d-8beabf3c0c5a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dc5da166-24e6-5b1f-b685-f9ff0b0f173b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dc5e1721-ee54-5828-a30e-3c94f8c58e25'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dc5e9f99-e09b-5d16-810d-b8347552cae8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -79697,6 +79924,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'dc8d9557-3bfa-5c68-98c1-548ae328c31b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dc8e7da5-fb1c-5d07-b121-848fbb7689e8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dc8ef99d-f11f-43b8-abc3-b70cd05fbc44'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'dc8f611b-39b0-50d9-9b9b-e66d5de08f90'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dc9077df-32b8-562e-a5ed-e81e8d09ae4b'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dc91c42a-b899-503b-9322-16068cd41b96'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dc921243-73dd-559d-89fc-30132090e364'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -80035,6 +80263,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'dd7752f7-7d75-567d-a063-a42d3241c07f'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dd77847b-fa7a-5ec0-bc2f-6005740d133b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dd78d77c-3012-528e-a2ea-de497dcaa882'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'dd7b605f-4b22-557f-90b7-ed4041c2da36'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dd7b7ca1-fe33-4f37-a103-468a8eb1bd83'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dd7d25fd-f6d9-5c81-b1c7-c16bc4ff82eb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dd7f7848-9530-519f-9542-1210144955f0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -80058,6 +80287,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'dd8e9537-b94b-51d9-b4ee-ef041ee81bca'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dd8ec7c8-24dc-541b-a7cd-c75a7cec975c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dd8ef513-7af6-522c-8351-dabcacb263a7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'dd8fbf8c-2025-5269-b25d-97b35c7399fd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dd91017a-2352-54cd-8d9a-a1bfb41b8adc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dd91a003-e7e7-56d9-8877-605515c64fa2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dd9350ad-4700-576c-a9a5-05665f0a337b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -80411,6 +80641,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'de8ba82d-680f-5d4f-99bb-97fbe4f3dae6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'de8cbe58-5bc8-484f-8880-10d536b59386'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'de8cf0d4-cb29-56ba-9190-2674e2b9def1'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'de8d2b4c-0c97-596c-9eb7-6ece60800b98'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'de8ee91d-92d9-5a2d-9a7b-3b9d0c3569f3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'de8eea98-4450-5c9f-84d8-4a8faf12e858'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'de8ef529-75eb-576f-81ab-bb17b3cb805b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -80527,6 +80758,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'dee5e764-9cff-5fa0-9001-d327175319d0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dee5f85f-4bcc-5931-a720-ff0183cc984d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dee608b0-3d97-552f-8d35-547cd947e6b7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'dee6f4b8-c30b-5ea3-966f-ef8309c4a6bd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dee7ef32-8fe5-54dc-b49b-d6ef881aad9c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dee7f7f7-12a9-59b2-9c90-1c708334459c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dee8b550-aec0-51f9-855c-281845f20409'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -80681,6 +80913,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'df4f306a-ea70-5bb4-82a3-b28fc4d9c0c9'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'df4f3a9a-1389-5b2c-a99f-f42a1d0f990c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'df4f9912-94d6-5818-aa3b-a4580ad7d335'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'df4fd9bc-8473-50ba-96da-208aef6e9775'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'df4ff4b8-8e06-58b4-abe4-b2ccc2149b0d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'df502a3d-646e-536e-9793-5e539eb54d3a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'df506396-af2a-5575-b581-ccb13a209ade'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -80748,6 +80981,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'df75672f-db7a-5736-a066-cac76e3172d6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'df7568ef-91f5-5ce2-bd41-f78f796b5697'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'df7607bb-a5ee-5738-b80b-2820b807250f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'df76221b-348e-430e-bf4a-7a2ef99a58ad'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'df784095-8dea-5842-953e-613010c75bdb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'df794320-d669-50c2-9a9d-3f61d2f1f576'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'df799a7b-1f19-483d-ac6c-8874041cef3a'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -80859,6 +81093,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'dfc707da-7f02-5e3e-bae6-f8246e1ad46b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dfc72d6f-c076-5fdd-9b11-bd78b885a05b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dfc8ebc0-c370-5e9a-a4b0-eb65d99a8ce2'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'dfc8fccc-dc8d-5559-b8e6-81c1744e7f49'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dfc98ede-c33f-51bb-ab7a-d5f68263927b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dfca9e76-cb8b-5ac5-9205-a1185e0fa972'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'dfccd372-97cf-5f02-8b3a-7f6a623ea216'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -81511,6 +81746,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'e18c5fec-3acf-51f0-a344-85d0b226cb9e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e18c9889-e6e4-5cd5-bb5f-496f5752e90f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e18de903-3112-4474-a83b-497d20a19c9c'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'e18e1ff6-8cf2-5d61-9bcd-dabf7ecbd414'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e18e3b03-a39a-5b74-bd9b-d97b0d999b45'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e18e5bd7-edcb-4ee8-96c4-40e738bafc5d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e18fbfc2-0e56-52ec-9363-6dbf5d43acd2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -81664,6 +81900,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'e206a03d-6a75-5fdb-a4a9-491d8421a355'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e206c920-08d4-5c0f-8004-48a5c4eb204e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e20806aa-d6af-5748-b7ca-05c257d35a18'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'e20894e6-e700-5c0d-997e-c23e505350f8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e208faf2-9c47-5f61-95c9-547a23990d22'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e209436d-6c35-5c9d-9770-62584c34b751'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e2097a11-ace3-5a48-97d2-52df9446d93d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -82300,6 +82537,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'e3c78a3e-7d38-50ba-8657-fb9873592f90'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e3c80985-d0d1-456b-a1bb-36bc6ceb7fe6'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e3c80b4b-fc5d-57f4-841e-59fb3daaf1a2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'e3c81e7b-9411-56d5-ad02-25c4534aa322'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e3c828e6-9ca4-596a-a3c2-582194eda608'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e3c85c9e-7a6e-52a3-b2f5-b6fbc9f8c24b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e3c88c5c-f5ed-5d06-8d83-dc85cdc76062'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -82440,6 +82678,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'e41e8f62-9a32-57d2-a135-4e8e0536a4fa'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e41f8317-68fd-4787-bd22-17042698c75f'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e41fcc3a-a29b-5405-80ce-115e8c139317'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'e421ee2a-b2e9-5a71-bab2-73a01200a2a6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e42249ce-337b-5ff9-ba25-9c655f5bac69'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e424b22f-fd0c-5ec7-8acf-106f7daf083a'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e426e3af-6fa6-5407-894e-bdbaa9630ebc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -82831,6 +83070,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'e53a3af8-8d59-55b2-b1a2-2d782578fb5b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e53ac7da-9ebc-5878-8cbe-4f2d0fba5dd3'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e53ba639-0838-42b8-923d-db3cc155aa1d'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'e53d32e9-5c54-53fa-b111-e4678e2d2c8b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e53f4b37-c25c-5384-836c-e09767d6565b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e53faa69-10b3-51a7-8305-8f14a84bb530'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e5404e19-c997-5d0f-92a6-76664cac7d12'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -83018,6 +83258,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'e5c55024-0f8c-5c54-a0c9-e2b6796e366f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e5c575a4-2bae-5dc0-a6d6-c080d0a52ab9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e5c57a82-a6de-5901-857a-4f9bde87031f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'e5c655c3-164f-5cf8-995a-41b1b56487db'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e5c73901-30ab-514e-96aa-e5e620fc7d63'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e5c79d2f-45af-5dbd-91d9-f70abb39b8a1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e5c8b66b-d0a2-5952-b959-ee48540cb043'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -83074,6 +83315,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'e5fc5c6c-51f3-516d-ae91-e2db1c5d8ce4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e5fd0a0a-ea8b-5501-9a7a-1bcc21c1077d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e5fd2984-d127-5405-84d0-6e00b425a3dc'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'e5fd5cdd-0dd9-5cf9-bc44-6a09593a9556'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e5fda30b-3d5b-5d99-b04b-f8bb903c0c9d'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e5fe773b-9ca0-5f5d-b4b1-f0a8a0a32698'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e5fe8231-c311-5212-ac0f-bc1380efe50f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -83373,6 +83615,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'e6bb0780-f117-5eb0-bdfd-75dcb109cfe6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e6bc7810-cfa9-5fec-b099-5848610123c6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e6bc9bc8-bb31-5f2b-adb0-50afa7072b75'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'e6bd116a-3fc6-4209-8a80-5a67a7a77535'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e6bdbc24-cd15-503e-ad81-41730eb8e566'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e6be2959-cab7-5e7b-9599-8b969df33c27'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e6c16236-e9ab-5846-9273-2c88821f59bc'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -83582,6 +83825,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'e758831c-222e-5b5e-b4a0-368b1de8c68f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e758bb7a-e453-5182-8d10-977382859d47'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e759f8db-997f-5b86-b000-55fdf6c43867'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'e759fd7c-ac40-5cde-b3d4-aa141207c564'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e75a6f05-e558-57f2-92e0-821717f295d5'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e75a76b2-42ec-5b92-8642-fe411755fadf'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e75b5ce6-8220-4efd-bf7f-e099de2efca0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -84185,6 +84429,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'e8f65007-bf26-47ab-9500-d611cde8e191'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e8f6af1f-d1fb-5089-9269-31bb18ebf814'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e8f6dbe2-152b-53ae-9671-5fc96dbebbfb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'e8f84da2-aeea-449e-800e-93d9b436bd06'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e8f8b564-103e-5f14-9bc8-dc5c07e8589f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e8f8bce8-bd1d-5401-aa91-684a51f2fbe0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e8f8c117-fb58-50d6-a9fc-cab3194cd035'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -84243,6 +84488,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'e919c045-a6d4-574f-bc0c-b9a93d2faeee'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e91bafe8-cf9c-5938-b7f1-fc94f3f81130'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e91bc946-21b9-5eaa-973c-310f9c94b9c8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'e91cc1fe-cbc8-5b1c-b63a-5adad9728e17'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e91cf251-b878-5fa3-b193-289c15d88544'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e91d8581-c63a-5220-8d57-eb1bc20055a0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e91dda1d-f2b8-578e-b7ee-ebbea591a505'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -84438,6 +84684,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'e99a3396-25e7-5ef8-8d19-bcc8190c732e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e99a6295-faa3-4c42-a81c-8bad24d78be0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e99b3ee8-d24f-585a-b1d0-82d0fd6fdff0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'e99bf495-5589-513f-aa44-76428dd673eb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e99d842f-8383-5269-aab7-4016e08974e8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e99f0dac-3a33-5155-a889-17ad4055adf2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'e99f71ee-168b-5485-a009-6d7ee6650933'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -84820,6 +85067,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'eaa5f4bb-75d5-59cb-9d34-a4b90f4e1c87'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'eaa6c351-31fd-54aa-a69d-789c1a6b41ed'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'eaa6cbe1-0b86-5907-b44f-46b56984af40'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'eaa76c51-1a4b-5294-bf3b-4e43a5cb4942'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'eaa85121-0ca5-5edf-9f4a-050c35efd673'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'eaa8a0d5-76d5-5c9b-8707-8824f629ec0a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'eaa8c6d1-2ba0-4bac-b849-221ed30be223'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -84941,6 +85189,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'eaf1595b-ee4b-5984-ae3a-401c20f24a70'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'eaf19ee2-d4f0-5f0b-8234-21aad4f7a991'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'eaf2e7c9-e96e-5cef-a188-0aa1b0e0e821'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'eaf3b58b-5eac-5c9b-8fe2-cdd5167fdb1b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'eaf408ab-0146-51df-bc46-56c5a60412fd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'eaf559e2-6af7-5d49-805e-5475a966001d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'eaf5e0de-8b08-53a4-9780-68eaea7e9b15'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -85462,6 +85711,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'ec5ca754-35ad-55b1-94a3-2cde05571c0e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ec5cd0ad-f613-48b2-8bc2-a3e4d5e01677'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ec5e6c08-e922-5379-8a66-47b5ea539d62'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'ec606230-f6d0-5159-97bb-456e991a07c4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ec612499-0b7f-5ac4-b40c-4279954d1872'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ec614db3-df2a-5c2b-8d27-5f695e877228'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ec61532d-6d60-5da1-99f2-aaf6a14a454a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -85492,6 +85742,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'ec72aa9d-4cb5-58fc-a9a6-98a170eeed23'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ec743702-4141-5a7e-b94c-a7f057e8c627'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ec74a36c-d681-5acc-83af-3604f1b1b70a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'ec7573b3-425e-4d5f-b1be-0b23ad56cbe7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ec758550-480b-5d95-b9f8-6a3a9be3a487'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ec75d76d-8623-5471-8dd4-a6f2f746d9d2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ec76137b-852c-5fd3-9382-3ff8f1ade5a4'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -85589,6 +85840,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'ecba7d1f-fc7d-5d76-ab6d-9663083dee33'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ecba9a11-4cf8-5c4d-ae5e-f9bc853dd542'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ecbb372f-0822-5709-bc6c-992b2cbf94d8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'ecbbdf95-0661-5baf-8c4d-05e40d1d12fe'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ecbc2e48-d24d-5d75-91dd-3bad631eac55'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ecbd8539-60f1-5767-a2cc-d38371a47a3f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ecbe56a2-89a3-5740-8e53-8b80f4bc4104'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -85640,6 +85892,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'ece11c91-8351-5d50-8ee9-c56abb6c9fde'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ece1f9c1-a5ee-506c-b4b1-259eae41c1ff'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ece37969-767a-5029-84ca-7c735b32281f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'ece3d983-458b-54d9-afdd-eb8f901078a3'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ece49971-96e6-5a42-8c27-6c1ed4895341'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ece4b6f2-f0cd-56d4-a258-25fe6b949957'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'ece5fa74-512c-509c-8ce9-14df91aa0404'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -86750,6 +87003,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'efecbc46-31d7-524d-b271-8167891a8578'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'efed4d27-eea3-4b6c-865d-762e15e2371a'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'efee5eff-6397-51db-901b-eff89db8c038'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'efef06ec-9da2-5cb4-8a6b-ee4020a879c2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'efef4482-d66a-5766-9e92-99e7840ac111'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'efef6c5c-f501-572c-acba-c01e1a164fb4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'eff031d4-da18-5e40-9846-98a6f345d1fa'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -87022,6 +87276,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'f0ac6df3-c159-5319-ba0a-9671fc2220e2'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f0ad036c-7167-55d3-9e78-ec243dd41745'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f0ae18b0-b676-5100-95bd-7f5ae0e15650'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'f0ae929f-ee27-5f1f-8786-b9ccdab86307'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f0aede51-df97-5b18-a89e-32446479aeb8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f0af5e89-8bba-5e6c-99bd-5f0dca033456'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f0afd460-dd61-51e7-9fab-0ccc79cc7099'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -87123,6 +87378,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'f0f50945-628b-5571-95b5-e916d0fbe5a5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f0f5a099-f4c1-5099-9f7c-29bfafcfa071'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f0f5e524-cdcd-5048-9f46-cdce0919f061'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'f0f5ec66-5a08-5c6d-bc16-634827dff918'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f0f84c5e-d1aa-5fec-86c2-33d97f4f817e'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f0f9af98-743b-57f4-abe2-de754dd47737'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f0fa1f3d-2e75-54c3-b669-aeb232392334'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
@@ -87226,6 +87482,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'f13e511a-0563-5235-a853-a695d8366259'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f13f5657-f3a0-55e6-ba73-e3e8b44afae7'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f140ae59-0249-566f-8bb2-9dc6937e8dfd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'f141a39b-4ead-5ad4-bb3a-0a370d816018'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f1428309-bcbc-5e3b-b3cf-de0e0f0e3300'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f14358ad-8eeb-55f8-a519-7df014e83b77'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f143d6c0-c5b5-51d8-9470-d98f7e09acb4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -88305,6 +88562,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'f44b5cc2-e0c8-52a0-983f-f39580a81980'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f44baa6b-141d-5b1a-a603-73adcb76be3b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f44baefe-223d-5add-810d-b9b9d6f52b76'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'f44c36e0-9ce1-5f66-b440-2ed850c08051'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f44d013d-424c-5462-bfdb-deaf38ab8d6c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f44d4b50-5954-5222-a6cd-365c16d2c942'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f44e1a51-305c-585e-ac3a-7ad367965502'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -89226,6 +89484,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'f6af8a1b-4882-5ff2-9ca2-0e01956685eb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f6b06fd1-3795-5ad5-ac76-92807418cf29'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f6b0b2b9-7a42-596c-bfe4-dd6e2f877c74'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'f6b12d64-2a6a-5a8d-8727-c128d0ca9483'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f6b178e6-b8da-5255-8950-ebd35cdde7ca'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f6b20798-a585-5928-a45d-c6a0eaba5c3e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f6b25122-3992-5dcf-ad0f-f55faebe2308'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -89242,6 +89501,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'f6be36df-12c0-4438-b686-6837a702bf32'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f6bf1d57-798c-555b-8c1d-2cd2f4a642c2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f6bf4c15-916d-5d85-a5d7-c987d2df361f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'f6c0e2ad-341c-5ebc-b6f3-ec866b757e2b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f6c227e9-739e-51bd-b68a-c7a4c653b713'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f6c29fde-0272-5514-887a-d680579a87e8'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f6c334f1-fcbe-48ea-8aa2-a5c04651b50f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -89656,6 +89916,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'f7d1d37f-f9e5-50c4-8789-8b7ebc1bf965'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f7d2a91d-3196-54ff-a529-68bd5cd18f0c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f7d2c277-78a1-582d-9ce7-e0d7adc392c0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'f7d2cab0-2bed-5618-96f3-d63820c8278e'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f7d558aa-5341-5709-b018-4018616e6ad0'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f7d5e17c-d9dc-5d17-b2af-1df2ff3611df'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f7d65490-5998-560a-8fdd-1028d66b14eb'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -89939,6 +90200,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'f8a15be6-0cab-5ff1-9478-ccf9c56ffd7e'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f8a1c889-ebaf-56cb-8a3a-dcba9c6c01b1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f8a3c211-443f-5546-8258-8149856a5096'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'f8a3e95d-dd59-5a9a-8532-fde2d9a7fe55'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f8a3fd05-380f-545e-80f3-ecb348e2ca09'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f8a424ff-1500-531d-a64f-7d01b92de739'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'f8a497c5-24f9-5d1a-9f99-d45d92979fb1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -90710,6 +90972,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'fac6a5d4-85b8-52a2-941a-45b3f76e6dad'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fac79c11-e970-5115-a7e6-a0a8e643010a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fac84f9c-8699-5f73-97e2-1dbf5f2da7f2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'fac9844f-ac25-5f28-b2cf-46691f8dc678'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'face8ee5-11ef-5762-b261-5bec95dcb840'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'face946f-79c9-5a3d-9bbd-70aabb139758'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'facfff70-4167-5c29-9187-2932b8e807e1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -90793,6 +91056,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'fb079d44-816a-4c1d-bc1c-c5255158d996'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fb081f9c-8cc7-550b-a513-adfad8a6290c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fb08a8a1-acf4-5134-acae-dd8561ca94ee'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'fb08ab68-1b51-53fa-a1e5-ab11b91f217a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fb0a1414-b853-5443-a70e-b4b10661fa9d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fb0a71a2-60d6-5b90-8325-05f9d51ab6c9'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fb0b155d-775e-527c-b60f-5085773ff9aa'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -90836,6 +91100,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'fb22f26a-b84a-5546-8e0c-e054e49a40a1'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fb239c4e-b032-5954-8361-2b494594f617'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fb23aeae-b0d8-5e56-8f1a-5b74d949d3ac'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'fb259950-7a42-51e2-9d28-74722ab08446'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fb264400-146c-595c-b439-e3e780c6db1c'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fb272fe6-d4bb-480a-9a88-ee04982015ad'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fb27d786-b828-5b9e-878a-9cf02d80a315'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -91234,6 +91499,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'fc3beb8d-f47b-5cbd-803f-713c470f5638'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fc3c0e52-e8d0-5fce-8620-992879ea96d2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fc3c74f7-a2f4-56c2-a2f6-9cf092953a65'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'fc3cdadb-4353-5535-afec-4104e098d988'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fc3d0db4-5d2f-51ce-a3f9-effcd3bbf968'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fc3ea625-9b09-580d-8267-e7dd179a6f4a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fc3f0cdf-56f6-55c5-a773-3f09893053c5'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -91311,6 +91577,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'fc73aff0-9db2-5774-8c13-d62aceb070b1'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fc740248-4154-55ba-ba40-7a29650ac60a'; x_CommitmentDiscountSpendEligibility = 'Not Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fc748577-7986-5209-bcc5-834dbd7b5af6'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'fc74f72b-796a-59cc-962a-92c0251a75ff'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fc774b91-027d-54c4-a84f-16c4b5a875fd'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fc775b77-c317-5d5c-9b41-39a15f36a67d'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fc78d85f-dca6-5a68-80dc-894ddaad6e54'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -91639,6 +91906,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'fd47d3c3-b993-5e38-a859-319fc74d70f2'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fd47ec16-8ce3-5e64-8f60-3136cb407462'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fd48867c-70f7-5dc5-ac36-050ac3f80885'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'fd49405d-87d9-55b6-8f69-52a3b5784558'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fd4a43d5-8b3e-585e-808f-b41e04490c5a'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fd4b3bf7-5996-5ba6-b13e-ae3a8f173534'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fd4b5ff3-43f0-5ce5-8517-15f8a884ea04'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
@@ -91716,6 +91984,7 @@ function Get-OpenDataCommitmentDiscountEligibility
         ,[PSCustomObject]@{ MeterId = 'fd7e4844-6940-525e-88b7-db4384cff459'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fd7e9b33-acd4-5ed8-b2d3-23842e8d15ad'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fd7eec61-1704-56e0-bb62-c1286d6cceb4'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
+        ,[PSCustomObject]@{ MeterId = 'fd7f3429-f17a-5000-bf48-25973d5cf42f'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fd7fa381-24cd-58dd-aeea-37ad476c0697'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fd7fc891-d1c7-5325-b984-a9af03f9d62b'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Eligible'; }
         ,[PSCustomObject]@{ MeterId = 'fd804917-c072-5ac6-8346-2f6fd28621da'; x_CommitmentDiscountSpendEligibility = 'Eligible'; x_CommitmentDiscountUsageEligibility = 'Not Eligible'; }
