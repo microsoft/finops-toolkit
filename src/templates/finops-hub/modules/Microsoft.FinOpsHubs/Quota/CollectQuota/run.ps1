@@ -20,20 +20,38 @@ function Get-IdentityToken
     ConvertTo-SecureString $response.access_token -AsPlainText -Force
 }
 
+function Publish-Csv
+{
+    param ([string] $CsvPath, [string] $BlobName, [long] $RowCount)
+
+    $blob = [pscustomobject] @{
+        blobName = $BlobName
+        byteCount = (Get-Item -LiteralPath $CsvPath).Length
+        rowCount = $RowCount
+        sha256 = (Get-FileHash -LiteralPath $CsvPath -Algorithm SHA256).Hash.ToLowerInvariant()
+    }
+    $path = ($BlobName -split '/' | ForEach-Object { [uri]::EscapeDataString($_) }) -join '/'
+    $storageToken = Get-IdentityToken 'https://storage.azure.com/'
+    $upload = [Diagnostics.Stopwatch]::StartNew()
+    Invoke-WebRequest -Method Put -Uri "$exportStorage/msexports/$path" -InFile $CsvPath -ContentType 'text/csv' `
+        -Authentication Bearer -Token $storageToken -Headers ($headers + @{ 'x-ms-blob-type' = 'BlockBlob' }) `
+        -TimeoutSec 7200 -ErrorAction Stop | Out-Null
+    $upload.Stop()
+    Remove-Item -LiteralPath $CsvPath -Force -ErrorAction Stop
+    Write-Information "Uploaded $BlobName ($($blob.byteCount) bytes, $RowCount rows) in $([math]::Round($upload.Elapsed.TotalSeconds, 2)) seconds; local CSV deleted." -InformationAction Continue
+    $blob
+}
+
 function Write-Manifest
 {
-    param ([string] $CsvPath, [string] $BlobName, [int] $RowCount, [string] $Scope, [string] $Type, [string] $Version, [string] $ExportName)
+    param ([object[]] $Blobs, [string] $Scope, [string] $Type, [string] $Version, [string] $ExportName)
 
-    $bytes = (Get-Item -LiteralPath $CsvPath).Length
     $manifest = [ordered] @{
         manifestVersion = '2024-04-01'
-        byteCount       = $bytes
-        blobCount       = 1
-        dataRowCount    = $RowCount
-        blobs           = @(@{
-                blobName = $BlobName; byteCount = $bytes; rowCount = $RowCount
-                sha256 = (Get-FileHash -LiteralPath $CsvPath -Algorithm SHA256).Hash.ToLowerInvariant()
-            })
+        byteCount       = [long] ($Blobs | Measure-Object -Property byteCount -Sum).Sum
+        blobCount       = $Blobs.Count
+        dataRowCount    = [long] ($Blobs | Measure-Object -Property rowCount -Sum).Sum
+        blobs           = @($Blobs)
         exportConfig    = @{
             exportName  = $ExportName
             resourceId  = "$Scope/providers/Microsoft.CostManagement/exports/$ExportName"
@@ -46,9 +64,9 @@ function Write-Manifest
             endDate   = [datetime]::UtcNow.ToString('o')
         }
     }
-    $manifestPath = Join-Path (Split-Path $CsvPath) 'manifest.json'
+    $manifestPath = Join-Path $outputDirectory ((Split-Path $Blobs[0].blobName) + '/manifest.json')
     $manifest | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $manifestPath -Encoding utf8NoBOM
-    [pscustomobject] @{ CsvPath = $CsvPath; ManifestPath = $manifestPath; BlobName = $BlobName }
+    [pscustomobject] @{ ManifestPath = $manifestPath; BlobName = $Blobs[0].blobName }
 }
 
 $settingsStorage = "https://$($env:HUB_STORAGE_ACCOUNT).blob.core.windows.net"
@@ -72,43 +90,108 @@ try
     $runId = $started.ToString('yyyyMMddTHHmmssZ')
     $armToken = Get-IdentityToken 'https://management.azure.com/'
     $files = [System.Collections.Generic.List[object]]::new()
-    # Savings plan and quota failures are warnings, so one dataset does not block the upload of the other
+    # Collect the datasets independently and upload CSVs before publishing their manifests.
     try
     {
-        $savingsPlans = Get-SavingsPlanRecommendations -AccessToken $armToken -TenantId $env:AZURE_TENANT_ID `
+        Get-SavingsPlanRecommendations -AccessToken $armToken -TenantId $env:AZURE_TENANT_ID `
             -BillingScope $billingScopes -SettingsHash $settingsHash -SettingsETag ([string] $settingsResponse.Headers.ETag) `
-            -RunId $runId -OutputDirectory $outputDirectory
-        foreach ($file in $savingsPlans)
-        {
-            $files.Add((Write-Manifest -CsvPath $file.CsvPath -BlobName $file.BlobName -RowCount $file.Rows -Scope $file.Scope `
+            -RunId $runId -OutputDirectory $outputDirectory | ForEach-Object {
+            $file = $PSItem
+            $blob = Publish-Csv -CsvPath $file.CsvPath -BlobName $file.BlobName -RowCount $file.Rows
+            $files.Add((Write-Manifest -Blobs @($blob) -Scope $file.Scope `
                         -Type Recommendations -Version '1.0-savingsplan' -ExportName "SavingsPlan-$($file.Partition)"))
         }
     }
     catch { Write-Warning "Savings plan collection failed: $($_.Exception.Message)" }
 
+    $quotaFailure = $null
+    $quotaWriter = $null
     try
     {
-        $quotaBlobName = "quota/$runId/Quota.csv"
-        $quotaCsvPath = Join-Path $outputDirectory $quotaBlobName
-        $null = New-Item -ItemType Directory -Path (Split-Path $quotaCsvPath) -Force
-        Get-AzVMQuotaUsage -AccessToken $armToken -OutputFile $quotaCsvPath
-        $quotaRows = -1
-        foreach ($line in [IO.File]::ReadLines($quotaCsvPath)) { $quotaRows++ }
-        $files.Add((Write-Manifest -CsvPath $quotaCsvPath -BlobName $quotaBlobName -RowCount $quotaRows `
+        $quotaDirectory = Join-Path $outputDirectory "quota/$runId"
+        $null = New-Item -ItemType Directory -Path $quotaDirectory -Force
+        $quotaBlobs = [System.Collections.Generic.List[object]]::new()
+        $quotaFileSizeBytes = 128MB
+        $encoding = [Text.UTF8Encoding]::new($false)
+        $newlineBytes = $encoding.GetByteCount([Environment]::NewLine)
+        $quotaHeader = $null
+        $quotaPart = 1
+        $quotaRows = 0
+        $quotaBytes = 0
+
+        Get-AzVMQuotaUsage -AccessToken $armToken -AsCsv | ForEach-Object {
+            $line = [string] $PSItem
+            if ($null -eq $quotaHeader)
+            {
+                $quotaHeader = $line
+                $headerBytes = $encoding.GetByteCount($quotaHeader) + $newlineBytes
+                return
+            }
+            $lineBytes = $encoding.GetByteCount($line) + $newlineBytes
+            if ($headerBytes + $lineBytes -gt $quotaFileSizeBytes)
+            {
+                throw "A quota CSV row exceeds the $quotaFileSizeBytes-byte file limit."
+            }
+            if ($quotaWriter -and $quotaBytes + $lineBytes -gt $quotaFileSizeBytes)
+            {
+                $quotaWriter.Dispose()
+                $quotaWriter = $null
+                $quotaBlobs.Add((Publish-Csv -CsvPath $quotaCsvPath -BlobName $quotaBlobName -RowCount $quotaRows))
+                $quotaPart++
+            }
+            if (-not $quotaWriter)
+            {
+                $quotaBlobName = "quota/$runId/Quota-$($quotaPart.ToString('D6')).csv"
+                $quotaCsvPath = Join-Path $outputDirectory $quotaBlobName
+                $quotaWriter = [IO.StreamWriter]::new($quotaCsvPath, $false, $encoding)
+                $quotaWriter.WriteLine($quotaHeader)
+                $quotaRows = 0
+                $quotaBytes = $headerBytes
+            }
+            $quotaWriter.WriteLine($line)
+            $quotaRows++
+            $quotaBytes += $lineBytes
+        }
+        if ($quotaWriter)
+        {
+            $quotaWriter.Dispose()
+            $quotaWriter = $null
+            $quotaBlobs.Add((Publish-Csv -CsvPath $quotaCsvPath -BlobName $quotaBlobName -RowCount $quotaRows))
+        }
+        elseif (-not $quotaBlobs.Count)
+        {
+            $quotaBlobName = "quota/$runId/Quota-000001.csv"
+            $quotaCsvPath = Join-Path $outputDirectory $quotaBlobName
+            [IO.File]::WriteAllText($quotaCsvPath, $quotaHeader + [Environment]::NewLine, $encoding)
+            $quotaBlobs.Add((Publish-Csv -CsvPath $quotaCsvPath -BlobName $quotaBlobName -RowCount 0))
+        }
+        $files.Add((Write-Manifest -Blobs $quotaBlobs.ToArray() `
                     -Scope "/tenants/$($env:AZURE_TENANT_ID)" -Type Quota -Version '1.0' -ExportName Quota))
     }
-    catch { Write-Warning "Quota collection failed: $($_.Exception.Message)" }
-    if (-not $files.Count) { throw 'No files were produced.' }
+    catch
+    {
+        $quotaFailure = $PSItem
+        Write-Warning "Quota collection failed: $($quotaFailure.Exception.Message)"
+    }
+    finally
+    {
+        if ($quotaWriter)
+        {
+            try { $quotaWriter.Dispose() }
+            catch
+            {
+                if (-not $quotaFailure) { $quotaFailure = $PSItem }
+                Write-Warning "Quota CSV cleanup failed: $($PSItem.Exception.Message)"
+            }
+        }
+    }
+    if (-not $files.Count)
+    {
+        if ($quotaFailure) { throw $quotaFailure }
+        throw 'No files were produced.'
+    }
 
     $storageToken = Get-IdentityToken 'https://storage.azure.com/'
-    foreach ($file in $files)
-    {
-        $blob = ($file.BlobName -split '/' | ForEach-Object { [uri]::EscapeDataString($_) }) -join '/'
-        $csvUri = "$exportStorage/msexports/$blob"
-        Invoke-WebRequest -Method Put -Uri $csvUri -InFile $file.CsvPath -ContentType 'text/csv' `
-            -Authentication Bearer -Token $storageToken -Headers ($headers + @{ 'x-ms-blob-type' = 'BlockBlob' }) `
-            -TimeoutSec 7200 -ErrorAction Stop | Out-Null
-    }
     foreach ($file in $files)
     {
         $blob = ($file.BlobName -split '/' | ForEach-Object { [uri]::EscapeDataString($_) }) -join '/'
@@ -117,6 +200,7 @@ try
             -Authentication Bearer -Token $storageToken -Headers ($headers + @{ 'x-ms-blob-type' = 'BlockBlob' }) `
             -ErrorAction Stop | Out-Null
     }
+    if ($quotaFailure) { throw $quotaFailure }
     Write-Output "Published $($files.Count) datasets for run $runId."
 }
 finally
