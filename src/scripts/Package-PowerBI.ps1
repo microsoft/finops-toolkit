@@ -411,6 +411,12 @@ if ($Status) { return }
 
 #region Save PBIX files
 
+# Fail before saving (which takes about an hour for all reports) when the build can't be released
+if ($manifest.PSObject.Properties.Name -contains 'releasable' -and -not $manifest.releasable)
+{
+    throw "Demo reports were built reading open data from $($manifest.openDataUrl), which isn't permanent, so they can't be released. Rebuild with ./Package-PowerBI -Build once the open data files are on main."
+}
+
 if ($Unattended)
 {
     if ($null -ne $IsWindows -and -not $IsWindows)
@@ -456,6 +462,9 @@ if ($Unattended)
         }
 
         $state = Get-SaveState
+
+        # Anything saved is newer than the existing package, so repackage even if the zip looked current before
+        $demoZipCurrent = $false
     }
 }
 elseif ($state.Missing.Count -gt 0)
@@ -503,11 +512,6 @@ elseif ($state.Missing.Count -gt 0)
 
 #region Validate and package
 
-if ($manifest.PSObject.Properties.Name -contains 'releasable' -and -not $manifest.releasable)
-{
-    throw "Demo reports were built reading open data from $($manifest.openDataUrl), which isn't permanent, so they can't be released. Rebuild with ./Package-PowerBI -Build once the open data files are on main."
-}
-
 Write-Host "Checking $($state.Saved.Count) demo report$(if ($state.Saved.Count -ne 1) { 's' })..."
 $failed = 0
 foreach ($report in $state.Saved)
@@ -547,9 +551,14 @@ else
 }
 
 Write-Host ''
+$missingFiles = @($templateZips + $demoZip | Where-Object { -not (Test-Path $_) })
+if ($missingFiles.Count -gt 0)
+{
+    throw "Power BI release files are incomplete. Missing: $(($missingFiles | ForEach-Object { Split-Path $_ -Leaf }) -join ', '). Rebuild all reports with ./Package-PowerBI -Build."
+}
+
 Write-Host "✅ Power BI release files for $version" -ForegroundColor Green
 @($templateZips + $demoZip) `
-| Where-Object { Test-Path $_ } `
 | ForEach-Object { Write-Host "     $(Split-Path $_ -Leaf)  $(Format-Size (Get-Item $_).Length)" }
 
 #endregion Validate and package
