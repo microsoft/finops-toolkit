@@ -84,6 +84,8 @@ Describe 'PowerQueryColumnNames' {
         $addColumnPattern = [regex]'Table\.AddColumn\(\s*[^,]+,\s*"([^"]+)"'
         $renamePairPattern = [regex]'\{\s*"([^"]+)"\s*,\s*"([^"]+)"\s*\}'
         $modelColumnPattern = [regex]'(?m)^\s*sourceColumn:\s*(\S+)'
+        # List.Accumulate over a list of column names, folding in the _ensureCol helper.
+        $ensureListPattern = [regex]'(?s)List\.Accumulate\(\s*\{([^}]*)\}.{0,400}?_ensureCol'
 
         # Unguarded references to columns FOCUS 1.2 drops, counted per repo-relative path.
         # Ratchet only: lower on fix, never raise. Empty today - Costs.tmdl guards all three with
@@ -138,11 +140,23 @@ Describe 'PowerQueryColumnNames' {
         )
         $allowed = if ($baseline.ContainsKey($RelPath)) { $baseline[$RelPath] } else { 0 }
 
+        # A column counts as guarded either by a direct Table.HasColumns / _exists check, or by
+        # appearing in the name list of a List.Accumulate that folds the _ensureCol helper over the
+        # table - the idiom Costs.tmdl uses to add whichever side of a renamed pair is missing.
+        $ensured = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+        foreach ($partition in $partitions)
+        {
+            foreach ($match in $ensureListPattern.Matches($partition))
+            {
+                foreach ($name in $quotedNamePattern.Matches($match.Groups[1].Value)) { [void] $ensured.Add($name.Groups[1].Value) }
+            }
+        }
+
         $unguarded = @(
             foreach ($column in $droppedInFocus12)
             {
                 $referenced = $false
-                $guarded = $false
+                $guarded = $ensured.Contains($column)
                 foreach ($partition in $partitions)
                 {
                     if ($partition -match ('\[{0}\]|"{0}"' -f [regex]::Escape($column))) { $referenced = $true }
@@ -152,7 +166,7 @@ Describe 'PowerQueryColumnNames' {
             }
         )
 
-        $unguarded.Count | Should -BeLessOrEqual $allowed -Because ("FOCUS 1.2 does not deliver these columns and ftk_Storage does not backfill them, so a container holding only 1.2 exports fails to refresh. Guard the reference with Table.HasColumns or the _exists helper. Unguarded here: $($unguarded -join ', ')")
+        $unguarded.Count | Should -BeLessOrEqual $allowed -Because ("FOCUS 1.2 does not deliver these columns and ftk_Storage does not backfill them, so a container holding only 1.2 exports fails to refresh. Guard the reference with Table.HasColumns, or add the column through the _ensureCol helper. Unguarded here: $($unguarded -join ', ')")
 
         if ($unguarded.Count -le $allowed)
         {

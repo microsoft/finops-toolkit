@@ -1426,6 +1426,7 @@ table Costs
 					_stringValue = (val) => if _isBlank(val) then null else val,
 					_swapCol    = (tbl, oldCol, newCol, newVal, optional newType) => let add = Table.AddColumn(tbl, newCol, newVal, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,
 					_resetCol   = (tbl, col, newVal, optional newType) => let tmpCol = Text.Combine({"tmp_", col}), tmp = _swapCol(tbl, col, tmpCol, newVal, newType), ren = Table.RenameColumns(tmp, {{tmpCol, col}}) in ren,
+					_ensureCol  = (tbl, col) => if Table.HasColumns(tbl, {col}) then tbl else Table.AddColumn(tbl, col, each null),
 					
 					// Update previous FOCUS versions
 					PerformDeprecatedOptimizations = #"Deprecated: Perform Extra Query Optimizations",
@@ -1465,16 +1466,10 @@ table Costs
 					// x_SkuMeterName to SkuMeter. ftk_Storage does not backfill focuscost columns, so a container
 					// holding only 1.2 exports has none of the 1.0 columns (and a 1.0-only container none of the
 					// 1.2 ones). Add whichever side is missing as null first, then copy values in both directions.
-					EnsureRenamedCols =
-						let
-							a = if Table.HasColumns(HandlePeview, {"x_InvoiceId"})       then HandlePeview else Table.AddColumn(HandlePeview, "x_InvoiceId",       each null),
-							b = if Table.HasColumns(a,            {"x_PricingCurrency"}) then a            else Table.AddColumn(a,            "x_PricingCurrency", each null),
-							c = if Table.HasColumns(b,            {"x_SkuMeterName"})    then b            else Table.AddColumn(b,            "x_SkuMeterName",    each null),
-							d = if Table.HasColumns(c,            {"InvoiceId"})         then c            else Table.AddColumn(c,            "InvoiceId",         each null),
-							e = if Table.HasColumns(d,            {"PricingCurrency"})   then d            else Table.AddColumn(d,            "PricingCurrency",   each null),
-							f = if Table.HasColumns(e,            {"SkuMeter"})          then e            else Table.AddColumn(e,            "SkuMeter",          each null)
-						in
-							f,
+					EnsureRenamedCols = List.Accumulate(
+						{"x_InvoiceId", "x_PricingCurrency", "x_SkuMeterName", "InvoiceId", "PricingCurrency", "SkuMeter"},
+						HandlePeview,
+						(tbl, col) => _ensureCol(tbl, col)),
 					// Copy 1.0 values to the 1.2 columns, then 1.2 values back to the 1.0 columns
 					Align12 = Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(EnsureRenamedCols,
 						null, each [x_InvoiceId],       Replacer.ReplaceValue, {"InvoiceId"}),
