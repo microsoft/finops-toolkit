@@ -168,27 +168,27 @@ The PowerShell-based build system:
 
 ### Git Operations Policy
 
-This repository supports production infrastructure managing significant revenue. All git operations on shared branches must be non-destructive and preserve full commit history. Personal branches may use history-rewriting operations, as described below, to keep PR history clean against `origin/dev`.
+This repository supports production infrastructure managing significant revenue. All git operations on shared branches must be non-destructive and preserve full commit history. On personal branches, the only history-rewriting operations permitted are rebase and force-push with lease (see below), to keep PR history clean against `origin/dev`.
 
-**What counts as "shared":** `main`, `dev`, and `features/*` branches — branches multiple people commit to and pull from directly. A personal `{username}/{branch}` branch is not shared, even once it has an open PR with review or comment activity, since only its owner pushes to it.
+**What counts as "shared":** any branch that isn't a personal `{username}/{branch}` branch, for example `main`, `dev`, `features/*`, and release branches. A personal branch also counts as shared while another branch or PR is based on it, because rebasing it breaks that work. A personal branch with an open PR is otherwise not shared, but others can still push to it (for example the `update-mslearn-dates.yml` workflow, which commits an `ms.date` update to same-repo PR branches), so always fetch before rewriting it.
 
 **Permitted operations:**
 
-- `git add`, `git commit`, `git push` (standard push only)
-- `git merge` (merge commits to integrate branches — the only permitted way to sync a shared branch with `dev` or resolve its conflicts; on a personal `{username}/{branch}` branch, rebase is also permitted, see below)
+- `git add`, `git commit`, `git push` (standard push; force-push only as described under prohibited operations)
+- `git merge` (merge commits to integrate branches — the only permitted way to sync a shared branch with `dev` or resolve its conflicts; on a personal branch, rebase is also permitted, see below)
 - `git checkout`, `git switch`, `git branch` (branch creation and switching)
 - `git worktree add`, `git worktree remove`, `git worktree prune` (worktree lifecycle)
-- `git fetch`, `git pull` (with merge, not rebase)
+- `git fetch`, `git pull` (with merge, not rebase; `git pull --rebase` is permitted on a personal branch)
 - `git stash`, `git stash pop` (temporary local state management)
 - `git status`, `git log`, `git diff`, `git show` (read-only inspection)
 
 **Prohibited operations:**
 
-- `git rebase` — rewrites commit history. Never permitted on a shared branch (`main`, `dev`, `features/*`), including as a conflict resolution strategy on one. Permitted on a personal `{username}/{branch}` branch, including to sync with `dev` or resolve a conflict with it.
-- `git push --force` / `git push --force-with-lease` — destructive remote update. Never permitted on a shared branch (`main`, `dev`, `features/*`). Permitted on a personal `{username}/{branch}` branch, e.g. after a rebase.
+- `git rebase` — rewrites commit history. Never permitted on a shared branch, including as a conflict resolution strategy on one. Permitted on a personal branch, including to sync with `dev` or resolve a conflict with it.
+- `git push --force` — destructive remote update. Never permitted. On a personal branch, use `git push --force-with-lease` only, after a `git fetch`, for example after a rebase. The lease rejects the push if someone pushed commits you haven't seen. Never permitted on a shared branch.
 - `git reset --hard` to a state behind the remote (discarding pushed commits)
 - `git filter-branch`, `git reflog`-based history manipulation
-- Any operation that rewrites, reorders, squashes, or deletes commits that have been pushed to the remote of a shared branch (`main`, `dev`, `features/*`)
+- Any other operation that rewrites, reorders, squashes, or deletes commits that have been pushed to the remote of a shared branch, or any history rewrite on a personal branch other than rebase (for example, squashing with `git reset --soft`)
 
 **Conflict resolution:** When a shared branch has merge conflicts with `dev`, the only permitted approach is `git merge origin/dev` into it, creating a merge commit that preserves all history. On a personal `{username}/{branch}` branch, either `git merge origin/dev` or `git rebase origin/dev` is permitted.
 
