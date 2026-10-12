@@ -203,6 +203,8 @@ function Find-Element($Root, [string] $Name, [System.Windows.Automation.ControlT
     if ($Name) { $conditions.Add((New-Object System.Windows.Automation.PropertyCondition($props::NameProperty, $Name))) }
     if ($AutomationId) { $conditions.Add((New-Object System.Windows.Automation.PropertyCondition($props::AutomationIdProperty, $AutomationId))) }
 
+    if ($conditions.Count -eq 0) { return $null }
+
     $condition = if ($conditions.Count -eq 1) { $conditions[0] } else { New-Object System.Windows.Automation.AndCondition($conditions.ToArray()) }
     foreach ($element in @($Root.FindAll($tree::Descendants, $condition)))
     {
@@ -509,6 +511,7 @@ function Get-DesktopEnginePort([int] $ProcessId)
 $desktop = $null
 $server = $null
 $started = Get-Date
+$backupPath = "$Destination.bak"
 
 try
 {
@@ -520,8 +523,14 @@ try
     # anything named after the destination is cleared first. The project itself is named
     # differently (CostSummary.storage.Report, not CostSummary.storage.pbix.Report) and is kept.
     $destinationName = [System.IO.Path]::GetFileName($Destination)
+
+    # An existing PBIX is moved aside rather than deleted, so a failed save (for example a refresh
+    # error) doesn't cost the last good file. It's restored on failure and dropped on success.
+    Remove-Item $backupPath -Force -ErrorAction SilentlyContinue
+    if (Test-Path $Destination -PathType Leaf) { Move-Item $Destination $backupPath -Force }
+
     Get-ChildItem ([System.IO.Path]::GetDirectoryName($Destination)) -Force -ErrorAction SilentlyContinue `
-    | Where-Object { $_.Name -eq $destinationName -or $_.Name -like "$destinationName.*" } `
+    | Where-Object { ($_.Name -eq $destinationName -or $_.Name -like "$destinationName.*") -and $_.FullName -ne $backupPath } `
     | ForEach-Object {
         if ($_.PSIsContainer) { Write-Verbose "  Removing $($_.Name), left over from a save that wrote a project instead of a file." }
         Remove-Item $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
@@ -869,7 +878,8 @@ try
     | Select-Object -First 1
 
     $currentFolder = if ($address -and $address.Current.Name -match '^Address: (?<path>.+)$') { $Matches.path.TrimEnd('\') } else { $null }
-    $inDestination = $currentFolder -and ($currentFolder -eq $destinationFolder.TrimEnd('\') -or (Split-Path $currentFolder -Leaf) -eq (Split-Path $destinationFolder -Leaf))
+    # Full paths only: a folder with the same leaf name (another clone's release/pbix) is a different folder
+    $inDestination = $currentFolder -and $currentFolder -eq $destinationFolder.TrimEnd('\')
     if (-not $currentFolder) { Write-Verbose '  The Save as dialog does not say what folder it is in. Using the full path.' }
 
     $fileNameOnly = if ($inDestination) { [System.IO.Path]::GetFileName($Destination) } else { $Destination }
@@ -1023,6 +1033,8 @@ try
 
     #endregion Close
 
+    Remove-Item $backupPath -Force -ErrorAction SilentlyContinue
+
     [PSCustomObject]@{
         Path     = $Destination
         Size     = (Get-Item $Destination).Length
@@ -1032,6 +1044,11 @@ try
 catch
 {
     Save-Screenshot $_.Exception.Message
+    if (Test-Path $backupPath -PathType Leaf)
+    {
+        Remove-Item $Destination -Force -ErrorAction SilentlyContinue
+        Move-Item $backupPath $Destination -Force
+    }
     throw "Could not save $reportLabel automatically: $($_.Exception.Message) Save it by hand from Power BI Desktop, then rerun Package-PowerBI."
 }
 finally

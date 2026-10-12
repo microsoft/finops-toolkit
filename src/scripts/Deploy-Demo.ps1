@@ -192,10 +192,19 @@ function Get-DemoState([string] $HubName, [string] $ResourceGroupName)
 
     # Ingested data is stored in folders named by month, so the folder names are the months of data
     $months = New-Object System.Collections.Generic.HashSet[string]
-    Get-AzStorageBlob -Container 'ingestion' -Context $context -MaxCount 5000 -ErrorAction SilentlyContinue `
-    | ForEach-Object {
-        if ($_.Name -match '(?<month>20\d{2}[-/]?(0[1-9]|1[0-2]))') { $null = $months.Add(($Matches.month -replace '[-/]', '')) }
+    # Blobs come back 5,000 at a time in name order, so page through all of them: on a hub with a
+    # year of data the newest months can sit past the first page.
+    $token = $null
+    do
+    {
+        $page = @(Get-AzStorageBlob -Container 'ingestion' -Context $context -MaxCount 5000 -ContinuationToken $token -ErrorAction SilentlyContinue)
+        foreach ($blob in $page)
+        {
+            if ($blob.Name -match '(?<month>20\d{2}[-/]?(0[1-9]|1[0-2]))') { $null = $months.Add(($Matches.month -replace '[-/]', '')) }
+        }
+        $token = if ($page.Count -gt 0) { $page[-1].ContinuationToken } else { $null }
     }
+    while ($null -ne $token)
     $state.Months = @($months | Sort-Object)
 
     return $state

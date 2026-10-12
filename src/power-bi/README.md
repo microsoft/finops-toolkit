@@ -69,7 +69,7 @@ Power BI reports in the FinOps toolkit must adhere to the following guidelines:
 9. Every table and query a report uses must be listed for that report in [reports.json](./reports.json).
    1. Reports share one semantic model per data source. The release build removes everything a report doesn't list, so an unlisted table shows up as a broken visual or refresh error.
    2. Prefix a name with `[kql]` or `[storage]` when only one report type uses it.
-   3. The `PowerBIReports` lint test fails when a visual or query uses something the report doesn't list.
+   3. The `PowerBIReports` lint test fails when a visual uses a table or column the report doesn't list, or a list entry names something that doesn't exist. It doesn't check which tables a kept query or measure depends on; that check runs in `Build-PowerBI` at release time, so list everything a query references.
 
 > [!NOTE]
 > Remember: These are general rules of thumb for consistency. They are not set in stone. Please propose updates by submitting a PR, starting a discussion, or creating an issue. In general, use your best judgement to make the report as useful as possible. We just want everything to feel consistent and familiar.
