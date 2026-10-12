@@ -41,6 +41,7 @@ $helpersPath = Join-Path $PSScriptRoot 'modules\helpers'
 . (Join-Path $helpersPath 'Get-JitteredDelay.ps1')
 . (Join-Path $helpersPath 'Invoke-AzRestMethodWithRetry.ps1')
 . (Join-Path $helpersPath 'Get-CostQueryResponsePage.ps1')
+. (Join-Path $helpersPath 'Get-ScanErrorHint.ps1')
 . (Join-Path $helpersPath 'Resolve-CurrencyLabel.ps1')
 . (Join-Path $helpersPath 'Search-AzGraphSafe.ps1')
 . (Join-Path $helpersPath 'Resolve-BillingScope.ps1')

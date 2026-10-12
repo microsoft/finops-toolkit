@@ -31,6 +31,18 @@ function Get-CostColumnIndex {
     return -1
 }
 
+# Notes carried by subscriptions whose cost requests failed. Subscriptions that
+# share a cause share one note, so a throttled run over 95 subscriptions reads as
+# one sentence rather than 95.
+function Get-CostDataIssue {
+    param([AllowNull()]$Data)
+
+    if ($Data -isnot [System.Collections.IDictionary]) { return @() }
+    return @($Data.Values | ForEach-Object {
+            if ($_ -is [System.Collections.IDictionary] -and $_.Contains('CostIssue')) { [string]$_['CostIssue'] }
+        } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique)
+}
+
 function Get-CostData {
     [CmdletBinding()]
     param(
@@ -150,8 +162,13 @@ function Get-CostData {
     }
 
     # -- Forecasted Cost (Current Billing Period) -----------------------
-    # Try MG-scope first, fall back to per-subscription if it fails
+    # Try MG-scope first, fall back to per-subscription if it fails. A forecast
+    # request that fails never discards the actual costs already collected; the
+    # subscription keeps its actuals and a CostIssue saying why the forecast is
+    # missing. A forecast the service answered but whose content can't be trusted
+    # (mixed currencies, missing columns) still fails the scan.
     $forecastSuccess = $false
+    $forecastFailures = @{}   # subscription ID -> HTTP status of the failed forecast request
     try {
         Write-Host "  Querying forecast costs (MG scope)..." -ForegroundColor Cyan
         $now = (Get-Date).ToUniversalTime()
@@ -185,7 +202,7 @@ function Get-CostData {
         $fResponse = Invoke-AzRestMethodWithRetry -Path $forecastPath -Method POST -Payload $forecastBody
 
         if ($fResponse.StatusCode -ne 200) {
-            throw "Forecast query returned HTTP $($fResponse.StatusCode)"
+            throw (New-CostRequestFailure -Message "Forecast query returned HTTP $($fResponse.StatusCode)" -StatusCode $fResponse.StatusCode)
         }
 
         $forecastSums = @{}
@@ -236,8 +253,15 @@ function Get-CostData {
     }
     catch {
         Write-Warning "MG-scope forecast failed: $($_.Exception.Message)"
-        if (-not $Subscriptions) { throw }
-        Write-Host "  Falling back to per-subscription forecast queries..." -ForegroundColor Yellow
+        $mgForecastStatus = Get-CostRequestFailureStatus -ErrorRecord $_
+        if (-not $Subscriptions) {
+            # Without a subscription list there's nothing to retry, so a failed request leaves every forecast unavailable.
+            if ($null -eq $mgForecastStatus) { throw }
+            foreach ($subId in $costMap.Keys) { $forecastFailures[$subId] = $mgForecastStatus }
+        }
+        else {
+            Write-Host "  Falling back to per-subscription forecast queries..." -ForegroundColor Yellow
+        }
     }
 
     # Per-subscription forecast fallback
@@ -274,7 +298,7 @@ function Get-CostData {
 
                 $fResp = Invoke-AzRestMethodWithRetry -Path "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01" -Method POST -Payload $fBody
                 if (-not $fResp -or $fResp.StatusCode -notin @(200, 204)) {
-                    throw "Forecast retry returned HTTP $($fResp.StatusCode); results are incomplete."
+                    throw (New-CostRequestFailure -Message "Forecast retry returned HTTP $($fResp.StatusCode); results are incomplete." -StatusCode $(if ($fResp) { $fResp.StatusCode }))
                 }
                 if ($fResp.StatusCode -eq 200) {
                     $total = 0.0
@@ -306,7 +330,9 @@ function Get-CostData {
                 }
             }
             catch {
-                throw "Forecast query failed for $($sub.Name): $($_.Exception.Message)"
+                $forecastStatus = Get-CostRequestFailureStatus -ErrorRecord $_
+                if ($null -eq $forecastStatus) { throw "Forecast query failed for $($sub.Name): $($_.Exception.Message)" }
+                $forecastFailures[$sub.Id] = $forecastStatus
             }
         }
         Write-Host "  Per-sub forecast: got data for $hitCount of $subCount subscriptions" -ForegroundColor $(if ($hitCount -gt 0) { 'Green' } else { 'Yellow' })
@@ -326,14 +352,29 @@ function Get-CostData {
         }
     }
 
+    # Say why forecasts are missing when the request failed, so the gap isn't mistaken for a data problem.
+    if ($forecastFailures.Count -gt 0) {
+        $forecastTotal = if ($Subscriptions) { @($Subscriptions).Count } else { $costMap.Count }
+        $forecastNote = (Get-CostFailureNote -What 'Full-month forecasts' -FailedCount $forecastFailures.Count -TotalCount $forecastTotal -StatusCode @($forecastFailures.Values) -Api 'forecast') + ' Actual costs are kept.'
+        Write-Warning $forecastNote
+        foreach ($subId in $forecastFailures.Keys) { $costMap[$subId].CostIssue = $forecastNote }
+    }
+
     return $costMap
 }
 
 # -- Fallback: Per-Subscription Cost Queries ----------------------------
+# A request that fails (HTTP error, throttle, failed continuation page) leaves
+# that subscription's costs unavailable with a CostIssue saying why, and the
+# other subscriptions keep their results. Content that can't be trusted (mixed
+# currencies, missing columns) still fails the scan, and so does a run where
+# no subscription could be read at all.
 function Get-CostDataPerSubscription {
     param([object[]]$Subscriptions)
 
     $costMap = @{}
+    $actualFailures = @{}     # subscription ID -> HTTP status of the failed actual-cost request
+    $forecastFailures = @{}   # subscription ID -> HTTP status of the failed forecast request
     $subCount = $Subscriptions.Count
     $skipForecast = ($subCount -gt 100)   # For very large tenants, skip per-sub forecast to halve API calls
     if ($skipForecast) {
@@ -395,7 +436,7 @@ function Get-CostDataPerSubscription {
                 }
             }
             if (-not $resp -or $resp.StatusCode -ne 200) {
-                throw "Actual cost query returned HTTP $($resp.StatusCode); results are incomplete."
+                throw (New-CostRequestFailure -Message "Actual cost query returned HTTP $($resp.StatusCode); results are incomplete." -StatusCode $(if ($resp) { $resp.StatusCode }))
             }
 
             $costMap[$sub.Id] = @{ Actual = $actual; Forecast = $null; Currency = $currency; ForecastSource = 'Unavailable'; ActualPeriod = 'Month to date (UTC query window)' }
@@ -424,7 +465,7 @@ function Get-CostDataPerSubscription {
 
                     $fResp = Invoke-AzRestMethodWithRetry -Path "$path/forecast?api-version=2023-11-01" -Method POST -Payload $fBody
                     if (-not $fResp -or $fResp.StatusCode -notin @(200, 204)) {
-                        throw "Forecast query returned HTTP $($fResp.StatusCode); results are incomplete."
+                        throw (New-CostRequestFailure -Message "Forecast query returned HTTP $($fResp.StatusCode); results are incomplete." -StatusCode $(if ($fResp) { $fResp.StatusCode }))
                     }
                     if ($fResp.StatusCode -eq 200) {
                         $total = 0.0
@@ -458,8 +499,30 @@ function Get-CostDataPerSubscription {
             }
         }
         catch {
-            throw "Cost query failed for $($sub.Name): $($_.Exception.Message)"
+            $failedStatus = Get-CostRequestFailureStatus -ErrorRecord $_
+            if ($null -eq $failedStatus) { throw "Cost query failed for $($sub.Name): $($_.Exception.Message)" }
+            if ($costMap.ContainsKey($sub.Id)) {
+                # The actuals were read; only the forecast request failed.
+                $forecastFailures[$sub.Id] = $failedStatus
+            }
+            else {
+                $actualFailures[$sub.Id] = $failedStatus
+                $costMap[$sub.Id] = @{ Actual = $null; Forecast = $null; Currency = $null; ForecastSource = 'Unavailable'; ActualPeriod = 'Month to date (UTC query window)' }
+            }
         }
+    }
+
+    if ($actualFailures.Count -gt 0) {
+        $actualNote = Get-CostFailureNote -What 'Actual costs' -FailedCount $actualFailures.Count -TotalCount $subCount -StatusCode @($actualFailures.Values) -Api 'query'
+        # With nothing read there are no costs to keep, so the scan fails with the reason.
+        if ($actualFailures.Count -ge $subCount) { throw "$actualNote Results are incomplete." }
+        Write-Warning $actualNote
+        foreach ($subId in $actualFailures.Keys) { $costMap[$subId].CostIssue = $actualNote }
+    }
+    if ($forecastFailures.Count -gt 0) {
+        $forecastNote = (Get-CostFailureNote -What 'Full-month forecasts' -FailedCount $forecastFailures.Count -TotalCount $subCount -StatusCode @($forecastFailures.Values) -Api 'forecast') + ' Actual costs are kept.'
+        Write-Warning $forecastNote
+        foreach ($subId in $forecastFailures.Keys) { $costMap[$subId].CostIssue = $forecastNote }
     }
     return $costMap
 }

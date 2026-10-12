@@ -522,6 +522,48 @@ Describe 'FinOps Multitool safety' {
         }
     }
 
+    Context 'Scan error hints' {
+        It 'Recognizes an access problem in <Message>' -ForEach @(
+            @{ Message = '403 Forbidden: fixture.'; Expected = $true }
+            @{ Message = 'Cost query returned HTTP 401.'; Expected = $true }
+            @{ Message = 'The client does not have authorization to perform action.'; Expected = $true }
+            @{ Message = "Actual costs couldn't be read because access was denied (HTTP 403)."; Expected = $true }
+            @{ Message = 'Cost query returned HTTP 429.'; Expected = $false }
+            @{ Message = 'Subscription 00000000-0000-0000-0000-000000014030 returned no rows.'; Expected = $false }
+            @{ Message = ''; Expected = $false }
+            @{ Message = $null; Expected = $false }
+        ) {
+            Test-ScanPermissionError -Message $Message | Should -Be $Expected
+        }
+
+        It 'Returns <LineCount> hint line(s) for <Case>' -ForEach @(
+            @{ Case = 'a request limit'; Message = 'Cost query returned HTTP 429.'; WithRole = $true; LineCount = 1; Pattern = '^Cost Management limits how many requests a tenant can make' }
+            @{ Case = 'a timeout'; Message = 'REST call timed out after 60s.'; WithRole = $true; LineCount = 1; Pattern = '^The service or the network had a temporary problem' }
+            @{ Case = 'denied access'; Message = '403 Forbidden.'; WithRole = $true; LineCount = 1; Pattern = '^Required: Cost Management Reader at Subscription scope \(Cost Management Query API\)$' }
+            @{ Case = 'denied access without a known role'; Message = '403 Forbidden.'; WithRole = $false; LineCount = 0; Pattern = $null }
+            @{ Case = 'an unknown cause'; Message = 'The response was not what the scan expected.'; WithRole = $true; LineCount = 1; Pattern = '^If this is a permission problem, the scan needs Cost Management Reader' }
+            @{ Case = 'an unknown cause without a known role'; Message = 'The response was not what the scan expected.'; WithRole = $false; LineCount = 0; Pattern = $null }
+            @{ Case = 'a missing message'; Message = $null; WithRole = $true; LineCount = 1; Pattern = '^If this is a permission problem' }
+        ) {
+            $role = if ($WithRole) { @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Cost Management Query API' } } else { $null }
+
+            $lines = @(Get-ScanErrorHint -Message $Message -PermissionInfo $role)
+
+            $lines.Count | Should -Be $LineCount
+            if ($Pattern) { $lines[0] | Should -Match $Pattern }
+        }
+
+        It 'Explains both causes when a limit and a denial happen together' {
+            $role = @{ Role = 'Cost Management Reader'; Scope = 'Subscription'; API = 'Cost Management Query API' }
+
+            $lines = @(Get-ScanErrorHint -Message 'Cost query failed because Cost Management is limiting requests for this tenant (HTTP 429) or access was denied (HTTP 403).' -PermissionInfo $role)
+
+            $lines.Count | Should -Be 2
+            $lines[0] | Should -Match '^Cost Management limits how many requests'
+            $lines[1] | Should -Be 'Required: Cost Management Reader at Subscription scope (Cost Management Query API)'
+        }
+    }
+
     Context 'Automatic report storage' {
         BeforeAll {
             $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:ModuleRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
@@ -724,6 +766,42 @@ console.log('Credit, numeric, and unavailable sorting passed');
                     $noteIndex | Should -BeLessThan $resultsStart -Because $note
                 }
             }
+        }
+
+        It 'Renders <Rows> reservation purchases in a scrollable report grid' -Tag 'LargeReportLayout' -ForEach @(
+            @{ Rows = 30; HasControls = $true }
+            @{ Rows = 3; HasControls = $false }
+        ) {
+            $reportRoot = Join-Path $TestDrive "reservation-purchases-$Rows"
+            Mock Write-Host { }
+            Set-Variable -Name permissionInfo -Value @{} -Scope Local
+            $advice = [pscustomobject]@{
+                EstimatedAnnualSavings     = 12000
+                Currency                   = 'USD'
+                AdvisorRecommendations     = @([pscustomobject]@{ ResourceName = 'vm-example'; ResourceType = 'Microsoft.Compute/virtualMachines'; SKU = 'Standard_D4s_v5'; Region = 'eastus'; Qty = 1; Term = 'P1Y'; AnnualSavings = 12000; Currency = 'USD'; Impact = 'High' })
+                ReservationRecommendations = @(foreach ($index in 1..$Rows) {
+                        [pscustomobject]@{ SKU = "Standard_D${index}s_v5"; ResourceType = 'VirtualMachines'; Region = 'eastus'; RecommendedQty = $index; Term = 'P1Y'; LookBackPeriod = 'Last30Days'; CostWithoutRI = 100.0 * $index; CostWithRI = 60.0 * $index; NetSavings = 40.0 * $index }
+                    })
+            }
+            $modules = @(@{ Fn = 'Get-ReservationAdvice'; Name = 'Reservation Advice'; Selected = $true; Category = 'Commitments' })
+
+            $null = Show-ResultsSummary -Results @{ 'Get-ReservationAdvice' = $advice } -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $purchaseStart = $html.IndexOf('<h3>Reservation purchase detail</h3>')
+            $purchaseStart | Should -BeGreaterOrEqual 0
+            $purchaseEnd = $html.IndexOf('<h3>Advisor recommendations</h3>')
+            $purchaseEnd | Should -BeGreaterThan $purchaseStart
+            $purchaseHtml = $html.Substring($purchaseStart, $purchaseEnd - $purchaseStart)
+            $purchaseHtml | Should -Match '<div class="table-scroll"><table class="report-table table-reservation-purchases" id="table-reservation-purchases">'
+            $purchaseHtml | Should -Not -Match '<table><thead>'
+            [regex]::Matches($purchaseHtml, '<th scope="col">').Count | Should -Be 9
+            [regex]::Matches($purchaseHtml, '<tr><td>').Count | Should -Be $Rows
+            $purchaseHtml.Contains('data-table-id="table-reservation-purchases"') | Should -Be $HasControls
+            $purchaseHtml | Should -Match '</tbody></table></div><p class="table-note">From the Consumption reservation recommendation API'
+            [regex]::Matches($html, '\sid="table-reservation-purchases"').Count | Should -Be 1
+            $html.Contains('id="table-Get-ReservationAdvice"') | Should -BeTrue
         }
 
         It 'Splits formatted table rows cleanly for <LineEnding> output' -Tag 'TableLineEndings' -ForEach @(
@@ -1342,11 +1420,122 @@ console.log('Credit, numeric, and unavailable sorting passed');
             $story | Should -Match '429 Too Many Requests'
             $story | Should -Match '&lt;script&gt;not markup&lt;/script&gt;'
             $story | Should -Match 'href="#scan-Get-CostTrend"'
-            $html | Should -Match ([regex]::Escape($permissionInfo['Get-CostTrend'].Role))
+            # A request limit isn't fixed by a role, so the error explains the limit instead of naming a role.
+            $html | Should -Match 'Cost Management limits how many requests a tenant can make'
+            $html | Should -Not -Match ([regex]::Escape("Required: $($permissionInfo['Get-CostTrend'].Role)"))
             $story | Should -Match 'Full-month forecast unavailable'
             $html | Should -Not -Match 'Total Findings|Every measure below is a FinOps Foundation KPI'
             $html | Should -Not -Match 'Current period spend:'
             $story | Should -Not -Match '<script>|Total savings'
+        }
+
+        It 'Reports a failed Cost Data request once instead of once per subscription' {
+            $reportRoot = Join-Path $TestDrive 'cost-data-request-failure'
+            Mock Write-Host { }
+            $issue = "Full-month forecasts couldn't be read for 40 of 40 subscriptions because Cost Management is limiting requests for this tenant (HTTP 429). Actual costs are kept."
+            $subscriptions = @(foreach ($index in 1..40) {
+                    [pscustomobject]@{ Id = '00000000-0000-0000-0000-{0:D12}' -f $index; Name = 'Example subscription {0:D2}' -f $index; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }
+                })
+            $costData = @{}
+            foreach ($subscription in $subscriptions) {
+                $costData[$subscription.Id] = @{ Actual = 10; Currency = 'USD'; Name = $subscription.Name; ActualPeriod = '2026-10-01 to 2026-10-12'; Forecast = $null; ForecastSource = 'Unavailable'; CostIssue = $issue }
+            }
+            $modules = @(@{ Fn = 'Get-CostData'; Name = 'Cost Data'; Selected = $true; Category = 'Cost Analysis' })
+
+            $null = Show-ResultsSummary -Results @{ 'Get-CostData' = $costData } -Modules $modules -Subscriptions $subscriptions -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $story = [regex]::Match($html, '(?s)<section id="tab-FinOpsStory"[^>]*>.*?</section>').Value
+            # The scan status carries the explanation once, and the per-subscription notes it replaces are gone.
+            [regex]::Matches($story, '40 of 40 subscriptions because Cost Management is limiting requests').Count | Should -Be 1
+            $story | Should -Not -Match 'Full-month forecast unavailable'
+            $story | Should -Match 'Limited data'
+            # The Cost Data section states it above the table, and the table keeps every subscription's actual cost.
+            $html | Should -Match '<p class="guidance yellow">Full-month forecasts couldn&#39;t be read for 40 of 40 subscriptions'
+            ([regex]::Matches($html, 'USD 10\.00')).Count | Should -BeGreaterOrEqual 40
+            Get-Content -LiteralPath (Join-Path $run 'ScanSummary.txt') -Raw | Should -Match "Cost Data: Limited data: Full-month forecasts couldn't be read for 40 of 40 subscriptions"
+            @(Import-Csv -LiteralPath (Join-Path $run 'Get-CostData.csv')).Count | Should -Be 40
+            (@(Import-Csv -LiteralPath (Join-Path $run 'Get-CostData.csv'))[0]).CostIssue | Should -Be $issue
+        }
+
+        It 'Names subscriptions without a forecast only while there are few of them' {
+            $reportRoot = Join-Path $TestDrive 'cost-data-gap-names'
+            Mock Write-Host { }
+            $subscriptions = @(foreach ($index in 1..5) {
+                    [pscustomobject]@{ Id = '00000000-0000-0000-0000-{0:D12}' -f $index; Name = 'Example {0}' -f $index; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }
+                })
+            $costData = @{}
+            foreach ($subscription in $subscriptions) {
+                $costData[$subscription.Id] = @{ Actual = 10; Currency = 'USD'; Name = $subscription.Name; ActualPeriod = '2026-10-01 to 2026-10-12'; Forecast = $null; ForecastSource = 'Unavailable' }
+            }
+            $fewIds = @($subscriptions[0].Id, $subscriptions[1].Id)
+            $few = @{}
+            foreach ($id in $fewIds) { $few[$id] = $costData[$id] }
+            $modules = @(@{ Fn = 'Get-CostData'; Name = 'Cost Data'; Selected = $true; Category = 'Cost Analysis' })
+
+            $null = Show-ResultsSummary -Results @{ 'Get-CostData' = $few } -Modules $modules -Subscriptions $subscriptions -ExportPath $reportRoot -ErrorAction Stop
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $fewStory = [regex]::Match((Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw), '(?s)<section id="tab-FinOpsStory"[^>]*>.*?</section>').Value
+            $fewStory | Should -Match 'Example 1: Full-month forecast unavailable\.'
+            $fewStory | Should -Match 'Example 2: Full-month forecast unavailable\.'
+
+            $reportRoot = Join-Path $TestDrive 'cost-data-gap-names-many'
+            $null = Show-ResultsSummary -Results @{ 'Get-CostData' = $costData } -Modules $modules -Subscriptions $subscriptions -ExportPath $reportRoot -ErrorAction Stop
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $manyStory = [regex]::Match((Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw), '(?s)<section id="tab-FinOpsStory"[^>]*>.*?</section>').Value
+            $manyStory | Should -Match '5 subscriptions: Full-month forecast unavailable\.'
+            $manyStory | Should -Not -Match 'Example 1: Full-month forecast unavailable'
+        }
+
+        It 'Explains partial commitment savings and withholds the KPIs built on them' {
+            $reportRoot = Join-Path $TestDrive 'savings-partial'
+            Mock Write-Host { }
+            $note = "Commitment savings couldn't be read for 1 of 3 subscriptions because Cost Management or the network had a temporary problem (HTTP 503). The commitment totals cover only the other subscriptions."
+            $savings = [pscustomobject]@{
+                RISavingsMonthToDate = 10.0; SPSavingsMonthToDate = 5.0; CommitmentSavingsMonthToDate = 15.0; Currency = 'USD'
+                Period = '2026-10-01T00:00:00Z to 2026-10-12T00:00:00Z'; AHBSavingsMonthly = 20.0; AHBCurrency = 'USD'; AHBPeriod = '730-hour estimate'
+                CommittedAmortized = 100.0; OnDemandAmortized = 100.0; SpotAmortized = 0.0; CommitmentCoveragePct = 50.0
+                Details = @(); IsEstimate = $true; EstimateBasis = 'Estimates use assumed discounts.'; HasData = $true
+                CoverageIncomplete = $true; FailedSubscriptionCount = 1; Note = $note
+            }
+            $modules = @(@{ Fn = 'Get-SavingsRealized'; Name = 'Savings Realized'; Selected = $true; Category = 'Commitments' })
+
+            $null = Show-ResultsSummary -Results @{ 'Get-SavingsRealized' = $savings } -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $html | Should -Match '<p class="guidance yellow">Commitment savings couldn&#39;t be read for 1 of 3 subscriptions'
+            Get-Content -LiteralPath (Join-Path $run 'ScanSummary.txt') -Raw | Should -Match "Savings Realized: Limited data: Commitment savings couldn't be read for 1 of 3 subscriptions"
+            Should -Invoke Write-Host -ParameterFilter { "$Object" -match "Commitment savings couldn't be read for 1 of 3 subscriptions" } -Times 1 -Exactly
+            (Get-KpiComputedValue -KpiId 'effective-savings-rate' -Data $savings).Display | Should -Match '^Unavailable: commitment savings could not be read for every subscription'
+            (Get-KpiComputedValue -KpiId 'pct-compute-covered-by-commitment' -Data $savings).Display | Should -Match '^Unavailable: commitment coverage could not be read for every subscription'
+            # Complete results keep both KPIs.
+            $complete = $savings.PSObject.Copy()
+            $complete.CoverageIncomplete = $false
+            (Get-KpiComputedValue -KpiId 'effective-savings-rate' -Data $complete).Value | Should -Be 15
+            (Get-KpiComputedValue -KpiId 'pct-compute-covered-by-commitment' -Data $complete).Value | Should -Be 50
+        }
+
+        It 'Shows an error hint that fits the cause (<Cause>)' -ForEach @(
+            @{ Cause = 'permission'; Message = '403 Forbidden: fixture.'; Expected = 'Required: Cost Management Reader at Subscription or Management Group scope \(Cost Management Query API\)'; Unexpected = 'isn&#39;t a permission problem' }
+            @{ Cause = 'request limit'; Message = 'Full-month forecasts could not be read (HTTP 429).'; Expected = 'Cost Management limits how many requests a tenant can make'; Unexpected = 'Required: Cost Management Reader' }
+            @{ Cause = 'timeout'; Message = 'Cost query returned HTTP 503.'; Expected = 'The service or the network had a temporary problem'; Unexpected = 'Required: Cost Management Reader' }
+            @{ Cause = 'unknown'; Message = 'The response was not what the scan expected.'; Expected = 'If this is a permission problem, the scan needs Cost Management Reader at Subscription or Management Group scope \(Cost Management Query API\)\.'; Unexpected = 'Required: Cost Management Reader' }
+        ) {
+            $reportRoot = Join-Path $TestDrive "error-hint-$Cause"
+            Mock Write-Host { }
+            # The extracted function reads the launcher's permission table from its enclosing scope.
+            $permissionInfo = @{ 'Get-CostTrend' = @{ Role = 'Cost Management Reader'; Scope = 'Subscription or Management Group'; API = 'Cost Management Query API'; Reason = 'Requires query access.' } }
+            $modules = @(@{ Fn = 'Get-CostTrend'; Name = 'Cost Trend'; Selected = $true; Category = 'Cost Analysis' })
+
+            $null = Show-ResultsSummary -Results @{ 'Get-CostTrend' = @(); '_error_Get-CostTrend' = $Message } -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $section = [regex]::Match($html, '(?s)<div class="tag-error">.*?</div>').Value
+            $section | Should -Match $Expected
+            $section | Should -Not -Match $Unexpected
         }
 
         It 'Keeps zero, credits, unavailable amounts, and budget comparison gaps distinct without a KPI catalog' {
@@ -2583,8 +2772,9 @@ Describe 'FinOps Multitool cost math' {
 
         # Month-to-date spend presented as a forecast understates the full month,
         # so callers need to be able to tell the two apart.
-        It 'Rejects an unavailable forecast instead of returning actual spend as a projection' {
+        It 'Keeps actual spend and leaves an unavailable forecast empty instead of presenting actual spend as a projection' {
             InModuleScope FinOpsMultitool {
+                Mock Write-Warning { }
                 Mock Invoke-AzRestMethodWithRetry {
                     if ($Path -like '*forecast*') {
                         return [pscustomobject]@{ StatusCode = 404; Content = '{}' }
@@ -2602,7 +2792,12 @@ Describe 'FinOps Multitool cost math' {
                 }
 
                 $subs = @([pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'test' })
-                { Get-CostDataPerSubscription -Subscriptions $subs } | Should -Throw '*Forecast*404*incomplete*'
+                $entry = (Get-CostDataPerSubscription -Subscriptions $subs)['22222222-2222-2222-2222-222222222222']
+
+                $entry.Actual | Should -Be 100
+                $entry.Forecast | Should -BeNullOrEmpty
+                $entry.ForecastSource | Should -Be 'Unavailable'
+                $entry.CostIssue | Should -Be "Full-month forecasts couldn't be read for the selected subscription because Cost Management returned HTTP 404. Actual costs are kept."
             }
         }
     }

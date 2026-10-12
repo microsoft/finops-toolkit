@@ -33,6 +33,29 @@ param()
 #   available on the live API path.
 ###########################################################################
 
+# Reads the rows of an AI spend query into plain objects, so the management-group and
+# per-subscription paths share one parser.
+function ConvertFrom-AICostResult {
+    param([Parameter(Mandatory)]$Result)
+
+    $parsedRows = [System.Collections.Generic.List[PSCustomObject]]::new()
+    if (-not $Result.properties.rows) { return $parsedRows }
+
+    # Column order follows properties.columns; resolve indices.
+    $cols = @($Result.properties.columns.name)
+    $iCost = [array]::IndexOf($cols, 'Cost')
+    $iRes = [array]::IndexOf($cols, 'ResourceId')
+    $iCur = [array]::IndexOf($cols, 'Currency')
+    foreach ($row in $Result.properties.rows) {
+        $amount = if ($iCost -ge 0) { [double]$row[$iCost] } else { [double]$row[0] }
+        $rid = if ($iRes -ge 0) { [string]$row[$iRes] } else { '' }
+        $rowCurrency = if ($iCur -ge 0) { ([string]$row[$iCur]).Trim().ToUpperInvariant() } else { '' }
+        if ($rowCurrency -notmatch '^[A-Z]{3}$' -or $rowCurrency -in @('XXX', 'XTS')) { $rowCurrency = 'Unknown' }
+        [void]$parsedRows.Add([PSCustomObject]@{ Amount = $amount; ResourceId = $rid; Currency = $rowCurrency })
+    }
+    return $parsedRows
+}
+
 function Get-AIWorkloadMetrics {
     [CmdletBinding()]
     param(
@@ -56,6 +79,8 @@ function Get-AIWorkloadMetrics {
     # immediately so non-AI tenants never run the expensive metrics + cost
     # loop below.
     $openAiAccounts = [System.Collections.Generic.List[PSCustomObject]]::new()
+    # Subscriptions that hold any Cognitive Services account, so spend is read only where there is some.
+    $cognitiveSubIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
     $aiServiceCount = 0
     $mlWorkspaceCount = 0
     $searchCount = 0
@@ -79,6 +104,8 @@ resources
         foreach ($r in $rows) {
             switch -Wildcard ([string]$r.type) {
                 'microsoft.cognitiveservices/accounts' {
+                    $accountSubscriptionId = if ($r.subscriptionId) { [string]$r.subscriptionId } elseif ([string]$r.id -match '(?i)^/subscriptions/([^/]+)/') { $Matches[1] } else { '' }
+                    if ($accountSubscriptionId) { [void]$cognitiveSubIds.Add($accountSubscriptionId) }
                     # OpenAI + AIServices accounts expose token metrics.
                     if ($r.lkind -match 'openai' -or $r.lkind -match 'aiservices') {
                         [void]$openAiAccounts.Add([PSCustomObject]@{
@@ -196,7 +223,7 @@ resources
 
                 $acctKey = $acct.Id.ToLowerInvariant()
                 if (-not $acctTokens.ContainsKey($acctKey)) {
-                    $acctTokens[$acctKey] = @{ Name = $acct.Name; SubscriptionId = $acct.SubscriptionId; Tokens = 0.0; Requests = 0.0; TokenBases = @{}; TokensMeasured = $false; RequestsMeasured = $false; MetricsComplete = $false }
+                    $acctTokens[$acctKey] = @{ Name = $acct.Name; SubscriptionId = $acct.SubscriptionId; Tokens = 0.0; Requests = 0.0; TokenBases = @{}; TokensMeasured = $false; RequestsMeasured = $false; MetricsComplete = $false; NoUsage = $false }
                 }
 
                 # Split by deployment so per-model KPIs are available. The
@@ -210,10 +237,14 @@ resources
                     $data = $resp.Content | ConvertFrom-Json
                     if (-not $data.value) { throw 'No AI usage metrics were returned.' }
 
+                    $seenMetrics = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+                    $anySeries = $false
                     foreach ($metric in $data.value) {
                         $mName = $metric.name.value
                         if ($mName -notin @('ProcessedPromptTokens', 'GeneratedTokens', 'TokenTransaction', 'AzureOpenAIRequests')) { continue }
                         if ($metric.errorCode -and $metric.errorCode -ne 'Success') { throw "AI metric $mName is unavailable: $($metric.errorCode)." }
+                        [void]$seenMetrics.Add($mName)
+                        if (@($metric.timeseries | Where-Object { $null -ne $_ }).Count -gt 0) { $anySeries = $true }
                         foreach ($ts in $metric.timeseries) {
                             # Deployment name comes from the splitting dimension.
                             $deployment = 'unknown'
@@ -246,6 +277,9 @@ resources
                         }
                     }
                     $acctTokens[$acctKey].MetricsComplete = $true
+                    # Every metric came back successfully without a single series: the account recorded no usage
+                    # this period. That isn't a failed read, so it mustn't disable rates for the other accounts.
+                    if ($seenMetrics.Count -eq 4 -and -not $anySeries) { $acctTokens[$acctKey].NoUsage = $true }
                 }
                 catch {
                     # "No usage yet" and "the call failed" both land here, so record it
@@ -276,6 +310,13 @@ resources
         }
         foreach ($accountKey in $acctTokens.Keys) {
             $usage = $acctTokens[$accountKey]
+            if ($usage.NoUsage) {
+                # The read succeeded and recorded nothing this period: not a failed read, and not a measured zero either.
+                $usage.Tokens = $null
+                $usage.Requests = $null
+                $usage.TokenBases['No usage samples returned'] = $true
+                continue
+            }
             if (-not $usage.TokensMeasured) { $usage.Tokens = $null; $usage.MetricsComplete = $false }
             if (-not $usage.RequestsMeasured) { $usage.Requests = $null; $usage.MetricsComplete = $false }
             if (-not $usage.MetricsComplete -and @($metricFailures | Where-Object { $_.StartsWith("$accountKey :", [StringComparison]::OrdinalIgnoreCase) }).Count -eq 0) {
@@ -287,65 +328,96 @@ resources
 
     # -- 2: Map tokens to AI spend (Cost Management) ----------------------
     # Skipped entirely on the export path - spend already came from the Hub.
+    # A management group answers for the whole selection in one call, but only when
+    # it contains the subscriptions that hold AI accounts. Otherwise it returns no
+    # rows, which looks like no spend, so those subscriptions are queried directly.
+    $costQueryOk = $false
     if (-not $fromHub) {
         try {
             $mgScopeId = Resolve-CostMgId -TenantId $TenantId
-            if ($mgScopeId) {
-                $rtFilter = @{ dimensions = @{ name = 'ResourceType'; operator = 'In'; values = @('microsoft.cognitiveservices/accounts') } }
-                $subFilter = Get-CostSubscriptionFilter -Subscriptions $Subscriptions
-                $filterNode = if ($subFilter) { @{ and = @($subFilter, $rtFilter) } } else { $rtFilter }
+            $cognitiveSubs = @($Subscriptions | Where-Object { $_.Id -and $cognitiveSubIds.Contains([string]$_.Id) })
+            if ($mgScopeId -and $cognitiveSubs.Count -gt 0 -and -not (Test-CostMgCoverage -ManagementGroupId $mgScopeId -TenantId $TenantId -Subscriptions $cognitiveSubs)) { $mgScopeId = $null }
 
-                $body = @{
-                    type      = 'AmortizedCost'
-                    timeframe = 'Custom'
+            $rtFilter = @{ dimensions = @{ name = 'ResourceType'; operator = 'In'; values = @('microsoft.cognitiveservices/accounts') } }
+            $newCostBody = {
+                param($Filter)
+                @{
+                    type       = 'AmortizedCost'
+                    timeframe  = 'Custom'
                     timePeriod = @{ from = $fromStr; to = $toStr }
-                    dataset   = @{
+                    dataset    = @{
                         granularity = 'None'
                         aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
                         grouping    = @(@{ type = 'Dimension'; name = 'ResourceId' })
-                        filter      = $filterNode
+                        filter      = $Filter
                     }
                 } | ConvertTo-Json -Depth 12
+            }
 
-                $path = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
-                $resp = Invoke-AzRestMethodWithRetry -Path $path -Method POST -Payload $body
-                $cdata = Get-CostQueryResult -FirstResponse $resp -Payload $body -Context 'AI spend'
-
-                if ($resp -and $resp.StatusCode -eq 200 -and $resp.Content) {
-                    if ($cdata.properties.rows) {
-                        $costOk = $true
-                        # Column order follows properties.columns; resolve indices.
-                        $cols = @($cdata.properties.columns.name)
-                        $iCost = [array]::IndexOf($cols, 'Cost')
-                        $iRes = [array]::IndexOf($cols, 'ResourceId')
-                        $iCur = [array]::IndexOf($cols, 'Currency')
-                        foreach ($row in $cdata.properties.rows) {
-                            $amount = if ($iCost -ge 0) { [double]$row[$iCost] } else { [double]$row[0] }
-                            $rid = if ($iRes -ge 0) { [string]$row[$iRes] } else { '' }
-                            $rowCurrency = if ($iCur -ge 0) { ([string]$row[$iCur]).Trim().ToUpperInvariant() } else { '' }
-                            if ($rowCurrency -notmatch '^[A-Z]{3}$' -or $rowCurrency -in @('XXX', 'XTS')) { $rowCurrency = 'Unknown' }
-                            Add-CurrencySeen -Seen $currenciesSeen -Currency $rowCurrency
-                            $aiCost += $amount
-                            if ($rid) { $costByAcct[$rid.ToLowerInvariant()] += $amount }
-                        }
+            $costQueries = @()
+            if ($mgScopeId) {
+                $subFilter = Get-CostSubscriptionFilter -Subscriptions $Subscriptions
+                $filterNode = if ($subFilter) { @{ and = @($subFilter, $rtFilter) } } else { $rtFilter }
+                $costQueries += @{
+                    Path    = "/providers/Microsoft.Management/managementGroups/$mgScopeId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+                    Body    = (& $newCostBody $filterNode)
+                    Context = 'AI spend'
+                }
+            }
+            elseif ($cognitiveSubs.Count -gt 0) {
+                Write-Host "  Querying AI spend per subscription ($($cognitiveSubs.Count) with AI accounts)..." -ForegroundColor Cyan
+                foreach ($costSub in $cognitiveSubs) {
+                    $costQueries += @{
+                        Path    = "/subscriptions/$($costSub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+                        Body    = (& $newCostBody $rtFilter)
+                        Context = "AI spend for $($costSub.Name)"
                     }
+                }
+            }
+
+            $costQueryIndex = 0
+            foreach ($costQuery in $costQueries) {
+                $costQueryIndex++
+                if ($costQueries.Count -gt 5 -and ($costQueryIndex -eq 1 -or $costQueryIndex % [math]::Max(1, [int]($costQueries.Count / 5)) -eq 0)) {
+                    if (Get-Command Update-ScanStatus -ErrorAction SilentlyContinue) {
+                        Update-ScanStatus "Reading AI spend ($costQueryIndex/$($costQueries.Count) subscriptions)..."
+                    }
+                }
+                $resp = Invoke-AzRestMethodWithRetry -Path $costQuery.Path -Method POST -Payload $costQuery.Body
+                $cdata = Get-CostQueryResult -FirstResponse $resp -Payload $costQuery.Body -Context $costQuery.Context
+                $costQueryOk = $true
+                foreach ($costRow in (ConvertFrom-AICostResult -Result $cdata)) {
+                    $costOk = $true
+                    Add-CurrencySeen -Seen $currenciesSeen -Currency $costRow.Currency
+                    $aiCost += $costRow.Amount
+                    if ($costRow.ResourceId) { $costByAcct[$costRow.ResourceId.ToLowerInvariant()] += $costRow.Amount }
                 }
             }
         }
         catch {
+            # Say what happened in terms a report reader can act on, without losing the usage already read.
+            $costStatus = Get-CostRequestFailureStatus -ErrorRecord $_
+            if ($null -ne $costStatus) {
+                throw "$(Get-CostFailureNote -What 'AI cost' -StatusCode $costStatus -Api 'query') Results are incomplete."
+            }
             throw "AI cost query failed: $($_.Exception.Message)"
         }
     }
 
     # -- 3: KPIs ----------------------------------------------------------
     if (-not $fromHub) { $currency = Resolve-CurrencyLabel -Seen $currenciesSeen -Fallback 'Unknown' }
-    $costIssue = if ($currenciesSeen.ContainsKey('UNKNOWN') -or ($currency -notmatch '^[A-Za-z]{3}$' -and $currency -ne 'Mixed') -or $currency -in @('XXX', 'XTS')) {
+    # Missing cost is reported first. A currency can only be judged once rows came back, so a
+    # query that returned nothing mustn't read as a currency problem.
+    $costIssue = if (-not $costOk) {
+        if ($costQueryOk) { 'Cost Management returned no AI spend for this period, so AI costs and rates are unavailable.' }
+        else { 'AI cost data is unavailable.' }
+    }
+    elseif ($currenciesSeen.ContainsKey('UNKNOWN') -or ($currency -notmatch '^[A-Za-z]{3}$' -and $currency -ne 'Mixed') -or $currency -in @('XXX', 'XTS')) {
         'AI cost currency is missing or invalid; combined costs and rates are unavailable.'
     }
     elseif ($currency -eq 'Mixed') {
         'Multiple billing currencies cannot be combined; AI costs and rates are unavailable.'
     }
-    elseif (-not $costOk) { 'AI cost data is unavailable.' }
     else { $null }
     $costAvailable = $costOk -and -not $costIssue
     $tokenAccounts = @($acctTokens.Keys | Where-Object { $acctTokens[$_].Tokens -gt 0 })

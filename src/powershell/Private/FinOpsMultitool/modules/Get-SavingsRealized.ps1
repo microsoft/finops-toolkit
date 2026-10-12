@@ -216,7 +216,7 @@ function Get-SavingsRealized {
             $actualBody = New-SavingsQueryBody -Type 'ActualCost' -Dimensions @('ChargeType')
             $actualResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $actualBody
             if (-not $actualResp -or $actualResp.StatusCode -ne 200) {
-                throw "Savings charge query returned HTTP $($actualResp.StatusCode); results are incomplete."
+                throw (New-CostRequestFailure -Message "Savings charge query returned HTTP $($actualResp.StatusCode); results are incomplete." -StatusCode $(if ($actualResp) { $actualResp.StatusCode }))
             }
             if ($actualResp.StatusCode -eq 200) {
                 $actualResult = Get-CostQueryResult -FirstResponse $actualResp -Payload $actualBody -Context "savings charges for $($only.Name)"
@@ -228,7 +228,7 @@ function Get-SavingsRealized {
             $amortBody = New-SavingsQueryBody -Type 'AmortizedCost' -Dimensions @('PricingModel')
             $amortResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $amortBody
             if (-not $amortResp -or $amortResp.StatusCode -ne 200) {
-                throw "Savings benefit query returned HTTP $($amortResp.StatusCode); results are incomplete."
+                throw (New-CostRequestFailure -Message "Savings benefit query returned HTTP $($amortResp.StatusCode); results are incomplete." -StatusCode $(if ($amortResp) { $amortResp.StatusCode }))
             }
             if ($amortResp.StatusCode -eq 200) {
                 $amortResult = Get-CostQueryResult -FirstResponse $amortResp -Payload $amortBody -Context "savings benefits for $($only.Name)"
@@ -245,6 +245,11 @@ function Get-SavingsRealized {
             Write-Host "  Single-subscription savings calculated" -ForegroundColor Green
         }
         catch {
+            # Nothing else was read, so the scan fails; say why in terms a report reader can act on.
+            $singleStatus = Get-CostRequestFailureStatus -ErrorRecord $_
+            if ($null -ne $singleStatus) {
+                throw "$(Get-CostFailureNote -What 'Commitment savings' -FailedCount 1 -TotalCount 1 -StatusCode $singleStatus -Api 'query') Results are incomplete."
+            }
             throw "Single-subscription savings query failed: $($_.Exception.Message)"
         }
     }
@@ -298,6 +303,14 @@ function Get-SavingsRealized {
     }
 
     # -- Strategy 2: Per-subscription fallback (only if MG/direct scope unavailable) --
+    # A subscription whose requests fail is left out of the totals and counted in
+    # CoverageIncomplete, and the others keep their results. A subscription is added
+    # only after both of its queries were read in full, so it never contributes half
+    # its data. Content that can't be trusted (mixed currencies, negative usage)
+    # still fails the scan, and so does a run where no subscription could be read.
+    $coverageIncomplete = $false
+    $coverageNote = $null
+    $failedSubscriptionCount = 0
     if ($hasCommitments -and -not $gotMgData) {
         $details.Clear()
         $currencies.Clear()
@@ -307,6 +320,7 @@ function Get-SavingsRealized {
         $onDemandAmort = 0.0
         $spotAmort = 0.0
         $subCount = $Subscriptions.Count
+        $failedStatuses = [System.Collections.Generic.List[string]]::new()
         $i = 0
         foreach ($sub in $Subscriptions) {
             $i++
@@ -315,20 +329,22 @@ function Get-SavingsRealized {
                     Update-ScanStatus "Calculating savings ($i/$subCount subs)..."
                 }
             }
+            $currencySnapshot = @($currencies)
             try {
                 $actualBody = New-SavingsQueryBody -Type 'ActualCost' -Dimensions @('ChargeType')
 
                 $subPath = "/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
                 $actualResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $actualBody
                 if (-not $actualResp -or $actualResp.StatusCode -ne 200) {
-                    throw "Savings charge retry returned HTTP $($actualResp.StatusCode); results are incomplete."
+                    throw (New-CostRequestFailure -Message "Savings charge retry returned HTTP $($actualResp.StatusCode); results are incomplete." -StatusCode $(if ($actualResp) { $actualResp.StatusCode }))
                 }
 
+                $subDetails = [System.Collections.Generic.List[PSCustomObject]]::new()
                 if ($actualResp.StatusCode -eq 200) {
                     $actualResult = Get-CostQueryResult -FirstResponse $actualResp -Payload $actualBody -Context "savings charges for $($sub.Name)"
                     foreach ($detail in (Read-SavingsActual -Result $actualResult)) {
                         $detail.Subscription = $sub.Name
-                        [void]$details.Add($detail)
+                        [void]$subDetails.Add($detail)
                     }
                 }
 
@@ -336,15 +352,20 @@ function Get-SavingsRealized {
 
                 $amortResp = Invoke-AzRestMethodWithRetry -Path $subPath -Method POST -Payload $amortBody
                 if (-not $amortResp -or $amortResp.StatusCode -ne 200) {
-                    throw "Savings benefit retry returned HTTP $($amortResp.StatusCode); results are incomplete."
+                    throw (New-CostRequestFailure -Message "Savings benefit retry returned HTTP $($amortResp.StatusCode); results are incomplete." -StatusCode $(if ($amortResp) { $amortResp.StatusCode }))
                 }
+                $parsed = $null
                 if ($amortResp.StatusCode -eq 200) {
                     $amortResult = Get-CostQueryResult -FirstResponse $amortResp -Payload $amortBody -Context "savings benefits for $($sub.Name)"
                     $parsed = Read-SavingsAmort -Result $amortResult
                     foreach ($detail in $parsed.Rows) {
                         $detail.Subscription = $sub.Name
-                        [void]$details.Add($detail)
+                        [void]$subDetails.Add($detail)
                     }
+                }
+
+                foreach ($detail in $subDetails) { [void]$details.Add($detail) }
+                if ($parsed) {
                     $riSavings += $parsed.RI
                     $spSavings += $parsed.SP
                     $committedAmort += $parsed.Committed
@@ -353,8 +374,23 @@ function Get-SavingsRealized {
                 }
             }
             catch {
-                throw "Savings query failed for $($sub.Name): $($_.Exception.Message)"
+                $failedStatus = Get-CostRequestFailureStatus -ErrorRecord $_
+                if ($null -eq $failedStatus) { throw "Savings query failed for $($sub.Name): $($_.Exception.Message)" }
+                # Currencies read from a subscription that is left out can't count toward the mixed-currency check.
+                $currencies.Clear()
+                foreach ($knownCurrency in $currencySnapshot) { [void]$currencies.Add($knownCurrency) }
+                $failedSubscriptionCount++
+                [void]$failedStatuses.Add($failedStatus)
             }
+        }
+
+        if ($failedSubscriptionCount -gt 0) {
+            $failureNote = Get-CostFailureNote -What 'Commitment savings' -FailedCount $failedSubscriptionCount -TotalCount $subCount -StatusCode @($failedStatuses) -Api 'query'
+            # With nothing read there are no savings to report, so the scan fails with the reason.
+            if ($failedSubscriptionCount -ge $subCount) { throw "$failureNote Results are incomplete." }
+            $coverageIncomplete = $true
+            $coverageNote = "$failureNote The commitment totals cover only the other subscriptions."
+            Write-Warning $coverageNote
         }
     } # end per-sub fallback
 
@@ -429,6 +465,9 @@ resources
         CommitmentCoveragePct = $commitmentCoverage
         Details               = @($details)
         IsEstimate            = $true
+        CoverageIncomplete    = $coverageIncomplete
+        FailedSubscriptionCount = $failedSubscriptionCount
+        Note                  = $coverageNote
         EstimateBasis         = "Commitment estimates cover usage charges for $period in the reported billing currency, using assumed $([int]($riDiscountRate * 100))% reservation and $([int]($spDiscountRate * 100))% savings plan discounts. Purchases, refunds, and unused commitment charges are excluded from that estimate. AHB is a separate USD estimate for 730 hours on the current VM inventory, using retail license premiums or a USD 50 per-VM fallback. These amounts are not combined or annualized. Monthly commitment and combined total fields are unavailable; use the month-to-date fields. Validate against matching pay-as-you-go rates and benefit usage before reporting realized savings."
         HasData               = ($null -ne $commitmentSavings -or $ahbSavings -gt 0 -or $details.Count -gt 0)
     }

@@ -28,6 +28,11 @@ Describe 'Cost Management query pagination' {
         Remove-Module FinOpsMultitool -ErrorAction SilentlyContinue
     }
 
+    BeforeEach {
+        # A throttle window lasts as long as the module does, so one that a test opens mustn't skip another's requests.
+        Reset-CostMgmtThrottle
+    }
+
     It 'Returns the single page when there is no nextLink' {
         $pages = @(Get-CostQueryResponsePage -FirstResponse (Get-FakeResponse))
         $pages.Count | Should -Be 1
@@ -199,6 +204,95 @@ Describe 'Cost Management query pagination' {
     It 'Requires the original payload before following a query continuation' {
         $firstPage = Get-FakeResponse -NextLink '/subscriptions/x/q?page=2'
         { Get-CostQueryResponsePage -FirstResponse $firstPage } | Should -Throw '*original POST payload is required*'
+    }
+
+    Context 'Request failures' {
+        It 'Tags a failed page as a request failure with its HTTP status (<Case>)' -ForEach @(
+            @{ Case = 'first page'; Status = '429'; Response = 'first' }
+            @{ Case = 'continuation page'; Status = '503'; Response = 'next' }
+        ) {
+            if ($Response -eq 'first') { $firstPage = Get-FakeResponse -StatusCode ([int]$Status) }
+            else {
+                $firstPage = Get-FakeResponse -NextLink '/subscriptions/x/q?page=2'
+                Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool { [PSCustomObject]@{ StatusCode = 503; Content = '{}' } }
+            }
+            $caught = $null
+            try { $null = Get-CostQueryResponsePage -FirstResponse $firstPage -Payload '{}' } catch { $caught = $_ }
+
+            $caught | Should -Not -BeNullOrEmpty
+            InModuleScope FinOpsMultitool -Parameters @{ Caught = $caught } {
+                param($Caught)
+                Get-CostRequestFailureStatus -ErrorRecord $Caught
+            } | Should -Be $Status
+        }
+
+        It 'Reports no response as a request failure without a status' {
+            $caught = $null
+            try { $null = Get-CostQueryResponsePage -FirstResponse $null } catch { $caught = $_ }
+
+            InModuleScope FinOpsMultitool -Parameters @{ Caught = $caught } {
+                param($Caught)
+                Get-CostRequestFailureStatus -ErrorRecord $Caught
+            } | Should -Be 'none'
+        }
+
+        It 'Leaves content problems untagged so they keep failing the scan (<Case>)' -ForEach @(
+            @{ Case = 'invalid JSON'; Response = [PSCustomObject]@{ StatusCode = 200; Content = 'not json at all' } }
+            @{ Case = 'missing content'; Response = [PSCustomObject]@{ StatusCode = 200; Content = '' } }
+            @{ Case = 'missing rows'; Response = [PSCustomObject]@{ StatusCode = 200; Content = '{"properties":{"columns":[]}}' } }
+        ) {
+            $caught = $null
+            try { $null = Get-CostQueryResponsePage -FirstResponse $Response } catch { $caught = $_ }
+
+            $caught | Should -Not -BeNullOrEmpty
+            InModuleScope FinOpsMultitool -Parameters @{ Caught = $caught } {
+                param($Caught)
+                Get-CostRequestFailureStatus -ErrorRecord $Caught
+            } | Should -BeNullOrEmpty
+        }
+
+        It 'Describes <Status> in plain language' -ForEach @(
+            @{ Status = '429'; Expected = 'Cost Management is limiting requests for this tenant (HTTP 429)' }
+            @{ Status = '401'; Expected = 'access was denied (HTTP 401)' }
+            @{ Status = '403'; Expected = 'access was denied (HTTP 403)' }
+            @{ Status = '408'; Expected = 'Cost Management or the network had a temporary problem (HTTP 408)' }
+            @{ Status = '503'; Expected = 'Cost Management or the network had a temporary problem (HTTP 503)' }
+            @{ Status = 'none'; Expected = "Cost Management didn't respond" }
+            @{ Status = '404'; Expected = 'Cost Management returned HTTP 404' }
+        ) {
+            Get-CostRequestFailureReason -StatusCode $Status | Should -Be $Expected
+        }
+
+        It 'Words a failure note for <Case>' -ForEach @(
+            @{ Case = 'every subscription'; Failed = 95; Total = 95; Codes = @('429', '429'); Expected = "Full-month forecasts couldn't be read for 95 of 95 subscriptions because Cost Management is limiting requests for this tenant (HTTP 429)." }
+            @{ Case = 'some subscriptions'; Failed = 3; Total = 95; Codes = @('503', '503', '503'); Expected = "Full-month forecasts couldn't be read for 3 of 95 subscriptions because Cost Management or the network had a temporary problem (HTTP 503)." }
+            @{ Case = 'mixed causes'; Failed = 2; Total = 4; Codes = @('429', '403'); Expected = "Full-month forecasts couldn't be read for 2 of 4 subscriptions because Cost Management is limiting requests for this tenant (HTTP 429) or access was denied (HTTP 403)." }
+            @{ Case = 'a single subscription'; Failed = 1; Total = 1; Codes = @('503'); Expected = "Full-month forecasts couldn't be read for the selected subscription because Cost Management or the network had a temporary problem (HTTP 503)." }
+            @{ Case = 'unknown causes'; Failed = 1; Total = 2; Codes = @(); Expected = "Full-month forecasts couldn't be read for 1 of 2 subscriptions." }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Failed = $Failed; Total = $Total; Codes = $Codes; Expected = $Expected } {
+                param($Failed, $Total, $Codes, $Expected)
+                Reset-CostMgmtThrottle
+                Get-CostFailureNote -What 'Full-month forecasts' -FailedCount $Failed -TotalCount $Total -StatusCode $Codes -Api 'forecast' | Should -Be $Expected
+            }
+        }
+
+        It 'Adds when to run again while the throttle window is open' {
+            InModuleScope FinOpsMultitool {
+                Mock Write-Warning { }
+                try {
+                    Register-CostMgmtThrottle -Key 'forecast' -Seconds 3600
+
+                    $forecastNote = Get-CostFailureNote -What 'Full-month forecasts' -FailedCount 2 -TotalCount 2 -StatusCode @('429') -Api 'forecast'
+                    $queryNote = Get-CostFailureNote -What 'Actual costs' -FailedCount 2 -TotalCount 2 -StatusCode @('429') -Api 'query'
+
+                    $forecastNote | Should -Match '\. Run the scan again after \d\d:\d\d UTC\.$'
+                    # A forecast window says nothing about query requests.
+                    $queryNote | Should -Not -Match 'Run the scan again'
+                }
+                finally { Reset-CostMgmtThrottle }
+            }
+        }
     }
 
     Context 'Actual and forecast totals' {
@@ -446,7 +540,7 @@ Describe 'Cost Management query pagination' {
             }
         }
 
-        It 'Returns no cost map when forecast pagination cannot be completed (<QueryPath>, fallback unavailable: <FallbackUnavailable>)' -ForEach @(
+        It 'Keeps actual costs and withholds the forecast when forecast pagination cannot be completed (<QueryPath>, fallback unavailable: <FallbackUnavailable>)' -ForEach @(
             @{ QueryPath = 'PerSubscription'; FallbackUnavailable = $false }
             @{ QueryPath = 'ManagementGroup'; FallbackUnavailable = $false }
             @{ QueryPath = 'ManagementGroup'; FallbackUnavailable = $true }
@@ -456,6 +550,7 @@ Describe 'Cost Management query pagination' {
 
                 $usePerSubscription = $QueryPath -eq 'PerSubscription'
                 $failSubscriptionRetry = $FallbackUnavailable
+                Mock Write-Warning { }
                 Mock Resolve-CostMgId { 'test-management-group' }
                 Mock Invoke-AzRestMethodWithRetry {
                     if ($Path -like '*page=2') { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
@@ -475,17 +570,117 @@ Describe 'Cost Management query pagination' {
                 }
                 $subscriptions = @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'test' })
 
-                $returnedResults = [System.Collections.Generic.List[object]]::new()
+                $result = if ($usePerSubscription) {
+                    Get-CostDataPerSubscription -Subscriptions $subscriptions
+                }
+                else {
+                    Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions
+                }
+
+                $entry = $result[$subscriptions[0].Id]
+                $entry.Actual | Should -Be 100
+                $entry.Currency | Should -Be 'USD'
+                # The first page alone is a partial forecast, so none of it is published.
+                $entry.Forecast | Should -BeNullOrEmpty
+                $entry.ForecastSource | Should -Be 'Unavailable'
+                $entry.CostIssue | Should -BeLike "Full-month forecasts couldn't be read for the selected subscription because Cost Management or the network had a temporary problem (HTTP 503).*Actual costs are kept."
+            }
+        }
+
+        It 'Keeps actual costs and explains a throttled forecast (<QueryPath>)' -ForEach @(
+            @{ QueryPath = 'PerSubscription' }
+            @{ QueryPath = 'ManagementGroup' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ QueryPath = $QueryPath } {
+                param($QueryPath)
+
+                $subscriptionIds = @('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222')
+                Mock Write-Warning { }
+                Mock Resolve-CostMgId { 'test-management-group' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*forecast*') {
+                        Register-CostMgmtThrottle -Key 'forecast' -Seconds 3600
+                        return [pscustomobject]@{ StatusCode = 429; Content = '{}' }
+                    }
+                    $rows = @(foreach ($subscriptionId in $subscriptionIds) { if ($Path -like '/providers/*' -or $Path -like "*/$subscriptionId/*") { , @(100, $subscriptionId, 'USD') } })
+                    $properties = @{ columns = @(@{ name = 'Cost' }, @{ name = 'SubscriptionId' }, @{ name = 'Currency' }); rows = $rows }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @($subscriptionIds | ForEach-Object { [pscustomobject]@{ Id = $_; Name = "Example $_" } })
+                try {
+                    $result = if ($QueryPath -eq 'PerSubscription') { Get-CostDataPerSubscription -Subscriptions $subscriptions }
+                    else { Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions }
+
+                    $result.Count | Should -Be 2
+                    foreach ($subscriptionId in $subscriptionIds) {
+                        $result[$subscriptionId].Actual | Should -Be 100
+                        $result[$subscriptionId].Forecast | Should -BeNullOrEmpty
+                        $result[$subscriptionId].ForecastSource | Should -Be 'Unavailable'
+                        $result[$subscriptionId].CostIssue | Should -Match "^Full-month forecasts couldn't be read for 2 of 2 subscriptions because Cost Management is limiting requests for this tenant \(HTTP 429\)\. Run the scan again after \d\d:\d\d UTC\. Actual costs are kept\.$"
+                    }
+                }
+                finally { Reset-CostMgmtThrottle }
+            }
+        }
+
+        It 'Keeps the subscriptions it can read when some actual cost requests fail (HTTP <Status>)' -ForEach @(
+            @{ Status = 429; Reason = 'Cost Management is limiting requests for this tenant \(HTTP 429\)' }
+            @{ Status = 503; Reason = 'Cost Management or the network had a temporary problem \(HTTP 503\)' }
+            @{ Status = 403; Reason = 'access was denied \(HTTP 403\)' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Status = $Status; Reason = $Reason } {
+                param($Status, $Reason)
+
+                $failingId = '22222222-2222-2222-2222-222222222222'
+                $failingStatus = $Status
+                Mock Write-Warning { }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like "*/$failingId/*") { return [pscustomobject]@{ StatusCode = $failingStatus; Content = '{}' } }
+                    $rows = @(if ($Path -like '*forecast*') { , @(300, 'USD') } else { , @(100, 'USD') })
+                    $properties = @{ columns = @(@{ name = 'Cost' }, @{ name = 'Currency' }); rows = $rows }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' }
+                    [pscustomobject]@{ Id = $failingId; Name = 'Second' }
+                    [pscustomobject]@{ Id = '33333333-3333-3333-3333-333333333333'; Name = 'Third' }
+                )
+
+                $result = Get-CostDataPerSubscription -Subscriptions $subscriptions
+
+                $result.Count | Should -Be 3
+                foreach ($readableId in @($subscriptions[0].Id, $subscriptions[2].Id)) {
+                    $result[$readableId].Actual | Should -Be 100
+                    $result[$readableId].Forecast | Should -Be 300
+                    $result[$readableId].CostIssue | Should -BeNullOrEmpty
+                }
+                $result[$failingId].Actual | Should -BeNullOrEmpty
+                $result[$failingId].Currency | Should -BeNullOrEmpty
+                $result[$failingId].ForecastSource | Should -Be 'Unavailable'
+                $result[$failingId].CostIssue | Should -Match "^Actual costs couldn't be read for 1 of 3 subscriptions because $Reason\.$"
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly -ParameterFilter { $Path -like "*/$failingId/*forecast*" }
+            }
+        }
+
+        It 'Fails with the reason when no subscription cost can be read (<QueryPath>)' -ForEach @(
+            @{ QueryPath = 'PerSubscription' }
+            @{ QueryPath = 'ManagementGroup' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ QueryPath = $QueryPath } {
+                param($QueryPath)
+
+                Mock Write-Warning { }
+                Mock Resolve-CostMgId { 'test-management-group' }
+                Mock Invoke-AzRestMethodWithRetry { [pscustomobject]@{ StatusCode = 429; Content = '{}' } }
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second' }
+                )
+
                 {
-                    $result = if ($usePerSubscription) {
-                        Get-CostDataPerSubscription -Subscriptions $subscriptions
-                    }
-                    else {
-                        Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -WarningAction SilentlyContinue
-                    }
-                    [void]$returnedResults.Add($result)
-                } | Should -Throw '*incomplete*'
-                $returnedResults.Count | Should -Be 0
+                    if ($QueryPath -eq 'PerSubscription') { Get-CostDataPerSubscription -Subscriptions $subscriptions }
+                    else { Get-CostData -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions }
+                } | Should -Throw "Actual costs couldn't be read for 2 of 2 subscriptions because Cost Management is limiting requests for this tenant (HTTP 429)*Results are incomplete."
             }
         }
 
@@ -744,6 +939,7 @@ Describe 'Cost Management query pagination' {
                 )
                 Mock Write-Host { }
                 Mock Resolve-CostMgId { 'fixture' }
+                Mock Test-CostMgCoverage { $true }
                 Mock Get-PlainAccessToken { 'synthetic-token' }
                 Mock Search-AzGraphSafe {
                     @{ Data = @($accountIds | ForEach-Object { [pscustomobject]@{ id = $_; name = ($_ -split '/')[-1]; type = 'microsoft.cognitiveservices/accounts'; lkind = 'OpenAI'; subscriptionId = ($_ -split '/')[2]; location = 'eastus' } }) }
@@ -795,6 +991,7 @@ Describe 'Cost Management query pagination' {
                 Mock Write-Host { }
                 Mock Get-Date { [datetime]::new(2026, 10, 1, 0, 30, 0, [DateTimeKind]::Utc).ToLocalTime() }
                 Mock Resolve-CostMgId { 'fixture' }
+                Mock Test-CostMgCoverage { $true }
                 Mock Get-PlainAccessToken { 'synthetic-token' }
                 Mock Search-AzGraphSafe { @{ Data = @([pscustomobject]@{ id = $accountId; name = 'example'; type = 'microsoft.cognitiveservices/accounts'; lkind = 'OpenAI'; subscriptionId = '11111111-1111-1111-1111-111111111111' }) } }
                 Mock Invoke-WebRequest {
@@ -880,6 +1077,7 @@ Describe 'Cost Management query pagination' {
                     '/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/test/providers/Microsoft.CognitiveServices/accounts/second'
                 )
                 Mock Resolve-CostMgId { 'fixture' }
+                Mock Test-CostMgCoverage { $true }
                 Mock Search-AzGraphSafe {
                     @{ Data = @($accountIds | ForEach-Object { [pscustomobject]@{ id = $_; name = ($_ -split '/')[-1]; type = 'microsoft.cognitiveservices/accounts'; lkind = 'OpenAI'; subscriptionId = ($_ -split '/')[2]; location = 'eastus' } }) }
                 }
@@ -943,6 +1141,143 @@ Describe 'Cost Management query pagination' {
                     $tokenKpi.Value | Should -Be 2000
                     $tokenKpi.Display | Should -Not -Match 'for (Mixed|USD|EUR)'
                 }
+            }
+        }
+
+        It 'Reads AI spend per subscription when the management group cannot answer for them (<Reason>)' -ForEach @(
+            @{ Reason = 'no management group resolved'; ResolvedGroup = $null; Covered = $false }
+            @{ Reason = 'group does not contain the subscriptions'; ResolvedGroup = 'fixture'; Covered = $false }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ ResolvedGroup = $ResolvedGroup; Covered = $Covered } {
+                param($ResolvedGroup, $Covered)
+                $fixtureGroup = $ResolvedGroup
+                $fixtureCovered = $Covered
+                $accountIds = @(
+                    '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.CognitiveServices/accounts/first'
+                    '/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/fixture/providers/Microsoft.CognitiveServices/accounts/second'
+                )
+                Mock Write-Host { }
+                Mock Resolve-CostMgId { $fixtureGroup }
+                Mock Test-CostMgCoverage { $fixtureCovered }
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Search-AzGraphSafe {
+                    @{ Data = @($accountIds | ForEach-Object { [pscustomobject]@{ id = $_; name = ($_ -split '/')[-1]; type = 'microsoft.cognitiveservices/accounts'; lkind = 'OpenAI'; subscriptionId = ($_ -split '/')[2]; location = 'eastus' } }) }
+                }
+                Mock Invoke-WebRequest {
+                    $metrics = @(foreach ($metric in @(@{ Name = 'ProcessedPromptTokens'; Total = 800 }, @{ Name = 'GeneratedTokens'; Total = 200 }, @{ Name = 'TokenTransaction'; Total = 1000 }, @{ Name = 'AzureOpenAIRequests'; Total = 10 })) {
+                            @{ name = @{ value = $metric.Name }; timeseries = @(@{ data = @(@{ total = $metric.Total }) }) }
+                        })
+                    [pscustomobject]@{ Content = (@{ value = $metrics } | ConvertTo-Json -Depth 10) }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    # A subscription-scope query answers only for its own account.
+                    $ownerIndex = if ($Path -like '/subscriptions/11111111-*') { 0 } else { 1 }
+                    $amount = if ($ownerIndex -eq 0) { 100 } else { 50 }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' }, @{ name = 'Currency' }); rows = @(, @($amount, $accountIds[$ownerIndex], 'USD')) } } | ConvertTo-Json -Depth 8) }
+                }
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'First' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222'; Name = 'Second' }
+                    [pscustomobject]@{ Id = '33333333-3333-3333-3333-333333333333'; Name = 'Without AI accounts' }
+                )
+
+                $result = Get-AIWorkloadMetrics -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions
+
+                $result.CostIssue | Should -BeNullOrEmpty
+                $result.RateIssue | Should -BeNullOrEmpty
+                $result.TotalAICost | Should -Be 150
+                $result.Currency | Should -Be 'USD'
+                $result.CostPer1KTokens | Should -Be 75
+                $result.CostPerRequest | Should -Be 7.5
+                # Only subscriptions that hold AI accounts are queried, each at its own scope.
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter { $Method -eq 'POST' -and $Path -like '/subscriptions/*/providers/Microsoft.CostManagement/query*' }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly -ParameterFilter { $Path -like '/providers/Microsoft.Management/*' }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly -ParameterFilter { $Path -like '/subscriptions/33333333-*' }
+            }
+        }
+
+        It 'Reports that no spend was returned instead of blaming the currency' {
+            InModuleScope FinOpsMultitool {
+                $accountId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.CognitiveServices/accounts/example'
+                Mock Write-Host { }
+                Mock Resolve-CostMgId { 'fixture' }
+                Mock Test-CostMgCoverage { $true }
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Search-AzGraphSafe { @{ Data = @([pscustomobject]@{ id = $accountId; name = 'example'; type = 'microsoft.cognitiveservices/accounts'; lkind = 'OpenAI'; subscriptionId = '11111111-1111-1111-1111-111111111111' }) } }
+                Mock Invoke-WebRequest {
+                    $metrics = @(foreach ($metricName in @('ProcessedPromptTokens', 'GeneratedTokens', 'TokenTransaction', 'AzureOpenAIRequests')) {
+                            @{ name = @{ value = $metricName }; timeseries = @(@{ data = @(@{ total = 10 }) }) }
+                        })
+                    [pscustomobject]@{ Content = (@{ value = $metrics } | ConvertTo-Json -Depth 10) }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    [pscustomobject]@{ StatusCode = 200; Content = '{"properties":{"columns":[{"name":"Cost"},{"name":"ResourceId"},{"name":"Currency"}],"rows":[]}}' }
+                }
+
+                $result = Get-AIWorkloadMetrics -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example' })
+
+                $result.CostIssue | Should -Be 'Cost Management returned no AI spend for this period, so AI costs and rates are unavailable.'
+                $result.CostIssue | Should -Not -Match 'currenc'
+                $result.Note | Should -Match 'returned no AI spend'
+                $result.TotalAICost | Should -BeNullOrEmpty
+                $result.HasTokenData | Should -BeTrue
+            }
+        }
+
+        It 'Keeps rates for the accounts with usage when another account recorded none' {
+            InModuleScope FinOpsMultitool {
+                $activeId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.CognitiveServices/accounts/active'
+                $idleId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.CognitiveServices/accounts/idle'
+                Mock Write-Host { }
+                Mock Resolve-CostMgId { 'fixture' }
+                Mock Test-CostMgCoverage { $true }
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Search-AzGraphSafe {
+                    @{ Data = @(@($activeId, $idleId) | ForEach-Object { [pscustomobject]@{ id = $_; name = ($_ -split '/')[-1]; type = 'microsoft.cognitiveservices/accounts'; lkind = 'OpenAI'; subscriptionId = '11111111-1111-1111-1111-111111111111' } }) }
+                }
+                Mock Invoke-WebRequest {
+                    # A successful call for an account with no usage returns every metric with an empty series list.
+                    $isIdle = $Uri -like '*/accounts/idle/*'
+                    $metrics = @(foreach ($metric in @(@{ Name = 'ProcessedPromptTokens'; Total = 800 }, @{ Name = 'GeneratedTokens'; Total = 200 }, @{ Name = 'TokenTransaction'; Total = 1000 }, @{ Name = 'AzureOpenAIRequests'; Total = 10 })) {
+                            @{ name = @{ value = $metric.Name }; errorCode = 'Success'; timeseries = @(if (-not $isIdle) { @{ data = @(@{ total = $metric.Total }) } }) }
+                        })
+                    [pscustomobject]@{ Content = (@{ value = $metrics } | ConvertTo-Json -Depth 10) }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' }, @{ name = 'Currency' }); rows = @(, @(100, $activeId, 'USD')) } } | ConvertTo-Json -Depth 8) }
+                }
+
+                $result = Get-AIWorkloadMetrics -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example' })
+
+                $result.MetricFailures | Should -Be 0
+                $result.RateIssue | Should -BeNullOrEmpty
+                $result.TotalTokens | Should -Be 1000
+                $result.CostPer1KTokens | Should -Be 100
+                $result.CostPerRequest | Should -Be 10
+                # No samples is neither a failed read nor a measured zero.
+                $idle = $result.ByAccount | Where-Object Name -EQ 'idle'
+                $idle.Tokens | Should -BeNullOrEmpty
+                $idle.Requests | Should -BeNullOrEmpty
+                $idle.MetricsComplete | Should -BeTrue
+                $idle.TokenBasis | Should -Be 'No usage samples returned'
+                $idle.CostPer1KTokens | Should -BeNullOrEmpty
+            }
+        }
+
+        It 'Explains a throttled AI spend query without a status code per request' {
+            InModuleScope FinOpsMultitool {
+                $accountId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.CognitiveServices/accounts/example'
+                Mock Write-Host { }
+                Mock Resolve-CostMgId { 'fixture' }
+                Mock Test-CostMgCoverage { $true }
+                Mock Get-PlainAccessToken { 'synthetic-token' }
+                Mock Search-AzGraphSafe { @{ Data = @([pscustomobject]@{ id = $accountId; name = 'example'; type = 'microsoft.cognitiveservices/accounts'; lkind = 'OpenAI'; subscriptionId = '11111111-1111-1111-1111-111111111111' }) } }
+                Mock Invoke-WebRequest { throw 'Metrics are not needed for this case.' }
+                Mock Invoke-AzRestMethodWithRetry { [pscustomobject]@{ StatusCode = 429; Content = '{}' } }
+
+                {
+                    Get-AIWorkloadMetrics -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Example' })
+                } | Should -Throw "AI cost couldn't be read because Cost Management is limiting requests for this tenant (HTTP 429). Results are incomplete."
             }
         }
 
@@ -1216,7 +1551,6 @@ Describe 'Cost Management query pagination' {
         It 'Does not publish totals after a required first response fails (<Scan>)' -ForEach @(
             @{ Scan = 'Trend' }
             @{ Scan = 'TrendPartial' }
-            @{ Scan = 'Forecast' }
             @{ Scan = 'Savings' }
             @{ Scan = 'BudgetHistory' }
             @{ Scan = 'AI' }
@@ -1236,12 +1570,6 @@ Describe 'Cost Management query pagination' {
                     [pscustomobject]@{ Data = $rows }
                 }
                 Mock Invoke-AzRestMethodWithRetry {
-                    if ($scanName -eq 'Forecast' -and $Path -notlike '*forecast*') {
-                        return [pscustomobject]@{
-                            StatusCode = 200
-                            Content    = '{"properties":{"columns":[{"name":"Cost"},{"name":"Currency"}],"rows":[[100,"USD"]]}}'
-                        }
-                    }
                     if ($scanName -eq 'TrendPartial' -and $Path -like '/subscriptions/11111111-*') {
                         return [pscustomobject]@{
                             StatusCode = 200
@@ -1262,7 +1590,6 @@ Describe 'Cost Management query pagination' {
                 {
                     switch ($scanName) {
                         { $_ -in 'Trend', 'TrendPartial' } { Get-CostTrend -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions }
-                        'Forecast' { Get-CostDataPerSubscription -Subscriptions $subscriptions }
                         'Savings' { Get-SavingsRealized -Subscriptions $subscriptions }
                         'BudgetHistory' { Get-BudgetHistory -Budgets $budgets -MonthsBack 1 }
                         'AI' { Get-AIWorkloadMetrics -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions }
@@ -1483,8 +1810,46 @@ $Fixture.Delays.Add($Seconds)
                     $result.FailedSubscriptions[0].StatusCode | Should -Be 429
                     $result.SuccessfulSubscriptionIds | Should -Contain $subscriptions[0].Id
                     $result.SuccessfulSubscriptionIds | Should -Contain $subscriptions[2].Id
+                    $result.Note | Should -Match 'Cost Management is limiting requests for this tenant; run the scan again after \d\d:\d\d UTC\.$'
                     $fixture.Calls | Should -Be 3
                     $fixture.Delays.Count | Should -Be 0
+                }
+                finally {
+                    $script:RunspacePool = $previousPool
+                    $pool.Dispose()
+                    $httpResponse.Dispose()
+                }
+            }
+        }
+
+        It 'Skips later tag batches once a long throttle window is open' {
+            InModuleScope FinOpsMultitool {
+                Mock Write-Warning { }
+                Mock Search-AzGraphSafe { [pscustomobject]@{ Data = @() } }
+                $httpResponse = [Net.Http.HttpResponseMessage]::new([Net.HttpStatusCode]::TooManyRequests)
+                $null = $httpResponse.Headers.TryAddWithoutValidation('x-ms-ratelimit-microsoft.costmanagement-qpu-retry-after', '3600')
+                $fixture = [hashtable]::Synchronized(@{ Headers = $httpResponse.Headers; Calls = 0 })
+                $sessionState = [Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
+                $sessionState.Variables.Add([Management.Automation.Runspaces.SessionStateVariableEntry]::new('Fixture', $fixture, 'Synthetic tag batch responses'))
+                $sessionState.Commands.Add([Management.Automation.Runspaces.SessionStateFunctionEntry]::new('Invoke-AzRestMethod', @'
+param($Path, $Method, $Payload)
+$Fixture.Calls++
+[pscustomobject]@{ StatusCode = 429; Content = '{}'; Headers = $Fixture.Headers }
+'@))
+                $pool = [runspacefactory]::CreateRunspacePool(1, 1, $sessionState, $Host)
+                $previousPool = $script:RunspacePool
+                try {
+                    $pool.Open()
+                    $script:RunspacePool = $pool
+                    # Batches hold eight subscriptions, so ten subscriptions need a second batch.
+                    $subscriptions = @(1..10 | ForEach-Object { [pscustomobject]@{ Id = '{0:D8}-0000-0000-0000-000000000000' -f $_; Name = "Example $_" } })
+
+                    { Get-CostByTag -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -ExistingTags @{ CostCenter = @{ TotalResources = 10 } } } |
+                    Should -Throw "Cost by tag couldn't be read for 10 of 10 subscriptions because Cost Management is limiting requests for this tenant (HTTP 429). Run the scan again after*Results are incomplete."
+
+                    # The first batch discovered the window; the second batch was answered without a request.
+                    $fixture.Calls | Should -Be 8
+                    @(Get-CostMgmtThrottleSummary)[0].SkippedRequests | Should -Be 2
                 }
                 finally {
                     $script:RunspacePool = $previousPool
@@ -1792,7 +2157,7 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
             }
         }
 
-        It 'Bounds management-group probes and reserves the tenant root (listed: <RootListed>, readable: <RootReadable>)' -Tag 'ManagementGroupProbeLimit' -ForEach @(
+        It 'Probes the tenant root first and bounds the listed groups (listed: <RootListed>, readable: <RootReadable>)' -Tag 'ManagementGroupProbeLimit' -ForEach @(
             @{ RootListed = $false; RootReadable = $true }
             @{ RootListed = $true; RootReadable = $true }
             @{ RootListed = $false; RootReadable = $false }
@@ -1830,24 +2195,29 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
                 try {
                     $resolved = Resolve-CostMgId -TenantId $tenantId
 
-                    $probedIds.Count | Should -Be 25
-                    $probedIds[-1] | Should -Be $tenantId
+                    $probedIds[0] | Should -Be $tenantId
                     @($probedIds | Where-Object { $_ -eq $tenantId }).Count | Should -Be 1
-                    $probedIds[0] | Should -Be 'denied-1'
-                    $probedIds[23] | Should -Be 'denied-24'
                     if ($RootReadable) {
+                        # A readable root settles discovery before any group is listed.
                         $resolved | Should -Be $tenantId
+                        $probedIds.Count | Should -Be 1
                         Test-MgCostScope | Should -BeTrue
                         Resolve-CostMgId -TenantId $tenantId | Should -Be $tenantId
+                        Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly -ParameterFilter { $Method -eq 'GET' }
+                        Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter { $Method -eq 'POST' -and $MaxRetries -eq 2 }
+                        Should -Invoke Write-Warning -Times 0 -Exactly
                     }
                     else {
+                        $probedIds.Count | Should -Be 25
+                        $probedIds[1] | Should -Be 'denied-1'
+                        $probedIds[24] | Should -Be 'denied-24'
                         $resolved | Should -BeNullOrEmpty
                         Test-MgCostScope | Should -BeFalse
                         Resolve-CostMgId -TenantId $tenantId | Should -BeNullOrEmpty
+                        Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter { $Method -eq 'GET' }
+                        Should -Invoke Invoke-AzRestMethodWithRetry -Times 25 -Exactly -ParameterFilter { $Method -eq 'POST' -and $MaxRetries -eq 2 }
+                        Should -Invoke Write-Warning -Times 1 -Exactly -ParameterFilter { $Message -match '25.*tenant root' }
                     }
-                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter { $Method -eq 'GET' }
-                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 25 -Exactly -ParameterFilter { $Method -eq 'POST' -and $MaxRetries -eq 2 }
-                    Should -Invoke Write-Warning -Times 1 -Exactly -ParameterFilter { $Message -match '25.*tenant root' }
                     Should -Invoke Get-AzContext -Times 0 -Exactly
                     Should -Invoke Invoke-RestMethod -Times 0 -Exactly
                 }
@@ -1871,9 +2241,45 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
                     Resolve-CostMgId -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' | Should -Be 'readable'
 
                     Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter { $Method -eq 'GET' }
-                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter { $Method -eq 'POST' -and $MaxRetries -eq 2 }
-                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly -ParameterFilter { $Path -match '/(unused|aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa)/' }
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 3 -Exactly -ParameterFilter { $Method -eq 'POST' -and $MaxRetries -eq 2 }
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter { $Path -match '/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/' -and $Method -eq 'POST' }
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly -ParameterFilter { $Path -match '/unused/' }
                     Should -Invoke Write-Warning -Times 0 -Exactly
+                }
+                finally { Reset-CostMgScope }
+            }
+        }
+
+        It 'Stops probing without disabling management-group queries when a long throttle window opens (at <ThrottledAt>)' -Tag 'ManagementGroupProbeLimit' -ForEach @(
+            @{ ThrottledAt = 'the tenant root'; ExpectedGets = 0; ExpectedProbes = 1 }
+            @{ ThrottledAt = 'the first child'; ExpectedGets = 1; ExpectedProbes = 2 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ ThrottledAt = $ThrottledAt; ExpectedGets = $ExpectedGets; ExpectedProbes = $ExpectedProbes } {
+                param($ThrottledAt, $ExpectedGets, $ExpectedProbes)
+                Reset-CostMgScope
+                $fixtureThrottledAt = $ThrottledAt
+                $tenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                Mock Write-Host { }
+                Mock Write-Warning { }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Method -eq 'GET') {
+                        return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[{"name":"first"},{"name":"second"}]}' }
+                    }
+                    $throttled = if ($fixtureThrottledAt -eq 'the tenant root') { $Path -like "*/$tenantId/*" } else { $Path -like '*/first/*' }
+                    if ($throttled) {
+                        Register-CostMgmtThrottle -Key 'query' -Seconds 3600
+                        return [pscustomobject]@{ StatusCode = 429; Content = '{}' }
+                    }
+                    [pscustomobject]@{ StatusCode = 403; Content = '{}' }
+                }
+                try {
+                    Resolve-CostMgId -TenantId $tenantId | Should -BeNullOrEmpty
+
+                    Test-MgCostScope | Should -BeTrue
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times $ExpectedGets -Exactly -ParameterFilter { $Method -eq 'GET' }
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times $ExpectedProbes -Exactly -ParameterFilter { $Method -eq 'POST' }
+                    Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { $Object -like '*limiting requests*management-group cost access*' }
+                    Should -Invoke Write-Host -Times 0 -Exactly -ParameterFilter { $Object -like '*disabled for this scan*' }
                 }
                 finally { Reset-CostMgScope }
             }
@@ -1925,11 +2331,11 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
         }
 
         It 'Does not reuse a <PreviousState> management-group cache across tenants' -Tag 'ManagementGroupProbeLimit' -ForEach @(
-            @{ PreviousState = 'resolved'; FirstStatus = 200 }
-            @{ PreviousState = 'failed'; FirstStatus = 403 }
+            @{ PreviousState = 'resolved'; FirstStatus = 200; ExpectedGets = 0 }
+            @{ PreviousState = 'failed'; FirstStatus = 403; ExpectedGets = 1 }
         ) {
-            InModuleScope FinOpsMultitool -Parameters @{ FirstStatus = $FirstStatus } {
-                param($FirstStatus)
+            InModuleScope FinOpsMultitool -Parameters @{ FirstStatus = $FirstStatus; ExpectedGets = $ExpectedGets } {
+                param($FirstStatus, $ExpectedGets)
                 Reset-CostMgScope
                 $fixtureStatus = $FirstStatus
                 Mock Write-Host { }
@@ -1946,7 +2352,7 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
                     Resolve-CostMgId -TenantId 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' | Should -Be 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
 
                     Test-MgCostScope | Should -BeTrue
-                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter { $Method -eq 'GET' }
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times $ExpectedGets -Exactly -ParameterFilter { $Method -eq 'GET' }
                     foreach ($expectedTenant in @('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb')) {
                         Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter {
                             $Method -eq 'POST' -and $Path -like "*/$expectedTenant/*"

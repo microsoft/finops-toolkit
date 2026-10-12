@@ -363,6 +363,7 @@ function Get-KpiComputedValue {
             return (New-KpiValue "Actual is $pctOfPlan% of planned ($cur $spend of $cur $plan, comparable budgets)" $variance)
         }
         'effective-savings-rate' {
+            if (Get-ScanField $Data 'CoverageIncomplete') { return (New-KpiValue 'Unavailable: commitment savings could not be read for every subscription.') }
             $savings = Get-ScanField $Data 'CommitmentSavingsMonthToDate'
             $cur = Get-ScanField $Data 'Currency'
             if (-not $cur) { return (New-KpiValue 'Unavailable: savings currency is unknown.') }
@@ -376,6 +377,7 @@ function Get-KpiComputedValue {
             # Commitment coverage = committed eligible spend / total eligible
             # spend (excludes Spot). Computed in Get-SavingsRealized from
             # amortized cost grouped by pricing model.
+            if (Get-ScanField $Data 'CoverageIncomplete') { return (New-KpiValue 'Unavailable: commitment coverage could not be read for every subscription.') }
             $cov = Get-ScanField $Data 'CommitmentCoveragePct'
             $committed = Get-ScanField $Data 'CommittedAmortized'
             $onDemand = Get-ScanField $Data 'OnDemandAmortized'

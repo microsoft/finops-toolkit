@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/10/2026
+ms.date: 10/12/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -100,9 +100,14 @@ The following section lists features and enhancements that are currently in deve
   - Reported the count and amount in each currency of export rows that have no subscription, such as purchases or refunds billed outside a subscription. These rows aren't included in subscription totals.
   - Fixed the cost trend leaving out selected subscriptions that the management-group query omitted, such as subscriptions outside that group. The scan now queries those subscriptions individually, and any it can't read or combine in one currency stay unverified instead of counting as zero cost.
   - Grouped each scan's summaries, notes, and guidance in the HTML report into one scrollable panel so long notes don't lengthen the page.
+  - Showed reservation purchase detail in the same scrollable, filterable, and sortable table as other report results instead of listing every row down the page.
   - Kept actual subscription costs when a forecast returns no rows or no content, leaving missing forecasts unavailable instead of failing Cost Data or substituting actual spend.
   - Respected Cost Management throttling delays in cost queries and Cost by Tag batches, and stopped waiting after the final batch retry.
   - Limited cumulative retry waiting per REST call and preserved throttling errors when the requested delay exceeds a Cost by Tag batch deadline.
+  - Remembered a long Cost Management request limit for the tenant, so later cost and forecast requests are skipped with one plain-language warning instead of repeating failed calls. Scans that can't read their data say why and when to run again ([#2335](https://github.com/microsoft/finops-toolkit/issues/2335)).
+  - Kept actual costs when a forecast request fails in Cost Data, and kept the subscriptions it could read when others fail, instead of failing the scan and losing the results. Savings Realized does the same, flags partial coverage, and shows its totals-based KPIs as unavailable ([#2335](https://github.com/microsoft/finops-toolkit/issues/2335)).
+  - Showed an error hint that fits the cause: a required role for access errors, and a suggestion to run the scan again for request limits and timeouts, instead of a required-role hint under every error ([#2335](https://github.com/microsoft/finops-toolkit/issues/2335)).
+  - Read AI spend for subscriptions directly when the resolved management group doesn't contain them, reported missing spend instead of a currency problem, and stopped an account with no recorded usage from disabling rates for other accounts ([#2335](https://github.com/microsoft/finops-toolkit/issues/2335)).
   - Fixed Cost by Tag batch cleanup so a request that finishes at the deadline keeps its real response instead of being reported as a timeout (HTTP 408).
   - Prevented forecasts from a rejected management-group response from surviving an empty subscription retry.
   - Confirmed billing account ownership before reporting contract details, and counted only enabled anomaly alert rules as detection coverage.
@@ -110,7 +115,7 @@ The following section lists features and enhancements that are currently in deve
   - Corrected agent skill guidance on billed and effective cost and on when tags appear in cost data, and replaced references to unavailable tools with the terminal UI data sources.
   - Stopped unresolved explicit subscription lookups from searching other tenants or widening the scan scope ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
   - Fixed policy-definition read failures appearing as complete scan results; warnings and reports now identify unread definitions while retaining assignments and valid compliance data ([#2335](https://github.com/microsoft/finops-toolkit/issues/2335)).
-  - Limited management-group cost discovery to 25 candidates, including the tenant root, while preserving pagination, selected-subscription fallback, and tenant-specific caching ([#2335](https://github.com/microsoft/finops-toolkit/issues/2335)).
+  - Limited management-group cost discovery to 25 candidates, including the tenant root, while preserving pagination, selected-subscription fallback, and tenant-specific caching ([#2335](https://github.com/microsoft/finops-toolkit/issues/2335)). Discovery probes the tenant root first, so a readable root settles it with one request, and stops without disabling management-group queries when requests are limited.
   - Fixed crowded HTML reports for large subscription selections with bounded columns, compact scope lists, expandable tag and policy details, and local table filtering and pagination without reducing CSV detail.
   - Fixed missing resource-cost periods and unclear resource identities by retaining the requested UTC window, displaying resource and reservation-charge labels, and preserving full IDs in HTML and CSV.
   - Added verified subscription and management-group display names to policy locations while retaining scope IDs when name lookup fails.

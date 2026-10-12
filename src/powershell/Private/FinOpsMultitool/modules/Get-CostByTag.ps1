@@ -311,6 +311,16 @@ function Get-CostByTag {
         )
         $pendingJobs = [System.Collections.Generic.List[hashtable]]::new()
         $deadline = [datetime]::UtcNow.AddSeconds($TimeoutSeconds)
+
+        # Cost Management already asked for a wait longer than this batch can spend,
+        # so none of its requests can succeed. Answer them without sending.
+        if ((Get-CostMgmtThrottleRemaining -Key 'query') -gt $TimeoutSeconds) {
+            foreach ($call in $Calls) {
+                [void]$pendingJobs.Add(@{ PS = $null; Async = $null; Call = $call; Result = (New-CostMgmtSkippedResponse -Key 'query') })
+            }
+            return $pendingJobs
+        }
+
         foreach ($call in $Calls) {
             $ps = [powershell]::Create()
             $ps.RunspacePool = $script:RunspacePool
@@ -375,6 +385,15 @@ function Get-CostByTag {
         foreach ($job in $pendingJobs) {
             if ($null -eq $job.Result) {
                 Complete-ParallelRestJob -Job $job -StopIfRunning
+            }
+        }
+
+        # A throttle that asks for more than this batch could wait applies to every later request too.
+        foreach ($job in $pendingJobs) {
+            if ($job.Result.StatusCode -ne 429) { continue }
+            $requestedWait = Get-ServerRetryDelay -Headers $job.Result.Headers -IsThrottled $true
+            if ($requestedWait -gt [math]::Max($TimeoutSeconds, $script:CostMgmtLongDelaySeconds)) {
+                Register-CostMgmtThrottle -Key 'query' -Seconds $requestedWait
             }
         }
         return $pendingJobs
@@ -555,7 +574,14 @@ function Get-CostByTag {
         }
 
         if ($subsFailed -gt 0) {
-            if ($subsQueried -eq 0) { throw "Cost-by-tag failed for every selected subscription: $(($failedSubscriptions | ForEach-Object { $_.Error }) -join '; '); results are incomplete." }
+            if ($subsQueried -eq 0) {
+                # Say what happened once, instead of repeating a status per subscription.
+                $failedStatuses = @($failedSubscriptions | Where-Object { $_.StatusCode } | ForEach-Object { [string]$_.StatusCode })
+                $otherErrors = @($failedSubscriptions | Where-Object { -not $_.StatusCode } | ForEach-Object { $_.Error } | Select-Object -Unique)
+                $failureNote = Get-CostFailureNote -What 'Cost by tag' -FailedCount $subsFailed -TotalCount $subList.Count -StatusCode $failedStatuses -Api 'query'
+                if ($otherErrors.Count -gt 0) { $failureNote = "$failureNote $($otherErrors -join '; ')" }
+                throw "$failureNote Results are incomplete."
+            }
             Write-Host "  Cost-by-tag completed: $subsQueried subscription(s) returned data, $subsFailed skipped (timeout / throttle / access)." -ForegroundColor Yellow
         }
         else {
@@ -577,6 +603,13 @@ function Get-CostByTag {
         $results[$t] = @($rows | Sort-Object Cost -Descending)
     }
 
+    $coverageNote = $null
+    if ($subsFailed -gt 0) {
+        $coverageNote = "Cost coverage is incomplete: $subsQueried of $($subIds.Count) subscriptions were read. Amounts cover successful subscriptions only; whole-scope allocation KPIs are unavailable."
+        $throttledUntil = Get-CostMgmtThrottleUntil -Key 'query'
+        if ($throttledUntil) { $coverageNote += " Cost Management is limiting requests for this tenant; run the scan again after $(Format-CostMgmtThrottleTime -Until $throttledUntil)." }
+    }
+
     return [PSCustomObject]@{
         TagsQueried               = $tagsToQuery
         CostByTag                 = $results
@@ -588,7 +621,7 @@ function Get-CostByTag {
         TotalSubs                 = $subIds.Count
         SuccessfulSubscriptionIds = @($successfulSubs)
         FailedSubscriptions       = @($failedSubscriptions)
-        Note                      = if ($subsFailed -gt 0) { "Cost coverage is incomplete: $subsQueried of $($subIds.Count) subscriptions were read. Amounts cover successful subscriptions only; whole-scope allocation KPIs are unavailable." } else { $null }
+        Note                      = $coverageNote
         # Allocation coverage counted once per resource. Null when this run did
         # not walk resources (hub paths aggregate server-side), so consumers can
         # tell "no allocated spend" apart from "not measured".

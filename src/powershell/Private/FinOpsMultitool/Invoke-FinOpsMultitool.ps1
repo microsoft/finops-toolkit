@@ -1961,7 +1961,7 @@ function Invoke-FinOpsMultitool {
                 Write-SectionHeader $mod.Name
                 if ($errorMsg) {
                     # Detect permission-related errors
-                    $isPermError = $errorMsg -match '(?i)403|401|Forbidden|Unauthorized|AuthorizationFailed|does not have authorization|InsufficientPermissions|BillingAccountNotFound'
+                    $isPermError = Test-ScanPermissionError -Message ([string]$errorMsg)
                     if ($isPermError -and $pInfo) {
                         Write-FinOpsConsole "    [!] ACCESS DENIED" -ForegroundColor Red
                         Write-FinOpsConsole "    $errorMsg" -ForegroundColor DarkGray
@@ -1973,9 +1973,8 @@ function Invoke-FinOpsMultitool {
                     }
                     else {
                         Write-FinOpsConsole "    [!] ERROR: $errorMsg" -ForegroundColor Red
-                        if ($pInfo) {
-                            Write-FinOpsConsole "    If this is a permissions issue:" -ForegroundColor DarkGray
-                            Write-FinOpsConsole "    Required role: $($pInfo.Role) at $($pInfo.Scope) scope" -ForegroundColor DarkGray
+                        foreach ($hintLine in @(Get-ScanErrorHint -Message ([string]$errorMsg) -PermissionInfo $pInfo)) {
+                            Write-FinOpsConsole "    $hintLine" -ForegroundColor DarkGray
                         }
                     }
                 }
@@ -2115,6 +2114,7 @@ function Invoke-FinOpsMultitool {
                     Write-ColorizedLine -Text "      Commitment estimate: $(Format-BudgetAmount -Value $data.CommitmentSavingsMonthToDate -Currency $data.Currency)" -DefaultColor 'White'
                     Write-ColorizedLine -Text "      AHB: $(Format-BudgetAmount -Value $data.AHBSavingsMonthly -Currency $data.AHBCurrency) ($($data.AHBPeriod))" -DefaultColor 'Cyan'
                     if ($data.AHBIssue) { Write-FinOpsConsole "      $($data.AHBIssue)" -ForegroundColor Yellow }
+                    if ($data.CoverageIncomplete -and $data.Note) { Write-FinOpsConsole "      $($data.Note)" -ForegroundColor Yellow }
                     if ($data.EstimateBasis) {
                         Write-FinOpsConsole "      $($data.EstimateBasis)" -ForegroundColor DarkGray
                     }
@@ -2123,6 +2123,7 @@ function Invoke-FinOpsMultitool {
                 'Get-CostData' {
                     # CostData is a hashtable keyed by subscription ID
                     if ($data -is [hashtable]) {
+                        foreach ($costIssue in (Get-CostDataIssue -Data $data)) { Write-FinOpsConsole "    $costIssue" -ForegroundColor Yellow }
                         $rows = $data.GetEnumerator() | ForEach-Object {
                             # Prefer the name carried in the cost data itself (hub
                             # FOCUS data), then the selected-subscription lookup,
@@ -3403,7 +3404,7 @@ h2[id] { scroll-margin-top: 85px; }
 .no-data { color: var(--muted); font-style: italic; padding: 8px 0; }
 .money { color: var(--success); font-weight: 600; }
 .tag-error { background: #FDF3F2; border: 1px solid #F1C9C4; border-left: 4px solid var(--danger); border-radius: 0 4px 4px 0; padding: 11px 16px; margin: 8px 0; }
-.permission-hint { color: var(--warning); font-size: 12px; }
+.error-hint { color: var(--warning); font-size: 12px; }
 .footer { color: var(--muted); font-size: 12px; margin-top: 40px; border-top: 1px solid var(--light-gray); padding-top: 14px; }
 .footer a { color: var(--blue); text-decoration: none; }
 @media print {
@@ -3457,21 +3458,37 @@ h2[id] { scroll-margin-top: 85px; }
                         $state = 'Limited data'
                     }
                     if ($state -ne 'Failed' -and $selectedMod.Fn -eq 'Get-CostData' -and $scanData -is [System.Collections.IDictionary]) {
+                        # One note per gap. Subscriptions are named only while there are few of them,
+                        # so a run where every subscription lacks a forecast stays readable.
+                        $costGaps = [ordered]@{
+                            'Actual cost or billing currency unavailable.' = [System.Collections.Generic.List[string]]::new()
+                            'Observed period not recorded.'                = [System.Collections.Generic.List[string]]::new()
+                            'Full-month forecast unavailable.'             = [System.Collections.Generic.List[string]]::new()
+                        }
                         foreach ($entry in $scanData.GetEnumerator()) {
                             $entryName = if ($entry.Value.Name) { [string]$entry.Value.Name } elseif ($subNameLookup.ContainsKey($entry.Key)) { $subNameLookup[$entry.Key] } else { [string]$entry.Key }
-                            if ($entry.Value.Currency -eq 'Mixed' -or (Format-BudgetAmount -Value $entry.Value.Actual -Currency $entry.Value.Currency) -eq 'Unavailable') {
-                                $state = 'Limited data'
-                                $notes += "${entryName}: Actual cost or billing currency unavailable."
+                            # A subscription whose request failed carries a note that already explains its gaps.
+                            $explained = -not [string]::IsNullOrWhiteSpace([string]$entry.Value.CostIssue)
+                            if (-not $explained -and ($entry.Value.Currency -eq 'Mixed' -or (Format-BudgetAmount -Value $entry.Value.Actual -Currency $entry.Value.Currency) -eq 'Unavailable')) {
+                                $costGaps['Actual cost or billing currency unavailable.'].Add($entryName)
                             }
                             if (-not $entry.Value.ActualPeriod -or $entry.Value.ActualPeriod -eq 'Unknown') {
-                                $state = 'Limited data'
-                                $notes += "${entryName}: Observed period not recorded."
+                                $costGaps['Observed period not recorded.'].Add($entryName)
                             }
-                            if (-not $entry.Value.ForecastSource -or $entry.Value.ForecastSource -in @('Actual', 'Unavailable') -or
-                                (Format-BudgetAmount -Value $entry.Value.Forecast -Currency $entry.Value.Currency) -eq 'Unavailable') {
-                                $state = 'Limited data'
-                                $notes += "${entryName}: Full-month forecast unavailable."
+                            if (-not $explained -and (-not $entry.Value.ForecastSource -or $entry.Value.ForecastSource -in @('Actual', 'Unavailable') -or
+                                    (Format-BudgetAmount -Value $entry.Value.Forecast -Currency $entry.Value.Currency) -eq 'Unavailable')) {
+                                $costGaps['Full-month forecast unavailable.'].Add($entryName)
                             }
+                        }
+                        foreach ($gap in $costGaps.GetEnumerator()) {
+                            if ($gap.Value.Count -eq 0) { continue }
+                            $state = 'Limited data'
+                            if ($gap.Value.Count -le 3) { foreach ($gapName in $gap.Value) { $notes += "${gapName}: $($gap.Key)" } }
+                            else { $notes += "$($gap.Value.Count) subscriptions: $($gap.Key)" }
+                        }
+                        foreach ($costIssue in (Get-CostDataIssue -Data $scanData)) {
+                            $state = 'Limited data'
+                            $notes += $costIssue
                         }
                     }
                     if ($state -eq 'No data' -and @($notes).Count -eq 0) { $notes = @('This scan returned no data; that is not a measured zero.') }
@@ -3738,9 +3755,10 @@ h2[id] { scroll-margin-top: 85px; }
                 if ($Results.ContainsKey($errorKey)) {
                     $eMsg = [System.Net.WebUtility]::HtmlEncode($Results[$errorKey])
                     [void]$htmlSb.Append("<div class=`"tag-error`"><strong>Error:</strong> $eMsg")
-                    if ($permissionInfo.ContainsKey($fn)) {
-                        $pi = $permissionInfo[$fn]
-                        [void]$htmlSb.Append("<br/><span class=`"permission-hint`">Required: $([System.Net.WebUtility]::HtmlEncode($pi.Role)) at $([System.Net.WebUtility]::HtmlEncode($pi.Scope)) scope ($([System.Net.WebUtility]::HtmlEncode($pi.API)))</span>")
+                    # The hint follows the cause: a request limit or timeout isn't fixed by a role assignment.
+                    $errorPermission = if ($permissionInfo.ContainsKey($fn)) { $permissionInfo[$fn] } else { $null }
+                    foreach ($hintLine in @(Get-ScanErrorHint -Message ([string]$Results[$errorKey]) -PermissionInfo $errorPermission)) {
+                        [void]$htmlSb.Append("<br/><span class=`"error-hint`">$([System.Net.WebUtility]::HtmlEncode($hintLine))</span>")
                     }
                     [void]$htmlSb.Append('</div>')
                     continue
@@ -3829,6 +3847,9 @@ h2[id] { scroll-margin-top: 85px; }
                     }
                     'Get-CostData' {
                         if ($data -is [hashtable]) {
+                            foreach ($costIssue in (Get-CostDataIssue -Data $data)) {
+                                [void]$notesSb.Append("<p class=`"guidance yellow`">$([System.Net.WebUtility]::HtmlEncode($costIssue))</p>")
+                            }
                             $htmlRows = $data.GetEnumerator() | ForEach-Object {
                                 $sl = if ($subNameLookup.ContainsKey($_.Key)) { $subNameLookup[$_.Key] } else { $_.Key }
                                 [PSCustomObject]@{
@@ -3964,9 +3985,11 @@ h2[id] { scroll-margin-top: 85px; }
                         $rrRows = @($data.ReservationRecommendations | Where-Object { $_ })
                         if ($rrRows.Count -gt 0) {
                             [void]$htmlSb.Append('<h3>Reservation purchase detail</h3>')
-                            [void]$htmlSb.Append('<table><thead><tr>')
+                            [void]$htmlSb.Append((ConvertTo-ReportTableControlHtml -TableId 'table-reservation-purchases' -Title 'reservation purchase detail' -RowCount $rrRows.Count))
+                            # The report script only turns table.report-table into a scrolling, pageable grid.
+                            [void]$htmlSb.Append('<div class="table-scroll"><table class="report-table table-reservation-purchases" id="table-reservation-purchases"><thead><tr>')
                             foreach ($c in @('SKU', 'Resource type', 'Region', 'Qty', 'Term', 'Lookback', 'Cost without RI', 'Cost with RI', 'Net savings')) {
-                                [void]$htmlSb.Append("<th>$([System.Net.WebUtility]::HtmlEncode($c))</th>")
+                                [void]$htmlSb.Append("<th scope=`"col`">$([System.Net.WebUtility]::HtmlEncode($c))</th>")
                             }
                             [void]$htmlSb.Append('</tr></thead><tbody>')
                             foreach ($rr in $rrRows) {
@@ -3989,7 +4012,7 @@ h2[id] { scroll-margin-top: 85px; }
                                 }
                                 [void]$htmlSb.Append('</tr>')
                             }
-                            [void]$htmlSb.Append('</tbody></table>')
+                            [void]$htmlSb.Append('</tbody></table></div>')
                             [void]$htmlSb.Append('<p class="table-note">From the Consumption reservation recommendation API at single-subscription scope over the last 30 days, queried per resource type. Costs are modeled over the lookback window and the API does not return a currency.</p>')
                             [void]$htmlSb.Append('<h3>Advisor recommendations</h3>')
                         }
@@ -4030,6 +4053,7 @@ h2[id] { scroll-margin-top: 85px; }
                         [void]$notesSb.Append("<p>RI: $([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.RISavingsMonthToDate -Currency $data.Currency))) &nbsp;|&nbsp; SP: $([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.SPSavingsMonthToDate -Currency $data.Currency)))</p>")
                         [void]$notesSb.Append("<p>AHB: <span class=`"money`">$([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.AHBSavingsMonthly -Currency $data.AHBCurrency)))</span> ($([System.Net.WebUtility]::HtmlEncode([string]$data.AHBPeriod)))</p>")
                         if ($data.AHBIssue) { [void]$notesSb.Append("<p>$([System.Net.WebUtility]::HtmlEncode([string]$data.AHBIssue))</p>") }
+                        if ($data.CoverageIncomplete -and $data.Note) { [void]$notesSb.Append("<p class=`"guidance yellow`">$([System.Net.WebUtility]::HtmlEncode([string]$data.Note))</p>") }
                         if ($data.EstimateBasis) { $tableNote = [string]$data.EstimateBasis }
                     }
                     'Get-BudgetStatus' {
@@ -4644,6 +4668,7 @@ h2[id] { scroll-margin-top: 85px; }
                     Where-Object { $_ -is [string] -and -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique) -join ' '
                 $status = if ($Results.ContainsKey($errorKey)) { "ERROR: $($Results[$errorKey])" }
                 elseif ($Results['_source_Export'].CoverageIncomplete -and $mod.Fn -in @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag', 'Get-CostTrend')) { "Limited data: $($Results['_source_Export'].Note)" }
+                elseif ($mod.Fn -eq 'Get-CostData' -and @(Get-CostDataIssue -Data $summaryData).Count -gt 0) { "Limited data: $((Get-CostDataIssue -Data $summaryData) -join ' ')" }
                 elseif ($summaryData.CoverageIncomplete -contains $true -or $summaryData.ComplianceCoverageIncomplete -contains $true -or $summaryData.DefinitionCoverageIncomplete -contains $true -or
                     $summaryData.AccessDenied -contains $true -or @(@($summaryData.CostIssue; $summaryData.RateIssue; $summaryData.AHBIssue; $summaryData.Error) | Where-Object { $_ }).Count -gt 0 -or
                     @($summaryData.MetricFailures | Where-Object { $_ -gt 0 }).Count -gt 0) { "Limited data: $(if ($summaryNote) { $summaryNote } else { 'Some evidence could not be verified.' })" }

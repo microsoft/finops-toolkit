@@ -23,8 +23,8 @@ function Set-MgCostScopeFailed {
 # Many orgs assign Cost Management Reader on a CHILD management group rather
 # than the tenant-root group (whose id == tenant GUID), so querying
 # managementGroups/<tenantId> returns 401. Resolve-CostMgId probes the tenant
-# root after a bounded set of accessible MGs and caches the first usable scope
-# for this tenant. Falls back to per-subscription when none work.
+# root first, then a bounded set of accessible MGs, and caches the first usable
+# scope for this tenant. Falls back to per-subscription when none work.
 $script:CostMgId = $null
 $script:CostMgTenantId = $null
 $script:CostMgCoverage = @{}
@@ -34,6 +34,26 @@ function Reset-CostMgScope {
     $script:CostMgTenantId = $null
     $script:MgCostScopeFailed = $false
     $script:CostMgCoverage = @{}
+    # A throttle window describes one tenant's quota, so it doesn't outlive the tenant.
+    Reset-CostMgmtThrottle
+}
+
+# Probes one management group with a cheap query. Returns 'Usable', 'Throttled'
+# (Cost Management asked for a wait longer than a call spends, so no later probe
+# can be answered either), or 'Unusable' (no cost role here, or the scope
+# doesn't answer). A low retry budget lets a throttled candidate fail fast; the
+# real cost queries keep the full budget.
+function Get-CostMgProbeResult {
+    param(
+        [Parameter(Mandatory)][string]$ManagementGroupId,
+        [Parameter(Mandatory)][string]$Body
+    )
+
+    $path = "/providers/Microsoft.Management/managementGroups/$ManagementGroupId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
+    $resp = Invoke-AzRestMethodWithRetry -Path $path -Method POST -Payload $Body -MaxRetries 2
+    if ($resp -and $resp.StatusCode -eq 200) { return 'Usable' }
+    if ($resp -and $resp.StatusCode -eq 429 -and (Get-CostMgmtThrottleRemaining -Key 'query') -gt 0) { return 'Throttled' }
+    return 'Unusable'
 }
 
 function Resolve-CostMgId {
@@ -49,10 +69,35 @@ function Resolve-CostMgId {
     if ($script:MgCostScopeFailed) { return $null }
     if ($script:CostMgId) { return $script:CostMgId }
 
-    # Candidates are the management groups the caller can actually see. Cost
-    # access usually lives on a child MG (not the tenant root), so probe the
-    # visible MGs first and fall back to the tenant root last. A throttled
-    # (429) probe must not abandon discovery - keep trying the rest.
+    $probeBody = @{
+        type      = 'ActualCost'
+        timeframe = 'MonthToDate'
+        dataset   = @{
+            granularity = 'None'
+            aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
+        }
+    } | ConvertTo-Json -Depth 10
+
+    # Throttled isn't denied: access is unknown, so management-group queries stay
+    # enabled and the scans that need them report incomplete results.
+    $throttledMessage = "  Cost Management is limiting requests, so management-group cost access couldn't be checked. Cost scans query the selected subscriptions individually or report incomplete results."
+
+    # The tenant root goes first. A cost role there covers every subscription
+    # with one query, so a readable root settles discovery in a single probe
+    # instead of listing groups and probing up to 25. Cost access often lives on
+    # a child MG instead, which the steps below look for.
+    $rootProbe = Get-CostMgProbeResult -ManagementGroupId $TenantId -Body $probeBody
+    if ($rootProbe -eq 'Usable') {
+        $script:CostMgId = $TenantId
+        return $TenantId
+    }
+    if ($rootProbe -eq 'Throttled') {
+        Write-Host $throttledMessage -ForegroundColor Yellow
+        return $null
+    }
+
+    # Candidates are the management groups the caller can actually see. The
+    # tenant root already had its probe, and it counts toward the probe limit.
     $probeLimit = 25
     $candidates = [System.Collections.Generic.List[string]]::new()
     $seenCandidates = @{}
@@ -71,43 +116,30 @@ function Resolve-CostMgId {
         }
     }
     catch {
-        Write-Warning "Management-group discovery is incomplete; only the tenant root can be probed. $($_.Exception.Message)"
+        Write-Warning "Management-group discovery is incomplete; only the tenant root was probed. $($_.Exception.Message)"
     }
 
-    # Tenant root as a last-resort candidate (covers orgs where the cost role
-    # is assigned at the root management group).
-    if ($candidates.Count -ge $probeLimit) {
-        Write-Warning "Management-group cost discovery is limited to $probeLimit candidates, including the tenant root. Remaining groups won't be probed. If these candidates fail, cost scans query the selected subscriptions individually."
-        $candidates.RemoveRange(($probeLimit - 1), ($candidates.Count - $probeLimit + 1))
-    }
-    $candidates.Add($TenantId)
+    $limited = $candidates.Count -ge $probeLimit
+    if ($limited) { $candidates.RemoveRange(($probeLimit - 1), ($candidates.Count - $probeLimit + 1)) }
 
-    $probeBody = @{
-        type      = 'ActualCost'
-        timeframe = 'MonthToDate'
-        dataset   = @{
-            granularity = 'None'
-            aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
-        }
-    } | ConvertTo-Json -Depth 10
-
-    # Use a low retry budget per probe so a throttled candidate fails fast and
-    # we move on to the next one. The real cost queries keep the full budget.
+    # A throttled (429) probe must not abandon discovery - keep trying the rest,
+    # unless a long throttle window means none of them can be answered.
     foreach ($mgId in $candidates) {
-        $path = "/providers/Microsoft.Management/managementGroups/$mgId/providers/Microsoft.CostManagement/query?api-version=2023-11-01"
-        $resp = Invoke-AzRestMethodWithRetry -Path $path -Method POST -Payload $probeBody -MaxRetries 2
-        if ($resp -and $resp.StatusCode -eq 200) {
+        $probe = Get-CostMgProbeResult -ManagementGroupId $mgId -Body $probeBody
+        if ($probe -eq 'Usable') {
             $script:CostMgId = $mgId
-            if ($mgId -ne $TenantId) {
-                Write-Host "  Cost scope resolved to management group '$mgId'." -ForegroundColor Yellow
-            }
+            Write-Host "  Cost scope resolved to management group '$mgId'." -ForegroundColor Yellow
             return $mgId
         }
-        # 401/403 = no cost role here; 429 = throttled; anything else = unusable
-        # at this scope. In every case, keep probing the remaining candidates so
-        # a throttled tenant-root probe never blocks reaching the child MG.
+        if ($probe -eq 'Throttled') {
+            Write-Host $throttledMessage -ForegroundColor Yellow
+            return $null
+        }
     }
 
+    if ($limited) {
+        Write-Warning "Management-group cost discovery is limited to $probeLimit candidates, including the tenant root. Remaining groups weren't probed, so cost scans query the selected subscriptions individually."
+    }
     Set-MgCostScopeFailed
     return $null
 }

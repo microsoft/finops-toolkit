@@ -59,14 +59,15 @@ Describe 'Retry backoff jitter' {
 
     Context 'REST response backoff' {
         It 'Stops before a retry exceeds the wait budget (<Scenario>)' -ForEach @(
-            @{ Scenario = 'hour-long throttle'; Delay = '3600'; Status = 429; Budget = 120; ExpectedCalls = 1; ExpectedWaits = 0 }
-            @{ Scenario = 'millisecond overflow'; Delay = '2147484'; Status = 429; Budget = 120; ExpectedCalls = 1; ExpectedWaits = 0 }
-            @{ Scenario = 'cumulative waits'; Delay = '70'; Status = 429; Budget = 120; ExpectedCalls = 2; ExpectedWaits = 1 }
-            @{ Scenario = 'disabled waits'; Delay = '30'; Status = 429; Budget = 0; ExpectedCalls = 1; ExpectedWaits = 0 }
-            @{ Scenario = 'service unavailable'; Delay = '3600'; Status = 503; Budget = 120; ExpectedCalls = 1; ExpectedWaits = 0 }
+            @{ Scenario = 'hour-long throttle'; Delay = '3600'; Status = 429; Budget = 120; ExpectedCalls = 1; ExpectedWaits = 0; Warning = '*asked for a wait of about 60 minutes*remaining query requests are skipped*' }
+            @{ Scenario = 'millisecond overflow'; Delay = '2147484'; Status = 429; Budget = 120; ExpectedCalls = 1; ExpectedWaits = 0; Warning = '*asked for a wait of about 35792 minutes*remaining query requests are skipped*' }
+            @{ Scenario = 'cumulative waits'; Delay = '70'; Status = 429; Budget = 120; ExpectedCalls = 2; ExpectedWaits = 1; Warning = '*retry requires 70 seconds*No early retry*' }
+            @{ Scenario = 'disabled waits'; Delay = '30'; Status = 429; Budget = 0; ExpectedCalls = 1; ExpectedWaits = 0; Warning = '*retry requires 30 seconds*No early retry*' }
+            @{ Scenario = 'service unavailable'; Delay = '3600'; Status = 503; Budget = 120; ExpectedCalls = 1; ExpectedWaits = 0; Warning = '*retry requires 3600 seconds*No early retry*' }
         ) {
-            InModuleScope FinOpsMultitool -Parameters @{ Delay = $Delay; Status = $Status; Budget = $Budget; ExpectedCalls = $ExpectedCalls; ExpectedWaits = $ExpectedWaits } {
-                param($Delay, $Status, $Budget, $ExpectedCalls, $ExpectedWaits)
+            InModuleScope FinOpsMultitool -Parameters @{ Delay = $Delay; Status = $Status; Budget = $Budget; ExpectedCalls = $ExpectedCalls; ExpectedWaits = $ExpectedWaits; Warning = $Warning } {
+                param($Delay, $Status, $Budget, $ExpectedCalls, $ExpectedWaits, $Warning)
+                Reset-CostMgmtThrottle
                 $httpResponse = [Net.Http.HttpResponseMessage]::new([Net.HttpStatusCode]$Status)
                 $headerName = if ($Status -eq 429) { 'x-ms-ratelimit-microsoft.costmanagement-qpu-retry-after' } else { 'Retry-After' }
                 $null = $httpResponse.Headers.TryAddWithoutValidation($headerName, $Delay)
@@ -93,9 +94,10 @@ $Fixture.Calls++
                     $response.Headers[$headerName] | Should -Contain $Delay
                     $fixture.Calls | Should -Be $ExpectedCalls
                     Should -Invoke Wait-WithDispatcher -Times $ExpectedWaits -Exactly
-                    Should -Invoke Write-Warning -Times 1 -Exactly -ParameterFilter { $Message -like "*retry requires $Delay seconds*No early retry*" }
+                    Should -Invoke Write-Warning -Times 1 -Exactly -ParameterFilter { $Message -like $Warning }
                 }
                 finally {
+                    Reset-CostMgmtThrottle
                     $script:RunspacePool = $previousPool
                     $pool.Dispose()
                     $httpResponse.Dispose()
@@ -115,6 +117,7 @@ $Fixture.Calls++
         ) {
             InModuleScope FinOpsMultitool -Parameters @{ Status = $Status; Headers = $Headers; ExpectedDelay = $ExpectedDelay } {
                 param($Status, $Headers, $ExpectedDelay)
+                Reset-CostMgmtThrottle
                 $httpResponse = [Net.Http.HttpResponseMessage]::new([Net.HttpStatusCode]$Status)
                 foreach ($header in $Headers.GetEnumerator()) {
                     $null = $httpResponse.Headers.TryAddWithoutValidation($header.Key, [string[]]@($header.Value))
@@ -143,10 +146,190 @@ $Fixture.Calls++
                     Should -Invoke Wait-WithDispatcher -Times 1 -Exactly -ParameterFilter { $Milliseconds -eq $ExpectedDelay * 1000 }
                 }
                 finally {
+                    Reset-CostMgmtThrottle
                     $script:RunspacePool = $previousPool
                     $pool.Dispose()
                     $httpResponse.Dispose()
                 }
+            }
+        }
+    }
+
+    Context 'Cost Management throttle window' {
+        BeforeAll {
+            # Builds a runspace pool whose Invoke-AzRestMethod replays Fixture.Status with Fixture.Headers,
+            # so the retry helper runs unchanged against a synthetic service.
+            InModuleScope FinOpsMultitool {
+                $script:NewThrottleFixture = {
+                    param([int]$Status, [string]$HeaderName, [string]$Delay)
+                    $httpResponse = [Net.Http.HttpResponseMessage]::new([Net.HttpStatusCode]$Status)
+                    if ($HeaderName) { $null = $httpResponse.Headers.TryAddWithoutValidation($HeaderName, $Delay) }
+                    $fixture = [hashtable]::Synchronized(@{ Status = $Status; Headers = $httpResponse.Headers; Calls = 0 })
+                    $sessionState = [Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
+                    $sessionState.Variables.Add([Management.Automation.Runspaces.SessionStateVariableEntry]::new('Fixture', $fixture, 'Synthetic throttle window'))
+                    $sessionState.Commands.Add([Management.Automation.Runspaces.SessionStateFunctionEntry]::new('Invoke-AzRestMethod', @'
+param($Path, $Method, $Payload)
+$Fixture.Calls++
+[pscustomobject]@{ StatusCode = $Fixture.Status; Content = '{}'; Headers = $Fixture.Headers }
+'@))
+                    $pool = [runspacefactory]::CreateRunspacePool(1, 1, $sessionState, $Host)
+                    $pool.Open()
+                    [pscustomobject]@{ Pool = $pool; Fixture = $fixture; Response = $httpResponse }
+                }
+            }
+        }
+
+        BeforeEach {
+            InModuleScope FinOpsMultitool { Reset-CostMgmtThrottle }
+        }
+
+        AfterEach {
+            InModuleScope FinOpsMultitool { Reset-CostMgmtThrottle }
+        }
+
+        It 'Skips later <Api> requests once the service asks for a long wait' -ForEach @(
+            @{ Api = 'query'; HeaderName = 'x-ms-ratelimit-microsoft.costmanagement-qpu-retry-after'; RequestPath = '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.CostManagement/query?api-version=2023-11-01' }
+            @{ Api = 'forecast'; HeaderName = 'x-ms-ratelimit-microsoft.consumption-retry-after'; RequestPath = '/providers/Microsoft.Management/managementGroups/example/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Api = $Api; HeaderName = $HeaderName; RequestPath = $RequestPath } {
+                param($Api, $HeaderName, $RequestPath)
+                $service = & $script:NewThrottleFixture 429 $HeaderName '3600'
+                $previousPool = $script:RunspacePool
+                Mock Get-JitteredDelay { $RetryAfterSeconds }
+                Mock Wait-WithDispatcher { }
+                Mock Write-Host { }
+                Mock Write-Warning { }
+                try {
+                    $script:RunspacePool = $service.Pool
+                    $first = Invoke-AzRestMethodWithRetry -Path $RequestPath -Payload '{}'
+                    $second = Invoke-AzRestMethodWithRetry -Path $RequestPath -Payload '{}'
+                    $third = Invoke-AzRestMethodWithRetry -Path $RequestPath -Payload '{}'
+
+                    $service.Fixture.Calls | Should -Be 1
+                    $first.Headers[$HeaderName] | Should -Contain '3600'
+                    foreach ($skipped in @($second, $third)) {
+                        $skipped.StatusCode | Should -Be 429
+                        $body = $skipped.Content | ConvertFrom-Json
+                        $body.error.code | Should -Be 'TooManyRequests'
+                        $body.error.message | Should -Match "limiting this tenant's $Api requests until about \d\d:\d\d UTC"
+                        [int]$skipped.Headers['Retry-After'][0] | Should -BeGreaterThan 3500
+                    }
+                    $summary = @(Get-CostMgmtThrottleSummary)
+                    $summary.Count | Should -Be 1
+                    $summary[0].Api | Should -Be $Api
+                    $summary[0].SkippedRequests | Should -Be 2
+                    Should -Invoke Write-Warning -Times 1 -Exactly
+                    Should -Invoke Wait-WithDispatcher -Times 0 -Exactly
+                }
+                finally {
+                    $script:RunspacePool = $previousPool
+                    $service.Pool.Dispose()
+                    $service.Response.Dispose()
+                }
+            }
+        }
+
+        It 'Keeps waiting for a delay it can wait out instead of opening a window' {
+            InModuleScope FinOpsMultitool {
+                $service = & $script:NewThrottleFixture 429 'x-ms-ratelimit-microsoft.costmanagement-qpu-retry-after' '70'
+                $previousPool = $script:RunspacePool
+                Mock Get-JitteredDelay { $RetryAfterSeconds }
+                Mock Wait-WithDispatcher { }
+                Mock Write-Host { }
+                Mock Write-Warning { }
+                try {
+                    $script:RunspacePool = $service.Pool
+                    $null = Invoke-AzRestMethodWithRetry -Path '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.CostManagement/query?api-version=2023-11-01' -Payload '{}'
+
+                    Get-CostMgmtThrottleRemaining -Key 'query' | Should -Be 0
+                    @(Get-CostMgmtThrottleSummary).Count | Should -Be 0
+                    Should -Invoke Write-Warning -Times 0 -Exactly -ParameterFilter { $Message -like '*skipped*' }
+                }
+                finally {
+                    $script:RunspacePool = $previousPool
+                    $service.Pool.Dispose()
+                    $service.Response.Dispose()
+                }
+            }
+        }
+
+        It 'Sends a request whose wait budget covers the remaining window (budget: <Budget>, expected calls: <ExpectedCalls>)' -ForEach @(
+            @{ Budget = 300; ExpectedCalls = 1 }
+            @{ Budget = 30; ExpectedCalls = 0 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Budget = $Budget; ExpectedCalls = $ExpectedCalls } {
+                param($Budget, $ExpectedCalls)
+                $service = & $script:NewThrottleFixture 200 $null $null
+                $previousPool = $script:RunspacePool
+                Mock Write-Warning { }
+                try {
+                    $script:RunspacePool = $service.Pool
+                    Register-CostMgmtThrottle -Key 'query' -Seconds 90
+                    $response = Invoke-AzRestMethodWithRetry -Path '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.CostManagement/query?api-version=2023-11-01' -Payload '{}' -MaxRetryWaitSeconds $Budget
+
+                    $service.Fixture.Calls | Should -Be $ExpectedCalls
+                    $response.StatusCode | Should -Be $(if ($ExpectedCalls -gt 0) { 200 } else { 429 })
+                }
+                finally {
+                    $script:RunspacePool = $previousPool
+                    $service.Pool.Dispose()
+                    $service.Response.Dispose()
+                }
+            }
+        }
+
+        It 'Leaves other requests alone while a window is open' -ForEach @(
+            @{ RequestPath = '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Compute/virtualMachines?api-version=2024-07-01'; Method = 'GET' }
+            @{ RequestPath = '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.CostManagement/exports?api-version=2023-11-01'; Method = 'GET' }
+            @{ RequestPath = '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01'; Method = 'POST' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ RequestPath = $RequestPath; Method = $Method } {
+                param($RequestPath, $Method)
+                $service = & $script:NewThrottleFixture 200 $null $null
+                $previousPool = $script:RunspacePool
+                Mock Write-Warning { }
+                try {
+                    $script:RunspacePool = $service.Pool
+                    Register-CostMgmtThrottle -Key 'query' -Seconds 3600
+                    $response = Invoke-AzRestMethodWithRetry -Path $RequestPath -Method $Method -Payload '{}'
+
+                    $response.StatusCode | Should -Be 200
+                    $service.Fixture.Calls | Should -Be 1
+                    @(Get-CostMgmtThrottleSummary).Count | Should -Be 0
+                }
+                finally {
+                    $script:RunspacePool = $previousPool
+                    $service.Pool.Dispose()
+                    $service.Response.Dispose()
+                }
+            }
+        }
+
+        It 'Extends an open window but never shortens it, and warns once' {
+            InModuleScope FinOpsMultitool {
+                Mock Write-Warning { }
+
+                Register-CostMgmtThrottle -Key 'query' -Seconds 3600
+                Register-CostMgmtThrottle -Key 'query' -Seconds 60
+                Get-CostMgmtThrottleRemaining -Key 'query' | Should -BeGreaterThan 3500
+                Register-CostMgmtThrottle -Key 'query' -Seconds 7200
+                Get-CostMgmtThrottleRemaining -Key 'query' | Should -BeGreaterThan 7100
+
+                Should -Invoke Write-Warning -Times 1 -Exactly
+            }
+        }
+
+        It 'Forgets every window when reset' {
+            InModuleScope FinOpsMultitool {
+                Mock Write-Warning { }
+                Register-CostMgmtThrottle -Key 'query' -Seconds 3600
+                Register-CostMgmtThrottle -Key 'forecast' -Seconds 3600
+
+                Reset-CostMgmtThrottle
+
+                Get-CostMgmtThrottleRemaining -Key 'query' | Should -Be 0
+                Get-CostMgmtThrottleRemaining -Key 'forecast' | Should -Be 0
+                @(Get-CostMgmtThrottleSummary).Count | Should -Be 0
             }
         }
     }
