@@ -29,8 +29,13 @@ env:
   AZ_RESOURCES_VERSION: '6.16.2'
   AZ_STORAGE_VERSION: '6.2.0'
 
+# Deploy runs for the same PR share one group so a new push cancels the
+# in-flight deployment. Label events that are NOT 'Needs: Deployment' are no-ops
+# (see the check-options condition below), so they get a unique, throwaway group
+# — otherwise an unrelated bot label would cancel a running deployment and leave
+# only skipped jobs behind, which reads as "deployment not requested".
 concurrency:
-  group: ftk-pr-${{ github.event.pull_request.number }}
+  group: "ftk-pr-${{ github.event.pull_request.number }}${{ (github.event_name == 'pull_request_target' && github.event.label.name != 'Needs: Deployment') && format('-noop-{0}', github.run_id) || '' }}"
   cancel-in-progress: true
 
 permissions:

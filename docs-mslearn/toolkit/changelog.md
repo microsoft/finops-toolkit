@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 09/02/2026
+ms.date: 10/12/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -61,6 +61,7 @@ _Released September 2026_
   - Replaced whole-term `contains` matches with `has` across hub KQL and the query catalog (resource ID paths, licensing phrases, SKU description terms) and added a per-row operator-equivalence regression harness with unit test coverage ([#2220](https://github.com/microsoft/finops-toolkit/pull/2220)).
   - Switched dimension enrichment in the v1_0/v1_2 ingestion transforms (`PricingUnits`, `Regions`, `ResourceTypes`, `Services`) from `join` to the broadcast-optimized `lookup` operator and deduplicated the `Services` mapping per resource type to prevent cost row fan-out ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
 - **Fixed**
+  - Fixed ADF schedule trigger deployment failures (`InvalidWorkflowTriggerRecurrence`) in regions not covered by the region-to-time-zone map (for example, Sweden Central), where the trigger's `startTime` was missing the required `Z` suffix for the `UTC` fallback time zone ([#2157](https://github.com/microsoft/finops-toolkit/issues/2157), [#2291](https://github.com/microsoft/finops-toolkit/pull/2291)).
   - Fixed Data Factory ingestion memory pressure during emptiness filtering.
   - Hardened the reservation price backfill to select the highest on-demand price (`max()` instead of `min()`) when duplicate price rows collapse under a single reservation price lookup key, preventing understated commitment discount savings ([#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
   - Fixed the `ContractedCost` recompute guard to compare with a null-safe tolerance instead of exact float equality, eliminating millions of no-op rewrites that polluted the `x_SourceValues` audit trail while preserving the null-cost backfill and no longer overwriting an existing cost when the unit price is missing ([#2216](https://github.com/microsoft/finops-toolkit/issues/2216)).
@@ -85,6 +86,7 @@ _Released September 2026_
 - **Changed**
   - Updated workbook labels and documentation to use current FinOps Framework capability names, including Usage optimization and Governance, policy, and risk ([#2170](https://github.com/microsoft/finops-toolkit/pull/2170)).
 - **Fixed**
+  - Changed the savings plan workbook subscription name joins to `leftouter` so a recommendation is still shown when its subscription is missing from `resourcecontainers` ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
   - Fixed the savings plan workbook summary and details queries silently dropping all but one recommendation per subscription due to an implicit `innerunique` join ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
   - Fixed the AHB workbook "VM Latest Change Last 7 days" tile, which joined the `resourcechanges` record id against the resource id and always returned no rows, and the SQL VM queries, which never matched VMs with uppercase names ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
   - Fixed the savings plan workbook subscription name join to use `leftouter` so a recommendation is still shown when its subscription is missing from `resourcecontainers` ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
@@ -102,6 +104,7 @@ _Released September 2026_
   - Migrated Log Analytics ingestion from the Data Collection API (to be deprecated in September 2026) to a Data Collection Rule, Ingestion API-based solution.
   - Switched the reservations and benefits workbooks from the retired `ccmstorageprod` isfratioblob.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 - **Fixed**
+  - Fixed reservations disappearing from the reservation workbooks when their SKU is no longer sold. The instance size flexibility joins required a match, so an active reservation on a retired size was dropped from the report entirely rather than shown with its utilization. Unmatched SKUs now fall back to their own name as the flexibility group and a ratio of 1. The fallback applies to the reserved resource types that have instance size flexibility: virtual machines, Redis Cache, and dedicated hosts ([#2300](https://github.com/microsoft/finops-toolkit/issues/2300)).
   - Removed call to Azure Classic administrators endpoint (deprecated on May 1, 2026) from Azure RBAC assignments exports ([#2142](https://github.com/microsoft/finops-toolkit/issues/2142)).
   - Fixed a regression in the `AzureOptimizationConsumptionV1_CL` schema that was breaking the Reservations Usage workbook ([#2301](https://github.com/microsoft/finops-toolkit/issues/2301)).
 
@@ -121,6 +124,7 @@ _Released September 2026_
 - **Added**
   - Added a new [Instance size flexibility](open-data.md#instance-size-flexibility) dataset that maps each ARM SKU to its instance size flexibility group and ratio, sourced from the Azure Reservations Catalogs API. It replaces the deprecated ISF ratio files hosted on `ccmstorageprod.blob.core.windows.net` ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 - **Fixed**
+  - Fixed the commitment discount eligibility dataset refresh so it is reproducible and complete; retired meters now age out and previously missed meters are included ([#2164](https://github.com/microsoft/finops-toolkit/pull/2164)).
   - Fixed the [commitment discount eligibility](open-data.md#commitment-discount-eligibility) dataset refresh so it's reproducible and complete; retired meters now age out and previously missed meters are included ([#2164](https://github.com/microsoft/finops-toolkit/pull/2164)).
   - Fixed the weekly commitment discount eligibility refresh timing out before it could publish, which left the dataset unchanged since it first shipped in v14. The refresh now walks each price type directly instead of sharding by service family, and verifies completeness by comparing two independent traversals before writing ([#2251](https://github.com/microsoft/finops-toolkit/pull/2251)).
   - Fixed `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility` carrying each other's values. FOCUS classifies a reservation as a usage commitment (committed to a quantity of usage) and a savings plan as a spend commitment (committed to an amount of money), so the spend column now reports savings plan pricing and the usage column reports reservation pricing. The dataset shipped with the two reversed from v14 ([#2279](https://github.com/microsoft/finops-toolkit/issues/2279)).
