@@ -3,7 +3,7 @@ title: Get-FinOpsCommitmentDiscountEligibility command
 description: Get commitment discount eligibility for a meter using the Get-FinOpsCommitmentDiscountEligibility command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 10/11/2026
+ms.date: 10/12/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
