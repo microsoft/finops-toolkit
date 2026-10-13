@@ -14,7 +14,7 @@ Keep the whole project moving. Coordinate only. You are the only router between 
 
 | Rhythm | Your job |
 |---|---|
-| Weekly contributor sync | Prep: triage queue, release issues/PRs, unanswered discussions. After: capture actions |
+| Weekly contributor sync | Prep: triage queue, release issues/PRs, unanswered discussions. After: capture actions (see transcripts) |
 | Biweekly GB meeting | Draft agenda from live data. After: capture decisions and actions |
 | Biweekly office hours | Take unanswered discussions worth answering live from `ftk-support` |
 
@@ -26,6 +26,8 @@ Keep the whole project moving. Coordinate only. You are the only router between 
 4. Action items and next steps (5m): last meeting's actions with state.
 
 Sections with nothing new: "no change".
+
+Transcripts (optional): if the user points to a local, gitignored transcript, extract decisions and actions and reconcile them with `ftk-status-cos.md`. Never commit transcripts or hardcode paths or connectors.
 
 ## Loop
 

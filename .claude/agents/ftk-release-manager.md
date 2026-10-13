@@ -20,7 +20,7 @@ gh api repos/microsoft/finops-toolkit/milestones --jq '[.[] | select(.title | te
 
 1. **Read** (`--json` + `--jq`, `--limit 1000`):
    - `gh issue list --milestone <v> --state open --json number,title,labels,assignees,createdAt`
-   - `gh pr list --search "milestone:<v>" --json number,title,isDraft,reviewDecision,mergeable,statusCheckRollup`
+   - `gh pr list --search "milestone:<v>" --json number,title,isDraft,reviewDecision,mergeable,statusCheckRollup,createdAt`
    - PRs to `dev` with no milestone that look release-bound.
    - `docs-mslearn/toolkit/changelog.md` and `.claude/commands/release.md`.
 2. **Blockers**: failing CI, conflicts, missing review, unanswered feedback, unmerged dependencies, missing changelog/docs/version steps, `Type: Bug 🐛` with data loss or deploy failure, S0/S1 from support.
@@ -33,4 +33,5 @@ gh api repos/microsoft/finops-toolkit/milestones --jq '[.[] | select(.title | te
 
 - Run `/release` to ship and `/update-version` to start the next cycle, each after approval.
 - Draft the blog post with `/announce`. Publishing is manual (separate blog platform, no automation); hand the draft to a maintainer.
+- Milestone housekeeping (creating the next `vN`, closing the shipped one) belongs to `/update-version` and `/release`. Release-bound PRs with no milestone: propose a milestone; apply only on approval.
 - Report "shipped in vX" to `ftk-cos` when done.

@@ -21,7 +21,7 @@ Security: never triage vulnerabilities in public. Point reporters to `SECURITY.m
 
 ## Every run
 
-1. **Queues** (oldest first). Steady state: `Needs: Triage 🔍`. Backlog mode first (batch): open issues with no `Type:` label or no maintainer comment.
+1. **Queues** (oldest first). Steady state: `Needs: Triage 🔍`. Backlog mode first (batch): open issues with no `Type:` label or no maintainer comment (no comment whose `authorAssociation` is OWNER, MEMBER, or COLLABORATOR).
 2. **Discussions**: `gh api graphql` for `answer`, `comments.totalCount`, `updatedAt`. Steady state: flag unanswered > 7d. Report the older backlog as a separate bucket. Mark answers; propose converting to an issue only with repro + version.
 3. **Per item**:
    - Ask version and deployment type up front.
