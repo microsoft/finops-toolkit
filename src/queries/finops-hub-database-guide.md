@@ -157,7 +157,7 @@ BillingAccountName -> SubAccountName -> x_ResourceGroupName -> ResourceName
 The first three levels are identity columns. `ResourceName` is a display name: two resources of
 different types can carry the same name in one resource group, and the same name recurs across
 subscriptions. Keep it as the label, but group a resource-level breakdown by `ResourceId`, which is
-globally unique, or by `ResourceNameUnique`, which appends the resource type.
+globally unique.
 
 ### Service
 
