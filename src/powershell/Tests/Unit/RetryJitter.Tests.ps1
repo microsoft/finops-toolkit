@@ -253,22 +253,46 @@ $Fixture.Calls++
             }
         }
 
-        It 'Sends a request whose wait budget covers the remaining window (budget: <Budget>, expected calls: <ExpectedCalls>)' -ForEach @(
-            @{ Budget = 300; ExpectedCalls = 1 }
-            @{ Budget = 30; ExpectedCalls = 0 }
+        It 'Skips a request while the window is open, whatever its wait budget (budget: <Budget>)' -ForEach @(
+            @{ Budget = 300 }
+            @{ Budget = 30 }
         ) {
-            InModuleScope FinOpsMultitool -Parameters @{ Budget = $Budget; ExpectedCalls = $ExpectedCalls } {
-                param($Budget, $ExpectedCalls)
+            InModuleScope FinOpsMultitool -Parameters @{ Budget = $Budget } {
+                param($Budget)
                 $service = & $script:NewThrottleFixture 200 $null $null
                 $previousPool = $script:RunspacePool
+                Mock Wait-WithDispatcher { }
                 Mock Write-Warning { }
                 try {
                     $script:RunspacePool = $service.Pool
                     Register-CostMgmtThrottle -Key 'query' -Seconds 90
                     $response = Invoke-AzRestMethodWithRetry -Path '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.CostManagement/query?api-version=2023-11-01' -Payload '{}' -MaxRetryWaitSeconds $Budget
 
-                    $service.Fixture.Calls | Should -Be $ExpectedCalls
-                    $response.StatusCode | Should -Be $(if ($ExpectedCalls -gt 0) { 200 } else { 429 })
+                    $service.Fixture.Calls | Should -Be 0
+                    $response.StatusCode | Should -Be 429
+                    Should -Invoke Wait-WithDispatcher -Times 0 -Exactly
+                }
+                finally {
+                    $script:RunspacePool = $previousPool
+                    $service.Pool.Dispose()
+                    $service.Response.Dispose()
+                }
+            }
+        }
+
+        It 'Sends a request again once the window has ended' {
+            InModuleScope FinOpsMultitool {
+                $service = & $script:NewThrottleFixture 200 $null $null
+                $previousPool = $script:RunspacePool
+                Mock Write-Warning { }
+                try {
+                    $script:RunspacePool = $service.Pool
+                    Register-CostMgmtThrottle -Key 'query' -Seconds 90
+                    $script:CostMgmtThrottle['query'].Until = [datetime]::UtcNow.AddSeconds(-1)
+                    $response = Invoke-AzRestMethodWithRetry -Path '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.CostManagement/query?api-version=2023-11-01' -Payload '{}'
+
+                    $service.Fixture.Calls | Should -Be 1
+                    $response.StatusCode | Should -Be 200
                 }
                 finally {
                     $script:RunspacePool = $previousPool

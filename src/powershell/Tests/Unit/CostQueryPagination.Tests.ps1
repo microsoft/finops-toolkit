@@ -293,6 +293,30 @@ Describe 'Cost Management query pagination' {
                 finally { Reset-CostMgmtThrottle }
             }
         }
+
+        It 'Names the role only for access errors when a VM cost query fails (HTTP <Status>)' -ForEach @(
+            @{ Status = 429; Expected = "VM costs couldn't be read because Cost Management is limiting requests for this tenant (HTTP 429)." }
+            @{ Status = 503; Expected = "VM costs couldn't be read because Cost Management or the network had a temporary problem (HTTP 503)." }
+            @{ Status = 403; Expected = 'Cost Management query failed (HTTP 403). Need Cost Management Reader on the subscription.' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Status = $Status; Expected = $Expected } {
+                param($Status, $Expected)
+                $vmId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test/providers/Microsoft.Compute/virtualMachines/test'
+                $response = [pscustomobject]@{ StatusCode = $Status; Content = '{}' }
+                Mock Write-Host { }
+                Mock Resolve-VmAssociation {
+                    $associated = [System.Collections.Generic.HashSet[string]]::new()
+                    [void]$associated.Add($vmId)
+                    [pscustomobject]@{ Id = $vmId; Name = 'test'; SubscriptionId = '11111111-1111-1111-1111-111111111111'; ResourceGroup = 'test'; Associated = $associated }
+                }
+                Mock Invoke-AzRestMethodWithRetry { $response }
+
+                $result = Get-VmCostBreakdown -VmName 'test'
+
+                $result.HasData | Should -BeFalse
+                $result.Note | Should -Be $Expected
+            }
+        }
     }
 
     Context 'Actual and forecast totals' {
@@ -1855,6 +1879,40 @@ $Fixture.Calls++
                     $script:RunspacePool = $previousPool
                     $pool.Dispose()
                     $httpResponse.Dispose()
+                }
+            }
+        }
+
+        It 'Skips a tag batch while a window shorter than the batch deadline is open' {
+            InModuleScope FinOpsMultitool {
+                Mock Write-Warning { }
+                Mock Search-AzGraphSafe { [pscustomobject]@{ Data = @() } }
+                $fixture = [hashtable]::Synchronized(@{ Calls = 0 })
+                $sessionState = [Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
+                $sessionState.Variables.Add([Management.Automation.Runspaces.SessionStateVariableEntry]::new('Fixture', $fixture, 'Synthetic tag batch responses'))
+                $sessionState.Commands.Add([Management.Automation.Runspaces.SessionStateFunctionEntry]::new('Invoke-AzRestMethod', @'
+param($Path, $Method, $Payload)
+$Fixture.Calls++
+[pscustomobject]@{ StatusCode = 200; Content = '{}'; Headers = @{} }
+'@))
+                $pool = [runspacefactory]::CreateRunspacePool(1, 1, $sessionState, $Host)
+                $previousPool = $script:RunspacePool
+                try {
+                    $pool.Open()
+                    $script:RunspacePool = $pool
+                    # Ninety seconds fit inside the 120-second batch deadline, yet a request sent now would still draw a 429.
+                    Register-CostMgmtThrottle -Key 'query' -Seconds 90
+                    $subscriptions = @(1..3 | ForEach-Object { [pscustomobject]@{ Id = '{0:D8}-0000-0000-0000-000000000000' -f $_; Name = "Example $_" } })
+
+                    { Get-CostByTag -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions $subscriptions -ExistingTags @{ CostCenter = @{ TotalResources = 3 } } } |
+                    Should -Throw "Cost by tag couldn't be read for 3 of 3 subscriptions because Cost Management is limiting requests for this tenant (HTTP 429). Run the scan again after*Results are incomplete."
+
+                    $fixture.Calls | Should -Be 0
+                    @(Get-CostMgmtThrottleSummary)[0].SkippedRequests | Should -Be 3
+                }
+                finally {
+                    $script:RunspacePool = $previousPool
+                    $pool.Dispose()
                 }
             }
         }

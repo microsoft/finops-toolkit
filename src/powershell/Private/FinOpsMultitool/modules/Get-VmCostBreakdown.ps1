@@ -313,11 +313,14 @@ function Get-VmCostBreakdown {
                 }
             }
             else {
-                $code = if ($resp) { $resp.StatusCode } else { 'no response' }
+                $code = if ($resp) { [string]$resp.StatusCode } else { 'none' }
+                # A request limit or timeout isn't a permission problem, so only access errors name the role.
+                $note = if ($code -match '^40[13]$') { "Cost Management query failed (HTTP $code). Need Cost Management Reader on the subscription." }
+                else { Get-CostFailureNote -What 'VM costs' -StatusCode $code -Api 'query' }
                 return [PSCustomObject]@{
                     HasData = $false
                     VmName  = $vm.Name
-                    Note    = "Cost Management query failed (HTTP $code). Need Cost Management Reader on the subscription."
+                    Note    = $note
                 }
             }
         }

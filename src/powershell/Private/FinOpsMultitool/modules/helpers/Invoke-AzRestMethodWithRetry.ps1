@@ -185,9 +185,9 @@ function Invoke-AzRestMethodWithRetry {
         [ValidateRange(0, 3600)]
         [int]$MaxRetryWaitSeconds = 120
     )
-    # An earlier call learned that Cost Management won't answer inside this call's wait budget.
+    # The wait budget doesn't matter here: a request sent before the recorded time only draws another 429.
     $throttleKey = Get-CostMgmtThrottleKey -Path $Path
-    if ($throttleKey -and (Get-CostMgmtThrottleRemaining -Key $throttleKey) -gt $MaxRetryWaitSeconds) {
+    if ($throttleKey -and (Get-CostMgmtThrottleRemaining -Key $throttleKey) -gt 0) {
         return New-CostMgmtSkippedResponse -Key $throttleKey
     }
     $retryWaitSeconds = 0.0

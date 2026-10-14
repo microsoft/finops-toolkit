@@ -312,9 +312,8 @@ function Get-CostByTag {
         $pendingJobs = [System.Collections.Generic.List[hashtable]]::new()
         $deadline = [datetime]::UtcNow.AddSeconds($TimeoutSeconds)
 
-        # Cost Management already asked for a wait longer than this batch can spend,
-        # so none of its requests can succeed. Answer them without sending.
-        if ((Get-CostMgmtThrottleRemaining -Key 'query') -gt $TimeoutSeconds) {
+        # While a window is open none of these requests can succeed, so answer them without sending, however much time the batch has.
+        if ((Get-CostMgmtThrottleRemaining -Key 'query') -gt 0) {
             foreach ($call in $Calls) {
                 [void]$pendingJobs.Add(@{ PS = $null; Async = $null; Call = $call; Result = (New-CostMgmtSkippedResponse -Key 'query') })
             }
