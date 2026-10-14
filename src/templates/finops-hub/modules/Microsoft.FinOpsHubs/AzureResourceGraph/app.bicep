@@ -127,7 +127,7 @@ resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-0
                 variableName: 'requestBody'
                 value: {
                   // Query text is from trusted config/queries/*.json files; no escaping needed.
-                  value: '@concat(\'{ "query": "\', pipeline().parameters.query, \' | extend x_SourceName=\\"\', pipeline().parameters.querySource, \'\\", x_SourceType=\\"\', pipeline().parameters.queryType, \'\\", x_SourceProvider=\\"\', pipeline().parameters.queryProvider, \'\\", x_SourceVersion=\\"\', pipeline().parameters.queryVersion, \'\\""\', if(equals(variables(\'skipToken\'), \'\'), \'\', concat(\', "options": { "$skipToken": "\', variables(\'skipToken\'), \'" }\')), \' }\')'
+                  value: '@concat(\'{ "query": "\', pipeline().parameters.query, \' | order by x_RecommendationId asc | extend x_SourceName=\\"\', pipeline().parameters.querySource, \'\\", x_SourceType=\\"\', pipeline().parameters.queryType, \'\\", x_SourceProvider=\\"\', pipeline().parameters.queryProvider, \'\\", x_SourceVersion=\\"\', pipeline().parameters.queryVersion, \'\\""\', \', "options": { "$top": 500\', if(equals(variables(\'skipToken\'), \'\'), \'\', concat(\', "$skipToken": "\', variables(\'skipToken\'), \'"\')), \' } }\')'
                   type: 'Expression'
                 }
               }
@@ -213,7 +213,7 @@ resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-0
             }
             {
               name: 'Set Has More Pages'
-              description: 'Stop the loop once a page comes back empty or Resource Graph stops returning a continuation token.'
+              description: 'Stop the loop once Resource Graph stops returning a continuation token. An empty page can still carry a token, so row count is not used.'
               type: 'SetVariable'
               dependsOn: [
                 {
@@ -229,7 +229,7 @@ resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-0
               typeProperties: {
                 variableName: 'hasMorePages'
                 value: {
-                  value: '@and(variables(\'hasResults\'), not(equals(variables(\'skipToken\'), \'\')))'
+                  value: '@not(equals(variables(\'skipToken\'), \'\'))'
                   type: 'Expression'
                 }
               }
@@ -258,7 +258,7 @@ resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-0
                     dependsOn: []
                     policy: {
                       timeout: '0.00:10:00'
-                      retry: 0
+                      retry: 2
                       retryIntervalInSeconds: 60
                       secureOutput: false
                       secureInput: false
@@ -307,7 +307,7 @@ resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-0
                         parameters: {
                           blobPath: {
                             // Insert a "_<page number>" suffix before the ".parquet" extension so each page gets a unique file in the same ingestion folder.
-                            value: '@concat(substring(pipeline().parameters.ingestionPath, 0, sub(length(pipeline().parameters.ingestionPath), 8)), \'_\', variables(\'pageNumber\'), \'.parquet\')'
+                            value: '@replace(pipeline().parameters.ingestionPath, \'.parquet\', concat(\'_\', variables(\'pageNumber\'), \'.parquet\'))'
                             type: 'Expression'
                           }
                         }
@@ -340,7 +340,7 @@ resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-0
               }
             }
           ]
-          timeout: '0.02:00:00'
+          timeout: '0.06:00:00'
         }
       }
     ]
