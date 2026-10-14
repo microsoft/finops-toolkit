@@ -3,7 +3,7 @@ title: FinOps hubs data processing
 description: Learn how FinOps hubs process data, including scope setup, data normalization, and optimization, to enhance cost management and analysis.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 10/14/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -53,7 +53,7 @@ The following diagram depicts the end-to-end data ingestion process within FinOp
    3. When data is ingested into raw tables in Data Explorer, an update policy copies the data into the corresponding `{dataset}_final_v1_0` table using the `{dataset}_transform_v1_0()` function to normalize all data to align to FOCUS 1.0.
    4. After ingestion, the **ingestion_ETL_dataExplorer** pipeline performs some cleanup, including purging data in the final table that is past the data retention period.
       - As of 0.7, Data Explorer applies data retention in raw tables while data retention in final tables is applied by the ingestion pipeline. If data ingestion stops, historical data isn't purged.
-      - Data retention can be configured during the template deployment or manually in the **config/settings.json** file in storage.
+      - Data retention can be configured during the template deployment or manually in the **config/settings.json** file in storage. Once a hub has stored ingestion or final retention values, redeploying with a different `ingestionRetentionInMonths` or `dataExplorerFinalRetentionInMonths` doesn't change them, so a lower value never purges data by accident. To change retention later, edit **config/settings.json** in the hub storage account.
 6. (Optional) The **queries_DailySchedule** trigger runs the **queries_ExecuteETL** pipeline once per day to query Azure Resource Graph for additional recommendations and saves results to the **ingestion/Recommendations** folder. [Learn more](#azure-resource-graph-recommendations).
 7. Reports and other tools like Power BI read data from Data Explorer or the **ingestion** container.
    - Data in Data Explorer can be read from the **Hub** database.

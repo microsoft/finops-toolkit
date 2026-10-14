@@ -59,6 +59,15 @@ if ($blob)
     }
 }
 
+# Remember retention values already stored in settings.json before any defaults are seeded below
+$storedIngestionMonths = $null
+$storedFinalMonths = $null
+if ($json -and $json.retention)
+{
+    if ($json.retention.ingestion -and $null -ne $json.retention.ingestion.months) { $storedIngestionMonths = [Int32]$json.retention.ingestion.months }
+    if ($json.retention.final -and $null -ne $json.retention.final.months) { $storedFinalMonths = [Int32]$json.retention.final.months }
+}
+
 # Set default if not found
 if (!$json)
 {
@@ -124,17 +133,18 @@ else
     $json.retention.msexports.days = [Int32]::Parse($env:msexportRetentionInDays)
 }
 
-# Set or update ingestion retention
+# Set ingestion retention
 # NOTE: Bicep always passes a value here (defaulting to 13 if the caller didn't specify one), so this script
-# cannot tell an explicit redeploy value from a silently-defaulted one. Never lower retention on redeploy --
-# shrinking silently ages out historical data the next time the purge pipeline runs (#2206); growing is safe.
+# cannot tell an explicit redeploy value from a silently-defaulted one. A value already stored in settings.json
+# is therefore never changed on redeploy -- a silent change ages out data the purge pipeline acts on (#2206).
+# The requested value only applies when nothing was stored yet (new hub or pre-0.4 settings).
 if (!($json.retention.ingestion))
 {
     $json.retention | Add-Member -Name ingestion -Value (ConvertFrom-Json "{""months"":$($env:ingestionRetentionInMonths)}") -MemberType NoteProperty
 }
 else
 {
-    $json.retention.ingestion.months = [Math]::Max($json.retention.ingestion.months, [Int32]::Parse($env:ingestionRetentionInMonths))
+    $json.retention.ingestion.months = if ($null -ne $storedIngestionMonths) { $storedIngestionMonths } else { [Int32]::Parse($env:ingestionRetentionInMonths) }
 }
 
 # Set or update raw retention
@@ -147,14 +157,14 @@ else
     $json.retention.raw.days = [Int32]::Parse($env:rawRetentionInDays)
 }
 
-# Set or update final retention (never lower on redeploy -- see note above)
+# Set final retention (keeps any stored value -- see note above)
 if (!($json.retention.final))
 {
     $json.retention | Add-Member -Name final -Value (ConvertFrom-Json "{""months"":$($env:finalRetentionInMonths)}") -MemberType NoteProperty
 }
 else
 {
-    $json.retention.final.months = [Math]::Max($json.retention.final.months, [Int32]::Parse($env:finalRetentionInMonths))
+    $json.retention.final.months = if ($null -ne $storedFinalMonths) { $storedFinalMonths } else { [Int32]::Parse($env:finalRetentionInMonths) }
 }
 
 # Updating settings

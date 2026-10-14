@@ -10,9 +10,10 @@
     retention value therefore silently reset it to the toolkit default, and the next purge pipeline run
     aged out historical data older than the new (lower) cutoff -- oldest data first.
 
-    The fix: never lower stored retention on redeploy. Growing retention is always safe; shrinking it has a
-    destructive, hard-to-reverse consequence (data purge), so the script now takes the max of the stored
-    value and the incoming one instead of overwriting unconditionally.
+    The fix: a value already stored in settings.json is kept on redeploy. The requested value only applies
+    when nothing is stored yet (new hub, or settings.json from before retention existed).
+
+    These tests run the real script with stubbed Az cmdlets and assert on the JSON it uploads.
 #>
 
 Describe 'HubsRetentionGuard' {
@@ -20,42 +21,72 @@ Describe 'HubsRetentionGuard' {
     BeforeAll {
         $repoRoot = (Resolve-Path "$PSScriptRoot/../../../..").Path
         $scriptPath = Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Core/Copy-FileToAzureBlob.ps1'
-        $content = Get-Content -Path $scriptPath -Raw
+
+        function Invoke-CopyScript
+        {
+            param([string] $ExistingJson, [int] $Ingestion, [int] $Final)
+
+            $workDir = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString())
+            New-Item -ItemType Directory -Path $workDir | Out-Null
+            $existingJson = $ExistingJson
+
+            function New-AzStorageContext { param($StorageAccountName, [switch] $UseConnectedAccount) 'ctx' }
+            function Get-AzStorageBlobContent
+            {
+                param($Context, $Container, $Blob, $Destination, [switch] $Force)
+                if ($null -eq $existingJson) { return $null }
+                Set-Content -Path $Destination -Value $existingJson
+                return 'blob'
+            }
+            function Set-AzStorageBlobContent { param($Context, $Container, $File, [switch] $Force) }
+
+            $env:storageAccountName = 'sa'
+            $env:containerName = 'config'
+            $env:scopes = ''
+            $env:ftkVersion = '0.0.0'
+            $env:msexportRetentionInDays = '0'
+            $env:rawRetentionInDays = '0'
+            $env:ingestionRetentionInMonths = "$Ingestion"
+            $env:finalRetentionInMonths = "$Final"
+
+            Push-Location $workDir
+            try
+            {
+                & $scriptPath *> $null
+                # The script writes the final settings.json to the working directory before uploading it
+                return (Get-Content -Path (Join-Path $workDir settings.json) -Raw | ConvertFrom-Json)
+            }
+            finally { Pop-Location; Remove-Item $workDir -Recurse -Force -ErrorAction SilentlyContinue }
+        }
     }
 
-    Context 'Never-shrink guard' {
+    Context 'Existing settings.json' {
 
-        It 'Should take the max of stored and incoming ingestion retention' {
-            $content | Should -Match '\$json\.retention\.ingestion\.months\s*=\s*\[Math\]::Max\(\$json\.retention\.ingestion\.months,\s*\[Int32\]::Parse\(\$env:ingestionRetentionInMonths\)\)' `
-                -Because 'a redeploy that omits an explicit retention value must not silently shrink stored retention and purge historical data (#2206)'
+        It 'Should keep a stored value that is higher than the requested one' {
+            $r = Invoke-CopyScript -ExistingJson '{"version":"","scopes":[],"retention":{"msexports":{"days":0},"ingestion":{"months":36},"raw":{"days":0},"final":{"months":60}}}' -Ingestion 13 -Final 13
+            $r.retention.ingestion.months | Should -Be 36 -Because 'a redeploy without an explicit value must not reset customized retention (#2206)'
+            $r.retention.final.months | Should -Be 60
         }
 
-        It 'Should take the max of stored and incoming final retention' {
-            $content | Should -Match '\$json\.retention\.final\.months\s*=\s*\[Math\]::Max\(\$json\.retention\.final\.months,\s*\[Int32\]::Parse\(\$env:finalRetentionInMonths\)\)' `
-                -Because 'a redeploy that omits an explicit retention value must not silently shrink stored retention and purge historical data (#2206)'
+        It 'Should keep a stored value that is lower than the requested one' {
+            $r = Invoke-CopyScript -ExistingJson '{"version":"","scopes":[],"retention":{"msexports":{"days":0},"ingestion":{"months":6},"raw":{"days":0},"final":{"months":6}}}' -Ingestion 13 -Final 13
+            $r.retention.ingestion.months | Should -Be 6 -Because 'a stored value is never changed on redeploy'
+            $r.retention.final.months | Should -Be 6
         }
 
-        It 'Should not unconditionally overwrite ingestion retention' {
-            $content | Should -Not -Match '\$json\.retention\.ingestion\.months\s*=\s*\[Int32\]::Parse\(\$env:ingestionRetentionInMonths\)' `
-                -Because 'a direct assignment (rather than a max guard) was the source of the #2206 regression'
-        }
-
-        It 'Should not unconditionally overwrite final retention' {
-            $content | Should -Not -Match '\$json\.retention\.final\.months\s*=\s*\[Int32\]::Parse\(\$env:finalRetentionInMonths\)' `
-                -Because 'a direct assignment (rather than a max guard) was the source of the #2206 regression'
+        It 'Should seed retention from the request when settings.json predates retention' {
+            $r = Invoke-CopyScript -ExistingJson '{"version":"","scopes":[]}' -Ingestion 24 -Final 30
+            $r.retention.ingestion.months | Should -Be 24
+            $r.retention.final.months | Should -Be 30
         }
     }
 
-    Context 'First-run behavior unchanged' {
+    Context 'First deploy' {
 
-        It 'Should still seed ingestion retention from the parameter when no retention object exists yet' {
-            $content | Should -Match 'Add-Member -Name ingestion -Value \(ConvertFrom-Json "\{""months"":\$\(\$env:ingestionRetentionInMonths\)\}"\)' `
-                -Because 'a brand-new settings.json has no stored value to protect, so the first deploy must still honor the requested retention'
-        }
-
-        It 'Should still seed final retention from the parameter when no retention object exists yet' {
-            $content | Should -Match 'Add-Member -Name final -Value \(ConvertFrom-Json "\{""months"":\$\(\$env:finalRetentionInMonths\)\}"\)' `
-                -Because 'a brand-new settings.json has no stored value to protect, so the first deploy must still honor the requested retention'
+        It 'Should honor the requested retention when no settings.json exists' {
+            $r = Invoke-CopyScript -ExistingJson $null -Ingestion 6 -Final 8
+            $r.retention.ingestion.months | Should -Be 6 -Because 'there is no stored value to protect on a brand-new hub'
+            $r.retention.final.months | Should -Be 8
         }
     }
 }
