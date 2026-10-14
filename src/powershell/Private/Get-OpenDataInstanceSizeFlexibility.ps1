@@ -1266,6 +1266,18 @@ function Get-OpenDataInstanceSizeFlexibility
         ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Laosv4-series Linux'; ArmSkuName = 'Standard_L32aos_v4'; Ratio = 16; }
         ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Laosv4-series Linux'; ArmSkuName = 'Standard_L4aos_v4'; Ratio = 2; }
         ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Laosv4-series Linux'; ArmSkuName = 'Standard_L8aos_v4'; Ratio = 4; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Laosv5-series Linux'; ArmSkuName = 'Standard_L128aos_v5'; Ratio = 64; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Laosv5-series Linux'; ArmSkuName = 'Standard_L12aos_v5'; Ratio = 6; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Laosv5-series Linux'; ArmSkuName = 'Standard_L160iaos_v5'; Ratio = 80; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Laosv5-series Linux'; ArmSkuName = 'Standard_L16aos_v5'; Ratio = 8; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Laosv5-series Linux'; ArmSkuName = 'Standard_L24aos_v5'; Ratio = 12; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Laosv5-series Linux'; ArmSkuName = 'Standard_L2aos_v5'; Ratio = 1; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Laosv5-series Linux'; ArmSkuName = 'Standard_L32aos_v5'; Ratio = 16; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Laosv5-series Linux'; ArmSkuName = 'Standard_L48aos_v5'; Ratio = 24; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Laosv5-series Linux'; ArmSkuName = 'Standard_L4aos_v5'; Ratio = 2; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Laosv5-series Linux'; ArmSkuName = 'Standard_L64aos_v5'; Ratio = 32; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Laosv5-series Linux'; ArmSkuName = 'Standard_L8aos_v5'; Ratio = 4; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Laosv5-series Linux'; ArmSkuName = 'Standard_L96aos_v5'; Ratio = 48; }
         ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv4 Series Linux'; ArmSkuName = 'Standard_L16as_v4'; Ratio = 8; }
         ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv4 Series Linux'; ArmSkuName = 'Standard_L2as_v4'; Ratio = 1; }
         ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv4 Series Linux'; ArmSkuName = 'Standard_L32as_v4'; Ratio = 16; }
@@ -1275,6 +1287,17 @@ function Get-OpenDataInstanceSizeFlexibility
         ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv4 Series Linux'; ArmSkuName = 'Standard_L80as_v4'; Ratio = 40; }
         ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv4 Series Linux'; ArmSkuName = 'Standard_L8as_v4'; Ratio = 4; }
         ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv4 Series Linux'; ArmSkuName = 'Standard_L96as_v4'; Ratio = 48; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv5-series Linux'; ArmSkuName = 'Standard_L128as_v5'; Ratio = 64; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv5-series Linux'; ArmSkuName = 'Standard_L160ias_v5'; Ratio = 80; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv5-series Linux'; ArmSkuName = 'Standard_L16as_v5'; Ratio = 8; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv5-series Linux'; ArmSkuName = 'Standard_L2as_v5'; Ratio = 1; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv5-series Linux'; ArmSkuName = 'Standard_L32as_v5'; Ratio = 16; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv5-series Linux'; ArmSkuName = 'Standard_L48as_v5'; Ratio = 24; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv5-series Linux'; ArmSkuName = 'Standard_L4as_v5'; Ratio = 2; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv5-series Linux'; ArmSkuName = 'Standard_L64as_v5'; Ratio = 32; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv5-series Linux'; ArmSkuName = 'Standard_L80as_v5'; Ratio = 40; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv5-series Linux'; ArmSkuName = 'Standard_L8as_v5'; Ratio = 4; }
+        ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lasv5-series Linux'; ArmSkuName = 'Standard_L96as_v5'; Ratio = 48; }
         ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lsv4 Series Linux'; ArmSkuName = 'Standard_L16s_v4'; Ratio = 8; }
         ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lsv4 Series Linux'; ArmSkuName = 'Standard_L2s_v4'; Ratio = 1; }
         ,[PSCustomObject]@{ InstanceSizeFlexibilityGroup = 'Virtual Machines Lsv4 Series Linux'; ArmSkuName = 'Standard_L32s_v4'; Ratio = 16; }
