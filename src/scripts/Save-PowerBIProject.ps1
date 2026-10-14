@@ -512,6 +512,7 @@ $desktop = $null
 $server = $null
 $started = Get-Date
 $backupPath = "$Destination.bak"
+$completed = $false
 
 try
 {
@@ -525,7 +526,13 @@ try
     $destinationName = [System.IO.Path]::GetFileName($Destination)
 
     # An existing PBIX is moved aside rather than deleted, so a failed save (for example a refresh
-    # error) doesn't cost the last good file. It's restored on failure and dropped on success.
+    # error) doesn't cost the last good file. It's restored on failure and dropped on success. A backup
+    # left by an interrupted run is the last good file when the PBIX is missing, so it's restored first.
+    if ((Test-Path $backupPath -PathType Leaf) -and -not (Test-Path $Destination -PathType Leaf))
+    {
+        Write-Verbose '  Restoring the PBIX left in the backup by an interrupted run.'
+        Move-Item $backupPath $Destination -Force
+    }
     Remove-Item $backupPath -Force -ErrorAction SilentlyContinue
     if (Test-Path $Destination -PathType Leaf) { Move-Item $Destination $backupPath -Force }
 
@@ -1033,6 +1040,7 @@ try
 
     #endregion Close
 
+    $completed = $true
     Remove-Item $backupPath -Force -ErrorAction SilentlyContinue
 
     [PSCustomObject]@{
@@ -1044,15 +1052,18 @@ try
 catch
 {
     Save-Screenshot $_.Exception.Message
-    if (Test-Path $backupPath -PathType Leaf)
-    {
-        Remove-Item $Destination -Force -ErrorAction SilentlyContinue
-        Move-Item $backupPath $Destination -Force
-    }
     throw "Could not save $reportLabel automatically: $($_.Exception.Message) Save it by hand from Power BI Desktop, then rerun Package-PowerBI."
 }
 finally
 {
     if ($server) { try { $server.Disconnect() } catch { Write-Verbose 'Engine connection already closed.' } }
     Stop-Desktop $desktop
+
+    # Restore here rather than in catch so an interrupted run (Ctrl+C) is covered too, and only after
+    # Desktop has closed so it no longer holds the file being replaced
+    if (-not $completed -and (Test-Path $backupPath -PathType Leaf))
+    {
+        Remove-Item $Destination -Force -ErrorAction SilentlyContinue
+        Move-Item $backupPath $Destination -Force
+    }
 }
