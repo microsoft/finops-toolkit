@@ -2340,7 +2340,7 @@
       "visualType": "markdownCard",
       "pageId": "11f019cd-e0cc-4aa7-a125-4dc852eb3f10",
       "layout": { "x": 17, "y": 5, "width": 5, "height": 7 },
-      "markdownText": "### Governance, policy, and risk\nGovernance, policy, and risk refers to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts. With this capability, you identify and implement policies to support organizational goals by promoting or limiting the use of:\n\n- Specific SKUs\n- Resource configurations\n- Other practices that might affect cost, usage, and carbon growth\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/policy)",
+      "markdownText": "### Governance, policy, and risk\nGovernance, policy, and risk refers to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts. With this capability, you identify and implement policies to support organizational goals by promoting or limiting the use of:\n\n- Specific SKUs\n- Resource configurations\n- Other practices that might affect cost, usage, and carbon growth\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](https://learn.microsoft.com/cloud-computing/finops/framework/manage/governance)",
       "visualOptions": {}
     },
     {
@@ -2367,7 +2367,7 @@
       "visualType": "markdownCard",
       "pageId": "11f019cd-e0cc-4aa7-a125-4dc852eb3f10",
       "layout": { "x": 12, "y": 12, "width": 5, "height": 7 },
-      "markdownText": "### FinOps tools and services\nFinOps tools and services encapsulate identifying, configuring, and integrating tools and services that meet the needs of FinOps capabilities. They also enable the FinOps practice at scale throughout the organization. With this capability, you identify the tools and services needed to accelerate FinOps tasks and support your FinOps practice.\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](http://aka.ms/ftk/fx/tools)",
+      "markdownText": "### FinOps tools and services\nFinOps tools and services encapsulate identifying, configuring, and integrating tools and services that meet the needs of FinOps capabilities. They also enable the FinOps practice at scale throughout the organization. With this capability, you identify the tools and services needed to accelerate FinOps tasks and support your FinOps practice.\n\n📊 Coming soon\n&nbsp; &nbsp;\n📗 [Learn more](https://learn.microsoft.com/cloud-computing/finops/framework/manage/tools-services)",
       "visualOptions": {}
     },
     {

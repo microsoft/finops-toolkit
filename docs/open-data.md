@@ -37,7 +37,7 @@ FinOps toolkit open data is used to transform Cost Management actual and amortiz
     <div class="ftk-tile">
         <div>📐 Instance size flexibility</div>
         <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/InstanceSizeFlexibility.csv">Download</a>
-        <a class="btn mb-4 mb-md-0 mr-4" href="" style="visibility:hidden; width:100px">&nbsp;</a>
+        <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsInstanceSizeFlexibility">See PowerShell</a>
         <a class="btn mb-4 mb-md-0 mr-4" href="" style="visibility:hidden; width:100px">&nbsp;</a>
     </div>
     <div class="ftk-tile">
