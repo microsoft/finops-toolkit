@@ -55,6 +55,72 @@ The following section lists features and enhancements that are currently in deve
 - **Fixed**
   - Made the idle application gateway and idle public IP query join kinds explicit so they no longer rely on the `innerunique` default ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
 
+### [FinOps multitool](multitool/finops-multitool-overview.md)
+
+- **Added**
+  - Added the FinOps multitool, which scans an Azure environment for cost optimization, governance, and FinOps insights through a PowerShell 7 terminal UI ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
+    - Included 30 read-only scan modules, with 26 available in the menu, covering orphaned resources, idle VMs, storage tier advice, Azure Hybrid Benefit, tag and policy inventory and recommendations, cost data, cost trend, cost by tag, resource costs, reservation advice, commitment utilization, estimated savings, budget status and history, anomaly alerts, Advisor recommendations, billing structure, and contract info.
+    - Added a companion set of agent skills that carry the investigation routing, the queries, and the interpretation rules so AI agents can run the same analysis through Azure CLI or an Azure MCP server.
+    - Added engine-side aggregation through the FinOps hub's Azure Data Explorer or Microsoft Fabric Kusto database for large environments, with a storage reader as a small-dataset fallback.
+    - Added a non-interactive mode for an already-authenticated pipeline or scheduled job, and automatic private CSV, HTML, and text reports. Consoles that can't render the arrow-key menus, such as PowerShell remoting sessions, fall back to numbered prompts.
+    - Added `-Accessible` to select numbered prompts without clearing the screen or repainting menus in cursor-capable terminals.
+    - Added a searchable KPI reference and in-report calculation details for cost shares, unit rates, VM and storage screening, and budget coverage and forecast availability.
+    - Added aggregate and per-subscription cost trend views with captured UTC periods, partial-month labels, and separate empty and unverified coverage states.
+    - Added sticky table headers, row numbers, sorting, resizable columns, and expanded views to the local HTML report without changing CSV data.
+    - Added an explicit ordinary Cost Management CSV export source without requiring a FinOps hub, with selected-scope coverage, reads limited to the chosen export folder, manifest-verified partitions, and no silent live-cost fallback. Discovery reports progress per scope and per storage account. If you choose exports from the menu and none can be verified, you're asked whether to use the Cost Management API instead. Interactive runs ask before scanning more than 100 storage accounts for exports.
+- **Fixed**
+  - Fixed literal `\u000D` text appearing at the ends of terminal table rows on Windows ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
+  - Fixed policy recommendations failing when a complete inventory contains no policy assignments ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
+  - Fixed incomplete billing-scope discovery appearing as complete commitment utilization.
+  - Kept unreadable Hub tags unverified instead of counting them as missing tags.
+  - Rejected explicit empty scan lists instead of running the default scans.
+  - Fixed malformed budget records counting toward confirmed budget coverage.
+  - Preserved budget inventory failures and partial coverage in budget history reports.
+  - Rejected unsafe export blob paths and invalid fallback container names, and escaped control characters in storage-discovery diagnostics.
+  - Made failed and unreadable Kusto discovery visible without changing the selected tenant or subscriptions.
+  - Rejected malformed Kusto responses and partial query failures instead of returning incomplete or empty success results.
+  - Rejected empty authentication tokens before sending Kusto queries and retained detailed Kusto HTTP errors on PowerShell 7.
+  - Reported the macOS Parquet signature-verification limitation before invoking a package client or downloading packages.
+  - Fixed AI token totals using inconsistent account and deployment measurements, and kept same-named deployments in different accounts separate.
+  - Fixed commitment SKU and kind metadata, incomplete fallback pagination, and unavailable utilization appearing as measured zero.
+  - Clarified budget sampling and CPU units, distinguished storage lookup failures from missing permissions, and added private launcher help and read-only regression checks.
+  - Hardened CSV exports against formula prefixes after whitespace or invisible characters and unsafe column names, while preserving numeric credits.
+  - Fixed storage-backed Parquet imports returning empty values or misaligning costs when an export contains nested metadata.
+  - Fixed measured zero unit-cost KPIs appearing unavailable.
+  - Fixed automatic Hub discovery failures aborting scans, including when every probe fails, while preserving explicit source choices and tenant boundaries ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
+  - Fixed provider-discovery exceptions aborting detected-Hub scans and preserved the selected storage fallback through scan execution ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
+  - Required a Y or N answer before switching to the Cost Management API when a detected FinOps hub's storage can't be reached.
+  - Limited estimated savings and unit costs to the selected subscriptions, querying subscriptions individually when a management group doesn't contain every selected subscription.
+  - Kept orphaned-resource costs and resource forecasts in their billing currencies instead of combining or relabeling them. Resource costs from the Cost Management API now include `ForecastSource`, which shows whether each forecast comes from a Cost Management forecast or a month-to-date projection. Forecasts stay empty when they're unavailable or can't be split across resources, and a failed forecast request keeps actual resource costs and reports the gap as limited data.
+  - Rejected partitioned export runs without a valid manifest, and read only the newest snapshot of a legacy unpartitioned export instead of adding snapshots together.
+  - Kept unattributed FinOps hub charges with their own subscription, and kept tag values that differ only by case separate.
+  - Counted the recommended `ApplicationName` and `OpsTeam` tags toward cost allocation.
+  - Reported incomplete Advisor recommendations and unreadable storage capacity instead of presenting partial results as complete.
+  - Stopped Advisor cost and reservation recommendations from being counted twice when the Resource Graph read fails partway through and the per-subscription fallback runs.
+  - Kept every resource cost row from the per-subscription Cost Management fallback, including unattributed charges and resource IDs that differ only by case, instead of keeping only the last row for each ID.
+  - Reported the count and amount in each currency of export rows that have no subscription, such as purchases or refunds billed outside a subscription. These rows aren't included in subscription totals.
+  - Fixed the cost trend leaving out selected subscriptions that the management-group query omitted, such as subscriptions outside that group. The scan now queries those subscriptions individually, and any it can't read or combine in one currency stay unverified instead of counting as zero cost.
+  - Grouped each scan's summaries, notes, and guidance in the HTML report into one scrollable panel so long notes don't lengthen the page.
+  - Showed reservation purchase detail in the same scrollable, filterable, and sortable table as other report results instead of listing every row down the page.
+  - Kept actual subscription costs when a forecast returns no rows or no content, leaving missing forecasts unavailable instead of failing Cost Data or substituting actual spend.
+  - Respected Cost Management throttling delays in cost queries and Cost by Tag batches, and stopped waiting after the final batch retry.
+  - Limited cumulative retry waiting per REST call and preserved throttling errors when the requested delay exceeds a Cost by Tag batch deadline.
+  - Remembered a long Cost Management request limit for the tenant, so later cost and forecast requests are skipped with one plain-language warning instead of repeating failed calls. Scans that can't read their data say why and when to run again ([#2335](https://github.com/microsoft/finops-toolkit/issues/2335)).
+  - Kept actual costs when a forecast request fails in Cost Data, and kept the subscriptions it could read when others fail, instead of failing the scan and losing the results. Savings Realized does the same, flags partial coverage, and shows its totals-based KPIs as unavailable ([#2335](https://github.com/microsoft/finops-toolkit/issues/2335)).
+  - Showed an error hint that fits the cause: a required role for access errors, and a suggestion to run the scan again for request limits and timeouts, instead of a required-role hint under every error ([#2335](https://github.com/microsoft/finops-toolkit/issues/2335)).
+  - Read AI spend for subscriptions directly when the resolved management group doesn't contain them, reported missing spend instead of a currency problem, and stopped an account with no recorded usage from disabling rates for other accounts ([#2335](https://github.com/microsoft/finops-toolkit/issues/2335)).
+  - Fixed Cost by Tag batch cleanup so a request that finishes at the deadline keeps its real response instead of being reported as a timeout (HTTP 408).
+  - Prevented forecasts from a rejected management-group response from surviving an empty subscription retry.
+  - Confirmed billing account ownership before reporting contract details, and counted only enabled anomaly alert rules as detection coverage.
+  - Fixed FinOps hub CSV fallback reads to match hub ingestion: each export run counts toward the month in its manifest, and only the latest FOCUS cost run with rows is kept for each export scope and month, instead of adding runs together or dropping other scopes. Exports for unselected subscriptions are skipped, a manifest that can't be verified stops the read only when it could affect the months being read, and CSV files that no readable manifest lists are reported. The fallback checks at most 2,000 export manifests, doesn't download manifests over 1 MB, and stops instead of counting a file that two runs list. Fixed agreement detection from subscription metadata when billing account details can't be read.
+  - Corrected agent skill guidance on billed and effective cost and on when tags appear in cost data, and replaced references to unavailable tools with the terminal UI data sources.
+  - Stopped unresolved explicit subscription lookups from searching other tenants or widening the scan scope ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
+  - Fixed policy-definition read failures appearing as complete scan results; warnings and reports now identify unread definitions while retaining assignments and valid compliance data ([#2335](https://github.com/microsoft/finops-toolkit/issues/2335)).
+  - Limited management-group cost discovery to 25 candidates, including the tenant root, while preserving pagination, selected-subscription fallback, and tenant-specific caching ([#2335](https://github.com/microsoft/finops-toolkit/issues/2335)). Discovery probes the tenant root first, so a readable root settles it with one request, and stops without disabling management-group queries when requests are limited.
+  - Fixed crowded HTML reports for large subscription selections with bounded columns, compact scope lists, expandable tag and policy details, and local table filtering and pagination without reducing CSV detail.
+  - Fixed missing resource-cost periods and unclear resource identities by retaining the requested UTC window, displaying resource and reservation-charge labels, and preserving full IDs in HTML and CSV.
+  - Added verified subscription and management-group display names to policy locations while retaining scope IDs when name lookup fails.
+
 ### [Power BI reports](power-bi/reports.md)
 
 - **Changed**
