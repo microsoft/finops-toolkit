@@ -60,6 +60,8 @@ The following section lists features and enhancements that are currently in deve
 
 - **Changed**
   - Switched the InstanceSizeFlexibility table in the storage and KQL shared datasets from the retired `ccmstorageprod` AutofitComboMeterData.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file, joined to reservation recommendations on the unique ARM SKU name ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+- **Fixed**
+  - Fixed the rate optimization report data quality link, which landed on a Bing search page ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
 
 ### [Optimization Engine](optimization-engine/overview.md)
 
