@@ -4,7 +4,7 @@ description: Use open data to normalize and enhance your FinOps reporting, ensur
 ms.topic: concept-article
 author: flanakin
 ms.author: micflan
-ms.date: 09/11/2026
+ms.date: 10/12/2026
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
@@ -175,6 +175,8 @@ A few important notes about the data:
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CommitmentDiscountEligibility.csv)
+> [!div class="nextstepaction"]
+> [See PowerShell](powershell/data/get-finopscommitmentdiscounteligibility.md)
 <!-- prettier-ignore-end -->
 
 <br>
@@ -201,6 +203,8 @@ A few important notes about the data:
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/InstanceSizeFlexibility.csv)
+> [!div class="nextstepaction"]
+> [See PowerShell](powershell/data/get-finopsinstancesizeflexibility.md)
 <!-- prettier-ignore-end -->
 
 <br>
