@@ -122,10 +122,13 @@ let
     // Fix types
     FixTypes = Table.TransformColumnTypes(BackfillAndTrim, {
         // Date columns
-        // TODO: Should these be datetimezone?
+        // ChargePeriodStart must be type datetime (not date) to match the RangeStart/RangeEnd parameters
+        // (also datetime) used for Power BI incremental refresh -- mismatched types prevent binding them via
+        // the Incremental refresh and archive settings dialog. FOCUS ChargePeriodStart values are typically
+        // date-only (midnight), so datetime (not datetimezone) is sufficient here.
         {"tmp_BillingPeriodStart", type date},
         {"tmp_BillingPeriodEnd",   type date},
-        {"ChargePeriodStart",      type date},
+        {"ChargePeriodStart",      type datetime},
         {"x_ServicePeriodStart",   type date},
         {"x_ServicePeriodEnd",     type date},
         {"tmp_ExchangeRateDate",   type date},
