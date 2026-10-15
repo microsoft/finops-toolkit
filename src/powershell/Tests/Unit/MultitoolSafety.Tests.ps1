@@ -86,6 +86,26 @@ Describe 'FinOps Multitool safety' {
         }
     }
 
+    Context 'External program lookups' {
+
+        # Linux lists a program once per PATH entry that holds it, and /bin is
+        # usually a link to /usr/bin, so an unrestricted lookup of id returns two
+        # paths and the call that uses the result fails as an unrecognized term.
+        It 'Takes only the first match when it resolves a program from PATH' {
+            $violations = foreach ($file in Get-ChildItem -Path $script:ModuleRoot -Recurse -Include *.ps1, *.psm1 -File) {
+                $ast = [System.Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$null, [ref]$null)
+                $lookups = $ast.FindAll({
+                        $args[0] -is [System.Management.Automation.Language.CommandAst] -and
+                        $args[0].GetCommandName() -eq 'Get-Command' -and
+                        $args[0].Extent.Text -match '-CommandType\s+Application\b' -and
+                        $args[0].Extent.Text -notmatch '-TotalCount\b'
+                    }, $true)
+                foreach ($lookup in $lookups) { '{0}:{1}' -f $file.Name, $lookup.Extent.StartLineNumber }
+            }
+            @($violations) -join "`n" | Should -BeNullOrEmpty
+        }
+    }
+
     Context 'Read-only scanner invariant' {
         BeforeAll {
             function Get-ScannerWriteCommand {

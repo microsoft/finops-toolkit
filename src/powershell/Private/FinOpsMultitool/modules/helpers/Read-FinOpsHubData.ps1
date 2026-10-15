@@ -94,10 +94,11 @@ function New-FinOpsPrivateDirectory {
         finally { $identity.Dispose() }
     }
     else {
-        $identityCommand = Get-Command id -CommandType Application -ErrorAction Stop
+        # Linux can list one program twice when /bin links to /usr/bin, so take the first match.
+        $identityCommand = Get-Command id -CommandType Application -TotalCount 1 -ErrorAction Stop
         $ownerId = (& $identityCommand.Source -u).Trim()
         if ($LASTEXITCODE -ne 0 -or $ownerId -notmatch '^\d+$') { throw 'The current user ID could not be verified.' }
-        $stat = Get-Command stat -CommandType Application -ErrorAction Stop
+        $stat = Get-Command stat -CommandType Application -TotalCount 1 -ErrorAction Stop
         foreach ($item in $items) {
             if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Private data cannot contain linked files or directories.' }
             $metadata = if ($IsMacOS) { & $stat.Source -f '%u:%p' $item.FullName } else { & $stat.Source -c '%u:%a' -- $item.FullName }
@@ -138,7 +139,7 @@ function New-FinOpsPrivateDirectory {
                 [IO.File]::SetUnixFileMode($directoryPath, [Enum]::ToObject($unixModeType, 448))
             }
             else {
-                $command = Get-Command $(if (Test-Path -LiteralPath $directoryPath) { 'chmod' } else { 'mkdir' }) -CommandType Application -ErrorAction Stop
+                $command = Get-Command $(if (Test-Path -LiteralPath $directoryPath) { 'chmod' } else { 'mkdir' }) -CommandType Application -TotalCount 1 -ErrorAction Stop
                 if ([IO.Directory]::Exists($directoryPath)) { & $command.Source 700 $directoryPath }
                 else { & $command.Source -m 700 $directoryPath }
                 if ($LASTEXITCODE -ne 0) { throw 'A private data directory could not be created.' }
@@ -303,7 +304,7 @@ function Resolve-NuGetClient {
         if ($IsMacOS) {
             return [PSCustomObject]@{ Kind = $null; Path = $null; Reason = 'NuGet signed-package verification is not supported on macOS; use a configured Kusto endpoint or available CSV exports' }
         }
-        $dotnet = Get-Command dotnet -CommandType Application -ErrorAction SilentlyContinue
+        $dotnet = Get-Command dotnet -CommandType Application -TotalCount 1 -ErrorAction SilentlyContinue
         if (-not $dotnet) {
             return [PSCustomObject]@{ Kind = $null; Path = $null; Reason = 'the .NET SDK is not installed (dotnet is not on PATH)' }
         }

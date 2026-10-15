@@ -61,8 +61,10 @@ $fixtureAncestor = if ($UseImmediateParent) { $parentDirectory } else { $Root }
 $items = @([pscustomobject]@{ FullName = $fixtureAncestor; Attributes = [IO.FileAttributes]::Directory })
 $LASTEXITCODE = 0
 function Get-Command {
-    param($Name, $CommandType, $ErrorAction)
-    @{ Source = $(if ($Name -eq 'id') { 'Get-FixtureIdentity' } else { 'Get-FixtureStat' }) }
+    param($Name, $CommandType, $TotalCount, $ErrorAction)
+    # Linux can list one program twice when /bin links to /usr/bin.
+    $source = if ($Name -eq 'id') { 'Get-FixtureIdentity' } else { 'Get-FixtureStat' }
+    1..$(if ($TotalCount -eq 1) { 1 } else { 2 }) | ForEach-Object { @{ Source = $source } }
 }
 function Get-FixtureIdentity { '1001' }
 function Get-FixtureStat {
@@ -453,7 +455,8 @@ function Get-FixtureStat {
             $lookups = [Collections.Generic.List[string]]::new()
             Mock Get-Command {
                 $lookups.Add([string]$Name)
-                if ($SdkPresent) { @{ Source = 'Invoke-FixtureDotnet' } }
+                # Linux can list one program twice when /bin links to /usr/bin.
+                if ($SdkPresent) { 1..$(if ($TotalCount -eq 1) { 1 } else { 2 }) | ForEach-Object { @{ Source = 'Invoke-FixtureDotnet' } } }
             } -ParameterFilter { $Name -eq 'dotnet' -and $CommandType -eq 'Application' }
             function Invoke-FixtureDotnet {
                 $args.Count | Should -Be 1

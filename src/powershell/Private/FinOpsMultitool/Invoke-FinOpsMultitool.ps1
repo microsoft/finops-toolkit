@@ -1812,7 +1812,7 @@ function Invoke-FinOpsMultitool {
                 [void][System.IO.Directory]::CreateDirectory($runPath, [Enum]::ToObject($unixModeType, 448))
             }
             else {
-                $mkdir = Get-Command -Name mkdir -CommandType Application -ErrorAction Stop
+                $mkdir = Get-Command -Name mkdir -CommandType Application -TotalCount 1 -ErrorAction Stop
                 & $mkdir.Source -m 700 $runPath
                 if ($LASTEXITCODE -ne 0) { throw 'Could not create a private report directory.' }
             }
@@ -1839,7 +1839,7 @@ function Invoke-FinOpsMultitool {
                 $unixModeType = 'System.IO.UnixFileMode' -as [type]
                 if ($unixModeType) { [System.IO.File]::SetUnixFileMode($path, [Enum]::ToObject($unixModeType, 384)) }
                 else {
-                    $chmod = Get-Command -Name chmod -CommandType Application -ErrorAction Stop
+                    $chmod = Get-Command -Name chmod -CommandType Application -TotalCount 1 -ErrorAction Stop
                     & $chmod.Source 600 $path
                     if ($LASTEXITCODE -ne 0) { throw 'Could not restrict report file permissions.' }
                 }
