@@ -365,6 +365,8 @@ Costs_transform_v1_2()
     ))
     //
     // Handle provider columns that moved to FOCUS
+    // Keep the original value so version detection below only sees what the export delivered (x_PricingCurrency backfill would make FOCUS 1.0 look like 1.2)
+    | extend tmp_PricingCurrency = PricingCurrency
     | extend PricingCurrency = coalesce(PricingCurrency, x_PricingCurrency)
     //
     // Backup original prices/costs before the merge
@@ -388,8 +390,8 @@ Costs_transform_v1_2()
     | extend x_SourceProvider = coalesce(x_SourceProvider, ProviderName)
     | extend x_SourceType     = coalesce(x_SourceType, iff(isnotempty(x_BillingProfileId), 'FocusCost', ''))
     | extend x_SourceVersion  = coalesce(x_SourceVersion, case(
-        isnotempty(coalesce(InvoiceId, SkuMeter, PricingCurrency)) and isempty(SkuPriceDetails) and isnotempty(x_SkuDetails), '1.2-preview',
-        isnotempty(coalesce(InvoiceId, SkuMeter, PricingCurrency)), '1.2',
+        isnotempty(coalesce(InvoiceId, SkuMeter, tmp_PricingCurrency)) and isempty(SkuPriceDetails) and isnotempty(x_SkuDetails), '1.2-preview',
+        isnotempty(coalesce(InvoiceId, SkuMeter, tmp_PricingCurrency)), '1.2',
         isnotempty(coalesce(ChargeClass, CommitmentDiscountStatus, tostring(ConsumedQuantity), ConsumedUnit, tostring(ContractedCost), tostring(ContractedUnitPrice), RegionId, RegionName)), '1.0',
         isnotempty(coalesce(ChargeSubcategory, Region, tostring(UsageQuantity), UsageUnit)), iff(ProviderName == 'Microsoft', '1.0-preview(v1)', '1.0-preview'),
         ''
