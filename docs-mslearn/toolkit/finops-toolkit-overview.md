@@ -43,7 +43,7 @@ The FinOps toolkit is an ever-evolving collection of tools and resources. The fo
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Download](https://aka.ms/ftk/latest)
+> [Download](https://aka.ms/ftk)
 <!-- prettier-ignore-end -->
 
 <br>
