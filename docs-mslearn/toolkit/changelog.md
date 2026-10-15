@@ -43,6 +43,7 @@ The following section lists features and enhancements that are currently in deve
   - Switched dimension enrichment in the v1_0/v1_2 ingestion transforms (`PricingUnits`, `Regions`, `ResourceTypes`, `Services`) from `join` to the broadcast-optimized `lookup` operator and deduplicated the `Services` mapping per resource type to prevent cost row fan-out ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
   - Fixed FinOps hub dashboard "Governance, policy, and risk" and "FinOps tools and services" links that landed on a 404 page by linking directly to the Microsoft Learn pages ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
   - Fixed the v1_0 and v1_2 price transforms setting `x_CommitmentDiscountSpendEligibility` from reservation meters and `x_CommitmentDiscountUsageEligibility` from savings plan meters, the opposite of the FOCUS `CommitmentDiscountCategory` value the same transform assigns. The spend column now reports savings plan pricing and the usage column reports reservation pricing. Prices ingested after upgrading carry the corrected values; rows ingested earlier keep the old values until they are reingested ([#2279](https://github.com/microsoft/finops-toolkit/issues/2279)).
+  - Fixed FinOps hubs labeling FOCUS 1.0 cost data as FOCUS 1.2 in `x_SourceVersion`. The cost transform backfilled `PricingCurrency` from `x_PricingCurrency` before detecting the FOCUS version, so every 1.0 row looked like 1.2 and skipped the 1.0-specific fixes (for example, the savings plan purchase `ChargeFrequency` correction). Version detection now uses the value delivered by the export ([#2333](https://github.com/microsoft/finops-toolkit/pull/2333)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md)
 
@@ -60,6 +61,8 @@ The following section lists features and enhancements that are currently in deve
 
 - **Changed**
   - Switched the InstanceSizeFlexibility table in the storage and KQL shared datasets from the retired `ccmstorageprod` AutofitComboMeterData.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file, joined to reservation recommendations on the unique ARM SKU name ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+- **Fixed**
+  - Fixed the storage reports failing to refresh when the Cost Management export uses the FOCUS 1.2 schema. The FOCUS 1.2 branch searched for a column named `SkuMeterName` instead of `SkuMeter`, and the surrounding block assumed the FOCUS 1.0 columns (`x_InvoiceId`, `x_PricingCurrency`, `x_SkuMeterName`) were always present, which fails for a storage container that holds only FOCUS 1.2 exports. Added a lint rule that fails the build when a Power Query column name doesn't exist ([#2332](https://github.com/microsoft/finops-toolkit/issues/2332)).
 
 ### [Optimization Engine](optimization-engine/overview.md)
 
