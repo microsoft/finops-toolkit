@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/14/2026
+ms.date: 10/15/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -81,6 +81,7 @@ _Released October 2026_
   - Paginated Azure Resource Graph queries by subscription to mitigate [payload size limit](help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) errors in the [Governance](power-bi/governance.md) and [Workload optimization](power-bi/workload-optimization.md) reports ([#1768](https://github.com/microsoft/finops-toolkit/issues/1768)).
     - The `AdvisorRecommendations` and `AdvisorReservationRecommendations` tables now return complete results per batch instead of silently dropping rows beyond the payload limit.
     - A batch that still exceeds the limit surfaces an error rather than truncating; see [Reduce the batch size](help/errors.md#option-1-reduce-the-batch-size).
+  - Fixed the rate optimization report data quality link, which landed on a Bing search page ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v15
 
