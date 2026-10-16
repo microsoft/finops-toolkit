@@ -15,7 +15,7 @@
     - "ftk-demo" is the current demo hub. It holds 12 months of data and is what demo reports are
       built from.
     - "ftk-demo-v{version}" is a versioned instance kept for testing an older release. It holds
-      one month of data, and its Data Explorer cluster is stopped after data is ingested so it
+      one month of data. Every cluster stops itself when idle, so an instance nobody is using
       costs almost nothing to keep around.
 
     Run with -Check before a release to confirm the demo hub is current. It reports the hub
@@ -40,14 +40,15 @@
     .PARAMETER Retention
     Optional. Number of months of data the hub keeps. Default = 12 for the current demo hub, 1 for a versioned instance.
 
+    .PARAMETER DataExplorerSku
+    Optional. Data Explorer SKU. Use this when a region has no capacity for the default (InsufficientResourcesForSubscription). Default = "Standard_E2ads_v5" for the current demo hub, "Dev(No SLA)_Standard_E2a_v4" for a versioned instance.
+
     .PARAMETER Backfill
     Optional. Number of months of history to load. Backfilling is a one-time task for a new instance, so nothing is backfilled unless this is specified.
 
     .PARAMETER Check
     Optional. Reports whether the demo hub is ready for a release without changing anything. Default = false.
 
-    .PARAMETER Stop
-    Optional. Stops the Data Explorer cluster when the deployment finishes. Default = true for versioned instances.
 
     .PARAMETER Build
     Optional. Builds the templates before deploying. Default = false.
@@ -98,14 +99,15 @@ param(
     [int]
     $Retention,
 
+    [string]
+    $DataExplorerSku,
+
     [int]
     $Backfill,
 
     [switch]
     $Check,
 
-    [switch]
-    $Stop,
 
     [switch]
     $Build
@@ -118,7 +120,6 @@ $isVersioned = [bool]$Version
 $name = if ($isVersioned) { "ftk-demo-$($Version.TrimStart('v') -replace '^', 'v')" } else { 'ftk-demo' }
 if (-not $ResourceGroup) { $ResourceGroup = $name }
 if (-not $Retention) { $Retention = if ($isVersioned) { 1 } else { 12 } }
-if (-not $PSBoundParameters.ContainsKey('Stop')) { $Stop = $isVersioned }
 
 #region Helpers
 
@@ -210,6 +211,29 @@ function Get-DemoState([string] $HubName, [string] $ResourceGroupName)
     return $state
 }
 
+<#
+    .SYNOPSIS
+    Starts a Data Factory pipeline and waits for it to finish, returning its final status.
+#>
+function Invoke-DemoPipeline([string] $FactoryId, [string] $Pipeline, [hashtable] $Parameters, [int] $TimeoutSeconds = 600)
+{
+    $api = 'api-version=2018-06-01'
+    $payload = if ($Parameters.Count) { $Parameters | ConvertTo-Json -Compress } else { '{}' }
+    $start = Invoke-AzRestMethod -Method POST -Path "$FactoryId/pipelines/$Pipeline/createRun?$api" -Payload $payload
+    if ($start.StatusCode -ne 200) { return "not started ($($start.StatusCode))" }
+
+    $runId = ($start.Content | ConvertFrom-Json).runId
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    do
+    {
+        Start-Sleep -Seconds 10
+        $status = ((Invoke-AzRestMethod -Method GET -Path "$FactoryId/pipelineruns/${runId}?$api").Content | ConvertFrom-Json).status
+    }
+    while (($status -in 'Queued', 'InProgress') -and (Get-Date) -lt $deadline)
+
+    return $status
+}
+
 #endregion Helpers
 
 #region Check
@@ -263,8 +287,8 @@ if (-not $Scope) { $Scope = @("/subscriptions/$($context.Subscription.Id)") }
 
 $parameters = @{
     hubName                           = $name
-    dataExplorerName                  = $name
-    dataExplorerSku                   = if ($isVersioned) { 'Dev(No SLA)_Standard_E2a_v4' } else { 'Standard_E2ads_v5' }
+    dataExplorerName                  = $name 
+    dataExplorerSku                   = if ($DataExplorerSku) { $DataExplorerSku } elseif ($isVersioned) { 'Dev(No SLA)_Standard_E2a_v4' } else { 'Standard_E2ads_v5' }
     enableManagedExports              = $true
     scopesToMonitor                   = $Scope
     ingestionRetentionInMonths        = $Retention
@@ -281,6 +305,96 @@ if ($PSCmdlet.ShouldProcess($name, "Deploy FinOps hub to $ResourceGroup"))
 if ($WhatIfPreference) { return }
 
 #endregion Deploy
+
+#region Access
+
+# Managed exports create and run Cost Management exports as the hub's Data Factory identity, so it
+# needs access to every scope. Without it nothing is exported, whatever the deployment says.
+$factory = Get-AzResource -ResourceGroupName $ResourceGroup -ResourceType 'Microsoft.DataFactory/factories' | Select-Object -First 1
+if (-not $factory) { throw "Could not find the Data Factory for $name after deploying." }
+$principalId = (Get-AzResource -ResourceId $factory.ResourceId).Identity.PrincipalId
+
+# A single scope is saved to settings.json as an object instead of a list, which export setup fails to read
+$storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroup | Select-Object -First 1
+$settingsFile = New-TemporaryFile
+try
+{
+    Get-AzStorageBlobContent -Container 'config' -Blob 'settings.json' -Destination $settingsFile -Context $storageAccount.Context -Force | Out-Null
+    $settings = Get-Content $settingsFile -Raw | ConvertFrom-Json
+    if ($settings.scopes -and $settings.scopes -isnot [array] -and $PSCmdlet.ShouldProcess('settings.json', 'Save scopes as a list'))
+    {
+        $settings.scopes = @($settings.scopes)
+        $settings | ConvertTo-Json -Depth 10 | Set-Content $settingsFile
+        Set-AzStorageBlobContent -Container 'config' -Blob 'settings.json' -File $settingsFile -Context $storageAccount.Context -Properties @{ ContentType = 'application/json' } -Force | Out-Null
+    }
+}
+finally { Remove-Item $settingsFile -Force -ErrorAction SilentlyContinue }
+
+$granted = $false
+foreach ($target in $Scope)
+{
+    if ($target -notmatch '^/subscriptions/|^/providers/Microsoft\.Management/managementGroups/')
+    {
+        Write-Warning "Can't grant access to $target from here. Give $($factory.Name) the Cost Management Contributor role on it, or nothing is exported for that scope."
+        continue
+    }
+
+    $role = Get-AzRoleAssignment -ObjectId $principalId -Scope $target -RoleDefinitionName 'Cost Management Contributor' -ErrorAction SilentlyContinue
+    if ($role) { continue }
+
+    if ($PSCmdlet.ShouldProcess($target, "Grant Cost Management Contributor to $($factory.Name)"))
+    {
+        New-AzRoleAssignment -ObjectId $principalId -Scope $target -RoleDefinitionName 'Cost Management Contributor' -ObjectType ServicePrincipal | Out-Null
+        $granted = $true
+    }
+}
+
+# The deployment runs its own export setup before the role exists, so run it again now
+if ($granted)
+{
+    Write-Host 'Waiting for the new role to take effect...'
+    Start-Sleep -Seconds 60
+}
+
+if ($PSCmdlet.ShouldProcess($name, 'Create and run the exports'))
+{
+    # Create the exports from the hub's scopes, then run them. Each run has to finish before the next starts.
+    foreach ($step in @(
+            @{ Pipeline = 'config_ConfigureExports'; Body = @{} },
+            @{ Pipeline = 'config_StartExportProcess'; Body = @{ Recurrence = 'Daily' } },
+            @{ Pipeline = 'config_StartExportProcess'; Body = @{ Recurrence = 'Monthly' } }
+        ))
+    {
+        $status = Invoke-DemoPipeline $factory.ResourceId $step.Pipeline $step.Body
+        if ($status -ne 'Succeeded') { Write-Warning "$($step.Pipeline) $($step.Body.Values) ended as '$status'. Check the run in Data Factory before relying on this instance." }
+    }
+}
+
+#endregion Access
+
+#region AutoStop
+
+# The hub template leaves auto-stop off and resets it on every deployment, so it's turned on here.
+# Idle clusters stop on their own, which keeps unused instances from running up cost.
+$cluster = Get-AzKustoCluster -ResourceGroupName $ResourceGroup -ErrorAction SilentlyContinue | Select-Object -First 1
+if (-not $cluster) { Write-Warning "No Data Explorer cluster found in $ResourceGroup, so auto-stop wasn't set." }
+elseif ($PSCmdlet.ShouldProcess($cluster.Name, 'Turn on auto-stop'))
+{
+    $clusterPath = "$($cluster.Id)?api-version=2023-08-15"
+    $null = Invoke-AzRestMethod -Method PATCH -Path $clusterPath -Payload '{"properties":{"enableAutoStop":true}}'
+
+    # The change applies in the background, so wait for it before reporting a problem
+    $deadline = (Get-Date).AddMinutes(3)
+    do
+    {
+        Start-Sleep -Seconds 10
+        $autoStop = ((Invoke-AzRestMethod -Method GET -Path $clusterPath).Content | ConvertFrom-Json).properties.enableAutoStop
+    }
+    while (-not $autoStop -and (Get-Date) -lt $deadline)
+    if (-not $autoStop) { Write-Warning "Could not turn on auto-stop for $($cluster.Name). Turn it on in the portal under Configurations." }
+}
+
+#endregion AutoStop
 
 #region Backfill
 
@@ -323,18 +437,7 @@ else
 
 #endregion Backfill
 
-#region Stop
 
-# A versioned instance is only there to open old reports, so its cluster doesn't need to keep
-# running. It can't be stopped here because data is still ingesting when this command finishes.
-if ($Stop -and $state.Cluster)
-{
-    Write-Host ''
-    Write-Host "  Stop $($state.Cluster.Name) once ingestion finishes so this instance costs almost nothing to keep:" -ForegroundColor Yellow
-    Write-Host "     Stop-AzKustoCluster -ResourceGroupName $ResourceGroup -Name $($state.Cluster.Name)" -ForegroundColor Cyan
-}
-
-#endregion Stop
 
 Write-Host ''
 Write-Host "✅ $name deployed" -ForegroundColor Green

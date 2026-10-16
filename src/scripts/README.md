@@ -467,7 +467,9 @@ Demo reports in `PowerBI-demo.zip` are saved with data from a demo hub, so that 
 Two kinds of instances:
 
 - `ftk-demo` is the current demo hub, with 12 months of data. Demo reports are built from it.
-- `ftk-demo-v{version}` keeps one month of data for testing an older release. Stop its Data Explorer cluster after ingestion and it costs almost nothing to keep.
+- `ftk-demo-v{version}` keeps one month of data for testing an older release.
+
+Every Data Explorer cluster is set to stop itself when idle, so an instance nobody is using costs almost nothing to keep. The script also gives the hub access to the scopes it exports and starts the export setup, because managed exports don't run without that access.
 
 Run `-Check` before a release. It reports the hub version and months of data, and fails when the hub is behind the toolkit version or has no data for the current month.
 
@@ -479,9 +481,9 @@ Run `-Check` before a release. It reports the hub version and months of data, an
 | `‑Location`      | Optional. Azure region. Default = "westus".                                                        |
 | `‑Scope`         | Optional. Resource IDs to export cost data for. Default = the subscription being deployed to.      |
 | `‑Retention`     | Optional. Months of data the hub keeps. Default = 12, or 1 for a versioned instance.               |
+| `‑DataExplorerSku` | Optional. Data Explorer SKU, for when a region has no capacity for the default. Default = "Standard_E2ads_v5", or "Dev(No SLA)_Standard_E2a_v4" for a versioned instance. |
 | `‑Backfill`      | Optional. Months of history to load. Backfilling is a one-time task for a new instance, so nothing is backfilled unless specified. |
 | `‑Check`         | Optional. Reports whether the demo hub is ready for a release without changing anything.           |
-| `‑Stop`          | Optional. Stops the Data Explorer cluster when finished. Default = true for versioned instances.   |
 | `‑Build`         | Optional. Builds the templates before deploying.                                                   |
 
 Examples:
