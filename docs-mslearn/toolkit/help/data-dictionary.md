@@ -3,7 +3,7 @@ title: FinOps toolkit data dictionary
 description: This article describes the column names found in FinOps toolkit solutions, including columns from Cost Management and FOCUS.
 author: flanakin
 ms.author: micflan
-ms.date: 06/21/2026
+ms.date: 10/16/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -114,6 +114,7 @@ Quick links:
 | EffectivePricingCost                             | `EffectiveCost` in the pricing currency.                                                                                                                                                                                                                                                                                |
 | EffectiveUnitPrice                               | Amortized price per unit after commitment discounts.                                                                                                                                                                                                                                                                    |
 | <a name="i"></a>IncrementalRefreshDate           | Derived. Numeric version of the `ChargePeriodStart` column to simplify setup for incremental refresh.                                                                                                                                                                                                                   |
+| IncrementalRefreshDateTime                       | Derived. Date/Time version of the `IncrementalRefreshDate` column. Used to filter by the **RangeStart** and **RangeEnd** parameters when you configure incremental refresh in Power BI storage reports.                                                                                                                 |
 | InvoiceId                                        | Unique identifier for the invoice the charge is included in. Only available for closed months after the invoice is published. Renamed from **x_InvoiceId** in FOCUS 1.2.                                                                                                                                                |
 | InvoiceIssuerId                                  | Unique identifier of the organization that generated the invoice.                                                                                                                                                                                                                                                       |
 | InvoiceIssuerName                                | Name of the organization that generated the invoice. Only supported for CSP accounts. Not supported for EA or MCA accounts that a partner manages due to data not being provided by Cost Management.                                                                                                                    |
