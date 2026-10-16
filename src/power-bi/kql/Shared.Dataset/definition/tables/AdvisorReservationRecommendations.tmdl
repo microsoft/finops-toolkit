@@ -380,14 +380,6 @@ table AdvisorReservationRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
-	column 'properties.extendedProperties.Region'
-		dataType: string
-		lineageTag: 68593266-9950-4caf-9522-ccfcbaa5d5e3
-		summarizeBy: none
-		sourceColumn: properties.extendedProperties.Region
-
-		annotation SummarizationSetBy = Automatic
-
 	column 'properties.extendedProperties.commitment'
 		dataType: string
 		lineageTag: e0b87d0c-8c42-4354-b85a-5fc93d4af06a
@@ -469,11 +461,10 @@ table AdvisorReservationRecommendations
 				      ['properties.extendedProperties.DatabaseSize'] = properties.extendedProperties.DatabaseSize,
 				      ['properties.extendedProperties.DatabaseName'] = properties.extendedProperties.DatabaseName,
 				      ['properties.extendedProperties.ServerName'] = properties.extendedProperties.ServerName,
-				      ['properties.extendedProperties.Region'] = properties.extendedProperties.Region,
 				      ['properties.extendedProperties.displaySKU'] = properties.extendedProperties.displaySKU,
 				      ['properties.extendedProperties.displayQty'] = toint(properties.extendedProperties.displayQty),
 				      ['properties.extendedProperties.location'] = properties.extendedProperties.location,
-				      ['properties.extendedProperties.region'] = properties.extendedProperties.region,
+				      ['properties.extendedProperties.region'] = coalesce(tostring(properties.extendedProperties.region), tostring(properties.extendedProperties.Region)),
 				      ['properties.extendedProperties.vmSize'] = properties.extendedProperties.vmSize,
 				      ['properties.extendedProperties.subId'] = properties.extendedProperties.subId,
 				      ['properties.extendedProperties.scope'] = properties.extendedProperties.scope,
@@ -496,7 +487,7 @@ table AdvisorReservationRecommendations
 				  NullHandling =
 				    if Source = null then
 							#table(
-								{ "id", "name", "properties.recommendationTypeId", "properties.shortDescription", "properties.resourceMetadata", "properties.suppressionIds", "properties.impactedField", "properties.impactedValue", "properties.lastUpdated", "properties.category", "properties.metadata", "properties.impact", "properties.shortDescription.problem", "properties.shortDescription.solution", "properties.extendedProperties.ObservationPeriodStartDate", "properties.extendedProperties.ObservationPeriodEndDate", "properties.extendedProperties.reservedResourceType", "properties.extendedProperties.annualSavingsAmount", "properties.extendedProperties.targetResourceCount", "properties.extendedProperties.HasRecommendation", "properties.extendedProperties.savingsCurrency", "properties.extendedProperties.IsInReplication", "properties.extendedProperties.Recommended_DTU", "properties.extendedProperties.Recommended_SKU", "properties.extendedProperties.ResourceGroup", "properties.extendedProperties.lookbackPeriod", "properties.extendedProperties.savingsAmount", "properties.extendedProperties.DatabaseSize", "properties.extendedProperties.DatabaseName", "properties.extendedProperties.ServerName", "properties.extendedProperties.Region", "properties.extendedProperties.displaySKU", "properties.extendedProperties.displayQty", "properties.extendedProperties.location", "properties.extendedProperties.region", "properties.extendedProperties.vmSize", "properties.extendedProperties.subId", "properties.extendedProperties.scope", "properties.extendedProperties.term", "properties.extendedProperties.sku", "properties.extendedProperties.qty", "properties.extendedProperties.commitment", "properties.extendedProperties.currentSku", "properties.extendedProperties.targetSku", "properties.extendedProperties.recommendationMessage", "properties.resourceMetadata.resourceId", "properties.resourceMetadata.singular", "properties.resourceMetadata.plural", "properties.resourceMetadata.action", "properties.resourceMetadata.source", "recommendedActions", "SortOrder" },
+								{ "id", "name", "properties.recommendationTypeId", "properties.shortDescription", "properties.resourceMetadata", "properties.suppressionIds", "properties.impactedField", "properties.impactedValue", "properties.lastUpdated", "properties.category", "properties.metadata", "properties.impact", "properties.shortDescription.problem", "properties.shortDescription.solution", "properties.extendedProperties.ObservationPeriodStartDate", "properties.extendedProperties.ObservationPeriodEndDate", "properties.extendedProperties.reservedResourceType", "properties.extendedProperties.annualSavingsAmount", "properties.extendedProperties.targetResourceCount", "properties.extendedProperties.HasRecommendation", "properties.extendedProperties.savingsCurrency", "properties.extendedProperties.IsInReplication", "properties.extendedProperties.Recommended_DTU", "properties.extendedProperties.Recommended_SKU", "properties.extendedProperties.ResourceGroup", "properties.extendedProperties.lookbackPeriod", "properties.extendedProperties.savingsAmount", "properties.extendedProperties.DatabaseSize", "properties.extendedProperties.DatabaseName", "properties.extendedProperties.ServerName", "properties.extendedProperties.displaySKU", "properties.extendedProperties.displayQty", "properties.extendedProperties.location", "properties.extendedProperties.region", "properties.extendedProperties.vmSize", "properties.extendedProperties.subId", "properties.extendedProperties.scope", "properties.extendedProperties.term", "properties.extendedProperties.sku", "properties.extendedProperties.qty", "properties.extendedProperties.commitment", "properties.extendedProperties.currentSku", "properties.extendedProperties.targetSku", "properties.extendedProperties.recommendationMessage", "properties.resourceMetadata.resourceId", "properties.resourceMetadata.singular", "properties.resourceMetadata.plural", "properties.resourceMetadata.action", "properties.resourceMetadata.source", "recommendedActions", "SortOrder" },
 								{}
 							)
 				    else Source,

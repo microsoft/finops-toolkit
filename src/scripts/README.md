@@ -14,6 +14,10 @@ On this page:
 - [🏷️ Get-Version](#️-get-version)
 - [🏷️ Update-Version](#️-update-version)
 - [🚚 Publish-Toolkit](#-publish-toolkit)
+- [🎬 Deploy-Demo](#-deploy-demo)
+- [📊 Build-PowerBI](#-build-powerbi)
+- [📊 Package-PowerBI](#-package-powerbi)
+- [📊 Save-PowerBIProject](#-save-powerbiproject)
 - [📦 Package-Toolkit](#-package-toolkit)
 - [©️ Add-CopyrightHeader](#️-add-copyrightheader)
 - [📁 New-Directory](#-new-directory)
@@ -454,6 +458,182 @@ Examples:
 
 <br>
 
+## 🎬 Deploy-Demo
+
+[Deploy-Demo.ps1](./Deploy-Demo.ps1) deploys and refreshes the FinOps hub instances that demo Power BI reports are built from.
+
+Demo reports in `PowerBI-demo.zip` are saved with data from a demo hub, so that hub has to be on the version being released and have data for the current month. Otherwise the demo either fails to refresh or ships with stale numbers.
+
+Two kinds of instances:
+
+- `ftk-demo` is the current demo hub, with 12 months of data. Demo reports are built from it.
+- `ftk-demo-v{version}` keeps one month of data for testing an older release. Stop its Data Explorer cluster after ingestion and it costs almost nothing to keep.
+
+Run `-Check` before a release. It reports the hub version and months of data, and fails when the hub is behind the toolkit version or has no data for the current month.
+
+| Parameter        | Description                                                                                       |
+| ---------------- | ------------------------------------------------------------------------------------------------- |
+| `‑Version`       | Optional. Deploys the versioned instance for a release (for example, "v15"). Default = the current demo hub. |
+| `‑Subscription`  | Optional. Name or ID of the subscription to deploy to. Default = "FTK Prod".                       |
+| `‑ResourceGroup` | Optional. Name of the resource group. Default = the instance name.                                 |
+| `‑Location`      | Optional. Azure region. Default = "westus".                                                        |
+| `‑Scope`         | Optional. Resource IDs to export cost data for. Default = the subscription being deployed to.      |
+| `‑Retention`     | Optional. Months of data the hub keeps. Default = 12, or 1 for a versioned instance.               |
+| `‑Backfill`      | Optional. Months of history to load. Backfilling is a one-time task for a new instance, so nothing is backfilled unless specified. |
+| `‑Check`         | Optional. Reports whether the demo hub is ready for a release without changing anything.           |
+| `‑Stop`          | Optional. Stops the Data Explorer cluster when finished. Default = true for versioned instances.   |
+| `‑Build`         | Optional. Builds the templates before deploying.                                                   |
+
+Examples:
+
+- Check whether the demo hub is ready for a release.
+
+  ```powershell
+  ./Deploy-Demo -Check
+  ```
+
+- Deploy or update the demo hub. Exports keep running on their own, so nothing is backfilled.
+
+  ```powershell
+  ./Deploy-Demo
+  ```
+
+- Load 12 months of history, which a new instance needs once.
+
+  ```powershell
+  ./Deploy-Demo -Backfill 12
+  ```
+
+- Deploy the versioned instance for v15.
+
+  ```powershell
+  ./Deploy-Demo -Version v15 -Backfill 1
+  ```
+
+<br>
+
+## 📊 Build-PowerBI
+
+[Build-PowerBI.ps1](./Build-PowerBI.ps1) generates the Power BI release artifacts:
+
+- One PBIT template per report in `release/pbit`, zipped into `PowerBI-kql.zip` and `PowerBI-storage.zip`.
+- One PBIP project per demo report (storage reports) in `release/pbix`, containing only the tables, relationships, and queries that report needs.
+
+Both come from a single prune, so the template and the demo report always match. The tables and queries each report keeps are listed in [src/power-bi/reports.json](../power-bi/reports.json). When you add a table or query to a report, add it there too.
+
+Templates ship with the data source parameters set to null. Demo projects keep the data source saved in the semantic model, which points at the demo hub.
+
+Demo reports ship to customers, so they read open data over HTTP like the templates do. They can't use the release URL, because it resolves to the last published release, which doesn't have open data files added during the release being built. `‑OpenDataUrl` sets where they read it from, and defaults to the open data files in the `main` branch. Every URL is checked at build time, so a file that isn't published yet fails here instead of when someone refreshes the demo.
+
+The URL ends up inside the demo reports, so it has to outlive the release. Only the `main` branch and release URLs are accepted. The release process merges to `main` before packaging Power BI, so the default is correct at release time.
+
+To build demo reports before that merge, add `‑TestOpenDataUrl` and pass a branch with `‑OpenDataUrl`. Those reports can't be released: the build warns, records it in the manifest, and `Package-PowerBI` refuses to package them.
+
+
+The build fails, with a message that names the report and what to add to `reports.json`, when:
+
+- A table the report keeps has columns that only differ by case, which Power BI can't load.
+- A visual on a visible page reads from a table the report doesn't keep. Hidden pages only log a warning.
+- A query, table, or measure the report keeps uses a table or query the report doesn't keep.
+
+| Parameter  | Description                                                                                  |
+| ---------- | -------------------------------------------------------------------------------------------- |
+| `‑Name`    | Optional. Name of the report to build. Wildcards supported. Default = \* (all).              |
+| `‑KQL`     | Optional. Builds the KQL reports. Default = false (builds all if no types are selected).     |
+| `‑Storage` | Optional. Builds the storage reports. Default = false (builds all if no types are selected). |
+| `‑NoPbip`  | Optional. Skips generating PBIP projects and only builds PBIT templates. Default = false.    |
+
+Examples:
+
+- Generate all templates and projects.
+
+  ```powershell
+  ./Build-PowerBI
+  ```
+
+- Generate the Cost summary storage template and project.
+
+  ```powershell
+  ./Build-PowerBI CostSummary -Storage
+  ```
+
+<br>
+
+## 📊 Package-PowerBI
+
+[Package-PowerBI.ps1](./Package-PowerBI.ps1) packages the three Power BI release files and reports what's left to do.
+
+On Windows, `-Unattended` does everything with one command: build, save demo PBIX files with Power BI Desktop (using [Save-PowerBIProject](#-save-powerbiproject)), validate, and package. Don't use the mouse or keyboard while it runs. Expect about 10 minutes per report, or an hour for all six. If an earlier test build is still in `release/pbix` (made with `‑TestOpenDataUrl`), it stops and asks for `-Build` once to rebuild against the main branch.
+
+Without `-Unattended`, the command is resumable: run it, save the projects it opens, then run it again. Either way, it works out which steps are already done, does the next one, and validates the result.
+
+Demo reports are saved in whatever report format Power BI Desktop uses. Since September 2026 that's the enhanced report format (PBIR), which Desktop converts reports to when it saves them. Both formats are accepted, but a PBIR demo report needs Power BI Desktop from September 2026 or later to open.
+
+Saved PBIX files are checked for the mistakes that are easy to make by hand — saved without data, saved from the unpruned source project, saved on the wrong page, saved with the wrong sensitivity label, or saved before the latest build — so a missed step fails here instead of shipping. With `-Unattended`, files that fail these checks are saved again automatically.
+
+| Parameter           | Description                                                                                                                        |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `‑Unattended`       | Optional. Saves the projects with Power BI Desktop automatically, then validates and packages them. Windows only. Default = false. |
+| `‑Open`             | Optional. Opens the projects that still need to be saved as PBIX files. Default = false.                                           |
+| `‑Build`            | Optional. Rebuilds the templates and projects even if they already exist. Default = false.                                         |
+| `‑Status`           | Optional. Reports what's done and what's left without changing anything. Default = false.                                          |
+| `‑SensitivityLabel` | Optional. Sensitivity label demo reports must have, if they have one. Default = "Public".                                          |
+
+Examples:
+
+- Build, save, validate, and package everything (Windows).
+
+  ```powershell
+  ./Package-PowerBI -Unattended
+  ```
+
+- Build whatever is missing and report the next step.
+
+  ```powershell
+  ./Package-PowerBI
+  ```
+
+- Open the projects that still need to be saved as PBIX files.
+
+  ```powershell
+  ./Package-PowerBI -Open
+  ```
+
+<br>
+
+## 📊 Save-PowerBIProject
+
+[Save-PowerBIProject.ps1](./Save-PowerBIProject.ps1) opens one Power BI project in Power BI Desktop, refreshes its data, applies the sensitivity label, saves it as a PBIX file, and closes Power BI Desktop. `Package-PowerBI -Unattended` calls it for each demo report, so you usually don't need to run it directly.
+
+Data is refreshed through the Analysis Services engine that Power BI Desktop runs locally, so refresh errors stop the script instead of saving an empty report. When the engine can't refresh (it can't load every connector, like Azure Resource Graph), the refresh is retried with Power BI Desktop's own Refresh button. Saving uses Windows UI Automation. If a step can't be automated, the script stops with a message that names the step and saves a screenshot next to the PBIX file (`*.error.png`). Save that report by hand and rerun `Package-PowerBI`.
+
+Requirements:
+
+- Windows with Power BI Desktop installed and associated with `.pbip` files.
+- An interactive desktop session. Don't use the mouse or keyboard while it runs.
+
+- Sign in to Power BI Desktop, and refresh one demo project by hand once so Power BI Desktop stores the credentials for the demo data source. Nothing here can sign in or answer a credential prompt. A sign-in window stops the script right away, and a missing credential fails the refresh with the error the engine reports.
+
+The sensitivity label is applied only when Power BI Desktop offers one and the control is enabled. Tenants without labels show the button greyed out, which is detected and skipped. A report saved without a label passes validation; a report saved with any label other than the expected one fails.
+
+| Parameter           | Description                                                                                                    |
+| ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `‑Path`             | Required. Path to the PBIP file to open.                                                                       |
+| `‑Destination`      | Optional. Path of the PBIX file to save. Default = the PBIP path with a .pbix extension.                       |
+| `‑SensitivityLabel` | Optional. Name of the sensitivity label to apply. Default = "Public".                                          |
+| `‑TimeoutMinutes`   | Optional. Maximum number of minutes to wait for Power BI Desktop to open and refresh the report. Default = 30. |
+| `‑SkipRefresh`      | Optional. Saves the report without refreshing data. Default = false.                                           |
+
+Example:
+
+- Refresh the Cost summary demo project and save it as a PBIX file.
+
+  ```powershell
+  ./Save-PowerBIProject ../../release/pbix/CostSummary.storage.pbip
+  ```
+
+<br>
+
 ## 📦 Package-Toolkit
 
 [Package-Toolkit.ps1](./Package-Toolkit.ps1) packages all toolkit templates as ZIP files for release.
@@ -462,7 +642,9 @@ Examples:
 | ----------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `‑Template` | Optional. Name of the template or module to package. Default = \* (all).                                                   |
 | `‑Build`    | Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false.                           |
-| `‑PowerBI`  | Optional. Indicates whether to open Power BI files as part of the packaging process. Default = false.                      |
+| `‑CopyFiles` | Optional. Indicates whether to copy templates and open data files. Default = false.                                       |
+| `‑OpenPBI`  | Optional. Opens the generated Power BI projects to be saved as PBIX files. Same as `Package-PowerBI -Open`. Default = false. |
+| `‑ZipPBI`   | Optional. Validates the saved PBIX files and packages PowerBI-demo.zip. Same as `Package-PowerBI`. Default = false.        |
 | `‑Preview`  | Optional. Indicates that the template(s) should be saved as a preview only. Does not package other files. Default = false. |
 
 Examples:
