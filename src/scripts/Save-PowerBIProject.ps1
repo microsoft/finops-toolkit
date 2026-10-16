@@ -326,6 +326,9 @@ function Stop-Desktop([System.Diagnostics.Process] $Process)
     Get-CimInstance Win32_Process -Filter "ParentProcessId = $($Process.Id)" -ErrorAction SilentlyContinue `
     | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
     Stop-Process -Id $Process.Id -Force -ErrorAction SilentlyContinue
+
+    # Stop-Process returns before the process exits; wait so the PBIX is no longer locked when the backup is restored
+    try { [void]$Process.WaitForExit(10000) } catch { Write-Verbose "Could not wait for Power BI Desktop to exit: $($_.Exception.Message)" }
 }
 
 function Import-TabularLibrary
