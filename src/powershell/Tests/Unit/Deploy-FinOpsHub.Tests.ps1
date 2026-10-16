@@ -302,6 +302,20 @@ InModuleScope 'FinOpsToolkit' {
                     $TemplateParameterObject.enableNatGateway -eq $true
                 } -Times 1
             }
+
+            It 'Should pass enableKeyVaultRbacAuthorization only when the switch is set on version 15.0 or later' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -EnableKeyVaultRbacAuthorization -Version '15.0' } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.enableKeyVaultRbacAuthorization -eq $true
+                } -Times 1
+            }
+
+            It 'Should not pass enableKeyVaultRbacAuthorization when the switch is not set' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    -not $TemplateParameterObject.ContainsKey('enableKeyVaultRbacAuthorization')
+                } -Times 1
+            }
         }
 
         Context 'Version parsing' {

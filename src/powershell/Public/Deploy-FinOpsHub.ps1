@@ -350,9 +350,9 @@ function Deploy-FinOpsHub
                 $parameterSplat.TemplateParameterObject.Add('enablePurgeProtection', $EnablePurgeProtection.IsPresent)
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '15.0')
+            if ($EnableKeyVaultRbacAuthorization -and ($Version -eq 'latest' -or [version]$Version -ge '15.0'))
             {
-                $parameterSplat.TemplateParameterObject.Add('enableKeyVaultRbacAuthorization', $EnableKeyVaultRbacAuthorization.IsPresent)
+                $parameterSplat.TemplateParameterObject.Add('enableKeyVaultRbacAuthorization', $true)
             }
 
             # Only pass enableNatGateway when private mode is requested. This keeps public/vnet
