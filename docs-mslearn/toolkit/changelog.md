@@ -59,8 +59,13 @@ The following section lists features and enhancements that are currently in deve
 
 ### [Power BI reports](power-bi/reports.md)
 
+_**Breaking change**_
+
+- **Added**
+  - Added support for incremental refresh on the **Costs** table in storage reports. Power BI can now detect the **RangeStart**/**RangeEnd** filter on the `x_IncrementalRefreshDate` column. To learn more, see [Configure incremental refresh](power-bi/setup.md#configure-incremental-refresh) ([#2314](https://github.com/microsoft/finops-toolkit/issues/2314)).
 - **Changed**
   - Switched the InstanceSizeFlexibility table in the storage and KQL shared datasets from the retired `ccmstorageprod` AutofitComboMeterData.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file, joined to reservation recommendations on the unique ARM SKU name ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+  - Changed the `x_IncrementalRefreshDate` column in storage reports from text to Date/Time. Update any custom filters, measures, or visuals that treat it as text or a number ([#2314](https://github.com/microsoft/finops-toolkit/issues/2314)).
 - **Fixed**
   - Fixed the storage reports failing to refresh when the Cost Management export uses the FOCUS 1.2 schema. The FOCUS 1.2 branch searched for a column named `SkuMeterName` instead of `SkuMeter`, and the surrounding block assumed the FOCUS 1.0 columns (`x_InvoiceId`, `x_PricingCurrency`, `x_SkuMeterName`) were always present, which fails for a storage container that holds only FOCUS 1.2 exports. Added a lint rule that fails the build when a Power Query column name doesn't exist ([#2332](https://github.com/microsoft/finops-toolkit/issues/2332)).
 
