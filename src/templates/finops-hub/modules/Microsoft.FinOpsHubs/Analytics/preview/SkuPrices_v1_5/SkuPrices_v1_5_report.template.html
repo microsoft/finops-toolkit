@@ -189,8 +189,8 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
     return '<div class="result"><h3>' + label + ' · differs</h3><div class="tbl"><table><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div></div>';
   }
   function sideHtml(k, q, s) {
-    return '<div class="side ' + k + '">' +
-      '<div class="side-head"><span class="side-name">' + k + ' <code>' + TABLE[k] + '</code></span>' +
+    return '<div class="side ' + esc(k) + '">' +
+      '<div class="side-head"><span class="side-name">' + esc(k) + ' <code>' + esc(TABLE[k]) + '</code></span>' +
       '<button class="copy" type="button" data-q="' + esc(q) + '">Copy query</button></div>' +
       '<div class="metrics"><span><b class="num">' + s.Operators + '</b> operators</span><span><b class="num">' + s.Joins + '</b> joins</span><span><b class="num">' + ms(s.Ms) + '</b></span><span><b class="num">' + ms(s.CpuMs) + '</b> CPU</span><span><b class="num">' + mb(s.MemoryMB) + '</b></span><span><b class="num">' + big(s.RowsScanned) + '</b> scanned</span></div>' +
       '<pre><code>' + highlight(q) + '</code></pre></div>';
@@ -198,7 +198,7 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
   const board = document.querySelector('#scoreboard tbody'), foot = document.querySelector('#scoreboard tfoot'), main = document.getElementById('scenarios');
   const keys = ['Simpler', 'Faster', 'Cpu', 'Memory', 'Scanned', 'Portable', 'Correct'];
   data.forEach(s => {
-    board.insertAdjacentHTML('beforeend', '<tr><td><a href="#' + s.Id + '">' + s.Id + '</a> ' + esc(s.Name) + '</td>' +
+    board.insertAdjacentHTML('beforeend', '<tr><td><a href="#' + esc(s.Id) + '">' + esc(s.Id) + '</a> ' + esc(s.Name) + '</td>' +
       cell(s, 'Simpler', cx) + cell(s, 'Faster', x => ms(x.Ms)) + cell(s, 'Cpu', x => ms(x.CpuMs)) + cell(s, 'Memory', x => mb(x.MemoryMB)) +
       cell(s, 'Scanned', x => big(x.RowsScanned)) + cell(s, 'Portable', x => x.XColumns) + cell(s, 'Correct') + '</tr>');
     const same = (s.Expect || '').startsWith('same');
@@ -206,8 +206,8 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
     const why = same ? '' : '<p class="src">' + esc((s.Expect || '').replace(/^different\s*\(?/, '').replace(/\)$/, '')) + '</p>';
     const check = s.Check ? '<p class="src">Testing appends <code>' + esc(s.Check) + '</code> to every query so results can be compared.</p>' : '';
     main.insertAdjacentHTML('beforeend',
-      '<details class="scenario" id="' + s.Id + '"' + (s.Match ? '' : ' open') + '>' +
-      '<summary><span class="s-id">' + s.Id + '</span><span class="s-name">' + esc(s.Name) + '</span>' + p + '</summary>' +
+      '<details class="scenario" id="' + esc(s.Id) + '"' + (s.Match ? '' : ' open') + '>' +
+      '<summary><span class="s-id">' + esc(s.Id) + '</span><span class="s-name">' + esc(s.Name) + '</span>' + p + '</summary>' +
       '<div class="body"><p class="q">' + esc(s.Question) + '</p><p class="src">Source: ' + esc(s.Source) + '</p>' + why + check +
       '<div class="pair">' + (s.Sides || ['Rows', 'Columns']).map(k => sideHtml(k, s[k + 'Query'], s[k])).join('') + '</div>' + resultHtml(s) + '</div></details>');
   });
