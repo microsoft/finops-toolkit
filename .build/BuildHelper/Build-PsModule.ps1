@@ -58,11 +58,11 @@ function Build-PsModule
         RequiredModules   = @(
             @{
                 ModuleName    = 'Az.Accounts'
-                ModuleVersion = '2.17.0'
+                ModuleVersion = '5.4.0'
             },
             @{
                 ModuleName    = 'Az.Resources'
-                ModuleVersion = '6.5.1'
+                ModuleVersion = '9.1.0'
             }
         )
         IconUri           = 'https://raw.githubusercontent.com/microsoft/finops-toolkit/4747859b1c800f49d5b0c3cd7894a40fe8641c3a/src/images/FinOpsToolkit.svg'

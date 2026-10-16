@@ -39,7 +39,7 @@ param remoteHubStorageUri string = ''
 @secure()
 param remoteHubStorageKey string = ''
  
-@description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant User Access Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
+@description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant the Role Based Access Control Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
 param enableManagedExports bool = true
 
 @description('Optional. Enable recommendations ingested from Azure Resource Graph based on configurable queries. The Data Factory managed identity requires Reader role on management groups or subscriptions to execute Resource Graph queries. Default: false.')
@@ -162,7 +162,7 @@ param dataExplorerFinalRetentionInMonths int = 13
 @description('Optional. Enable public access to FinOps hubs resources.  Default: true.')
 param enablePublicAccess bool = true
 
-@description('Optional. Deploy a NAT Gateway for controlled outbound access when private routing is enabled. When true, subnets disable Azure default outbound access and route through the NAT Gateway. Ignored when enablePublicAccess is true. Default: false.')
+@description('Optional. Deploy a NAT Gateway for controlled outbound access when private routing is enabled. When true, the script and Data Explorer subnets route outbound traffic through the NAT Gateway. Ignored when enablePublicAccess is true. Default: false.')
 param enableNatGateway bool = false
 
 @description('Optional. Address space for the workload. Minimum /26 subnet size is required for the workload. Default: "10.20.30.0/26".')

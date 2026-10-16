@@ -3,7 +3,7 @@ title: FinOps hubs overview
 description: FinOps hubs provide a reliable platform for cost analytics, insights, and optimization, supporting large accounts and organizations.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/13/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -137,6 +137,9 @@ To create a new FinOps hub, follow these steps:
 
 For more detailed instructions, see [Create and update FinOps hubs](deploy.md). If you run into any issues, refer to the [Troubleshooting guide](../help/troubleshooting.md).
 
+> [!TIP]
+> Want to explore the hub's KQL and data model before deploying Azure resources? See [Run FinOps hubs locally](run-hubs-locally.md).
+
 <br>
 
 ## Get started with hubs
@@ -224,7 +227,7 @@ Related FinOps capabilities:
 - [Data ingestion](../../framework/understand/ingestion.md)
 - [Reporting and analytics](../../framework/understand/reporting.md)
 - [Rate optimization](../../framework/optimize/rates.md)
-- [Workload optimization](../../framework/optimize/workloads.md)
+- [Usage optimization](../../framework/optimize/workloads.md)
 
 Related products:
 

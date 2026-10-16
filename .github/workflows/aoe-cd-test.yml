@@ -32,9 +32,9 @@ jobs:
           Install-Module -Name Az.Automation -RequiredVersion 1.10.0 -Force
           Install-Module -Name Microsoft.Graph.Authentication,Microsoft.Graph.Identity.DirectoryManagement -Force
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Login via Az module
-        uses: azure/login@hf_447_release
+        uses: azure/login@264ef4588d3ca547fea5296679ee9f8a4766d4df # hf_447_release
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
