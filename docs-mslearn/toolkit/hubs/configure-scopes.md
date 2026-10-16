@@ -3,7 +3,7 @@ title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: flanakin
 ms.author: micflan
-ms.date: 05/14/2026
+ms.date: 09/09/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -116,7 +116,7 @@ Cost Management provides the following 5 types of exports:
 FinOps hubs support the following dataset types, versions, and API versions:
 
 - FocusCost: 1.2-preview, 1.0r2, 1.0, 1.0-preview(v1)
-- PriceSheet: 2023-05-01
+- PriceSheet: 2023-05-01 (EA and MCA), 2024-08-01 (MCA only)
 - ReservationDetails: 2023-03-01
 - ReservationRecommendations: 2023-05-01
 - ReservationTransactions: 2023-05-01
