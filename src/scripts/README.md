@@ -466,22 +466,22 @@ Demo reports in `PowerBI-demo.zip` are saved with data from a demo hub, so that 
 
 Two kinds of instances:
 
-- `ftk-demo` is the current demo hub, with 12 months of data. Demo reports are built from it.
-- `ftk-demo-v{version}` keeps one month of data for testing an older release.
+- `ftk-demo` is the current demo hub, with 36 months of data. Demo reports are built from it. Its Data Explorer cluster is `ftk-demo-hub`, because cluster names are unique across Azure and `ftk-demo` is taken.
+- `ftk-demo-v{NN}` (for example, `ftk-demo-v07` or `ftk-demo-v14`) is for opening reports from that release. The resource group, hub, and Data Explorer cluster share the name. The version being built deploys from source; older releases use the released template through the FinOps toolkit module. The current and previous 3 releases keep 3 months of data, and older ones keep 1 month.
 
-Every Data Explorer cluster is set to stop itself when idle, so an instance nobody is using costs almost nothing to keep. The script also gives the hub access to the scopes it exports and starts the export setup, because managed exports don't run without that access.
+Every instance uses a dev/test Data Explorer SKU and stops itself when idle, so an instance nobody is using costs almost nothing to keep. The script also gives the hub access to the scopes it exports and starts the export setup, because managed exports don't run without that access.
 
 Run `-Check` before a release. It reports the hub version and months of data, and fails when the hub is behind the toolkit version or has no data for the current month.
 
 | Parameter        | Description                                                                                       |
 | ---------------- | ------------------------------------------------------------------------------------------------- |
-| `‑Version`       | Optional. Deploys the versioned instance for a release (for example, "v15"). Default = the current demo hub. |
+| `‑Version`       | Optional. Deploys the versioned instance for a release (for example, "v15", "v07", or "v0.7"). Default = the current demo hub. |
 | `‑Subscription`  | Optional. Name or ID of the subscription to deploy to. Default = "FTK Prod".                       |
 | `‑ResourceGroup` | Optional. Name of the resource group. Default = the instance name.                                 |
 | `‑Location`      | Optional. Azure region. Default = "westus".                                                        |
 | `‑Scope`         | Optional. Resource IDs to export cost data for. Default = the subscription being deployed to.      |
-| `‑Retention`     | Optional. Months of data the hub keeps. Default = 12, or 1 for a versioned instance.               |
-| `‑DataExplorerSku` | Optional. Data Explorer SKU, for when a region has no capacity for the default. Default = "Standard_E2ads_v5", or "Dev(No SLA)_Standard_E2a_v4" for a versioned instance. |
+| `‑Retention`     | Optional. Months of data the hub keeps. Default = 36, 3 for the current and previous 3 releases, or 1 for older releases.               |
+| `‑DataExplorerSku` | Optional. Data Explorer SKU. Use a dev/test SKU. Default = "Dev(No SLA)_Standard_D11_v2". |
 | `‑Backfill`      | Optional. Months of history to load. Backfilling is a one-time task for a new instance, so nothing is backfilled unless specified. |
 | `‑Check`         | Optional. Reports whether the demo hub is ready for a release without changing anything.           |
 | `‑Build`         | Optional. Builds the templates before deploying.                                                   |
@@ -500,10 +500,10 @@ Examples:
   ./Deploy-Demo
   ```
 
-- Load 12 months of history, which a new instance needs once.
+- Load 36 months of history, which a new instance needs once.
 
   ```powershell
-  ./Deploy-Demo -Backfill 12
+  ./Deploy-Demo -Backfill 36
   ```
 
 - Deploy the versioned instance for v15.
