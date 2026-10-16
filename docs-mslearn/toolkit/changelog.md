@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/15/2026
+ms.date: 10/16/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -132,6 +132,7 @@ _Released June 2026_
   - Fixed Data Factory ingestion memory pressure during emptiness filtering.
     - Replaced `isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))` with separate `isnotempty()` checks in FinOps hub ingestion scripts to avoid temporary string allocation.
   - Hardened the reservation price backfill to select the highest on-demand price (`max()` instead of `min()`) when duplicate price rows collapse under a single reservation price lookup key, preventing understated commitment discount savings ([#2189](https://github.com/microsoft/finops-toolkit/pull/2189)).
+  - Fixed hub redeploys and upgrades resetting data retention to the defaults, which purged historical data in Data Explorer and changed export and ingestion retention. Retention parameters no longer have template defaults, so a deployment that doesn't specify a value keeps the current value in **config/settings.json** while explicit values, including lower ones, are still applied. New hubs still use the documented defaults, the Azure portal only applies retention values that were changed from the default, and redeploys no longer set Data Explorer raw table retention to 0 days before applying the requested value ([#2206](https://github.com/microsoft/finops-toolkit/issues/2206), [#2348](https://github.com/microsoft/finops-toolkit/issues/2348)).
 
 ### [Power BI reports](power-bi/reports.md) v15
 
