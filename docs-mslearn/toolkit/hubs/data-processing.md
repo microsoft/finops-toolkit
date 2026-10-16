@@ -3,7 +3,7 @@ title: FinOps hubs data processing
 description: Learn how FinOps hubs process data, including scope setup, data normalization, and optimization, to enhance cost management and analysis.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 10/20/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -54,6 +54,7 @@ The following diagram depicts the end-to-end data ingestion process within FinOp
    4. After ingestion, the **ingestion_ETL_dataExplorer** pipeline performs some cleanup, including purging data in the final table that is past the data retention period.
       - As of 0.7, Data Explorer applies data retention in raw tables while data retention in final tables is applied by the ingestion pipeline. If data ingestion stops, historical data isn't purged.
       - Data retention can be configured during the template deployment or manually in the **config/settings.json** file in storage.
+      - When you redeploy or upgrade a hub, retention parameters you don't specify keep their current values in **config/settings.json**. New hubs use the default values. In the Azure portal, values left at the default keep the current settings. To set a value back to the default on an existing hub, edit **config/settings.json** or specify the value with [Deploy-FinOpsHub](../powershell/hubs/deploy-finopshub.md). Data Explorer raw table retention from **config/settings.json** is applied on the next deployment.
 6. (Optional) The **queries_DailySchedule** trigger runs the **queries_ExecuteETL** pipeline once per day to query Azure Resource Graph for additional recommendations and saves results to the **ingestion/Recommendations** folder. [Learn more](#azure-resource-graph-recommendations).
 7. Reports and other tools like Power BI read data from Data Explorer or the **ingestion** container.
    - Data in Data Explorer can be read from the **Hub** database.

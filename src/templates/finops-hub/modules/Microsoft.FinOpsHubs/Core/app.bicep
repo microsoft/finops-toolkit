@@ -24,17 +24,17 @@ param scopesToMonitor array
 
 // TODO: Move export retention to the CM Exports app?
 // cSpell:ignore msexport
-@description('Optional. Number of days of data to retain in the msexports container. Default: 0.')
-param msexportRetentionInDays int = 0
+@description('Optional. Number of days of data to retain in the msexports container. If not specified, keeps the current value from settings.json (0 for new hubs).')
+param msexportRetentionInDays int?
 
-@description('Optional. Number of months of data to retain in the ingestion container. Default: 13.')
-param ingestionRetentionInMonths int = 13
+@description('Optional. Number of months of data to retain in the ingestion container. If not specified, keeps the current value from settings.json (13 for new hubs).')
+param ingestionRetentionInMonths int?
 
-@description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
-param rawRetentionInDays int = 0
+@description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. If not specified, keeps the current value from settings.json (0 for new hubs).')
+param rawRetentionInDays int?
 
-@description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
-param finalRetentionInMonths int = 13
+@description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. If not specified, keeps the current value from settings.json (13 for new hubs).')
+param finalRetentionInMonths int?
 
 
 //==============================================================================
@@ -125,22 +125,6 @@ module uploadSettings '../../fx/hub-deploymentScript.bicep' = {
         value: join(scopesToMonitor, '|')
       }
       {
-        name: 'msexportRetentionInDays'
-        value: string(msexportRetentionInDays)
-      }
-      {
-        name: 'ingestionRetentionInMonths'
-        value: string(ingestionRetentionInMonths)
-      }
-      {
-        name: 'rawRetentionInDays'
-        value: string(rawRetentionInDays)
-      }
-      {
-        name: 'finalRetentionInMonths'
-        value: string(finalRetentionInMonths)
-      }
-      {
         name: 'storageAccountName'
         value: app.storage
       }
@@ -148,6 +132,31 @@ module uploadSettings '../../fx/hub-deploymentScript.bicep' = {
         name: 'containerName'
         value: CONFIG
       }
+      // Only pass retention values that were explicitly specified so the script keeps stored values on redeploy (#2206, #2348)
+      ...(msexportRetentionInDays == null ? [] : [
+        {
+          name: 'msexportRetentionInDays'
+          value: string(msexportRetentionInDays)
+        }
+      ])
+      ...(rawRetentionInDays == null ? [] : [
+        {
+          name: 'rawRetentionInDays'
+          value: string(rawRetentionInDays)
+        }
+      ])
+      ...(ingestionRetentionInMonths == null ? [] : [
+        {
+          name: 'ingestionRetentionInMonths'
+          value: string(ingestionRetentionInMonths)
+        }
+      ])
+      ...(finalRetentionInMonths == null ? [] : [
+        {
+          name: 'finalRetentionInMonths'
+          value: string(finalRetentionInMonths)
+        }
+      ])
     ]
   }
 }
@@ -335,6 +344,9 @@ output storageUrlForPowerBI string = 'https://${app.storage}.dfs.${environment()
 
 @description('Name of the managed identity used to create and stop ADF triggers.')
 output triggerManagerIdentityName string = appRegistration.outputs.triggerManagerIdentityName
+
+@description('Effective number of days to retain data in the Data Explorer *_raw tables, as stored in settings.json after this deployment.')
+output rawRetentionInDays int = int(uploadSettings.outputs.scriptOutputs.?rawRetentionInDays ?? (rawRetentionInDays ?? 0))
 
 @description('Metadata describing shared resources created by the Core app.')
 output metadata CoreMetadata = {
