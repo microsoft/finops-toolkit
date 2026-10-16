@@ -59,15 +59,6 @@ if ($blob)
     }
 }
 
-# Remember retention values already stored in settings.json before any defaults are seeded below
-$storedIngestionMonths = $null
-$storedFinalMonths = $null
-if ($json -and $json.retention)
-{
-    if ($json.retention.ingestion -and $null -ne $json.retention.ingestion.months) { $storedIngestionMonths = [Int32]$json.retention.ingestion.months }
-    if ($json.retention.final -and $null -ne $json.retention.final.months) { $storedFinalMonths = [Int32]$json.retention.final.months }
-}
-
 # Set default if not found
 if (!$json)
 {
@@ -123,49 +114,29 @@ if (!($json.retention))
     $json | Add-Member -Name retention -Value (ConvertFrom-Json $retention) -MemberType NoteProperty
 }
 
-# Set or update msexports retention
-if (!($json.retention.msexports))
+# Set retention
+# NOTE: The template only passes retention values the deployment specifies. When a value isn't passed, keep the stored
+# value (or the default for new hubs) so a redeploy or upgrade never resets retention (#2206, #2348).
+function Set-Retention([string] $Name, [string] $Unit, [int] $Default, [string] $Requested)
 {
-    $json.retention | Add-Member -Name msexports -Value (ConvertFrom-Json "{""days"":$($env:msexportRetentionInDays)}") -MemberType NoteProperty
+    if (!($json.retention.$Name))
+    {
+        $json.retention | Add-Member -Name $Name -Value ([PSCustomObject]@{ $Unit = $Default }) -MemberType NoteProperty -Force
+    }
+    if (-not [string]::IsNullOrWhiteSpace($Requested))
+    {
+        Write-Output "  Setting $Name retention to $Requested $Unit..."
+        $json.retention.$Name.$Unit = [Int32]::Parse($Requested)
+    }
+    else
+    {
+        Write-Output "  Keeping $Name retention at $($json.retention.$Name.$Unit) $Unit..."
+    }
 }
-else
-{
-    $json.retention.msexports.days = [Int32]::Parse($env:msexportRetentionInDays)
-}
-
-# Set ingestion retention
-# NOTE: Bicep always passes a value here (defaulting to 13 if the caller didn't specify one), so this script
-# cannot tell an explicit redeploy value from a silently-defaulted one. A value already stored in settings.json
-# is therefore never changed on redeploy -- a silent change ages out data the purge pipeline acts on (#2206).
-# The requested value only applies when nothing was stored yet (new hub or pre-0.4 settings).
-if (!($json.retention.ingestion))
-{
-    $json.retention | Add-Member -Name ingestion -Value (ConvertFrom-Json "{""months"":$($env:ingestionRetentionInMonths)}") -MemberType NoteProperty
-}
-else
-{
-    $json.retention.ingestion.months = if ($null -ne $storedIngestionMonths) { $storedIngestionMonths } else { [Int32]::Parse($env:ingestionRetentionInMonths) }
-}
-
-# Set or update raw retention
-if (!($json.retention.raw))
-{
-    $json.retention | Add-Member -Name raw -Value (ConvertFrom-Json "{""days"":$($env:rawRetentionInDays)}") -MemberType NoteProperty
-}
-else
-{
-    $json.retention.raw.days = [Int32]::Parse($env:rawRetentionInDays)
-}
-
-# Set final retention (keeps any stored value -- see note above)
-if (!($json.retention.final))
-{
-    $json.retention | Add-Member -Name final -Value (ConvertFrom-Json "{""months"":$($env:finalRetentionInMonths)}") -MemberType NoteProperty
-}
-else
-{
-    $json.retention.final.months = if ($null -ne $storedFinalMonths) { $storedFinalMonths } else { [Int32]::Parse($env:finalRetentionInMonths) }
-}
+Set-Retention -Name msexports -Unit days   -Default 0  -Requested $env:msexportRetentionInDays
+Set-Retention -Name ingestion -Unit months -Default 13 -Requested $env:ingestionRetentionInMonths
+Set-Retention -Name raw       -Unit days   -Default 0  -Requested $env:rawRetentionInDays
+Set-Retention -Name final     -Unit months -Default 13 -Requested $env:finalRetentionInMonths
 
 # Updating settings
 Write-Output "Updating version to $env:ftkVersion..."
@@ -181,3 +152,8 @@ $text | Out-File $filePath
 # Upload new/updated settings
 Write-Output "Uploading settings.json file..."
 Set-AzStorageBlobContent @storageContext -File $filePath -Force | Out-Null
+
+# Return the effective raw retention so the Data Explorer setup applies the stored value
+$DeploymentScriptOutputs = @{
+    rawRetentionInDays = [Int32]$json.retention.raw.days
+}

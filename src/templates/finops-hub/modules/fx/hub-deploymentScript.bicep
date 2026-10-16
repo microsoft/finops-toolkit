@@ -125,4 +125,5 @@ resource script 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
 // Outputs
 //==============================================================================
 
-// None
+@description('Values the script set in $DeploymentScriptOutputs. Empty if the script did not set any.')
+output scriptOutputs object = script.properties.?outputs ?? {}
