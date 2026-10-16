@@ -159,9 +159,9 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
   const big = v => v == null ? '—' : (v >= 1e6 ? (v / 1e6).toFixed(2) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(0) + 'K' : v);
   const fmt = v => v === null || v === undefined ? '' : (typeof v === 'number' && !Number.isInteger(v) ? (+v.toFixed(6)).toLocaleString('en-US', { maximumFractionDigits: 6 }) : typeof v === 'number' ? v.toLocaleString('en-US') : v);
   const cx = s => s.Operators + 2 * s.Joins + s.Lets;
-  const pill = w => '<span class="w ' + (w === 'n/a' ? 'na' : w) + '">' + w + '</span>';
+  const pill = w => '<span class="w ' + esc(w === 'n/a' ? 'na' : w) + '">' + esc(w) + '</span>';
   const subs = (s, f) => (s.Sides || ['Rows', 'Columns']).map(k => f(s[k])).join(' · ');
-  function cell(s, key, f) { return '<td class="c">' + pill((s.Score || {})[key]) + (f ? '<span class="sub">' + subs(s, f) + '</span>' : '') + '</td>'; }
+  function cell(s, key, f) { return '<td class="c">' + pill((s.Score || {})[key]) + (f ? '<span class="sub">' + esc(subs(s, f)) + '</span>' : '') + '</td>'; }
 
   // One table when every layout returns the same answer; one row is shown as label/value pairs
   function resultHtml(s) {
@@ -182,7 +182,7 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
     const keyOf = r => String(r[0]);
     const keys = [...new Set(sides.flatMap(k => (s[k].Data || []).map(keyOf)))];
     const valCols = first.Columns.slice(1);
-    let head = '<tr><th>' + esc(first.Columns[0]) + '</th>' + valCols.map(c => sides.map(k => '<th class="r ' + k + '">' + esc(c) + ' · ' + k + '</th>').join('')).join('') + '</tr>';
+    let head = '<tr><th>' + esc(first.Columns[0]) + '</th>' + valCols.map(c => sides.map(k => '<th class="r ' + esc(k) + '">' + esc(c) + ' · ' + esc(k) + '</th>').join('')).join('') + '</tr>';
     let body = keys.map(key => '<tr><td>' + esc(key) + '</td>' + valCols.map((c, i) => sides.map(k => {
       const row = (s[k].Data || []).find(r => keyOf(r) === key); return '<td class="r">' + (row ? esc(fmt(row[i + 1])) : '—') + '</td>';
     }).join('')).join('') + '</tr>').join('');
@@ -192,7 +192,7 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
     return '<div class="side ' + esc(k) + '">' +
       '<div class="side-head"><span class="side-name">' + esc(k) + ' <code>' + esc(TABLE[k]) + '</code></span>' +
       '<button class="copy" type="button" data-q="' + esc(q) + '">Copy query</button></div>' +
-      '<div class="metrics"><span><b class="num">' + s.Operators + '</b> operators</span><span><b class="num">' + s.Joins + '</b> joins</span><span><b class="num">' + ms(s.Ms) + '</b></span><span><b class="num">' + ms(s.CpuMs) + '</b> CPU</span><span><b class="num">' + mb(s.MemoryMB) + '</b></span><span><b class="num">' + big(s.RowsScanned) + '</b> scanned</span></div>' +
+      '<div class="metrics"><span><b class="num">' + esc(s.Operators) + '</b> operators</span><span><b class="num">' + esc(s.Joins) + '</b> joins</span><span><b class="num">' + esc(ms(s.Ms)) + '</b></span><span><b class="num">' + esc(ms(s.CpuMs)) + '</b> CPU</span><span><b class="num">' + esc(mb(s.MemoryMB)) + '</b></span><span><b class="num">' + esc(big(s.RowsScanned)) + '</b> scanned</span></div>' +
       '<pre><code>' + highlight(q) + '</code></pre></div>';
   }
   const board = document.querySelector('#scoreboard tbody'), foot = document.querySelector('#scoreboard tfoot'), main = document.getElementById('scenarios');
