@@ -141,6 +141,7 @@ if ($update -or $Version)
 
     # Update version in marketplace.json plugin entries
     Write-Verbose "Updating marketplace.json files..."
+    $semVer = & "$PSScriptRoot/Get-Version" -AsSemVer
     Get-RepositoryVersionFiles "marketplace.json" `
     | ForEach-Object {
         $json = Get-Content $_ -Raw | ConvertFrom-Json
@@ -149,13 +150,13 @@ if ($update -or $Version)
             Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
             if ($json.PSObject.Properties['metadata'] -and $json.metadata.PSObject.Properties['version'])
             {
-                $json.metadata.version = $ver
+                $json.metadata.version = $semVer
             }
             foreach ($plugin in $json.plugins)
             {
                 if ($plugin.PSObject.Properties['version'])
                 {
-                    $plugin.version = $ver
+                    $plugin.version = $semVer
                 }
             }
             $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
