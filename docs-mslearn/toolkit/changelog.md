@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/14/2026
+ms.date: 10/15/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -33,6 +33,7 @@ The following section lists features and enhancements that are currently in deve
   - Clarified that the FinOps toolkit exclusively manages the FinOps hub virtual network and documented customer-managed private endpoints as the preferred private-access topology, with virtual network peering as a secondary option ([#2156](https://github.com/microsoft/finops-toolkit/issues/2156)).
   - Replaced redundant `tolower()` comparisons in hub KQL with case-insensitive operators (`has`, `=~`, `!~`) so the engine can use the term index instead of scanning every row ([#2213](https://github.com/microsoft/finops-toolkit/issues/2213)).
   - Replaced whole-term `contains` matches with `has` across hub KQL and the query catalog (resource ID paths, licensing phrases, SKU description terms) and added a per-row operator-equivalence regression harness with unit test coverage ([#2220](https://github.com/microsoft/finops-toolkit/pull/2220)).
+  - Documented how the hub schema's columns nest in the hub database guide - the organization chain and the two parallel service chains - and brought the `Costs()` column reference back in line with the deployed schema by adding 27 missing columns, correcting three columns still listed under the names hubs v12 renamed away from, and fixing one column typed as `long` instead of `int` ([#2325](https://github.com/microsoft/finops-toolkit/issues/2325), [#2329](https://github.com/microsoft/finops-toolkit/issues/2329)).
 - **Fixed**
   - Fixed hub redeploys silently resetting the stored ingestion and Data Explorer final retention to the 13-month default when a custom value wasn't explicitly re-specified, which caused the purge pipeline to age out historical data on the next run. Stored values are no longer changed by a redeploy; edit `config/settings.json` to change them ([#2206](https://github.com/microsoft/finops-toolkit/issues/2206)).
   - Fixed ADF schedule trigger deployment failures (`InvalidWorkflowTriggerRecurrence`) in regions not covered by the region-to-time-zone map (for example, Sweden Central), where the trigger's `startTime` was missing the required `Z` suffix for the `UTC` fallback time zone ([#2157](https://github.com/microsoft/finops-toolkit/issues/2157), [#2291](https://github.com/microsoft/finops-toolkit/pull/2291)).
@@ -41,7 +42,9 @@ The following section lists features and enhancements that are currently in deve
   - Fixed the `ContractedCost` recompute guard to compare with a null-safe tolerance instead of exact float equality, eliminating millions of no-op rewrites that polluted the `x_SourceValues` audit trail while preserving the null-cost backfill and no longer overwriting an existing cost when the unit price is missing ([#2216](https://github.com/microsoft/finops-toolkit/issues/2216)).
   - Fixed the SQL VMs without Azure Hybrid Benefit recommendation query to join on the SQL VM `virtualMachineResourceId` instead of a case-sensitive VM name match that skipped VMs with uppercase names and dropped duplicate names, and made all Azure Resource Graph join kinds explicit so no query relies on the `innerunique` default ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
   - Switched dimension enrichment in the v1_0/v1_2 ingestion transforms (`PricingUnits`, `Regions`, `ResourceTypes`, `Services`) from `join` to the broadcast-optimized `lookup` operator and deduplicated the `Services` mapping per resource type to prevent cost row fan-out ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
+  - Fixed FinOps hub dashboard "Governance, policy, and risk" and "FinOps tools and services" links that landed on a 404 page by linking directly to the Microsoft Learn pages ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
   - Fixed the v1_0 and v1_2 price transforms setting `x_CommitmentDiscountSpendEligibility` from reservation meters and `x_CommitmentDiscountUsageEligibility` from savings plan meters, the opposite of the FOCUS `CommitmentDiscountCategory` value the same transform assigns. The spend column now reports savings plan pricing and the usage column reports reservation pricing. Prices ingested after upgrading carry the corrected values; rows ingested earlier keep the old values until they are reingested ([#2279](https://github.com/microsoft/finops-toolkit/issues/2279)).
+  - Fixed FinOps hubs labeling FOCUS 1.0 cost data as FOCUS 1.2 in `x_SourceVersion`. The cost transform backfilled `PricingCurrency` from `x_PricingCurrency` before detecting the FOCUS version, so every 1.0 row looked like 1.2 and skipped the 1.0-specific fixes (for example, the savings plan purchase `ChargeFrequency` correction). Version detection now uses the value delivered by the export ([#2333](https://github.com/microsoft/finops-toolkit/pull/2333)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md)
 
@@ -59,6 +62,8 @@ The following section lists features and enhancements that are currently in deve
 
 - **Changed**
   - Switched the InstanceSizeFlexibility table in the storage and KQL shared datasets from the retired `ccmstorageprod` AutofitComboMeterData.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file, joined to reservation recommendations on the unique ARM SKU name ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+- **Fixed**
+  - Fixed the storage reports failing to refresh when the Cost Management export uses the FOCUS 1.2 schema. The FOCUS 1.2 branch searched for a column named `SkuMeterName` instead of `SkuMeter`, and the surrounding block assumed the FOCUS 1.0 columns (`x_InvoiceId`, `x_PricingCurrency`, `x_SkuMeterName`) were always present, which fails for a storage container that holds only FOCUS 1.2 exports. Added a lint rule that fails the build when a Power Query column name doesn't exist ([#2332](https://github.com/microsoft/finops-toolkit/issues/2332)).
 
 ### [Optimization Engine](optimization-engine/overview.md)
 
