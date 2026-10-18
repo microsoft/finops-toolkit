@@ -64,7 +64,7 @@ This step only applies if you are using Microsoft Fabric as a primary data store
 - You are using Azure Storage as your data store.
 - You are using Azure Data Explorer as your data store.
 
-The Microsoft Fabric eventhouse database schema must be manually updated with each release. For details, see [Set up Microsoft Fabric](deploy.md#optional-set-up-microsoft-fabric).
+The Microsoft Fabric eventhouse database schema must be manually updated with each release. For details, see [Set up Microsoft Fabric](deploy.md#optional-set-up-microsoft-fabric). Run the infrastructure script (`IngestionSetup_HubInfra.kql`) before the versioned script so new tables such as `CommitmentDiscountEligibility` exist before functions reference them.
 
 <br>
 
