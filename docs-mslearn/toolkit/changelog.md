@@ -18,14 +18,16 @@ ms.reviewer: brettwil
 
 This article summarizes the features and enhancements in each release of the FinOps toolkit.
 
-<!--
 <br>
 
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
 
--->
+### [FinOps hubs](hubs/finops-hubs-overview.md) v16
+
+- **Changed**
+  - Changed the Data Explorer dashboard's Cost summary, Savings summary, Savings breakdown by month, savings pie and trend, stacked cost + savings, and Effective Savings Rate tiles to derive their displayed List cost and Contracted cost operands from the same clamped, row-level savings basis as the results shown alongside them, so the on-screen equations (for example, "List − Contracted = Negotiated savings") always reconcile. This changes the Effective Savings Rate definition on the affected tiles from `(sum(ListCost) − sum(EffectiveCost)) / sum(ListCost)` to a derived List cost built from Effective cost plus the clamped Negotiated and Commitment savings sums. Total savings is now the sum of the clamped Negotiated and Commitment savings everywhere it is shown, commitment discount purchases are excluded from savings on every Summary and Rate optimization tile using the same `x_AmortizationClass != 'Principal'` filter, and the Effective Savings Rate shows blank instead of NaN when List cost is 0 ([#2093](https://github.com/microsoft/finops-toolkit/issues/2093)).
 
 <br><a name="latest"></a>
 
@@ -57,7 +59,6 @@ _Released October 2026_
 - **Changed**
   - Documented how the hub schema's columns nest in the hub database guide - the organization chain and the two parallel service chains - and brought the `Costs()` column reference back in line with the deployed schema by adding 27 missing columns, correcting three columns still listed under the names hubs v12 renamed away from, and fixing one column typed as `long` instead of `int` ([#2325](https://github.com/microsoft/finops-toolkit/issues/2325), [#2329](https://github.com/microsoft/finops-toolkit/issues/2329)).
   - Added a callout to the `config_RunBackfillJob` backfill option clarifying that it isn't supported on Microsoft Customer Agreement (MCA) billing accounts or billing profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
-  - Changed the Data Explorer dashboard's Cost summary, savings-breakdown, Savings by month, savings pie and trend, stacked cost + savings, and Effective Savings Rate tiles to derive their displayed List cost and Contracted cost operands from the same clamped, row-level savings basis as the results shown alongside them, so the on-screen equations (for example, "List − Contracted = Negotiated savings") always reconcile. This changes the Effective Savings Rate definition on the affected tiles from `(sum(ListCost) − sum(EffectiveCost)) / sum(ListCost)` to a derived List cost built from Effective cost plus the clamped Negotiated and Commitment savings sums. Total savings is now the sum of the clamped Negotiated and Commitment savings everywhere it is shown ([#2093](https://github.com/microsoft/finops-toolkit/issues/2093)).
   - Clarified that the FinOps toolkit exclusively manages the FinOps hub virtual network and documented customer-managed private endpoints as the preferred private-access topology, with virtual network peering as a secondary option ([#2156](https://github.com/microsoft/finops-toolkit/issues/2156)).
   - Replaced redundant `tolower()` comparisons in hub KQL with case-insensitive operators (`has`, `=~`, `!~`) so the engine can use the term index instead of scanning every row ([#2213](https://github.com/microsoft/finops-toolkit/issues/2213)).
   - Replaced whole-term `contains` matches with `has` across hub KQL and the query catalog (resource ID paths, licensing phrases, SKU description terms) and added a per-row operator-equivalence regression harness with unit test coverage ([#2220](https://github.com/microsoft/finops-toolkit/pull/2220)).
