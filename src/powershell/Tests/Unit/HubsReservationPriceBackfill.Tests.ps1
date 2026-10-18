@@ -47,6 +47,11 @@ Describe 'HubsReservationPriceBackfill' {
             $content | Should -Match 'isnotempty\(x_SkuMeterId\)(?!\s+and\s+isnotempty\(x_SkuOfferId\))' -Because 'the meter ID is still required to identify the on-demand price to recover, without also requiring the EA-only offer ID (the negative lookahead rules out matching the pre-fix combined condition)'
         }
 
+        It 'Should scope the offer-ID-less backfill to reservation usage rows: <Name>' -ForEach $ingestionFiles {
+            $content = Get-Content -Path $FullName -Raw
+            $content.Contains("and (isnotempty(x_SkuOfferId) or CommitmentDiscountCategory == 'Usage')") | Should -BeTrue -Because 'rows without an offer ID must only enter the backfill when they are reservation usage; otherwise every non-EA row would be imputed contracted and list values from effective when the price lookup misses'
+        }
+
         It 'Should leave x_SkuOfferId in the reservation price lookup key: <Name>' -ForEach $ingestionFiles {
             $content = Get-Content -Path $FullName -Raw
             $content.Contains('x_SkuMeterId, x_SkuOfferId))') | Should -BeTrue -Because 'the key is unchanged by this fix: for MCA x_SkuOfferId is blank on both sides (a no-op suffix), and for EA it keeps differentiating rows (e.g. Production vs Dev/Test offers) as before'
