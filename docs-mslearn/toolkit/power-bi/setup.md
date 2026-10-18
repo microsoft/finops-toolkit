@@ -106,7 +106,7 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
    - **Number of Months** &ndash; Optional number of closed months you would like to report on if you want to always show a specific number of recent months. If not specified, the report will include all data in storage.
    - **RangeStart** / **RangeEnd** &ndash; Optional date range you would like to limit to. If not specified, the report will include all data in storage.
      - We generally recommend leaving these dates empty. They are included to support incremental refresh. For steps, see [Configure incremental refresh](#configure-incremental-refresh).
-     - If you need to configure incremental refresh, consider using [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer instead.
+     - For larger datasets, consider using [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer instead.
      - FinOps hubs with Data Explorer offers improved performance and is recommended for anyone monitoring over $100,000 in total spend.
      - Storage reports only support ~$2 million of data without incremental refresh and ~$2 million per month in raw cost details. To learn more, see [Configure incremental refresh](/power-bi/connect-data/incremental-refresh-configure#define-policy).
 
@@ -136,6 +136,8 @@ To configure incremental refresh:
 6. Turn on **Incrementally refresh this table**, set the archive and refresh periods, and then select **Apply**.
    - The **Costs** query filters the `x_IncrementalRefreshDateTime` column by **RangeStart** and **RangeEnd**.
 7. Publish the report and refresh the semantic model in the Power BI service.
+
+Rows without a charge date (`x_IncrementalRefreshDateTime` is empty) are kept in every partition when a range is set, so they can be counted more than once. These rows are rare, but if you see inflated totals after enabling incremental refresh, check for them.
 
 If you leave **RangeStart** and **RangeEnd** empty, the **Costs** query doesn't filter by them and the report uses **Number of Months** as before. To learn more, see [Configure incremental refresh](/power-bi/connect-data/incremental-refresh-configure).
 
