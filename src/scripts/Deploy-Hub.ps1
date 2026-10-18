@@ -92,7 +92,7 @@
     Optional. Deploy with private networking (VNet and private endpoints, default outbound access). Equivalent to -NetworkMode vnet. Kept for back-compat. Default: false.
 
     .PARAMETER NetworkMode
-    Optional. Network mode: 'public' (default), 'vnet' (private endpoints, default outbound), or 'private' (private endpoints + NAT Gateway, subnets locked down — required when the 'Subnets should be private' policy is enforced).
+    Optional. Network mode: 'public' (default), 'vnet' (private endpoints, default outbound), or 'private' (private endpoints + NAT Gateway for controlled outbound access — required when the 'Subnets should be private' policy is enforced).
 
     .PARAMETER VirtualNetworkAddressPrefix
     Optional. Virtual network address prefix for private networking. Requires a /26 CIDR block. When set, also sets -Private. Default: "10.20.30.0/26".

@@ -85,7 +85,7 @@
     Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.
 
     .PARAMETER NetworkMode
-    Optional. Network mode for the hub: 'public' (default), 'vnet' (private endpoints, default outbound), or 'private' (private endpoints + NAT Gateway, subnets locked down with defaultOutboundAccess=false - required when the 'Subnets should be private' policy is enforced).
+    Optional. Network mode for the hub: 'public' (default), 'vnet' (private endpoints, default outbound), or 'private' (private endpoints + NAT Gateway for controlled outbound access - required when the 'Subnets should be private' policy is enforced).
 
     .PARAMETER DisablePublicAccess
     Optional. Deprecated. Use -NetworkMode 'vnet' or -NetworkMode 'private' instead. When set without -NetworkMode, behaves as -NetworkMode 'vnet'. Ignored when -NetworkMode is supplied.

@@ -107,6 +107,28 @@ param (
     $RunFailed
 )
 
+# Pester 6 is required. Several test files use -AllowNullOrEmptyForEach, which Pester 5 does not
+# know: it aborts during discovery with a ParameterBindingException that names the parameter but
+# not the cause, and the run continues with that file silently skipped. Resolve the module version
+# explicitly so a side-by-side Pester 5 install cannot win, and fail with an actionable message.
+# The CI workflow pins the same minimum (see .github/workflows/dev.yml).
+$ftk_MinPesterVersion = [version]'6.0.0'
+$ftk_Pester = Get-Module -Name Pester -ListAvailable `
+| Where-Object { $_.Version -ge $ftk_MinPesterVersion } `
+| Sort-Object Version -Descending `
+| Select-Object -First 1
+if (-not $ftk_Pester)
+{
+    $ftk_FoundPester = Get-Module -Name Pester -ListAvailable `
+    | Sort-Object Version -Descending `
+    | Select-Object -First 1 -ExpandProperty Version
+    Write-Error ("Pester $ftk_MinPesterVersion or later is required to run these tests" `
+            + $(if ($ftk_FoundPester) { " (found $ftk_FoundPester)" } else { ' (not installed)' }) `
+            + ". Run: Install-Module -Name Pester -MinimumVersion $ftk_MinPesterVersion -Scope CurrentUser -Repository PSGallery -Force")
+    return
+}
+Import-Module -ModuleInfo $ftk_Pester
+
 # Select tests to run
 if ($RunFailed)
 {

@@ -1,21 +1,21 @@
 ---
-title: FinOps toolkit Workload optimization report
-description: Learn about the Workload optimization report, which identifies opportunities for rightsizing and removing unused resources to enhance efficiency.
+title: FinOps toolkit Usage optimization report
+description: Learn about the Usage optimization report, which identifies opportunities for rightsizing and removing unused resources to enhance efficiency.
 author: flanakin
 ms.author: micflan
-ms.date: 08/12/2026
+ms.date: 08/13/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-# customer intent: As a As a FinOps user, I want to learn about the Workload optimization report so that I can identify and eliminate inefficiencies in my cloud resource usage.
+# customer intent: As a FinOps user, I want to learn about the Usage optimization report so that I can identify and eliminate inefficiencies in my cloud resource usage.
 ---
 
 <!-- cSpell:ignore nextstepaction -->
 
-# Workload optimization report
+# Usage optimization report
 
-The **Workload optimization report** provides insights into resource utilization and efficiency opportunities based on historical usage patterns. This report helps you:
+The **Usage optimization report** provides insights into resource utilization and efficiency opportunities based on historical usage patterns. This report helps you:
 
 - Identify unattached disks
 
@@ -24,7 +24,7 @@ This report pulls data from:
 - Cost Management exports or FinOps hubs
 - Azure Resource Graph
 
-The Workload optimization report is new and still in development. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../workbooks/optimization.md). To request other capabilities, [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
+The Usage optimization report is new and still in development. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../workbooks/optimization.md). To request other capabilities, [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
@@ -45,7 +45,7 @@ Before using this report, you need to configure Cost Management exports to provi
 | ---------------------- | -------------------------------- | ------------ | ----------------------------------------------------------------------------------------------- |
 | Cost and usage (FOCUS) | `1.0`, `1.0r2`, or `1.2-preview` | **Required** | Provides the primary cost and usage data for resource cost analysis.                            |
 | Price sheet            | `2023-05-01`                     | Recommended  | Required to populate missing prices for EA and MCA accounts to show accurate cost calculations. |
-| Azure Resource Graph   | Latest                           | **Required** | Required to gather resource metadata for workload optimization analysis.                        |
+| Azure Resource Graph   | Latest                           | **Required** | Required to gather resource metadata for usage optimization analysis.                        |
 
 For instructions on how to create Cost Management exports, see [Create and manage exports](/azure/cost-management-billing/costs/tutorial-improved-exports). If using FinOps hubs, these exports can be configured automatically.
 

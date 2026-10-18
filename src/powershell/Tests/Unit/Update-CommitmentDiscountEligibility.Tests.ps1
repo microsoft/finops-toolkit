@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-# Unit tests for the pure guard/shard-list helpers in
+# Unit tests for the pure helpers in
 # src/scripts/Update-CommitmentDiscountEligibility.ps1. That script runs top to bottom
 # (and calls the live Azure Retail Prices API) when dot-sourced, so rather than execute
 # it we extract just the function definitions via the AST and evaluate those in isolation.
@@ -10,7 +10,7 @@ Describe 'Update-CommitmentDiscountEligibility helpers' {
     BeforeAll {
         $scriptPath = Join-Path (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName 'src/scripts/Update-CommitmentDiscountEligibility.ps1'
         $ast = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$null, [ref]$null)
-        foreach ($name in 'Get-ShardShortfall', 'Add-BaselineShard', 'Get-ServiceFamily', 'Assert-DiscoveryConverged')
+        foreach ($name in 'Get-FamilyShortfall', 'Get-RetryDelay', 'Get-EligibleMeter', 'ConvertTo-SortedMap', 'Get-VerifiedEligibleMeter', 'New-EligibilityRow')
         {
             $fn = $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name }, $true) | Select-Object -First 1
             if (-not $fn) { throw "Function $name not found in $scriptPath" }
@@ -18,152 +18,422 @@ Describe 'Update-CommitmentDiscountEligibility helpers' {
         }
     }
 
-    Context 'Get-ShardShortfall' {
+    Context 'ConvertTo-SortedMap' {
+        It 'orders entries by key' {
+            $m = ConvertTo-SortedMap -Map @{ Storage = 3; Compute = 1; Analytics = 2 }
+            @($m.Keys) | Should -Be @('Analytics', 'Compute', 'Storage')
+        }
+
+        It 'preserves every value' {
+            $m = ConvertTo-SortedMap -Map @{ Storage = 3; Compute = 1 }
+            $m['Compute'] | Should -Be 1
+            $m['Storage'] | Should -Be 3
+        }
+
+        It 'serializes identically regardless of insertion order' {
+            # The actual regression: the workflow treats any diff in the baseline sidecar
+            # as "data changed", so an unstable key order would push a branch and ask for
+            # a PR even when no count moved.
+            $a = [ordered]@{}
+            'Storage', 'Compute', 'Analytics' | ForEach-Object { $a[$_] = 1 }
+            $b = [ordered]@{}
+            'Analytics', 'Storage', 'Compute' | ForEach-Object { $b[$_] = 1 }
+
+            $jsonA = ConvertTo-SortedMap -Map ([hashtable]$a) | ConvertTo-Json -Depth 4
+            $jsonB = ConvertTo-SortedMap -Map ([hashtable]$b) | ConvertTo-Json -Depth 4
+
+            $jsonA | Should -BeExactly $jsonB
+        }
+
+        It 'handles an empty map' {
+            $m = ConvertTo-SortedMap -Map @{}
+            $m.Count | Should -Be 0
+        }
+
+        It 'sorts family names containing spaces and symbols' {
+            # Real family names include 'AI + Machine Learning' and 'Management and Governance'.
+            $m = ConvertTo-SortedMap -Map @{ 'Management and Governance' = 1; 'AI + Machine Learning' = 82 }
+            @($m.Keys)[0] | Should -Be 'AI + Machine Learning'
+        }
+    }
+
+    Context 'Get-FamilyShortfall' {
         It 'flags a previously-nonempty family that vanishes (drops to zero)' {
-            $v = Get-ShardShortfall -Section 'Reservation' -Current @{ Compute = 100 } -Baseline @{ Compute = 100; Tiny = 1 } -MaxShrinkFraction 0.15
+            $v = Get-FamilyShortfall -Section 'Reservation' -Current @{ Compute = 100 } -Baseline @{ Compute = 100; Tiny = 1 } -MaxShrinkFraction 0.15
             @($v) | Should -HaveCount 1
             $v | Should -Match 'Tiny'
         }
 
-        It 'flags a shard that shrinks beyond the tolerance' {
-            $v = Get-ShardShortfall -Section 'Reservation' -Current @{ Compute = 80 } -Baseline @{ Compute = 100 } -MaxShrinkFraction 0.15
+        It 'flags a family that shrinks beyond the tolerance' {
+            $v = Get-FamilyShortfall -Section 'Reservation' -Current @{ Compute = 80 } -Baseline @{ Compute = 100 } -MaxShrinkFraction 0.15
             @($v) | Should -HaveCount 1
         }
 
-        It 'passes a shard within tolerance' {
-            $v = Get-ShardShortfall -Section 'Reservation' -Current @{ Compute = 90 } -Baseline @{ Compute = 100 } -MaxShrinkFraction 0.15
+        It 'passes a family within tolerance' {
+            $v = Get-FamilyShortfall -Section 'Reservation' -Current @{ Compute = 90 } -Baseline @{ Compute = 100 } -MaxShrinkFraction 0.15
             $v | Should -BeNullOrEmpty
         }
 
         It 'does not flag a brand-new family absent from the baseline' {
-            $v = Get-ShardShortfall -Section 'Reservation' -Current @{ Compute = 100; New = 5 } -Baseline @{ Compute = 100 } -MaxShrinkFraction 0.15
+            $v = Get-FamilyShortfall -Section 'Reservation' -Current @{ Compute = 100; New = 5 } -Baseline @{ Compute = 100 } -MaxShrinkFraction 0.15
             $v | Should -BeNullOrEmpty
         }
 
         It 'returns nothing when there is no baseline' {
-            $v = Get-ShardShortfall -Section 'Reservation' -Current @{ Compute = 1 } -Baseline $null -MaxShrinkFraction 0.15
+            $v = Get-FamilyShortfall -Section 'Reservation' -Current @{ Compute = 1 } -Baseline $null -MaxShrinkFraction 0.15
             $v | Should -BeNullOrEmpty
         }
     }
 
-    Context 'Add-BaselineShard' {
-        It 'unions discovered families with the baseline families' {
-            $u = Add-BaselineShard -Discovered ([string[]]@('Compute', 'Analytics')) -BaselineSection @{ Compute = 1; Tiny = 1 }
-            $u | Should -Contain 'Tiny'
-            $u | Should -Contain 'Analytics'
-            $u | Should -Contain 'Compute'
+    Context 'Get-RetryDelay' {
+        # Builds a real HttpResponseMessage -- the same type Invoke-RestMethod surfaces on
+        # $_.Exception.Response -- so these tests exercise the actual header plumbing
+        # rather than a hand-rolled stand-in.
+        BeforeAll {
+            function Get-TestResponse
+            {
+                param([string]$RetryAfter)
+                $r = [System.Net.Http.HttpResponseMessage]::new(429)
+                if ($RetryAfter) { $null = $r.Headers.TryAddWithoutValidation('Retry-After', $RetryAfter) }
+                return $r
+            }
         }
 
-        It 'de-duplicates families present in both sets' {
-            $u = Add-BaselineShard -Discovered ([string[]]@('Compute', 'Compute')) -BaselineSection @{ Compute = 1 }
-            @($u | Where-Object { $_ -eq 'Compute' }).Count | Should -Be 1
+        It 'honors a delta-seconds Retry-After' {
+            # Regression guard for the original bug: the header was read via
+            # $Response.Headers['Retry-After'], but HttpResponseHeaders has no string
+            # indexer, so that silently yielded $null and every 429 fell through to the
+            # exponential backoff. A returned 30 (not the attempt-1 fallback of 20)
+            # proves the header is genuinely being read.
+            Get-RetryDelay -Response (Get-TestResponse -RetryAfter '30') -Attempt 1 | Should -Be 30
         }
 
-        It 'is null-safe when no baseline exists' {
-            $u = Add-BaselineShard -Discovered ([string[]]@('A', 'B')) -BaselineSection $null
-            $u | Should -HaveCount 2
+        It 'honors the HTTP-date form of Retry-After' {
+            $when = [DateTimeOffset]::UtcNow.AddSeconds(120).ToString('r')
+            $delay = Get-RetryDelay -Response (Get-TestResponse -RetryAfter $when) -Attempt 1
+            # Second-resolution formatting plus test execution time make this approximate.
+            $delay | Should -BeGreaterThan 110
+            $delay | Should -BeLessOrEqual 121
+        }
+
+        It 'clamps an outsized Retry-After to MaxSeconds' {
+            Get-RetryDelay -Response (Get-TestResponse -RetryAfter '99999') -Attempt 1 -MaxSeconds 300 | Should -Be 300
+        }
+
+        It 'falls back to exponential backoff when the header is absent' {
+            Get-RetryDelay -Response (Get-TestResponse) -Attempt 1 | Should -Be 20
+            Get-RetryDelay -Response (Get-TestResponse) -Attempt 3 | Should -Be 80
+        }
+
+        It 'falls back to exponential backoff when there is no response at all' {
+            # Network/DNS/timeout errors surface with a null .Response.
+            Get-RetryDelay -Response $null -Attempt 2 | Should -Be 40
+        }
+
+        It 'falls back to exponential backoff for an HTTP-date already in the past' {
+            # A stale date must not produce a zero/negative wait and busy-loop the retry.
+            $past = [DateTimeOffset]::UtcNow.AddSeconds(-60).ToString('r')
+            Get-RetryDelay -Response (Get-TestResponse -RetryAfter $past) -Attempt 1 | Should -Be 20
+        }
+
+        It 'clamps the exponential backoff to MaxSeconds as well' {
+            # MaxSeconds must bound every wait, not only the header-driven one. Attempt 5
+            # is reachable -- it is the last of the 5 retries the fetch loop allows -- and
+            # 2^5 * 10 = 320s would otherwise overrun the ceiling the header is held to.
+            Get-RetryDelay -Response (Get-TestResponse) -Attempt 5 -MaxSeconds 300 | Should -Be 300
+            Get-RetryDelay -Response $null -Attempt 5 -MaxSeconds 300 | Should -Be 300
+            # Below the ceiling the backoff is unchanged.
+            Get-RetryDelay -Response (Get-TestResponse) -Attempt 4 -MaxSeconds 300 | Should -Be 160
         }
     }
 
-    Context 'Get-ServiceFamily' {
-        # Get-ServiceFamily calls Get-RetailPriceSegment, which hits the live API. Stub it
-        # in the test scope so each "traversal" replays a scripted page of items instead.
-        # $script:pages is the per-pass item list; $script:passLog records the passes made.
+    Context 'Get-EligibleMeter' {
+        # Get-EligibleMeter calls Get-RetailPriceSegment, which hits the live API. Stub it
+        # in the test scope so the "traversal" replays a scripted list of items instead.
         BeforeEach {
-            $script:passLog = 0
             function Get-RetailPriceSegment
             {
                 # Filter/MeterRegion are part of the real signature but irrelevant to the
-                # stub, which replays scripted pages. Target must be empty to suppress on
+                # stub, which replays scripted items. Target must be empty to suppress on
                 # PSScriptAnalyzer 1.x (naming the parameter does not work).
                 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '',
                     Justification = 'Stub mirrors the real Get-RetailPriceSegment signature; only OnItem is exercised')]
                 param($Filter, $MeterRegion, $OnItem)
-                $script:passLog++
-                $items = if ($script:pages.Count -ge $script:passLog) { $script:pages[$script:passLog - 1] } else { $script:pages[-1] }
-                foreach ($i in $items) { & $OnItem $i }
-                return @{ Items = @($items).Count; Pages = $script:pagesPerPass }
+                foreach ($i in $script:items) { & $OnItem $i }
+                return @{ Items = @($script:items).Count; Pages = 1 }
             }
+
+            $script:allMeters = { param($item) $item.meterId }
         }
 
-        It 'includes a new one-item family that only a later discovery pass sees' {
-            # Pass 1 misses 'Tiny' entirely (the unstable page order dropped its only row);
-            # passes 2+ see it. The unioned shard list must still contain it -- this is the
-            # case Add-BaselineShard cannot cover, because a brand-new family is in no baseline.
-            $script:pagesPerPass = 5
-            $script:pages = @(
-                @( @{ serviceFamily = 'Compute' }, @{ serviceFamily = 'Storage' } ),
-                @( @{ serviceFamily = 'Compute' }, @{ serviceFamily = 'Storage' }, @{ serviceFamily = 'Tiny' } )
+        It 'collects meter ids and counts them per service family' {
+            $script:items = @(
+                @{ meterId = 'm1'; serviceFamily = 'Compute' },
+                @{ meterId = 'm2'; serviceFamily = 'Compute' },
+                @{ meterId = 'm3'; serviceFamily = 'Storage' }
             )
 
-            $r = Get-ServiceFamily -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxPasses 4 -StablePasses 2
+            $r = Get-EligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -CollectKey $script:allMeters
 
-            $r.Families | Should -Contain 'Tiny'
-            $r.Families | Should -HaveCount 3
-            $r.Converged | Should -BeTrue
+            $r.Keys.Count | Should -Be 3
+            $r.FamilyCounts['Compute'] | Should -Be 2
+            $r.FamilyCounts['Storage'] | Should -Be 1
+            $r.Items | Should -Be 3
         }
 
-        It 'reports non-convergence when every pass keeps adding families' {
-            # A family set that never stabilizes means discovery cannot be trusted to be
-            # complete, so the caller must refuse to publish rather than guess.
-            $script:pagesPerPass = 5
-            $script:pages = @(
-                @( @{ serviceFamily = 'A' } ),
-                @( @{ serviceFamily = 'B' } ),
-                @( @{ serviceFamily = 'C' } ),
-                @( @{ serviceFamily = 'D' } )
+        It 'lower-cases collected meter ids so the CSV and guard compare consistently' {
+            $script:items = @( @{ meterId = 'AbC-123'; serviceFamily = 'Compute' } )
+
+            $r = Get-EligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -CollectKey $script:allMeters
+
+            $r.Keys.ContainsKey('abc-123') | Should -BeTrue
+        }
+
+        It 'counts a meter id seen twice in one family only once' {
+            $script:items = @(
+                @{ meterId = 'm1'; serviceFamily = 'Compute' },
+                @{ meterId = 'm1'; serviceFamily = 'Compute' }
             )
 
-            $r = Get-ServiceFamily -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxPasses 4 -StablePasses 2
+            $r = Get-EligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -CollectKey $script:allMeters
 
-            $r.Converged | Should -BeFalse
-            $r.Families | Should -HaveCount 4
-            $script:passLog | Should -Be 4   # stopped at the cap, did not spin
+            $r.Keys.Count | Should -Be 1
+            $r.FamilyCounts['Compute'] | Should -Be 1
         }
 
-        It 'stops after one pass when the scan fit in a single response' {
-            # No NextPageLink means the scan was complete and deterministic; repeating it
-            # would only burn API calls.
-            $script:pagesPerPass = 1
-            $script:pages = @( , @( @{ serviceFamily = 'Compute' } ) )
+        It 'records a family that collects nothing as 0 rather than dropping it' {
+            # The sharded implementation persisted an explicit 0 for such a family; the
+            # baseline must keep doing so, otherwise a family whose meters all disappear
+            # looks like a brand-new family to the guard instead of a 100% shortfall.
+            $script:items = @(
+                @{ meterId = 'm1'; serviceFamily = 'Compute'; savingsPlan = @(1) },
+                @{ meterId = 'm2'; serviceFamily = 'Analytics'; savingsPlan = @() }
+            )
 
-            $r = Get-ServiceFamily -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxPasses 4 -StablePasses 2
+            $r = Get-EligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -CollectKey {
+                param($item)
+                if ($item.savingsPlan -and $item.savingsPlan.Count -gt 0) { $item.meterId } else { $null }
+            }
 
-            $script:passLog | Should -Be 1
-            $r.Converged | Should -BeTrue
-            $r.Families | Should -Contain 'Compute'
+            $r.Keys.Count | Should -Be 1
+            $r.FamilyCounts['Compute'] | Should -Be 1
+            $r.FamilyCounts.ContainsKey('Analytics') | Should -BeTrue
+            $r.FamilyCounts['Analytics'] | Should -Be 0
         }
 
-        It 'converges without exhausting the cap when the family set is stable' {
-            $script:pagesPerPass = 5
-            $script:pages = @( , @( @{ serviceFamily = 'Compute' }, @{ serviceFamily = 'Storage' } ) )
+        It 'buckets items with no service family under (none)' {
+            $script:items = @( @{ meterId = 'm1'; serviceFamily = $null } )
 
-            $r = Get-ServiceFamily -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxPasses 4 -StablePasses 2
+            $r = Get-EligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -CollectKey $script:allMeters
 
-            $r.Converged | Should -BeTrue
-            $script:passLog | Should -Be 3   # pass 1 adds, passes 2-3 add nothing
-            $r.Families | Should -HaveCount 2
+            $r.FamilyCounts['(none)'] | Should -Be 1
         }
 
-        It 'ignores items with no serviceFamily' {
-            $script:pagesPerPass = 5
-            $script:pages = @( , @( @{ serviceFamily = 'Compute' }, @{ serviceFamily = $null } ) )
+        It 'returns the page count from the underlying traversal' {
+            $script:items = @( @{ meterId = 'm1'; serviceFamily = 'Compute' } )
 
-            $r = Get-ServiceFamily -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxPasses 4 -StablePasses 2
+            $r = Get-EligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -CollectKey $script:allMeters
 
-            $r.Families | Should -HaveCount 1
+            $r.Pages | Should -Be 1
+        }
+
+        It 'exposes the per-family key sets, not just the counts' {
+            # Get-VerifiedEligibleMeter merges two passes by unioning these sets; counts
+            # alone cannot be merged correctly.
+            $script:items = @(
+                @{ meterId = 'm1'; serviceFamily = 'Compute' },
+                @{ meterId = 'm2'; serviceFamily = 'Compute' }
+            )
+
+            $r = Get-EligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -CollectKey $script:allMeters
+
+            $r.FamilyKeys['Compute'].ContainsKey('m1') | Should -BeTrue
+            $r.FamilyKeys['Compute'].ContainsKey('m2') | Should -BeTrue
         }
     }
 
-    Context 'Assert-DiscoveryConverged' {
-        It 'throws when discovery did not converge' {
-            { Assert-DiscoveryConverged -Discovery @{ Converged = $false } -PriceType 'Reservation' -MaxPasses 4 } |
-                Should -Throw -ExpectedMessage '*Reservation serviceFamily discovery did not converge*'
+    Context 'Get-VerifiedEligibleMeter' {
+        # The verification traversal is the completeness signal, so these tests drive it
+        # through the failure modes a historical count comparison cannot see: a uniform
+        # drop, an offsetting drop/add, and a missed brand-new meter.
+        BeforeEach {
+            # Each call to the stub replays the next scripted pass, so pass 1 and pass 2
+            # can be made to disagree.
+            function Get-RetailPriceSegment
+            {
+                [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '',
+                    Justification = 'Stub mirrors the real Get-RetailPriceSegment signature; only OnItem is exercised')]
+                param($Filter, $MeterRegion, $OnItem)
+                $pass = $script:passes[$script:passIndex]
+                $script:passIndex++
+                foreach ($i in $pass) { & $OnItem $i }
+                return @{ Items = @($pass).Count; Pages = 1 }
+            }
+
+            # Defined here rather than at Context scope: Pester does not surface a bare
+            # function declaration in a Context block to the It blocks inside it.
+            function Get-TestMeter
+            {
+                param([string]$Id, [string]$Family = 'Compute')
+                return @{ meterId = $Id; serviceFamily = $Family }
+            }
+
+            $script:passIndex = 0
+            $script:allMeters = { param($item) $item.meterId }
         }
 
-        It 'passes when discovery converged' {
-            { Assert-DiscoveryConverged -Discovery @{ Converged = $true } -PriceType 'Consumption' -MaxPasses 4 } |
-                Should -Not -Throw
+        It 'returns the meters and zero drift when both passes agree' {
+            $pass = @((Get-TestMeter 'm1'), (Get-TestMeter 'm2'))
+            $script:passes = @($pass, $pass)
+
+            $r = Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 0.001 -CollectKey $script:allMeters
+
+            $r.Keys.Count | Should -Be 2
+            $r.VerifyDrift | Should -Be 0
+            $r.OnlyFirst | Should -Be 0
+            $r.OnlySecond | Should -Be 0
+        }
+
+        It 'recovers a meter that pass 2 missed rather than dropping it' {
+            # Publishing the intersection would let a faulty pass silently delete rows.
+            $script:passes = @(
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm2')),
+                @((Get-TestMeter 'm1'))
+            )
+
+            $r = Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 1.0 -CollectKey $script:allMeters
+
+            $r.Keys.Count | Should -Be 2
+            $r.Keys.ContainsKey('m2') | Should -BeTrue
+            $r.OnlyFirst | Should -Be 1
+            $r.OnlySecond | Should -Be 0
+        }
+
+        It 'recovers a meter that pass 1 missed' {
+            $script:passes = @(
+                @((Get-TestMeter 'm1')),
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm2'))
+            )
+
+            $r = Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 1.0 -CollectKey $script:allMeters
+
+            $r.Keys.Count | Should -Be 2
+            $r.OnlyFirst | Should -Be 0
+            $r.OnlySecond | Should -Be 1
+        }
+
+        It 'aborts when the passes disagree beyond the tolerance' {
+            $script:passes = @(
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm2')),
+                @((Get-TestMeter 'm1'))
+            )
+
+            # Drift is 1/2 = 50%, far above the default.
+            { Get-VerifiedEligibleMeter -Filter "priceType eq 'Reservation'" -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 0.001 -CollectKey $script:allMeters } |
+                Should -Throw -ExpectedMessage '*disagreed on 1 of 2 meters*'
+        }
+
+        It 'catches an offsetting drop and add that leaves the count unchanged' {
+            # The failure mode a count-based guard structurally cannot see: same total,
+            # different members.
+            $script:passes = @(
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm2')),
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm3'))
+            )
+
+            { Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 0.001 -CollectKey $script:allMeters } |
+                Should -Throw -ExpectedMessage '*disagreed on 2 of 3 meters*'
+        }
+
+        It 'passes when drift is exactly at the tolerance' {
+            # 1 of 100 = 1%, compared with -gt so the boundary is inclusive.
+            $first = 1..99 | ForEach-Object { Get-TestMeter "m$_" }
+            $script:passes = @(
+                @($first + @(Get-TestMeter 'm100')),
+                @($first)
+            )
+
+            $r = Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 0.01 -CollectKey $script:allMeters
+
+            $r.VerifyDrift | Should -Be 0.01
+            $r.Keys.Count | Should -Be 100
+        }
+
+        It 'unions per-family sets instead of taking the larger count' {
+            # Each pass sees two Compute meters, but not the same two. The merged count
+            # must be 3; max(2,2) would report 2 and understate the family.
+            $script:passes = @(
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm2')),
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm3'))
+            )
+
+            $r = Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 1.0 -CollectKey $script:allMeters
+
+            $r.FamilyCounts['Compute'] | Should -Be 3
+        }
+
+        It 'reports zero drift for an empty result rather than dividing by zero' {
+            $script:passes = @(@(), @())
+
+            $r = Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 0.001 -CollectKey $script:allMeters
+
+            $r.VerifyDrift | Should -Be 0
+            $r.Keys.Count | Should -Be 0
+        }
+
+        It 'runs a single pass when -SkipVerify is set' {
+            $script:passes = @(
+                @((Get-TestMeter 'm1')),
+                @((Get-TestMeter 'm1'), (Get-TestMeter 'm2'))
+            )
+
+            $r = Get-VerifiedEligibleMeter -Filter 'x' -MeterRegion 'primary' -ActivityName 'test' -MaxVerifyDrift 0.001 -SkipVerify -CollectKey $script:allMeters -WarningAction SilentlyContinue
+
+            # Only pass 1 consumed, and the second (disagreeing) pass never ran.
+            $script:passIndex | Should -Be 1
+            $r.Keys.Count | Should -Be 1
+        }
+    }
+
+    Context 'New-EligibilityRow' {
+        # The published dataset had these two columns reversed from v14 through v15 (#2279):
+        # FOCUS calls a reservation a "Usage" commitment (a quantity of usage) and a savings plan
+        # a "Spend" commitment (an amount of money), and the columns said the opposite. These
+        # tests pin the direction so a future edit cannot quietly swap it back.
+        It 'reports a reservation-only meter as usage eligible, not spend eligible' {
+            $row = New-EligibilityRow -MeterId 'm1' -HasReservationPricing $true -HasSavingsPlanPricing $false
+
+            $row.x_CommitmentDiscountUsageEligibility | Should -Be 'Eligible'
+            $row.x_CommitmentDiscountSpendEligibility | Should -Be 'Not Eligible'
+        }
+
+        It 'reports a savings plan-only meter as spend eligible, not usage eligible' {
+            $row = New-EligibilityRow -MeterId 'm1' -HasReservationPricing $false -HasSavingsPlanPricing $true
+
+            $row.x_CommitmentDiscountSpendEligibility | Should -Be 'Eligible'
+            $row.x_CommitmentDiscountUsageEligibility | Should -Be 'Not Eligible'
+        }
+
+        It 'reports a meter with both price types as eligible for both' {
+            $row = New-EligibilityRow -MeterId 'm1' -HasReservationPricing $true -HasSavingsPlanPricing $true
+
+            $row.x_CommitmentDiscountSpendEligibility | Should -Be 'Eligible'
+            $row.x_CommitmentDiscountUsageEligibility | Should -Be 'Eligible'
+        }
+
+        It 'reports a meter with neither price type as eligible for neither' {
+            $row = New-EligibilityRow -MeterId 'm1' -HasReservationPricing $false -HasSavingsPlanPricing $false
+
+            $row.x_CommitmentDiscountSpendEligibility | Should -Be 'Not Eligible'
+            $row.x_CommitmentDiscountUsageEligibility | Should -Be 'Not Eligible'
+        }
+
+        It 'emits the meter id and the published column order' {
+            # Export-Csv writes columns in property order, so this is the CSV header contract.
+            $row = New-EligibilityRow -MeterId 'meter-1' -HasReservationPricing $true -HasSavingsPlanPricing $true
+
+            $row.MeterId | Should -Be 'meter-1'
+            @($row.PSObject.Properties.Name) | Should -Be @('MeterId', 'x_CommitmentDiscountSpendEligibility', 'x_CommitmentDiscountUsageEligibility')
         }
     }
 }

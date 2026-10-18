@@ -92,11 +92,16 @@ Prices_transform_v1_2()
         ''
     )
     //
-    // Calculate commitment discount eligibility
+    // Calculate commitment discount eligibility. FOCUS categorizes a reservation as a
+    // "Usage" commitment (committed to a quantity of usage) and a savings plan as a "Spend"
+    // commitment (committed to an amount of money), matching the CommitmentDiscountCategory
+    // value this transform assigns, so reservation meters set the usage column and savings plan
+    // meters set the spend column.
+    // Reservation price rows are excluded from their own eligibility: the column describes what
+    // an on-demand charge could be covered by, not the commitment row itself.
     // TODO: Would a join be faster?
-    // TODO: Check this to ensure it's correct
-    | extend x_CommitmentDiscountSpendEligibility = iff(x_SkuMeterId in (riMeters) and x_SkuPriceType != 'ReservedInstance', 'Eligible', 'Not Eligible')
-    | extend x_CommitmentDiscountUsageEligibility = iff(x_SkuMeterId in (spMeters), 'Eligible', 'Not Eligible')
+    | extend x_CommitmentDiscountSpendEligibility = iff(x_SkuMeterId in (spMeters), 'Eligible', 'Not Eligible')
+    | extend x_CommitmentDiscountUsageEligibility = iff(x_SkuMeterId in (riMeters) and x_SkuPriceType != 'ReservedInstance', 'Eligible', 'Not Eligible')
     //
     // TODO: Implement x_CommitmentDiscountNormalizedRatio
     | extend x_CommitmentDiscountNormalizedRatio = real(null)
@@ -359,9 +364,6 @@ Costs_transform_v1_2()
         iff(x_SkuTerm == '1Year' or x_SkuTerm == '3Years' or x_SkuTerm == '5Years',                                                 'SkuTermShouldBeAnInteger,',         '')
     ))
     //
-    // Handle provider columns that moved to FOCUS
-    | extend PricingCurrency = coalesce(PricingCurrency, x_PricingCurrency)
-    //
     // Backup original prices/costs before the merge
     | extend old_ContractedCost = ContractedCost
     | extend old_ContractedUnitPrice = ContractedUnitPrice
@@ -393,6 +395,9 @@ Costs_transform_v1_2()
     | extend x_SourceChanges = iff(x_SourceVersion == '1.0', x_SourceChanges,
         strcat(x_SourceChanges, iff(isempty(x_SourceChanges), '', ','), iff(x_SourceVersion == '', 'UnknownFocusVersion', 'LegacyFocusVersion'))
     )
+    //
+    // Handle provider columns that moved to FOCUS -- After version detection, which must only see what the export delivered (backfilling x_PricingCurrency first would make FOCUS 1.0 look like 1.2)
+    | extend PricingCurrency = coalesce(PricingCurrency, x_PricingCurrency)
     //
     // Fix quantities
     | extend old_PricingQuantity = PricingQuantity, PricingQuantity = case(
