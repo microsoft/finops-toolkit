@@ -185,12 +185,12 @@ This repository supports production infrastructure managing significant revenue.
 **Prohibited operations:**
 
 - `git rebase` — rewrites commit history. Never permitted on a shared branch, including as a conflict resolution strategy on one. Permitted on a personal branch, including to sync with `dev` or resolve a conflict with it.
-- `git push --force` — destructive remote update. Never permitted. On a personal branch, use `git push --force-with-lease` only, after a `git fetch`, for example after a rebase. The lease rejects the push if someone pushed commits you haven't seen. Never permitted on a shared branch.
+- `git push --force` — destructive remote update. Never permitted. On a personal branch, integrate remote commits first (for example, `git merge` or `git pull`), then push with `git push --force-with-lease --force-if-includes` only, for example after a rebase. `--force-with-lease` alone compares against the remote-tracking ref that `git fetch` updates, so a fetched but unintegrated commit can still be dropped. Never permitted on a shared branch.
 - `git reset --hard` to a state behind the remote (discarding pushed commits)
 - `git filter-branch`, `git reflog`-based history manipulation
 - Any other operation that rewrites, reorders, squashes, or deletes commits that have been pushed to the remote of a shared branch, or any history rewrite on a personal branch other than rebase (for example, squashing with `git reset --soft`)
 
-**Conflict resolution:** When a shared branch has merge conflicts with `dev`, the only permitted approach is `git merge origin/dev` into it, creating a merge commit that preserves all history. On a personal `{username}/{branch}` branch, either `git merge origin/dev` or `git rebase origin/dev` is permitted.
+**Conflict resolution:** When a shared branch (not a personal `{username}/{branch}` branch) has merge conflicts with `dev`, the only permitted approach is `git merge origin/dev` into it, creating a merge commit that preserves all history. On a personal `{username}/{branch}` branch, either `git merge origin/dev` or `git rebase origin/dev` is permitted.
 
 **Common conflict patterns in this repository:**
 
@@ -199,7 +199,7 @@ This repository supports production infrastructure managing significant revenue.
 - **`src/scripts/Update-Version.ps1`** — This script has multiple independent version-update blocks (PowerShell, Bicep, plugin.json, survey IDs, etc.). When both sides add new blocks, keep both — they operate on different file sets and do not conflict logically.
 - **`docs-mslearn/toolkit/changelog.md`** — Both sides may add entries under the same version heading. Keep entries from both sides in logical order (plugin entries, then component entries).
 
-**AI agents must ask for explicit approval** before executing any git write operation (`commit`, `push`, `merge`). Read-only git commands (`status`, `log`, `diff`, `branch --list`, `worktree list`) do not require approval.
+**AI agents must ask for explicit approval** before executing any git write operation (`commit`, `push`, `push --force-with-lease`, `merge`, `rebase`). Read-only git commands (`status`, `log`, `diff`, `branch --list`, `worktree list`) do not require approval.
 
 ### File Organization
 
