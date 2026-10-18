@@ -3,7 +3,7 @@ title: Upgrade your FinOps hubs
 description: Learn how to upgrade your existing FinOps hub instance to the latest version, including necessary steps and considerations.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 10/18/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -64,7 +64,7 @@ This step only applies if you are using Microsoft Fabric as a primary data store
 - You are using Azure Storage as your data store.
 - You are using Azure Data Explorer as your data store.
 
-The Microsoft Fabric eventhouse database schema must be manually updated with each release. For details, see [Set up Microsoft Fabric](deploy.md#optional-set-up-microsoft-fabric).
+The Microsoft Fabric eventhouse database schema must be manually updated with each release. For details, see [Set up Microsoft Fabric](deploy.md#optional-set-up-microsoft-fabric). Run the infrastructure script (`IngestionSetup_HubInfra.kql`) before the versioned script so new tables such as `CommitmentDiscountEligibility` exist before functions reference them.
 
 <br>
 

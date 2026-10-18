@@ -1092,12 +1092,43 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       }
                     }
                   }
+                  { // Update CommitmentDiscountEligibility in ADX
+                    name: 'Update CommitmentDiscountEligibility in ADX'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Update Services in ADX'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 2  // CommitmentDiscountEligibility.csv is ~8x larger than the next biggest reference CSV (ResourceTypes); retry transient network failures instead of failing the whole pipeline
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: '.set-or-replace CommitmentDiscountEligibility <| externaldata(MeterId: string, x_CommitmentDiscountSpendEligibility: string, x_CommitmentDiscountUsageEligibility: string)[@"${ftkReleaseUri}/CommitmentDiscountEligibility.csv"] with (format="csv", ignoreFirstRecord=true)'
+                      commandTimeout: '00:30:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
+                      }
+                    }
+                  }
                   { // Ingestion Complete
                     name: 'Ingestion Complete'
                     type: 'SetVariable'
                     dependsOn: [
                       {
-                        activity: 'Update Services in ADX'
+                        activity: 'Update CommitmentDiscountEligibility in ADX'
                         dependencyConditions: [
                           'Succeeded'
                         ]
