@@ -3,7 +3,11 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
+<<<<<<< HEAD
 ms.date: 11/05/2026
+=======
+ms.date: 10/18/2026
+>>>>>>> 37f94aba (chore: Update ms.date in docs-mslearn files)
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
