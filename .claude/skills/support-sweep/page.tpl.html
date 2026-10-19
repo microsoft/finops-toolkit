@@ -1,0 +1,132 @@
+<title>FTK support sweep</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,600&display=swap">
+<style>
+/* Layout: priority queue. Buckets in work order; each row = who's waiting, since when, what it's about, what to do. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --fg: #1b2230; --muted: #5b6577; --line: #dde2ea;
+  --accent: #2f5fd0; --quote: #eef2fb; --them: #b42318; --us: #157347;
+  --s0: #b42318; --s1: #c4620a; --s2: #2f5fd0; --s3: #667085;
+  --display: "Fraunces", Georgia, serif; --body: "IBM Plex Sans", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11151c; --surface: #171c25; --fg: #e4e8ef; --muted: #9aa4b5; --line: #2a3140; --accent: #7fa2ff; --quote: #1c2433;
+  --them: #ff7b72; --us: #5fcf8f; --s0: #ff7b72; --s1: #f0a35b; --s2: #7fa2ff; --s3: #9aa4b5; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11151c; --surface: #171c25; --fg: #e4e8ef; --muted: #9aa4b5; --line: #2a3140; --accent: #7fa2ff; --quote: #1c2433;
+  --them: #ff7b72; --us: #5fcf8f; --s0: #ff7b72; --s1: #f0a35b; --s2: #7fa2ff; --s3: #9aa4b5; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font: 14.5px/1.55 var(--body); }
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 64px; }
+h1 { font-family: var(--display); font-size: 1.8rem; margin: 0 0 4px; }
+.sub { color: var(--muted); margin: 0 0 16px; max-width: 70ch; }
+a { color: var(--accent); }
+code { font: .86em var(--mono); background: var(--quote); padding: 1px 4px; border-radius: 3px; overflow-wrap: anywhere; }
+pre { overflow-x: auto; background: var(--quote); padding: 10px; border-radius: 6px; } pre code { background: none; padding: 0; }
+.how { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; }
+.how h2 { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+.how ol { margin: 0; padding-left: 20px; } .how li { margin: 2px 0; }
+.toc { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.toc a { text-decoration: none; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 3px 10px; font-size: 13px; }
+.toc b { font-variant-numeric: tabular-nums; }
+section.bucket { margin-bottom: 28px; }
+section.bucket > h2 { font-family: var(--display); font-size: 1.25rem; margin: 0 0 2px; }
+section.bucket > p { color: var(--muted); margin: 0 0 10px; }
+details.row { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; margin-bottom: 6px; }
+details.row > summary { list-style: none; cursor: pointer; padding: 10px 12px; display: grid; grid-template-columns: 4.2rem 1fr; gap: 4px 12px; }
+details.row > summary::-webkit-details-marker { display: none; }
+.id { font: 500 13px var(--mono); }
+.id small { display: block; font: 11px var(--body); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.main { min-width: 0; }
+.title { font-weight: 600; }
+.facts { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12.5px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.facts .them { color: var(--them); font-weight: 600; } .facts .us { color: var(--us); font-weight: 600; }
+.pill { font: 600 11px var(--body); padding: 0 7px; border-radius: 999px; color: var(--surface); }
+.pill.S0 { background: var(--s0); } .pill.S1 { background: var(--s1); } .pill.S2 { background: var(--s2); } .pill.S3, .pill.Q { background: var(--s3); }
+.ctx { margin-top: 6px; font-size: 13.5px; } .ctx div { margin: 1px 0; } .ctx b { font-weight: 600; }
+.next { margin-top: 6px; font-size: 13.5px; }
+.ask { margin-top: 6px; font-size: 13.5px; padding: 6px 10px; border-radius: 6px; background: var(--quote); border-left: 3px solid var(--s1); }
+.inner { padding: 0 12px 12px 12px; border-top: 1px solid var(--line); min-width: 0; }
+.inner h3 { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 12px 0 4px; }
+.draft { background: var(--quote); border-radius: 6px; padding: 8px 12px; }
+.warnbar { color: var(--them); font-size: 13px; margin: -8px 0 16px; }
+.how .note { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+.warn { margin-top: 6px; font-size: 12.5px; color: var(--them); }
+.flag { margin-top: 6px; font-size: 13px; padding: 6px 10px; border-radius: 6px; background: var(--quote); border-left: 3px solid var(--them); }
+.copy { font: 500 12px var(--body); border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 4px; padding: 2px 8px; cursor: pointer; margin-top: 6px; }
+button:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 520px) { details.row > summary { grid-template-columns: 1fr; } }
+</style>
+
+<div class="wrap">
+  <h1>FTK support sweep</h1>
+  <p class="sub" id="sub"></p>
+  <p class="warnbar" id="missing" hidden></p>
+  <div class="how"><h2>How to work this list</h2><ol>
+    <li><b>Reply now:</b> a customer is waiting, and it's S0 or S1 or under 60 days old. Approve drafts here first.</li>
+    <li><b>Needs you:</b> waiting on us, but the answer needs a maintainer call or the draft has low confidence.</li>
+    <li><b>Old, reply and close:</b> waited more than 60 days. Lower risk. Approve in a batch.</li>
+    <li><b>Close as stale:</b> we spoke last and the author went quiet. Batch close.</li>
+    <li>The rest are nudges, internal tracking, posted replies, or already closed.</li>
+  </ol>
+  <p class="note">To approve, tell Claude which to post, for example "post #1769 and #2321". To change a draft first, paste your version. Claude rechecks each thread right before posting and stops if anyone replied since this sweep.</p></div>
+  <nav class="toc" id="toc" aria-label="Buckets"></nav>
+  <div id="out"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+<script>
+const ROWS = /*ROWS*/;
+const META = /*META*/;
+const B = [
+  ['now','Reply now','Customer is waiting on us; S0/S1 or less than 60 days old.'],
+  ['you','Needs you','Waiting on us, but needs a maintainer decision or the draft is low confidence.'],
+  ['old','Old, reply and close','Waiting on us for more than 60 days. Reply, then close.'],
+  ['close','Close as stale','We replied last and the author went quiet.'],
+  ['nudge','Nudge','We replied last; a short follow-up keeps it moving.'],
+  ['internal','Internal, no reply needed','Maintainer-filed or tracking items. Fix or schedule; no customer reply.'],
+  ['responded','Responded','We posted a reply. Waiting on the customer.'],
+  ['done','Already closed','Closed since the sweep. Drafts are out of date.'],
+];
+const gh = (n, kind) => `https://github.com/microsoft/finops-toolkit/${kind==='issue'?'issues':'discussions'}/${n}`;
+const link = s => s.replace(/(^|[\s(,;])#(\d{2,5})\b/g, (m,p,n)=>`${p}<a href="https://github.com/microsoft/finops-toolkit/issues/${n}" target="_blank" rel="noopener">#${n}</a>`);
+const ago = d => d < 31 ? `${d}d` : d < 365 ? `${Math.round(d/30)}mo` : `${(d/365).toFixed(1)}y`;
+const fmt = s => new Date(s+'T00:00:00Z').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'});
+const md = s => DOMPurify.sanitize(marked.parse(s || ''), { ADD_ATTR: ['target'] });
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+document.title = `FTK support sweep · ${META.date}`;
+document.getElementById('sub').textContent = `${META.total} items (${META.issues} issues, ${META.discussions} discussions) from the ${fmt(META.date)} sweep, ${META.waiting} waiting on us. Ordered by who's waiting on us and how bad it is. Expand a row for the evidence and a draft reply.${META.refreshed ? ` State checked ${new Date(META.builtAt).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'})}.` : ' State not rechecked since the sweep.'}`;
+if (META.missing.length) { const m = document.getElementById('missing'); m.hidden = false; m.textContent = `Not triaged yet: ${META.missing.length} threads (${META.missing.slice(0,12).join(', ')}${META.missing.length>12?', ...':''}).`; }
+document.getElementById('toc').innerHTML = B.map(([k,t]) => { const c = ROWS.filter(r=>r.bucket===k).length; return c ? `<a href="#b-${k}">${t} <b>${c}</b></a>` : ''; }).join('');
+const out = [];
+for (const [k, t, d] of B) {
+  const rows = ROWS.filter(r => r.bucket === k); if (!rows.length) continue;
+  out.push(`<section class="bucket" id="b-${k}"><h2>${t} · ${rows.length}</h2><p>${d}</p>`);
+  for (const r of rows) { const i = ROWS.indexOf(r);
+    const last = r.bucket === 'done' ? `<span class="us">${esc(r.doneWhy)}</span>` : r.posted ? `<span class="us">Posted ${fmt(r.posted.at)}</span> (<a href="${esc(r.posted.url)}" target="_blank" rel="noopener">reply</a>)` : r.last === 'them'
+      ? `<span class="them">Waiting on us ${ago(r.waiting)}</span> (last: @${esc(r.lastBy)}, ${fmt(r.lastAt)})`
+      : `<span class="us">We replied last</span> (@${esc(r.lastBy)}, ${fmt(r.lastAt)})`;
+    const comm = r.community.length ? `Community: ${r.community.map(x=>'@'+esc(x)).join(', ')}` : 'No community replies';
+    const sev = r.sev && r.sev !== 'Q' ? `<span class="pill ${r.sev}">${r.sev}</span>` : (r.kind==='discussion' ? `<span class="pill Q">${esc(r.category||'Q&A')}</span>` : '');
+    const ctx = r.kind === 'discussion'
+      ? `<div class="ctx"><div><b>Asks:</b> ${esc(r.problem)}</div><div><b>So far:</b> ${esc(r.sofar)}</div><div><b>Open:</b> ${esc(r.open)}</div></div>`
+      : '';
+    out.push(`<details class="row"><summary>
+      <div class="id"><a href="${esc(r.url || gh(r.n,r.kind))}" target="_blank" rel="noopener">#${r.n}</a><small>${r.kind}</small></div>
+      <div class="main"><div class="title">${sev} ${esc(r.title)}</div>
+        <div class="facts"><span>Posted ${fmt(r.created)} (${ago(r.age)})</span><span>${r.comments} replies</span><span>${last}</span><span>${comm}</span></div>
+        ${r.note ? `<div class="flag">${esc(r.note)} ${r.changed.map(c=>`<a href="${esc(c.url)}" target="_blank" rel="noopener">@${esc(c.by)} ${fmt(c.at)}</a>`).join(', ')}</div>` : ''}${ctx}${r.ask?`<div class="ask"><b>Your call:</b> ${link(esc(r.ask))}</div>`:""}<div class="next"><b>Next:</b> ${link(esc(r.action))}${r.conf ? ` · <i>${esc(r.conf)} confidence</i>` : ''}</div>${r.warnings.length ? `<div class="warn">Check draft: ${r.warnings.map(esc).join(' · ')}</div>` : ''}</div>
+    </summary><div class="inner">
+      ${r.draft ? `<h3>Draft reply</h3><div class="draft">${md(r.draft)}</div><button class="copy" type="button" data-i="${i}">Copy reply</button>` : ''}
+      <h3>Evidence and fix</h3>${link(md(r.evidence))}
+    </div></details>`);
+  }
+  out.push('</section>');
+}
+document.getElementById('out').innerHTML = out.join('');
+document.querySelectorAll('.copy').forEach(b => b.addEventListener('click', async () => {
+  const el = b.previousElementSibling; const txt = ROWS[+b.dataset.i].draft;
+  try { await navigator.clipboard.writeText(txt); b.textContent = 'Copied'; }
+  catch (e) { const rg = document.createRange(); rg.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(rg); b.textContent = 'Selected, press Ctrl+C'; }
+  setTimeout(() => b.textContent = 'Copy reply', 1800);
+}));
+</script>
