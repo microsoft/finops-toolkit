@@ -53,11 +53,11 @@ steps:
     run: |
       mkdir -p /tmp/gh-aw/agent
 
-      gh issue list --state open --limit 100 \
-        --json number,title,labels,createdAt,updatedAt,authorAssociation,comments \
+      gh issue list -R microsoft/finops-toolkit --state open --limit 100 \
+        --json number,title,labels,createdAt,updatedAt,author,comments \
         > /tmp/gh-aw/agent/open-issues.json
 
-      gh pr list --state open --limit 100 \
+      gh pr list -R microsoft/finops-toolkit --state open --limit 100 \
         --json number,title,headRefName,baseRefName,isDraft,updatedAt,labels \
         > /tmp/gh-aw/agent/open-prs.json
 
@@ -78,14 +78,20 @@ steps:
           has_type = any(name.startswith('Type: ') for name in label_names)
           has_tool = any(name.startswith('Tool: ') for name in label_names)
           needs_triage = 'Needs: Triage 🔍' in label_names or not has_type or not has_tool
+          comments = issue.get('comments', [])
+          has_maintainer_comment = any(
+              c.get('authorAssociation') in ('OWNER', 'MEMBER', 'COLLABORATOR')
+              for c in comments
+          )
           summary = {
               'number': issue['number'],
               'title': issue['title'],
               'labels': label_names,
               'createdAt': issue.get('createdAt'),
               'updatedAt': issue.get('updatedAt'),
-              'authorAssociation': issue.get('authorAssociation'),
-              'commentCount': len(issue.get('comments', [])),
+              'author': (issue.get('author') or {}).get('login'),
+              'commentCount': len(comments),
+              'hasMaintainerComment': has_maintainer_comment,
           }
           if needs_triage and len(untriaged) < 15:
               untriaged.append(summary)

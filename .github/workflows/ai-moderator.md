@@ -22,6 +22,7 @@ on:
 
 concurrency:
   group: "gh-aw-ai-moderator-${{ github.event.issue.number || github.event.pull_request.number }}"
+  job-discriminator: "${{ github.event.issue.number || github.event.pull_request.number || github.run_id }}"
   cancel-in-progress: false
 
 tools:
