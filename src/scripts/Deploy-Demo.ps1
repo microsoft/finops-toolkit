@@ -80,7 +80,7 @@
     .EXAMPLE
     ./Deploy-Demo -Version v15 -Backfill 1
 
-    Deploys the versioned instance for v15 with 3 months of data.
+    Deploys the versioned instance for v15 and loads 1 month of history. It keeps up to 3 months.
 
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-deploy-demo
@@ -367,7 +367,7 @@ if (-not $factory) { throw "Could not find the Data Factory for $name after depl
 $principalId = (Get-AzResource -ResourceId $factory.ResourceId).Identity.PrincipalId
 
 # A single scope is saved to settings.json as an object instead of a list, which export setup fails to read
-$storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroup | Select-Object -First 1
+$storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroup -Name (Get-DemoState $name $ResourceGroup).Storage
 $settingsFile = New-TemporaryFile -WhatIf:$false
 try
 {
@@ -518,7 +518,7 @@ else
             $exportPath = "$target/providers/Microsoft.CostManagement/exports/${exportName}?api-version=2023-07-01-preview"
             $export = (Invoke-AzRestMethod -Method GET -Path $exportPath).Content | ConvertFrom-Json
             $export.properties.schedule.status = 'Inactive'
-            $update = Invoke-AzRestMethod -Method PUT -Path $exportPath -Payload (@{ properties = $export.properties } | ConvertTo-Json -Depth 20)
+            $update = Invoke-AzRestMethod -Method PUT -Path $exportPath -Payload (@{ eTag = $export.eTag; properties = $export.properties } | ConvertTo-Json -Depth 20)
             if ($update.StatusCode -ne 200) { Write-Warning "Could not turn off the schedule for $exportName ($($update.StatusCode)). Turn it off in Cost Management, or last month loads twice." }
         }
     }

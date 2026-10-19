@@ -1002,10 +1002,10 @@ if (-not $NoPbip -and $genAllReports -and $KQL -and $Storage)
         reports       = $manifest.ToArray()
     } | ConvertTo-Json -Depth 10 | Set-Content "$pbixDir/.manifest.json"
 }
-elseif (-not $NoPbip -and $demoProjects.Count -gt 0)
+elseif ($NoPbip -or $demoProjects.Count -gt 0)
 {
-    # A partial build rewrites some projects but not the manifest, so a PBIX saved before the change
-    # would still look newer than `built`. Removing the manifest makes Package-PowerBI rebuild everything.
+    # A partial or -NoPbip build changes projects without rewriting the manifest, so a PBIX saved before
+    # the change would still look newer than `built`. Removing the manifest makes Package-PowerBI rebuild everything.
     Remove-Item "$pbixDir/.manifest.json" -Force -ErrorAction SilentlyContinue
 }
 
