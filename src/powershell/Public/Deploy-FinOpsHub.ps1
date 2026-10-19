@@ -35,7 +35,7 @@
     Optional. Enable purge protection for the Key Vault. Default = false.
 
     .PARAMETER EnableKeyVaultRbacAuthorization
-    Optional. Switch the Key Vault from access policies to Azure RBAC authorization. Required for CAF/Enterprise-Scale landing zone compliance. Switching an existing vault from access policies to RBAC takes effect immediately and cannot be rolled back without recreating the vault. Default = false.
+    Optional. Switch the Key Vault from access policies to Azure RBAC authorization. Required for CAF/Enterprise-Scale landing zone compliance. Switching an existing vault from access policies to RBAC removes all access policies immediately; any access granted outside the template must be recreated as role assignments. Default = false.
 
     .PARAMETER RemoteHubStorageUri
     Optional. Storage account to push data to for ingestion into a remote hub.
@@ -279,6 +279,12 @@ function Deploy-FinOpsHub
         if ($effectiveNetworkMode -eq 'private' -and $Version -ne 'latest' -and $templateVersion -lt '15.0')
         {
             throw "NAT Gateway / private network mode requires hub template version 15.0 or later. Current version: $Version"
+        }
+
+        # Key Vault RBAC authorization requires hub template version 15.0 or later
+        if ($EnableKeyVaultRbacAuthorization -and $Version -ne 'latest' -and [version]$Version -lt '15.0')
+        {
+            throw "-EnableKeyVaultRbacAuthorization requires hub template version 15.0 or later. Current version: $Version"
         }
 
         # Download template
