@@ -1052,19 +1052,11 @@ table Costs
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column x_IncrementalRefreshDate
-		dataType: string
+		dataType: dateTime
+		formatString: General Date
 		lineageTag: 73487d4f-b0dd-4d41-8d9e-739636dabab8
 		summarizeBy: none
 		sourceColumn: x_IncrementalRefreshDate
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_IncrementalRefreshDateTime
-		dataType: dateTime
-		formatString: General Date
-		lineageTag: 057548d0-a4fa-4a9a-9d1a-45d4be9e0841
-		summarizeBy: none
-		sourceColumn: x_IncrementalRefreshDateTime
 
 		annotation SummarizationSetBy = Automatic
 
@@ -1741,17 +1733,14 @@ table Costs
 					}, {null, ""}), "-")),
 					*/
 				
-					// Date/Time copy of x_IncrementalRefreshDate (midnight of the ChargePeriodStart day) for the incremental refresh filter
-					IncrementalRefreshDateTime = Table.AddColumn(AHB, "x_IncrementalRefreshDateTime", each try DateTime.From(Number.From([x_IncrementalRefreshDate])) otherwise null, type datetime),
-				
 					// Sort columns alphabetically
-					Sorted = Table.ReorderColumns(IncrementalRefreshDateTime, List.Sort(Table.ColumnNames(IncrementalRefreshDateTime))),
+					Sorted = Table.ReorderColumns(AHB, List.Sort(Table.ColumnNames(AHB))),
 				
 					// Incremental refresh -- Must be the last step so Power BI detects the RangeStart/RangeEnd filter
 					// Matches the ftk_Storage row filter: whole days, >= start and < end, keeps rows without a date, and keeps all rows when RangeStart/RangeEnd are empty
 					Output = Table.SelectRows(Sorted, each
-						(RangeStart = null or [x_IncrementalRefreshDateTime] = null or [x_IncrementalRefreshDateTime] >= Date.StartOfDay(DateTime.From(RangeStart)))
-						and (RangeEnd = null or [x_IncrementalRefreshDateTime] = null or [x_IncrementalRefreshDateTime] < Date.StartOfDay(DateTime.From(RangeEnd)))
+						(RangeStart = null or [x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] >= Date.StartOfDay(DateTime.From(RangeStart)))
+						and (RangeEnd = null or [x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] < Date.StartOfDay(DateTime.From(RangeEnd)))
 					)
 				in
 					Output

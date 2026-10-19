@@ -3,7 +3,8 @@ table ReservationRecommendations
 	lineageTag: a9b8f96b-84d0-4176-95a1-65eade30a2ef
 
 	column x_IncrementalRefreshDate
-		dataType: string
+		dataType: dateTime
+		formatString: General Date
 		lineageTag: 0d03437c-a892-4d20-9e24-e1ae25b31e47
 		summarizeBy: none
 		sourceColumn: x_IncrementalRefreshDate

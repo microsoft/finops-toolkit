@@ -134,10 +134,10 @@ To configure incremental refresh:
 4. Select **Close & Apply**.
 5. In the **Data** pane, right-click the **Costs** table and select **Incremental refresh**.
 6. Turn on **Incrementally refresh this table**, set the archive and refresh periods, and then select **Apply**.
-   - The **Costs** query filters the `x_IncrementalRefreshDateTime` column by **RangeStart** and **RangeEnd**.
+   - The **Costs** query filters the `x_IncrementalRefreshDate` column by **RangeStart** and **RangeEnd**.
 7. Publish the report and refresh the semantic model in the Power BI service.
 
-Rows without a charge date (`x_IncrementalRefreshDateTime` is empty) are kept in every partition when a range is set, so they can be counted more than once. These rows are rare, but if you see inflated totals after enabling incremental refresh, check for them.
+Rows without a charge date (`x_IncrementalRefreshDate` is empty) are kept in every partition when a range is set, so they can be counted more than once. These rows are rare, but if you see inflated totals after enabling incremental refresh, check for them.
 
 If you leave **RangeStart** and **RangeEnd** empty, the **Costs** query doesn't filter by them and the report uses **Number of Months** as before. To learn more, see [Configure incremental refresh](/power-bi/connect-data/incremental-refresh-configure).
 
