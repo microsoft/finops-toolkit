@@ -267,6 +267,18 @@ InModuleScope 'FinOpsToolkit' {
                     $TemplateParameterObject.enableNatGateway -eq $true
                 } -Times 1
             }
+
+            It 'Should throw when private mode targets single-component version "14"' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version '14' } | Should -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -Times 0
+            }
+
+            It 'Should pass enableNatGateway when private mode targets single-component version "15"' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version '15' } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.enableNatGateway -eq $true
+                } -Times 1
+            }
         }
 
         Context 'Version parsing' {
