@@ -269,7 +269,7 @@ InModuleScope 'FinOpsToolkit' {
             }
 
             It 'Should throw when private mode targets single-component version "14"' {
-                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version '14' } | Should -Throw
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version '14' } | Should -Throw -ExpectedMessage '*requires hub template version 15.0*'
                 Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -Times 0
             }
 
