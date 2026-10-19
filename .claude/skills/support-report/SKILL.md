@@ -1,5 +1,5 @@
 ---
-name: ftk-support-report
+name: support-report
 description: Generate the FinOps toolkit support status report (customers waiting on us, triage queue, S0/S1, customer replies since the last report) and a short draft for the contributor sync Teams chat. Use when asked for a support status, support report, or the scheduled Sun/Tue support check.
 ---
 
@@ -12,7 +12,7 @@ Produce a TLDR support status for maintainers. Read-only: never comment, label, 
 1. Run the metrics script from the repo root (needs `gh` signed in):
 
    ```bash
-   node .claude/skills/ftk-support-report/report.mjs
+   node .claude/skills/support-report/report.mjs
    ```
 
    - It compares against the last saved report in `~/.claude/ftk-reports/` (or the last 7 days if none) and saves `support-YYYY-MM-DD.md` and `.json` there.
