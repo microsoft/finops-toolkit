@@ -554,11 +554,6 @@ parse_resourceid('/subscriptions/###/resourceGroups/foo/providers/Microsoft.Comp
 
 The **percent(table: (Count: long))** function in Data Explorer calculates the percentage of each record based on a required Count column.
 
-{
-let total = todouble(toscalar(t | summarize sum(Count)));
-percentOfTotal(t, total)
-}
-
 <br>
 
 ## percentOfTotal() KQL function

@@ -223,7 +223,7 @@ Transforms:
   - Implemented the following columns when not set by Cost Management:
     - `CommitmentDiscountUnit`
 - v15+:
-  - Swap `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility` to match the `CommitmentDiscountCategory` value assigned by the same transform. The spend column now reports savings plan pricing and the usage column reports reservation pricing. Prices ingested before upgrading keep the old values until they're reingested.
+  - Fix `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility` values. Prices ingested before upgrading keep the old values until they're re-ingested.
 
 ### Recommendation data transforms
 
