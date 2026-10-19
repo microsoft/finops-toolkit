@@ -1,0 +1,18 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+// Clears raw tables when the FinOps hubs version changes. Deployed with forceUpdateTag = version, so it only runs on a version change.
+
+.clear table ActualCosts_raw data
+
+.clear table AmortizedCosts_raw data
+
+.clear table CommitmentDiscountUsage_raw data
+
+.clear table Costs_raw data
+
+.clear table Prices_raw data
+
+.clear table Recommendations_raw data
+
+.clear table Transactions_raw data

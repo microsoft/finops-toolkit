@@ -373,6 +373,23 @@ module ingestion_InitScripts '../../fx/hub-database.bicep' = if (useAzure) {
   }
 }
 
+// Clear raw tables only when the hub version changes (forceUpdateTag = version, so ARM skips the script on same-version redeploys)
+module ingestion_RawTablesUpgrade '../../fx/hub-database.bicep' = if (useAzure) {
+  name: 'Microsoft.FinOpsHubs.Analytics_ADX.IngestionRawUpgrade'
+  dependsOn: [
+    ingestion_InitScripts
+  ]
+  params: {
+    clusterName: cluster.name
+    databaseName: cluster::ingestionDb.name
+    scripts: {
+      rawTablesUpgrade: loadTextContent('scripts/IngestionSetup_RawTablesUpgrade.kql')
+    }
+    continueOnErrors: continueOnErrors
+    forceUpdateTag: finOpsToolkitVersion
+  }
+}
+
 module ingestion_VersionedScripts '../../fx/hub-database.bicep' = if (useAzure) {
   name: 'Microsoft.FinOpsHubs.Analytics_ADX.IngestionVersioned'
   dependsOn: [
