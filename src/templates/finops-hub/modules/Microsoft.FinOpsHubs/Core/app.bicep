@@ -36,6 +36,9 @@ param rawRetentionInDays int?
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. If not specified, keeps the current value from settings.json (13 for new hubs).')
 param finalRetentionInMonths int?
 
+@description('Optional. Forces the settings script to run on every deployment so changed retention values always apply. Do not change.')
+param forceUpdateTag string = utcNow()
+
 
 //==============================================================================
 // Variables
@@ -114,6 +117,7 @@ module uploadSettings '../../fx/hub-deploymentScript.bicep' = {
     identityName: configContainer.outputs.identityName
     scriptName: '${app.storage}_uploadSettings'
     scriptContent: loadTextContent('Copy-FileToAzureBlob.ps1')
+    forceUpdateTag: forceUpdateTag
     environmentVariables: [
       {
         // cSpell:ignore ftkver
