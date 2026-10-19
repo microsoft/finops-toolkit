@@ -1,24 +1,27 @@
 ---
-description: Daily automated link checker that finds and fixes broken links in documentation files
+description: Weekday automated link checker that scans FinOps Toolkit documentation for broken links, finds replacements, and opens draft pull requests against dev.
 on:
   schedule: daily on weekdays
-permissions: read-all
+  workflow_dispatch:
+  skip-if-match:
+    query: 'is:pr is:open "gh-aw-workflow-id: link-checker" in:body'
+    max: 1
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  copilot-requests: write
 timeout-minutes: 60
 engine:
   id: copilot
   copilot-sdk: true
 network:
   allowed:
+    - defaults
     - node
     - python
     - github
 steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
-    with:
-      fetch-depth: 0
-      persist-credentials: false
-
   - name: Check and test all documentation links
     id: link-check
     run: |
@@ -26,9 +29,9 @@ steps:
       echo "# Link Check Results" > /tmp/gh-aw/agent/link-check-results.md
       echo "" >> /tmp/gh-aw/agent/link-check-results.md
       
-      # Find all markdown files in docs directory and README
+      # Find all markdown files in FinOps Toolkit documentation directories and README
       echo "Finding all markdown files..."
-      MARKDOWN_FILES=$(find docs README.md -type f -name "*.md" 2>/dev/null || echo "")
+      MARKDOWN_FILES=$(find docs docs-mslearn docs-wiki README.md -type f -name "*.md" 2>/dev/null || echo "")
       
       if [ -z "$MARKDOWN_FILES" ]; then
         echo "No markdown files found"
@@ -46,7 +49,7 @@ steps:
         # Extract markdown links [text](url)
         grep -oP '\[([^\]]+)\]\(([^\)]+)\)' "$file" | grep -oP '\(([^\)]+)\)' | tr -d '()' >> /tmp/gh-aw/agent/all-links.txt 2>/dev/null || true
         # Extract plain HTTP(S) URLs
-        grep -oP 'https?://[^\s<>"]+' "$file" >> /tmp/gh-aw/agent/all-links.txt 2>/dev/null || true
+        grep -oP 'https?://[^\s<>")`\]]+' "$file" >> /tmp/gh-aw/agent/all-links.txt 2>/dev/null || true
       done
       
       # Remove duplicates and sort
@@ -70,8 +73,8 @@ steps:
       WORKING_COUNT=0
       
       while IFS= read -r url; do
-        # Skip relative links and anchors
-        if [[ "$url" == "#"* ]] || [[ "$url" != "http"* ]]; then
+        # Skip relative links, localhost, and placeholder URLs
+        if [[ "$url" == "#"* ]] || [[ "$url" != "http"* ]] || [[ "$url" == *"localhost"* ]] || [[ "$url" == *"example.com"* ]]; then
           continue
         fi
         
@@ -106,8 +109,19 @@ tools:
 safe-outputs:
   create-pull-request:
     title-prefix: "[link-checker] "
-    labels: [documentation, automated]
-    draft: false
+    base-branch: "dev"
+    labels:
+      - "Type: Documentation 📃"
+      - "Skill: Documentation"
+      - "Micro PR 🔬"
+      - "Status: Autopilot 🤖"
+    draft: true
+    max: 1
+    allowed-files:
+      - "docs/**/*.md"
+      - "docs-mslearn/**/*.md"
+      - "docs-wiki/**/*.md"
+      - "README.md"
     protected-files: fallback-to-issue
     if-no-changes: "warn"
   noop:
@@ -175,6 +189,7 @@ For each broken link found in the test results (but NOT in the unfixable list):
    - If you find a working replacement URL, use the `edit` tool to update the markdown file
    - Replace the broken URL with the working one
    - Make sure to preserve the link text and formatting
+   - If you modify the body content of any file under `docs-mslearn/**/*.md`, also update its `ms.date` YAML frontmatter field to today's date (`MM/DD/YYYY`) per `AGENTS.md`
    
 4. **Document unfixable links:**
    - If a link truly cannot be fixed (content permanently removed, no alternatives found):
