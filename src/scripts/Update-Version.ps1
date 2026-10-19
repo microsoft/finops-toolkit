@@ -126,22 +126,22 @@ if ($update -or $Version)
         }
     }
 
-    # Update version in plugin.json files
+    # Update version in plugin.json files (three-part semantic version)
     Write-Verbose "Updating plugin.json files..."
+    $semVer = & "$PSScriptRoot/Get-Version" -AsSemVer
     Get-RepositoryVersionFiles "plugin.json" `
     | ForEach-Object {
         $json = Get-Content $_ -Raw | ConvertFrom-Json
         if ($json.PSObject.Properties['name'] -and $json.PSObject.Properties['version'])
         {
             Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
-            $json.version = $ver
+            $json.version = $semVer
             $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
         }
     }
 
     # Update version in marketplace.json plugin entries
     Write-Verbose "Updating marketplace.json files..."
-    $semVer = & "$PSScriptRoot/Get-Version" -AsSemVer
     Get-RepositoryVersionFiles "marketplace.json" `
     | ForEach-Object {
         $json = Get-Content $_ -Raw | ConvertFrom-Json
