@@ -1,5 +1,6 @@
 ---
 description: Automated moderation workflow that detects spam, link spam, and low-quality AI-generated content in FinOps Toolkit issues, comments, and pull requests.
+inlined-imports: true
 timeout-minutes: 5
 
 on:

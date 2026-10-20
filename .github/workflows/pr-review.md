@@ -1,5 +1,6 @@
 ---
 description: Automated pull request review workflow that inspects diffs for correctness, security, maintainability, test coverage, and FinOps Toolkit coding standards.
+inlined-imports: true
 on:
   pull_request:
     types: [opened, synchronize, ready_for_review, reopened]

@@ -21,6 +21,21 @@ network:
     - node
     - python
     - github
+    - powershell
+    - aka.ms
+    - learn.microsoft.com
+    - docs.microsoft.com
+    - azure.microsoft.com
+    - go.microsoft.com
+    - techcommunity.microsoft.com
+    - devblogs.microsoft.com
+    - microsoft.github.io
+    - azure.github.io
+    - portal.azure.com
+    - finops.org
+    - www.finops.org
+    - focus.finops.org
+    - learn.finops.org
 steps:
   - name: Check and test all documentation links
     id: link-check
@@ -43,17 +58,104 @@ steps:
       echo "## Links Found" >> /tmp/gh-aw/agent/link-check-results.md
       echo "" >> /tmp/gh-aw/agent/link-check-results.md
       
-      # Use grep to find markdown links and HTTP(S) URLs
-      for file in $MARKDOWN_FILES; do
-        echo "Checking $file..."
-        # Extract markdown links [text](url)
-        grep -oP '\[([^\]]+)\]\(([^\)]+)\)' "$file" | grep -oP '\(([^\)]+)\)' | tr -d '()' >> /tmp/gh-aw/agent/all-links.txt 2>/dev/null || true
-        # Extract plain HTTP(S) URLs
-        grep -oP 'https?://[^\s<>")`\]]+' "$file" >> /tmp/gh-aw/agent/all-links.txt 2>/dev/null || true
-      done
+      # Single-pass parser: extract Markdown destinations once (preserving balanced parentheses),
+      # mask matched Markdown link spans, and then extract bare HTTP(S) URLs.
+      find docs docs-mslearn docs-wiki README.md -type f -name "*.md" -print0 2>/dev/null | python3 -c '
+      import re, sys
+
+      def extract_urls(text):
+          urls = []
+          spans_to_mask = []
+          i = 0
+          n = len(text)
+          while i < n:
+              idx = text.find("](", i)
+              if idx == -1:
+                  break
+              line_start = text.rfind("\n", 0, idx) + 1
+              if "[" not in text[line_start:idx]:
+                  i = idx + 2
+                  continue
+              j = idx + 2
+              while j < n and text[j] in " \t":
+                  j += 1
+              if j < n and text[j] == "<":
+                  end_angle = text.find(">", j + 1)
+                  if end_angle != -1:
+                      url = text[j + 1:end_angle].strip()
+                      close_paren = text.find(")", end_angle + 1)
+                      if close_paren != -1:
+                          if url.startswith(("http://", "https://")):
+                              urls.append(url)
+                          spans_to_mask.append((idx, close_paren + 1))
+                          i = close_paren + 1
+                          continue
+              depth = 0
+              k = j
+              while k < n and text[k] not in " \t\r\n":
+                  if text[k] == "(":
+                      depth += 1
+                  elif text[k] == ")":
+                      if depth == 0:
+                          break
+                      depth -= 1
+                  k += 1
+              url = text[j:k]
+              m = k
+              while m < n and text[m] != "\n":
+                  if text[m] == ")":
+                      if depth == 0:
+                          break
+                      depth -= 1
+                  elif text[m] == "(":
+                      depth += 1
+                  m += 1
+              if m < n and text[m] == ")":
+                  if url.startswith(("http://", "https://")):
+                      urls.append(url)
+                  spans_to_mask.append((idx, m + 1))
+                  i = m + 1
+              else:
+                  i = idx + 2
+
+          # Match reference-style link definitions: [label]: url "optional title"
+          for m in re.finditer(r"(?m)^\s*\[[^\]]+\]:\s*<?(https?://[^\s>\"'\'']+)>?", text):
+              urls.append(m.group(1))
+              spans_to_mask.append((m.start(1), m.end(1)))
+
+          chars = list(text)
+          for s, e in spans_to_mask:
+              for p in range(s, e):
+                  chars[p] = " "
+          masked = "".join(chars)
+
+          for m in re.finditer(r"https?://[^\s<>\"`\]]+", masked):
+              raw = m.group(0)
+              while raw:
+                  if raw[-1] in ".,;:!?'\''":
+                      raw = raw[:-1]
+                  elif raw[-1] == ")" and raw.count(")") > raw.count("("):
+                      raw = raw[:-1]
+                  else:
+                      break
+              if raw.startswith(("http://", "https://")):
+                  urls.append(raw)
+          return urls
+
+      files = [f for f in sys.stdin.read().split("\0") if f]
+      with open("/tmp/gh-aw/agent/all-links.txt", "w", encoding="utf-8") as out:
+          for path in files:
+              print(f"Checking {path}...")
+              try:
+                  with open(path, encoding="utf-8", errors="ignore") as fh:
+                      for u in extract_urls(fh.read()):
+                          out.write(u + "\n")
+              except OSError:
+                  pass
+      '
       
       # Remove duplicates and sort
-      if [ -f /tmp/gh-aw/agent/all-links.txt ]; then
+      if [ -s /tmp/gh-aw/agent/all-links.txt ]; then
         sort -u /tmp/gh-aw/agent/all-links.txt > /tmp/gh-aw/agent/unique-links.txt
         LINK_COUNT=$(wc -l < /tmp/gh-aw/agent/unique-links.txt)
         echo "Found $LINK_COUNT unique links" >> /tmp/gh-aw/agent/link-check-results.md
@@ -180,7 +282,7 @@ For each broken link found in the test results (but NOT in the unfixable list):
      - The surrounding documentation
    
 2. **Search for alternatives:**
-   - Use web-fetch to search for if the content has moved to a new URL
+   - Use web-fetch to search for if the content has moved to a new URL (note: `web-fetch` runs behind the workflow firewall and can only reach allowlisted documentation domains such as `aka.ms`, `learn.microsoft.com`, `azure.microsoft.com`, `github.com`, and `finops.org`; if `web-fetch` cannot reach a non-allowlisted third-party host, rely on the pre-step curl HTTP status in `/tmp/gh-aw/agent/link-check-results.md` and do not treat a firewall block as a broken link)
    - Try common alternatives (www vs non-www, http vs https, with/without trailing slash)
    - Look for redirects or updated documentation
    - Check if there's an official replacement

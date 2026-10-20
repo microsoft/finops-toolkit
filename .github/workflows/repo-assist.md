@@ -1,5 +1,6 @@
 ---
 description: Twice-daily repository assistant that triages new issues, fixes reproducible bugs, and opens small draft pull requests with targeted improvements.
+inlined-imports: true
 on:
   schedule: every 12 hours
   workflow_dispatch:
