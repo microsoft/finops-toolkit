@@ -119,7 +119,7 @@ steps:
                   i = idx + 2
 
           # Match reference-style link definitions: [label]: url "optional title"
-          for m in re.finditer(r"(?m)^\s*\[[^\]]+\]:\s*<?(https?://[^\s>\"'\'']+)>?", text):
+          for m in re.finditer(r"(?m)^\s*\[[^\]]+\]:\s*<?(https?://[^\s>\"\x27]+)>?", text):
               urls.append(m.group(1))
               spans_to_mask.append((m.start(1), m.end(1)))
 
@@ -132,7 +132,7 @@ steps:
           for m in re.finditer(r"https?://[^\s<>\"`\]]+", masked):
               raw = m.group(0)
               while raw:
-                  if raw[-1] in ".,;:!?'\''":
+                  if raw[-1] in ".,;:!?\x27":
                       raw = raw[:-1]
                   elif raw[-1] == ")" and raw.count(")") > raw.count("("):
                       raw = raw[:-1]
