@@ -39,5 +39,5 @@ Produce a TLDR support status for maintainers. Read-only: never comment, label, 
 ## Rules
 
 - Accuracy first: only state counts the script produced; never guess a thread's state.
-- Don't post the Teams draft. A maintainer must approve the posting method (see `teams-posting.md`).
+- Post the Teams draft only through `node .claude/skills/support-report/post-teams.mjs`, and only when `~/.claude/ftk-reports/teams-webhook.url` exists (a maintainer creates it; that is the approval). If it doesn't exist, leave the draft for a manual paste. Never post the same draft twice (the script refuses). See `teams-posting.md`.
 - Public text starts with "🤖 [AI]". Plain language, sentence case.
