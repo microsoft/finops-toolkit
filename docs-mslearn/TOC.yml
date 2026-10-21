@@ -196,7 +196,7 @@
           href: toolkit/alerts/finops-alerts-overview.md
         - name: Configure alerts
           href: toolkit/alerts/configure-finops-alerts.md
-    - name: FinOps multitool
+    - name: FinOps Explorer
       items:
         - name: Overview
           href: toolkit/multitool/finops-multitool-overview.md
@@ -248,11 +248,11 @@
               href: toolkit/powershell/cost/remove-finopscostexport.md
             - name: Start-FinOpsCostExport
               href: toolkit/powershell/cost/start-finopscostexport.md
-        - name: FinOps multitool
+        - name: FinOps Explorer
           items:
-            - name: FinOps multitool commands
+            - name: FinOps Explorer TUI commands
               href: toolkit/powershell/multitool/finops-multitool-commands.md
-            - name: Start-FinOpsMultitool
+            - name: Start-FinOpsExplorer (Start-FinOpsMultitool compatibility)
               href: toolkit/powershell/multitool/start-finopsmultitool.md
         - name: FinOps hubs
           items:

@@ -12,6 +12,37 @@ InModuleScope 'FinOpsToolkit' {
                 $cmd | Should -Not -BeNullOrEmpty
             }
 
+            It 'Should export the FinOps Explorer command' {
+                $cmd = Get-Command -Name 'Start-FinOpsExplorer' -Module 'FinOpsToolkit' -ErrorAction SilentlyContinue
+                $cmd | Should -Not -BeNullOrEmpty
+                $cmd.CmdletBinding | Should -BeTrue
+            }
+
+            It 'Should keep the legacy command parameter-compatible' {
+                $explorer = Get-Command -Name 'Start-FinOpsExplorer' -Module 'FinOpsToolkit'
+                $legacy = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit'
+                foreach ($parameter in 'SubscriptionId', 'OutputPath', 'Scans', 'DataSource', 'NonInteractive', 'Accessible') {
+                    $explorer.Parameters.ContainsKey($parameter) | Should -BeTrue
+                    $legacy.Parameters.ContainsKey($parameter) | Should -BeTrue
+                }
+            }
+
+            It 'Forwards all legacy command arguments to FinOps Explorer' {
+                Mock Start-FinOpsExplorer { }
+
+                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' `
+                    -OutputPath 'C:\reports' -Scans @('Get-CostData', 'Get-IdleVMs') `
+                    -DataSource GraphOnly -NonInteractive -Accessible
+
+                Should -Invoke Start-FinOpsExplorer -Times 1 -Exactly -ParameterFilter {
+                    $SubscriptionId -eq '11111111-1111-1111-1111-111111111111' -and
+                    $OutputPath -eq 'C:\reports' -and
+                    ($Scans -join ',') -eq 'Get-CostData,Get-IdleVMs' -and
+                    $DataSource -eq 'GraphOnly' -and
+                    $NonInteractive -and $Accessible
+                }
+            }
+
             It 'Should have CmdletBinding attribute' {
                 $cmd = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit'
                 $cmd.CmdletBinding | Should -BeTrue
@@ -48,13 +79,16 @@ InModuleScope 'FinOpsToolkit' {
         }
 
         Context 'Behavior' {
-            It 'Shows missing-module guidance before any Azure calls' {
+            It 'Shows missing-module guidance before any Azure calls through <Command>' -ForEach @(
+                @{ Command = 'Start-FinOpsExplorer' }
+                @{ Command = 'Start-FinOpsMultitool' }
+            ) {
                 Mock Import-Module { }
                 Mock Get-Module { $null }
                 Mock Write-Host { }
                 Mock Get-AzContext { throw 'Azure must not be queried without required modules.' }
 
-                { Start-FinOpsMultitool -NonInteractive -ErrorAction Stop } | Should -Not -Throw
+                { & $Command -NonInteractive -ErrorAction Stop } | Should -Not -Throw
 
                 Should -Invoke Write-Host -Times 1 -Exactly -ParameterFilter { $Object -eq '  MISSING REQUIRED MODULES' }
                 Should -Invoke Get-AzContext -Times 0 -Exactly

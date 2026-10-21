@@ -1,23 +1,23 @@
 ---
-title: FinOps multitool overview
-description: FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights from a terminal UI, with agent skills so AI assistants can run the same analysis.
+title: FinOps Explorer TUI overview
+description: Learn how the FinOps Explorer TUI scans an Azure environment for cost, governance, and optimization insights, and how AI agents use its skills.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 09/20/2026
+ms.date: 10/21/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps practitioner, I need to learn about the FinOps multitool.
+#customer intent: As a FinOps practitioner, I need to learn about the FinOps Explorer TUI.
 ---
 
-# FinOps multitool
+# FinOps Explorer TUI
 
-FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights, grounded in your live resource state. It reports on cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance. Run it from an interactive terminal, or call it as tools from an AI agent.
+FinOps Explorer is the umbrella brand for the Desktop app and the terminal UI (TUI). This overview covers the TUI, which scans your live Azure resource state for cost, governance, and optimization insights. It reports on cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance. Run the TUI in an interactive terminal, or use its agent skills to run the same investigations from an AI agent.
 
 ## How it works
 
-FinOps multitool provides 30 scan modules, with 26 available in the terminal menu, and renders findings for the subscriptions you select:
+FinOps Explorer TUI provides 30 scan modules, with 26 available in the terminal menu, and renders findings for the subscriptions you select:
 
 - **Interactive scanning** <br> Choose the subscriptions and scan modules you want, then review results in the terminal. Every completed run automatically saves CSV files, an HTML report, and a text summary to a private local folder. See [Report storage](../powershell/multitool/start-finopsmultitool.md#report-storage) for locations and privacy limits. Consoles that can't render the arrow-key menus fall back to numbered prompts. Non-interactive runs require an existing Azure sign-in context.
 
@@ -25,11 +25,11 @@ FinOps multitool provides 30 scan modules, with 26 available in the terminal men
 
 - **Cost data sources** <br> When a [FinOps hub](../hubs/finops-hubs-overview.md) is available, cost scans query the hub's Azure Data Explorer or Microsoft Fabric database and push aggregation into the engine, returning only summarized results. A storage reader covers smaller datasets, and the Cost Management API is used when no hub is present.
 
-- **Read-only** <br> The multitool never creates, changes, or deletes a resource.
+- **Read-only** <br> The TUI never creates, changes, or deletes a resource.
 
 ## Benefits
 
-FinOps multitool provides the following benefits:
+FinOps Explorer TUI provides the following benefits:
 
 - Choose from 26 menu scans across optimization, governance, cost analysis, commitments, monitoring, and sustainability, with four more modules for direct investigations.
 - Scope each scan to the subscriptions you select.
@@ -38,9 +38,9 @@ FinOps multitool provides the following benefits:
 - Run the same scans from a pipeline or a scheduled job with `-NonInteractive`.
 - Run the same investigations from an AI assistant through agent skills.
 
-## Why FinOps multitool?
+## Why FinOps Explorer TUI?
 
-[FinOps workbooks](../workbooks/finops-workbooks-overview.md) and the [Azure Optimization Engine](../optimization-engine/overview.md) surface optimization opportunities in the Azure portal. FinOps multitool reports the same kinds of findings in the terminal and through AI agent skills, so you can scan an environment during a working session without leaving the command line.
+[FinOps workbooks](../workbooks/finops-workbooks-overview.md) and the [Azure Optimization Engine](../optimization-engine/overview.md) surface optimization opportunities in the Azure portal. FinOps Explorer TUI reports the same kinds of findings in the terminal and through AI agent skills, so you can scan an environment during a working session without leaving the command line.
 
 ## Required permissions
 
@@ -83,7 +83,7 @@ Related products:
 
 Related solutions:
 
-- [FinOps multitool commands](../powershell/multitool/finops-multitool-commands.md)
+- [FinOps Explorer TUI commands](../powershell/multitool/finops-multitool-commands.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
 - [FinOps workbooks](../workbooks/finops-workbooks-overview.md)
 

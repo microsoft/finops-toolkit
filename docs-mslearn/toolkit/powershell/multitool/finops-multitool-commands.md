@@ -1,23 +1,25 @@
 ---
-title: FinOps multitool commands
+title: FinOps Explorer TUI commands
 description: Learn about PowerShell commands in the FinOpsToolkit module that scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 10/14/2026
+ms.date: 10/21/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand what FinOps multitool commands are available in the FinOpsToolkit module.
+#customer intent: As a FinOps user, I want to know which PowerShell commands launch FinOps Explorer TUI scans.
 ---
 
-# FinOps multitool commands
+# FinOps Explorer TUI commands
 
-The FinOps multitool PowerShell commands help you scan an Azure environment for cost optimization, governance, and FinOps insights. Findings are grounded in your live resource state and cover cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance.
+The FinOps Explorer TUI PowerShell command helps you scan an Azure environment for cost, governance, and optimization insights. Findings are grounded in your live resource state and cover cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance.
 
-The multitool supports two ways to investigate FinOps data:
+`Start-FinOpsMultitool` remains available as a backward-compatible wrapper with the same parameters and behavior.
 
-- **Terminal UI (TUI)** – An interactive terminal experience launched with [Start-FinOpsMultitool](start-finopsmultitool.md). It surfaces 26 of the 30 scans.
+FinOps Explorer offers two ways to investigate FinOps data:
+
+- **Terminal UI (TUI)** – An interactive terminal experience launched with [Start-FinOpsExplorer](start-finopsmultitool.md). It surfaces 26 of the 30 scans.
 - **Agent skills** – A set of skills that describe which investigation answers a question, the queries behind it, and how to read the results.
 
 The terminal UI prompts for each choice by default. Consoles that can't render the arrow-key menus, such as PowerShell remoting sessions, fall back to numbered prompts. Use `-Accessible` to select numbered prompts without clearing the screen or repainting menu rows in any console. This mode stays in the signed-in tenant. To run the tool from a pipeline or a scheduled job, use `-NonInteractive` and supply the choices as parameters; it takes precedence over `-Accessible`.
@@ -26,7 +28,7 @@ Automation requires an existing Azure context established with the intended iden
 
 An explicit `-SubscriptionId` must resolve in the current tenant. Unresolved or mismatched subscriptions stop the run without searching other tenants or widening scope. Sign in to the intended tenant before trying again. A valid subscription selection changes context only in the current PowerShell process. The tool verifies tenant ownership before source discovery and stops subscription enumeration if the tenant is missing or changed.
 
-CSV, HTML, and text reports are saved automatically on the machine running the multitool, in a new private folder under the current user's local application data. Use `-OutputPath` to select a different local parent folder outside Git repositories. For location details and privacy limits, see [Report storage](start-finopsmultitool.md#report-storage).
+CSV, HTML, and text reports are saved automatically on the machine running the FinOps Explorer TUI, in a new private folder under the current user's local application data. Use `-OutputPath` to select a different local parent folder outside Git repositories. For location details and privacy limits, see [Report storage](start-finopsmultitool.md#report-storage).
 
 The HTML report's **KPI reference** tab lists the available KPI definitions, including entries not measured in the current run. Each entry includes its status, calculation, required inputs, interpretation, limitations, and a link to its source scan when that scan was included. **Computed** means a value was derived, not that the environment is healthy; some values are estimates or proxies. **Unavailable**, **Not run**, and **Informational** distinguish missing measurements, unselected scans, and definitions that need additional data or calculations.
 
@@ -40,13 +42,17 @@ Idle and storage screening show their thresholds and evaluated counts. Missing m
 
 ## Commands
 
-- [Start-FinOpsMultitool](start-finopsmultitool.md) – Launch the interactive FinOps multitool terminal UI.
+- [Start-FinOpsExplorer](start-finopsmultitool.md) – Launch the FinOps Explorer terminal UI.
+
+<br>
+
+- [Start-FinOpsMultitool](start-finopsmultitool.md) – Backward-compatible wrapper with the same parameters and behavior.
 
 <br>
 
 ## Scan coverage
 
-The multitool includes 30 scan modules across the following categories:
+The TUI includes 30 scan modules across the following categories:
 
 - **Optimization** – Orphaned resources, idle VMs, storage tier advice, Azure Hybrid Benefit opportunities, and legacy resources.
 - **Governance** – Tag inventory and recommendations, and policy inventory and recommendations.
@@ -58,7 +64,7 @@ The multitool includes 30 scan modules across the following categories:
 - **AI and ML** – Azure AI workload spend.
 - **Sustainability** – Carbon emissions.
 
-VM cost breakdown, shared cost allocation, usage-proportional allocation, and billing account are direct module functions, not menu entries or valid `Start-FinOpsMultitool -Scans` choices. The remaining 26 scans are available through the terminal UI.
+VM cost breakdown, shared cost allocation, usage-proportional allocation, and billing account are direct module functions, not menu entries or valid `Start-FinOpsExplorer -Scans` choices. The remaining 26 scans are available through the terminal UI.
 
 Analysis scans are read-only. Most need Reader or Cost Management Reader access. Account scans also need agreement-specific billing access, such as Billing account reader or Billing profile reader for a Microsoft Customer Agreement, or Enterprise Administrator (read only) for an Enterprise Agreement. Commitment utilization reads reservation and savings plan usage at billing account or billing profile scope, so it needs that billing access. The carbon scan needs Reader or Carbon Optimization Reader assigned at the subscription. Carbon emissions permissions don't apply at resource group or resource scope.
 
@@ -74,7 +80,7 @@ On the API path, **Cost by Tag** retains successful subscription queries when an
 
 **Cost Data** retains actual costs when a subscription's completed forecast response has no rows or returns HTTP 204 (No Content), and continues querying other subscriptions. Missing or skipped forecasts stay **Unavailable**, not zero or a copy of month-to-date spend. Management-group forecast currencies are validated before storing forecasts, so an empty fallback can't retain a forecast from a rejected group response. At subscription scope, incompatible currencies and responses without the expected columns fail the scan. At management-group scope, a failed group forecast triggers subscription retries. A forecast request that still fails, including an unreadable continuation page, keeps the subscription's actual costs, leaves its forecast **Unavailable**, and adds a plain-language `CostIssue` that explains why, such as a request limit, and when to run the scan again if Cost Management reported a time. Reports show one note for all affected subscriptions. An actual-cost request that fails at subscription scope leaves only that subscription's cost unavailable, with the same kind of note. The scan fails only when no subscription's costs could be read. For response details, see [Forecast - Usage](/rest/api/cost-management/forecast/usage).
 
-HTTP 429 indicates throttling, not missing permissions. Cost queries and Cost by Tag batches respect numeric `Retry-After` and Cost Management/Consumption retry-after headers, using the longest valid delay. Shared REST calls allow up to 120 seconds of cumulative retry waiting by default, separately from request-attempt timeouts. A delay beyond the remaining budget returns the last error response with a warning rather than retrying early. When Cost Management asks for more than 120 seconds, the multitool also remembers that this tenant's query or forecast requests are limited until the stated time. It warns once, then answers later requests of that kind with a local HTTP 429 instead of sending them until that time, even when the window is nearly over. Affected scans report the gap and when to run again. A tenant change clears the window. Cost by Tag keeps HTTP 429 when a throttle delay won't fit its 120-second batch deadline; queued or in-flight requests can still time out. Before rerunning, allow the throttle window to expire and consider a smaller scope or an existing cost export or FinOps hub for large datasets. The report shows a required-role hint only for access errors; for request limits and timeouts, it says the problem isn't a permission issue and to run the scan again. For tag coverage gaps, inspect `FailedSubscriptions` to identify the actual failures. See [Data latency and rate limits](/azure/cost-management-billing/costs/manage-automation#data-latency-and-rate-limits).
+HTTP 429 indicates throttling, not missing permissions. Cost queries and Cost by Tag batches respect numeric `Retry-After` and Cost Management/Consumption retry-after headers, using the longest valid delay. Shared REST calls allow up to 120 seconds of cumulative retry waiting by default, separately from request-attempt timeouts. A delay beyond the remaining budget returns the last error response with a warning rather than retrying early. When Cost Management asks for more than 120 seconds, FinOps Explorer also remembers that this tenant's query or forecast requests are limited until the stated time. It warns once, then answers later requests of that kind with a local HTTP 429 instead of sending them until that time, even when the window is nearly over. Affected scans report the gap and when to run again. A tenant change clears the window. Cost by Tag keeps HTTP 429 when a throttle delay won't fit its 120-second batch deadline; queued or in-flight requests can still time out. Before rerunning, allow the throttle window to expire and consider a smaller scope or an existing cost export or FinOps hub for large datasets. The report shows a required-role hint only for access errors; for request limits and timeouts, it says the problem isn't a permission issue and to run the scan again. For tag coverage gaps, inspect `FailedSubscriptions` to identify the actual failures. See [Data latency and rate limits](/azure/cost-management-billing/costs/manage-automation#data-latency-and-rate-limits).
 
 **Unit Economics** and **AI Workload Metrics** retain capacity or usage measurements when currency evidence is missing or mixed, but leave monetary totals and rates unavailable with an explanation. AI rates use matching account costs and usage rather than total AI spend, and incomplete metric reads suppress aggregate rates. A measured zero with known currency stays zero.
 
@@ -102,8 +108,8 @@ Commitment estimates cover usage charges in the reported UTC month-to-date perio
 
 When a [FinOps hub](../../hubs/finops-hubs-overview.md) is present, cost scans read from the hub and choose the path automatically:
 
-- **Kusto database (used when available)** – When the hub has an Azure Data Explorer or Microsoft Fabric cluster, the multitool discovers it through Azure Resource Graph and pushes aggregation into the engine, returning only summarized results. This scales to large datasets without loading raw cost rows into PowerShell. To query a local hub on your own hardware, set the `FINOPS_HUB_KUSTO_URI` environment variable to a local Kusto endpoint (optionally set `FINOPS_HUB_KUSTO_DB`, which defaults to `Hub`).
-- **Storage reader (small-dataset fallback)**: when no Kusto endpoint is configured or discovered, the multitool reads the hub's storage export and aggregates in PowerShell. Use this for smaller datasets. Reading Parquet exports prepares a pinned reader using NuGet on Windows or .NET SDK 8 or later on Linux. NuGet signed-package verification [isn't supported on macOS](/dotnet/core/tools/nuget-signed-package-verification#macos); use Kusto or available CSV exports there. The reader doesn't bypass signature verification. If it can't be prepared, the tool warns with the reason and attempts `msexports` CSV instead. The CSV fallback checks at most 2,000 export manifests; above that, use Kusto or the Cost Management API. It doesn't download a manifest larger than 1 MB, and it stops instead of counting a CSV file that two export runs list. A failed export read remains an error, not zero cost.
+- **Kusto database (used when available)** – When the hub has an Azure Data Explorer or Microsoft Fabric cluster, FinOps Explorer discovers it through Azure Resource Graph and pushes aggregation into the engine, returning only summarized results. This scales to large datasets without loading raw cost rows into PowerShell. To query a local hub on your own hardware, set the `FINOPS_HUB_KUSTO_URI` environment variable to a local Kusto endpoint (optionally set `FINOPS_HUB_KUSTO_DB`, which defaults to `Hub`).
+- **Storage reader (small-dataset fallback)**: when no Kusto endpoint is configured or discovered, FinOps Explorer reads the hub's storage export and aggregates in PowerShell. Use this for smaller datasets. Reading Parquet exports prepares a pinned reader using NuGet on Windows or .NET SDK 8 or later on Linux. NuGet signed-package verification [isn't supported on macOS](/dotnet/core/tools/nuget-signed-package-verification#macos); use Kusto or available CSV exports there. The reader doesn't bypass signature verification. If it can't be prepared, the tool warns with the reason and attempts `msexports` CSV instead. The CSV fallback checks at most 2,000 export manifests; above that, use Kusto or the Cost Management API. It doesn't download a manifest larger than 1 MB, and it stops instead of counting a CSV file that two export runs list. A failed export read remains an error, not zero cost.
 
 Storage reads require Storage Blob Data Reader or equivalent data access. Kusto queries require database query access. Both paths need network access to the endpoint. Local Kusto queries are anonymous, but the public launcher still uses Azure context and resource metadata.
 
