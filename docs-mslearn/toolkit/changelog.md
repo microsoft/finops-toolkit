@@ -63,7 +63,6 @@ The following section lists features and enhancements that are currently in deve
   - Switched the InstanceSizeFlexibility table in the storage and KQL shared datasets from the retired `ccmstorageprod` AutofitComboMeterData.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file, joined to reservation recommendations on the unique ARM SKU name ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 - **Fixed**
   - Fixed the storage reports failing to refresh when the Cost Management export uses the FOCUS 1.2 schema. The FOCUS 1.2 branch searched for a column named `SkuMeterName` instead of `SkuMeter`, and the surrounding block assumed the FOCUS 1.0 columns (`x_InvoiceId`, `x_PricingCurrency`, `x_SkuMeterName`) were always present, which fails for a storage container that holds only FOCUS 1.2 exports. Added a lint rule that fails the build when a Power Query column name doesn't exist ([#2332](https://github.com/microsoft/finops-toolkit/issues/2332)).
-  - Fixed duplicate `Region` and `region` columns in the `AdvisorReservationRecommendations` table, which Power BI treats as the same name ([#2347](https://github.com/microsoft/finops-toolkit/issues/2347)).
 
 ### [Optimization Engine](optimization-engine/overview.md)
 
@@ -141,6 +140,7 @@ _Released June 2026_
 - **Fixed**
   - Fixed Power BI storage report refresh errors caused by ISO 8601 duration `x_SkuTerm` values (like `P3Y`) and empty strings in cost exports ([#2174](https://github.com/microsoft/finops-toolkit/issues/2174)).
   - Paginate Azure Resource Graph queries by subscription to mitigate [payload size limit](help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) errors in the [Governance](power-bi/governance.md) and [Workload optimization](power-bi/workload-optimization.md) reports ([#1768](https://github.com/microsoft/finops-toolkit/issues/1768)). Queries still surface a payload size error (rather than silently returning truncated results) if a single batch of subscriptions exceeds the limit; see [Reduce the batch size](help/errors.md#option-1-reduce-the-batch-size) for the mitigation. As part of this change, the `AdvisorRecommendations` and `AdvisorReservationRecommendations` tables now return complete (non-truncated) results per batch, matching every other batched table; previously these two tables silently dropped rows beyond the payload limit instead of erroring.
+  - Fixed duplicate `Region` and `region` columns in the `AdvisorReservationRecommendations` table, which Power BI treats as the same name ([#2347](https://github.com/microsoft/finops-toolkit/issues/2347)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v15
 
