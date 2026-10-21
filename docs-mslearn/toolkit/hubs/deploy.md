@@ -210,7 +210,10 @@ For other parameters, see [Deploy-FinOpsHub](../powershell/hubs/Deploy-FinOpsHub
 
 ## Optional: Configure Fabric access
 
-If you set up Microsoft Fabric as a primary data store, configure access for Data Factory and the Fabric eventhouse.
+If you set up Microsoft Fabric as a primary data store, configure access for Data Factory and the Fabric eventhouse. `Deploy-FinOpsHub -FabricQueryUri` grants the Data Factory access in step 2 for you; follow these steps if you deploy the template another way.
+
+> [!WARNING]
+> Fabric eventhouse ingestion pulls files from the storage account and cannot pass the storage firewall (trusted services bypass doesn't apply). With private or VNet networking, data stays in storage until the firewall allows Fabric access.
 
 1. Get the Data Factory identity:
    1. From the Azure portal, open the FinOps hub resource group.
