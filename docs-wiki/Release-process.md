@@ -121,7 +121,14 @@ Once the above requirements have been met, the feature branch can be merged into
 
       > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at [GitHub actions](../actions/workflows/pages/pages-build-deployment) to see if there are any failures._
 
-   6. Package the Power BI files on Windows with Power BI Desktop installed:
+   6. Confirm the demo hub is on this release and has current data, because the demo reports are saved with its data. If the check fails, run `./Deploy-Demo` and wait for ingestion. See [Deploy-Demo](../tree/dev/src/scripts/README.md#-deploy-demo).
+
+      ```powershell
+      cd <root>/src/scripts
+      ./Deploy-Demo -Check
+      ```
+
+   7. Package the Power BI files on Windows with Power BI Desktop installed:
 
       ```powershell
       cd <root>/src/scripts
@@ -143,7 +150,7 @@ Once the above requirements have been met, the feature branch can be merged into
          > _Queries are already trimmed and the **Get started** page is already selected. There is nothing else to change._
 
       Confirm all 3 files were created: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
-   7. Tag and publish a [new release](../releases/new):
+   8. Tag and publish a [new release](../releases/new):
       1. Create a tag on publish using the "vX.X" format.
       2. Set the **Target** to `main`.
       3. Set the **Previous tag** to the previous release tag.
@@ -169,9 +176,9 @@ Once the above requirements have been met, the feature branch can be merged into
           - Open data CSV and JSON files.
           - ZIP file for sample data files.
           - **DO NOT** copy Bicep, PowerShell, PBIP, or image files.
-   8. Update the related discussion.
-   9. Update all issues to `Status: Released`.
-   10. Update the `Toolkit / Should return all known releases` PowerShell integration test based on the latest version.
+   9. Update the related discussion.
+   10. Update all issues to `Status: Released`.
+   11. Update the `Toolkit / Should return all known releases` PowerShell integration test based on the latest version.
 
        > _See `src/powershell/Tests/Integration/Toolkit.Tests.ps1` > `Get-FinOpsToolkitVersion` > `Should return all known releases`_
 

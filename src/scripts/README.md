@@ -473,6 +473,14 @@ Every instance uses a dev/test Data Explorer SKU and stops itself when idle, so 
 
 Run `-Check` before a release. It reports the hub version and months of data, and fails when the hub is behind the toolkit version or has no data for the current month.
 
+To get the demo hub ready for a release:
+
+1. Sign in with `Connect-AzAccount` using an account that can create resources and assign roles in the FTK Prod subscription.
+2. Run `./Deploy-Demo`. It deploys the hub from source, grants it access, and sets up the exports. For a new hub, add `-Backfill 36` to load history.
+3. Wait for ingestion, then run `./Deploy-Demo -Check`. Package the Power BI files only after it passes.
+
+To open reports from an older release, deploy its instance with `./Deploy-Demo -Version v14`.
+
 | Parameter        | Description                                                                                       |
 | ---------------- | ------------------------------------------------------------------------------------------------- |
 | `‑Version`       | Optional. Deploys the versioned instance for a release (for example, "v15", "v07", or "v0.7"). Default = the current demo hub. |
