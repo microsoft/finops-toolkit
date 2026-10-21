@@ -259,6 +259,11 @@ function Deploy-FinOpsHub
 
         # Resolve network mode. -NetworkMode wins; -DisablePublicAccess (deprecated) maps to 'vnet'.
         $effectiveNetworkMode = if ($NetworkMode) { $NetworkMode } elseif ($DisablePublicAccess) { 'vnet' } else { 'public' }
+
+        if ($FabricQueryUri -and $effectiveNetworkMode -ne 'public')
+        {
+            Write-Warning 'Fabric eventhouse ingestion pulls files from storage and cannot pass the storage firewall, so data stays in storage until the firewall allows Fabric. See https://github.com/microsoft/finops-toolkit/issues/2061.'
+        }
         if (-not $NetworkMode -and $DisablePublicAccess) { Write-Warning "-DisablePublicAccess is deprecated; use -NetworkMode 'vnet' or -NetworkMode 'private'." }
 
         # Private network mode (NAT Gateway) requires hub template version 15.0 or later
@@ -344,7 +349,15 @@ function Deploy-FinOpsHub
         if (Test-ShouldProcess $PSCmdlet $ResourceGroupName 'DeployFinOpsHub')
         {
             Write-Verbose -Message ($LocalizedData.Hub_Deploy_Deploy -f $bicepFile.FullName, $resourceGroupObject.ResourceGroupName)
-            return New-AzResourceGroupDeployment @parameterSplat -ResourceGroupName $resourceGroupObject.ResourceGroupName
+            $deployment = New-AzResourceGroupDeployment @parameterSplat -ResourceGroupName $resourceGroupObject.ResourceGroupName
+
+            if ($FabricQueryUri -and $deployment.Outputs -and $deployment.Outputs.dataFactoryName)
+            {
+                $adf = Get-AzDataFactoryV2 -ResourceGroupName $resourceGroupObject.ResourceGroupName -Name $deployment.Outputs.dataFactoryName.Value
+                Grant-FinOpsHubFabricAccess -QueryUri $FabricQueryUri -PrincipalId $adf.Identity.PrincipalId -TenantId $adf.Identity.TenantId -WhatIf:$WhatIfPreference
+            }
+
+            return $deployment
         }
     }
     catch
