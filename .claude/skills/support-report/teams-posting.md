@@ -1,6 +1,6 @@
 # Sharing the report in the contributor sync Teams chat
 
-Status: **proposal, not approved.** Until a maintainer approves an option, the report is draft-only (`*.teams.txt`), and a maintainer pastes it by hand.
+Status: **option 2 approved (Oct 2026).** Posting is live once a maintainer saves the webhook URL to `~/.claude/ftk-reports/teams-webhook.url`. Until then, drafts are pasted by hand. `post-teams.mjs` sends the latest `*.teams.txt` as an Adaptive Card and won't repost the same draft.
 
 | Option | How it works | Setup | Trade-offs |
 |---|---|---|---|
