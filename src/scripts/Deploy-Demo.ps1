@@ -24,9 +24,9 @@
     Every instance uses a dev/test Data Explorer SKU and stops itself when idle, so an instance
     nobody is using costs almost nothing to keep around.
 
-    Run with -Check before a release to confirm the demo hub is current. It reports the hub
-    version and the months of data it holds, and fails when the hub is behind the toolkit version
-    or is missing data for the current month.
+    One call does everything an instance needs: it deploys the hub, gives it access to the scopes,
+    sets up the exports, loads history for a new instance, turns on auto-stop, and waits until
+    current data has been ingested. It is safe to run again, which updates the instance.
 
     .PARAMETER Version
     Optional. Deploys the versioned instance for a release (for example, "v15", "v07", or "v0.7") instead of the current demo hub.
@@ -49,11 +49,11 @@
     .PARAMETER DataExplorerSku
     Optional. Data Explorer SKU. Use a dev/test SKU, because production SKUs cost too much for demo instances. Default = "Dev(No SLA)_Standard_D11_v2".
 
-    .PARAMETER Backfill
-    Optional. Number of months of history to load. Backfilling is a one-time task for a new instance, so nothing is backfilled unless this is specified.
+    .PARAMETER WaitMinutes
+    Optional. Minutes to wait for data to be ingested before finishing. Default = 30. Use 0 to not wait.
 
-    .PARAMETER Check
-    Optional. Reports whether the demo hub is ready for a release without changing anything. Default = false.
+    .PARAMETER Backfill
+    Optional. Number of months of history to load. Default = the retention for a new instance, and none for an existing one. Use 0 to skip.
 
 
     .PARAMETER Build
@@ -63,25 +63,19 @@
     Optional. Validates the deployment without making changes. Default = false.
 
     .EXAMPLE
-    ./Deploy-Demo -Check
-
-    Reports whether the demo hub is on the current version and has data for this month.
-
-    .EXAMPLE
     ./Deploy-Demo
 
-    Deploys or updates the demo hub. Exports keep running on their own, so nothing is backfilled.
+    Deploys or updates the demo hub, loads history if it is new, and waits until current data is ingested.
 
     .EXAMPLE
-    ./Deploy-Demo -Backfill 36
+    ./Deploy-Demo -Version v14
 
-    Deploys the demo hub and loads 36 months of history. Only needed for a new instance.
+    Does the same for the v14 instance, using the released v14 template.
 
     .EXAMPLE
     ./Deploy-Demo -Version v15 -Backfill 1
 
-    Deploys the versioned instance for v15 and loads 1 month of history. It keeps up to 3 months.
-
+    Loads 1 month of history instead of the default for a new instance.
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-deploy-demo
 #>
@@ -111,9 +105,8 @@ param(
     [int]
     $Backfill,
 
-    [switch]
-    $Check,
-
+    [int]
+    $WaitMinutes = 30,
 
     [switch]
     $Build
@@ -259,16 +252,75 @@ function Invoke-DemoPipeline([string] $FactoryId, [string] $Pipeline, [hashtable
     do
     {
         Start-Sleep -Seconds 10
-        $status = ((Invoke-AzRestMethod -Method GET -Path "$FactoryId/pipelineruns/${runId}?$api").Content | ConvertFrom-Json).status
+        $status = ((Invoke-DemoRetry { Invoke-AzRestMethod -Method GET -Path "$FactoryId/pipelineruns/${runId}?$api" }).Content | ConvertFrom-Json).status
     }
     while (($status -in 'Queued', 'InProgress') -and (Get-Date) -lt $deadline)
 
     return $status
 }
 
+<#
+    .SYNOPSIS
+    Returns why an instance isn't ready to build demo reports from. Empty when it is ready.
+#>
+function Get-DemoProblem($State, [string] $InstanceName, [string] $ExpectedVersion, [string[]] $RecentMonths)
+{
+    if (-not $State.Deployed) { return @("$InstanceName is not deployed.") }
+
+    # Releases are listed as 12 but saved as 12.0
+    $normalize = { param($v) $v -replace '^(\d+)$', '$1.0' }
+    $problems = New-Object System.Collections.Generic.List[string]
+    if ((& $normalize $State.Version) -ne (& $normalize $ExpectedVersion))
+    {
+        $problems.Add("is on $($State.Version ?? 'an unknown version') but should be on $ExpectedVersion.")
+    }
+    if (-not ($State.Months | Where-Object { $_ -in $RecentMonths }))
+    {
+        $problems.Add("has no data for $($RecentMonths -join ' or '), so demo reports would ship with an empty current month.")
+    }
+    return @($problems)
+}
+
+<#
+    .SYNOPSIS
+    Runs a command again after a short wait when it fails, so a brief network outage doesn't end a run that takes a long time.
+#>
+function Invoke-DemoRetry([scriptblock] $Action, [int] $Attempts = 20, [int] $DelaySeconds = 30)
+{
+    for ($attempt = 1; ; $attempt++)
+    {
+        try { return & $Action }
+        catch
+        {
+            if ($attempt -ge $Attempts) { throw }
+            Write-Verbose "Attempt $attempt failed ($($_.Exception.Message -replace '\s+', ' ')). Trying again in $DelaySeconds seconds..."
+            Start-Sleep -Seconds $DelaySeconds
+        }
+    }
+}
+<#
+    .SYNOPSIS
+    Waits for every deployment in a resource group to finish, then fails if any of them failed since the given time.
+
+    .DESCRIPTION
+    Creating a Data Explorer cluster takes a long time, and the connection that polls the deployment can drop
+    while Azure keeps working. This picks the deployment back up instead of leaving it running unattended.
+#>
+function Wait-DemoDeployment([string] $ResourceGroupName, [datetime] $Since, [int] $TimeoutMinutes = 90)
+{
+    $deadline = (Get-Date).AddMinutes($TimeoutMinutes)
+    while (@(Invoke-DemoRetry { Get-AzResourceGroupDeployment -ResourceGroupName $ResourceGroupName | Where-Object { $_.ProvisioningState -in 'Running', 'Accepted' } }).Count -gt 0)
+    {
+        if ((Get-Date) -ge $deadline) { throw "Deployment to $ResourceGroupName is still running after $TimeoutMinutes minutes." }
+        Start-Sleep -Seconds 30
+    }
+
+    $failed = @(Invoke-DemoRetry { Get-AzResourceGroupDeployment -ResourceGroupName $ResourceGroupName | Where-Object { $_.ProvisioningState -eq 'Failed' -and $_.Timestamp -ge $Since.ToUniversalTime() } })
+    if ($failed.Count -gt 0) { throw "Deployment to $ResourceGroupName failed ($($failed.DeploymentName -join ', ')). See the deployments in the portal for details." }
+}
 #endregion Helpers
 
-#region Check
+#region State
 
 $context = Set-DemoSubscription $Subscription
 Write-Host ''
@@ -280,11 +332,15 @@ $state = Get-DemoState $name $ResourceGroup
 $thisMonth = (Get-Date).ToString('yyyyMM')
 $lastMonth = (Get-Date).AddMonths(-1).ToString('yyyyMM')
 
+# A new instance has no data yet, so it gets its history loaded without being asked
+$isNewInstance = -not $state.Deployed -or $state.Months.Count -eq 0
+$expectedVersion = if ($useLocalBuild) { $toolkitVersion } else { $releaseVersion }
+
 if ($state.Deployed)
 {
     $hasCurrent = $state.Months -contains $thisMonth -or $state.Months -contains $lastMonth
-    $isCurrentVersion = $state.Version -eq $toolkitVersion
-    Write-Host "  $(if ($isCurrentVersion) { '✅' } else { '⏳' }) Version       $($state.Version ?? 'unknown') (toolkit is $toolkitVersion)"
+    $isCurrentVersion = -not (Get-DemoProblem $state $name $expectedVersion @($thisMonth) | Where-Object { $_ -like 'is on*' })
+    Write-Host "  $(if ($isCurrentVersion) { '✅' } else { '⏳' }) Version       $($state.Version ?? 'unknown') (expected $expectedVersion)"
     Write-Host "  $(if ($hasCurrent) { '✅' } else { '⏳' }) Data          $($state.Months.Count) month$(if ($state.Months.Count -ne 1) { 's' })$(if ($state.Months) { ": $($state.Months[0]) to $($state.Months[-1])" })"
     if ($state.Cluster) { Write-Host "  ℹ️ Data Explorer $($state.Cluster.Name) ($($state.Cluster.State))" }
 }
@@ -294,24 +350,7 @@ else
 }
 Write-Host ''
 
-if ($Check)
-{
-    if (-not $state.Deployed) { throw "$name is not deployed. Run ./Deploy-Demo to create it." }
-
-    $problems = New-Object System.Collections.Generic.List[string]
-    if ($state.Version -ne $toolkitVersion) { $problems.Add("is on $($state.Version ?? 'an unknown version') but the toolkit is $toolkitVersion. Demo reports built from it would use an older hub.") }
-    if (-not ($state.Months -contains $thisMonth -or $state.Months -contains $lastMonth)) { $problems.Add("has no data for $thisMonth or $lastMonth, so demo reports would ship with an empty current month.") }
-
-    if ($problems.Count -gt 0)
-    {
-        throw "$name isn't ready for a release. It $($problems -join ' It ')`nRun ./Deploy-Demo to update it."
-    }
-
-    Write-Host "✅ $name is ready to build demo reports from." -ForegroundColor Green
-    return
-}
-
-#endregion Check
+#endregion State
 
 #region Deploy
 
@@ -321,36 +360,49 @@ Write-Host "Deploying $name ($(if ($useLocalBuild) { "version $toolkitVersion, b
 
 if ($PSCmdlet.ShouldProcess($name, "Deploy FinOps hub to $ResourceGroup"))
 {
-    if ($useLocalBuild)
+    $deployStarted = Get-Date
+    try
     {
-        $parameters = @{
-            hubName                            = $name
-            dataExplorerName                   = $clusterName
-            dataExplorerSku                    = $DataExplorerSku
-            enableManagedExports               = $true
-            scopesToMonitor                    = $Scope
-            ingestionRetentionInMonths         = $Retention
-            dataExplorerFinalRetentionInMonths = $Retention
+        if ($useLocalBuild)
+        {
+            $parameters = @{
+                hubName                            = $name
+                dataExplorerName                   = $clusterName
+                dataExplorerSku                    = $DataExplorerSku
+                enableManagedExports               = $true
+                scopesToMonitor                    = $Scope
+                ingestionRetentionInMonths         = $Retention
+                dataExplorerFinalRetentionInMonths = $Retention
+            }
+            & "$PSScriptRoot/Deploy-Toolkit.ps1" 'finops-hub' -ResourceGroup $ResourceGroup -Location $Location -Parameters $parameters -Build:$Build -WhatIf:$WhatIfPreference
         }
-        & "$PSScriptRoot/Deploy-Toolkit.ps1" 'finops-hub' -ResourceGroup $ResourceGroup -Location $Location -Parameters $parameters -Build:$Build -WhatIf:$WhatIfPreference
+        else
+        {
+            # Released versions come from the FinOps toolkit module, which downloads the released template
+            if (-not (Get-Command Deploy-FinOpsHub -ErrorAction SilentlyContinue)) { Import-Module "$PSScriptRoot/../powershell/FinOpsToolkit.psm1" -Force }
+            Deploy-FinOpsHub `
+                -Name $name `
+                -ResourceGroupName $ResourceGroup `
+                -Location $Location `
+                -Version $releaseVersion `
+                -DataExplorerName $clusterName `
+                -DataExplorerSku $DataExplorerSku `
+                -ScopesToMonitor $Scope `
+                -IngestionRetentionInMonths $Retention `
+                -DataExplorerFinalRetentionInMonths $Retention `
+                -EnableManagedExports `
+                -WhatIf:$WhatIfPreference `
+            | Out-Null
+        }
     }
-    else
+    catch
     {
-        # Released versions come from the FinOps toolkit module, which downloads the released template
-        if (-not (Get-Command Deploy-FinOpsHub -ErrorAction SilentlyContinue)) { Import-Module "$PSScriptRoot/../powershell/FinOpsToolkit.psm1" -Force }
-        Deploy-FinOpsHub `
-            -Name $name `
-            -ResourceGroupName $ResourceGroup `
-            -Location $Location `
-            -Version $releaseVersion `
-            -DataExplorerName $clusterName `
-            -DataExplorerSku $DataExplorerSku `
-            -ScopesToMonitor $Scope `
-            -IngestionRetentionInMonths $Retention `
-            -DataExplorerFinalRetentionInMonths $Retention `
-            -EnableManagedExports `
-            -WhatIf:$WhatIfPreference `
-        | Out-Null
+        # The connection can drop while Azure keeps deploying. If it's still running, wait for it rather than stopping.
+        $failure = $_
+        $active = try { @(Invoke-DemoRetry -Attempts 4 { Get-AzResourceGroupDeployment -ResourceGroupName $ResourceGroup | Where-Object { $_.ProvisioningState -in 'Running', 'Accepted' } }) } catch { @() }
+        if ($active.Count -eq 0 -or $WhatIfPreference) { throw $failure }
+        Write-Warning "Lost the connection while deploying ($($failure.Exception.Message -replace '\s+', ' ')). The deployment is still running, so waiting for it to finish."
+        Wait-DemoDeployment $ResourceGroup $deployStarted
     }
 }
 
@@ -480,10 +532,12 @@ elseif ($PSCmdlet.ShouldProcess($cluster.Name, 'Turn on auto-stop'))
 
 #region Backfill
 
-# Managed exports run on their own once the hub is deployed, so history is only loaded when asked
-if (-not $Backfill)
+# Managed exports only cover the current and last month, so a new instance needs its history loaded once.
+# That happens by default for a new instance. -Backfill sets the months explicitly, and 0 skips it.
+$backfillMonths = if ($PSBoundParameters.ContainsKey('Backfill')) { $Backfill } elseif ($isNewInstance) { $Retention } else { 0 }
+if (-not $backfillMonths)
 {
-    Write-Host 'Exports run on their own. Pass -Backfill to load history, which a new instance needs once.'
+    Write-Host 'History is already loaded. Exports keep it current.'
 }
 else
 {
@@ -497,7 +551,7 @@ else
     foreach ($target in $Scope)
     {
         $exportName = "$name-focus"
-        Write-Host "Backfilling $Backfill month$(if ($Backfill -ne 1) { 's' }) of FOCUS 1.2 data for $target..."
+        Write-Host "Loading $backfillMonths month$(if ($backfillMonths -ne 1) { 's' }) of history for $target..."
 
         if ($PSCmdlet.ShouldProcess($target, "Create and run the $exportName export"))
         {
@@ -508,7 +562,7 @@ else
                 -Monthly `
                 -StorageAccountId $storageId `
                 -StorageContainer 'msexports' `
-                -Backfill $Backfill `
+                -Backfill $backfillMonths `
                 -Execute `
                 -ErrorAction Stop `
             | Out-Null
@@ -523,13 +577,37 @@ else
         }
     }
 
-    Write-Host 'Exports run. Data takes a while to ingest, so check back before building demo reports:'
-    Write-Host "     ./Deploy-Demo$(if ($isVersioned) { " -Version $Version" }) -Check" -ForegroundColor Cyan
 }
 
 #endregion Backfill
 
+#region Ready
 
+# Everything above queues work in Cost Management and Data Factory. Wait for the data to land, so the
+# instance is ready to use when this finishes. -WaitMinutes 0 skips the wait.
+if (-not $WhatIfPreference)
+{
+    $deadline = (Get-Date).AddMinutes($WaitMinutes)
+    while ($true)
+    {
+        $state = Invoke-DemoRetry { Get-DemoState $name $ResourceGroup }
+        $problems = @(Get-DemoProblem $state $name $expectedVersion @($thisMonth, $lastMonth))
+        if ($problems.Count -eq 0 -or (Get-Date) -ge $deadline) { break }
 
-Write-Host ''
-Write-Host "✅ $name deployed" -ForegroundColor Green
+        Write-Host "  ⏳ Waiting for data to be ingested ($([int]($deadline - (Get-Date)).TotalMinutes) min left)..."
+        Start-Sleep -Seconds 60
+    }
+
+    Write-Host ''
+    if ($problems.Count -eq 0)
+    {
+        Write-Host "✅ $name is deployed and ready ($($state.Months.Count) month$(if ($state.Months.Count -ne 1) { 's' }) of data: $($state.Months[0]) to $($state.Months[-1]))" -ForegroundColor Green
+    }
+    else
+    {
+        Write-Warning "$name is deployed but isn't ready yet. It $($problems -join ' It ') Ingestion can take a while, so run ./Deploy-Demo$(if ($isVersioned) { " -Version $Version" }) again to keep waiting."
+    }
+}
+else { Write-Host "✅ $name validated" -ForegroundColor Green }
+
+#endregion Ready

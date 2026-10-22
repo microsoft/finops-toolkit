@@ -471,16 +471,9 @@ Two kinds of instances:
 
 Every instance uses a dev/test Data Explorer SKU and stops itself when idle, so an instance nobody is using costs almost nothing to keep. The script also gives the hub access to the scopes it exports and starts the export setup, because managed exports don't run without that access.
 
-Run `-Check` before a release. It reports the hub version and months of data, and fails when the hub is behind the toolkit version or has no data for the current month.
+One call does everything an instance needs. It deploys the hub, gives it access to the scopes it exports, sets up the exports, loads history for a new instance, turns on auto-stop, and waits until current data is ingested. It's safe to run again, which updates the instance. Run it once per version, and it ends by reporting whether the instance is ready.
 
-To get the demo hub ready for a release:
-
-1. Sign in with `Connect-AzAccount` using an account that can create resources and assign roles in the FTK Prod subscription.
-2. Run `./Deploy-Demo`. It deploys the hub from source, grants it access, and sets up the exports. For a new hub, add `-Backfill 36` to load history.
-3. Wait for ingestion, then run `./Deploy-Demo -Check`. Package the Power BI files only after it passes.
-
-To open reports from an older release, deploy its instance with `./Deploy-Demo -Version v14`.
-
+To get the demo hub ready for a release, sign in with `Connect-AzAccount` using an account that can create resources and assign roles in the FTK Prod subscription, then run `./Deploy-Demo`. To open reports from an older release, run it with that version, like `./Deploy-Demo -Version v14`.
 | Parameter        | Description                                                                                       |
 | ---------------- | ------------------------------------------------------------------------------------------------- |
 | `‑Version`       | Optional. Deploys the versioned instance for a release (for example, "v15", "v07", or "v0.7"). Default = the current demo hub. |
@@ -490,36 +483,29 @@ To open reports from an older release, deploy its instance with `./Deploy-Demo -
 | `‑Scope`         | Optional. Resource IDs to export cost data for. Default = the subscription being deployed to.      |
 | `‑Retention`     | Optional. Months of data the hub keeps. Default = 36, 3 for the current and previous 3 releases, or 1 for older releases.               |
 | `‑DataExplorerSku` | Optional. Data Explorer SKU. Use a dev/test SKU. Default = "Dev(No SLA)_Standard_D11_v2". |
-| `‑Backfill`      | Optional. Months of history to load. Backfilling is a one-time task for a new instance, so nothing is backfilled unless specified. |
-| `‑Check`         | Optional. Reports whether the demo hub is ready for a release without changing anything.           |
+| `‑Backfill`      | Optional. Months of history to load. Default = the retention for a new instance, and none for an existing one. Use 0 to skip. |
+| `‑WaitMinutes`   | Optional. Minutes to wait for data to be ingested before finishing. Default = 30. Use 0 to not wait. |
 | `‑Build`         | Optional. Builds the templates before deploying.                                                   |
 
 Examples:
 
-- Check whether the demo hub is ready for a release.
-
-  ```powershell
-  ./Deploy-Demo -Check
-  ```
-
-- Deploy or update the demo hub. Exports keep running on their own, so nothing is backfilled.
+- Deploy or update the demo hub. A new hub gets its history loaded, and the command waits until data is ingested.
 
   ```powershell
   ./Deploy-Demo
   ```
 
-- Load 36 months of history, which a new instance needs once.
+- Deploy the instance for v14, using the released template.
 
   ```powershell
-  ./Deploy-Demo -Backfill 36
+  ./Deploy-Demo -Version v14
   ```
 
-- Deploy the versioned instance for v15.
+- Load a specific number of months of history.
 
   ```powershell
   ./Deploy-Demo -Version v15 -Backfill 1
   ```
-
 <br>
 
 ## 📊 Build-PowerBI

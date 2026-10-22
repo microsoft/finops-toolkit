@@ -121,11 +121,11 @@ Once the above requirements have been met, the feature branch can be merged into
 
       > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at [GitHub actions](../actions/workflows/pages/pages-build-deployment) to see if there are any failures._
 
-   6. Confirm the demo hub is on this release and has current data, because the demo reports are saved with its data. If the check fails, run `./Deploy-Demo` and wait for ingestion. See [Deploy-Demo](../tree/dev/src/scripts/README.md#-deploy-demo).
+   6. Make sure the demo hub is on this release and has current data, because the demo reports are saved with its data. This deploys or updates the hub, loads history for a new hub, and waits until data is ingested. See [Deploy-Demo](../tree/dev/src/scripts/README.md#-deploy-demo).
 
       ```powershell
       cd <root>/src/scripts
-      ./Deploy-Demo -Check
+      ./Deploy-Demo
       ```
 
    7. Package the Power BI files on Windows with Power BI Desktop installed:
