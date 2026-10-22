@@ -15,7 +15,7 @@ ms.reviewer: micflan
 
 # Start-FinOpsExplorer command
 
-The **Start-FinOpsExplorer** command launches the FinOps Explorer terminal UI (TUI). It authenticates to Azure, discovers accessible subscriptions, and runs the scan modules you select. FinOps Explorer also includes a separate Desktop app; this command starts only the TUI. Scans cover cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance.
+The **Start-FinOpsExplorer** command launches the FinOps Explorer terminal UI (TUI). It authenticates to Azure, discovers accessible subscriptions, and runs the scan modules you select. Scans cover cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance.
 
 Results appear in the terminal and are saved automatically on the machine running the command. Each run creates a private folder with one CSV file per selected scan, a `FinOpsReport.html` summary, and a `ScanSummary.txt` file. Failed or empty scans have a CSV status record. The scans don't change Azure resources.
 

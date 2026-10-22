@@ -13,7 +13,7 @@ ms.reviewer: micflan
 
 # FinOps Explorer TUI
 
-FinOps Explorer is the umbrella brand for the Desktop app and the terminal UI (TUI). This overview covers the TUI, which scans your live Azure resource state for cost, governance, and optimization insights. It reports on cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance. Run the TUI in an interactive terminal, or use its agent skills to run the same investigations from an AI agent.
+FinOps Explorer is a terminal UI (TUI) that scans your live Azure resource state for cost, governance, and optimization insights. It reports on cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance. Run the TUI in an interactive terminal, or use its agent skills to run the same investigations from an AI agent.
 
 ## How it works
 
