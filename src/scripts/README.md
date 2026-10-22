@@ -474,6 +474,7 @@ Every instance uses a dev/test Data Explorer SKU and stops itself when idle, so 
 One call does everything an instance needs. It deploys the hub, gives it access to the scopes it exports, sets up the exports, loads history for a new instance, turns on auto-stop, and waits until current data is ingested. It's safe to run again, which updates the instance. Run it once per version, and it ends by reporting whether the instance is ready.
 
 To get the demo hub ready for a release, sign in with `Connect-AzAccount` using an account that can create resources and assign roles in the FTK Prod subscription, then run `./Deploy-Demo`. To open reports from an older release, run it with that version, like `./Deploy-Demo -Version v14`.
+
 | Parameter        | Description                                                                                       |
 | ---------------- | ------------------------------------------------------------------------------------------------- |
 | `‑Version`       | Optional. Deploys the versioned instance for a release (for example, "v15", "v07", or "v0.7"). Default = the current demo hub. |
@@ -483,7 +484,7 @@ To get the demo hub ready for a release, sign in with `Connect-AzAccount` using 
 | `‑Scope`         | Optional. Resource IDs to export cost data for. Default = the subscription being deployed to.      |
 | `‑Retention`     | Optional. Months of data the hub keeps. Default = 36, 3 for the current and previous 3 releases, or 1 for older releases.               |
 | `‑DataExplorerSku` | Optional. Data Explorer SKU. Use a dev/test SKU. Default = "Dev(No SLA)_Standard_D11_v2". |
-| `‑Backfill`      | Optional. Months of history to load. Default = the retention for a new instance, and none for an existing one. Use 0 to skip. |
+| `‑Backfill`      | Optional. Months of history to load. Default = the retention, loaded once: it is skipped when the history export already exists. Use 0 to skip. |
 | `‑WaitMinutes`   | Optional. Minutes to wait for data to be ingested before finishing. Default = 30. Use 0 to not wait. |
 | `‑Build`         | Optional. Builds the templates before deploying.                                                   |
 

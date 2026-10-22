@@ -53,7 +53,7 @@
     Optional. Minutes to wait for data to be ingested before finishing. Default = 30. Use 0 to not wait.
 
     .PARAMETER Backfill
-    Optional. Number of months of history to load. Default = the retention for a new instance, and none for an existing one. Use 0 to skip.
+    Optional. Number of months of history to load. Default = the retention, loaded once: it is skipped when the history export already exists. Use 0 to skip.
 
 
     .PARAMETER Build
@@ -171,7 +171,7 @@ function Set-DemoSubscription([string] $NameOrId)
     }
 
     Write-Host "Using subscription $($subscription.Name) ($($subscription.Id))"
-    return Set-AzContext -SubscriptionObject $subscription
+    return Set-AzContext -SubscriptionObject $subscription -WhatIf:$false
 }
 
 <#
@@ -345,8 +345,7 @@ $state = Invoke-DemoRetry { Get-DemoState $name $ResourceGroup }
 $thisMonth = (Get-Date).ToString('yyyyMM')
 $lastMonth = (Get-Date).AddMonths(-1).ToString('yyyyMM')
 
-# A new instance has no data yet, so it gets its history loaded without being asked
-$isNewInstance = -not $state.Deployed -or $state.Months.Count -eq 0
+
 $expectedVersion = if ($useLocalBuild) { $toolkitVersion } else { $releaseVersion }
 
 if ($state.Deployed)
@@ -547,12 +546,13 @@ elseif ($PSCmdlet.ShouldProcess($cluster.Name, 'Turn on auto-stop'))
 
 #region Backfill
 
-# Managed exports only cover the current and last month, so a new instance needs its history loaded once.
-# That happens by default for a new instance. -Backfill sets the months explicitly, and 0 skips it.
-$backfillMonths = if ($PSBoundParameters.ContainsKey('Backfill')) { $Backfill } elseif ($isNewInstance) { $Retention } else { 0 }
+# Managed exports only cover the current and last month, so an instance needs its history loaded once. The history
+# export (<name>-focus) marks that it was requested, so a rerun doesn't ask again, even while the data is still being
+# ingested or after an interrupted first run. -Backfill sets the months explicitly, and 0 skips it.
+$backfillMonths = if ($PSBoundParameters.ContainsKey('Backfill')) { $Backfill } else { $Retention }
 if (-not $backfillMonths)
 {
-    Write-Host 'History is already loaded. Exports keep it current.'
+    Write-Host 'Skipping history because -Backfill is 0. Exports keep the current months up to date.'
 }
 else
 {
@@ -561,7 +561,7 @@ else
 
     $state = Invoke-DemoRetry { Get-DemoState $name $ResourceGroup }
     if (-not $state.Storage) { throw "Could not find the storage account for $name after deploying." }
-    $storageId = (Get-AzStorageAccount -ResourceGroupName $ResourceGroup -Name $state.Storage).Id
+    $storageId = (Invoke-DemoRetry { Get-AzStorageAccount -ResourceGroupName $ResourceGroup -Name $state.Storage }).Id
 
     foreach ($target in $Scope)
     {
@@ -636,7 +636,6 @@ if (-not $WhatIfPreference)
         Write-Warning "$name is deployed but isn't ready yet. It $($problems -join ' It ') Ingestion can take a while, so run ./Deploy-Demo$(if ($isVersioned) { " -Version $Version" }) again to keep waiting."
     }
 }
-else { Write-Host "✅ $name validated" -ForegroundColor Green }
 # Demo reports are saved with the hub's storage URL, so they refresh from the wrong place if the hub is ever recreated
 if (-not $isVersioned -and -not $WhatIfPreference -and $state.Storage)
 {
