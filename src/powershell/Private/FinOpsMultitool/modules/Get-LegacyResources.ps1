@@ -13,7 +13,7 @@ param()
 #          or retiring SKUs that should be modernized: first-generation VM
 #          families (A/D/F/G v1), HDD (Standard_LRS) managed disks,
 #          unmanaged (VHD) disks, and Basic-SKU public IPs / load balancers
-#          (retiring Sept 2025). Supports the FinOps modernization KPI.
+#          (retired Sept 2025). Supports the FinOps modernization KPI.
 ###########################################################################
 # Notes:
 # - RBAC: Reader on each subscription (Azure Resource Graph).
@@ -119,7 +119,7 @@ resources
         throw "HDD disk inventory is incomplete: $($_.Exception.Message)"
     }
 
-    # -- 4: Basic-SKU public IPs (retiring Sept 2025) ---------------------
+    # -- 4: Basic-SKU public IPs (retired Sept 2025) ----------------------
     try {
         $pipQuery = @"
 resources
@@ -136,7 +136,7 @@ resources
                     ResourceGroup  = $r.resourceGroup
                     SubscriptionId = $r.subscriptionId
                     Location       = $r.location
-                    Detail         = 'Basic-SKU public IP (retires Sep 2025) - migrate to Standard'
+                    Detail         = 'Basic-SKU public IP (retired Sep 2025) - migrate to Standard'
                     Impact         = 'High'
                 })
         }
@@ -146,7 +146,7 @@ resources
         throw "Basic public IP inventory is incomplete: $($_.Exception.Message)"
     }
 
-    # -- 5: Basic-SKU load balancers (retiring Sept 2025) -----------------
+    # -- 5: Basic-SKU load balancers (retired Sept 2025) ------------------
     try {
         $lbQuery = @"
 resources
@@ -163,7 +163,7 @@ resources
                     ResourceGroup  = $r.resourceGroup
                     SubscriptionId = $r.subscriptionId
                     Location       = $r.location
-                    Detail         = 'Basic-SKU load balancer (retires Sep 2025) - migrate to Standard'
+                    Detail         = 'Basic-SKU load balancer (retired Sep 2025) - migrate to Standard'
                     Impact         = 'High'
                 })
         }

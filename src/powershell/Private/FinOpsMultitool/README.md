@@ -323,8 +323,8 @@ By category:
   Legacy v1 VM families        18   (Basic_A / Standard_A0-A7 / D / DS / G)
   Unmanaged VHD disks           9   (migrate to managed disks)
   HDD Standard_LRS ≥128GB      11   (upgrade to Premium SSD)
-  Basic SKU Public IPs          6   (retiring Sep 2025 → Standard)
-  Basic SKU Load Balancers      3   (retiring Sep 2025 → Standard)
+  Basic SKU Public IPs          6   (retired Sep 2025 → Standard)
+  Basic SKU Load Balancers      3   (retired Sep 2025 → Standard)
 ```
 
 The scan returns candidate counts. A legacy percentage also needs a complete, comparable resource denominator; the catalog entry remains informational.
