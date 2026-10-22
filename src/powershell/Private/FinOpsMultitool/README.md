@@ -1,6 +1,6 @@
 <!-- markdownlint-disable -->
 
-# FinOps multitool terminal UI (TUI)
+# FinOps Explorer terminal UI (TUI)
 
 Terminal interface for running FinOps scans against Azure subscriptions without GUI dependencies. PowerShell 7 is required.
 
@@ -116,7 +116,7 @@ Guidance includes FinOps Foundation best practices, actionable next steps, and l
 - **Request limit or temporary problem** (429, 408, or a 5xx response) — Says it isn't a permission problem and suggests running the scan again. The HTML report gives the same hint, so it doesn't point you to roles that aren't the cause.
 - **No data** — Explains whether the module requires specific resources (e.g., "Returns empty if no budgets are configured")
 
-Each completed run automatically saves one CSV file per selected scan, a `FinOpsReport.html` summary, and a `ScanSummary.txt` text summary on the machine running the multitool. Failed or empty scans have a CSV status record. There's no export prompt or format picker.
+Each completed run automatically saves one CSV file per selected scan, a `FinOpsReport.html` summary, and a `ScanSummary.txt` text summary on the machine running FinOps Explorer. Failed or empty scans have a CSV status record. There's no export prompt or format picker.
 
 The HTML report opens with the **FinOps story**: selected tenant and subscriptions, observed spend, largest resource costs, scan status, and follow-up actions. Actual costs stay separate by subscription, currency, and reported period. Full-month forecasts are separate estimates, and unavailable amounts aren't treated as zero. Failed scans and evidence gaps link to their detailed results.
 
@@ -291,7 +291,7 @@ Carbon reports retain available detail when another report section fails, but le
 
 ## FinOps KPI coverage
 
-The scan modules provide measurements, estimates, or proxies related to [FinOps Foundation KPIs](https://www.finops.org/finops-kpis/). Some KPI definitions need additional inputs and aren't calculated by this tool. The `finops-multitool` agent skill routes a natural-language question to the matching investigation.
+The scan modules provide measurements, estimates, or proxies related to [FinOps Foundation KPIs](https://www.finops.org/finops-kpis/). Some KPI definitions need additional inputs and aren't calculated by this tool. The `finops-explorer` agent skill routes a natural-language question to the matching investigation.
 
 The HTML report's **KPI reference** tab lists every entry from the shared [KPI catalog](kpi/kpi-catalog.json), including entries not measured in the run. Search or filter by status, expand **Calculation and interpretation**, and follow a source-scan link when that scan was included. Each entry identifies the formula, required inputs, interpretation, and limitations.
 

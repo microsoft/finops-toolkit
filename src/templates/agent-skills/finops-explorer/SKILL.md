@@ -1,21 +1,20 @@
 ---
-name: finops-multitool
-description: This skill should be used when the user asks to "scan for cost savings", "find orphaned resources", "find idle VMs", "check Azure Hybrid Benefit", "review tags", "tag coverage", "tag recommendations", "policy coverage", "cost by tag", "cost trend", "top resources by cost", "reservation recommendations", "commitment utilization", "realized savings", "budget status", "cost anomaly alerts", "Advisor cost recommendations", "billing structure", "contract info", or run a "FinOps assessment", "FinOps scan", or "cost optimization scan". Also use it proactively whenever the conversation turns to Azure cost, waste, savings, governance, or FinOps health and live data would answer the question better than a general explanation.
+name: finops-explorer
+description: This skill should be used when the user asks to "scan for cost savings", "find orphaned resources", "find idle VMs", "check Azure Hybrid Benefit", "review tags", "tag coverage", "tag recommendations", "policy coverage", "cost by tag", "cost trend", "top resources by cost", "reservation recommendations", "commitment utilization", "realized savings", "budget status", "cost anomaly alerts", "Advisor cost recommendations", "billing structure", "contract info", or run a "FinOps assessment", "FinOps scan", "cost optimization scan", or "FinOps Explorer" scan. Also use it proactively whenever the conversation turns to Azure cost, waste, savings, governance, or FinOps health and live data would answer the question better than a general explanation.
 license: MIT
-compatibility: Requires an authenticated Azure session (az login, or Connect-AzAccount for PowerShell) with at least Reader access on the target scope. Everything here is read-only, including the FinOps multitool terminal UI. Recommend changes and explain their impact, and leave applying them to the user.
+compatibility: Requires an authenticated Azure session (az login, or Connect-AzAccount for PowerShell) with at least Reader access on the target scope. Everything here is read-only, including the FinOps Explorer terminal UI. Recommend changes and explain their impact, and leave applying them to the user.
 metadata:
   author: microsoft
   version: '2.0'
-allowed-tools: az pwsh
 ---
 
-# FinOps multitool
+# FinOps Explorer
 
 This is the routing hub for FinOps investigations. It answers "what should I look at next" rather than "how do I call this API" - it decides which investigation fits the question, tells you how to gather the data, warns you where the raw numbers mislead, and hands off to the skill that turns a finding into a decision.
 
 Two ways to gather the data:
 
-- **Interactively** - `Start-FinOpsMultitool` launches a terminal UI that runs 30 read-only scan modules, renders the results, and exports them. Best when a person wants the full picture.
+- **Interactively** - `Start-FinOpsExplorer` launches a terminal UI that runs 30 read-only scan modules, renders the results, and exports them. Best when a person wants the full picture.
 - **Directly** - query Azure Resource Graph, Cost Management, Advisor, Monitor, or a FinOps hub yourself with `az` or an Azure MCP server. Best when answering one question inside a conversation. This skill carries the queries and the interpretation rules.
 
 Prefer the direct path for a single question. Suggest the terminal UI when the user wants a full assessment.
@@ -115,8 +114,9 @@ Gather the data first so the numbers are real, then route. Don't answer governan
 ## Prerequisites
 
 - Azure authentication: `az login`, or `Connect-AzAccount` when using the terminal UI.
+- Resource Graph queries with the Azure CLI use the `resource-graph` extension. Azure CLI normally installs it the first time you run `az graph query`. If dynamic install is turned off or the session can't download extensions, run `az extension add --name resource-graph` first.
 - **Reader** on the target scope for resource and policy investigations.
 - **Cost Management Reader** for cost, budget, and anomaly investigations.
 - **Billing Reader**, or Enterprise Administrator (reader) on an Enterprise Agreement, for billing account, contract, and MACC investigations.
 - **Carbon Optimization Reader** for emissions data, assigned at the subscription. Reader works too, but only at subscription scope - carbon permissions don't apply at resource group or resource level.
-- The terminal UI additionally needs the `FinOpsToolkit` PowerShell module and the `Az.Accounts`, `Az.ResourceGraph`, and `Az.Storage` modules.
+- The terminal UI additionally needs PowerShell 7 or later, the `FinOpsToolkit` PowerShell module, and the `Az.Accounts`, `Az.ResourceGraph`, and `Az.Storage` modules.

@@ -2,7 +2,7 @@
 name: sustainability-carbon
 description: Use when the user wants to measure or reduce the carbon emissions of their Azure footprint — the Emissions Impact Dashboard, carbon optimization recommendations, or aligning cost optimization with sustainability goals. Treats carbon as a FinOps-adjacent efficiency dimension alongside cost.
 license: MIT
-compatibility: Requires access to the Microsoft Emissions Impact Dashboard / Azure carbon optimization (Reader on the relevant scope). Pairs with the finops-multitool skill for the cost side of the same resources.
+compatibility: Requires access to the Microsoft Emissions Impact Dashboard / Azure carbon optimization (Reader on the relevant scope). Pairs with the finops-explorer skill for the cost side of the same resources.
 metadata:
   author: microsoft
   version: '1.0'
@@ -14,13 +14,13 @@ Cost and carbon are two views of the same efficiency story: idle, over-provision
 
 ## When to use this skill
 
-Use it when the user mentions carbon, emissions, sustainability, ESG, green/efficient cloud, or wants to pair cost optimization with environmental impact. The waste findings from the `finops-multitool` scans are also carbon findings — surface both.
+Use it when the user mentions carbon, emissions, sustainability, ESG, green/efficient cloud, or wants to pair cost optimization with environmental impact. The waste findings from the `finops-explorer` scans are also carbon findings — surface both.
 
 ## Where the data comes from
 
 | Tool                                 | Provides                                                                                                                          |
 | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| **carbon** (finops-multitool) | kgCO2e totals, month-over-month change, 12-month trend, and per-subscription breakdown. Start here in a multitool-driven session. |
+| **carbon** (finops-explorer) | kgCO2e totals, month-over-month change, 12-month trend, and per-subscription breakdown. Start here in a FinOps Explorer session. |
 | **Azure carbon optimization** (preview) | Per-resource emissions estimates and reduction recommendations in the portal. This is the forward-looking source. |
 | **Emissions Impact Dashboard (EID)** | Scope 1/2/3 emissions for the Microsoft Cloud footprint, by service/subscription/time. The Power BI-hosted Azure dashboard retires March 31, 2027, so treat it as historical reporting and export anything you need to keep. |
 | **Microsoft Sustainability Manager**  | Broader org-level sustainability data model. Its EID for Azure connector is deprecated on the same date.                          |
@@ -52,10 +52,10 @@ Where they diverge: a **low-carbon region** may cost more, and **reservations** 
 
 ## Reporting carbon alongside cost
 
-When the user reports cost optimization, offer the carbon co-benefit: "removing these 3 idle VMs saves ~$X/mo and ~Y kgCO₂e/mo." This strengthens the business case and ties FinOps to ESG goals. Pull the cost figure from the multitool scans and the emissions figure from EID/carbon optimization for the same resources.
+When the user reports cost optimization, offer the carbon co-benefit: "removing these 3 idle VMs saves ~$X/mo and ~Y kgCO₂e/mo." This strengthens the business case and ties FinOps to ESG goals. Pull the cost figure from the FinOps Explorer scans and the emissions figure from EID/carbon optimization for the same resources.
 
 ## Hand-offs
 
-- The wasteful resources (cost side) → `finops-multitool` (orphaned resources, idle vms, storage tier advice).
+- The wasteful resources (cost side) → `finops-explorer` (orphaned resources, idle vms, storage tier advice).
 - Express carbon-per-unit → `unit-economics` skill.
 - Put cost + carbon co-benefits in a report → `finops-reporting`.

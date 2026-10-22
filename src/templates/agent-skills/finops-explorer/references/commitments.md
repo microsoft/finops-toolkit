@@ -40,13 +40,26 @@ Report the de-duplicated total. If you present a raw Advisor sum, say explicitly
 
 ## Commitment utilization
 
-The question behind this: _are we wasting what we already bought?_
+The question behind this: _are we wasting what we already bought?_ Start by listing the reservation orders:
 
 ```bash
 az rest --method get --url "https://management.azure.com/providers/Microsoft.Capacity/reservationOrders?api-version=2022-11-01"
 ```
 
-Utilization comes from `Microsoft.Consumption/reservationSummaries`, aggregated daily or monthly.
+Utilization comes from `Microsoft.Consumption/reservationSummaries`, aggregated daily or monthly. For a billing account, a reservation order, or one reservation, filter on the usage date:
+
+```bash
+az rest --method get \
+  --url "https://management.azure.com<scopeId>/providers/Microsoft.Consumption/reservationSummaries" \
+  --url-parameters api-version=2023-05-01 grain=monthly \
+    '$filter=properties/UsageDate ge <yyyy-mm-dd> and properties/UsageDate le <yyyy-mm-dd>'
+```
+
+`<scopeId>` is `/providers/Microsoft.Billing/billingAccounts/<id>`, a reservation order (`/providers/Microsoft.Capacity/reservationOrders/<orderId>`), or one reservation (`/providers/Microsoft.Capacity/reservationOrders/<orderId>/reservations/<reservationId>`). `$filter` is required for daily grain and optional for monthly. Leave the dates unquoted.
+
+A billing profile scope, `/providers/Microsoft.Billing/billingAccounts/<id>/billingProfiles/<id>`, doesn't take `$filter`. Pass `startDate=<yyyy-mm-dd>` and `endDate=<yyyy-mm-dd>` as URL parameters instead.
+
+The response has one record per reservation per month, so count reservations rather than records before averaging, or a reservation that spans more months gets more weight.
 
 Thresholds worth flagging:
 
@@ -66,7 +79,7 @@ Sources: cost data with `pricingModel` or `benefitId` populated, compared agains
 
 Report realized savings and projected savings separately and label them clearly. Blending "we saved $X" with "we could save $Y" is how a savings number loses credibility.
 
-The FinOps multitool reports this figure as an estimate and labels it as one. It derives savings from amortized cost and an assumed discount rate rather than comparing each line against its retail rate, so treat it as an order-of-magnitude number. When you need a defensible figure, use the retail-rate comparison described above and say which method produced it.
+FinOps Explorer reports this figure as an estimate and labels it as one. It derives savings from amortized cost and an assumed discount rate rather than comparing each line against its retail rate, so treat it as an order-of-magnitude number. When you need a defensible figure, use the retail-rate comparison described above and say which method produced it.
 
 ## MACC
 

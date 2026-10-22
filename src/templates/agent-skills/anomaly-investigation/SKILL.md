@@ -2,11 +2,10 @@
 name: anomaly-investigation
 description: Use when a cost spike, anomaly alert, or unexpected charge needs root-cause analysis — drilling from a total-cost jump down to the specific service, resource, region, or change that caused it. Picks up after detection (the "what") to deliver the "why" and the fix.
 license: MIT
-compatibility: Requires cost data (Cost Management or a FinOps hub) at resource granularity and, ideally, Azure Activity Log read access to correlate changes. Pairs with the finops-multitool skill and the finops-toolkit KQL skill.
+compatibility: Requires cost data (Cost Management or a FinOps hub) at resource granularity and, ideally, Azure Activity Log read access to correlate changes. Pairs with the finops-explorer skill and the finops-toolkit KQL skill.
 metadata:
   author: microsoft
   version: "1.0"
-allowed-tools: az pwsh
 ---
 
 # Cost anomaly investigation
@@ -45,7 +44,7 @@ For each confirmed anomaly deliver: **driver** (the specific resource/change), *
 
 ## Hand-offs
 
-- Confirm/quantify the anomaly → `finops-multitool` (anomaly alerts, cost trend).
+- Confirm/quantify the anomaly → `finops-explorer` (anomaly alerts, cost trend).
 - Spike caused by expired commitment → `rate-optimization-portfolio`.
 - Prevent recurrence → `forecasting-budgeting` (alerts) or `azure-policy-governance` (guardrails).
 - Report it → `finops-reporting`.

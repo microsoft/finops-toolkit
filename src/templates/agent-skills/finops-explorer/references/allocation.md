@@ -84,9 +84,9 @@ AppMetrics
 
 Swap the `Properties[...]` key for `API ID` or `Product` depending on which consumer you're charging. The metric name varies by APIM version, hence the `in (...)` list.
 
-### Azure OpenAI by deployment
+### Azure OpenAI by account
 
-Source: Azure Monitor metrics.
+Source: Azure Monitor metrics exported to Log Analytics. The export flattens dimensions, so this weights each Azure OpenAI account, not each deployment. For a per-deployment weight, read the platform metrics split by `ModelDeploymentName`, as in the AI workload spend section of `additional-investigations.md`.
 
 ```kusto
 AzureMetrics
@@ -126,4 +126,4 @@ Then decide what happens to it:
 
 - `cost-allocation` skill for the showback/chargeback model and tag strategy
 - `tags-and-policy.md` for the tag coverage that native allocation depends on
-- [cost-analysis.md](cost-analysis.md) for choosing the underlying cost data path
+- `cost-analysis.md` for choosing the underlying cost data path

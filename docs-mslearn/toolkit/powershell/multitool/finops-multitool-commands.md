@@ -133,7 +133,7 @@ When no hub is available, the tool offers the Cost Management API. Once you sele
 
 A companion set of agent skills carries the same analysis as guidance an AI agent can act on: which investigation answers the question, the Resource Graph and Cost Management queries behind it, and the places raw results mislead. Agents run the queries through Azure CLI or an Azure MCP server, so no additional server is required.
 
-The `finops-multitool` skill is the routing hub and hands off to FinOps-adjacent skills for reporting, allocation, governance, unit economics, and more. The skills are read-only, and so is the terminal UI. Both report what they find and recommend a change; applying it stays with you.
+The `finops-explorer` skill is the routing hub and hands off to FinOps-adjacent skills for reporting, allocation, governance, unit economics, and more. The skills are read-only, and so is the terminal UI. Both report what they find and recommend a change; applying it stays with you.
 
 <br>
 

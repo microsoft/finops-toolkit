@@ -39,7 +39,20 @@ az rest --method post \
   }'
 ```
 
-Forecast uses the same shape against `.../forecast`.
+Forecast posts to `.../providers/Microsoft.CostManagement/forecast`, and its body is different. It takes `type` `Usage` and a `Custom` timeframe with explicit date-times, plus `includeActualCost`. `MonthToDate` isn't a forecast timeframe.
+
+```bash
+az rest --method post \
+  --url "https://management.azure.com/subscriptions/<subId>/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01" \
+  --body '{
+    "type": "Usage",
+    "timeframe": "Custom",
+    "timePeriod": { "from": "<yyyy-mm-01>T00:00:00Z", "to": "<yyyy-mm-last-day>T23:59:59Z" },
+    "dataset": { "granularity": "None", "aggregation": { "totalCost": { "name": "Cost", "function": "Sum" } } },
+    "includeActualCost": true,
+    "includeFreshPartialCost": false
+  }'
+```
 
 ## Cost by tag
 

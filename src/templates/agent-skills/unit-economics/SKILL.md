@@ -2,7 +2,7 @@
 name: unit-economics
 description: Use when the user wants to measure cost efficiency rather than raw spend — cost per customer/transaction/unit, Effective Savings Rate (ESR), commitment coverage and utilization rates, waste percentage, or any FinOps "quantify business value" KPI that ties cloud cost to a business or usage metric.
 license: MIT
-compatibility: Requires cost data (Cost Management scope or a FinOps hub) and a business/usage denominator (customers, transactions, requests, GB, etc.). Pairs with the finops-toolkit KQL skill and the finops-multitool skill.
+compatibility: Requires cost data (Cost Management scope or a FinOps hub) and a business/usage denominator (customers, transactions, requests, GB, etc.). Pairs with the finops-toolkit KQL skill and the finops-explorer skill.
 metadata:
   author: microsoft
   version: "1.0"
@@ -14,7 +14,7 @@ Move the conversation from "how much did we spend" to "how efficiently did we sp
 
 ## When to use this skill
 
-Use it when the user asks about cost efficiency, cost per unit, ROI of optimization, savings rate, coverage/utilization, or wants a metric that pairs cost with a business denominator. For the raw cost inputs, pull from the `finops-toolkit` KQL queries or the `finops-multitool` scans, then compute the ratio here.
+Use it when the user asks about cost efficiency, cost per unit, ROI of optimization, savings rate, coverage/utilization, or wants a metric that pairs cost with a business denominator. For the raw cost inputs, pull from the `finops-toolkit` KQL queries or the `finops-explorer` scans, then compute the ratio here.
 
 ## Core KPIs
 
@@ -26,7 +26,7 @@ Use it when the user asks about cost efficiency, cost per unit, ROI of optimizat
 | **Commitment utilization** | Used commitment ÷ purchased commitment | commitment utilization |
 | **Waste %** | Idle/orphaned cost ÷ total cost | orphaned resources, idle vms |
 | **Allocation coverage** | Allocated cost ÷ total cost | cost by tag, `cost-allocation` skill |
-| **Forecast accuracy** | 1 − |actual − forecast| ÷ actual | `forecasting-budgeting` skill |
+| **Forecast accuracy** | 1 − abs(actual − forecast) ÷ actual | `forecasting-budgeting` skill |
 
 ## ESR — the headline rate KPI
 
@@ -51,7 +51,7 @@ The hard part is the denominator. Guide the user to:
 
 ## Hand-offs
 
-- Cost inputs → `finops-toolkit` / `finops-multitool`.
+- Cost inputs → `finops-toolkit` / `finops-explorer`.
 - Allocated numerator → `cost-allocation` skill.
 - Coverage/utilization detail → `rate-optimization-portfolio` skill.
 - Visualize KPIs → `power-bi-finops`; narrate them → `finops-reporting`.

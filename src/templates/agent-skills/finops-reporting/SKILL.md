@@ -2,7 +2,7 @@
 name: finops-reporting
 description: Use when the user wants to turn cost data, scan output, or KQL results into an audience-ready narrative — executive summaries, monthly cost reviews, QBR decks, variance write-ups, or savings/optimization status reports. Converts numbers into decisions and recommendations.
 license: MIT
-compatibility: Works on output from the finops-multitool skill, the finops-toolkit KQL skill, or any cost dataset. Pairs with power-bi-finops for visuals.
+compatibility: Works on output from the finops-explorer skill, the finops-toolkit KQL skill, or any cost dataset. Pairs with power-bi-finops for visuals.
 metadata:
   author: microsoft
   version: "1.0"
@@ -14,7 +14,7 @@ Translate cost analytics into the report the audience actually needs. The other 
 
 ## When to use this skill
 
-Use it when the user asks for a summary, executive report, monthly/quarterly review, QBR, variance explanation, or "write up" of cost or savings. Gather the data first (`finops-multitool` scans, `finops-toolkit` KQL, or a full assessment for a broad sweep), then shape it here.
+Use it when the user asks for a summary, executive report, monthly/quarterly review, QBR, variance explanation, or "write up" of cost or savings. Gather the data first (`finops-explorer` scans, `finops-toolkit` KQL, or a full assessment for a broad sweep), then shape it here.
 
 ## Match the report to the audience
 
@@ -49,7 +49,7 @@ For every finding, give: **what** (the issue), **how much** (amount in the repor
 
 ## Hand-offs
 
-- Need the data → `finops-multitool` (a full assessment for breadth) or `finops-toolkit` KQL.
+- Need the data → `finops-explorer` (a full assessment for breadth) or `finops-toolkit` KQL.
 - Need charts in the report → `power-bi-finops`.
 - Need efficiency KPIs (ESR, unit cost) → `unit-economics`.
 - Need budget vs actual variance → `forecasting-budgeting`.

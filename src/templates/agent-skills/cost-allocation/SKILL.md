@@ -2,7 +2,7 @@
 name: cost-allocation
 description: Use when the user wants to design showback or chargeback, allocate shared costs, build a tagging strategy for cost accountability, map spend to teams/products/cost centers, split shared platform costs, or model a financial hierarchy from billing and tag data.
 license: MIT
-compatibility: Requires read access to cost data (Cost Management scope or a FinOps hub) and resource tags. Pairs with the finops-multitool skill (tag and cost-by-tag scans) and the azure-policy-governance skill for enforcement.
+compatibility: Requires read access to cost data (Cost Management scope or a FinOps hub) and resource tags. Pairs with the finops-explorer skill (tag and cost-by-tag scans) and the azure-policy-governance skill for enforcement.
 metadata:
   author: microsoft
   version: '1.0'
@@ -14,7 +14,7 @@ Allocate Azure cost to the teams, products, and cost centers that own it — the
 
 ## When to use this skill
 
-Use it when the user mentions showback, chargeback, allocation, cost centers, "who owns this spend", splitting shared costs, or building a tag strategy for accountability. For raw tag coverage numbers, run the `finops-multitool` scans first (tag inventory, tag recommendations, cost by tag) and bring the results here to design the model.
+Use it when the user mentions showback, chargeback, allocation, cost centers, "who owns this spend", splitting shared costs, or building a tag strategy for accountability. For raw tag coverage numbers, run the `finops-explorer` scans first (tag inventory, tag recommendations, cost by tag) and bring the results here to design the model.
 
 ## Allocation readiness checklist
 
@@ -64,7 +64,7 @@ Map raw billing + tags into a reporting hierarchy: **Billing account → Billing
 
 ## Hand-offs
 
-- Tag coverage / drift numbers → `finops-multitool` skill.
+- Tag coverage / drift numbers → `finops-explorer` skill.
 - Enforce tags and inheritance → `azure-policy-governance` skill.
 - Visualize allocation → `power-bi-finops` skill (governance / cost-summary reports).
 - Express allocation efficiency as KPIs → `unit-economics` skill.
