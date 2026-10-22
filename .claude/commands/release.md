@@ -152,6 +152,11 @@ If it fails, show the error and ask whether to investigate or skip.
 
 Power BI packaging reports its own state and saves demo reports with Power BI Desktop, which only runs on Windows.
 
+Before packaging, two things have to be done:
+
+1. The demo hub is on this release and has current data, because the demo reports are saved with its data. Run `pwsh -Command "./src/scripts/Deploy-Demo.ps1"`. It deploys or updates the hub and waits until data is ingested, which can take 15 to 45 minutes. Show its warnings verbatim.
+2. Someone has signed in to Power BI Desktop on the Windows machine and refreshed one demo project from `release/pbix` by hand, once. That stores the data source credentials and makes the Public sensitivity label available, and the packaging command can't answer a credential prompt. Ask the user to confirm with "done".
+
 On Windows, tell the user not to use the mouse or keyboard until it finishes, then run:
 
 ```bash

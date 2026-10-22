@@ -81,3 +81,14 @@ Describe 'PowerBIReports' {
         $unknown | Should -BeNullOrEmpty -Because 'entries that match nothing are misspelled or stale'
     }
 }
+
+Describe 'Demo data source' {
+    It 'Lists the <_> model Storage URL account in the ftk_DemoFilter allowlist' -ForEach @('storage', 'kql') {
+        $path = Join-Path $PSScriptRoot "../../../power-bi/$_/Shared.Dataset/definition/expressions.tmdl"
+        $text = Get-Content $path -Raw
+        $text | Should -Match "expression 'Storage URL' = ""https://(?<account>[a-z0-9]+)\.dfs\.core\.windows\.net"
+        $account = $Matches.account
+        # Without the account in the list, the demo reports query every subscription the viewer can read
+        $text | Should -Match ('"' + $account + '"')
+    }
+}

@@ -538,6 +538,8 @@ The build fails, with a message that names the report and what to add to `report
 | `‑KQL`     | Optional. Builds the KQL reports. Default = false (builds all if no types are selected).     |
 | `‑Storage` | Optional. Builds the storage reports. Default = false (builds all if no types are selected). |
 | `‑NoPbip`  | Optional. Skips generating PBIP projects and only builds PBIT templates. Default = false.    |
+| `‑OpenDataUrl` | Optional. Base URL demo reports read open data from. Only `main` and release URLs are accepted unless `‑TestOpenDataUrl` is set. Default = the `main` branch. |
+| `‑TestOpenDataUrl` | Optional. Allows `‑OpenDataUrl` to point at a branch. Reports built that way can't be released. Default = false. |
 
 Examples:
 
@@ -574,6 +576,8 @@ Saved PBIX files are checked for the mistakes that are easy to make by hand — 
 | `‑Build`            | Optional. Rebuilds the templates and projects even if they already exist. Default = false.                                         |
 | `‑Status`           | Optional. Reports what's done and what's left without changing anything. Default = false.                                          |
 | `‑SensitivityLabel` | Optional. Sensitivity label demo reports must have, if they have one. Default = "Public".                                          |
+| `‑OpenDataUrl`      | Optional. Base URL demo reports read open data from when they are rebuilt. Default = the `main` branch. |
+| `‑TestOpenDataUrl`  | Optional. Allows `‑OpenDataUrl` to point at a branch. Reports built that way are not packaged. Default = false. |
 
 Examples:
 
@@ -608,7 +612,7 @@ Requirements:
 - Windows with Power BI Desktop installed and associated with `.pbip` files.
 - An interactive desktop session. Don't use the mouse or keyboard while it runs.
 
-- Sign in to Power BI Desktop, and refresh one demo project by hand once so Power BI Desktop stores the credentials for the demo data source. Nothing here can sign in or answer a credential prompt. A sign-in window stops the script right away, and a missing credential fails the refresh with the error the engine reports.
+- Sign in to Power BI Desktop, and refresh one demo project by hand once so Power BI Desktop stores the credentials for the demo data source. Nothing here can sign in or answer a credential prompt. When a sign-in or credential window appears, the script prints ACTION NEEDED and waits for you to answer it, then carries on by itself. It fails if the window isn't answered before the save times out (30 minutes by default), and a missing credential fails the refresh with the error the engine reports.
 
 The sensitivity label is applied only when Power BI Desktop offers one and the control is enabled. Tenants without labels show the button greyed out, which is detected and skipped. A report saved without a label passes validation; a report saved with any label other than the expected one fails.
 
@@ -638,6 +642,8 @@ Example:
 | ----------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `‑Template` | Optional. Name of the template or module to package. Default = \* (all).                                                   |
 | `‑Build`    | Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false.                           |
+| `‑OpenDataUrl` | Optional. Base URL the demo Power BI reports read open data from. Default = the `main` branch. |
+| `‑TestOpenDataUrl` | Optional. Allows `‑OpenDataUrl` to point at a branch. Reports built that way can't be released. Default = false. |
 | `‑CopyFiles` | Optional. Indicates whether to copy templates and open data files. Default = false.                                       |
 | `‑OpenPBI`  | Optional. Opens the generated Power BI projects to be saved as PBIX files. Same as `Package-PowerBI -Open`. Default = false. |
 | `‑ZipPBI`   | Optional. Validates the saved PBIX files and packages PowerBI-demo.zip. Same as `Package-PowerBI`. Default = false.        |

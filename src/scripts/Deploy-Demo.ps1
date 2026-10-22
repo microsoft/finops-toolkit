@@ -192,17 +192,25 @@ function Get-DemoState([string] $HubName, [string] $ResourceGroupName)
         Cluster  = $null
     }
 
-    $storage = Get-AzStorageAccount -ResourceGroupName $ResourceGroupName -ErrorAction SilentlyContinue `
+    # Only "it isn't there" means not deployed, or a new instance. Any other failure (network, sign-in,
+    # throttling) is thrown so the caller can retry: a healthy hub that can't be read must not look new,
+    # because a new instance gets its whole history loaded.
+    $isMissing = { param($e) $e.Exception.Message -match 'NotFound|does not exist|Can not find|could not be found' }
+
+    try { $accounts = @(Get-AzStorageAccount -ResourceGroupName $ResourceGroupName -ErrorAction Stop) }
+    catch { if (& $isMissing $_) { return $state }; throw }
+
+    $storage = $accounts `
     | Where-Object { $_.StorageAccountName -like "$($HubName -replace '[^a-z0-9]', '')*" -or $_.Tags['cm-resource-parent'] } `
     | Select-Object -First 1
     if (-not $storage) { return $state }
 
     $state.Deployed = $true
     $state.Storage = $storage.StorageAccountName
-    $state.Cluster = (Get-AzKustoCluster -ResourceGroupName $ResourceGroupName -ErrorAction SilentlyContinue | Select-Object -First 1)
+    $state.Cluster = try { Get-AzKustoCluster -ResourceGroupName $ResourceGroupName -ErrorAction Stop | Select-Object -First 1 } catch { if (& $isMissing $_) { $null } else { throw } }
 
     $context = $storage.Context
-    $settings = Get-AzStorageBlob -Container 'config' -Blob 'settings.json' -Context $context -ErrorAction SilentlyContinue
+    $settings = try { Get-AzStorageBlob -Container 'config' -Blob 'settings.json' -Context $context -ErrorAction Stop } catch { if (& $isMissing $_) { $null } else { throw } }
     if ($settings)
     {
         $file = New-TemporaryFile -WhatIf:$false
@@ -222,7 +230,7 @@ function Get-DemoState([string] $HubName, [string] $ResourceGroupName)
     $token = $null
     do
     {
-        $page = @(Get-AzStorageBlob -Container 'ingestion' -Context $context -MaxCount 5000 -ContinuationToken $token -ErrorAction SilentlyContinue)
+        $page = @(try { Get-AzStorageBlob -Container 'ingestion' -Context $context -MaxCount 5000 -ContinuationToken $token -ErrorAction Stop } catch { if (& $isMissing $_) { @() } else { throw } })
         foreach ($blob in $page)
         {
             if ($blob.Name -match '(?<month>20\d{2}[-/]?(0[1-9]|1[0-2]))') { $null = $months.Add(($Matches.month -replace '[-/]', '')) }
@@ -328,7 +336,7 @@ Write-Host "FinOps hub demo instance $name" -ForegroundColor White
 Write-Host "  Subscription  $($context.Subscription.Name)"
 Write-Host "  Resource group $ResourceGroup"
 
-$state = Get-DemoState $name $ResourceGroup
+$state = Invoke-DemoRetry { Get-DemoState $name $ResourceGroup }
 $thisMonth = (Get-Date).ToString('yyyyMM')
 $lastMonth = (Get-Date).AddMonths(-1).ToString('yyyyMM')
 
@@ -544,7 +552,7 @@ else
     # Backfill uses the FinOps toolkit module, which the source build path doesn't otherwise load
     if (-not (Get-Command New-FinOpsCostExport -ErrorAction SilentlyContinue)) { Import-Module "$PSScriptRoot/../powershell/FinOpsToolkit.psm1" -Force }
 
-    $state = Get-DemoState $name $ResourceGroup
+    $state = Invoke-DemoRetry { Get-DemoState $name $ResourceGroup }
     if (-not $state.Storage) { throw "Could not find the storage account for $name after deploying." }
     $storageId = (Get-AzStorageAccount -ResourceGroupName $ResourceGroup -Name $state.Storage).Id
 
@@ -616,9 +624,18 @@ if (-not $isVersioned -and -not $WhatIfPreference -and $state.Storage)
     $expectedUrl = "https://$($state.Storage).dfs.core.windows.net/ingestion"
     foreach ($model in $models)
     {
-        if ((Get-Content $model -Raw) -notmatch [regex]::Escape("expression 'Storage URL' = `"$expectedUrl`""))
+        $text = Get-Content $model -Raw
+        $relative = Resolve-Path $model -Relative
+        if ($text -notmatch [regex]::Escape("expression 'Storage URL' = `"$expectedUrl`""))
         {
-            Write-Warning "$($model.FullName | Resolve-Path -Relative) doesn't use this hub's storage URL. Set 'Storage URL' to $expectedUrl (and 'Cluster URL' to $($state.Cluster.Name).$Location) so demo reports refresh from this hub."
+            Write-Warning "$relative doesn't use this hub's storage URL. Set 'Storage URL' to $expectedUrl (and 'Cluster URL' to $($state.Cluster.Name).$Location) so demo reports refresh from this hub."
+        }
+
+        # The demo data filter only applies to storage accounts in its list. Without the hub in it, the
+        # Governance and Usage optimization demo reports would query every subscription the releaser can read.
+        if ($text -notmatch ('"' + [regex]::Escape($state.Storage) + '"'))
+        {
+            Write-Warning "$relative doesn't list $($state.Storage) in the ftk_DemoFilter storage account list. Add it, and the subscriptions the hub monitors, or demo reports include data from other subscriptions."
         }
     }
 }

@@ -809,6 +809,7 @@ foreach ($inputFile in $reports)
                     if (-not $openDataChecked.ContainsKey($url))
                     {
                         $response = Invoke-WebRequest $url -Method Head -SkipHttpErrorCheck -ErrorAction SilentlyContinue
+                        if (-not $response) { throw "Couldn't reach $url to check that it's published. Check the network connection and try again." }
                         $openDataChecked[$url] = $response.StatusCode -eq 200
                     }
                     if (-not $openDataChecked[$url])

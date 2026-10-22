@@ -346,15 +346,6 @@ function Import-TabularLibrary
 
 <#
     .SYNOPSIS
-    Reports Power BI Desktop windows that are waiting for someone to answer them.
-
-    .DESCRIPTION
-    Power BI Desktop asks for data source credentials the first time it reads a source, including
-    anonymous ones like a file on GitHub. Nothing here can answer those, and the refresh just
-    stops until someone does, so each one is named as it appears.
-#>
-<#
-    .SYNOPSIS
     Runs a TMSL command against the Power BI Desktop engine and reports what it's waiting on.
 
     .DESCRIPTION
@@ -410,6 +401,15 @@ function Invoke-EngineCommand([string] $Command, [string] $Description, [int] $P
     finally { $worker.Dispose() }
 }
 
+<#
+    .SYNOPSIS
+    Reports Power BI Desktop windows that are waiting for someone to answer them.
+
+    .DESCRIPTION
+    Power BI Desktop asks for data source credentials the first time it reads a source, including
+    anonymous ones like a file on GitHub. Nothing here can answer those, and the refresh just
+    stops until someone does, so each one is named as it appears.
+#>
 function Show-PendingPrompt($MainWindow, [int] $ProcessId, [System.Collections.Generic.HashSet[string]] $Reported)
 {
     foreach ($window in @(Get-ProcessWindow $ProcessId))
@@ -828,36 +828,34 @@ try
     }
     else
     {
+        $expand = $null
+        if ($fileType.TryGetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern, [ref]$expand))
+        {
+            try { $expand.Expand() } catch { Write-Verbose "  Could not open the file type list: $($_.Exception.Message)" }
+        }
+        Start-Sleep -Milliseconds 500
 
-    $expand = $null
-    if ($fileType.TryGetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern, [ref]$expand))
-    {
-        try { $expand.Expand() } catch { Write-Verbose "  Could not open the file type list: $($_.Exception.Message)" }
-    }
-    Start-Sleep -Milliseconds 500
+        $pbixType = @($fileType.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::ListItem)))) `
+        | Where-Object { $_.Current.Name -match '(?i)pbix' } `
+        | Select-Object -First 1
+        if ($pbixType) { Invoke-Element $pbixType }
+        elseif ($fileType.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$null))
+        {
+            $value = $null
+            $null = $fileType.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$value)
+            try { $value.SetValue('Power BI files (*.pbix)') } catch { Write-Verbose "  Could not set the file type: $($_.Exception.Message)" }
+        }
+        if ($expand) { try { $expand.Collapse() } catch { Write-Verbose '  File type list already closed.' } }
+        Start-Sleep -Milliseconds 500
 
-    $pbixType = @($fileType.FindAll($tree::Descendants, (New-Object System.Windows.Automation.PropertyCondition($props::ControlTypeProperty, $types::ListItem)))) `
-    | Where-Object { $_.Current.Name -match '(?i)pbix' } `
-    | Select-Object -First 1
-    if ($pbixType) { Invoke-Element $pbixType }
-    elseif ($fileType.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$null))
-    {
-        $value = $null
-        $null = $fileType.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$value)
-        try { $value.SetValue('Power BI files (*.pbix)') } catch { Write-Verbose "  Could not set the file type: $($_.Exception.Message)" }
-    }
-    if ($expand) { try { $expand.Collapse() } catch { Write-Verbose '  File type list already closed.' } }
-    Start-Sleep -Milliseconds 500
-
-    # Saving as the wrong type makes a mess that's hard to recognize later, so stop before that
-    $selectedType = Get-FileTypeValue $fileType
-    Write-Verbose "  File type: $selectedType"
-    if ($selectedType -and $selectedType -notmatch '(?i)pbix')
-    {
-        Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt')) $dialogHandle
-        throw "The Save as dialog is still set to '$selectedType'. Saving now would write a project, not a PBIX."
-    }
-
+        # Saving as the wrong type makes a mess that's hard to recognize later, so stop before that
+        $selectedType = Get-FileTypeValue $fileType
+        Write-Verbose "  File type: $selectedType"
+        if ($selectedType -and $selectedType -notmatch '(?i)pbix')
+        {
+            Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt')) $dialogHandle
+            throw "The Save as dialog is still set to '$selectedType'. Saving now would write a project, not a PBIX."
+        }
     }
 
     # The search box and the address bar are editable too, and writing a path into either one
@@ -966,8 +964,6 @@ try
         Save-WindowTree $dialog ([System.IO.Path]::ChangeExtension($Destination, '.dialog.txt')) $dialogHandle
         throw "Typed the file name into $($candidates.Count) box$(if ($candidates.Count -ne 1) { 'es' }) in the '$($dialog.Current.Name)' dialog and $([System.IO.Path]::GetFileName($Destination)) was never written."
     }
-
-
 
     # Wait for the file to be written, answering prompts Power BI Desktop shows while saving
     Wait-Until -Description "$([System.IO.Path]::GetFileName($Destination)) to be saved" -Seconds 600 -Condition {
