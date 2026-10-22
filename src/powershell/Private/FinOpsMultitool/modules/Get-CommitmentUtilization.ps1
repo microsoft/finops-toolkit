@@ -132,9 +132,13 @@ function Get-CommitmentUtilization {
             Update-ScanStatus "Querying reservations ($scopeIdx/$scopeTotal scopes)..."
         }
         try {
-            # UsageDate needs both bounds and must not be quoted: it is an
-            # Edm.DateTimeOffset, so a quoted value fails the type comparison.
-            $summaryPath = "$scopeId/providers/Microsoft.Consumption/reservationSummaries?grain=monthly&api-version=2023-05-01&`$filter=properties/UsageDate ge $usageFrom and properties/UsageDate le $usageTo"
+            # Billing profile scopes take startDate/endDate; $filter does not apply
+            # to them. Every other scope takes $filter, where UsageDate needs both
+            # bounds and must not be quoted: it is an Edm.DateTimeOffset, so a quoted
+            # value fails the type comparison.
+            $summaryRange = if ($scopeId -match '/billingProfiles/[^/]+/?$') { "startDate=$usageFrom&endDate=$usageTo" }
+            else { "`$filter=properties/UsageDate ge $usageFrom and properties/UsageDate le $usageTo" }
+            $summaryPath = "$scopeId/providers/Microsoft.Consumption/reservationSummaries?grain=monthly&api-version=2023-05-01&$summaryRange"
             $resp = Invoke-AzRestMethodWithRetry -Path $summaryPath -Method GET
 
             if ($resp.StatusCode -eq 200) {

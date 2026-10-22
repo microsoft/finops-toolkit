@@ -104,7 +104,47 @@ Describe 'Commitment utilization de-duplication' {
             $p | Should -Not -BeLike '/subscriptions/*'
             # UsageDate is an Edm.DateTimeOffset; a quoted bound fails the compare.
             $p | Should -Not -Match "UsageDate ge '"
+            # An enterprise billing account is bounded with $filter, not startDate/endDate.
+            $p | Should -Match '\$filter=properties/UsageDate ge \d{4}-\d{2}-\d{2} and properties/UsageDate le \d{4}-\d{2}-\d{2}$'
+            $p | Should -Not -Match 'startDate='
         }
+    }
+
+    It 'Bounds billing profile queries with startDate and endDate instead of $filter' {
+        # $filter does not apply at billing profile scope, which takes startDate/endDate.
+        $script:SeenPaths = [System.Collections.Generic.List[string]]::new()
+        $script:McaAccountPayload = @{
+            value = @(
+                @{ id = '/providers/Microsoft.Billing/billingAccounts/TEST-MCA'
+                    name = 'TEST-MCA'
+                    properties = @{ agreementType = 'MicrosoftCustomerAgreement' }
+                }
+            )
+        } | ConvertTo-Json -Depth 8
+        $script:McaPropertyPayload = @{
+            properties = @{ billingAccountId = '/providers/Microsoft.Billing/billingAccounts/TEST-MCA' }
+        } | ConvertTo-Json -Depth 8
+        $script:McaProfilePayload = @{
+            value = @(@{ id = '/providers/Microsoft.Billing/billingAccounts/TEST-MCA/billingProfiles/TEST-BP'; name = 'TEST-BP' })
+        } | ConvertTo-Json -Depth 8
+        Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool {
+            if ($Path -match 'billingAccounts\?') { [PSCustomObject]@{ StatusCode = 200; Content = $script:McaAccountPayload } }
+            elseif ($Path -match 'billingProperty/default') { [PSCustomObject]@{ StatusCode = 200; Content = $script:McaPropertyPayload } }
+            elseif ($Path -match 'billingProfiles\?') { [PSCustomObject]@{ StatusCode = 200; Content = $script:McaProfilePayload } }
+            elseif ($Path -match 'reservationSummaries') {
+                $script:SeenPaths.Add($Path)
+                [PSCustomObject]@{ StatusCode = 200; Content = $script:ReservationPayload }
+            }
+            else { [PSCustomObject]@{ StatusCode = 200; Content = '{"value":[]}' } }
+        }
+
+        $result = Get-CommitmentUtilization -Subscriptions $script:TwoSubs -WarningAction SilentlyContinue
+
+        $result.RICount | Should -Be 1
+        @($script:SeenPaths).Count | Should -Be 1
+        $script:SeenPaths[0] | Should -BeLike '/providers/Microsoft.Billing/billingAccounts/TEST-MCA/billingProfiles/TEST-BP/providers/Microsoft.Consumption/reservationSummaries?*'
+        $script:SeenPaths[0] | Should -Match 'startDate=\d{4}-\d{2}-\d{2}&endDate=\d{4}-\d{2}-\d{2}$'
+        $script:SeenPaths[0] | Should -Not -Match 'filter'
     }
 
     It 'Keeps distinct savings plans that share one benefit order' {
