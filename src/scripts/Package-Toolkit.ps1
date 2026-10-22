@@ -23,12 +23,6 @@
     .PARAMETER ZipPBI
     Optional. Validates the saved PBIX files and packages them into PowerBI-demo.zip. Equivalent to Package-PowerBI. Default = false.
 
-    .PARAMETER OpenDataUrl
-    Optional. Base URL the demo Power BI reports read open data from. Only needed to package a branch that adds open data files before they are on main. Default = the main branch.
-
-    .PARAMETER TestOpenDataUrl
-    Optional. Allows -OpenDataUrl to point at a branch. Reports built that way can't be released. Default = false.
-
     .PARAMETER Preview
     Optional. Indicates that the template(s) should be saved as a preview only. Does not package other files. Default = false.
 
@@ -58,9 +52,7 @@ param(
     [switch]$CopyFiles,
     [switch]$OpenPBI,
     [switch]$ZipPBI,
-    [switch]$Preview,
-    [string]$OpenDataUrl,
-    [switch]$TestOpenDataUrl
+    [switch]$Preview
 )
 
 # Use the debug flag from common parameters to determine whether to run in debug mode
@@ -75,10 +67,8 @@ if ($Build)
     if (@("*", "pbi", "pbit") -contains $Template)
     {
         Write-Verbose "Building Power BI templates..."
-        $pbiParams = @{}
-        if ($OpenDataUrl) { $pbiParams.OpenDataUrl = $OpenDataUrl }
-        if ($TestOpenDataUrl) { $pbiParams.TestOpenDataUrl = $true }
-        & "$PSScriptRoot/Build-PowerBI" @pbiParams
+        # Templates only. Demo projects read open data from main, so Package-PowerBI builds them after the merge to main.
+        & "$PSScriptRoot/Build-PowerBI" -NoPbip
     }
 }
 

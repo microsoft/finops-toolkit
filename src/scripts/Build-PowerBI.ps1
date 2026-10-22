@@ -382,6 +382,12 @@ function Export-PrunedDataset([string] $SourceDir, [string] $TargetDir, [string[
 #>
 function Get-ReportLayout([string] $ReportDir, [string] $ReportLabel)
 {
+    if (-not (Test-Path "$ReportDir/report.json"))
+    {
+        $reason = if (Test-Path "$ReportDir/definition") { "was saved in the enhanced report format (PBIR), which this build can't read from src/power-bi. Restore the report folder from git and make the change without saving it from Power BI Desktop." } else { 'has no report.json.' }
+        throw "$ReportLabel $reason"
+    }
+
     $json = (Get-Content "$ReportDir/report.json" -Raw) `
         -replace '\$\$ftkver\$\$', $version `
         -replace '\$\$build-date\$\$', $buildDate

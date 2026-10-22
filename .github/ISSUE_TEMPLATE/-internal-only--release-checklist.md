@@ -109,7 +109,7 @@ Status icons:
   - Build all toolkit templates and resolve any issues: `<root>/src/scripts/Build-Toolkit`
     > _This step is optional, but can catch issues earlier. You can also add the `-Build` parameter to the publish command in the next step._
   - Ensure all tests pass: `<root>/src/scripts/Test-PowerShell -Unit -Integration`
-- [ ] <!-- release:package --> Package all release files (except Power BI): `<root>/src/scripts/Package-Toolkit.ps1 -Build -CopyFiles` script
+- [ ] <!-- release:package --> Package all release files (except the Power BI demo reports, which come after the merge to main): `<root>/src/scripts/Package-Toolkit.ps1 -Build -CopyFiles` script
 - [ ] Check the docs for broken links:
   - Create a personal fork of the main repo.
   - If you already have one, update it to the latest.

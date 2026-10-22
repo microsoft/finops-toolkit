@@ -97,7 +97,14 @@ Once the above requirements have been met, the feature branch can be merged into
       <root>/src/scripts/Test-PowerShell
       ```
 
-   3. Check the docs for broken links:
+   3. Package all release files, except Power BI, which is packaged after the merge to main:
+
+      ```powershell
+      cd <root>/src/scripts
+      ./Package-Toolkit -Build -CopyFiles
+      ```
+
+   4. Check the docs for broken links:
       1. Create a personal fork of the main repo.
       2. If you already have one, update it to the latest.
       3. Enable GitHub pages in your fork to use the `dev` branch `docs` folder.
@@ -110,25 +117,25 @@ Once the above requirements have been met, the feature branch can be merged into
          - Ignore any 429 errors from GitHub. These are caused due to all the contributor links that are checked.
       6. Fix any broken links, push changes, and rerun the tool.
 
-   4. Merge to main:
+   5. Merge to main:
 
       ```powershell
       cd <root>/src/scripts
       ./Merge-DevBranch main
       ```
 
-   5. Verify [documentation](https://aka.ms/finops/toolkit) updated correctly.
+   6. Verify [documentation](https://aka.ms/finops/toolkit) updated correctly.
 
       > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at [GitHub actions](../actions/workflows/pages/pages-build-deployment) to see if there are any failures._
 
-   6. Make sure the demo hub is on this release and has current data, because the demo reports are saved with its data. This deploys or updates the hub, loads history for a new hub, and waits until data is ingested. See [Deploy-Demo](../tree/dev/src/scripts/README.md#-deploy-demo).
+   7. Make sure the demo hub is on this release and has current data, because the demo reports are saved with its data. This deploys or updates the hub, loads history for a new hub, and waits until data is ingested. See [Deploy-Demo](../tree/dev/src/scripts/README.md#-deploy-demo).
 
       ```powershell
       cd <root>/src/scripts
       ./Deploy-Demo
       ```
 
-   7. Package the Power BI files on Windows with Power BI Desktop installed:
+   8. Package the Power BI files on Windows with Power BI Desktop installed:
 
       ```powershell
       cd <root>/src/scripts
@@ -150,7 +157,7 @@ Once the above requirements have been met, the feature branch can be merged into
          > _Queries are already trimmed and the **Get started** page is already selected. There is nothing else to change._
 
       Confirm all 3 files were created: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
-   8. Tag and publish a [new release](../releases/new):
+   9. Tag and publish a [new release](../releases/new):
       1. Create a tag on publish using the "vX.X" format.
       2. Set the **Target** to `main`.
       3. Set the **Previous tag** to the previous release tag.
@@ -176,9 +183,9 @@ Once the above requirements have been met, the feature branch can be merged into
           - Open data CSV and JSON files.
           - ZIP file for sample data files.
           - **DO NOT** copy Bicep, PowerShell, PBIP, or image files.
-   9. Update the related discussion.
-   10. Update all issues to `Status: Released`.
-   11. Update the `Toolkit / Should return all known releases` PowerShell integration test based on the latest version.
+   10. Update the related discussion.
+   11. Update all issues to `Status: Released`.
+   12. Update the `Toolkit / Should return all known releases` PowerShell integration test based on the latest version.
 
        > _See `src/powershell/Tests/Integration/Toolkit.Tests.ps1` > `Get-FinOpsToolkitVersion` > `Should return all known releases`_
 

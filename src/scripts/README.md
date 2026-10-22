@@ -643,8 +643,6 @@ Example:
 | ----------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `‑Template` | Optional. Name of the template or module to package. Default = \* (all).                                                   |
 | `‑Build`    | Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false.                           |
-| `‑OpenDataUrl` | Optional. Base URL the demo Power BI reports read open data from. Default = the `main` branch. |
-| `‑TestOpenDataUrl` | Optional. Allows `‑OpenDataUrl` to point at a branch. Reports built that way can't be released. Default = false. |
 | `‑CopyFiles` | Optional. Indicates whether to copy templates and open data files. Default = false.                                       |
 | `‑OpenPBI`  | Optional. Opens the generated Power BI projects to be saved as PBIX files. Same as `Package-PowerBI -Open`. Default = false. |
 | `‑ZipPBI`   | Optional. Validates the saved PBIX files and packages PowerBI-demo.zip. Same as `Package-PowerBI`. Default = false.        |

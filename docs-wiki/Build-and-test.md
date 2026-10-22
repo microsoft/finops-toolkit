@@ -132,7 +132,7 @@ The Build-PowerShell script calls an Invoke-Build task internally.
 
 ### Building Power BI reports
 
-Run [Build-PowerBI](../src/scripts/README.md#-build-powerbi) to generate the Power BI release artifacts:
+Run [Build-PowerBI](../tree/dev/src/scripts/README.md#-build-powerbi) to generate the Power BI release artifacts:
 
 ```powershell
 cd <root>/src/scripts
@@ -144,11 +144,11 @@ This generates two things from a single prune, so the template and the demo repo
 - PBIT templates in `release/pbit`, zipped into `PowerBI-kql.zip` and `PowerBI-storage.zip`.
 - PBIP projects for demo reports in `release/pbix`, each containing only the tables, relationships, and queries that report needs.
 
-The tables and queries each report keeps are listed in [src/power-bi/reports.json](../src/power-bi/reports.json). When a report starts using a new table or query, add it there. The build and the `PowerBIReports` lint test fail when a visual or query uses something the report doesn't keep.
+The tables and queries each report keeps are listed in [src/power-bi/reports.json](../tree/dev/src/power-bi/reports.json). When a report starts using a new table or query, add it there. The build fails when a visual, query, table, or measure uses something the report doesn't keep. The `PowerBIReports` lint test checks the visuals and the list itself in pull requests.
 
 Demo projects keep the data source saved in the semantic model. They read open data from the `main` branch, because the release URL resolves to the last published release and doesn't have open data files added during the release being built. Templates always ship with the data source set to null and the release open data URL. Only permanent URLs are accepted, because the URL ships inside the demo reports. To test before the merge to `main`, add `-TestOpenDataUrl` and pass a branch with `-OpenDataUrl`. Reports built that way are not packaged.
 
-Demo PBIX files need Power BI Desktop to load and save them. On Windows, run [Package-PowerBI](../src/scripts/README.md#-package-powerbi) `-Unattended` to save, validate, and package them automatically.
+Demo PBIX files need Power BI Desktop to load and save them. On Windows, run [Package-PowerBI](../tree/dev/src/scripts/README.md#-package-powerbi) `-Unattended` to save, validate, and package them automatically.
 
 ### Building documentation
 

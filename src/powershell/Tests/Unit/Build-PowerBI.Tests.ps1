@@ -172,6 +172,23 @@ Describe 'Export-PrunedDataset' {
     }
 }
 
+Describe 'Get-ReportLayout' {
+    BeforeAll {
+        $script:version = '1.2.3'
+        $script:buildDate = '2026-01-01'
+    }
+
+    It 'Explains a source report that was saved in the enhanced format' {
+        New-Item "$TestDrive/pbir/definition" -ItemType Directory -Force | Out-Null
+        { Get-ReportLayout "$TestDrive/pbir" 'storage/Example' } | Should -Throw '*enhanced report format*'
+    }
+
+    It 'Names a report that has no layout at all' {
+        New-Item "$TestDrive/empty" -ItemType Directory -Force | Out-Null
+        { Get-ReportLayout "$TestDrive/empty" 'storage/Example' } | Should -Throw '*has no report.json*'
+    }
+}
+
 Describe 'Get-ReportEntityReference' {
     BeforeAll {
         $visual = @{
