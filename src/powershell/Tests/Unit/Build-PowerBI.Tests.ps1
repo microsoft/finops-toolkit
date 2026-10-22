@@ -341,6 +341,14 @@ Describe 'Test-DemoPbix' {
         Test-DemoPbix "$TestDrive/old.pbix" $report | Should -Match "doesn't mention version 1.2.3"
     }
 
+    It 'Does not count the version when it only appears inside another number' {
+        # 1.2.3 appears inside 11.2.3 and 1.2.34, and a layout coordinate like 21.2.3 is not a version
+        $parts = New-ValidParts
+        $parts.'Report/Layout' = New-Layout -Text 'FinOps toolkit v1.2.2 at x 11.2.3 and y 1.2.34'
+        New-TestPbix "$TestDrive/coincidence.pbix" $parts
+        Test-DemoPbix "$TestDrive/coincidence.pbix" $report | Should -Match "doesn't mention version 1.2.3"
+    }
+
     It 'Fails a report with tables it does not use' {
         $parts = New-ValidParts
         $parts.DiagramLayout = @{ diagrams = @(@{ nodes = @(@{ nodeIndex = 'Costs' }, @{ nodeIndex = 'Resources' }) }) } | ConvertTo-Json -Depth 5 -Compress

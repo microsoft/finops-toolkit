@@ -270,7 +270,7 @@ function Test-DemoPbix([string] $Path, $Report, [datetime] $BuiltAfter = [dateti
         {
             $issues.Add("still has version placeholders, so it was saved from src/power-bi instead of release/pbix. Open the project from release/pbix and save again.")
         }
-        elseif ($allText -notmatch [regex]::Escape($version))
+        elseif ($allText -notmatch ('(?<![\d.])' + [regex]::Escape($version) + '(?![\d.])'))
         {
             $issues.Add("doesn't mention version $version, so it was saved from an older build. Rebuild and save again.")
         }
@@ -303,7 +303,7 @@ function Test-DemoPbix([string] $Path, $Report, [datetime] $BuiltAfter = [dateti
         {
             $issues.Add("still has version placeholders, so it was saved from src/power-bi instead of release/pbix. Open the project from release/pbix and save again.")
         }
-        elseif ($layoutText -notmatch [regex]::Escape($version))
+        elseif ($layoutText -notmatch ('(?<![\d.])' + [regex]::Escape($version) + '(?![\d.])'))
         {
             $issues.Add("doesn't mention version $version, so it was saved from an older build. Rebuild and save again.")
         }

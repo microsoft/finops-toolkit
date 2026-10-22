@@ -110,18 +110,6 @@ Status icons:
     > _This step is optional, but can catch issues earlier. You can also add the `-Build` parameter to the publish command in the next step._
   - Ensure all tests pass: `<root>/src/scripts/Test-PowerShell -Unit -Integration`
 - [ ] <!-- release:package --> Package all release files (except Power BI): `<root>/src/scripts/Package-Toolkit.ps1 -Build -CopyFiles` script
-- [ ] Confirm the data source saved in the Power BI semantic models points at the current demo hub.
-- [ ] Make sure the demo hub is on this release and has current data: `<root>/src/scripts/Deploy-Demo.ps1`
-  - It deploys or updates the hub and waits until data is ingested, so Power BI can be packaged right after.
-- [ ] <!-- release:powerbi --> Package Power BI files on Windows: `<root>/src/scripts/Package-PowerBI.ps1 -Unattended`
-  > _Builds, saves demo PBIX files with Power BI Desktop, validates, and packages. Takes about an hour. Don't use the mouse or keyboard while it runs. If it stops because the reports were built from a test open data URL, rerun once with `-Build`._
-  >
-  > _First, sign in to Power BI Desktop and refresh one demo project by hand so the data source credentials are stored and the "Public" sensitivity label is available. The command can't sign in or answer a credential prompt._
-  - If a report can't be saved automatically, the command names the step that failed and saves a screenshot. Save that report by hand, then rerun the command:
-    - Run `Package-PowerBI.ps1 -Open` to open the projects that need to be saved.
-    - Refresh the report, select **File** > **Save as**, keep the `<root>/release/pbix` folder, change the file type to PBIX, and set the sensitivity to "Public".
-    > _Queries are already trimmed and the Get started page is already selected. There is nothing else to change._
-  - [ ] Confirm all 3 files were created: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
 - [ ] Check the docs for broken links:
   - Create a personal fork of the main repo.
   - If you already have one, update it to the latest.
@@ -200,6 +188,20 @@ Status icons:
   - Close the milestone when all issues have been closed or moved.
 - [ ] Verify [documentation](https://aka.ms/finops/toolkit) updated correctly.
   > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at [GitHub actions](https://github.com/microsoft/finops-toolkit/actions/workflows/pages/pages-build-deployment) to see if there are any failures._
+
+> _Demo reports read open data from the `main` branch, so package Power BI after the merge to main above._
+- [ ] Confirm the data source saved in the Power BI semantic models points at the current demo hub.
+- [ ] Make sure the demo hub is on this release and has current data: `<root>/src/scripts/Deploy-Demo.ps1`
+  - It deploys or updates the hub and waits until data is ingested, so Power BI can be packaged right after.
+- [ ] <!-- release:powerbi --> Package Power BI files on Windows: `<root>/src/scripts/Package-PowerBI.ps1 -Unattended`
+  > _Builds, saves demo PBIX files with Power BI Desktop, validates, and packages. Takes about an hour. Don't use the mouse or keyboard while it runs. If it stops because the reports were built from a test open data URL, rerun once with `-Build`._
+  >
+  > _First, sign in to Power BI Desktop and refresh one demo project by hand so the data source credentials are stored and the "Public" sensitivity label is available. The command can't sign in or answer a credential prompt._
+  - If a report can't be saved automatically, the command names the step that failed and saves a screenshot. Save that report by hand, then rerun the command:
+    - Run `Package-PowerBI.ps1 -Open` to open the projects that need to be saved.
+    - Refresh the report, select **File** > **Save as**, keep the `<root>/release/pbix` folder, change the file type to PBIX, and set the sensitivity to "Public".
+    > _Queries are already trimmed and the Get started page is already selected. There is nothing else to change._
+  - [ ] Confirm all 3 files were created: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
 - [ ] Tag and publish a [new release](https://github.com/microsoft/finops-toolkit/releases/new):
   - [ ] Create a tag on publish using the "vX.X" format.
   - [ ] Set the **Target** to `main`.

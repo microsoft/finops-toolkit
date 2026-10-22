@@ -152,6 +152,8 @@ If it fails, show the error and ask whether to investigate or skip.
 
 Power BI packaging reports its own state and saves demo reports with Power BI Desktop, which only runs on Windows.
 
+Demo reports read open data from the `main` branch, so this step must run after the release is merged to main (`Merge-DevBranch.ps1 main`). If it hasn't been merged yet, tell the user to merge first and come back to this step, and don't run the packaging command.
+
 Before packaging, two things have to be done:
 
 1. The demo hub is on this release and has current data, because the demo reports are saved with its data. Run `pwsh -Command "./src/scripts/Deploy-Demo.ps1"`. It deploys or updates the hub and waits until data is ingested, which can take 15 to 45 minutes. Show its warnings verbatim.

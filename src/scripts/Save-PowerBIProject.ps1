@@ -389,7 +389,10 @@ function Invoke-EngineCommand([string] $Command, [string] $Description, [int] $P
             }
             if ((Get-Date) -ge $deadline)
             {
-                $worker.Stop()
+                # Stop() waits for the engine call to return, and that call is the thing that is stuck. Ending
+                # Desktop and its engine fails the call, which frees the worker.
+                Stop-Desktop $Process
+                $null = $worker.BeginStop($null, $null)
                 throw "$Description didn't finish within $TimeoutMinutes minutes.$(if ($reported.Count -gt 0) { " It was waiting on: $($reported -join ', ')" })"
             }
         }
@@ -1017,8 +1020,15 @@ try
 
     #region Close
 
-    $windowPattern = $null
-    if ($mainWindow.TryGetCurrentPattern([System.Windows.Automation.WindowPattern]::Pattern, [ref]$windowPattern)) { $windowPattern.Close() }
+    # The PBIX is on disk and valid, so closing Desktop is cleanup. If it fails, Stop-Desktop below finishes the job.
+    $completed = $true
+
+    try
+    {
+        $windowPattern = $null
+        if ($mainWindow.TryGetCurrentPattern([System.Windows.Automation.WindowPattern]::Pattern, [ref]$windowPattern)) { $windowPattern.Close() }
+    }
+    catch { Write-Verbose "Could not close the Power BI Desktop window: $($_.Exception.Message)" }
 
     try
     {
@@ -1039,7 +1049,6 @@ try
 
     #endregion Close
 
-    $completed = $true
     Remove-Item $backupPath -Force -ErrorAction SilentlyContinue
 
     [PSCustomObject]@{
@@ -1060,9 +1069,11 @@ finally
 
     # Restore here rather than in catch so an interrupted run (Ctrl+C) is covered too, and only after
     # Desktop has closed so it no longer holds the file being replaced
-    if (-not $completed -and (Test-Path $backupPath -PathType Leaf))
+    if (-not $completed)
     {
+        # The existing PBIX was moved to the backup before this run started, so anything at the destination now
+        # is a partial file from this run
         Remove-Item $Destination -Force -ErrorAction SilentlyContinue
-        Move-Item $backupPath $Destination -Force
+        if (Test-Path $backupPath -PathType Leaf) { Move-Item $backupPath $Destination -Force }
     }
 }
