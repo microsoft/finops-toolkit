@@ -60,7 +60,7 @@
     Optional. Builds the templates before deploying. Default = false.
 
     .PARAMETER WhatIf
-    Optional. Validates the deployment without making changes. Default = false.
+    Optional. Shows the instance name, version, and current state, and what would be deployed, without changing anything. Default = false.
 
     .EXAMPLE
     ./Deploy-Demo
@@ -422,22 +422,23 @@ if ($WhatIfPreference) { return }
 
 # Managed exports create and run Cost Management exports as the hub's Data Factory identity, so it
 # needs access to every scope. Without it nothing is exported, whatever the deployment says.
-$factory = Get-AzResource -ResourceGroupName $ResourceGroup -ResourceType 'Microsoft.DataFactory/factories' | Select-Object -First 1
+$factory = Invoke-DemoRetry { Get-AzResource -ResourceGroupName $ResourceGroup -ResourceType 'Microsoft.DataFactory/factories' | Select-Object -First 1 }
 if (-not $factory) { throw "Could not find the Data Factory for $name after deploying." }
-$principalId = (Get-AzResource -ResourceId $factory.ResourceId).Identity.PrincipalId
+$principalId = Invoke-DemoRetry { (Get-AzResource -ResourceId $factory.ResourceId).Identity.PrincipalId }
 
 # A single scope is saved to settings.json as an object instead of a list, which export setup fails to read
-$storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroup -Name (Get-DemoState $name $ResourceGroup).Storage
+$storageName = (Invoke-DemoRetry { Get-DemoState $name $ResourceGroup }).Storage
+$storageAccount = Invoke-DemoRetry { Get-AzStorageAccount -ResourceGroupName $ResourceGroup -Name $storageName }
 $settingsFile = New-TemporaryFile -WhatIf:$false
 try
 {
-    Get-AzStorageBlobContent -Container 'config' -Blob 'settings.json' -Destination $settingsFile -Context $storageAccount.Context -Force | Out-Null
+    Invoke-DemoRetry { Get-AzStorageBlobContent -Container 'config' -Blob 'settings.json' -Destination $settingsFile -Context $storageAccount.Context -Force | Out-Null }
     $settings = Get-Content $settingsFile -Raw | ConvertFrom-Json
     if ($settings.scopes -and $settings.scopes -isnot [array] -and $PSCmdlet.ShouldProcess('settings.json', 'Save scopes as a list'))
     {
         $settings.scopes = @($settings.scopes)
         $settings | ConvertTo-Json -Depth 10 | Set-Content $settingsFile
-        Set-AzStorageBlobContent -Container 'config' -Blob 'settings.json' -File $settingsFile -Context $storageAccount.Context -Properties @{ ContentType = 'application/json' } -Force | Out-Null
+        Invoke-DemoRetry { Set-AzStorageBlobContent -Container 'config' -Blob 'settings.json' -File $settingsFile -Context $storageAccount.Context -Properties @{ ContentType = 'application/json' } -Force | Out-Null }
     }
 }
 finally { Remove-Item $settingsFile -Force -ErrorAction SilentlyContinue }
@@ -447,11 +448,12 @@ $granted = $false
 # Creating an export means granting the export access to the storage account, so the hub's identity needs to be
 # able to assign roles there. Released templates don't all grant it (v14 doesn't), so make sure it's in place.
 $canAssign = 'Role Based Access Control Administrator', 'User Access Administrator' | ForEach-Object {
-    Get-AzRoleAssignment -ObjectId $principalId -Scope $storageAccount.Id -RoleDefinitionName $_ -ErrorAction SilentlyContinue
+    $roleName = $_
+    Invoke-DemoRetry { Get-AzRoleAssignment -ObjectId $principalId -Scope $storageAccount.Id -RoleDefinitionName $roleName -ErrorAction Stop }
 } | Where-Object { $_ }
 if (-not $canAssign -and $PSCmdlet.ShouldProcess($storageAccount.StorageAccountName, "Grant Role Based Access Control Administrator to $($factory.Name)"))
 {
-    New-AzRoleAssignment -ObjectId $principalId -Scope $storageAccount.Id -RoleDefinitionName 'Role Based Access Control Administrator' -ObjectType ServicePrincipal | Out-Null
+    Invoke-DemoRetry { try { New-AzRoleAssignment -ObjectId $principalId -Scope $storageAccount.Id -RoleDefinitionName 'Role Based Access Control Administrator' -ObjectType ServicePrincipal | Out-Null } catch { if ($_.Exception.Message -notmatch 'already exists') { throw } } }
     $granted = $true
 }
 
@@ -463,12 +465,12 @@ foreach ($target in $Scope)
         continue
     }
 
-    $role = Get-AzRoleAssignment -ObjectId $principalId -Scope $target -RoleDefinitionName 'Cost Management Contributor' -ErrorAction SilentlyContinue
+    $role = Invoke-DemoRetry { Get-AzRoleAssignment -ObjectId $principalId -Scope $target -RoleDefinitionName 'Cost Management Contributor' -ErrorAction Stop }
     if ($role) { continue }
 
     if ($PSCmdlet.ShouldProcess($target, "Grant Cost Management Contributor to $($factory.Name)"))
     {
-        New-AzRoleAssignment -ObjectId $principalId -Scope $target -RoleDefinitionName 'Cost Management Contributor' -ObjectType ServicePrincipal | Out-Null
+        Invoke-DemoRetry { try { New-AzRoleAssignment -ObjectId $principalId -Scope $target -RoleDefinitionName 'Cost Management Contributor' -ObjectType ServicePrincipal | Out-Null } catch { if ($_.Exception.Message -notmatch 'already exists') { throw } } }
         $granted = $true
     }
 }

@@ -86,9 +86,15 @@ Describe 'Demo data source' {
     It 'Lists the <_> model Storage URL account in the ftk_DemoFilter allowlist' -ForEach @('storage', 'kql') {
         $path = Join-Path $PSScriptRoot "../../../power-bi/$_/Shared.Dataset/definition/expressions.tmdl"
         $text = Get-Content $path -Raw
-        $text | Should -Match "expression 'Storage URL' = ""https://(?<account>[a-z0-9]+)\.dfs\.core\.windows\.net"
-        $account = $Matches.account
-        # Without the account in the list, the demo reports query every subscription the viewer can read
-        $text | Should -Match ('"' + $account + '"')
+
+        # -match, not Should -Match: Should runs in Pester's scope, so $Matches would not be set here
+        $hasUrl = $text -match "expression 'Storage URL' = ""https://(?<account>[a-z0-9]+)\.dfs\.core\.windows\.net"
+        $hasUrl | Should -BeTrue -Because 'the model should have a Storage URL on the DFS endpoint'
+        $account = $Matches['account']
+
+        # Quoted on its own, the account only appears in the allowlist. Without it the demo reports
+        # query every subscription the viewer can read.
+        $inList = $text -match ('"' + [regex]::Escape($account) + '"')
+        $inList | Should -BeTrue -Because "$account should be in the ftk_DemoFilter storage account list"
     }
 }
