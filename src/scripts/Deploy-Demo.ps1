@@ -251,7 +251,7 @@ function Invoke-DemoPipeline([string] $FactoryId, [string] $Pipeline, [hashtable
 {
     $api = 'api-version=2018-06-01'
     $payload = if ($Parameters.Count) { $Parameters | ConvertTo-Json -Compress } else { '{}' }
-    $start = Invoke-AzRestMethod -Method POST -Path "$FactoryId/pipelines/$Pipeline/createRun?$api" -Payload $payload
+    $start = Invoke-DemoRetry { Invoke-AzRestMethod -Method POST -Path "$FactoryId/pipelines/$Pipeline/createRun?$api" -Payload $payload }
     if ($start.StatusCode -eq 404) { return 'missing' }
     if ($start.StatusCode -ne 200) { return "not started ($($start.StatusCode))" }
 
@@ -300,12 +300,17 @@ function Invoke-DemoRetry([scriptblock] $Action, [int] $Attempts = 20, [int] $De
         try { return & $Action }
         catch
         {
-            if ($attempt -ge $Attempts) { throw }
-            Write-Verbose "Attempt $attempt failed ($($_.Exception.Message -replace '\s+', ' ')). Trying again in $DelaySeconds seconds..."
+            $message = $_.Exception.Message -replace '\s+', ' '
+
+            # Waiting won't fix a permission or sign-in problem, so don't make it look like a hang
+            if ($attempt -ge $Attempts -or $message -match 'AuthorizationFailed|AuthenticationFailed|Forbidden|does not have authorization') { throw }
+
+            Write-Host "  ⏳ Azure call failed ($message). Trying again in $DelaySeconds seconds (attempt $attempt of $Attempts)..." -ForegroundColor Yellow
             Start-Sleep -Seconds $DelaySeconds
         }
     }
 }
+
 <#
     .SYNOPSIS
     Waits for every deployment in a resource group to finish, then fails if any of them failed since the given time.
@@ -449,7 +454,7 @@ $granted = $false
 # able to assign roles there. Released templates don't all grant it (v14 doesn't), so make sure it's in place.
 $canAssign = 'Role Based Access Control Administrator', 'User Access Administrator' | ForEach-Object {
     $roleName = $_
-    Invoke-DemoRetry { Get-AzRoleAssignment -ObjectId $principalId -Scope $storageAccount.Id -RoleDefinitionName $roleName -ErrorAction Stop }
+    Invoke-DemoRetry { Get-AzRoleAssignment -ObjectId $principalId -Scope $storageAccount.Id -RoleDefinitionName $roleName -ErrorAction Stop } | Where-Object { $storageAccount.Id -eq $_.Scope -or $storageAccount.Id -like "$($_.Scope)/*" }
 } | Where-Object { $_ }
 if (-not $canAssign -and $PSCmdlet.ShouldProcess($storageAccount.StorageAccountName, "Grant Role Based Access Control Administrator to $($factory.Name)"))
 {
@@ -465,7 +470,7 @@ foreach ($target in $Scope)
         continue
     }
 
-    $role = Invoke-DemoRetry { Get-AzRoleAssignment -ObjectId $principalId -Scope $target -RoleDefinitionName 'Cost Management Contributor' -ErrorAction Stop }
+    $role = Invoke-DemoRetry { Get-AzRoleAssignment -ObjectId $principalId -Scope $target -RoleDefinitionName 'Cost Management Contributor' -ErrorAction Stop } | Where-Object { $target -eq $_.Scope -or $target -like "$($_.Scope)/*" }
     if ($role) { continue }
 
     if ($PSCmdlet.ShouldProcess($target, "Grant Cost Management Contributor to $($factory.Name)"))
@@ -506,7 +511,7 @@ if (-not $WhatIfPreference)
 {
     $exports = foreach ($target in $Scope)
     {
-        ((Invoke-AzRestMethod -Method GET -Path "$target/providers/Microsoft.CostManagement/exports?api-version=2023-07-01-preview").Content | ConvertFrom-Json).value
+        ((Invoke-DemoRetry { Invoke-AzRestMethod -Method GET -Path "$target/providers/Microsoft.CostManagement/exports?api-version=2023-07-01-preview" }).Content | ConvertFrom-Json).value
     }
     # The current hub's name is the start of every versioned name (ftk-demo-v07-...), so those are excluded
     $exports = @($exports | Where-Object { $_.name -like "$name-*" -and ($isVersioned -or $_.name -notmatch "^$name-v\d") })
@@ -520,19 +525,19 @@ if (-not $WhatIfPreference)
 
 # The hub template leaves auto-stop off and resets it on every deployment, so it's turned on here.
 # Idle clusters stop on their own, which keeps unused instances from running up cost.
-$cluster = Get-AzKustoCluster -ResourceGroupName $ResourceGroup -ErrorAction SilentlyContinue | Select-Object -First 1
+$cluster = Invoke-DemoRetry { Get-AzKustoCluster -ResourceGroupName $ResourceGroup -ErrorAction Stop | Select-Object -First 1 }
 if (-not $cluster) { Write-Warning "No Data Explorer cluster found in $ResourceGroup, so auto-stop wasn't set." }
 elseif ($PSCmdlet.ShouldProcess($cluster.Name, 'Turn on auto-stop'))
 {
     $clusterPath = "$($cluster.Id)?api-version=2023-08-15"
-    $null = Invoke-AzRestMethod -Method PATCH -Path $clusterPath -Payload '{"properties":{"enableAutoStop":true}}'
+    $null = Invoke-DemoRetry { Invoke-AzRestMethod -Method PATCH -Path $clusterPath -Payload '{"properties":{"enableAutoStop":true}}' }
 
     # The change applies in the background, so wait for it before reporting a problem
     $deadline = (Get-Date).AddMinutes(3)
     do
     {
         Start-Sleep -Seconds 10
-        $autoStop = ((Invoke-AzRestMethod -Method GET -Path $clusterPath).Content | ConvertFrom-Json).properties.enableAutoStop
+        $autoStop = ((Invoke-DemoRetry { Invoke-AzRestMethod -Method GET -Path $clusterPath }).Content | ConvertFrom-Json).properties.enableAutoStop
     }
     while (-not $autoStop -and (Get-Date) -lt $deadline)
     if (-not $autoStop) { Write-Warning "Could not turn on auto-stop for $($cluster.Name). Turn it on in the portal under Configurations." }
@@ -561,6 +566,19 @@ else
     foreach ($target in $Scope)
     {
         $exportName = "$name-focus"
+
+        # No data yet doesn't always mean nothing was asked for: ingestion can take a while. If the history export
+        # already exists, rerunning would queue every month again, so wait for what's already on its way.
+        if (-not $PSBoundParameters.ContainsKey('Backfill'))
+        {
+            $existing = Invoke-DemoRetry { Invoke-AzRestMethod -Method GET -Path "$target/providers/Microsoft.CostManagement/exports/${exportName}?api-version=2023-07-01-preview" }
+            if ($existing.StatusCode -eq 200)
+            {
+                Write-Host "History for $target was already requested, so it isn't requested again. Waiting for it to be ingested."
+                continue
+            }
+        }
+
         Write-Host "Loading $backfillMonths month$(if ($backfillMonths -ne 1) { 's' }) of history for $target..."
 
         if ($PSCmdlet.ShouldProcess($target, "Create and run the $exportName export"))
@@ -580,9 +598,9 @@ else
             # The backfill runs are queued, so turn the export's schedule off. Left on, it would load last month
             # a second time every month, on top of the hub's own monthly export.
             $exportPath = "$target/providers/Microsoft.CostManagement/exports/${exportName}?api-version=2023-07-01-preview"
-            $export = (Invoke-AzRestMethod -Method GET -Path $exportPath).Content | ConvertFrom-Json
+            $export = (Invoke-DemoRetry { Invoke-AzRestMethod -Method GET -Path $exportPath }).Content | ConvertFrom-Json
             $export.properties.schedule.status = 'Inactive'
-            $update = Invoke-AzRestMethod -Method PUT -Path $exportPath -Payload (@{ eTag = $export.eTag; properties = $export.properties } | ConvertTo-Json -Depth 20)
+            $update = Invoke-DemoRetry { Invoke-AzRestMethod -Method PUT -Path $exportPath -Payload (@{ eTag = $export.eTag; properties = $export.properties } | ConvertTo-Json -Depth 20) }
             if ($update.StatusCode -ne 200) { Write-Warning "Could not turn off the schedule for $exportName ($($update.StatusCode)). Turn it off in Cost Management, or last month loads twice." }
         }
     }
