@@ -609,5 +609,18 @@ if (-not $WhatIfPreference)
     }
 }
 else { Write-Host "✅ $name validated" -ForegroundColor Green }
+# Demo reports are saved with the hub's storage URL, so they refresh from the wrong place if the hub is ever recreated
+if (-not $isVersioned -and -not $WhatIfPreference -and $state.Storage)
+{
+    $models = Get-ChildItem "$PSScriptRoot/../power-bi/*/Shared.Dataset/definition/expressions.tmdl" -ErrorAction SilentlyContinue
+    $expectedUrl = "https://$($state.Storage).dfs.core.windows.net/ingestion"
+    foreach ($model in $models)
+    {
+        if ((Get-Content $model -Raw) -notmatch [regex]::Escape("expression 'Storage URL' = `"$expectedUrl`""))
+        {
+            Write-Warning "$($model.FullName | Resolve-Path -Relative) doesn't use this hub's storage URL. Set 'Storage URL' to $expectedUrl (and 'Cluster URL' to $($state.Cluster.Name).$Location) so demo reports refresh from this hub."
+        }
+    }
+}
 
 #endregion Ready
