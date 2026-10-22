@@ -1,14 +1,14 @@
 ---
 layout: default
-title: FinOps multitool
-browser: FinOps multitool - Scan your Azure environment for FinOps insights
+title: FinOps Explorer
+browser: FinOps Explorer - Scan your Azure environment for FinOps insights
 nav_order: 52
-description: 'The FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights from an interactive terminal UI, with agent skills so AI assistants can run the same analysis.'
+description: 'FinOps Explorer scans an Azure environment for cost optimization, governance, and FinOps insights from an interactive terminal UI, with agent skills so AI assistants can run the same analysis.'
 permalink: /multitool
-#customer intent: As a FinOps practitioner, I need to learn about the FinOps multitool
+#customer intent: As a FinOps practitioner, I need to learn about FinOps Explorer
 ---
 
-<span class="fs-9 d-block mb-4">FinOps multitool</span>
+<span class="fs-9 d-block mb-4">FinOps Explorer</span>
 Scan your Azure environment for cost optimization, governance, and FinOps insights from an interactive terminal UI, with agent skills so AI assistants can run the same analysis.
 {: .fs-6 .fw-300 }
 
@@ -17,19 +17,19 @@ Scan your Azure environment for cost optimization, governance, and FinOps insigh
 
 ---
 
-The FinOps multitool scans an Azure environment for cost optimization, governance, and FinOps insights, grounded in your live resource state. It reports on cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance. Run it from an interactive terminal UI, or call it as tools from an AI agent.
+FinOps Explorer scans an Azure environment for cost optimization, governance, and FinOps insights, grounded in your live resource state. It reports on cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance. Run it from an interactive terminal UI, or call it as tools from an AI agent.
 
 <div id="whats-new" class="ftk-new">
     <h3>New in the FinOps toolkit<span class="ftk-version">v15</span></h3>
     <p>
-        The FinOps multitool is a new addition to the FinOps toolkit. It provides 30 read-only scan modules, with 26 in the terminal menu, plus agent skills for AI assistants and a FinOps hub Kusto data path for large environments.
+        FinOps Explorer is a new addition to the FinOps toolkit. It provides 30 read-only scan modules, with 26 in the terminal menu, plus agent skills for AI assistants and a FinOps hub Kusto data path for large environments.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 
 <a name="features"></a>
 
-## Explore the multitool
+## Explore the features
 
 <div class="ftk-gallery ftk-50">
     <div class="ftk-tile">
@@ -49,7 +49,7 @@ The FinOps multitool scans an Azure environment for cost optimization, governanc
     </div>
     <div class="ftk-tile">
         <div>🛡️ Read-only by design</div>
-        <div>Every scan reads your environment and reports what it finds. The multitool never creates, changes, or deletes a resource.</div>
+        <div>Every scan reads your environment and reports what it finds. FinOps Explorer never creates, changes, or deletes a resource.</div>
         <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/finops-multitool-commands">Learn more</a>
     </div>
 </div>
@@ -86,11 +86,11 @@ The FinOps multitool scans an Azure environment for cost optimization, governanc
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">3️⃣&nbsp; Launch the multitool</button>
+        <button class="ftk-accordion">3️⃣&nbsp; Launch FinOps Explorer</button>
         <div>You're now ready to scan. Run the command, then choose the subscriptions and modules to scan.</div>
         <div class="language-powershell highlighter-rouge">
             <div class="highlight">
-                <pre class="highlight"><code><span class="n">Start-FinOpsMultitool</span><span class="w">
+                <pre class="highlight"><code><span class="n">Start-FinOpsExplorer</span><span class="w">
 </span></code></pre>
             </div>
             <button type="button" aria-label="Copy code to clipboard"><svg viewBox="0 0 24 24" class="copy-icon"><use xlink:href="#svg-copy"></use></svg></button>
