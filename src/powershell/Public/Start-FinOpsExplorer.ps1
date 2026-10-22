@@ -32,7 +32,7 @@
 
     .PARAMETER OutputPath
     Optional local parent directory for reports. Each run creates a new timestamped
-    subfolder and never overwrites earlier reports. The default is FinOpsToolkit/Multitool/Reports
+    subfolder and never overwrites earlier reports. The default is FinOpsToolkit/Explorer/Reports
     under the current user's LocalApplicationData directory, usually LOCALAPPDATA on Windows.
     Git repositories, UNC paths, mapped Windows network drives, symbolic links, and
     junctions are rejected. Unix network mounts aren't detected; choose a local filesystem.
