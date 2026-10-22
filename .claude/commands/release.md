@@ -152,14 +152,20 @@ If it fails, show the error and ask whether to investigate or skip.
 
 Power BI packaging reports its own state and saves demo reports with Power BI Desktop, which only runs on Windows.
 
-Demo reports read open data from the `main` branch, so this step must run after the release is merged to main (`Merge-DevBranch.ps1 main`). If it hasn't been merged yet, tell the user to merge first and come back to this step, and don't run the packaging command.
+Demo reports read open data from the `main` branch, so this step must run after the release is merged to main. `/release` doesn't do that merge: the checklist merges to main after the Azure Quickstart Templates review, which can take days. Check whether it has happened:
+
+```bash
+git fetch origin main && git merge-base --is-ancestor HEAD origin/main && echo merged
+```
+
+If it prints "merged", continue. If not, skip the rest of this section: tell the user Power BI packaging comes after "Merge to main" in the checklist, leave `release:powerbi` unchecked, add "Package Power BI after the merge to main" to the manual steps below, and offer to run `/release` again once the merge is done.
 
 Before packaging, two things have to be done:
 
-1. The demo hub is on this release and has current data, because the demo reports are saved with its data. Run `pwsh -Command "./src/scripts/Deploy-Demo.ps1"`. It deploys or updates the hub and waits until data is ingested, which can take 15 to 45 minutes. Show its warnings verbatim.
+1. The demo hub is on this release and has current data, because the demo reports are saved with its data. Run `pwsh -Command "./src/scripts/Deploy-Demo.ps1"` in the background, because it takes 15 to 45 minutes, which is longer than a foreground command can run. It deploys or updates the hub and waits until data is ingested. It fails if the hub still isn't ready after 30 minutes; run it again to keep waiting. Show its warnings verbatim.
 2. Someone has signed in to Power BI Desktop on the Windows machine and refreshed one demo project from `release/pbix` by hand, once. That stores the data source credentials and makes the Public sensitivity label available, and the packaging command can't answer a credential prompt. Ask the user to confirm with "done".
 
-On Windows, tell the user not to use the mouse or keyboard until it finishes, then run:
+On Windows, tell the user not to use the mouse or keyboard until it finishes, then run it in the background, because it takes about an hour:
 
 ```bash
 pwsh -Command "./src/scripts/Package-PowerBI.ps1 -Unattended"
@@ -173,7 +179,7 @@ Relay its status output verbatim — it says exactly which step is next. If a re
 
 If validation fails, show the reported issues verbatim. Each one names the file and the fix; don't guess at causes.
 
-Do not proceed until all three files exist: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
+If this step ran, do not proceed until all three files exist: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
 
 ### Manual steps reminder
 

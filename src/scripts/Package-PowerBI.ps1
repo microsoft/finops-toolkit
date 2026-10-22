@@ -362,8 +362,10 @@ if ((-not $manifest -or $isStale) -and -not $Status -and -not $Build)
 
 if (-not $manifest)
 {
-    Write-Host '⏳ Power BI templates have not been built.'
-    Write-Host '     Run: ' -NoNewline
+    Write-Host '⏳ Nothing is built for this version yet.'
+    Write-Host '     On Windows, run: ' -NoNewline
+    Write-Host './Package-PowerBI -Unattended' -ForegroundColor Cyan -NoNewline
+    Write-Host ' (it builds first). To only build, run: ' -NoNewline
     Write-Host './Package-PowerBI -Build' -ForegroundColor Cyan
     return
 }

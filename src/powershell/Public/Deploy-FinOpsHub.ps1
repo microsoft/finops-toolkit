@@ -249,7 +249,7 @@ function Deploy-FinOpsHub
 
         # Create folder for download
         # Each deployment gets its own folder, so deployments running at the same time don't delete each other's files
-        $toolkitPath = Join-Path ([System.IO.Path]::GetTempPath()) -ChildPath "FinOpsToolkit-$([guid]::NewGuid().ToString('N'))"
+        $toolkitPath = Join-Path ([System.IO.Path]::GetTempPath()) -ChildPath "FinOpsToolkit-$([guid]::NewGuid().ToString('N').Substring(0, 8))"
         if (Test-ShouldProcess $PSCmdlet $toolkitPath 'CreateTempDirectory')
         {
             New-Directory -Path $toolkitPath

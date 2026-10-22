@@ -583,17 +583,28 @@ else
 
         if ($PSCmdlet.ShouldProcess($target, "Create and run the $exportName export"))
         {
-            New-FinOpsCostExport `
-                -Name $exportName `
-                -Scope $target `
-                -Dataset 'FocusCost' `
-                -Monthly `
-                -StorageAccountId $storageId `
-                -StorageContainer 'msexports' `
-                -Backfill $backfillMonths `
-                -Execute `
-                -ErrorAction Stop `
-            | Out-Null
+            try
+            {
+                New-FinOpsCostExport `
+                    -Name $exportName `
+                    -Scope $target `
+                    -Dataset 'FocusCost' `
+                    -Monthly `
+                    -StorageAccountId $storageId `
+                    -StorageContainer 'msexports' `
+                    -Backfill $backfillMonths `
+                    -Execute `
+                    -ErrorAction Stop `
+                | Out-Null
+            }
+            catch
+            {
+                # The export is created before its monthly runs are queued. If that fails, remove it, so the next
+                # run asks for the history again instead of skipping a half-requested one.
+                $failure = $_
+                $null = Invoke-DemoRetry { Invoke-AzRestMethod -Method DELETE -Path "$target/providers/Microsoft.CostManagement/exports/${exportName}?api-version=2023-07-01-preview" }
+                throw $failure
+            }
 
             # The backfill runs are queued, so turn the export's schedule off. Left on, it would load last month
             # a second time every month, on top of the hub's own monthly export.
@@ -633,7 +644,10 @@ if (-not $WhatIfPreference)
     }
     else
     {
-        Write-Warning "$name is deployed but isn't ready yet. It $($problems -join ' It ') Ingestion can take a while, so run ./Deploy-Demo$(if ($isVersioned) { " -Version $Version" }) again to keep waiting."
+        $notReady = "$name is deployed but isn't ready yet. It $($problems -join ' It ') Ingestion can take a while, so run ./Deploy-Demo$(if ($isVersioned) { " -Version $Version" }) again to keep waiting."
+
+        # Release steps gate on this command, so a hub that isn't ready fails it. -WaitMinutes 0 opts out of waiting.
+        if ($WaitMinutes -gt 0) { throw $notReady } else { Write-Warning $notReady }
     }
 }
 # Demo reports are saved with the hub's storage URL, so they refresh from the wrong place if the hub is ever recreated
