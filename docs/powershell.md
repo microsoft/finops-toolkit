@@ -43,7 +43,7 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
         <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/hubs/finops-hubs-commands">See commands</a>
     </div>
     <div class="ftk-tile">
-        <div>🛠️ FinOps multitool</div>
+        <div>🛠️ FinOps Explorer</div>
         <div>Scan your environment for cost, governance, and optimization insights.</div>
         <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/finops-multitool-commands">See commands</a>
     </div>

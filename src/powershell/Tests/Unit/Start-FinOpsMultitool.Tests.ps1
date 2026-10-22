@@ -95,6 +95,7 @@ InModuleScope 'FinOpsToolkit' {
             }
 
             It 'Rejects Windows PowerShell 5.1 before scanning through <Command>' -Skip:(-not $IsWindows) -ForEach @(
+                @{ Command = 'Start-FinOpsExplorer'; Script = '../../Public/Start-FinOpsExplorer.ps1' }
                 @{ Command = 'Start-FinOpsMultitool'; Script = '../../Public/Start-FinOpsMultitool.ps1' }
                 @{ Command = 'Invoke-FinOpsMultitool'; Script = '../../Private/FinOpsMultitool/Invoke-FinOpsMultitool.ps1' }
             ) {
