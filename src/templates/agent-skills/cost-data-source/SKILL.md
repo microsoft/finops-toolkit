@@ -1,8 +1,8 @@
 ---
 name: cost-data-source
-description: This skill should be used before any spend question that would call the FinOps multitool cost tools — "what's my cost", "current spend", "top resources by cost", "cost by tag", "this month's bill", "where is the money going", or any "cost scan". It decides whether to read from a FinOps Hub (its Kusto database or storage export) or the live Cost Management API, warns the user before a slow API scan, and supports chunking large tenants for incremental progress. Use it to keep cost scans fast and the session engaging instead of blocking on long API runs.
+description: This skill should be used before any spend question that would run a FinOps Explorer cost scan — "what's my cost", "current spend", "top resources by cost", "cost by tag", "this month's bill", "where is the money going", or any "cost scan". It decides whether to read from a FinOps Hub (its Kusto database or storage export) or the live Cost Management API, warns the user before a slow API scan, and supports chunking large tenants for incremental progress. Use it to keep cost scans fast and the session engaging instead of blocking on long API runs.
 license: MIT
-compatibility: Requires the finops-multitool skill and an authenticated Azure session (Connect-AzAccount). The hub Kusto path needs read access to the FinOps Hub Azure Data Explorer / Fabric cluster (or a reachable ftklocal emulator); the storage-reader fallback needs Storage Blob Data Reader on the hub storage account. The cost tools this skill routes are read-only.
+compatibility: Requires the finops-explorer skill and an authenticated Azure session (Connect-AzAccount). The hub Kusto path needs read access to the FinOps Hub Azure Data Explorer / Fabric cluster (or a reachable ftklocal emulator); the storage-reader fallback needs Storage Blob Data Reader on the hub storage account. The cost scans this skill routes are read-only.
 metadata:
   author: microsoft
   version: '1.2'
@@ -68,7 +68,7 @@ Treat any live-API cost scan across many subscriptions as something to confirm f
 When the live API path is the only option and the scope is large, chunk it so progress is visible:
 
 1. Split the subscription list into batches.
-2. Run each batch separately: direct Cost Management queries scoped to the batch, or `Start-FinOpsMultitool -SubscriptionId <id> -DataSource API` for one subscription at a time.
+2. Run each batch separately: direct Cost Management queries scoped to the batch, or `Start-FinOpsExplorer -SubscriptionId <id> -DataSource API` for one subscription at a time.
 3. After each batch, report progress and separate running totals for each currency and reporting period. Don't combine incompatible amounts or treat failed batches as zero spend.
 
 The detection step needs to run only once per scope; reuse its decision across the batches.

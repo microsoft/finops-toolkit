@@ -2,11 +2,10 @@
 name: azure-workbooks-finops
 description: Use when the user wants to deploy, interpret, or customize the FinOps toolkit Azure Monitor workbooks (Governance and Optimization), build a workbook from cost/resource data, or troubleshoot a workbook that shows no data. For Azure Monitor workbooks specifically — not Power BI.
 license: MIT
-compatibility: Requires Azure access with Reader (to view) or Workbook Contributor (to save) and, for some tiles, Azure Resource Graph and Cost Management read access. Pairs with the finops-multitool skill.
+compatibility: Requires Azure access with Reader (to view) or Workbook Contributor (to save) and, for some tiles, Azure Resource Graph and Cost Management read access. Pairs with the finops-explorer skill.
 metadata:
   author: microsoft
   version: "1.0"
-allowed-tools: az pwsh
 ---
 
 # Azure Monitor workbooks for FinOps
@@ -15,7 +14,7 @@ The FinOps toolkit ships Azure Monitor workbooks that surface governance and opt
 
 ## When to use this skill
 
-Use it when the user mentions Azure Monitor workbooks, the Governance or Optimization workbook, in-portal cost/waste views, or wants a workbook (not Power BI). For an external dashboard use `power-bi-finops`; for headless data use the `finops-multitool` scans.
+Use it when the user mentions Azure Monitor workbooks, the Governance or Optimization workbook, in-portal cost/waste views, or wants a workbook (not Power BI). For an external dashboard use `power-bi-finops`; for headless data use the `finops-explorer` scans.
 
 ## The two toolkit workbooks
 
@@ -43,7 +42,7 @@ Deploy via the toolkit's workbook template (ARM/Bicep) into a resource group, th
 ## Customizing
 
 - Workbook tiles are Resource Graph (KQL-for-ARG) or Azure Monitor queries — edit the query behind a tile to change what it shows.
-- ARG query language overlaps with the orphan patterns in the `finops-multitool` waste-detection reference — reuse those queries for new waste tiles.
+- ARG query language overlaps with the orphan patterns in the `finops-explorer` waste-detection reference — reuse those queries for new waste tiles.
 - Add a parameter for tag key/value to make governance tiles allocation-aware (ties into the `cost-allocation` skill).
 - Save customized workbooks as a new shared workbook so toolkit upgrades don't overwrite them.
 
@@ -54,6 +53,6 @@ Deploy via the toolkit's workbook template (ARM/Bicep) into a resource group, th
 
 ## Hand-offs
 
-- Same findings as data/JSON → `finops-multitool` scans.
+- Same findings as data/JSON → `finops-explorer` scans.
 - Richer/historical visuals → `power-bi-finops`.
 - Enforce what the Governance workbook flags → `azure-policy-governance`.
