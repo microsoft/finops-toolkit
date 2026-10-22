@@ -1729,7 +1729,7 @@ function Invoke-FinOpsMultitool {
         if ([string]::IsNullOrWhiteSpace($localData)) {
             throw 'Local application data is unavailable. Specify a local OutputPath outside any Git repository.'
         }
-        return (Join-Path $localData 'FinOpsToolkit/Multitool/Reports')
+        return (Join-Path $localData 'FinOpsToolkit/Explorer/Reports')
     }
 
     function Assert-FinOpsReportPath {

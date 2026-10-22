@@ -1348,7 +1348,7 @@ console.log('Credit, numeric, and unavailable sorting passed');
         It 'Uses per-user local application data rather than the working directory' {
             $base = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData, [Environment+SpecialFolderOption]::DoNotVerify)
 
-            Get-FinOpsReportRoot | Should -Be (Join-Path $base 'FinOpsToolkit/Multitool/Reports')
+            Get-FinOpsReportRoot | Should -Be (Join-Path $base 'FinOpsToolkit/Explorer/Reports')
         }
 
         It 'Creates the default reports folder for a fresh Linux application-data path' -Skip:(-not $IsLinux) {
@@ -1373,7 +1373,7 @@ console.log('Credit, numeric, and unavailable sorting passed');
                 $process.WaitForExit()
                 $process.ExitCode | Should -Be 0 -Because $standardError.GetAwaiter().GetResult()
                 $run = $standardOutput.GetAwaiter().GetResult().Trim()
-                Split-Path $run -Parent | Should -Be (Join-Path $applicationData 'FinOpsToolkit/Multitool/Reports')
+                Split-Path $run -Parent | Should -Be (Join-Path $applicationData 'FinOpsToolkit/Explorer/Reports')
                 Test-Path -LiteralPath (Join-Path $run '.gitignore') | Should -BeTrue
             }
             finally { $process.Dispose() }
