@@ -3,7 +3,7 @@ title: FOCUS conformance report
 description: Comprehensive analysis of the Microsoft Cost Management FOCUS dataset's adherence to FOCUS requirements.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 07/15/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -12,7 +12,7 @@ ms.reviewer: micflan
 
 # FOCUS conformance full report
 
-This document provides a detailed list of all FOCUS 1.2 requirements and indicates the level of support provided by the Microsoft Cost Management FOCUS 1.2-preview dataset. To learn more about FOCUS, refer to the [FOCUS overview](./what-is-focus.md).
+This document provides a detailed list of all FOCUS 1.4 requirements and indicates the level of support provided by the Microsoft Cost Management FOCUS dataset. Requirements that were added or revised in FOCUS 1.3 and 1.4 are marked as "Not Evaluated" until they're formally assessed. To learn more about FOCUS, refer to the [FOCUS overview](./what-is-focus.md).
 
 <br>
 
@@ -25,1152 +25,2610 @@ FOCUS requirements fall into four groups:
 - **RECOMMENDED** requirements are suggested best practices.
 - **MAY** requirements are optional and used to prepare FinOps practitioners for edge cases.
 
-While there's no official measurement for FOCUS conformance, we calculate a conformance score of **94%**, which accounts for all fully supported and half of the partially supported requirements. The following table summarizes requirements by level of support.
+While there's no official measurement for FOCUS conformance, we calculate a conformance score of **96%**, which accounts for all fully supported and half of the partially supported requirements. Requirements marked as not applicable or not evaluated aren't included in the score. The following table summarizes requirements by level of support.
 
-| Type            | Supported | Partial support | Not supported | Not applicable |
-| :-------------- | :-------: | :-------------: | :-----------: | :------------: |
-| **MUST**        |    325    |       16        |       8       |       69       |
-| **SHOULD**      |    28     |        5        |       1       |       11       |
-| **RECOMMENDED** |     3     |                 |       4       |                |
-| **MAY**         |    24     |                 |               |       12       |
-| Summary         |   91.7%   |      5.1%       |     3.1%      |                |
+| Type            | Supported | Partial support | Not supported | Not applicable | Not evaluated |
+| :-------------- | :-------: | :-------------: | :-----------: | :------------: | :-----------: |
+| **MUST**        |    168    |       10        |       1       |       59       |      909      |
+| **SHOULD**      |     9     |        2        |       1       |       10       |      73       |
+| **MAY**         |    10     |                 |               |       7        |      39       |
+| Summary         |   93.0%   |      6.0%       |     1.0%      |                |               |
 
 <br>
 
 ## How this document is organized
 
-The following sections list each FOCUS requirement, the level of support in the Microsoft Cost Management FOCUS 1.2-preview dataset, and any relevant notes. For a high-level summary of the gaps, refer to the [FOCUS conformance summary](./conformance-summary.md). Requirement IDs are for reference purposes only. IDs aren't defined as part of FOCUS.
+The following sections list each FOCUS requirement, the level of support in the Microsoft Cost Management FOCUS dataset, and any relevant notes. For a high-level summary of the gaps, refer to the [FOCUS conformance summary](./conformance-summary.md). Requirement IDs are for reference purposes only. IDs aren't defined as part of FOCUS.
 
-The rest of this document lists the FOCUS requirements grouped by attribute and column. [Columns](#columns) define the specific data elements in the dataset and [attributes](#attributes) define how columns and rows should behave. High-level descriptions and a link to the original requirements document are included at the top of each section.
+The rest of this document lists the FOCUS requirements grouped by attribute, dataset, and column. [Datasets](#datasets) define the collections of data elements a provider publishes, [columns](#columns) define the specific data elements in each dataset, and [attributes](#attributes) define how columns and rows should behave. High-level descriptions and a link to the original requirements document are included at the top of each section.
 
 <br>
 
 ## Attributes
 
-### Column handling
+### Correction handling
 
-Naming and ordering convention for columns appearing in a FOCUS dataset.
+Defines how corrections to previously delivered FOCUS dataset artifacts are represented in subsequent deliveries.
 
-Source: [attributes/column_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/attributes/column_handling.md)
+Source: [attributes/correction_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/attributes/correction_handling.md)
 
-| ID      | Type   | Criteria                                                                                                                                                                                  | Status             | Notes                                                                                                      |
-| ------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------- |
-| CH1     | MUST   | All columns defined in the FOCUS specification MUST follow the naming and ordering requirements listed below.                                                                             | Supports           |                                                                                                            |
-| CH2     | MUST   | All columns defined by FOCUS MUST follow the following rules:                                                                                                                             | Supports           |                                                                                                            |
-| CH2.1   | MUST   | Column IDs MUST use Pascal case.                                                                                                                                                          | Supports           |                                                                                                            |
-| CH2.2   | MUST   | Column IDs MUST NOT use abbreviations.                                                                                                                                                    | Supports           |                                                                                                            |
-| CH2.3   | MUST   | Column IDs MUST be alphanumeric with no special characters.                                                                                                                               | Supports           |                                                                                                            |
-| CH2.4   | SHOULD | Column IDs SHOULD NOT use acronyms.                                                                                                                                                       | Supports           |                                                                                                            |
-| CH2.5   | SHOULD | Column IDs SHOULD NOT exceed 50 characters to accommodate column length restrictions of various data repositories.                                                                        | Supports           |                                                                                                            |
-| CH2.6   | MUST   | Columns that have an ID and a Name MUST have the `Id` or `Name` suffix in the Column ID.                                                                                                  | Supports           |                                                                                                            |
-| CH2.7   | MAY    | Column display names MAY avoid the `Name` suffix if there are no other columns with the same name prefix.                                                                                 | Supports           | We don't recommend this practice as it introduces confusion when column IDs and display names don't match. |
-| CH2.8   | MUST   | Columns with the `Category` suffix MUST be normalized.                                                                                                                                    | Supports           |                                                                                                            |
-| CH3.1   | MUST   | Custom (e.g., provider-defined) columns that are not defined by FOCUS but included in a FOCUS dataset MUST follow the following rules:                                                    | Supports           |                                                                                                            |
-| CH3.1.1 | MUST   | Custom columns MUST be prefixed with a consistent `x_` prefix to identify them as external, custom columns and distinguish them from FOCUS columns to avoid conflicts in future releases. | Supports           |                                                                                                            |
-| CH3.1.2 | SHOULD | Custom columns SHOULD follow the same rules listed above for FOCUS columns.                                                                                                               | Partially Supports | `x_SkuMeterCategory` and `x_SkuMeterSubcategory` aren't normalized.                                       |
-| CH1.3   | SHOULD | All FOCUS columns SHOULD be first in the provided dataset.                                                                                                                                | Supports           |                                                                                                            |
-| CH1.4.1 | SHOULD | Custom columns SHOULD be listed after all FOCUS columns...                                                                                                                                | Supports           |                                                                                                            |
-| CH1.4.2 | SHOULD | ...\[Custom columns and FOCUS columns] SHOULD NOT be intermixed.                                                                                                                          | Supports           |                                                                                                            |
-| CH1.5.1 | MAY    | Columns MAY be sorted alphabetically...                                                                                                                                                   | Supports           | Columns are sorted alphabetically for ease of use.                                                         |
-| CH1.5.2 | SHOULD | ...custom columns SHOULD be after all FOCUS columns.                                                                                                                                      | Supports           | Columns are sorted alphabetically for ease of use.                                                         |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CH1 | MUST | Dataset conforming to CorrectionHandling attribute MUST adhere to the following requirements: | Not Evaluated |  |
+| CH1.1 | MUST | FOCUS dataset MUST have its styles for representing corrections in dataset artifacts documented and accessible to practitioners (including whether Replacement, Delta, or Ledger style is used and under which conditions each style applies). | Not Evaluated |  |
+| CH1.2 | MUST | FOCUS dataset MUST represent a complete snapshot of data for the affected delivery scope when using Replacement correction style. | Not Evaluated |  |
+| CH1.3 | MUST | FOCUS dataset MUST include additive records representing corrections within the same delivery scope when using Delta correction style. | Not Evaluated |  |
+| CH1.4 | MUST | FOCUS dataset MUST include explicit reversal and re-entry additive records representing corrections within the same delivery scope when using Ledger correction style. | Not Evaluated |  |
 
 ### Currency format
 
 Formatting for currency columns appearing in a FOCUS dataset.
 
-Source: [attributes/currency_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/attributes/currency_format.md)
+Source: [attributes/currency_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/attributes/currency_format.md)
 
-| ID     | Type   | Criteria                                                                                                                                                                                              | Status         | Notes |
-| ------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ----- |
-| CuF1   | MUST   | All columns capturing a currency value, defined in the FOCUS specification, MUST follow the requirements listed below.                                                                                | Supports       |       |
-| CuF2   | SHOULD | Custom currency-related columns SHOULD also follow the same formatting requirements.                                                                                                                  | Supports       |       |
-| CuF2.1 | MUST   | Currency-related columns MUST be represented as a three-letter alphabetic code as dictated in the governing document ISO 4217:2015 when the value is presented in national currency (e.g., USD, EUR). | Supports       |       |
-| CuF2.2 | MUST   | Currency-related columns MUST conform to StringHandling requirements when the value is presented in virtual currency (e.g., credits, tokens).                                                         | Not Applicable |       |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CF1 | MUST | Column conforming to CurrencyFormat attribute MUST adhere to the following requirements: | Not Evaluated |  |
+| CF1.1 | MUST | FOCUS dataset column MUST conform to ISO 4217:2015 standard. | Not Evaluated |  |
+| CF1.2 | MUST | FOCUS dataset column MUST use the three-letter alphabetic code defined in ISO 4217:2015 (e.g., USD, EUR). | Not Evaluated |  |
 
-### Date/time format
+### Custom column handling
+
+Column ID naming, formatting, and value requirements for custom columns appearing in a FOCUS dataset.
+
+Source: [attributes/custom_column_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/attributes/custom_column_handling.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CCH1 | MUST | Column conforming to CustomColumnHandling attribute MUST adhere to the following requirements: | Not Evaluated |  |
+| CCH1.1 | MUST | Custom column MUST adhere to the following Column ID naming requirements: | Not Evaluated |  |
+| CCH1.1.1 | MUST | Custom column MUST include the `x_` prefix in the Column ID to identify it as an external custom column and to distinguish it from FOCUS columns to avoid conflicts in future releases. | Not Evaluated |  |
+| CCH1.1.2 | SHOULD | Custom column SHOULD use Pascal case in the portion of the Column ID following the required `x_` prefix. | Not Evaluated |  |
+| CCH1.1.3 | SHOULD | Custom column SHOULD use only alphanumeric characters in the portion of the Column ID following the required `x_` prefix. | Not Evaluated |  |
+| CCH1.1.4 | SHOULD | Custom column SHOULD NOT include special characters other than the underscore in the required `x_` prefix. | Not Evaluated |  |
+| CCH1.1.5 | SHOULD | Custom column SHOULD NOT use abbreviations other than `Id` in the Column ID. | Not Evaluated |  |
+| CCH1.1.6 | SHOULD | Custom column SHOULD NOT use acronyms other than `Sku` in the Column ID. | Not Evaluated |  |
+| CCH1.1.7 | SHOULD | Custom column SHOULD NOT exceed 50 characters in the Column ID to accommodate column length restrictions of various data repositories. | Not Evaluated |  |
+| CCH1.1.8 | SHOULD | Custom column SHOULD include the `Id` suffix in the Column ID when the custom column represents an identifier. | Not Evaluated |  |
+| CCH1.1.9 | SHOULD | Custom column SHOULD include the `Name` suffix in the Column ID when the custom column represents a name. | Not Evaluated |  |
+| CCH1.2 | SHOULD | Custom column SHOULD conform to DataGeneratorCalculatedSplitCostAllocationHandling requirements when the data generator supports data generator-calculated split cost allocation. | Not Evaluated |  |
+| CCH1.3 | SHOULD | Custom column SHOULD conform to NullHandling requirements. | Not Evaluated |  |
+| CCH1.4 | SHOULD | Custom column containing date/time values SHOULD conform to DateTimeFormat requirements. | Not Evaluated |  |
+| CCH1.5 | MUST | Custom column containing JSON objects MUST have its object schema documented by the data generator and accessible to practitioners. | Not Evaluated |  |
+| CCH1.6 | MUST | Custom column containing numeric values MUST contain a single numeric value. | Not Evaluated |  |
+| CCH1.7 | SHOULD | Custom column containing numeric values SHOULD conform to NumericFormat requirements. | Not Evaluated |  |
+| CCH1.8 | SHOULD | Custom column containing string values SHOULD conform to StringHandling requirements. | Not Evaluated |  |
+| CCH1.9 | SHOULD | Custom column representing a national currency SHOULD conform to CurrencyFormat requirements. | Not Evaluated |  |
+| CCH1.10 | SHOULD | Custom column representing a measurement unit SHOULD conform to UnitFormat requirements. | Not Evaluated |  |
+
+### Data generator-calculated split cost allocation handling
+
+An attribute that allows data generators to offer more detailed cost and usage information based on a method defined and documented by the data generator, including support for allocating costs in cases where the usage of a resource might not match the units the resource is measured in.
+
+Source: [attributes/data_generator_calculated_split_cost_allocation_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/attributes/data_generator_calculated_split_cost_allocation_handling.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| DGCSCAH1 | MUST | Column conforming to DataGeneratorCalculatedSplitCostAllocationHandling attribute MUST adhere to the following requirements: | Not Evaluated |  |
+| DGCSCAH1.1 | MUST | FOCUS dataset column representing a dimension MUST match the corresponding value in the origin charge when present in an allocated charge. | Not Evaluated |  |
+| DGCSCAH1.2 | MUST | FOCUS dataset column representing a non-summable metric (e.g., unit prices) MUST match the corresponding value in the origin charge when present in an allocated charge. | Not Evaluated |  |
+| DGCSCAH1.1 | MUST | The sum of FOCUS dataset column across allocated charges MUST match the FOCUS dataset column in the corresponding origin charge when the FOCUS dataset column represents a summable metric (e.g., costs and quantities). | Not Evaluated |  |
+
+### Dataset completeness
+
+Defines requirements for a FOCUS dataset to include custom columns for native dataset columns not represented in FOCUS columns.
+
+Source: [attributes/dataset_completeness.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/attributes/dataset_completeness.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| DC1 | MUST | Dataset conforming to DatasetCompleteness attribute MUST adhere to the following requirements: | Not Evaluated |  |
+| DC1.1 | MUST | FOCUS dataset MUST adhere to the following custom column presence requirements: | Not Evaluated |  |
+| DC1.1.1 | MUST | FOCUS dataset MUST include custom columns (e.g., `x_ChargeSubType`) needed to support invoice reconciliation when the invoice issuer supports payable invoices, and when FOCUS columns are not sufficient. | Not Evaluated |  |
+| DC1.1.2 | MUST | FOCUS dataset MUST include custom columns corresponding to native dataset columns, except those explicitly listed as exclusions with justification in publicly-available documentation, provided those excluded columns are unrelated to invoice reconciliation. | Not Evaluated |  |
+| DC1.1.3 | MUST | FOCUS dataset MUST have all included custom columns documented in publicly-available documentation, including description, purpose, and relationship to native dataset columns. | Not Evaluated |  |
+| DC1.1.4 | SHOULD | FOCUS dataset SHOULD include custom columns that enable correlation between FOCUS dataset records and native dataset records (e.g., native charge identifiers), even when they meet the criteria for exclusion. | Not Evaluated |  |
+| DC1.1.5 | SHOULD | FOCUS dataset SHOULD exclude custom columns that duplicate information already captured in FOCUS columns, except during a transitional period as defined in publicly-available documentation, to enable migration without breaking changes. | Not Evaluated |  |
+| DC1.2 | MUST | FOCUS dataset MUST retain the fidelity of corresponding native dataset values within custom columns without lossy transformations (e.g., rounding or truncation). | Not Evaluated |  |
+| DC1.3 | MUST | FOCUS dataset MUST NOT alter the aggregated values of summable metrics (e.g., costs and quantities) due to the inclusion of custom columns. | Not Evaluated |  |
+| DC1.4 | SHOULD | FOCUS dataset SHOULD sort all FOCUS columns alphabetically first, then all custom columns alphabetically second. | Not Evaluated |  |
+
+### Dataset configuration
+
+Defines configuration options for controlling the structure and content of a FOCUS dataset.
+
+Source: [attributes/dataset_configuration.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/attributes/dataset_configuration.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| DaC1 | MUST | Dataset conforming to DatasetConfiguration attribute MUST adhere to the following requirements: | Not Evaluated |  |
+| DaC1.1 | MUST | FOCUS dataset MUST be configurable to include only a user-defined selection of columns. | Not Evaluated |  |
+| DaC1.2 | MUST | FOCUS dataset MUST adhere to all column-level specifications defined in the FOCUS schema, regardless of the user's chosen configuration (e.g., column selection). | Not Evaluated |  |
+| DaC1.3 | MAY | FOCUS dataset MAY offer a default column set. | Not Evaluated |  |
+| DaC1.4 | MUST | FOCUS dataset default column set MUST include all applicable FOCUS columns when a default column set is offered. | Not Evaluated |  |
+
+### Date/Time format
 
 Rules and formatting requirements for date/time-related columns appearing in a FOCUS dataset.
 
-Source: [attributes/datetime_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/attributes/datetime_format.md)
+Source: [attributes/datetime_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/attributes/datetime_format.md)
 
-| ID   | Type   | Criteria                                                                                                                                                                                                                                                                                                                                                                                                 | Status   | Notes |
-| ---- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| DTF1 | MUST   | All columns capturing a date/time value, defined in the FOCUS specification, MUST follow the formatting requirements listed below.                                                                                                                                                                                                                                                                       | Supports |       |
-| DTF2 | SHOULD | Custom date/time-related columns SHOULD also follow the same formatting requirements.                                                                                                                                                                                                                                                                                                                    | Supports |       |
-| DTF3 | MUST   | Date/time values MUST be in UTC (Coordinated Universal Time) to avoid ambiguity and ensure consistency across different time zones.                                                                                                                                                                                                                                                                      | Supports |       |
-| DTF4 | MUST   | Date/time values format MUST be aligned with ISO 8601 standard, which provides a globally recognized format for representing dates and times (see ISO 8601-1:2019 governing document for details).                                                                                                                                                                                                       | Supports |       |
-| DTF5 | MUST   | Values providing information about a specific moment in time MUST be represented in the extended ISO 8601 format with UTC offset ('YYYY-MM-DDTHH:mm:ssZ') and conform to the following guidelines: Include the date and time components, separated with the letter 'T'; Use two-digit hours (HH), minutes (mm), and seconds (ss); End with the 'Z' indicator to denote UTC (Coordinated Universal Time). | Supports |       |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| DTF1 | MUST | Column conforming to DateTimeFormat attribute MUST adhere to the following requirements: | Not Evaluated |  |
+| DTF1.1 | MUST | FOCUS dataset column MUST be expressed in UTC (Coordinated Universal Time) to avoid ambiguity and ensure consistency across different time zones. | Not Evaluated |  |
+| DTF1.2 | MUST | FOCUS dataset column MUST conform to the ISO 8601 standard, which provides a globally recognized format for representing dates and times (see ISO 8601-1:2019 governing document for details). | Not Evaluated |  |
+| DTF1.1 | MUST | When FOCUS dataset column represents a specific moment in time, it MUST adhere to the following requirements: | Not Evaluated |  |
+| DTF1.1.1 | MUST | FOCUS dataset column MUST use the extended ISO 8601 format with UTC offset (`YYYY-MM-DDTHH:mm:ssZ`). | Not Evaluated |  |
+| DTF1.1.2 | MUST | FOCUS dataset column MUST include both the date and time components, separated with the letter `T`. | Not Evaluated |  |
+| DTF1.1.3 | MUST | FOCUS dataset column MUST use two-digit hours (`HH`), minutes (`mm`), and seconds (`ss`). | Not Evaluated |  |
+| DTF1.1.4 | MUST | FOCUS dataset column MUST end with the ISO 8601 UTC designator `Z`. | Not Evaluated |  |
 
-### Discount handling
+### Delivery handling
 
-Indicates how to include and apply discounts to usage charges or rows in a FOCUS dataset.
+Defines how a data generator delivers a FOCUS dataset to a customer.
 
-Source: [attributes/discount_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/attributes/discount_handling.md)
+Source: [attributes/delivery_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/attributes/delivery_handling.md)
 
-| ID      | Type   | Criteria                                                                                                                                                                                                                                     | Status             | Notes                                                                                                                                                                                                                                                                            |
-| ------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| DH1     | MUST   | All rows defined in FOCUS MUST follow the discount handling requirements listed below.                                                                                                                                                       | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH2.1   | SHOULD | All applicable discounts SHOULD be applied to each row they pertain to...                                                                                                                                                                    | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH2.2   | SHOULD | All applicable discounts... SHOULD NOT be negated in a separate row.                                                                                                                                                                         | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH3     | MUST   | All discounts applied to a row MUST apply to the entire charge.                                                                                                                                                                              | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH3.1.1 | MAY    | Multiple discounts MAY apply to a row...                                                                                                                                                                                                     | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH3.1.2 | MUST   | Multiple discounts... \[on a row] MUST apply to the entire charge covered by that row.                                                                                                                                                       | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH3.2   | MUST   | If a discount only applies to a portion of a charge, then the discounted portion of the charge MUST be split into a separate row.                                                                                                            | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH3.3   | MUST   | Each discount MUST be identifiable using existing FOCUS columns.                                                                                                                                                                             | Supports           | `CommitmentDiscountId` is the only FOCUS column that identifies discounts.                                                                                                                                                                                                       |
-| DH3.3.1 | MUST   | Rows with a commitment discount applied to them MUST include a CommitmentDiscountId.                                                                                                                                                         | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH3.3.2 | SHOULD | If a provider applies a discount that cannot be represented by a FOCUS column, they SHOULD include additional columns to identify the source of the discount.                                                                                | Partially Supports | Negotiated discounts can be identified by comparing `ListCost` and `ContractedCost`.                                                                                                                                                                                             |
-| DH4     | MUST   | Purchased discounts (e.g., commitment discounts) MUST be amortized.                                                                                                                                                                          | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH4.1   | MUST   | The BilledCost MUST be 0 for any row where the commitment covers the entire cost for the charge period.                                                                                                                                      | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH4.2   | MUST   | The EffectiveCost MUST include the portion of the amortized purchase cost that applies to this row.                                                                                                                                          | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH4.3   | MUST   | The sum of the EffectiveCost for all rows where CommitmentDiscountStatus is "Used" or "Unused" for each CommitmentDiscountId over the entire duration of the commitment MUST be the same as the total BilledCost of the commitment discount. | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH4.4.1 | MUST   | The CommitmentDiscountId and ResourceId MUST be set to the ID assigned to the commitment discount.                                                                                                                                           | Supports           | To facilitate splitting commitment discounts, commitment discount purchases and refunds use the commitment discount order while commitment discount usage uses the instance within the order. Use `x_SkuOrderId` to identify the commitment discount order ID for usage charges. |
-| DH4.4.2 | MUST   | ChargeCategory MUST be set to "Purchase" on rows that represent a purchase of a commitment discount.                                                                                                                                         | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH4.5.1 | MUST   | CommitmentDiscountStatus MUST be "Used" for ChargeCategory "Usage" rows that received a reduced price from a commitment.                                                                                                                     | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH4.5.2 | MUST   | CommitmentDiscountId MUST be set to the ID assigned to the discount.                                                                                                                                                                         | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH4.5.3 | MUST   | ResourceId MUST be set to the ID of the resource that received the discount.                                                                                                                                                                 | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH4.6.1 | MUST   | If a commitment is not fully utilized, the provider MUST include a row that represents the unused portion of the commitment for that charge period.                                                                                          | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH4.6.2 | MUST   | These rows MUST be represented with CommitmentDiscountStatus set to "Unused" and ChargeCategory set to "Usage".                                                                                                                              | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH4.6.3 | MUST   | Such rows MUST have their CommitmentDiscountId and ResourceId set to the ID assigned to the commitment discount.                                                                                                                             | Supports           |                                                                                                                                                                                                                                                                                  |
-| DH5     | MUST   | Credits that are applied after the fact MUST use a ChargeCategory of "Credit".                                                                                                                                                               | Not Applicable     | Credits aren't included in any Cost Management cost and usage dataset.                                                                                                                                                                                                           |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| DH1 | MUST | Dataset conforming to DeliveryHandling attribute MUST adhere to the following requirements: | Not Evaluated |  |
+| DH1.1 | MUST | FOCUS dataset MUST NOT require practitioners to deduplicate records within or across delivered dataset artifacts. | Not Evaluated |  |
+| DH1.1 | MUST | When using Overwrite delivery mechanism, FOCUS dataset MUST adhere to the following additional requirements: | Not Evaluated |  |
+| DH1.1.1 | MUST | FOCUS dataset MUST represent a complete snapshot for a given delivery scope. | Not Evaluated |  |
+| DH1.1.2 | MUST | FOCUS dataset MUST supersede all previously delivered dataset artifacts for the same delivery scope. | Not Evaluated |  |
+| DH1.1.1 | MUST | FOCUS dataset MUST preserve all previously delivered dataset artifacts when using Append delivery mechanism. | Not Evaluated |  |
+| DH1.1.2 | SHOULD | FOCUS dataset SHOULD have delivered dataset artifacts accompanied by corresponding FOCUS Metadata. | Not Evaluated |  |
+| DH1.1.3 | MUST | FOCUS dataset delivery mechanism documentation MUST adhere to the following requirements: | Not Evaluated |  |
+| DH1.1.3.1 | MUST | FOCUS dataset delivery mechanism documentation MUST include the delivery mechanism used (Overwrite or Append). | Not Evaluated |  |
+| DH1.1.3.2 | MUST | FOCUS dataset delivery mechanism documentation MUST include the conditions under which each delivery mechanism applies when more than one delivery mechanism is used. | Not Evaluated |  |
+| DH1.1.3.3 | MUST | FOCUS dataset delivery mechanism documentation MUST include the mechanism for correlating dataset artifacts with the FOCUS Metadata Schema object when the Metadata is delivered. | Not Evaluated |  |
+| DH1.1.3.4 | MUST | FOCUS dataset delivery mechanism documentation MUST be accessible to practitioners. | Not Evaluated |  |
 
-### Key value format
+### FOCUS column handling
+
+Naming conventions for FOCUS columns appearing in a FOCUS dataset.
+
+Source: [attributes/focus_column_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/attributes/focus_column_handling.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| FCH1 | MUST | Column conforming to FocusColumnHandling attribute MUST adhere to the following requirements: | Not Evaluated |  |
+| FCH1.1 | MUST | FOCUS column MUST use a Display Name consistent with the Column ID, with spaces inserted between words (e.g., Column ID `BillingAccountName` and Display Name `Billing Account Name`, Column ID `BillingAccountId` and Display Name `Billing Account ID`). | Not Evaluated |  |
+| FCH1.2 | MUST | FOCUS column MUST use Pascal case in the Column ID. | Not Evaluated |  |
+| FCH1.3 | MUST | FOCUS column MUST use only alphanumeric characters in the Column ID. | Not Evaluated |  |
+| FCH1.4 | MUST | FOCUS column MUST NOT include special characters in the Column ID. | Not Evaluated |  |
+| FCH1.5 | MUST | FOCUS column MUST NOT use abbreviations other than `Id` in the Column ID. | Not Evaluated |  |
+| FCH1.6 | SHOULD | FOCUS column SHOULD NOT use acronyms other than `Sku` in the Column ID. | Not Evaluated |  |
+| FCH1.7 | SHOULD | FOCUS column SHOULD NOT exceed 50 characters in the Column ID to accommodate column length restrictions of various data repositories. | Not Evaluated |  |
+| FCH1.8 | MUST | FOCUS column representing an identifier MUST include the `Id` suffix in the Column ID. | Not Evaluated |  |
+| FCH1.9 | MUST | FOCUS column representing a name MUST include the `Name` suffix in the Column ID. | Not Evaluated |  |
+| FCH1.10 | MUST | FOCUS column representing a product offering that incurred a charge MUST include `Sku` in the Column ID. | Not Evaluated |  |
+| FCH1.11 | MUST | FOCUS column that includes the `Category` suffix in the Column ID and is not null MUST contain one of the FOCUS-defined allowed values. | Not Evaluated |  |
+
+### JSON object format
+
+Rules and formatting requirements for columns appearing in a FOCUS dataset that convey data as complex, hierarchical objects.
+
+Source: [attributes/json_object_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/attributes/json_object_format.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| JOF1 | MUST | Column conforming to JsonObjectFormat attribute MUST adhere to the following requirements: | Not Evaluated |  |
+| JOF1.1 | MUST | FOCUS dataset column MUST contain a serialized JSON string, consistent with the ECMA 404 definition of an object. | Not Evaluated |  |
+| JOF1.2 | MUST | FOCUS dataset column MUST conform to all requirements of the corresponding column definition, which may specify or restrict the shape or contents of the object. | Not Evaluated |  |
+| JOF1.1 | SHOULD | Object in FOCUS dataset column SHOULD NOT exceed 3 levels of nesting. | Not Evaluated |  |
+| JOF1.2 | MUST | Key in Object in FOCUS dataset column MUST be unique. | Not Evaluated |  |
+| JOF1.3 | MUST | Key value in Object in FOCUS dataset column MUST be of type number, string, boolean (`true` or `false`), array, object, or `null`. | Not Evaluated |  |
+| JOF1.4 | MUST | Object in array in FOCUS dataset column MUST adhere to the following requirements: | Not Evaluated |  |
+| JOF1.4.1 | MUST | Object in array in FOCUS dataset column MUST be of a consistent type. | Not Evaluated |  |
+| JOF1.4.2 | MUST | Object in array in FOCUS dataset column MUST NOT be repeated. | Not Evaluated |  |
+| JOF1.4.3 | MUST | Object in array in FOCUS dataset column MUST NOT be null. | Not Evaluated |  |
+
+### Key-Value format
 
 Rules and formatting requirements for columns appearing in a FOCUS dataset that convey data as key-value pairs.
 
-Source: [attributes/key_value_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/attributes/key_value_format.md)
+Source: [attributes/key_value_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/attributes/key_value_format.md)
 
-| ID     | Type | Criteria                                                                                                                         | Status   | Notes |
-| ------ | ---- | -------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| KVF1   | MUST | All key-value related columns defined in the FOCUS specification MUST follow the key-value formatting requirements listed below. | Supports |       |
-| KVF1.1 | MUST | Key-Value Format columns MUST contain a serialized JSON string, consistent with the ECMA 404 definition of an object.            | Supports |       |
-| KVF1.2 | MUST | Keys in a key-value pair MUST be unique within an object.                                                                        | Supports |       |
-| KVF1.3 | MUST | Values in a key-value pair MUST be one of the following types: number, string, `true`, `false`, or `null`.                       | Supports |       |
-| KVF1.4 | MUST | Values in a key-value pair MUST NOT be an object or an array.                                                                    | Supports |       |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| KVF1 | MUST | Column conforming to KeyValueFormat attribute MUST adhere to the following requirements: | Not Evaluated |  |
+| KVF1.1 | MUST | FOCUS dataset column MUST be a serialized JSON string, consistent with the ECMA 404 definition of an object. | Not Evaluated |  |
+| KVF1.1 | MUST | Keys in FOCUS dataset column MUST be unique within the object. | Not Evaluated |  |
+| KVF1.2 | MUST | Key values in FOCUS dataset column MUST be of type number, string, boolean (`true` or `false`), or `null`. | Not Evaluated |  |
+| KVF1.3 | MUST | Key values in FOCUS dataset column MUST NOT be objects or arrays. | Not Evaluated |  |
 
 ### Null handling
 
 Indicates how to handle columns that don't have a value.
 
-Source: [attributes/null_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/attributes/null_handling.md)
+Source: [attributes/null_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/attributes/null_handling.md)
 
-| ID  | Type   | Criteria                                                                                                                                                                                                                       | Status             | Notes                                                                           |
-| --- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ | ------------------------------------------------------------------------------- |
-| NH1 | MUST   | All columns defined in the FOCUS specification MUST follow the null handling requirements listed below.                                                                                                                        | Partially Supports | Price and cost columns may use 0 when data isn't available in Cost Management. |
-| NH2 | SHOULD | Custom columns SHOULD also follow the same formatting requirements.                                                                                                                                                            | Partially Supports | Price and cost columns may use 0 when data isn't available in Cost Management. |
-| NH3 | MUST   | Columns MUST use NULL when there isn't a value that can be specified for a nullable column.                                                                                                                                    | Partially Supports | Price and cost columns may use 0 when data isn't available in Cost Management. |
-| NH4 | MUST   | Columns MUST NOT use empty strings or placeholder values such as 0 for numeric columns or "Not Applicable" for string columns to represent a null or not having a value, regardless of whether the column allows nulls or not. | Partially Supports | Price and cost columns may use 0 when data isn't available in Cost Management. |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| NH1 | MUST | Column conforming to NullHandling attribute MUST adhere to the following requirements: | Not Evaluated |  |
+| NH1.1 | MUST | FOCUS dataset column MUST use `null` for absent values when the FOCUS dataset column is defined as nullable. | Not Evaluated |  |
+| NH1.2 | MUST | FOCUS dataset column MUST NOT contain empty strings or placeholder strings (e.g., `Not Applicable`) for absent values when the FOCUS dataset column contains string values. | Not Evaluated |  |
+| NH1.3 | MUST | FOCUS dataset column MUST NOT contain placeholder numeric values (e.g., `0`) for absent values when the FOCUS dataset column contains numeric values. | Not Evaluated |  |
 
 ### Numeric format
 
 Rules and formatting requirements for numeric columns appearing in a FOCUS dataset.
 
-Source: [attributes/numeric_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/attributes/numeric_format.md)
+Source: [attributes/numeric_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/attributes/numeric_format.md)
 
-| ID    | Type   | Criteria                                                                                                                                                                 | Status   | Notes |
-| ----- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ----- |
-| NF1   | MUST   | All columns capturing a numeric value, defined in the FOCUS specification, MUST follow the formatting requirements listed below.                                         | Supports |       |
-| NF2   | SHOULD | Custom numeric value capturing columns SHOULD adopt the same format requirements over time.                                                                              | Supports |       |
-| NF2.1 | MUST   | Columns with a Numeric value format MUST contain a single numeric value.                                                                                                 | Supports |       |
-| NF2.2 | MUST   | Numeric values MUST be expressed as an integer value, a decimal value, or a value expressed in scientific notation.                                                      | Supports |       |
-| NF3   | MUST   | Fractional notation MUST NOT be used.                                                                                                                                    | Supports |       |
-| NF3.1 | MUST   | Numeric values expressed using scientific notation MUST be expressed using E notation "mEn" with a real number m and an integer n indicating a value of "m x 10^n".      | Supports |       |
-| NF3.2 | MUST   | The sign of the exponent MUST only be expressed as part of the exponent value if n is negative.                                                                          | Supports |       |
-| NF3.3 | MUST   | Numeric values MUST NOT be expressed with mathematical symbols, functions, or operators.                                                                                 | Supports |       |
-| NF3.4 | MUST   | Numeric values MUST NOT contain qualifiers or additional characters (e.g., currency symbols, units of measure, etc.).                                                    | Supports |       |
-| NF3.5 | MUST   | Numeric values MUST NOT contain commas or punctuation marks except for a single decimal point (".") if required to express a decimal value.                              | Supports |       |
-| NF3.6 | MUST   | Numeric values MUST NOT include a character to represent a sign for a positive value.                                                                                    | Supports |       |
-| NF4   | MUST   | A negative sign (-) MUST indicate a negative value.                                                                                                                      | Supports |       |
-| NF4.1 | MUST   | Columns with a Numeric value format MUST present one of the following values as the "Data type" in the column definition.                                                | Supports |       |
-| NF4.2 | SHOULD | Providers SHOULD define precision and scale for Numeric Format columns using one of the following precision values in a data definition document that providers publish. | Supports |       |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| NF1 | MUST | Column conforming to NumericFormat attribute MUST adhere to the following requirements: | Not Evaluated |  |
+| NF1.1 | MUST | FOCUS dataset column MUST contain a single numeric value. | Not Evaluated |  |
+| NF1.2 | MUST | FOCUS dataset column MUST have values of type integer, decimal, or scientific notation. | Not Evaluated |  |
+| NF1.3 | MUST | FOCUS dataset column MUST contain values that, when not null, conform to one of the allowed Data Types defined in the table below. | Not Evaluated |  |
+| NF1.4 | MUST | FOCUS dataset column MUST contain values that, when not null, conform to one of the allowed precision levels (and scale, where applicable) defined in the table below. | Not Evaluated |  |
+| NF1.5 | MUST | FOCUS dataset column MUST NOT use mathematical symbols, functions, or operators, except for a negative sign (-) to indicate a negative value or a negative exponent in scientific notation. | Not Evaluated |  |
+| NF1.6 | MUST | FOCUS dataset column MUST NOT include additional characters or qualifiers (e.g., currency symbols, units of measure). | Not Evaluated |  |
+| NF1.7 | MUST | FOCUS dataset column MUST NOT contain commas or punctuation marks, except for a single decimal point when required for a decimal value. | Not Evaluated |  |
+| NF1.8 | MUST | FOCUS dataset column MUST use a negative sign (-) to indicate a negative value. | Not Evaluated |  |
+| NF1.9 | MUST | FOCUS dataset column MUST NOT include a positive sign (+) for a positive value. | Not Evaluated |  |
+| NF1.1 | MUST | When FOCUS dataset column contains numeric values expressed in scientific notation, it MUST adhere to the following requirements: | Not Evaluated |  |
+| NF1.1.1 | MUST | FOCUS dataset column MUST use E notation "mEn", where m is a real number and n is an integer exponent. | Not Evaluated |  |
+| NF1.1.2 | MUST | FOCUS dataset column MUST use a negative sign (-) to indicate a negative exponent. | Not Evaluated |  |
+| NF1.1.3 | MUST | FOCUS dataset column MUST NOT include a positive sign (+) for a positive exponent. | Not Evaluated |  |
 
 ### String handling
 
 Requirements for string-capturing columns appearing in a FOCUS dataset.
 
-Source: [attributes/string_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/attributes/string_handling.md)
+Source: [attributes/string_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/attributes/string_handling.md)
 
-| ID    | Type   | Criteria                                                                                                                                                                      | Status             | Notes                                                                                                                                                                                                                            |
-| ----- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SH1   | MUST   | All columns capturing a string value, defined in the FOCUS specification, MUST follow the requirements listed below.                                                          | Supports           |                                                                                                                                                                                                                                  |
-| SH2   | SHOULD | Custom string value capturing columns SHOULD adopt the same requirements over time.                                                                                           | Supports           |                                                                                                                                                                                                                                  |
-| SH3   | MUST   | String values MUST maintain the original casing, spacing, and other relevant consistency factors as specified by providers and end-users.                                     | Partially Supports | `ResourceName` may be changed to lower or upper case by the resource provider. If you see this, file a support request on the service team responsible for the SKU/meter. `ResourceId` is lowercased to meet FOCUS requirements. |
-| SH4.1 | MUST   | Charges to mutable entities (e.g., resource names) MUST be accurately reflected in corresponding charges incurred after the change...                                         | Supports           |                                                                                                                                                                                                                                  |
-| SH4.2 | MUST   | Charges to mutable entities (e.g., resource names)... MUST NOT alter charges incurred before the change, preserving data integrity and auditability for all charge records.   | Supports           |                                                                                                                                                                                                                                  |
-| SH5   | MUST   | Immutable string values that refer to the same entity (e.g., resource identifiers, region identifiers, etc.) MUST remain consistent and unchanged across all billing periods. | Supports           |                                                                                                                                                                                                                                  |
-| SH6   | SHOULD | Empty strings and strings consisting solely of spaces SHOULD NOT be used in not-nullable string columns.                                                                      | Supports           |                                                                                                                                                                                                                                  |
-| SH7   | MAY    | When a record is provided after a change to a mutable string value and the ChargeClass is "Correction", the record MAY contain the altered value.                             | Supports           |                                                                                                                                                                                                                                  |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| SH1 | MUST | Column conforming to StringHandling attribute MUST adhere to the following requirements: | Not Evaluated |  |
+| SH1.1 | MUST | FOCUS dataset column MUST preserve the original casing of string values. | Not Evaluated |  |
+| SH1.2 | MUST | FOCUS dataset column MUST preserve the original spacing of string values. | Not Evaluated |  |
+| SH1.3 | MUST | FOCUS dataset column MUST preserve other relevant consistency factors as specified by the data generator or end-user. | Not Evaluated |  |
+| SH1.4 | MUST | FOCUS dataset column MUST remain consistent across all billing periods when the FOCUS dataset column contains immutable string values (e.g., resource identifier, region identifier). | Not Evaluated |  |
+| SH1.1 | MUST | When FOCUS dataset column contains mutable string values (e.g., resource name, region name), it MUST adhere to the following requirements: | Not Evaluated |  |
+| SH1.1.1 | MUST | FOCUS dataset column MUST reflect the altered value in all records pertaining to a period after the change. | Not Evaluated |  |
+| SH1.1.2 | MUST | FOCUS dataset column MUST reflect the string value as it existed prior to the change in all records pertaining to a period prior to the change when the record does not represent a correction to a previously closed billing period. | Not Evaluated |  |
+| SH1.1.3 | MAY | FOCUS dataset column MAY reflect the altered value in records pertaining to a period prior to the change when the record represents a correction to a previously closed billing period. | Not Evaluated |  |
+| SH1.2 | MUST | When FOCUS dataset column contains not-nullable string values, it MUST adhere to the following requirements: | Not Evaluated |  |
+| SH1.2.1 | SHOULD | FOCUS dataset column SHOULD NOT contain empty strings. | Not Evaluated |  |
+| SH1.2.2 | SHOULD | FOCUS dataset column SHOULD NOT contain strings consisting solely of whitespace characters. | Not Evaluated |  |
 
 ### Unit format
 
 Indicates standards for expressing measurement units in columns appearing in a FOCUS dataset.
 
-Source: [attributes/unit_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/attributes/unit_format.md)
+Source: [attributes/unit_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/attributes/unit_format.md)
 
-| ID      | Type   | Criteria                                                                                                                                                                                                                                                                                   | Status   | Notes                                                                                                                                 |
-| ------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| UF1     | MUST   | All columns defined in FOCUS specifying Unit Format as a value format MUST follow the requirements listed below.                                                                                                                                                                           | Supports |                                                                                                                                       |
-| UF1.1   | SHOULD | Units SHOULD be expressed as a single unit of measure adhering to one of the following three formats.                                                                                                                                                                                      | Supports | While valid based on rule UF2, the following units are exceptions to this rule: `Units/10 Days`, `Units/3 Months`, `Units/6 Months`.  |
-| UF1.2   | MAY    | Units MAY be expressed with a unit quantity or time interval.                                                                                                                                                                                                                              | Supports | See UF1.1.                                                                                                                            |
-| UF1.1   | MUST   | If a unit quantity or time interval is used, the unit quantity or time interval MUST be expressed as a whole number.                                                                                                                                                                       | Supports |                                                                                                                                       |
-| UF1.1.1 | MUST   | Unit values and components of columns using the Unit Format MUST use a capitalization scheme that is consistent with the capitalization scheme used in this attribute if that term is listed in this section.                                                                              | Supports |                                                                                                                                       |
-| UF1.1.2 | SHOULD | Units SHOULD be composed of the list of recommended units listed in this section unless the unit value covers a dimension not listed in the recommended unit set, or if the unit covers a count-based unit distinct from recommended values in the count dimension listed in this section. | Supports |                                                                                                                                       |
-| UF2     | MUST   | Data size unit names MUST be abbreviated using one of the abbreviations in the following table.                                                                                                                                                                                            | Supports |                                                                                                                                       |
-| UF2.1   | MUST   | Values that exceed 10^18 MUST use the abbreviation for exabit, exabyte, exbibit, and exbibyte...                                                                                                                                                                                           | Supports |                                                                                                                                       |
-| UF2.2   | MUST   | ...values smaller than a byte MUST use the abbreviation for bit or byte.                                                                                                                                                                                                                   | Supports |                                                                                                                                       |
-| UF3     | MAY    | If the following list of recommended values does not cover a count-based unit, a provider MAY introduce a new noun representing a count-based unit.                                                                                                                                        | Supports | All supported unit values are documented in the [Pricing units](../toolkit/open-data.md#pricing-units) dataset in the FinOps toolkit. |
-| UF3.1   | MUST   | All nouns appearing in units that are not listed in the recommended values table will be considered count-based units. A new count-based unit value MUST be capitalized.                                                                                                                  | Supports |                                                                                                                                       |
-| UF3.2   | MUST   | Time-based units can be used to measure consumption over a time interval or in combination with another unit to capture a rate of consumption. Time-based units MUST match one of the values listed in the following table.                                                               | Supports |                                                                                                                                       |
-| UF4     | MUST   | If the unit value is a composite value made from combinations of one or more units, each component MUST also align with the set of recommended values.                                                                                                                                     | Supports |                                                                                                                                       |
-| UF5.1   | MUST   | Instead of "per" or "-" to denote a Composite Unit, slash ("/") and space(" ") MUST be used as a common convention.                                                                                                                                                                        | Supports |                                                                                                                                       |
-| UF5.2   | SHOULD | Count-based units like requests, instances, and tokens SHOULD be expressed using a value listed in the count dimension.                                                                                                                                                                    | Supports |                                                                                                                                       |
-| UF5.3   | SHOULD | For example, if a usage unit is measured as a rate of requests or instances over a period of time, the unit SHOULD be listed as "Requests/Day" to signify the number of requests per day.                                                                                                  | Supports |                                                                                                                                       |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| UF1 | MUST | Column conforming to UnitFormat attribute MUST adhere to the following requirements: | Not Evaluated |  |
+| UF1.1 | MUST | FOCUS dataset column MUST adhere to the following base unit requirements: | Not Evaluated |  |
+| UF1.1.1 | MUST | FOCUS dataset column MUST include at least one base unit. | Not Evaluated |  |
+| UF1.1.2 | MUST | FOCUS dataset column MUST use one of the allowed data size unit abbreviations listed below for data size base units. | Not Evaluated |  |
+| UF1.1.3 | MUST | FOCUS dataset column MUST use the allowed data size unit abbreviations in the same form for both singular and plural units. | Not Evaluated |  |
+| UF1.1.4 | MUST | FOCUS dataset column MUST use the allowed abbreviation for exabit, exabyte, exbibit, or exbibyte when representing values exceeding 10^18. | Not Evaluated |  |
+| UF1.1.5 | MUST | FOCUS dataset column MUST use the allowed abbreviation for bit or byte when representing values smaller than one byte. | Not Evaluated |  |
+| UF1.1.6 | MUST | FOCUS dataset column MUST use one of the allowed time-based unit names listed below for time-based base units. | Not Evaluated |  |
+| UF1.1.7 | SHOULD | FOCUS dataset column SHOULD use one of the recommended count-based unit names listed below for count-based base units. | Not Evaluated |  |
+| UF1.1.8 | SHOULD | FOCUS dataset column SHOULD use capitalized nouns for base units that do not correspond to any of the allowed base unit names listed below. | Not Evaluated |  |
+| UF1.1.9 | MAY | FOCUS dataset column MAY include a count-based base unit that is not listed as one of the allowed values. | Not Evaluated |  |
+| UF1.2 | MAY | FOCUS dataset column MAY include a unit quantity expressed as a positive integer. | Not Evaluated |  |
+| UF1.3 | MUST | FOCUS dataset column expressing a compound unit MUST use a hyphen (`-`) to separate base units (e.g., `GB-Hours`). | Not Evaluated |  |
+| UF1.4 | SHOULD | FOCUS dataset column expressing a compound unit SHOULD use the `<singular-base-unit>-<plural-base-unit>` format (e.g., `GB-Hours`, `MB-Days`, `Request-Tokens`). | Not Evaluated |  |
+| UF1.5 | MUST | FOCUS dataset column expressing a ratio unit MUST use a slash (`/`) to separate the numerator and denominator (e.g., `GB/Hour` to signify gigabytes per hour). | Not Evaluated |  |
+| UF1.6 | MAY | FOCUS dataset column expressing a ratio unit MAY include a denominator quantity expressed as a positive integer. | Not Evaluated |  |
+| UF1.7 | SHOULD | FOCUS dataset column expressing a ratio unit and including a denominator quantity SHOULD use the `<plural-units>/<denominator-quantity> <plural-time-units>` format (e.g., `Units/3 Months`). | Not Evaluated |  |
+| UF1.8 | SHOULD | FOCUS dataset column expressing a ratio unit with a compound unit numerator SHOULD use the `<compound-unit>/<singular-time-unit>` format (e.g., `Core-Hours/Day`). | Not Evaluated |  |
+| UF1.9 | SHOULD | FOCUS dataset column expressing a ratio unit with a time denominator SHOULD use the `<plural-units>/<singular-time-unit>` format (e.g., `GB/Hour`, `PB/Day`). | Not Evaluated |  |
+| UF1.10 | SHOULD | FOCUS dataset column expressing a simple unit SHOULD use the `<plural-units>` format (e.g., `GB`, `Seconds`). | Not Evaluated |  |
+| UF1.11 | SHOULD | FOCUS dataset column including a unit quantity SHOULD use the `<unit-quantity> <plural-units>` format (e.g., `1000 Tokens`, `1000 Characters`). | Not Evaluated |  |
+
+<br>
+
+## Datasets
+
+### Billing period
+
+Describes the time intervals and statuses associated with an invoice issuer's billing cycles.
+
+Source: [datasets/billing_period/dataset.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/billing_period/dataset.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| BP1 | MUST | BillingPeriod MUST adhere to the following requirements: | Not Evaluated |  |
+| BP1.1 | MUST | BillingPeriod MUST be present when the invoice issuer supports payable invoices. | Not Evaluated |  |
+| BP1.2 | MUST | The presence of columns in BillingPeriod MUST adhere to the following requirements: | Not Evaluated |  |
+| BP1.2.1 | MUST | BillingPeriod MUST include BillingPeriodCreated. | Not Evaluated |  |
+| BP1.2.2 | MUST | BillingPeriod MUST include BillingPeriodEnd. | Not Evaluated |  |
+| BP1.2.3 | MUST | BillingPeriod MUST include BillingPeriodLastUpdated. | Not Evaluated |  |
+| BP1.2.4 | MUST | BillingPeriod MUST include BillingPeriodStart. | Not Evaluated |  |
+| BP1.2.5 | MUST | BillingPeriod MUST include BillingPeriodStatus. | Not Evaluated |  |
+| BP1.2.6 | MUST | BillingPeriod MUST include InvoiceIssuerName. | Not Evaluated |  |
+| BP1.3 | MUST | BillingPeriod MUST conform to CorrectionHandling requirements. | Not Evaluated |  |
+| BP1.4 | MUST | BillingPeriod MUST conform to DatasetCompleteness requirements. | Not Evaluated |  |
+| BP1.5 | MUST | BillingPeriod MUST conform to DatasetConfiguration requirements. | Not Evaluated |  |
+| BP1.6 | MUST | BillingPeriod MUST conform to DeliveryHandling requirements. | Not Evaluated |  |
+| BP1.7 | MUST | BillingPeriod FOCUS columns MUST conform to FocusColumnHandling requirements. | Not Evaluated |  |
+| BP1.8 | MUST | BillingPeriod FOCUS columns MUST conform to NullHandling requirements. | Not Evaluated |  |
+| BP1.9 | MUST | BillingPeriod custom columns MUST conform to CustomColumnHandling requirements. | Not Evaluated |  |
+
+### Contract commitment
+
+Describes the terms of contracts agreed between a service provider and a customer.
+
+Source: [datasets/contract_commitment/dataset.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/dataset.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC1 | MUST | ContractCommitment MUST adhere to the following requirements: | Not Evaluated |  |
+| CC1.1 | MUST | ContractCommitment MUST be present when the service provider supports contract commitments. | Not Evaluated |  |
+| CC1.2 | MUST | ContractCommitment column presence MUST adhere to the following requirements: | Not Evaluated |  |
+| CC1.2.1 | MUST | ContractCommitment MUST include BillingCurrency. | Not Evaluated |  |
+| CC1.2.2 | MUST | ContractCommitment MUST include ContractCommitmentApplicability. | Not Evaluated |  |
+| CC1.2.3 | MUST | ContractCommitment MUST include ContractCommitmentBenefitCategory. | Not Evaluated |  |
+| CC1.2.4 | MUST | ContractCommitment MUST include ContractCommitmentCategory. | Not Evaluated |  |
+| CC1.2.5 | MUST | ContractCommitment MUST include ContractCommitmentCost. | Not Evaluated |  |
+| CC1.2.6 | MUST | ContractCommitment MUST include ContractCommitmentCreated. | Not Evaluated |  |
+| CC1.2.7 | MUST | ContractCommitment MUST include ContractCommitmentDescription. | Not Evaluated |  |
+| CC1.2.8 | MUST | ContractCommitment MUST include ContractCommitmentDiscountPercentage. | Not Evaluated |  |
+| CC1.2.9 | MUST | ContractCommitment MUST include ContractCommitmentDurationType. | Not Evaluated |  |
+| CC1.2.10 | MUST | ContractCommitment MUST include ContractCommitmentFulfillmentInterval. | Not Evaluated |  |
+| CC1.2.11 | MUST | ContractCommitment MUST include ContractCommitmentId. | Not Evaluated |  |
+| CC1.2.12 | MUST | ContractCommitment MUST include ContractCommitmentLastUpdated. | Not Evaluated |  |
+| CC1.2.13 | MUST | ContractCommitment MUST include ContractCommitmentLifecycleStatus. | Not Evaluated |  |
+| CC1.2.14 | MUST | ContractCommitment MUST include ContractCommitmentModel. | Not Evaluated |  |
+| CC1.2.15 | MUST | ContractCommitment MUST include ContractCommitmentOfferCategory. | Not Evaluated |  |
+| CC1.2.16 | MUST | ContractCommitment MUST include ContractCommitmentPaymentInterval. | Not Evaluated |  |
+| CC1.2.17 | MUST | ContractCommitment MUST include ContractCommitmentPaymentModel. | Not Evaluated |  |
+| CC1.2.18 | MUST | ContractCommitment MUST include ContractCommitmentPaymentUpfrontPercentage when the service provider offers "Partial Upfront" payment models. | Not Evaluated |  |
+| CC1.2.19 | MUST | ContractCommitment MUST include ContractCommitmentPeriodEnd. | Not Evaluated |  |
+| CC1.2.20 | MUST | ContractCommitment MUST include ContractCommitmentPeriodStart. | Not Evaluated |  |
+| CC1.2.21 | MUST | ContractCommitment MUST include ContractCommitmentQuantity. | Not Evaluated |  |
+| CC1.2.22 | MUST | ContractCommitment MUST include ContractCommitmentType. | Not Evaluated |  |
+| CC1.2.23 | MUST | ContractCommitment MUST include ContractCommitmentUnit. | Not Evaluated |  |
+| CC1.2.24 | MUST | ContractCommitment MUST include ContractId. | Not Evaluated |  |
+| CC1.2.25 | MUST | ContractCommitment MUST include ContractPeriodEnd. | Not Evaluated |  |
+| CC1.2.26 | MUST | ContractCommitment MUST include ContractPeriodStart. | Not Evaluated |  |
+| CC1.2.27 | MUST | ContractCommitment MUST include InvoiceIssuerName. | Not Evaluated |  |
+| CC1.2.28 | MUST | ContractCommitment MUST include PricingCurrency when the service provider supports pricing and billing in different currencies. | Not Evaluated |  |
+| CC1.2.29 | MUST | ContractCommitment MUST include PricingCurrencyContractCommitmentCost when the service provider supports pricing and billing in different currencies. | Not Evaluated |  |
+| CC1.2.30 | MUST | ContractCommitment MUST include ServiceProviderName. | Not Evaluated |  |
+| CC1.3 | MUST | ContractCommitment MUST conform to CorrectionHandling requirements. | Not Evaluated |  |
+| CC1.4 | MUST | ContractCommitment MUST conform to DatasetCompleteness requirements. | Not Evaluated |  |
+| CC1.5 | MUST | ContractCommitment MUST conform to DatasetConfiguration requirements. | Not Evaluated |  |
+| CC1.6 | MUST | ContractCommitment MUST conform to DeliveryHandling requirements. | Not Evaluated |  |
+| CC1.7 | MUST | ContractCommitment FOCUS columns MUST conform to FocusColumnHandling requirements. | Not Evaluated |  |
+| CC1.8 | MUST | ContractCommitment FOCUS columns MUST conform to NullHandling requirements. | Not Evaluated |  |
+| CC1.9 | MUST | ContractCommitment custom columns MUST conform to CustomColumnHandling requirements. | Not Evaluated |  |
+
+### Cost and usage
+
+Describes the cost and usage incurred through using or purchasing a service provider's resources or services.
+
+Source: [datasets/cost_and_usage/dataset.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/dataset.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CAU1 | MUST | CostAndUsage MUST adhere to the following requirements: | Not Evaluated |  |
+| CAU1.1 | MUST | CostAndUsage MUST be present. | Not Evaluated |  |
+| CAU1.2 | MUST | CostAndUsage column presence MUST adhere to the following requirements: | Not Evaluated |  |
+| CAU1.2.1 | SHOULD | CostAndUsage SHOULD include AllocatedMethodDetails when the data generator supports data generator-calculated split cost allocation. | Not Evaluated |  |
+| CAU1.2.2 | MUST | CostAndUsage MUST include AllocatedMethodId when the data generator supports data generator-calculated split cost allocation. | Not Evaluated |  |
+| CAU1.2.3 | MUST | CostAndUsage MUST include AllocatedResourceId when the data generator supports data generator-calculated split cost allocation. | Not Evaluated |  |
+| CAU1.2.4 | MUST | CostAndUsage MUST include AllocatedResourceName when the data generator supports data generator-calculated split cost allocation. | Not Evaluated |  |
+| CAU1.2.5 | MUST | CostAndUsage MUST include AllocatedTags when the data generator supports data generator-calculated split cost allocation. | Not Evaluated |  |
+| CAU1.2.6 | SHOULD | CostAndUsage SHOULD include AvailabilityZone when the host provider supports deploying resources or services within an availability zone. | Not Evaluated |  |
+| CAU1.2.7 | MUST | CostAndUsage MUST include BilledCost. | Not Evaluated |  |
+| CAU1.2.8 | MUST | CostAndUsage MUST include BillingAccountId. | Not Evaluated |  |
+| CAU1.2.9 | MUST | CostAndUsage MUST include BillingAccountName. | Not Evaluated |  |
+| CAU1.2.10 | MUST | CostAndUsage MUST include BillingAccountType when the invoice issuer supports more than one possible BillingAccountType value. | Not Evaluated |  |
+| CAU1.2.11 | MUST | CostAndUsage MUST include BillingCurrency. | Not Evaluated |  |
+| CAU1.2.12 | MUST | CostAndUsage MUST include BillingPeriodEnd. | Not Evaluated |  |
+| CAU1.2.13 | MUST | CostAndUsage MUST include BillingPeriodStart. | Not Evaluated |  |
+| CAU1.2.14 | MUST | CostAndUsage MUST include CapacityReservationId when the service provider supports capacity reservations. | Not Evaluated |  |
+| CAU1.2.15 | MUST | CostAndUsage MUST include CapacityReservationStatus when the service provider supports capacity reservations. | Not Evaluated |  |
+| CAU1.2.16 | MUST | CostAndUsage MUST include ChargeCategory. | Not Evaluated |  |
+| CAU1.2.17 | MUST | CostAndUsage MUST include ChargeClass. | Not Evaluated |  |
+| CAU1.2.18 | MUST | CostAndUsage MUST include ChargeDescription. | Not Evaluated |  |
+| CAU1.2.19 | SHOULD | CostAndUsage SHOULD include ChargeFrequency. | Not Evaluated |  |
+| CAU1.2.20 | MUST | CostAndUsage MUST include ChargePeriodEnd. | Not Evaluated |  |
+| CAU1.2.21 | MUST | CostAndUsage MUST include ChargePeriodStart. | Not Evaluated |  |
+| CAU1.2.22 | MUST | CostAndUsage MUST include CommitmentDiscountCategory when the service provider supports commitment discounts. | Not Evaluated |  |
+| CAU1.2.23 | MUST | CostAndUsage MUST include CommitmentDiscountId when the service provider supports commitment discounts. | Not Evaluated |  |
+| CAU1.2.24 | MUST | CostAndUsage MUST include CommitmentDiscountName when the service provider supports commitment discounts. | Not Evaluated |  |
+| CAU1.2.25 | MUST | CostAndUsage MUST include CommitmentDiscountQuantity when the service provider supports commitment discounts. | Not Evaluated |  |
+| CAU1.2.26 | MUST | CostAndUsage MUST include CommitmentDiscountStatus when the service provider supports commitment discounts. | Not Evaluated |  |
+| CAU1.2.27 | MUST | CostAndUsage MUST include CommitmentDiscountType when the service provider supports commitment discounts. | Not Evaluated |  |
+| CAU1.2.28 | MUST | CostAndUsage MUST include CommitmentDiscountUnit when the service provider supports commitment discounts. | Not Evaluated |  |
+| CAU1.2.29 | MUST | CostAndUsage MUST include CommitmentProgramEligibilityDetails when the service provider supports at least one commitment program. | Not Evaluated |  |
+| CAU1.2.30 | MUST | CostAndUsage MUST include ConsumedQuantity when the service provider supports the measurement of usage. | Not Evaluated |  |
+| CAU1.2.31 | MUST | CostAndUsage MUST include ConsumedUnit when the service provider supports the measurement of usage. | Not Evaluated |  |
+| CAU1.2.32 | MUST | CostAndUsage MUST include ContractApplied when the service provider supports contract commitments. | Not Evaluated |  |
+| CAU1.2.33 | MUST | CostAndUsage MUST include ContractedCost. | Not Evaluated |  |
+| CAU1.2.34 | MUST | CostAndUsage MUST include ContractedUnitPrice when the service provider supports negotiated pricing concepts. | Not Evaluated |  |
+| CAU1.2.35 | MUST | CostAndUsage MUST include EffectiveCost. | Not Evaluated |  |
+| CAU1.2.36 | MUST | CostAndUsage MUST include HostProviderName. | Not Evaluated |  |
+| CAU1.2.37 | MUST | CostAndUsage MUST include InvoiceDetailId when the invoice issuer supports payable invoices. | Not Evaluated |  |
+| CAU1.2.38 | MUST | CostAndUsage MUST include InvoiceId when the invoice issuer supports payable invoices. | Not Evaluated |  |
+| CAU1.2.39 | MUST | CostAndUsage MUST include InvoiceIssuerName. | Not Evaluated |  |
+| CAU1.2.40 | MUST | CostAndUsage MUST include ListCost. | Not Evaluated |  |
+| CAU1.2.41 | MUST | CostAndUsage MUST include ListUnitPrice when the service provider publishes unit prices exclusive of discounts. | Not Evaluated |  |
+| CAU1.2.42 | MUST | CostAndUsage MUST include PricingCategory when the service provider supports more than one pricing category across all SKUs. | Not Evaluated |  |
+| CAU1.2.43 | MUST | CostAndUsage MUST include PricingCurrency when the service provider supports pricing and billing in different currencies. | Not Evaluated |  |
+| CAU1.2.44 | MUST | CostAndUsage MUST adhere to the following PricingCurrencyContractedUnitPrice presence requirements: | Not Evaluated |  |
+| CAU1.2.44.1 | MUST | CostAndUsage MUST include PricingCurrencyContractedUnitPrice when the service provider supports prices in virtual currency and publishes unit prices exclusive of discounts. | Not Evaluated |  |
+| CAU1.2.44.2 | SHOULD | CostAndUsage SHOULD include PricingCurrencyContractedUnitPrice when the service provider supports pricing and billing in different currencies and publishes unit prices exclusive of discounts. | Not Evaluated |  |
+| CAU1.2.44.3 | MAY | CostAndUsage MAY include PricingCurrencyContractedUnitPrice in all other cases. | Not Evaluated |  |
+| CAU1.2.45 | MUST | CostAndUsage MUST adhere to the following PricingCurrencyEffectiveCost presence requirements: | Not Evaluated |  |
+| CAU1.2.45.1 | MUST | CostAndUsage MUST include PricingCurrencyEffectiveCost when the service provider supports prices in virtual currency and publishes unit prices exclusive of discounts. | Not Evaluated |  |
+| CAU1.2.45.2 | SHOULD | CostAndUsage SHOULD include PricingCurrencyEffectiveCost when the service provider supports pricing and billing in different currencies and publishes unit prices exclusive of discounts. | Not Evaluated |  |
+| CAU1.2.45.3 | MAY | CostAndUsage MAY include PricingCurrencyEffectiveCost in all other cases. | Not Evaluated |  |
+| CAU1.2.46 | MUST | CostAndUsage MUST adhere to the following PricingCurrencyListUnitPrice presence requirements: | Not Evaluated |  |
+| CAU1.2.46.1 | MUST | CostAndUsage MUST include PricingCurrencyListUnitPrice when the service provider supports prices in virtual currency and publishes unit prices exclusive of discounts. | Not Evaluated |  |
+| CAU1.2.46.2 | SHOULD | CostAndUsage SHOULD include PricingCurrencyListUnitPrice when the service provider supports pricing and billing in different currencies and publishes unit prices exclusive of discounts. | Not Evaluated |  |
+| CAU1.2.46.3 | MAY | CostAndUsage MAY include PricingCurrencyListUnitPrice in all other cases. | Not Evaluated |  |
+| CAU1.2.47 | MUST | CostAndUsage MUST include PricingQuantity. | Not Evaluated |  |
+| CAU1.2.48 | MUST | CostAndUsage MUST include PricingUnit. | Not Evaluated |  |
+| CAU1.2.49 | MUST | CostAndUsage MUST include RegionId when the host provider supports deploying resources or services within a region. | Not Evaluated |  |
+| CAU1.2.50 | MUST | CostAndUsage MUST include RegionName when the host provider supports deploying resources or services within a region. | Not Evaluated |  |
+| CAU1.2.51 | MUST | CostAndUsage MUST include ResourceId when the service provider supports billing based on provisioned resources. | Not Evaluated |  |
+| CAU1.2.52 | MUST | CostAndUsage MUST include ResourceName when the service provider supports billing based on provisioned resources. | Not Evaluated |  |
+| CAU1.2.53 | MUST | CostAndUsage MUST include ResourceType when the service provider supports billing based on provisioned resources and supports assigning types to resources. | Not Evaluated |  |
+| CAU1.2.54 | MUST | CostAndUsage MUST include ServiceCategory. | Not Evaluated |  |
+| CAU1.2.55 | MUST | CostAndUsage MUST include ServiceName. | Not Evaluated |  |
+| CAU1.2.56 | MUST | CostAndUsage MUST include ServiceProviderName. | Not Evaluated |  |
+| CAU1.2.57 | SHOULD | CostAndUsage SHOULD include ServiceSubcategory. | Not Evaluated |  |
+| CAU1.2.58 | MUST | CostAndUsage MUST include SkuId when the service provider supports unit pricing concepts and publishes price lists, publicly or as part of contracting. | Not Evaluated |  |
+| CAU1.2.59 | MUST | CostAndUsage MUST include SkuMeter when the service provider supports unit pricing concepts and publishes price lists, publicly or as part of contracting. | Not Evaluated |  |
+| CAU1.2.60 | MUST | CostAndUsage MUST include SkuPriceDetails when the service provider supports unit pricing concepts and publishes price lists, publicly or as part of contracting. | Not Evaluated |  |
+| CAU1.2.61 | MUST | CostAndUsage MUST include SkuPriceId when the service provider supports unit pricing concepts and publishes price lists, publicly or as part of contracting. | Not Evaluated |  |
+| CAU1.2.62 | MUST | CostAndUsage MUST include SubAccountId when the service provider supports a sub account construct. | Not Evaluated |  |
+| CAU1.2.63 | MUST | CostAndUsage MUST include SubAccountName when the service provider supports a sub account construct. | Not Evaluated |  |
+| CAU1.2.64 | MUST | CostAndUsage MUST include SubAccountType when the service provider supports more than one possible SubAccountType value. | Not Evaluated |  |
+| CAU1.2.65 | MUST | CostAndUsage MUST include Tags when the data generator supports setting user or provider-defined tags. | Not Evaluated |  |
+| CAU1.2.66 | SHOULD | CostAndUsage SHOULD include custom columns needed to identify all applied discounts when FOCUS columns are not sufficient. | Not Evaluated |  |
+| CAU1.3 | MUST | CostAndUsage MUST conform to CorrectionHandling requirements. | Not Evaluated |  |
+| CAU1.4 | MUST | CostAndUsage MUST conform to DatasetCompleteness requirements. | Not Evaluated |  |
+| CAU1.5 | MUST | CostAndUsage MUST conform to DatasetConfiguration requirements. | Not Evaluated |  |
+| CAU1.6 | MUST | CostAndUsage MUST conform to DeliveryHandling requirements. | Not Evaluated |  |
+| CAU1.7 | MUST | CostAndUsage MUST include charges representing unused portions of a commitment when the commitment is not fully utilized. | Not Evaluated |  |
+| CAU1.8 | MUST | CostAndUsage MUST include separate charges representing discounted and non-discounted portions when a discount applies to only a portion of the originally incurred charge. | Not Evaluated |  |
+| CAU1.9 | MUST | When the data generator supports data generator-calculated split cost allocation, CostAndUsage MUST adhere to the following requirements: | Not Evaluated |  |
+| CAU1.9.1 | MUST | CostAndUsage MUST have its data generator-calculated split cost allocation method documented and accessible to practitioners. | Not Evaluated |  |
+| CAU1.9.2 | SHOULD | CostAndUsage SHOULD offer data generator-calculated split cost allocation on an opt-in basis. | Not Evaluated |  |
+| CAU1.9.3 | MAY | CostAndUsage MAY contain records for concepts not related to resource usage, when it aligns with the documented data generator-calculated split cost allocation method. | Not Evaluated |  |
+| CAU1.9.4 | MAY | CostAndUsage MAY contain records for unused or unallocated usage from the origin charge as separate allocated charges, when it aligns with the documented data generator-calculated split cost allocation method. | Not Evaluated |  |
+| CAU1.9.5 | MAY | CostAndUsage MAY contain allocated charges with apportioned costs for unused or unallocated usage, when it aligns with the documented data generator-calculated split cost allocation method. | Not Evaluated |  |
+| CAU1.10 | SHOULD | CostAndUsage SHOULD reflect all applied discounts in charges they pertain to. | Not Evaluated |  |
+| CAU1.11 | SHOULD | CostAndUsage SHOULD NOT represent applied discounts as separate negating or offsetting charges. | Not Evaluated |  |
+| CAU1.12 | MUST | CostAndUsage FOCUS columns MUST conform to DataGeneratorCalculatedSplitCostAllocationHandling requirements when the data generator supports data generator-calculated split cost allocation. | Not Evaluated |  |
+| CAU1.13 | MUST | CostAndUsage FOCUS columns MUST conform to FocusColumnHandling requirements. | Not Evaluated |  |
+| CAU1.14 | MUST | CostAndUsage FOCUS columns MUST conform to NullHandling requirements. | Not Evaluated |  |
+| CAU1.15 | MUST | CostAndUsage custom columns MUST conform to CustomColumnHandling requirements. | Not Evaluated |  |
+
+### Invoice detail
+
+The financial record of charges as they appear on invoices provided by an invoice issuer.
+
+Source: [datasets/invoice_detail/dataset.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/dataset.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID1 | MUST | InvoiceDetail MUST adhere to the following requirements: | Not Evaluated |  |
+| ID1.1 | MUST | InvoiceDetail MUST be present when the invoice issuer supports payable invoices. | Not Evaluated |  |
+| ID1.2 | MUST | The presence of columns in InvoiceDetail MUST adhere to the following requirements: | Not Evaluated |  |
+| ID1.2.1 | MUST | InvoiceDetail MUST include BilledCost. | Not Evaluated |  |
+| ID1.2.2 | MUST | InvoiceDetail MUST include BillingAccountId. | Not Evaluated |  |
+| ID1.2.3 | MUST | InvoiceDetail MUST include BillingCurrency. | Not Evaluated |  |
+| ID1.2.4 | MUST | InvoiceDetail MUST include BillingPeriodEnd. | Not Evaluated |  |
+| ID1.2.5 | MUST | InvoiceDetail MUST include BillingPeriodStart. | Not Evaluated |  |
+| ID1.2.6 | MUST | InvoiceDetail MUST include ChargeCategory. | Not Evaluated |  |
+| ID1.2.7 | MUST | InvoiceDetail MUST include InvoiceDetailCreated. | Not Evaluated |  |
+| ID1.2.8 | MUST | InvoiceDetail MUST include InvoiceDetailDescription. | Not Evaluated |  |
+| ID1.2.9 | MUST | InvoiceDetail MUST include InvoiceDetailGrain. | Not Evaluated |  |
+| ID1.2.10 | MUST | InvoiceDetail MUST include InvoiceDetailId. | Not Evaluated |  |
+| ID1.2.11 | MUST | InvoiceDetail MUST include InvoiceDetailLastUpdated. | Not Evaluated |  |
+| ID1.2.12 | MUST | InvoiceDetail MUST include InvoiceId. | Not Evaluated |  |
+| ID1.2.13 | MUST | InvoiceDetail MUST include InvoiceIssueDate. | Not Evaluated |  |
+| ID1.2.14 | MUST | InvoiceDetail MUST include InvoiceIssueStatus. | Not Evaluated |  |
+| ID1.2.15 | MUST | InvoiceDetail MUST include InvoiceIssuerName. | Not Evaluated |  |
+| ID1.2.16 | MUST | InvoiceDetail MUST include PaymentCurrency when the invoice issuer supports billing and payment in different currencies. | Not Evaluated |  |
+| ID1.2.17 | MUST | InvoiceDetail MUST include PaymentCurrencyBilledCost when the invoice issuer supports billing and payment in different currencies. | Not Evaluated |  |
+| ID1.2.18 | MUST | InvoiceDetail MUST include PaymentCurrencyInvoiceDetailId when the invoice issuer represents billing currency and payment currency at different aggregation levels on payable invoices. | Not Evaluated |  |
+| ID1.2.19 | MUST | InvoiceDetail MUST include PaymentDueDate. | Not Evaluated |  |
+| ID1.2.20 | MUST | InvoiceDetail MUST include PaymentTerms. | Not Evaluated |  |
+| ID1.2.21 | MUST | InvoiceDetail MUST include PurchaseOrderNumber when the invoice issuer supports customer input of purchase order numbers. | Not Evaluated |  |
+| ID1.2.22 | MUST | InvoiceDetail MUST include ReferenceInvoiceId. | Not Evaluated |  |
+| ID1.2.23 | MUST | InvoiceDetail MUST include custom columns to represent any monetary metric that appears on an invoice issued to a BillingAccountId when there is no equivalent FOCUS column. | Not Evaluated |  |
+| ID1.3 | MUST | InvoiceDetail MUST conform to CorrectionHandling requirements. | Not Evaluated |  |
+| ID1.4 | MUST | InvoiceDetail MUST conform to DatasetCompleteness requirements. | Not Evaluated |  |
+| ID1.5 | MUST | InvoiceDetail MUST conform to DatasetConfiguration requirements. | Not Evaluated |  |
+| ID1.6 | MUST | InvoiceDetail MUST conform to DeliveryHandling requirements. | Not Evaluated |  |
+| ID1.7 | MUST | InvoiceDetail MUST represent all invoice line items with a non-zero BilledCost on any invoice associated with a BillingAccountId. | Not Evaluated |  |
+| ID1.8 | MUST | InvoiceDetail FOCUS columns MUST conform to FocusColumnHandling requirements. | Not Evaluated |  |
+| ID1.9 | MUST | InvoiceDetail FOCUS columns MUST conform to NullHandling requirements. | Not Evaluated |  |
+| ID1.10 | MUST | InvoiceDetail custom columns MUST conform to CustomColumnHandling requirements. | Not Evaluated |  |
+| ID1.11 | MUST | InvoiceDetail documentation MUST adhere to the following requirements: | Not Evaluated |  |
+| ID1.11.1 | MUST | InvoiceDetail documentation MUST specify how InvoiceDetail records correspond to invoice line items. | Not Evaluated |  |
+| ID1.11.2 | MUST | InvoiceDetail documentation MUST specify whether invoice line items with BilledCost of 0 are excluded from InvoiceDetail. | Not Evaluated |  |
+| ID1.11.3 | MUST | InvoiceDetail documentation MUST describe how columns in the CostAndUsage and InvoiceDetail dataset instances represent the invoice issuer's invoice reconciliation process. | Not Evaluated |  |
+| ID1.11.4 | MUST | InvoiceDetail documentation MUST be freely accessible to FOCUS consumers. | Not Evaluated |  |
 
 <br>
 
 ## Columns
 
-### Availability zone
+### Billing period created (Billing period)
 
-A provider-assigned identifier for a physically separated and isolated area within a Region that provides high availability and fault tolerance.
+The timestamp when the Billing Period record was first created.
 
-Source: [columns/availabilityzone.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/availabilityzone.md)
+Source: [datasets/billing_period/columns/billingperiodcreated.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/billing_period/columns/billingperiodcreated.md)
 
-| ID  | Type        | Criteria                                                                                                                                                 | Status           | Notes                                                                              |
-| --- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------- |
-| AZ1 | RECOMMENDED | AvailabilityZone is RECOMMENDED to be present in a FOCUS dataset when the provider supports deploying resources or services within an availability zone. | Does Not Support | Availability zones aren't available in any Cost Management cost and usage dataset. |
-| AZ2 | MUST        | AvailabilityZone MUST be of type String.                                                                                                                 | Not Applicable   |                                                                                    |
-| AZ3 | MUST        | AvailabilityZone MUST conform to StringHandling requirements.                                                                                            | Not Applicable   |                                                                                    |
-| AZ4 | MUST        | AvailabilityZone MUST be null when a charge is not specific to an availability zone.                                                                     | Not Applicable   |                                                                                    |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| BP-BPC1 | MUST | BillingPeriodCreated MUST adhere to the following requirements: | Not Evaluated |  |
+| BP-BPC1.1 | MUST | BillingPeriodCreated MUST be of type Date/Time. | Not Evaluated |  |
+| BP-BPC1.2 | MUST | BillingPeriodCreated MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| BP-BPC1.3 | MUST | BillingPeriodCreated MUST NOT be null. | Not Evaluated |  |
+| BP-BPC1.4 | MUST | BillingPeriodCreated MUST represent the moment in time the Billing Period record was instantiated. | Not Evaluated |  |
 
-### Billed cost
-
-A charge serving as the basis for invoicing, inclusive of all reduced rates and discounts while excluding the amortization of upfront charges (one-time or recurring).
-
-Source: [columns/billedcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/billedcost.md)
-
-| ID   | Type | Criteria                                                                                                                                                                        | Status   | Notes |
-| ---- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| BCo1 | MUST | BilledCost MUST be present in a FOCUS dataset.                                                                                                                                  | Supports |       |
-| BCo2 | MUST | BilledCost MUST be of type Decimal.                                                                                                                                             | Supports |       |
-| BCo3 | MUST | BilledCost MUST conform to NumericFormat requirements.                                                                                                                          | Supports |       |
-| BCo4 | MUST | BilledCost MUST NOT be null.                                                                                                                                                    | Supports |       |
-| BCo5 | MUST | BilledCost MUST be a valid decimal value.                                                                                                                                       | Supports |       |
-| BCo6 | MUST | BilledCost MUST be 0 for charges where payments are received by a third party (e.g., marketplace transactions).                                                                 | Supports |       |
-| BCo7 | MUST | BilledCost MUST be denominated in the BillingCurrency.                                                                                                                          | Supports |       |
-| BCo8 | MUST | The sum of the BilledCost for a given InvoiceId MUST match the sum of the payable amount provided in the corresponding invoice with the same id generated by the InvoiceIssuer. | Supports |       |
-
-### Billing account ID
-
-The identifier assigned to a billing account by the provider.
-
-FOCUS billing account represents the scope at which invoices are generated, which is an Enterprise Agreement billing account (also known as enrollment) or a Microsoft Customer Agreement billing profile.
-
-Source: [columns/billingaccountid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/billingaccountid.md)
-
-| ID   | Type   | Criteria                                                        | Status   | Notes                                                                                                                                                                                                                                                     |
-| ---- | ------ | --------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BAI1 | MUST   | BillingAccountId MUST be present in a FOCUS dataset.            | Supports |                                                                                                                                                                                                                                                           |
-| BAI2 | MUST   | BillingAccountId MUST be of type String.                        | Supports |                                                                                                                                                                                                                                                           |
-| BAI3 | MUST   | BillingAccountId MUST conform to StringHandling requirements.   | Supports |                                                                                                                                                                                                                                                           |
-| BAI4 | MUST   | BillingAccountId MUST NOT be null.                              | Supports |                                                                                                                                                                                                                                                           |
-| BAI5 | MUST   | BillingAccountId MUST be a unique identifier within a provider. | Supports |                                                                                                                                                                                                                                                           |
-| BAI6 | SHOULD | BillingAccountId SHOULD be a fully-qualified identifier.        | Supports | `BillingAccountId` uses the fully qualified Azure Resource Manager ID instead of the simple enrollment number or billing profile ID. This ensures the scope is obvious and programmatically accessible. |
-
-### Billing account name
-
-The display name assigned to a billing account.
-
-FOCUS billing account represents the scope at which invoices are generated, which is an Enterprise Agreement billing account (also known as enrollment) or a Microsoft Customer Agreement billing profile.
-
-Source: [columns/billingaccountname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/billingaccountname.md)
-
-| ID   | Type | Criteria                                                                                                         | Status   | Notes |
-| ---- | ---- | ---------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| BAN1 | MUST | BillingAccountName MUST be present in a FOCUS dataset.                                                           | Supports |       |
-| BAN2 | MUST | BillingAccountName MUST be of type String.                                                                       | Supports |       |
-| BAN3 | MUST | BillingAccountName MUST conform to StringHandling requirements.                                                  | Supports |       |
-| BAN4 | MUST | BillingAccountName MUST NOT be null when the provider supports assigning a display name for the billing account. | Supports |       |
-
-### Billing account type
-
-A provider-assigned name to identify the type of billing account.
-
-FOCUS billing account represents the scope at which invoices are generated, which is an Enterprise Agreement billing account (also known as enrollment) or a Microsoft Customer Agreement billing profile.
-
-Source: [columns/billingaccounttype.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/billingaccounttype.md)
-
-| ID     | Type | Criteria                                                                                                                          | Status   | Notes |
-| ------ | ---- | --------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| BAT1   | MUST | BillingAccountType MUST be present in a FOCUS dataset when the provider supports more than one possible BillingAccountType value. | Supports |       |
-| BAT2   | MUST | BillingAccountType MUST be of type String.                                                                                        | Supports |       |
-| BAT3   | MUST | BillingAccountType MUST conform to StringHandling requirements.                                                                   | Supports |       |
-| BAT3.1 | MUST | BillingAccountType MUST be null when BillingAccountId is null.                                                                    | Supports |       |
-| BAT3.2 | MUST | BillingAccountType MUST NOT be null when BillingAccountId is not null.                                                            | Supports |       |
-| BAT4   | MUST | BillingAccountType MUST be a consistent, readable display value.                                                                  | Supports |       |
-
-### Billing currency
-
-Represents the currency that a charge was billed in.
-
-Source: [columns/billingcurrency.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/billingcurrency.md)
-
-| ID   | Type | Criteria                                                                                     | Status   | Notes |
-| ---- | ---- | -------------------------------------------------------------------------------------------- | -------- | ----- |
-| BCu1 | MUST | BillingCurrency MUST be present in a FOCUS dataset.                                          | Supports |       |
-| BCu2 | MUST | BillingCurrency MUST be of type String.                                                      | Supports |       |
-| BCu3 | MUST | BillingCurrency MUST conform to StringHandling requirements.                                 | Supports |       |
-| BCu4 | MUST | BillingCurrency MUST conform to CurrencyFormat requirements.                                 | Supports |       |
-| BCu5 | MUST | BillingCurrency MUST NOT be null.                                                            | Supports |       |
-| BCu6 | MUST | BillingCurrency MUST match the currency used in the invoice generated by the invoice issuer. | Supports |       |
-| BCu7 | MUST | BillingCurrency MUST be expressed in national currency (e.g., USD, EUR).                     | Supports |       |
-
-### Billing period end
+### Billing period end (Billing period)
 
 The exclusive end bound of a billing period.
 
-Source: [columns/billingperiodend.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/billingperiodend.md)
+Source: [datasets/billing_period/columns/billingperiodend.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/billing_period/columns/billingperiodend.md)
 
-| ID   | Type | Criteria                                                                | Status   | Notes |
-| ---- | ---- | ----------------------------------------------------------------------- | -------- | ----- |
-| BPE1 | MUST | BillingPeriodEnd MUST be present in a FOCUS dataset.                    | Supports |       |
-| BPE2 | MUST | BillingPeriodEnd MUST be of type Date/Time.                             | Supports |       |
-| BPE3 | MUST | BillingPeriodEnd MUST conform to DateTimeFormat requirements.           | Supports |       |
-| BPE4 | MUST | BillingPeriodEnd MUST NOT be null.                                      | Supports |       |
-| BPE5 | MUST | BillingPeriodEnd MUST be the exclusive end bound of the billing period. | Supports |       |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| BP-BPE1 | MUST | BillingPeriodEnd MUST adhere to the following requirements: | Not Evaluated |  |
+| BP-BPE1.1 | MUST | BillingPeriodEnd MUST be of type Date/Time. | Not Evaluated |  |
+| BP-BPE1.2 | MUST | BillingPeriodEnd MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| BP-BPE1.3 | MUST | BillingPeriodEnd MUST NOT be null. | Not Evaluated |  |
+| BP-BPE1.4 | MUST | BillingPeriodEnd MUST be the exclusive end bound of the billing period. | Not Evaluated |  |
 
-### Billing period start
+### Billing period last updated (Billing period)
+
+The timestamp when the Billing Period record was last updated.
+
+Source: [datasets/billing_period/columns/billingperiodlastupdated.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/billing_period/columns/billingperiodlastupdated.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| BP-BPLU1 | MUST | BillingPeriodLastUpdated MUST adhere to the following requirements: | Not Evaluated |  |
+| BP-BPLU1.1 | MUST | BillingPeriodLastUpdated MUST be of type Date/Time. | Not Evaluated |  |
+| BP-BPLU1.2 | MUST | BillingPeriodLastUpdated MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| BP-BPLU1.3 | MUST | BillingPeriodLastUpdated MUST NOT be null. | Not Evaluated |  |
+| BP-BPLU1.4 | MUST | BillingPeriodLastUpdated MUST represent the most recent moment in time when any column value of the Billing Period record was created or modified. | Not Evaluated |  |
+| BP-BPLU1.5 | MUST | BillingPeriodLastUpdated MUST be greater than or equal to BillingPeriodCreated. | Not Evaluated |  |
+
+### Billing period start (Billing period)
 
 The inclusive start bound of a billing period.
 
-Source: [columns/billingperiodstart.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/billingperiodstart.md)
-
-| ID   | Type | Criteria                                                                    | Status   | Notes |
-| ---- | ---- | --------------------------------------------------------------------------- | -------- | ----- |
-| BPS1 | MUST | BillingPeriodStart MUST be present in a FOCUS dataset.                      | Supports |       |
-| BPS2 | MUST | BillingPeriodStart MUST be of type Date/Time.                               | Supports |       |
-| BPS3 | MUST | BillingPeriodStart MUST conform to DateTimeFormat requirements.             | Supports |       |
-| BPS4 | MUST | BillingPeriodStart MUST NOT be null.                                        | Supports |       |
-| BPS5 | MUST | BillingPeriodStart MUST be the inclusive start bound of the billing period. | Supports |       |
-
-### Capacity reservation ID
-
-The identifier assigned to a capacity reservation by the provider.
-
-Source: [columns/capacityreservationid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/capacityreservationid.md)
-
-| ID     | Type   | Criteria                                                                                                      | Status           | Notes                                                                                      |
-| ------ | ------ | ------------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------ |
-| CRI1   | MUST   | CapacityReservationId MUST be present in a FOCUS dataset when the provider supports capacity reservations.    | Does Not Support | `CapacityReservationId` isn't specified in the Cost Management FOCUS 1.2-preview dataset. |
-| CRI2   | MUST   | CapacityReservationId MUST be of type String.                                                                 | Not Applicable   |                                                                                            |
-| CRI3   | MUST   | CapacityReservationId MUST conform to StringHandling requirements.                                            | Not Applicable   |                                                                                            |
-| CRI3.1 | MUST   | CapacityReservationId MUST be null when a charge is not related to a capacity reservation.                    | Not Applicable   |                                                                                            |
-| CRI3.2 | MUST   | CapacityReservationId MUST NOT be null when a charge represents the unused portion of a capacity reservation. | Not Applicable   |                                                                                            |
-| CRI3.3 | SHOULD | CapacityReservationId SHOULD NOT be null when a charge is related to a capacity reservation.                  | Not Applicable   |                                                                                            |
-| CRI3.4 | MUST   | CapacityReservationId MUST be a unique identifier within the provider.                                        | Not Applicable   |                                                                                            |
-| CRI3.5 | SHOULD | CapacityReservationId SHOULD be a fully-qualified identifier.                                                 | Not Applicable   |                                                                                            |
-
-### Capacity reservation status
-
-Indicates whether the charge represents either the consumption of a capacity reservation or when a capacity reservation is unused.
-
-Source: [columns/capacityreservationstatus.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/capacityreservationstatus.md)
-
-| ID     | Type | Criteria                                                                                                            | Status           | Notes                                                                                          |
-| ------ | ---- | ------------------------------------------------------------------------------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------- |
-| CRS1   | MUST | CapacityReservationStatus MUST be present in a FOCUS dataset when the provider supports capacity reservations.      | Does Not Support | `CapacityReservationStatus` isn't specified in the Cost Management FOCUS 1.2-preview dataset. |
-| CRS2   | MUST | CapacityReservationStatus MUST be of type String.                                                                   | Not Applicable   |                                                                                                |
-| CRS2.1 | MUST | CapacityReservationStatus MUST be null when CapacityReservationId is null.                                          | Not Applicable   |                                                                                                |
-| CRS2.2 | MUST | CapacityReservationStatus MUST NOT be null when CapacityReservationId is not null and ChargeCategory is "Usage".    | Not Applicable   |                                                                                                |
-| CRS2.3 | MUST | CapacityReservationStatus MUST be one of the allowed values.                                                        | Not Applicable   |                                                                                                |
-| CRS2.4 | MUST | CapacityReservationStatus MUST be "Unused" when the charge represents the unused portion of a capacity reservation. | Not Applicable   |                                                                                                |
-| CRS2.5 | MUST | CapacityReservationStatus MUST be "Used" when the charge represents the used portion of a capacity reservation.     | Not Applicable   |                                                                                                |
-
-### Charge category
-
-Represents the highest-level classification of a charge based on the nature of how it is billed.
-
-Source: [columns/chargecategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/chargecategory.md)
-
-| ID   | Type | Criteria                                           | Status   | Notes |
-| ---- | ---- | -------------------------------------------------- | -------- | ----- |
-| CCa1 | MUST | ChargeCategory MUST be present in a FOCUS dataset. | Supports |       |
-| CCa2 | MUST | ChargeCategory MUST be of type String.             | Supports |       |
-| CCa3 | MUST | ChargeCategory MUST NOT be null.                   | Supports |       |
-| CCa4 | MUST | ChargeCategory MUST be one of the allowed values.  | Supports |       |
-
-### Charge class
-
-Indicates whether the row represents a correction to a previously invoiced billing period.
-
-Source: [columns/chargeclass.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/chargeclass.md)
-
-| ID     | Type | Criteria                                                                                                                                    | Status   | Notes |
-| ------ | ---- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| CCl1   | MUST | ChargeClass MUST be present in a FOCUS dataset.                                                                                             | Supports |       |
-| CCl2   | MUST | ChargeClass MUST be of type String.                                                                                                         | Supports |       |
-| CCl2.1 | MUST | ChargeClass MUST be null when the row does not represent a correction or when it represents a correction within the current billing period. | Supports |       |
-| CCl2.2 | MUST | ChargeClass MUST NOT be null when the row represents a correction to a previously invoiced billing period.                                  | Supports |       |
-| CCl3   | MUST | ChargeClass MUST be "Correction" when ChargeClass is not null.                                                                              | Supports |       |
-
-### Charge description
-
-Self-contained summary of the charge's purpose and price.
-
-Source: [columns/chargedescription.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/chargedescription.md)
-
-| ID  | Type   | Criteria                                                                                        | Status             | Notes                                                                                                                                                       |
-| --- | ------ | ----------------------------------------------------------------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| CD1 | MUST   | ChargeDescription MUST be present in a FOCUS dataset.                                           | Supports           |                                                                                                                                                             |
-| CD2 | MUST   | ChargeDescription MUST be of type String.                                                       | Supports           |                                                                                                                                                             |
-| CD3 | MUST   | ChargeDescription MUST conform to StringHandling requirements.                                  | Supports           |                                                                                                                                                             |
-| CD4 | SHOULD | ChargeDescription SHOULD NOT be null.                                                           | Partially Supports | `ChargeDescription` may be null for savings plan unused charges, Marketplace charges, and other charges that aren't directly associated with a product SKU. |
-| CD5 | SHOULD | ChargeDescription maximum length SHOULD be provided in the corresponding FOCUS Metadata Schema. | Does Not Support   |                                                                                                                                                             |
-
-### Charge frequency
-
-Indicates how often a charge will occur.
-
-Source: [columns/chargefrequency.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/chargefrequency.md)
-
-| ID   | Type        | Criteria                                                                     | Status   | Notes |
-| ---- | ----------- | ---------------------------------------------------------------------------- | -------- | ----- |
-| CFr1 | RECOMMENDED | ChargeFrequency is RECOMMENDED to be present in a FOCUS dataset.             | Supports |       |
-| CFr2 | MUST        | ChargeFrequency MUST be of type String.                                      | Supports |       |
-| CFr3 | MUST        | ChargeFrequency MUST NOT be null.                                            | Supports |       |
-| CFr4 | MUST        | ChargeFrequency MUST be one of the allowed values.                           | Supports |       |
-| CFr5 | MUST        | ChargeFrequency MUST NOT be "Usage-Based" when ChargeCategory is "Purchase". | Supports |       |
-
-### Charge period end
-
-The exclusive end bound of a charge period.
-
-Source: [columns/chargeperiodend.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/chargeperiodend.md)
-
-| ID   | Type | Criteria                                                                               | Status   | Notes |
-| ---- | ---- | -------------------------------------------------------------------------------------- | -------- | ----- |
-| CPE1 | MUST | ChargePeriodEnd MUST be present in a FOCUS dataset.                                    | Supports |       |
-| CPE2 | MUST | ChargePeriodEnd MUST be of type Date/Time.                                             | Supports |       |
-| CPE3 | MUST | ChargePeriodEnd MUST conform to DateTimeFormat requirements.                           | Supports |       |
-| CPE4 | MUST | ChargePeriodEnd MUST NOT be null.                                                      | Supports |       |
-| CPE5 | MUST | ChargePeriodEnd MUST be the exclusive end bound of the effective period of the charge. | Supports |       |
-
-### Charge period start
-
-The inclusive start bound of a charge period.
-
-Source: [columns/chargeperiodstart.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/chargeperiodstart.md)
-
-| ID   | Type | Criteria                                                                                   | Status   | Notes |
-| ---- | ---- | ------------------------------------------------------------------------------------------ | -------- | ----- |
-| CPS1 | MUST | ChargePeriodStart MUST be present in a FOCUS dataset.                                      | Supports |       |
-| CPS2 | MUST | ChargePeriodStart MUST be of type Date/Time.                                               | Supports |       |
-| CPS3 | MUST | ChargePeriodStart MUST conform to DateTimeFormat requirements.                             | Supports |       |
-| CPS4 | MUST | ChargePeriodStart MUST NOT be null.                                                        | Supports |       |
-| CPS5 | MUST | ChargePeriodStart MUST be the inclusive start bound of the effective period of the charge. | Supports |       |
-
-### Commitment discount category
-
-Indicates whether the commitment discount identified in the CommitmentDiscountId column is based on usage quantity or cost (aka "spend").
-
-Source: [columns/commitmentdiscountcategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/commitmentdiscountcategory.md)
-
-| ID     | Type | Criteria                                                                                                       | Status   | Notes |
-| ------ | ---- | -------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| CDC1   | MUST | CommitmentDiscountCategory MUST be present in a FOCUS dataset when the provider supports commitment discounts. | Supports |       |
-| CDC2   | MUST | CommitmentDiscountCategory MUST be of type String.                                                             | Supports |       |
-| CDC2.1 | MUST | CommitmentDiscountCategory MUST be null when CommitmentDiscountId is null.                                     | Supports |       |
-| CDC2.2 | MUST | CommitmentDiscountCategory MUST NOT be null when CommitmentDiscountId is not null.                             | Supports |       |
-| CDC3   | MUST | CommitmentDiscountCategory MUST be one of the allowed values.                                                  | Supports |       |
-
-### Commitment discount ID
-
-The identifier assigned to a commitment discount by the provider.
-
-Source: [columns/commitmentdiscountid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/commitmentdiscountid.md)
-
-| ID     | Type   | Criteria                                                                                                 | Status   | Notes |
-| ------ | ------ | -------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| CDI1   | MUST   | CommitmentDiscountId MUST be present in a FOCUS dataset when the provider supports commitment discounts. | Supports |       |
-| CDI2   | MUST   | CommitmentDiscountId MUST be of type String.                                                             | Supports |       |
-| CDI3   | MUST   | CommitmentDiscountId MUST conform to StringHandling requirements.                                        | Supports |       |
-| CDI3.1 | MUST   | CommitmentDiscountId MUST be null when a charge is not related to a commitment discount.                 | Supports |       |
-| CDI3.2 | MUST   | CommitmentDiscountId MUST NOT be null when a charge is related to a commitment discount.                 | Supports |       |
-| CDI3.3 | MUST   | CommitmentDiscountId MUST be a unique identifier within the provider.                                    | Supports |       |
-| CDI3.4 | SHOULD | CommitmentDiscountId SHOULD be a fully-qualified identifier.                                             | Supports |       |
-
-### Commitment discount name
-
-The display name assigned to a commitment discount.
-
-Source: [columns/commitmentdiscountname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/commitmentdiscountname.md)
-
-| ID       | Type | Criteria                                                                                                   | Status   | Notes |
-| -------- | ---- | ---------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| CDN1     | MUST | CommitmentDiscountName MUST be present in a FOCUS dataset when the provider supports commitment discounts. | Supports |       |
-| CDN2     | MUST | CommitmentDiscountName MUST be of type String.                                                             | Supports |       |
-| CDN3     | MUST | CommitmentDiscountName MUST conform to StringHandling requirements.                                        | Supports |       |
-| CDN3.1   | MUST | CommitmentDiscountName MUST be null when CommitmentDiscountId is null.                                     | Supports |       |
-| CDN3.1.1 | MUST | CommitmentDiscountName MUST NOT be null when a display name can be assigned to a commitment discount.      | Supports |       |
-| CDN3.1.2 | MAY  | CommitmentDiscountName MAY be null when a display name cannot be assigned to a commitment discount.        | Supports |       |
-
-### Commitment discount quantity
-
-The amount of a commitment discount purchased or accounted for in commitment discount related rows that is denominated in Commitment Discount Units.
-
-Source: [columns/commitmentdiscountquantity.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/commitmentdiscountquantity.md)
-
-| ID       | Type | Criteria                                                                                                                                                                                                             | Status           | Notes                                                                                           |
-| -------- | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------- |
-| CDQ1     | MUST | CommitmentDiscountQuantity MUST be present in a FOCUS dataset when the provider supports commitment discounts.                                                                                                       | Does Not Support | `CommitmentDiscountQuantity` isn't specified in the Cost Management FOCUS 1.2-preview dataset. |
-| CDQ2     | MUST | CommitmentDiscountQuantity MUST be of type Decimal.                                                                                                                                                                  | Not Applicable   |                                                                                                 |
-| CDQ3     | MUST | CommitmentDiscountQuantity MUST conform to NumericFormat requirements.                                                                                                                                               | Not Applicable   |                                                                                                 |
-| CDQ3.1   | MUST | CommitmentDiscountQuantity MUST NOT be null when ChargeClass is not "Correction".                                                                                                                                    | Not Applicable   |                                                                                                 |
-| CDQ3.2   | MAY  | CommitmentDiscountQuantity MAY be null when ChargeClass is "Correction".                                                                                                                                             | Not Applicable   |                                                                                                 |
-| CDQ3.1   | MUST | CommitmentDiscountQuantity MUST be null in all other cases.                                                                                                                                                          | Not Applicable   |                                                                                                 |
-| CDQ3.2   | MUST | CommitmentDiscountQuantity MUST be a valid decimal value.                                                                                                                                                            | Not Applicable   |                                                                                                 |
-| CDQ3.2.1 | MUST | CommitmentDiscountQuantity MUST be the quantity of CommitmentDiscountUnit, paid fully or partially upfront, that is eligible for consumption over the commitment discount's term when ChargeFrequency is "One-Time". | Not Applicable   |                                                                                                 |
-| CDQ3.2.2 | MUST | CommitmentDiscountQuantity MUST be the quantity of CommitmentDiscountUnit that is eligible for consumption for each charge period that corresponds with the purchase when ChargeFrequency is "Recurring".            | Not Applicable   |                                                                                                 |
-| CDQ3.2.3 | MUST | CommitmentDiscountQuantity MUST be the metered quantity of CommitmentDiscountUnit that is consumed in a given charge period when CommitmentDiscountStatus is "Used".                                                 | Not Applicable   |                                                                                                 |
-| CDQ3.2.4 | MUST | CommitmentDiscountQuantity MUST be the remaining, unused quantity of CommitmentDiscountUnit in a given charge period when CommitmentDiscountStatus is "Unused".                                                      | Not Applicable   |                                                                                                 |
-
-### Commitment discount status
-
-Indicates whether the charge corresponds with the consumption of a commitment discount or the unused portion of the committed amount.
-
-Source: [columns/commitmentdiscountstatus.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/commitmentdiscountstatus.md)
-
-| ID   | Type | Criteria                                                                                                        | Status   | Notes |
-| ---- | ---- | --------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| C1   | MUST | CommitmentDiscountStatus MUST be present in a FOCUS dataset when the provider supports commitment discounts.    | Supports |       |
-| C2   | MUST | CommitmentDiscountStatus MUST be of type String.                                                                | Supports |       |
-| C2.1 | MUST | CommitmentDiscountStatus MUST be null when CommitmentDiscountId is null.                                        | Supports |       |
-| C2.2 | MUST | CommitmentDiscountStatus MUST NOT be null when CommitmentDiscountId is not null and Charge Category is "Usage". | Supports |       |
-| C3   | MUST | CommitmentDiscountStatus MUST be one of the allowed values.                                                     | Supports |       |
-
-### Commitment discount type
-
-A provider-assigned identifier for the type of commitment discount applied to the row.
-
-Source: [columns/commitmentdiscounttype.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/commitmentdiscounttype.md)
-
-| ID     | Type | Criteria                                                                                                   | Status   | Notes |
-| ------ | ---- | ---------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| CDT1   | MUST | CommitmentDiscountType MUST be present in a FOCUS dataset when the provider supports commitment discounts. | Supports |       |
-| CDT2   | MUST | CommitmentDiscountType MUST be of type String.                                                             | Supports |       |
-| CDT3   | MUST | CommitmentDiscountType MUST conform to StringHandling requirements.                                        | Supports |       |
-| CDT3.1 | MUST | CommitmentDiscountType MUST be null when CommitmentDiscountId is null.                                     | Supports |       |
-| CDT3.2 | MUST | CommitmentDiscountType MUST NOT be null when CommitmentDiscountId is not null.                             | Supports |       |
-
-### Commitment discount unit
-
-The provider-specified measurement unit indicating how a provider measures the Commitment Discount Quantity of a commitment discount.
-
-Source: [columns/commitmentdiscountunit.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/commitmentdiscountunit.md)
-
-| ID     | Type   | Criteria                                                                                                                 | Status           | Notes                                                                                        |
-| ------ | ------ | ------------------------------------------------------------------------------------------------------------------------ | ---------------- | -------------------------------------------------------------------------------------------- |
-| CDU1   | MUST   | CommitmentDiscountUnit MUST be present in a FOCUS dataset when the provider supports commitment discounts.               | Does Not Support | `CommitmentDiscountUnit` isn't specified in the Cost Management FOCUS 1.2-preview dataset. |
-| CDU2   | MUST   | CommitmentDiscountUnit MUST be of type String.                                                                           | Not Applicable   |                                                                                              |
-| CDU3   | MUST   | CommitmentDiscountUnit MUST conform to StringHandling requirements.                                                      | Not Applicable   |                                                                                              |
-| CDU4   | SHOULD | CommitmentDiscountUnit SHOULD conform to UnitFormat requirements.                                                        | Not Applicable   |                                                                                              |
-| CDU4.1 | MUST   | CommitmentDiscountUnit MUST be null when CommitmentDiscountQuantity is null.                                             | Not Applicable   |                                                                                              |
-| CDU4.2 | MUST   | CommitmentDiscountUnit MUST NOT be null when CommitmentDiscountQuantity is not null.                                     | Not Applicable   |                                                                                              |
-| CDU4.3 | MUST   | CommitmentDiscountUnit MUST remain consistent over time for a given CommitmentDiscountId.                                | Not Applicable   |                                                                                              |
-| CDU4.4 | MUST   | CommitmentDiscountUnit MUST represent the unit used to measure the commitment discount.                                  | Not Applicable   |                                                                                              |
-| CDU4.5 | SHOULD | When accounting for commitment discount flexibility, the CommitmentDiscountUnit value SHOULD reflect this consideration. | Not Applicable   |                                                                                              |
-
-### Consumed quantity
-
-The volume of a metered SKU associated with a resource or service used, based on the Consumed Unit.
-
-Source: [columns/consumedquantity.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/consumedquantity.md)
-
-| ID      | Type | Criteria                                                                                                                                      | Status   | Notes |
-| ------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| CQ1     | MUST | ConsumedQuantity MUST be present in a FOCUS dataset when the provider supports the measurement of usage.                                      | Supports |       |
-| CQ2     | MUST | ConsumedQuantity MUST be of type Decimal.                                                                                                     | Supports |       |
-| CQ3     | MUST | ConsumedQuantity MUST conform to NumericFormat requirements.                                                                                  | Supports |       |
-| CQ3.1   | MUST | ConsumedQuantity MUST be null when ChargeCategory is not "Usage", or when ChargeCategory is "Usage" and CommitmentDiscountStatus is "Unused". | Supports |       |
-| CQ3.1.1 | MUST | ConsumedQuantity MUST NOT be null when ChargeClass is not "Correction".                                                                       | Supports |       |
-| CQ3.1.2 | MAY  | ConsumedQuantity MAY be null when ChargeClass is "Correction".                                                                                | Supports |       |
-| CQ4     | MUST | ConsumedQuantity MUST be a valid decimal value when not null.                                                                                 | Supports |       |
-
-### Consumed unit
-
-Provider-specified measurement unit indicating how a provider measures usage of a metered SKU associated with a resource or service.
-
-Source: [columns/consumedunit.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/consumedunit.md)
-
-| ID    | Type   | Criteria                                                                                             | Status   | Notes |
-| ----- | ------ | ---------------------------------------------------------------------------------------------------- | -------- | ----- |
-| CU1   | MUST   | ConsumedUnit MUST be present in a FOCUS dataset when the provider supports the measurement of usage. | Supports |       |
-| CU2   | MUST   | ConsumedUnit MUST be of type String.                                                                 | Supports |       |
-| CU3   | MUST   | ConsumedUnit MUST conform to StringHandling requirements.                                            | Supports |       |
-| CU4   | SHOULD | ConsumedUnit SHOULD conform to UnitFormat requirements.                                              | Supports |       |
-| CU4.1 | MUST   | ConsumedUnit MUST be null when ConsumedQuantity is null.                                             | Supports |       |
-| CU4.2 | MUST   | ConsumedUnit MUST NOT be null when ConsumedQuantity is not null.                                     | Supports |       |
-
-### Contracted cost
-
-Cost calculated by multiplying contracted unit price and the corresponding Pricing Quantity.
-
-Source: [columns/contractedcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/contractedcost.md)
-
-| ID     | Type | Criteria                                                                                                                                                                                                           | Status             | Notes                                                                                                                                                  |
-| ------ | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| CnC1   | MUST | ContractedCost MUST be present in a FOCUS dataset.                                                                                                                                                                 | Supports           |                                                                                                                                                        |
-| CnC2   | MUST | ContractedCost MUST be of type Decimal.                                                                                                                                                                            | Supports           |                                                                                                                                                        |
-| CnC3   | MUST | ContractedCost MUST conform to NumericFormat requirements.                                                                                                                                                         | Supports           |                                                                                                                                                        |
-| CnC4   | MUST | ContractedCost MUST NOT be null.                                                                                                                                                                                   | Partially Supports | `ContractedCost` is never null, but may be 0 for: EA Marketplace charges, EA reservation usage when cost allocation is enabled, MCA reservation usage. |
-| CnC5   | MUST | ContractedCost MUST be a valid decimal value.                                                                                                                                                                      | Supports           |                                                                                                                                                        |
-| CnC6   | MUST | ContractedCost MUST be denominated in the BillingCurrency.                                                                                                                                                         | Supports           |                                                                                                                                                        |
-| CnC7.1 | MUST | When ContractedUnitPrice is null... ContractedCost of a charge calculated based on other charges (e.g., when the ChargeCategory is "Tax") MUST be calculated based on the ContractedCost of those related charges. | Supports           |                                                                                                                                                        |
-| CnC7.2 | MUST | When ContractedUnitPrice is null... ContractedCost of a charge unrelated to other charges (e.g., when the ChargeCategory is "Credit") MUST match the BilledCost.                                                   | Supports           | `ContractedCost` may be off by less than 0.00001 due to rounding errors.                                                                               |
-| CnC8   | MUST | The product of ContractedUnitPrice and PricingQuantity MUST match the ContractedCost when ContractedUnitPrice is not null, PricingQuantity is not null, and ChargeClass is not "Correction".                       | Supports           | `ContractedCost` may be off by less than 0.00001 due to rounding errors.                                                                               |
-| CnC9   | MAY  | Discrepancies in ContractedCost, ContractedUnitPrice, or PricingQuantity MAY exist when ChargeClass is "Correction".                                                                                               | Supports           |                                                                                                                                                        |
-
-### Contracted unit price
-
-The agreed-upon unit price for a single Pricing Unit of the associated SKU, inclusive of negotiated discounts, if present, while excluding negotiated commitment discounts or any other discounts.
-
-Source: [columns/contractedunitprice.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/contractedunitprice.md)
-
-| ID      | Type | Criteria                                                                                                                                                                                           | Status             | Notes                                                                                                                                                       |
-| ------- | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| CnUP1   | MUST | ContractedUnitPrice MUST be present in a FOCUS dataset when the provider supports negotiated pricing concepts.                                                                                     | Supports           |                                                                                                                                                             |
-| CnUP2   | MUST | ContractedUnitPrice MUST be of type Decimal.                                                                                                                                                       | Supports           |                                                                                                                                                             |
-| CnUP3   | MUST | ContractedUnitPrice MUST conform to NumericFormat requirements.                                                                                                                                    | Supports           |                                                                                                                                                             |
-| CnUP4.1 | MUST | ContractedUnitPrice MUST be null when ChargeCategory is "Tax".                                                                                                                                     | Not Applicable     | Taxes aren't included in any Cost Management cost and usage dataset.                                                                                        |
-| CnUP4.2 | MUST | ContractedUnitPrice MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction".                                                                             | Partially Supports | `ContractedUnitPrice` is never null, but may be 0 for: EA Marketplace charges, EA reservation usage when cost allocation is enabled, MCA reservation usage. |
-| CnUP4.3 | MAY  | ContractedUnitPrice MAY be null in all other cases.                                                                                                                                                | Supports           |                                                                                                                                                             |
-| CnUP5.1 | MUST | When ContractedUnitPrice is not null... ContractedUnitPrice MUST be a non-negative decimal value.                                                                                                  | Supports           |                                                                                                                                                             |
-| CnUP5.2 | MUST | When ContractedUnitPrice is not null... ContractedUnitPrice MUST be denominated in the BillingCurrency.                                                                                            | Supports           |                                                                                                                                                             |
-| CnUP5.3 | MUST | When ContractedUnitPrice is not null... The product of ContractedUnitPrice and PricingQuantity MUST match the ContractedCost when PricingQuantity is not null and ChargeClass is not "Correction". | Supports           | `ContractedCost` may be off by less than 0.00001 due to rounding errors.                                                                                    |
-| CnUP6   | MAY  | Discrepancies in ContractedUnitPrice, ContractedCost, or PricingQuantity MAY exist when ChargeClass is "Correction".                                                                               | Supports           |                                                                                                                                                             |
-
-### Effective cost
-
-The amortized cost of the charge after applying all reduced rates, discounts, and the applicable portion of relevant, prepaid purchases (one-time or recurring) that covered this charge.
-
-Source: [columns/effectivecost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/effectivecost.md)
-
-| ID    | Type | Criteria                                                                                                                                                                                                                                                                     | Status   | Notes |
-| ----- | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| EC1   | MUST | EffectiveCost MUST be present in a FOCUS dataset.                                                                                                                                                                                                                            | Supports |       |
-| EC2   | MUST | EffectiveCost MUST be of type Decimal.                                                                                                                                                                                                                                       | Supports |       |
-| EC3   | MUST | EffectiveCost MUST conform to NumericFormat requirements.                                                                                                                                                                                                                    | Supports |       |
-| EC4   | MUST | EffectiveCost MUST NOT be null.                                                                                                                                                                                                                                              | Supports |       |
-| EC5   | MUST | EffectiveCost MUST be a valid decimal value.                                                                                                                                                                                                                                 | Supports |       |
-| EC6   | MUST | EffectiveCost MUST be 0 when ChargeCategory is "Purchase" and the purchase is intended to cover future eligible charges.                                                                                                                                                     | Supports |       |
-| EC7   | MUST | EffectiveCost MUST be denominated in the BillingCurrency.                                                                                                                                                                                                                    | Supports |       |
-| EC8.1 | MUST | EffectiveCost of a charge calculated based on other charges (e.g., when the ChargeCategory is "Tax") MUST be calculated based on the EffectiveCost of those related charges.                                                                                                 | Supports |       |
-| EC8.2 | MUST | EffectiveCost of a charge unrelated to other charges (e.g., when the ChargeCategory is "Credit") MUST match the BilledCost.                                                                                                                                                  | Supports |       |
-| EC9.1 | MUST | The sum of EffectiveCost where ChargeCategory is "Usage" MUST equal the sum of BilledCost where ChargeCategory is "Purchase".                                                                                                                                                | Supports |       |
-| EC9.2 | MUST | The sum of EffectiveCost where ChargeCategory is "Usage" MUST equal the sum of EffectiveCost where ChargeCategory is "Usage" and CommitmentDiscountStatus is "Used", plus the sum of EffectiveCost where ChargeCategory is "Usage" and CommitmentDiscountStatus is "Unused". | Supports |       |
-
-### Invoice ID
-
-The provider-assigned identifier for an invoice encapsulating some or all charges in the corresponding billing period for a given billing account.
-
-Source: [columns/invoiceid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/invoiceid.md)
-
-| ID    | Type        | Criteria                                                                                                                              | Status             | Notes                                                                                                 |
-| ----- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------- |
-| II1   | RECOMMENDED | InvoiceId is RECOMMENDED to be present in a FOCUS dataset.                                                                            | Supports           |                                                                                                       |
-| II2   | MUST        | InvoiceId MUST be of type String.                                                                                                     | Supports           |                                                                                                       |
-| II3   | MUST        | InvoiceId MUST conform to StringHandling requirements.                                                                                | Supports           |                                                                                                       |
-| II4.1 | MUST        | InvoiceId MUST be null when the charge is not associated either with an invoice or with a pre-generated provisional invoice.          | Supports           |                                                                                                       |
-| II4.2 | MUST        | InvoiceId MUST NOT be null when the charge is associated with either an issued invoice or a pre-generated provisional invoice.        | Partially Supports | Supported for Microsoft Customer Agreement accounts but not for Enterprise Agreement accounts. |
-| II5   | MAY         | InvoiceId MAY be generated prior to an invoice being issued.                                                                          | Not Applicable     |                                                                                                       |
-| II6   | MUST        | InvoiceId MUST be associated with the related charge and BillingAccountId when a pre-generated invoice or provisional invoice exists. | Supports           |                                                                                                       |
-
-### Invoice issuer name
+Source: [datasets/billing_period/columns/billingperiodstart.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/billing_period/columns/billingperiodstart.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| BP-BPS1 | MUST | BillingPeriodStart MUST adhere to the following requirements: | Not Evaluated |  |
+| BP-BPS1.1 | MUST | BillingPeriodStart MUST be of type Date/Time. | Not Evaluated |  |
+| BP-BPS1.2 | MUST | BillingPeriodStart MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| BP-BPS1.3 | MUST | BillingPeriodStart MUST NOT be null. | Not Evaluated |  |
+| BP-BPS1.4 | MUST | BillingPeriodStart MUST be the inclusive start bound of the billing period. | Not Evaluated |  |
+
+### Billing period status (Billing period)
+
+The state of the billing period (i.e., "Open" or "Closed"), indicating whether the delivered data for the period is preliminary, or if all anticipated invoices have been issued and the delivered data is finalized.
+
+Source: [datasets/billing_period/columns/billingperiodstatus.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/billing_period/columns/billingperiodstatus.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| BP-BiPS1 | MUST | BillingPeriodStatus MUST adhere to the following requirements: | Not Evaluated |  |
+| BP-BiPS1.1 | MUST | BillingPeriodStatus MUST be of type String. | Not Evaluated |  |
+| BP-BiPS1.2 | MUST | BillingPeriodStatus MUST NOT be null. | Not Evaluated |  |
+| BP-BiPS1.3 | MUST | BillingPeriodStatus MUST be one of the allowed values. | Not Evaluated |  |
+| BP-BiPS1.4 | MUST | BillingPeriodStatus MUST represent the state of the billing period identified by BillingPeriodStart and BillingPeriodEnd. | Not Evaluated |  |
+| BP-BiPS1.5 | MUST | BillingPeriodStatus MUST NOT be "Open" following a previous status of "Closed", except when explicitly requested or approved by the customer. | Not Evaluated |  |
+
+### Invoice issuer name (Billing period)
 
 The name of the entity responsible for invoicing for the resources or services consumed.
 
-For Cloud Solution Provider (CSP) accounts, `InvoiceIssuerName` is set to the name of the Cloud Solution Provider (CSP) distributor that has a direct relationship with Microsoft and may not represent the organization that directly invoices the end customer. For all other account types, the value is "Microsoft", even if there's an intermediary organization that invoices the end customer.
+Source: [datasets/billing_period/columns/invoiceissuername.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/billing_period/columns/invoiceissuername.md)
 
-Source: [columns/invoiceissuer.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/invoiceissuer.md)
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| BP-IIN1 | MUST | InvoiceIssuerName MUST adhere to the following requirements: | Not Evaluated |  |
+| BP-IIN1.1 | MUST | InvoiceIssuerName MUST be of type String. | Not Evaluated |  |
+| BP-IIN1.2 | MUST | InvoiceIssuerName MUST conform to StringHandling requirements. | Not Evaluated |  |
+| BP-IIN1.3 | MUST | InvoiceIssuerName MUST NOT be null. | Not Evaluated |  |
+| BP-IIN1.4 | MUST | InvoiceIssuerName MUST represent the entity that issues invoices. | Not Evaluated |  |
 
-| ID   | Type | Criteria                                                       | Status   | Notes |
-| ---- | ---- | -------------------------------------------------------------- | -------- | ----- |
-| IIN1 | MUST | InvoiceIssuerName MUST be present in a FOCUS dataset.          | Supports |       |
-| IIN2 | MUST | InvoiceIssuerName MUST be of type String.                      | Supports |       |
-| IIN3 | MUST | InvoiceIssuerName MUST conform to StringHandling requirements. | Supports |       |
-| IIN4 | MUST | InvoiceIssuerName MUST NOT be null.                            | Supports |       |
+### Billing currency (Contract commitment)
 
-### List cost
+Represents the currency of a contract commitment.
+
+Source: [datasets/contract_commitment/columns/billingcurrency.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/billingcurrency.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-BC1 | MUST | BillingCurrency MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-BC1.1 | MUST | BillingCurrency MUST be of type String. | Not Evaluated |  |
+| CC-BC1.2 | MUST | BillingCurrency MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CC-BC1.3 | MUST | BillingCurrency MUST conform to CurrencyFormat requirements. | Not Evaluated |  |
+| CC-BC1.4 | MUST | BillingCurrency MUST NOT be null when ContractCommitmentCategory is "Spend". | Not Evaluated |  |
+| CC-BC1.5 | MUST | BillingCurrency MUST match the currency used in the invoice generated by the invoice issuer. | Not Evaluated |  |
+| CC-BC1.6 | MUST | BillingCurrency MUST be expressed in national currency (e.g., USD, EUR). | Not Evaluated |  |
+
+### Contract commitment applicability (Contract commitment)
+
+A structured definition of the specific entities to which a contract commitment applies, including inclusion/exclusion logic and applicability percentages.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentapplicability.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentapplicability.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCA1 | MUST | ContractCommitmentApplicability MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCA1.1 | MUST | ContractCommitmentApplicability MUST be of type JSON Object (serialized as a String where necessary). | Not Evaluated |  |
+| CC-CCA1.2 | MUST | ContractCommitmentApplicability MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CC-CCA1.3 | MUST | ContractCommitmentApplicability MUST conform to JsonObjectFormat requirements. | Not Evaluated |  |
+| CC-CCA1.4 | MUST | ContractCommitmentApplicability MUST conform to ContractCommitmentApplicabilityObject requirements. | Not Evaluated |  |
+| CC-CCA1.5 | MUST | ContractCommitmentApplicability MUST NOT be null. | Not Evaluated |  |
+| CC-CCA2 | MUST | ContractCommitmentApplicabilityObject MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCA2.1 | MUST | ContractCommitmentApplicabilityObject MUST conform to the ContractCommitmentApplicabilityObjectSchema JSON Schema. | Not Evaluated |  |
+| CC-CCA2.2 | MUST | ContractCommitmentApplicabilityObject.IsGlobalScope MUST be `true` when the contract commitment applies to all entities. | Not Evaluated |  |
+| CC-CCA2.3 | MUST | ContractCommitmentApplicabilityObject.IsComplexScope MUST be `true` when the contract commitment's applicability logic exceeds schema capabilities. | Not Evaluated |  |
+| CC-CCA2.4 | MUST | ContractCommitmentApplicabilityObject.Applicability.Cost MUST represent the fraction of an eligible charge's cost that is applicable to the commitment (0.0 to 1.0). | Not Evaluated |  |
+| CC-CCA2.5 | MUST | ContractCommitmentApplicabilityObject.Applicability.Usage MUST represent the fraction of an eligible charge's usage that is applicable to the commitment (0.0 to 1.0). | Not Evaluated |  |
+| CC-CCA2.6 | MUST | ContractCommitmentApplicabilityObject.Inclusions[\].Applicability.Cost MUST represent the fraction of an eligible charge's cost that is applicable to the commitment (0.0 to 1.0). | Not Evaluated |  |
+| CC-CCA2.7 | MUST | ContractCommitmentApplicabilityObject.Inclusions[\].Applicability.Usage MUST represent the fraction of an eligible charge's usage that is applicable to the commitment (0.0 to 1.0). | Not Evaluated |  |
+| CC-CCA2.8 | SHOULD | ContractCommitmentApplicabilityObject.Inclusions[\].Dimension SHOULD represent a column in Cost and Usage. | Not Evaluated |  |
+| CC-CCA2.9 | SHOULD | ContractCommitmentApplicabilityObject.Exclusions[\].Dimension SHOULD represent a column in Cost and Usage. | Not Evaluated |  |
+| CC-CCA2.10 | MUST | ContractCommitmentApplicabilityObject.Inclusions[\].Values MUST contain only the single string "" when the wildcard is present. | Not Evaluated |  |
+| CC-CCA2.11 | MUST | ContractCommitmentApplicabilityObject.Exclusions[\].Values MUST contain only the single string "" when the wildcard is present. | Not Evaluated |  |
+
+### Contract commitment benefit category (Contract commitment)
+
+Defines the primary value or advantage received for a contract commitment.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentbenefitcategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentbenefitcategory.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCBC1 | MUST | ContractCommitmentBenefitCategory MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCBC1.1 | MUST | ContractCommitmentBenefitCategory MUST be of type String. | Not Evaluated |  |
+| CC-CCBC1.2 | MUST | ContractCommitmentBenefitCategory MUST NOT be null. | Not Evaluated |  |
+| CC-CCBC1.3 | MUST | ContractCommitmentBenefitCategory MUST be one of the allowed values. | Not Evaluated |  |
+
+### Contract commitment category (Contract commitment)
+
+Represents the highest-level classification of a contract commitment based on the nature of how it is applied to a charge.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentcategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentcategory.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCC1 | MUST | ContractCommitmentCategory MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCC1.1 | MUST | ContractCommitmentCategory MUST be of type String. | Not Evaluated |  |
+| CC-CCC1.2 | MUST | ContractCommitmentCategory MUST NOT be null. | Not Evaluated |  |
+| CC-CCC1.3 | MUST | ContractCommitmentCategory MUST be one of the allowed values. | Not Evaluated |  |
+
+### Contract commitment cost (Contract commitment)
+
+The monetary value of the contract commitment.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentcost.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CoCC1 | MUST | ContractCommitmentCost MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CoCC1.1 | MUST | ContractCommitmentCost MUST be of type Decimal. | Not Evaluated |  |
+| CC-CoCC1.2 | MUST | ContractCommitmentCost MUST conform to NumericFormat requirements. | Not Evaluated |  |
+| CC-CoCC1.3 | MUST | ContractCommitmentCost MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CC-CoCC1.3.1 | MUST | ContractCommitmentCost MUST NOT be null when ContractCommitmentCategory is "Spend". | Not Evaluated |  |
+| CC-CoCC1.3.2 | MAY | ContractCommitmentCost MAY be null when ContractCommitmentCategory is "Usage". | Not Evaluated |  |
+| CC-CoCC1.4 | MUST | ContractCommitmentCost MUST be denominated in the BillingCurrency. | Not Evaluated |  |
+
+### Contract commitment created (Contract commitment)
+
+The timestamp when the contract commitment record was first created.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentcreated.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentcreated.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCoC1 | MUST | ContractCommitmentCreated MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCoC1.1 | MUST | ContractCommitmentCreated MUST be of type Date/Time. | Not Evaluated |  |
+| CC-CCoC1.2 | MUST | ContractCommitmentCreated MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| CC-CCoC1.3 | MUST | ContractCommitmentCreated MUST NOT be null. | Not Evaluated |  |
+| CC-CCoC1.4 | MUST | ContractCommitmentCreated MUST represent the moment in time the Contract Commitment record was instantiated. | Not Evaluated |  |
+
+### Contract commitment description (Contract commitment)
+
+The self-contained summary of the contract commitment's terms.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentdescription.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentdescription.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCD1 | MUST | ContractCommitmentDescription MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCD1.1 | MUST | ContractCommitmentDescription MUST be of type String. | Not Evaluated |  |
+| CC-CCD1.2 | MUST | ContractCommitmentDescription MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CC-CCD1.3 | SHOULD | ContractCommitmentDescription SHOULD NOT be null. | Not Evaluated |  |
+| CC-CCD1.4 | SHOULD | ContractCommitmentDescription maximum length SHOULD be provided in the corresponding FOCUS Metadata Schema. | Not Evaluated |  |
+
+### Contract commitment discount percentage (Contract commitment)
+
+The effective percentage reduction applied to the list price of resources or services covered by a contract commitment.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentdiscountpercentage.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentdiscountpercentage.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCDP1 | MUST | ContractCommitmentDiscountPercentage MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCDP1.1 | MUST | ContractCommitmentDiscountPercentage MUST be of type Decimal. | Not Evaluated |  |
+| CC-CCDP1.2 | MUST | ContractCommitmentDiscountPercentage MUST conform to NumericFormat requirements. | Not Evaluated |  |
+| CC-CCDP1.3 | MUST | ContractCommitmentDiscountPercentage MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CC-CCDP1.3.1 | MUST | ContractCommitmentDiscountPercentage MUST NOT be null when ContractCommitmentBenefitCategory is "Discount". | Not Evaluated |  |
+| CC-CCDP1.3.2 | MUST | ContractCommitmentDiscountPercentage MUST be null when ContractCommitmentBenefitCategory is "Availability". | Not Evaluated |  |
+| CC-CCDP1.4 | MUST | ContractCommitmentDiscountPercentage MUST be a value between 0.0 and 1.0, inclusive. | Not Evaluated |  |
+| CC-CCDP1.5 | MUST | For contracts with multiple tiers (e.g., 5% discount up to 1M, 10% above 1M), ContractCommitmentDiscountPercentage MUST adhere to the following additional requirements: | Not Evaluated |  |
+| CC-CCDP1.5.1 | MUST | ContractCommitmentDiscountPercentage MUST reflect the discount percentage defined for the specific pricing tier represented by the Contract Commitment row. | Not Evaluated |  |
+| CC-CCDP1.5.2 | MUST | ContractCommitmentDiscountPercentage MUST correspond to only one pricing tier per Contract Commitment row. | Not Evaluated |  |
+| CC-CCDP1.6 | SHOULD | ContractCommitmentDiscountPercentage SHOULD represent the net effective discount when multiple contractual layers are applicable (e.g., a negotiated discount on top of a standard commitment). | Not Evaluated |  |
+
+### Contract commitment duration type (Contract commitment)
+
+Represents the categorical length of the contract commitment offering.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentdurationtype.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentdurationtype.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCDT1 | MUST | ContractCommitmentDurationType MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCDT1.1 | MUST | ContractCommitmentDurationType MUST be of type String. | Not Evaluated |  |
+| CC-CCDT1.2 | MUST | ContractCommitmentDurationType MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CC-CCDT1.3 | MUST | ContractCommitmentDurationType MUST NOT be null. | Not Evaluated |  |
+| CC-CCDT1.4 | SHOULD | ContractCommitmentDurationType SHOULD be expressed with a quantity and time unit, where quantity is a positive integer, and time-unit is a standardized unit of time, either singular or plural (e.g., "1 Day", "1 Year", "3 Months", "3 Years"). | Not Evaluated |  |
+| CC-CCDT1.5 | SHOULD | ContractCommitmentDurationType SHOULD present the unit of time as one of the allowed values. | Not Evaluated |  |
+| CC-CCDT1.6 | SHOULD | ContractCommitmentDurationType SHOULD correspond to the standard duration of the purchased offering (e.g., "1 Year", "3 Years") rather than a precise calculation of days or hours. | Not Evaluated |  |
+| CC-CCDT1.7 | MAY | ContractCommitmentDurationType MAY differ from the actual duration calculated between ContractCommitmentPeriodStart and ContractCommitmentPeriodEnd (e.g., if a 3-year commitment is exchanged in its final month, the resulting record may have a short lifespan but retains a value of "3 Years"). | Not Evaluated |  |
+
+### Contract commitment fulfillment interval (Contract commitment)
+
+Represents the specific period used to measure and reset the fulfillment of a contract commitment.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentfulfillmentinterval.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentfulfillmentinterval.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCFI1 | MUST | ContractCommitmentFulfillmentInterval MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCFI1.1 | MUST | ContractCommitmentFulfillmentInterval MUST be of type String. | Not Evaluated |  |
+| CC-CCFI1.2 | MUST | ContractCommitmentFulfillmentInterval MUST NOT be null. | Not Evaluated |  |
+| CC-CCFI1.3 | MUST | ContractCommitmentFulfillmentInterval MUST be one of the allowed values. | Not Evaluated |  |
+| CC-CCFI1.4 | MUST | ContractCommitmentFulfillmentInterval MUST NOT be "Full Period" when ContractCommitmentModel is "Continuous". | Not Evaluated |  |
+
+### Contract commitment ID (Contract commitment)
+
+A service-provider-assigned identifier describing a single contract term agreed between a service provider and a customer.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentid.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCI1 | MUST | ContractCommitmentId MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCI1.1 | MUST | ContractCommitmentId MUST be of type String. | Not Evaluated |  |
+| CC-CCI1.2 | MUST | ContractCommitmentId MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CC-CCI1.3 | MUST | ContractCommitmentId MUST NOT be null. | Not Evaluated |  |
+| CC-CCI1.4 | MUST | ContractCommitmentId MUST be a unique identifier within the service provider. | Not Evaluated |  |
+| CC-CCI1.5 | SHOULD | ContractCommitmentId SHOULD be a fully-qualified identifier. | Not Evaluated |  |
+| CC-CCI1.6 | MUST | ContractCommitmentId MUST have one and only one parent ContractId. | Not Evaluated |  |
+| CC-CCI1.7 | MAY | ContractCommitmentId MAY match ContractId. | Not Evaluated |  |
+
+### Contract commitment last updated (Contract commitment)
+
+The timestamp when the contract commitment record was last updated.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentlastupdated.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentlastupdated.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCLU1 | MUST | ContractCommitmentLastUpdated MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCLU1.1 | MUST | ContractCommitmentLastUpdated MUST be of type Date/Time. | Not Evaluated |  |
+| CC-CCLU1.2 | MUST | ContractCommitmentLastUpdated MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| CC-CCLU1.3 | MUST | ContractCommitmentLastUpdated MUST NOT be null. | Not Evaluated |  |
+| CC-CCLU1.4 | MUST | ContractCommitmentLastUpdated MUST represent the most recent moment in time when any column value of the Contract Commitment record was created or modified. | Not Evaluated |  |
+| CC-CCLU1.5 | MUST | ContractCommitmentLastUpdated MUST be greater than or equal to ContractCommitmentCreated. | Not Evaluated |  |
+
+### Contract commitment lifecycle status (Contract commitment)
+
+The current lifecycle state of a contract commitment.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentlifecyclestatus.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentlifecyclestatus.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCLS1 | MUST | ContractCommitmentLifecycleStatus MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCLS1.1 | MUST | ContractCommitmentLifecycleStatus MUST be of type String. | Not Evaluated |  |
+| CC-CCLS1.2 | MUST | ContractCommitmentLifecycleStatus MUST NOT be null. | Not Evaluated |  |
+| CC-CCLS1.3 | MUST | ContractCommitmentLifecycleStatus MUST be one of the allowed values. | Not Evaluated |  |
+| CC-CCLS1.4 | MUST | When a contract commitment record is modified in a way that requires a new ContractCommitmentID, ContractCommitmentLifecycleStatus for the previous record MUST be "Superseded". | Not Evaluated |  |
+
+### Contract commitment model (Contract commitment)
+
+Represents the operational behavior and consumption flexibility of a contract commitment.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentmodel.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentmodel.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCM1 | MUST | ContractCommitmentModel MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCM1.1 | MUST | ContractCommitmentModel MUST be of type String. | Not Evaluated |  |
+| CC-CCM1.2 | MUST | ContractCommitmentModel MUST NOT be null. | Not Evaluated |  |
+| CC-CCM1.3 | MUST | ContractCommitmentModel MUST be one of the allowed values. | Not Evaluated |  |
+| CC-CCM1.4 | MUST | ContractCommitmentModel MUST be "Discontinuous" when ContractCommitmentFulfillmentInterval is "Full Period". | Not Evaluated |  |
+
+### Contract commitment offer category (Contract commitment)
+
+Indicates whether the pricing and terms of a contract commitment are based on a standard, publicly accessible offering or have been specifically brokered through private negotiation.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentoffercategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentoffercategory.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CoCOC1 | MUST | ContractCommitmentOfferCategory MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CoCOC1.1 | MUST | ContractCommitmentOfferCategory MUST be of type String. | Not Evaluated |  |
+| CC-CoCOC1.2 | MUST | ContractCommitmentOfferCategory MUST NOT be null. | Not Evaluated |  |
+| CC-CoCOC1.3 | MUST | ContractCommitmentOfferCategory MUST be one of the allowed values. | Not Evaluated |  |
+
+### Contract commitment payment interval (Contract commitment)
+
+Represents the frequency by which a contract commitment is invoiced.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentpaymentinterval.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentpaymentinterval.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCPI1 | MUST | ContractCommitmentPaymentInterval MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCPI1.1 | MUST | ContractCommitmentPaymentInterval MUST be of type String. | Not Evaluated |  |
+| CC-CCPI1.2 | MUST | ContractCommitmentPaymentInterval MUST NOT be null. | Not Evaluated |  |
+| CC-CCPI1.3 | MUST | ContractCommitmentPaymentInterval MUST be one of the allowed values. | Not Evaluated |  |
+| CC-CCPI1.4 | MUST | ContractCommitmentPaymentInterval MUST be "One-Time" when ContractCommitmentPaymentModel is "All Upfront". | Not Evaluated |  |
+| CC-CCPI1.5 | SHOULD | ContractCommitmentPaymentInterval SHOULD represent a time granularity equal to or lesser than the time granularity represented by ContractCommitmentDurationType. | Not Evaluated |  |
+
+### Contract commitment payment model (Contract commitment)
+
+Defines the financial settlement structure of a contract commitment.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentpaymentmodel.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentpaymentmodel.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCPM1 | MUST | ContractCommitmentPaymentModel MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCPM1.1 | MUST | ContractCommitmentPaymentModel MUST be of type String. | Not Evaluated |  |
+| CC-CCPM1.2 | MUST | ContractCommitmentPaymentModel MUST NOT be null. | Not Evaluated |  |
+| CC-CCPM1.3 | MUST | ContractCommitmentPaymentModel MUST be one of the allowed values. | Not Evaluated |  |
+
+### Contract commitment payment upfront percentage (Contract commitment)
+
+Represents the portion of the total Contract Commitment Cost paid at the start of the duration of a contract commitment.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentpaymentupfrontpercentage.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentpaymentupfrontpercentage.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCPUP1 | MUST | ContractCommitmentPaymentUpfrontPercentage MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCPUP1.1 | MUST | ContractCommitmentPaymentUpfrontPercentage MUST be of type Decimal. | Not Evaluated |  |
+| CC-CCPUP1.2 | MUST | ContractCommitmentPaymentUpfrontPercentage MUST conform to NumericFormat requirements. | Not Evaluated |  |
+| CC-CCPUP1.3 | MUST | ContractCommitmentPaymentUpfrontPercentage MUST NOT be null. | Not Evaluated |  |
+| CC-CCPUP1.4 | MUST | ContractCommitmentPaymentUpfrontPercentage MUST be a value between 0.0 and 1.0, inclusive. | Not Evaluated |  |
+| CC-CCPUP1.5 | MUST | ContractCommitmentPaymentUpfrontPercentage MUST be 1.0 when ContractCommitmentPaymentModel is "All Upfront". | Not Evaluated |  |
+| CC-CCPUP1.6 | MUST | ContractCommitmentPaymentUpfrontPercentage MUST be 0.0 when ContractCommitmentPaymentModel is "No Upfront". | Not Evaluated |  |
+| CC-CCPUP1.7 | MUST | ContractCommitmentPaymentUpfrontPercentage MUST be greater than 0.0 and less than 1.0 when ContractCommitmentPaymentModel is "Partial Upfront". | Not Evaluated |  |
+
+### Contract commitment period end (Contract commitment)
+
+The exclusive end bound of a contract commitment period.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentperiodend.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentperiodend.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCPE1 | MUST | ContractCommitmentPeriodEnd MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCPE1.1 | MUST | ContractCommitmentPeriodEnd MUST be of type Date/Time. | Not Evaluated |  |
+| CC-CCPE1.2 | MUST | ContractCommitmentPeriodEnd MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| CC-CCPE1.3 | MUST | ContractCommitmentPeriodEnd MUST NOT be null. | Not Evaluated |  |
+| CC-CCPE1.4 | MUST | ContractCommitmentPeriodEnd MUST be the exclusive end bound of the effective period of the contract commitment. | Not Evaluated |  |
+
+### Contract commitment period start (Contract commitment)
+
+The inclusive start bound of a contract commitment period.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentperiodstart.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentperiodstart.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCPS1 | MUST | ContractCommitmentPeriodStart MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCPS1.1 | MUST | ContractCommitmentPeriodStart MUST be of type Date/Time. | Not Evaluated |  |
+| CC-CCPS1.2 | MUST | ContractCommitmentPeriodStart MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| CC-CCPS1.3 | MUST | ContractCommitmentPeriodStart MUST NOT be null. | Not Evaluated |  |
+| CC-CCPS1.4 | MUST | ContractCommitmentPeriodStart MUST be the inclusive start bound of the effective period of the contract commitment. | Not Evaluated |  |
+
+### Contract commitment quantity (Contract commitment)
+
+The amount associated with the contract commitment.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentquantity.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentquantity.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCQ1 | MUST | ContractCommitmentQuantity MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCQ1.1 | MUST | ContractCommitmentQuantity MUST be of type Decimal. | Not Evaluated |  |
+| CC-CCQ1.2 | MUST | ContractCommitmentQuantity MUST conform to NumericFormat requirements. | Not Evaluated |  |
+| CC-CCQ1.3 | MUST | ContractCommitmentQuantity MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CC-CCQ1.3.1 | MUST | ContractCommitmentQuantity MUST NOT be null when ContractCommitmentCategory is "Usage". | Not Evaluated |  |
+| CC-CCQ1.3.2 | MAY | ContractCommitmentQuantity MAY be null when ContractCommitmentCategory is "Spend". | Not Evaluated |  |
+
+### Contract commitment type (Contract commitment)
+
+A service-provider-assigned name to identify the type of contract commitment.
+
+Source: [datasets/contract_commitment/columns/contractcommitmenttype.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmenttype.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCT1 | MUST | ContractCommitmentType MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCT1.1 | MUST | ContractCommitmentType MUST be of type String. | Not Evaluated |  |
+| CC-CCT1.2 | MUST | ContractCommitmentType MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CC-CCT1.3 | MUST | ContractCommitmentType MUST NOT be null. | Not Evaluated |  |
+| CC-CCT1.4 | MUST | ContractCommitmentType MUST be a consistent, readable display value. | Not Evaluated |  |
+
+### Contract commitment unit (Contract commitment)
+
+A service-provider-specified measurement unit for the amount declared in Contract Commitment Quantity.
+
+Source: [datasets/contract_commitment/columns/contractcommitmentunit.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractcommitmentunit.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CCU1 | MUST | ContractCommitmentUnit MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CCU1.1 | MUST | ContractCommitmentUnit MUST be of type String. | Not Evaluated |  |
+| CC-CCU1.2 | MUST | ContractCommitmentUnit MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CC-CCU1.3 | SHOULD | ContractCommitmentUnit SHOULD conform to UnitFormat requirements. | Not Evaluated |  |
+| CC-CCU1.4 | MUST | ContractCommitmentUnit MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CC-CCU1.4.1 | MUST | ContractCommitmentUnit MUST be null when ContractCommitmentQuantity is null. | Not Evaluated |  |
+| CC-CCU1.4.2 | MUST | ContractCommitmentUnit MUST NOT be null when ContractCommitmentQuantity is not null. | Not Evaluated |  |
+
+### Contract ID (Contract commitment)
+
+A service-provider-assigned identifier for a contract describing the agreed terms between a service provider and a customer.
+
+Source: [datasets/contract_commitment/columns/contractid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractid.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CI1 | MUST | ContractId MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CI1.1 | MUST | ContractId MUST be of type String. | Not Evaluated |  |
+| CC-CI1.2 | MUST | ContractId MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CC-CI1.3 | MUST | ContractId MUST NOT be null. | Not Evaluated |  |
+| CC-CI1.4 | MUST | When ContractId is not null, ContractId MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CI1.4.1 | MUST | ContractId MUST be a unique identifier within the service provider. | Not Evaluated |  |
+| CC-CI1.4.2 | SHOULD | ContractId SHOULD be a fully-qualified identifier. | Not Evaluated |  |
+
+### Contract period end (Contract commitment)
+
+The exclusive end bound of a contract period.
+
+Source: [datasets/contract_commitment/columns/contractperiodend.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractperiodend.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CPE1 | MUST | ContractPeriodEnd MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CPE1.1 | MUST | ContractPeriodEnd MUST be of type Date/Time. | Not Evaluated |  |
+| CC-CPE1.2 | MUST | ContractPeriodEnd MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| CC-CPE1.3 | MUST | ContractPeriodEnd MUST NOT be null. | Not Evaluated |  |
+| CC-CPE1.4 | MUST | ContractPeriodEnd MUST be the exclusive end bound of the effective period of the contract. | Not Evaluated |  |
+
+### Contract period start (Contract commitment)
+
+The inclusive start bound of a contract period.
+
+Source: [datasets/contract_commitment/columns/contractperiodstart.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/contractperiodstart.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-CPS1 | MUST | ContractPeriodStart MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-CPS1.1 | MUST | ContractPeriodStart MUST be of type Date/Time. | Not Evaluated |  |
+| CC-CPS1.2 | MUST | ContractPeriodStart MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| CC-CPS1.3 | MUST | ContractPeriodStart MUST NOT be null. | Not Evaluated |  |
+| CC-CPS1.4 | MUST | ContractPeriodStart MUST be the inclusive start bound of the effective period of the contract. | Not Evaluated |  |
+
+### Invoice issuer name (Contract commitment)
+
+The name of the entity responsible for invoicing for the contract commitment.
+
+Source: [datasets/contract_commitment/columns/invoiceissuername.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/invoiceissuername.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-IIN1 | MUST | InvoiceIssuerName MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-IIN1.1 | MUST | InvoiceIssuerName MUST be of type String. | Not Evaluated |  |
+| CC-IIN1.2 | MUST | InvoiceIssuerName MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CC-IIN1.3 | MUST | InvoiceIssuerName MUST NOT be null. | Not Evaluated |  |
+| CC-IIN1.4 | MUST | InvoiceIssuerName MUST represent the entity that issues invoices. | Not Evaluated |  |
+
+### Pricing currency (Contract commitment)
+
+The national or virtual currency denomination that the Contract Commitment Cost was priced in.
+
+Source: [datasets/contract_commitment/columns/pricingcurrency.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/pricingcurrency.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-PC1 | MUST | PricingCurrency MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-PC1.1 | MUST | PricingCurrency MUST be of type String. | Not Evaluated |  |
+| CC-PC1.2 | MUST | PricingCurrency MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CC-PC1.3 | MUST | PricingCurrency MUST conform to CurrencyFormat requirements. | Not Evaluated |  |
+| CC-PC1.4 | MUST | PricingCurrency MUST NOT be null. | Not Evaluated |  |
+
+### Pricing currency contract commitment cost (Contract commitment)
+
+The monetary value of the contract commitment in the Pricing Currency.
+
+Source: [datasets/contract_commitment/columns/pricingcurrencycontractcommitmentcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/pricingcurrencycontractcommitmentcost.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-PCCCC1 | MUST | PricingCurrencyContractCommitmentCost MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-PCCCC1.1 | MUST | PricingCurrencyContractCommitmentCost MUST be of type Decimal. | Not Evaluated |  |
+| CC-PCCCC1.2 | MUST | PricingCurrencyContractCommitmentCost MUST conform to NumericFormat requirements. | Not Evaluated |  |
+| CC-PCCCC1.3 | MUST | PricingCurrencyContractCommitmentCost MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CC-PCCCC1.3.1 | MUST | PricingCurrencyContractCommitmentCost MUST NOT be null when ContractCommitmentCategory is "Spend" and PricingCurrency is provided. | Not Evaluated |  |
+| CC-PCCCC1.3.2 | MAY | PricingCurrencyContractCommitmentCost MAY be null when ContractCommitmentCategory is "Usage". | Not Evaluated |  |
+| CC-PCCCC1.4 | MUST | PricingCurrencyContractCommitmentCost MUST be denominated in the PricingCurrency. | Not Evaluated |  |
+
+### Service provider name (Contract commitment)
+
+The name of the entity that provides the contract commitment.
+
+Source: [datasets/contract_commitment/columns/serviceprovidername.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/contract_commitment/columns/serviceprovidername.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CC-SPN1 | MUST | ServiceProviderName MUST adhere to the following requirements: | Not Evaluated |  |
+| CC-SPN1.1 | MUST | ServiceProviderName MUST be of type String. | Not Evaluated |  |
+| CC-SPN1.2 | MUST | ServiceProviderName MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CC-SPN1.3 | MUST | ServiceProviderName MUST NOT be null. | Not Evaluated |  |
+
+### Allocated method details (Cost and usage)
+
+A set of properties describing how resources are allocated in data generator-defined split cost allocation.
+
+Source: [datasets/cost_and_usage/columns/allocatedmethoddetails.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/allocatedmethoddetails.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-AMD1 | MUST | AllocatedMethodDetails MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-AMD1.1 | MUST | AllocatedMethodDetails MUST be of type JSON Object (serialized as a String where necessary). | Not Evaluated |  |
+| CU-AMD1.2 | MUST | AllocatedMethodDetails MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CU-AMD1.3 | MUST | AllocatedMethodDetails MUST conform to JsonObjectFormat requirements. | Not Evaluated |  |
+| CU-AMD1.4 | MUST | AllocatedMethodDetails MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-AMD1.4.1 | MUST | AllocatedMethodDetails MUST be null when a charge is not related to a data generator-calculated split cost allocation. | Not Evaluated |  |
+| CU-AMD1.4.2 | SHOULD | AllocatedMethodDetails SHOULD NOT be null when a charge is related to a data generator-calculated split cost allocation. | Not Evaluated |  |
+| CU-AMD1.5 | MUST | AllocatedMethodDetails MUST conform to AllocatedMethodDetailsObject requirements when AllocatedMethodDetails is not null. | Not Evaluated |  |
+| CU-AMD2 | MUST | The AllocatedMethodDetailsObject MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-AMD2.1 | MUST | AllocatedMethodDetailsObject MUST conform to the AllocatedMethodDetailsObjectSchema JSON Schema. | Not Evaluated |  |
+| CU-AMD2.2 | MUST | AllocatedMethodDetailsObject.Elements[\].AllocatedRatio MUST represent the allocated charge's percentage of the origin charge. | Not Evaluated |  |
+| CU-AMD2.3 | MUST | The sum of AllocatedMethodDetailsObject.Elements[\].AllocatedRatio across all allocated charges related to a single origin charge MUST be equal to 1 (100%). | Not Evaluated |  |
+| CU-AMD2.4 | SHOULD | AllocatedMethodDetailsObject.Elements[\].UsageUnit SHOULD conform to UnitFormat requirements. | Not Evaluated |  |
+| CU-AMD2.5 | MUST | AllocatedMethodDetailsObject.Elements[\].UsageUnit MUST represent the unit or component of data generator's documented AllocationMethod which was used to determine the AllocatedMethodDetailsObject.Elements[\].AllocatedRatio value. | Not Evaluated |  |
+| CU-AMD2.6 | SHOULD | AllocatedMethodDetailsObject.Elements[\].UsageQuantity SHOULD capture the quantity or volume of the AllocatedMethodDetailsObject.Elements[\].UsageUnit measured by the data generator that was used to determine the AllocatedMethodDetailsObject.Elements[\].AllocatedRatio value. | Not Evaluated |  |
+
+### Allocated method ID (Cost and usage)
+
+A unique identifier defining the method of data generator-calculated split cost allocation.
+
+Source: [datasets/cost_and_usage/columns/allocatedmethodid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/allocatedmethodid.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-AMI1 | MUST | AllocatedMethodId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-AMI1.1 | MUST | AllocatedMethodId MUST be of type String. | Not Evaluated |  |
+| CU-AMI1.2 | MUST | AllocatedMethodId MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CU-AMI1.3 | MUST | AllocatedMethodId MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-AMI1.3.1 | MUST | AllocatedMethodId MUST be null when a charge is not related to a data generator-calculated split cost allocation. | Not Evaluated |  |
+| CU-AMI1.3.2 | MUST | AllocatedMethodId MUST NOT be null when a charge is related to a data generator-calculated split cost allocation. | Not Evaluated |  |
+| CU-AMI1.4 | MUST | Data generator-calculated split cost allocation method documentation MUST reference a single AllocatedMethodId value. | Not Evaluated |  |
+
+### Allocated resource ID (Cost and usage)
+
+The identifier of the object to which cost is allocated in data generator-calculated split cost allocation.
+
+Source: [datasets/cost_and_usage/columns/allocatedresourceid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/allocatedresourceid.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-ARI1 | MUST | AllocatedResourceId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-ARI1.1 | MUST | AllocatedResourceId MUST be of type String. | Not Evaluated |  |
+| CU-ARI1.2 | MUST | AllocatedResourceId MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CU-ARI1.3 | MUST | AllocatedResourceId MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-ARI1.3.1 | MUST | AllocatedResourceId MUST be null when a charge is not related to a data generator-calculated split cost allocation. | Not Evaluated |  |
+| CU-ARI1.3.2 | MUST | AllocatedResourceId MUST be null when a charge represents the unallocated portion of the origin charge after split cost allocation. | Not Evaluated |  |
+| CU-ARI1.3.3 | MUST | AllocatedResourceId MUST NOT be null when a charge represents the allocated portion of the origin charge. | Not Evaluated |  |
+| CU-ARI1.4 | MUST | When AllocatedResourceId is not null, AllocatedResourceId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-ARI1.4.1 | SHOULD | AllocatedResourceId SHOULD be a locally unique identifier within the associated ResourceId and ChargePeriod. | Not Evaluated |  |
+| CU-ARI1.4.2 | MAY | AllocatedResourceId MAY NOT be unique across ResourceId or ChargePeriod values. | Not Evaluated |  |
+
+### Allocated resource name (Cost and usage)
+
+The display name of the object to which cost is allocated in data generator-calculated split cost allocation.
+
+Source: [datasets/cost_and_usage/columns/allocatedresourcename.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/allocatedresourcename.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-ARN1 | MUST | AllocatedResourceName MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-ARN1.1 | MUST | AllocatedResourceName MUST be of type String. | Not Evaluated |  |
+| CU-ARN1.2 | MUST | AllocatedResourceName MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CU-ARN1.3 | MUST | AllocatedResourceName MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-ARN1.3.1 | MUST | AllocatedResourceName MUST be null when AllocatedResourceId is null. | Not Evaluated |  |
+| CU-ARN1.3.2 | MUST | AllocatedResourceName MUST NOT be null when AllocatedResourceId is not null. | Not Evaluated |  |
+| CU-ARN1.4 | MAY | AllocatedResourceName MAY duplicate AllocatedResourceId when a separate display name is not applicable. | Not Evaluated |  |
+
+### Allocated tags (Cost and usage)
+
+A set of tags assigned to tag sources that are applicable to allocated charges in data generator-calculated split cost allocation.
+
+Source: [datasets/cost_and_usage/columns/allocatedtags.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/allocatedtags.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-AT1 | MUST | AllocatedTags MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-AT1.1 | MUST | AllocatedTags MUST be of type JSON Object (serialized as a String where necessary). | Not Evaluated |  |
+| CU-AT1.2 | MUST | AllocatedTags MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CU-AT1.3 | MUST | AllocatedTags MUST conform to KeyValueFormat requirements. | Not Evaluated |  |
+| CU-AT1.4 | MUST | AllocatedTags MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-AT1.4.1 | MUST | AllocatedTags MUST be null when a charge is not related to a data generator-calculated split cost allocation. | Not Evaluated |  |
+| CU-AT1.4.2 | MAY | AllocatedTags MAY be null in all other cases. | Not Evaluated |  |
+| CU-AT1.5 | MUST | When AllocatedTags is not null, AllocatedTags MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-AT1.5.1 | MUST | AllocatedTags MUST NOT include resource tags already present in Tags. | Not Evaluated |  |
+| CU-AT1.5.2 | MUST | AllocatedTags MUST include all applicable user-defined and data generator-defined tags for the AllocatedResourceId. | Not Evaluated |  |
+| CU-AT1.5.3 | MUST | Tag keys that do not support corresponding values MUST have a corresponding true (boolean) value set. | Not Evaluated |  |
+| CU-AT1.5.4 | MUST | Tag values MUST match the provided values unless true (boolean) is applied to valueless tags. | Not Evaluated |  |
+| CU-AT1.6 | MUST | Data generator-defined tags MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-AT1.6.1 | MUST | Data generator-defined tag keys MUST be prefixed with a predetermined, data generator-specified tag key prefix that is unique to each corresponding provider-specified tag scheme. | Not Evaluated |  |
+| CU-AT1.6.2 | SHOULD | Data generator-specified tag key prefixes SHOULD be publicly documented. | Not Evaluated |  |
+| CU-AT1.7 | MUST | User-defined tag keys in all user-defined tag schemes MUST include a predetermined, data generator-specified tag key prefix that is unique to each corresponding user-defined tag scheme when the data generator has more than one user-defined tag scheme. | Not Evaluated |  |
+
+### Availability zone (Cost and usage)
+
+A host-provider-assigned identifier for a physically separated and isolated area within a Region that provides high availability and fault tolerance.
+
+Source: [datasets/cost_and_usage/columns/availabilityzone.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/availabilityzone.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-AZ1 | MUST | AvailabilityZone MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-AZ1.1 | MUST | AvailabilityZone MUST be of type String. | Not Applicable |  |
+| CU-AZ1.2 | MUST | AvailabilityZone MUST conform to StringHandling requirements. | Not Applicable |  |
+| CU-AZ1.3 | MUST | AvailabilityZone MUST be null when a charge is not specific to an availability zone. | Not Applicable |  |
+
+### Billed cost (Cost and usage)
+
+Cost of a charge as invoiced by the invoice issuer in a given billing period.
+
+Source: [datasets/cost_and_usage/columns/billedcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/billedcost.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-BC1 | MUST | BilledCost MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-BC1.1 | MUST | BilledCost MUST be of type Decimal. | Supports |  |
+| CU-BC1.2 | MUST | BilledCost MUST conform to NumericFormat requirements. | Supports |  |
+| CU-BC1.3 | MUST | BilledCost MUST NOT be null. | Supports |  |
+| CU-BC1.4 | MUST | BilledCost MUST be denominated in the BillingCurrency. | Supports |  |
+| CU-BC1.5 | MUST | BilledCost MUST reflect all applicable pricing adjustments, including but not limited to negotiated discounts, commitment discounts, and other applicable discount programs. | Not Evaluated |  |
+| CU-BC1.6 | MUST | BilledCost MUST NOT include any portion of a covered charge that is offset by a covering charge. | Not Evaluated |  |
+| CU-BC1.7 | MUST | BilledCost MUST be 0 for charges that are fully covered by one or more covering charges. | Not Evaluated |  |
+| CU-BC1.8 | MUST | BilledCost MUST reflect amounts as invoiced by the InvoiceIssuerName, not estimated or inferred values. | Not Evaluated |  |
+| CU-BC1.9 | MUST | BilledCost MUST be 0 for charges generated by entities that are not responsible or authorized for invoicing, to avoid double-counting when merging multiple dataset instances. | Not Evaluated |  |
+| CU-BC1.10 | MUST | The sum of BilledCost for a given InvoiceId and InvoiceIssuerName MUST NOT differ from the payable amount provided on the corresponding invoice by more than the Rounding Variance Tolerance when the corresponding invoice has been issued. | Not Evaluated |  |
+| CU-BC1.11 | MAY | The sum of BilledCost MAY differ from preliminary or estimated invoiced amounts when the corresponding invoice has not yet been issued. | Not Evaluated |  |
+
+### Billing account ID (Cost and usage)
+
+The identifier assigned to a billing account by the invoice issuer.
+
+Source: [datasets/cost_and_usage/columns/billingaccountid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/billingaccountid.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-BAI1 | MUST | BillingAccountId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-BAI1.1 | MUST | BillingAccountId MUST be of type String. | Supports |  |
+| CU-BAI1.2 | MUST | BillingAccountId MUST conform to StringHandling requirements. | Supports |  |
+| CU-BAI1.3 | MUST | BillingAccountId MUST NOT be null. | Supports |  |
+| CU-BAI1.4 | MUST | BillingAccountId MUST be a unique identifier within an invoice issuer. | Not Evaluated |  |
+| CU-BAI1.5 | SHOULD | BillingAccountId SHOULD be a fully-qualified identifier. | Supports | `BillingAccountId` uses the fully qualified Azure Resource Manager ID instead of the simple enrollment number or billing profile ID. This ensures the scope is obvious and programmatically accessible. |
+
+### Billing account name (Cost and usage)
+
+The display name assigned to a billing account.
+
+Source: [datasets/cost_and_usage/columns/billingaccountname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/billingaccountname.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-BAN1 | MUST | BillingAccountName MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-BAN1.1 | MUST | BillingAccountName MUST be of type String. | Supports |  |
+| CU-BAN1.2 | MUST | BillingAccountName MUST conform to StringHandling requirements. | Supports |  |
+| CU-BAN1.3 | MUST | BillingAccountName MUST NOT be null when the invoice issuer supports assigning a display name for the billing account. | Not Evaluated |  |
+
+### Billing account type (Cost and usage)
+
+An invoice-issuer-assigned name to identify the type of billing account.
+
+Source: [datasets/cost_and_usage/columns/billingaccounttype.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/billingaccounttype.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-BAT1 | MUST | BillingAccountType MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-BAT1.1 | MUST | BillingAccountType MUST be of type String. | Supports |  |
+| CU-BAT1.2 | MUST | BillingAccountType MUST conform to StringHandling requirements. | Supports |  |
+| CU-BAT1.3 | MUST | BillingAccountType MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-BAT1.3.1 | MUST | BillingAccountType MUST be null when BillingAccountId is null. | Supports |  |
+| CU-BAT1.3.2 | MUST | BillingAccountType MUST NOT be null when BillingAccountId is not null. | Supports |  |
+| CU-BAT1.4 | MUST | BillingAccountType MUST be a consistent, readable display value. | Supports |  |
+
+### Billing currency (Cost and usage)
+
+Represents the currency that a charge was billed in.
+
+Source: [datasets/cost_and_usage/columns/billingcurrency.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/billingcurrency.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-BiC1 | MUST | BillingCurrency MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-BiC1.1 | MUST | BillingCurrency MUST be of type String. | Supports |  |
+| CU-BiC1.2 | MUST | BillingCurrency MUST conform to StringHandling requirements. | Supports |  |
+| CU-BiC1.3 | MUST | BillingCurrency MUST conform to CurrencyFormat requirements. | Supports |  |
+| CU-BiC1.4 | MUST | BillingCurrency MUST NOT be null. | Supports |  |
+| CU-BiC1.5 | MUST | BillingCurrency MUST match the currency used in the invoice generated by the invoice issuer. | Supports |  |
+| CU-BiC1.6 | MUST | BillingCurrency MUST be expressed in national currency (e.g., USD, EUR). | Supports |  |
+
+### Billing period end (Cost and usage)
+
+The exclusive end bound of a billing period.
+
+Source: [datasets/cost_and_usage/columns/billingperiodend.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/billingperiodend.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-BPE1 | MUST | BillingPeriodEnd MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-BPE1.1 | MUST | BillingPeriodEnd MUST be of type Date/Time. | Supports |  |
+| CU-BPE1.2 | MUST | BillingPeriodEnd MUST conform to DateTimeFormat requirements. | Supports |  |
+| CU-BPE1.3 | MUST | BillingPeriodEnd MUST NOT be null. | Supports |  |
+| CU-BPE1.4 | MUST | BillingPeriodEnd MUST be the exclusive end bound of the billing period. | Supports |  |
+
+### Billing period start (Cost and usage)
+
+The inclusive start bound of a billing period.
+
+Source: [datasets/cost_and_usage/columns/billingperiodstart.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/billingperiodstart.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-BPS1 | MUST | BillingPeriodStart MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-BPS1.1 | MUST | BillingPeriodStart MUST be of type Date/Time. | Supports |  |
+| CU-BPS1.2 | MUST | BillingPeriodStart MUST conform to DateTimeFormat requirements. | Supports |  |
+| CU-BPS1.3 | MUST | BillingPeriodStart MUST NOT be null. | Supports |  |
+| CU-BPS1.4 | MUST | BillingPeriodStart MUST be the inclusive start bound of the billing period. | Supports |  |
+
+### Capacity reservation ID (Cost and usage)
+
+The identifier assigned to a capacity reservation by the service provider.
+
+Source: [datasets/cost_and_usage/columns/capacityreservationid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/capacityreservationid.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CRI1 | MUST | CapacityReservationId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CRI1.1 | MUST | CapacityReservationId MUST be of type String. | Not Applicable |  |
+| CU-CRI1.2 | MUST | CapacityReservationId MUST conform to StringHandling requirements. | Not Applicable |  |
+| CU-CRI1.3 | MUST | CapacityReservationId MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-CRI1.3.1 | MUST | CapacityReservationId MUST be null when a charge is not related to a capacity reservation. | Not Applicable |  |
+| CU-CRI1.3.2 | MUST | CapacityReservationId MUST NOT be null when a charge represents the unused portion of a capacity reservation. | Not Applicable |  |
+| CU-CRI1.3.3 | SHOULD | CapacityReservationId SHOULD NOT be null when a charge is related to a capacity reservation. | Not Applicable |  |
+| CU-CRI1.4 | MUST | When CapacityReservationId is not null, CapacityReservationId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CRI1.4.1 | MUST | CapacityReservationId MUST be a unique identifier within the service provider. | Not Evaluated |  |
+| CU-CRI1.4.2 | SHOULD | CapacityReservationId SHOULD be a fully-qualified identifier. | Not Applicable |  |
+
+### Capacity reservation status (Cost and usage)
+
+Indicates whether the charge represents either the consumption of a capacity reservation or when a capacity reservation is unused.
+
+Source: [datasets/cost_and_usage/columns/capacityreservationstatus.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/capacityreservationstatus.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CRS1 | MUST | CapacityReservationStatus MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CRS1.1 | MUST | CapacityReservationStatus MUST be of type String. | Not Applicable |  |
+| CU-CRS1.2 | MUST | CapacityReservationStatus MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-CRS1.2.1 | MUST | CapacityReservationStatus MUST be null when CapacityReservationId is null. | Not Applicable |  |
+| CU-CRS1.2.2 | MUST | CapacityReservationStatus MUST NOT be null when CapacityReservationId is not null and ChargeCategory is "Usage". | Not Applicable |  |
+| CU-CRS1.3 | MUST | When CapacityReservationStatus is not null, CapacityReservationStatus MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CRS1.3.1 | MUST | CapacityReservationStatus MUST be one of the allowed values. | Not Applicable |  |
+| CU-CRS1.3.2 | MUST | CapacityReservationStatus MUST be "Unused" when the charge represents the unused portion of a capacity reservation. | Not Applicable |  |
+| CU-CRS1.3.3 | MUST | CapacityReservationStatus MUST be "Used" when the charge represents the used portion of a capacity reservation. | Not Applicable |  |
+
+### Charge category (Cost and usage)
+
+Represents the highest-level classification of a charge based on the nature of how it is billed.
+
+Source: [datasets/cost_and_usage/columns/chargecategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/chargecategory.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CC1 | MUST | ChargeCategory MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CC1.1 | MUST | ChargeCategory MUST be of type String. | Supports |  |
+| CU-CC1.2 | MUST | ChargeCategory MUST NOT be null. | Supports |  |
+| CU-CC1.3 | MUST | ChargeCategory MUST be one of the allowed values. | Supports |  |
+| CU-CC1.4 | MUST | ChargeCategory MUST be "Usage" when the charge represents consumption of a service or resource. | Not Evaluated |  |
+| CU-CC1.5 | MUST | ChargeCategory MUST be "Purchase" when the charge represents acquisition of a service, resource, or commitment. | Not Evaluated |  |
+| CU-CC1.6 | MUST | ChargeCategory MUST be "Tax" when the charge represents taxes levied by the relevant authorities. | Not Evaluated |  |
+| CU-CC1.7 | MUST | ChargeCategory MUST be "Credit" when the charge represents a financial incentive or allowance unrelated to other charges. | Not Evaluated |  |
+| CU-CC1.8 | MUST | ChargeCategory MUST be "Adjustment" when the charge represents a billing modification that does not fall into other ChargeCategories. | Not Evaluated |  |
+
+### Charge class (Cost and usage)
+
+Indicates whether a charge represents a correction to a previously closed billing period.
+
+Source: [datasets/cost_and_usage/columns/chargeclass.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/chargeclass.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-ChC1 | MUST | ChargeClass MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-ChC1.1 | MUST | ChargeClass MUST be of type String. | Supports |  |
+| CU-ChC1.2 | MUST | ChargeClass MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-ChC1.2.1 | MUST | ChargeClass MUST be null when the charge does not represent a correction to a previously closed billing period. | Not Evaluated |  |
+| CU-ChC1.2.2 | MUST | ChargeClass MUST NOT be null when the charge represents a correction to a previously closed billing period. | Not Evaluated |  |
+| CU-ChC1.3 | MUST | ChargeClass MUST be "Correction" when ChargeClass is not null. | Supports |  |
+
+### Charge description (Cost and usage)
+
+Self-contained summary of the charge's purpose and price.
+
+Source: [datasets/cost_and_usage/columns/chargedescription.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/chargedescription.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CD1 | MUST | ChargeDescription MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CD1.1 | MUST | ChargeDescription MUST be of type String. | Supports |  |
+| CU-CD1.2 | MUST | ChargeDescription MUST conform to StringHandling requirements. | Supports |  |
+| CU-CD1.3 | SHOULD | ChargeDescription SHOULD NOT be null. | Partially Supports | `ChargeDescription` may be null for savings plan unused charges, Marketplace charges, and other charges that aren't directly associated with a product SKU. |
+| CU-CD1.4 | SHOULD | ChargeDescription maximum length SHOULD be provided in the corresponding FOCUS Metadata Schema. | Does Not Support |  |
+
+### Charge frequency (Cost and usage)
+
+Indicates how often a charge will occur.
+
+Source: [datasets/cost_and_usage/columns/chargefrequency.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/chargefrequency.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CF1 | MUST | ChargeFrequency MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CF1.1 | MUST | ChargeFrequency MUST be of type String. | Supports |  |
+| CU-CF1.2 | MUST | ChargeFrequency MUST NOT be null. | Supports |  |
+| CU-CF1.3 | MUST | ChargeFrequency MUST be one of the allowed values. | Supports |  |
+| CU-CF1.4 | MUST | ChargeFrequency MUST NOT be "Usage-Based" when ChargeCategory is "Purchase". | Supports |  |
+
+### Charge period end (Cost and usage)
+
+The exclusive end bound of a charge period.
+
+Source: [datasets/cost_and_usage/columns/chargeperiodend.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/chargeperiodend.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CPE1 | MUST | ChargePeriodEnd MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CPE1.1 | MUST | ChargePeriodEnd MUST be of type Date/Time. | Supports |  |
+| CU-CPE1.2 | MUST | ChargePeriodEnd MUST conform to DateTimeFormat requirements. | Supports |  |
+| CU-CPE1.3 | MUST | ChargePeriodEnd MUST NOT be null. | Supports |  |
+| CU-CPE1.4 | MUST | ChargePeriodEnd MUST be the exclusive end bound of the effective period of the charge. | Supports |  |
+
+### Charge period start (Cost and usage)
+
+The inclusive start bound of a charge period.
+
+Source: [datasets/cost_and_usage/columns/chargeperiodstart.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/chargeperiodstart.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CPS1 | MUST | ChargePeriodStart MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CPS1.1 | MUST | ChargePeriodStart MUST be of type Date/Time. | Supports |  |
+| CU-CPS1.2 | MUST | ChargePeriodStart MUST conform to DateTimeFormat requirements. | Supports |  |
+| CU-CPS1.3 | MUST | ChargePeriodStart MUST NOT be null. | Supports |  |
+| CU-CPS1.4 | MUST | ChargePeriodStart MUST be the inclusive start bound of the effective period of the charge. | Supports |  |
+
+### Commitment discount category (Cost and usage)
+
+Indicates whether the commitment discount identified in the CommitmentDiscountId column is based on usage quantity or cost (aka "spend").
+
+Source: [datasets/cost_and_usage/columns/commitmentdiscountcategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/commitmentdiscountcategory.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CDC1 | MUST | CommitmentDiscountCategory MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CDC1.1 | MUST | CommitmentDiscountCategory MUST be of type String. | Supports |  |
+| CU-CDC1.2 | MUST | CommitmentDiscountCategory MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-CDC1.2.1 | MUST | CommitmentDiscountCategory MUST be null when CommitmentDiscountId is null. | Supports |  |
+| CU-CDC1.2.2 | MUST | CommitmentDiscountCategory MUST NOT be null when CommitmentDiscountId is not null. | Supports |  |
+| CU-CDC1.3 | MUST | CommitmentDiscountCategory MUST be one of the allowed values. | Supports |  |
+
+### Commitment discount ID (Cost and usage)
+
+The identifier assigned to a commitment discount by the service provider.
+
+Source: [datasets/cost_and_usage/columns/commitmentdiscountid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/commitmentdiscountid.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CDI1 | MUST | CommitmentDiscountId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CDI1.1 | MUST | CommitmentDiscountId MUST be of type String. | Supports |  |
+| CU-CDI1.2 | MUST | CommitmentDiscountId MUST conform to StringHandling requirements. | Supports |  |
+| CU-CDI1.3 | MUST | CommitmentDiscountId MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-CDI1.3.1 | MUST | CommitmentDiscountId MUST be null when a charge is not related to a commitment discount. | Supports |  |
+| CU-CDI1.3.2 | MUST | CommitmentDiscountId MUST NOT be null when a charge is related to a commitment discount. | Supports |  |
+| CU-CDI1.4 | MUST | When CommitmentDiscountId is not null, CommitmentDiscountId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CDI1.4.1 | MUST | CommitmentDiscountId MUST be a unique identifier within the service provider. | Not Evaluated |  |
+| CU-CDI1.4.2 | MUST | CommitmentDiscountId MUST be equal to ResourceId when ChargeCategory is "Purchase" and the charge represents a purchase of that commitment discount. | Not Evaluated |  |
+| CU-CDI1.4.3 | MUST | CommitmentDiscountId MUST be equal to ResourceId when ChargeCategory is "Usage" and the charge represents an unused portion of that commitment discount. | Not Evaluated |  |
+| CU-CDI1.4.4 | SHOULD | CommitmentDiscountId SHOULD be a fully-qualified identifier. | Supports |  |
+
+### Commitment discount name (Cost and usage)
+
+The display name assigned to a commitment discount.
+
+Source: [datasets/cost_and_usage/columns/commitmentdiscountname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/commitmentdiscountname.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CDN1 | MUST | CommitmentDiscountName MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CDN1.1 | MUST | CommitmentDiscountName MUST be of type String. | Supports |  |
+| CU-CDN1.2 | MUST | CommitmentDiscountName MUST conform to StringHandling requirements. | Supports |  |
+| CU-CDN1.3 | MUST | CommitmentDiscountName MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-CDN1.3.1 | MUST | CommitmentDiscountName MUST be null when CommitmentDiscountId is null. | Supports |  |
+| CU-CDN1.3.2 | MUST | When CommitmentDiscountId is not null, CommitmentDiscountName MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CDN1.3.2.1 | MUST | CommitmentDiscountName MUST NOT be null when a display name can be assigned to a commitment discount. | Supports |  |
+| CU-CDN1.3.2.2 | MAY | CommitmentDiscountName MAY be null when a display name cannot be assigned to a commitment discount. | Supports |  |
+
+### Commitment discount quantity (Cost and usage)
+
+The amount of a commitment discount purchased or accounted for in commitment discount related rows that is denominated in Commitment Discount Units.
+
+Source: [datasets/cost_and_usage/columns/commitmentdiscountquantity.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/commitmentdiscountquantity.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CDQ1 | MUST | CommitmentDiscountQuantity MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CDQ1.1 | MUST | CommitmentDiscountQuantity MUST be of type Decimal. | Not Applicable |  |
+| CU-CDQ1.2 | MUST | CommitmentDiscountQuantity MUST conform to NumericFormat requirements. | Not Applicable |  |
+| CU-CDQ1.3 | MUST | CommitmentDiscountQuantity MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-CDQ1.3.1 | MUST | CommitmentDiscountQuantity MUST be null when SkuPriceId is null. | Not Evaluated |  |
+| CU-CDQ1.3.2 | MUST | When ChargeCategory is "Usage" or "Purchase" and CommitmentDiscountId is not null, CommitmentDiscountQuantity MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CDQ1.3.2.1 | MUST | CommitmentDiscountQuantity MUST NOT be null when ChargeClass is not "Correction". | Not Applicable |  |
+| CU-CDQ1.3.2.2 | MAY | CommitmentDiscountQuantity MAY be null when ChargeClass is "Correction". | Not Applicable |  |
+| CU-CDQ1.3.3 | MUST | CommitmentDiscountQuantity MUST be null in all other cases. | Not Applicable |  |
+| CU-CDQ1.4 | MUST | When CommitmentDiscountQuantity is not null and ChargeCategory is "Purchase", CommitmentDiscountQuantity MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CDQ1.4.1 | MUST | CommitmentDiscountQuantity MUST be the quantity of CommitmentDiscountUnit, paid fully or partially upfront, that is eligible for consumption over the commitment discount's term when ChargeFrequency is "One-Time". | Not Applicable |  |
+| CU-CDQ1.4.2 | MUST | CommitmentDiscountQuantity MUST be the quantity of CommitmentDiscountUnit that is eligible for consumption for each charge period that corresponds with the purchase when ChargeFrequency is "Recurring". | Not Applicable |  |
+| CU-CDQ1.5 | MUST | When CommitmentDiscountQuantity is not null and ChargeCategory is "Usage", CommitmentDiscountQuantity MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CDQ1.5.1 | MUST | CommitmentDiscountQuantity MUST be the metered quantity of CommitmentDiscountUnit that is consumed in a given charge period when CommitmentDiscountStatus is "Used". | Not Applicable |  |
+| CU-CDQ1.5.2 | MUST | CommitmentDiscountQuantity MUST be the remaining, unused quantity of CommitmentDiscountUnit in a given charge period when CommitmentDiscountStatus is "Unused". | Not Applicable |  |
+
+### Commitment discount status (Cost and usage)
+
+Indicates whether the charge corresponds with the consumption of a commitment discount or the unused portion of the committed amount.
+
+Source: [datasets/cost_and_usage/columns/commitmentdiscountstatus.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/commitmentdiscountstatus.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CDS1 | MUST | CommitmentDiscountStatus MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CDS1.1 | MUST | CommitmentDiscountStatus MUST be of type String. | Supports |  |
+| CU-CDS1.2 | MUST | CommitmentDiscountStatus MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-CDS1.2.1 | MUST | CommitmentDiscountStatus MUST be null when CommitmentDiscountId is null. | Supports |  |
+| CU-CDS1.2.2 | MUST | CommitmentDiscountStatus MUST NOT be null when CommitmentDiscountId is not null and ChargeCategory is "Usage". | Not Evaluated |  |
+| CU-CDS1.3 | MUST | CommitmentDiscountStatus MUST be one of the allowed values. | Supports |  |
+| CU-CDS1.4 | MUST | CommitmentDiscountStatus MUST be "Used" when the charge utilizes a specific amount of a given CommitmentDiscountId. | Not Evaluated |  |
+| CU-CDS1.5 | MUST | CommitmentDiscountStatus MUST be "Unused" when the charge represents the unused portion of the given CommitmentDiscountId. | Not Evaluated |  |
+
+### Commitment discount type (Cost and usage)
+
+A service-provider-assigned identifier for the type of commitment discount applied to the row.
+
+Source: [datasets/cost_and_usage/columns/commitmentdiscounttype.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/commitmentdiscounttype.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CDT1 | MUST | CommitmentDiscountType MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CDT1.1 | MUST | CommitmentDiscountType MUST be of type String. | Supports |  |
+| CU-CDT1.2 | MUST | CommitmentDiscountType MUST conform to StringHandling requirements. | Supports |  |
+| CU-CDT1.3 | MUST | CommitmentDiscountType MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-CDT1.3.1 | MUST | CommitmentDiscountType MUST be null when CommitmentDiscountId is null. | Supports |  |
+| CU-CDT1.3.2 | MUST | CommitmentDiscountType MUST NOT be null when CommitmentDiscountId is not null. | Supports |  |
+
+### Commitment discount unit (Cost and usage)
+
+The service-provider-specified measurement unit indicating how a service provider measures the Commitment Discount Quantity of a commitment discount.
+
+Source: [datasets/cost_and_usage/columns/commitmentdiscountunit.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/commitmentdiscountunit.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CDU1 | MUST | CommitmentDiscountUnit MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CDU1.1 | MUST | CommitmentDiscountUnit MUST be of type String. | Not Applicable |  |
+| CU-CDU1.2 | MUST | CommitmentDiscountUnit MUST conform to StringHandling requirements. | Not Applicable |  |
+| CU-CDU1.3 | SHOULD | CommitmentDiscountUnit SHOULD conform to UnitFormat requirements. | Not Applicable |  |
+| CU-CDU1.4 | MUST | CommitmentDiscountUnit MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-CDU1.4.1 | MUST | CommitmentDiscountUnit MUST be null when CommitmentDiscountQuantity is null. | Not Applicable |  |
+| CU-CDU1.4.2 | MUST | CommitmentDiscountUnit MUST NOT be null when CommitmentDiscountQuantity is not null. | Not Applicable |  |
+| CU-CDU1.5 | MUST | When CommitmentDiscountUnit is not null, CommitmentDiscountUnit MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CDU1.5.1 | MUST | CommitmentDiscountUnit MUST remain consistent over time for a given CommitmentDiscountId. | Not Applicable |  |
+| CU-CDU1.5.2 | MUST | CommitmentDiscountUnit MUST represent the unit used to measure the commitment discount. | Not Applicable |  |
+| CU-CDU1.5.3 | SHOULD | When accounting for commitment discount flexibility, the CommitmentDiscountUnit value SHOULD reflect this consideration. | Not Applicable |  |
+
+### Commitment program eligibility details (Cost and usage)
+
+The types of commitment programs available for a specific usage row.
+
+Source: [datasets/cost_and_usage/columns/commitmentprogrameligibilitydetails.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/commitmentprogrameligibilitydetails.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CPED1 | MUST | CommitmentProgramEligibilityDetails MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CPED1.1 | MUST | CommitmentProgramEligibilityDetails MUST be of type JSON Object (serialized as a String where necessary). | Not Evaluated |  |
+| CU-CPED1.2 | MUST | CommitmentProgramEligibilityDetails MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CU-CPED1.3 | MUST | CommitmentProgramEligibilityDetails MUST conform to JsonObjectFormat requirements. | Not Evaluated |  |
+| CU-CPED1.4 | MUST | CommitmentProgramEligibilityDetails MUST NOT be null when a charge is eligible for a commitment program, regardless of whether a commitment was actually applied to the charge. | Not Evaluated |  |
+| CU-CPED1.5 | MUST | CommitmentProgramEligibilityDetails MUST NOT reflect restrictions (e.g., transient account configurations, quotas) that might temporarily prevent purchase or participation in a commitment program. | Not Evaluated |  |
+| CU-CPED1.6 | MUST | CommitmentProgramEligibilityDetails MUST include all publicly available commitment programs for which the usage is eligible. | Not Evaluated |  |
+| CU-CPED1.7 | MAY | CommitmentProgramEligibilityDetails MAY include negotiated commitment programs when the usage is eligible and the program is not broadly applicable across the service provider's service catalog. | Not Evaluated |  |
+| CU-CPED1.8 | MUST | CommitmentProgramEligibilityDetails MUST NOT include data related to commitment periods or payment options. | Not Evaluated |  |
+| CU-CPED1.9 | MUST | CommitmentProgramEligibilityDetails MUST conform to CommitmentProgramEligibilityDetailsObject requirements when CommitmentProgramEligibilityDetails is not null. | Not Evaluated |  |
+| CU-CPED2 | MUST | CommitmentProgramEligibilityDetailsObject MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CPED2.1 | MUST | CommitmentProgramEligibilityDetailsObject MUST conform to the CommitmentProgramEligibilityDetailsObjectSchema JSON Schema. | Not Evaluated |  |
+| CU-CPED2.2 | MUST | CommitmentProgramEligibilityDetailsObject.CommitmentPrograms[\].ProgramType MUST correspond to a commitment program type supported by the service provider. | Not Evaluated |  |
+| CU-CPED2.3 | MUST | CommitmentProgramEligibilityDetailsObject.CommitmentPrograms[\].ProgramType MUST match CommitmentDiscountType for one object in CommitmentProgramEligibilityDetailsObject.CommitmentPrograms when CommitmentDiscountType is not null. | Not Evaluated |  |
+| CU-CPED2.4 | SHOULD | CommitmentProgramEligibilityDetailsObject.CommitmentPrograms[\].ProgramType SHOULD correspond to terminology disclosed by the service provider in public documentation. | Not Evaluated |  |
+
+### Consumed quantity (Cost and usage)
+
+The volume of a metered SKU associated with a resource or service used, based on the Consumed Unit.
+
+Source: [datasets/cost_and_usage/columns/consumedquantity.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/consumedquantity.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CQ1 | MUST | ConsumedQuantity MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CQ1.1 | MUST | ConsumedQuantity MUST be of type Decimal. | Supports |  |
+| CU-CQ1.2 | MUST | ConsumedQuantity MUST conform to NumericFormat requirements. | Supports |  |
+| CU-CQ1.3 | MUST | ConsumedQuantity MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-CQ1.3.1 | MUST | ConsumedQuantity MUST be null when SkuPriceId is null. | Not Evaluated |  |
+| CU-CQ1.3.2 | MUST | ConsumedQuantity MUST be null when ChargeCategory is not "Usage", or when ChargeCategory is "Usage" and CommitmentDiscountStatus is "Unused". | Supports |  |
+| CU-CQ1.3.3 | MUST | When ChargeCategory is "Usage" and CommitmentDiscountStatus is not "Unused", ConsumedQuantity MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CQ1.3.3.1 | MUST | ConsumedQuantity MUST NOT be null when ChargeClass is not "Correction". | Supports |  |
+| CU-CQ1.3.3.2 | MAY | ConsumedQuantity MAY be null when ChargeClass is "Correction". | Supports |  |
+
+### Consumed unit (Cost and usage)
+
+Service-provider-specified measurement unit indicating how a service provider measures usage of a metered SKU associated with a resource or service.
+
+Source: [datasets/cost_and_usage/columns/consumedunit.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/consumedunit.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CU1 | MUST | ConsumedUnit MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CU1.1 | MUST | ConsumedUnit MUST be of type String. | Supports |  |
+| CU-CU1.2 | MUST | ConsumedUnit MUST conform to StringHandling requirements. | Supports |  |
+| CU-CU1.3 | SHOULD | ConsumedUnit SHOULD conform to UnitFormat requirements. | Supports |  |
+| CU-CU1.4 | MUST | ConsumedUnit MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-CU1.4.1 | MUST | ConsumedUnit MUST be null when ConsumedQuantity is null. | Supports |  |
+| CU-CU1.4.2 | MUST | ConsumedUnit MUST NOT be null when ConsumedQuantity is not null. | Supports |  |
+
+### Contract applied (Cost and usage)
+
+A set of properties that associate a charge with one or more contract commitments.
+
+Source: [datasets/cost_and_usage/columns/contractapplied.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/contractapplied.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CA1 | MUST | ContractApplied MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CA1.1 | MUST | ContractApplied MUST be of type JSON Object (serialized as a String where necessary). | Not Evaluated |  |
+| CU-CA1.2 | MUST | ContractApplied MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CU-CA1.3 | MUST | ContractApplied MUST conform to JsonObjectFormat requirements. | Not Evaluated |  |
+| CU-CA1.4 | MUST | ContractApplied MUST NOT be null when one or more contract commitments are applied to the charge. | Not Evaluated |  |
+| CU-CA1.5 | MUST | ContractApplied MUST conform to ContractAppliedObject requirements when ContractApplied is not null. | Not Evaluated |  |
+| CU-CA2 | MUST | ContractAppliedObject MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CA2.1 | MUST | ContractAppliedObject MUST conform to the ContractAppliedObjectSchema JSON Schema. | Not Evaluated |  |
+| CU-CA2.2 | MUST | ContractAppliedObject.Elements[\].ContractId MUST be a unique identifier within the service provider. | Not Evaluated |  |
+| CU-CA2.3 | SHOULD | ContractAppliedObject.Elements[\].ContractId SHOULD be a fully-qualified identifier. | Not Evaluated |  |
+| CU-CA2.4 | MUST | ContractAppliedObject.Elements[\].ContractCommitmentId MUST be a unique identifier within the service provider. | Not Evaluated |  |
+| CU-CA2.5 | SHOULD | ContractAppliedObject.Elements[\].ContractCommitmentId SHOULD be a fully-qualified identifier. | Not Evaluated |  |
+| CU-CA2.6 | MUST | ContractAppliedObject.Elements[\].ContractCommitmentId MUST have one and only one parent ContractAppliedObject.Elements[\].ContractId. | Not Evaluated |  |
+| CU-CA2.7 | MUST | ContractAppliedObject.Elements[\].ContractCommitmentId MUST match ResourceId when ChargeCategory is "Purchase" and the charge represents a purchase of that contract commitment. | Not Evaluated |  |
+| CU-CA2.8 | MUST | ContractAppliedObject.Elements[\].ContractCommitmentId MUST match ResourceId when ChargeCategory is "Usage" and the charge represents an unused portion of that contract commitment. | Not Evaluated |  |
+| CU-CA2.9 | MAY | ContractAppliedObject.Elements[\].ContractCommitmentId MAY match ContractAppliedObject.Elements[\].ContractId. | Not Evaluated |  |
+| CU-CA2.10 | MUST | ContractAppliedObject.Elements[\].ContractCommitmentAppliedCost MUST be denominated in the BillingCurrency. | Not Evaluated |  |
+| CU-CA2.11 | MUST | ContractAppliedObject.Elements[\].ContractCommitmentAppliedQuantity MUST be denominated in the ContractAppliedObject.Elements[\].ContractCommitmentAppliedUnit. | Not Evaluated |  |
+| CU-CA2.12 | SHOULD | ContractAppliedObject.Elements[\].ContractCommitmentAppliedUnit SHOULD conform to UnitFormat requirements. | Not Evaluated |  |
+
+### Contracted cost (Cost and usage)
+
+Cost calculated by multiplying contracted unit price and the corresponding Pricing Quantity.
+
+Source: [datasets/cost_and_usage/columns/contractedcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/contractedcost.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CoC1 | MUST | ContractedCost MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CoC1.1 | MUST | ContractedCost MUST be of type Decimal. | Supports |  |
+| CU-CoC1.2 | MUST | ContractedCost MUST conform to NumericFormat requirements. | Supports |  |
+| CU-CoC1.3 | MUST | ContractedCost MUST NOT be null. | Partially Supports | `ContractedCost` is never null, but may be 0 for: EA Marketplace charges, EA reservation usage when cost allocation is enabled, MCA reservation usage. |
+| CU-CoC1.4 | MUST | ContractedCost MUST be denominated in the BillingCurrency. | Supports |  |
+| CU-CoC1.5 | MUST | When ContractedUnitPrice is null, ContractedCost MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CoC1.5.1 | MUST | ContractedCost of a charge calculated based on other charges (e.g., when the ChargeCategory is "Tax") MUST be calculated based on the ContractedCost of those related charges. | Not Evaluated |  |
+| CU-CoC1.5.2 | MUST | ContractedCost of a charge unrelated to other charges (e.g., when the ChargeCategory is "Credit") MUST be equal to the BilledCost. | Not Evaluated |  |
+| CU-CoC1.6 | MUST | ContractedCost MUST equal the product of ContractedUnitPrice and PricingQuantity when ContractedUnitPrice is not null and PricingQuantity is not null. | Not Evaluated |  |
+
+### Contracted unit price (Cost and usage)
+
+The agreed-upon unit price for a single Pricing Unit of the associated SKU, inclusive of negotiated discounts, if present, while excluding negotiated commitment discounts or any other discounts.
+
+Source: [datasets/cost_and_usage/columns/contractedunitprice.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/contractedunitprice.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-CUP1 | MUST | ContractedUnitPrice MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CUP1.1 | MUST | ContractedUnitPrice MUST be of type Decimal. | Supports |  |
+| CU-CUP1.2 | MUST | ContractedUnitPrice MUST conform to NumericFormat requirements. | Supports |  |
+| CU-CUP1.3 | MUST | ContractedUnitPrice MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-CUP1.3.1 | MUST | ContractedUnitPrice MUST be null when SkuPriceId is null. | Not Evaluated |  |
+| CU-CUP1.3.2 | MUST | ContractedUnitPrice MUST be null when ChargeCategory is "Tax". | Not Applicable | Taxes aren't included in any Cost Management cost and usage dataset. |
+| CU-CUP1.3.3 | MUST | ContractedUnitPrice MUST NOT be null when SkuPriceId is not null. | Not Evaluated |  |
+| CU-CUP1.3.4 | MUST | ContractedUnitPrice MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction". | Partially Supports | `ContractedUnitPrice` is never null, but may be 0 for: EA Marketplace charges, EA reservation usage when cost allocation is enabled, MCA reservation usage. |
+| CU-CUP1.3.5 | MAY | ContractedUnitPrice MAY be null in all other cases. | Supports |  |
+| CU-CUP1.4 | MUST | When ContractedUnitPrice is not null, ContractedUnitPrice MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-CUP1.4.1 | MUST | ContractedUnitPrice MUST be a non-negative decimal value. | Not Evaluated |  |
+| CU-CUP1.4.2 | MUST | ContractedUnitPrice MUST be denominated in the BillingCurrency. | Not Evaluated |  |
+
+### Effective cost (Cost and usage)
+
+Cost of a charge based on the resources used, services used, or contract commitments recognized in a given charge period.
+
+Source: [datasets/cost_and_usage/columns/effectivecost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/effectivecost.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-EC1 | MUST | EffectiveCost MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-EC1.1 | MUST | EffectiveCost MUST be of type Decimal. | Supports |  |
+| CU-EC1.2 | MUST | EffectiveCost MUST conform to NumericFormat requirements. | Supports |  |
+| CU-EC1.3 | MUST | EffectiveCost MUST NOT be null. | Supports |  |
+| CU-EC1.4 | MUST | EffectiveCost MUST be denominated in the BillingCurrency. | Supports |  |
+| CU-EC1.5 | MUST | EffectiveCost MUST reflect all applicable pricing adjustments, including but not limited to negotiated discounts, commitment discounts, and other applicable discount programs. | Not Evaluated |  |
+| CU-EC1.6 | MUST | EffectiveCost MUST equal BilledCost when ChargeCategory is "Usage" and the charge is not covered by other eligible charges. | Not Evaluated |  |
+| CU-EC1.7 | MUST | EffectiveCost MUST equal BilledCost when ChargeCategory is "Purchase" and the charge is neither intended to cover other eligible charges nor covered by other eligible charges. | Not Evaluated |  |
+| CU-EC1.8 | MUST | EffectiveCost MUST equal BilledCost when ChargeCategory is "Tax" or "Credit". | Not Evaluated |  |
+| CU-EC1.9 | MAY | EffectiveCost MAY differ from BilledCost when ChargeCategory is "Adjustment". | Not Evaluated |  |
+| CU-EC1.10 | MUST | EffectiveCost MUST include any portion of the BilledCost of covering purchase charges (i.e., ChargeCategory is "Purchase") that is applied to this charge. | Not Evaluated |  |
+| CU-EC1.11 | MUST | EffectiveCost MUST be 0 when ChargeCategory is "Purchase" and the purchase is intended to cover related eligible charges. | Not Evaluated |  |
+| CU-EC1.12 | MUST | EffectiveCost MUST be 0 for charges generated by entities that do not originate the cost and usage data, to avoid double-counting when merging multiple dataset instances. | Not Evaluated |  |
+| CU-EC1.13 | MUST | The sum of EffectiveCost across all related covering and covered charges MUST equal the sum of BilledCost across the same set of charges, within the charge period of the covering charges, when both the covering and covered charges are present in the dataset instance. | Not Evaluated |  |
+| CU-EC1.14 | MAY | The sum of EffectiveCost for a given billing period MAY differ from the sum of BilledCost when covered and covering charges span multiple billing periods or billing accounts, or when only one side of a covering relationship is present in the dataset instance. | Not Evaluated |  |
+
+### Host provider name (Cost and usage)
+
+The name of the entity whose resources are used by the Service Provider to make their resources or services available.
+
+Source: [datasets/cost_and_usage/columns/hostprovidername.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/hostprovidername.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-HPN1 | MUST | HostProviderName MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-HPN1.1 | MUST | HostProviderName MUST be of type String. | Not Evaluated |  |
+| CU-HPN1.2 | MUST | HostProviderName MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CU-HPN1.3 | MUST | HostProviderName MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-HPN1.3.1 | MAY | HostProviderName MAY be NULL when the associated ServiceName does not involve deployment on any underlying infrastructure (e.g., professional services, software licenses). | Not Evaluated |  |
+| CU-HPN1.3.2 | MAY | HostProviderName MAY be NULL when the information about the entity providing the underlying infrastructure cannot be uniquely determined (e.g., when the ChargeCategory is "Tax" or "Adjustment"). | Not Evaluated |  |
+| CU-HPN1.3.3 | MUST | HostProviderName MUST NOT be null in all other cases. | Not Evaluated |  |
+| CU-HPN1.4 | MUST | When HostProviderName is not null, HostProviderName values MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-HPN1.4.1 | MUST | HostProviderName MUST reflect the name of the host provider when explicitly selected by the customer. | Not Evaluated |  |
+| CU-HPN1.4.2 | MUST | HostProviderName MUST reflect the name of the host provider when the service provider exposes the underlying hosting provider. | Not Evaluated |  |
+| CU-HPN1.4.3 | MUST | HostProviderName MUST match ServiceProviderName in all other cases. | Not Evaluated |  |
+
+### Invoice detail ID (Cost and usage)
+
+The invoice-issuer-assigned identifier for an Invoice Detail record encapsulating charges in the corresponding billing period for a given billing account.
+
+Source: [datasets/cost_and_usage/columns/invoicedetailid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/invoicedetailid.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-IDI1 | MUST | InvoiceDetailId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-IDI1.1 | MUST | InvoiceDetailId MUST be of type String. | Not Evaluated |  |
+| CU-IDI1.2 | MUST | InvoiceDetailId MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CU-IDI1.3 | MUST | InvoiceDetailId MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-IDI1.3.1 | MUST | InvoiceDetailId MUST be null when the charge is not associated either with an invoice or with a pre-generated provisional invoice. | Not Evaluated |  |
+| CU-IDI1.3.2 | MUST | InvoiceDetailId MUST NOT be null when the charge is associated with either an issued invoice or a pre-generated provisional invoice. | Not Evaluated |  |
+| CU-IDI1.4 | MAY | InvoiceDetailId MAY be generated prior to an invoice being issued. | Not Evaluated |  |
+| CU-IDI1.5 | MUST | InvoiceDetailId MUST uniquely identify a specific record within a given InvoiceId. | Not Evaluated |  |
+
+### Invoice ID (Cost and usage)
+
+The invoice-issuer-assigned identifier for an invoice encapsulating charges in the corresponding billing period for a given billing account.
+
+Source: [datasets/cost_and_usage/columns/invoiceid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/invoiceid.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-II1 | MUST | InvoiceId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-II1.1 | MUST | InvoiceId MUST be of type String. | Supports |  |
+| CU-II1.2 | MUST | InvoiceId MUST conform to StringHandling requirements. | Supports |  |
+| CU-II1.3 | MUST | InvoiceId MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-II1.3.1 | MUST | InvoiceId MUST be null when the charge is not associated either with an invoice or with a pre-generated provisional invoice. | Supports |  |
+| CU-II1.3.2 | MUST | InvoiceId MUST NOT be null when the charge is associated with either an issued invoice or a pre-generated provisional invoice. | Partially Supports | Supported for Microsoft Customer Agreement accounts but not for Enterprise Agreement accounts. |
+| CU-II1.4 | MAY | InvoiceId MAY be generated prior to an invoice being issued. | Not Applicable |  |
+| CU-II1.5 | MUST | InvoiceId MUST be associated with the related charge and BillingAccountId when a pre-generated invoice or provisional invoice exists. | Supports |  |
+
+### Invoice issuer name (Cost and usage)
+
+The name of the entity responsible for invoicing for the resources or services consumed.
+
+Source: [datasets/cost_and_usage/columns/invoiceissuername.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/invoiceissuername.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-IIN1 | MUST | InvoiceIssuerName MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-IIN1.1 | MUST | InvoiceIssuerName MUST be of type String. | Supports |  |
+| CU-IIN1.2 | MUST | InvoiceIssuerName MUST conform to StringHandling requirements. | Supports |  |
+| CU-IIN1.3 | MUST | InvoiceIssuerName MUST NOT be null. | Supports |  |
+| CU-IIN1.4 | MUST | InvoiceIssuerName MUST represent the entity that issues invoices. | Not Evaluated |  |
+
+### List cost (Cost and usage)
 
 Cost calculated by multiplying List Unit Price and the corresponding Pricing Quantity.
 
-Source: [columns/listcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/listcost.md)
+Source: [datasets/cost_and_usage/columns/listcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/listcost.md)
 
-| ID    | Type | Criteria                                                                                                                                                                                         | Status             | Notes                                                                                  |
-| ----- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ | -------------------------------------------------------------------------------------- |
-| LC1   | MUST | ListCost MUST be present in a FOCUS dataset.                                                                                                                                                     | Supports           |                                                                                        |
-| LC2   | MUST | ListCost MUST be of type Decimal.                                                                                                                                                                | Supports           |                                                                                        |
-| LC3   | MUST | ListCost MUST conform to NumericFormat requirements.                                                                                                                                             | Supports           |                                                                                        |
-| LC4   | MUST | ListCost MUST NOT be null.                                                                                                                                                                       | Partially Supports | `ListCost` is never null, but may be 0 for: Marketplace charges and reservation usage. |
-| LC5   | MUST | ListCost MUST be a valid decimal value.                                                                                                                                                          | Supports           |                                                                                        |
-| LC6   | MUST | ListCost MUST be denominated in the BillingCurrency.                                                                                                                                             | Supports           |                                                                                        |
-| LC7.1 | MUST | When ListUnitPrice is null... ListCost of a charge calculated based on other charges (e.g., when the ChargeCategory is "Tax") MUST be calculated based on the ListCost of those related charges. | Supports           |                                                                                        |
-| LC7.2 | MUST | When ListUnitPrice is null... ListCost of a charge unrelated to other charges (e.g., when the ChargeCategory is "Credit") MUST match the BilledCost.                                             | Supports           | `ListCost` may be off by less than 0.0000000001 due to rounding errors.                |
-| LC8   | MUST | The product of ListUnitPrice and PricingQuantity MUST match the ListCost when ListUnitPrice is not null, PricingQuantity is not null, and ChargeClass is not "Correction".                       | Supports           | `ListCost` may be off by less than 0.0000000001 due to rounding errors.                |
-| LC9   | MAY  | Discrepancies in ListCost, ListUnitPrice, or PricingQuantity MAY exist when ChargeClass is "Correction".                                                                                         | Supports           |                                                                                        |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-LC1 | MUST | ListCost MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-LC1.1 | MUST | ListCost MUST be of type Decimal. | Supports |  |
+| CU-LC1.2 | MUST | ListCost MUST conform to NumericFormat requirements. | Supports |  |
+| CU-LC1.3 | MUST | ListCost MUST NOT be null. | Partially Supports | `ListCost` is never null, but may be 0 for: Marketplace charges and reservation usage. |
+| CU-LC1.4 | MUST | ListCost MUST be denominated in the BillingCurrency. | Supports |  |
+| CU-LC1.5 | MUST | When ListUnitPrice is null, ListCost MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-LC1.5.1 | MUST | ListCost of a charge calculated based on other charges (e.g., when the ChargeCategory is "Tax") MUST be calculated based on the ListCost of those related charges. | Not Evaluated |  |
+| CU-LC1.5.2 | MUST | ListCost of a charge unrelated to other charges (e.g., when the ChargeCategory is "Credit") MUST be equal to the BilledCost. | Not Evaluated |  |
+| CU-LC1.6 | MUST | ListCost MUST equal the product of ListUnitPrice and PricingQuantity when ListUnitPrice is not null and PricingQuantity is not null. | Not Evaluated |  |
 
-### List unit price
+### List unit price (Cost and usage)
 
-The suggested provider-published unit price for a single Pricing Unit of the associated SKU, exclusive of any discounts.
+The suggested service-provider-published unit price for a single Pricing Unit of the associated SKU, exclusive of any discounts.
 
-Source: [columns/listunitprice.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/listunitprice.md)
+Source: [datasets/cost_and_usage/columns/listunitprice.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/listunitprice.md)
 
-| ID     | Type | Criteria                                                                                                                                                                         | Status             | Notes                                                                                       |
-| ------ | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------- |
-| LUP1   | MUST | ListUnitPrice MUST be present in a FOCUS dataset when the provider publishes unit prices exclusive of discounts.                                                                 | Supports           |                                                                                             |
-| LUP2   | MUST | ListUnitPrice MUST be of type Decimal.                                                                                                                                           | Supports           |                                                                                             |
-| LUP3   | MUST | ListUnitPrice MUST conform to NumericFormat requirements.                                                                                                                        | Supports           |                                                                                             |
-| LUP4.1 | MUST | ListUnitPrice MUST be null when ChargeCategory is "Tax".                                                                                                                         | Not Applicable     | Taxes aren't included in any Cost Management cost and usage dataset.                        |
-| LUP4.2 | MUST | ListUnitPrice MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction".                                                                 | Partially Supports | `ListUnitPrice` is never null, but may be 0 for: Marketplace charges and reservation usage. |
-| LUP4.3 | MAY  | ListUnitPrice MAY be null in all other cases.                                                                                                                                    | Supports           |                                                                                             |
-| LUP5.1 | MUST | When ListUnitPrice is not null... ListUnitPrice MUST be a non-negative decimal value.                                                                                            | Supports           |                                                                                             |
-| LUP5.2 | MUST | When ListUnitPrice is not null... ListUnitPrice MUST be denominated in the BillingCurrency.                                                                                      | Supports           |                                                                                             |
-| LUP5.3 | MUST | When ListUnitPrice is not null... The product of ListUnitPrice and PricingQuantity MUST match the ListCost when PricingQuantity is not null and ChargeClass is not "Correction". | Supports           |                                                                                             |
-| LUP5.4 | MAY  | When ListUnitPrice is not null... Discrepancies in ListUnitPrice, ListCost, or PricingQuantity MAY exist when ChargeClass is "Correction".                                       | Supports           |                                                                                             |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-LUP1 | MUST | ListUnitPrice MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-LUP1.1 | MUST | ListUnitPrice MUST be of type Decimal. | Supports |  |
+| CU-LUP1.2 | MUST | ListUnitPrice MUST conform to NumericFormat requirements. | Supports |  |
+| CU-LUP1.3 | MUST | ListUnitPrice MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-LUP1.3.1 | MUST | ListUnitPrice MUST be null when SkuPriceId is null. | Not Evaluated |  |
+| CU-LUP1.3.2 | MUST | ListUnitPrice MUST be null when ChargeCategory is "Tax". | Not Applicable | Taxes aren't included in any Cost Management cost and usage dataset. |
+| CU-LUP1.3.3 | MUST | ListUnitPrice MUST NOT be null when SkuPriceId is not null. | Not Evaluated |  |
+| CU-LUP1.3.4 | MUST | ListUnitPrice MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction". | Partially Supports | `ListUnitPrice` is never null, but may be 0 for: Marketplace charges and reservation usage. |
+| CU-LUP1.3.5 | MAY | ListUnitPrice MAY be null in all other cases. | Supports |  |
+| CU-LUP1.4 | MUST | When ListUnitPrice is not null, ListUnitPrice MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-LUP1.4.1 | MUST | ListUnitPrice MUST be a non-negative decimal value. | Not Evaluated |  |
+| CU-LUP1.4.2 | MUST | ListUnitPrice MUST be denominated in the BillingCurrency. | Not Evaluated |  |
 
-### Pricing category
+### Pricing category (Cost and usage)
 
 Describes the pricing model used for a charge at the time of use or purchase.
 
-Source: [columns/pricingcategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/pricingcategory.md)
+Source: [datasets/cost_and_usage/columns/pricingcategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/pricingcategory.md)
 
-| ID     | Type | Criteria                                                                                                                                              | Status         | Notes                                                                |
-| ------ | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | -------------------------------------------------------------------- |
-| PCt1   | MUST | PricingCategory MUST be present in a FOCUS dataset when the provider supports more than one pricing category across all SKUs.                         | Supports       |                                                                      |
-| PCt2   | MUST | PricingCategory MUST be of type String.                                                                                                               | Supports       |                                                                      |
-| PCt2.1 | MUST | PricingCategory MUST be null when ChargeCategory is "Tax".                                                                                            | Not Applicable | Taxes aren't included in any Cost Management cost and usage dataset. |
-| PCt2.2 | MUST | PricingCategory MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction".                                    | Supports       |                                                                      |
-| PCt2.3 | MAY  | PricingCategory MAY be null in all other cases.                                                                                                       | Supports       |                                                                      |
-| PCt2.4 | MUST | PricingCategory MUST be one of the allowed values.                                                                                                    | Supports       |                                                                      |
-| PCt2.5 | MUST | PricingCategory MUST be "Standard" when pricing is predetermined at the agreed upon rate for the billing account.                                     | Supports       |                                                                      |
-| PCt2.6 | MUST | PricingCategory MUST be "Committed" when the charge is subject to an existing commitment discount and is not the purchase of the commitment discount. | Supports       |                                                                      |
-| PCt2.7 | MUST | PricingCategory MUST be "Dynamic" when pricing is determined by the provider and may change over time, regardless of predetermined agreement pricing. | Supports       |                                                                      |
-| PCt2.8 | MUST | PricingCategory MUST be "Other" when there is a pricing model but none of the allowed values apply.                                                   | Supports       |                                                                      |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-PC1 | MUST | PricingCategory MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-PC1.1 | MUST | PricingCategory MUST be of type String. | Supports |  |
+| CU-PC1.2 | MUST | PricingCategory MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-PC1.2.1 | MUST | PricingCategory MUST be null when SkuPriceId is null. | Not Evaluated |  |
+| CU-PC1.2.2 | MUST | PricingCategory MUST be null when ChargeCategory is "Tax". | Not Applicable | Taxes aren't included in any Cost Management cost and usage dataset. |
+| CU-PC1.2.3 | MUST | PricingCategory MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction". | Supports |  |
+| CU-PC1.2.4 | MAY | PricingCategory MAY be null in all other cases. | Supports |  |
+| CU-PC1.3 | MUST | When PricingCategory is not null, PricingCategory MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-PC1.3.1 | MUST | PricingCategory MUST be one of the allowed values. | Supports |  |
+| CU-PC1.3.2 | MUST | PricingCategory MUST be "Standard" when pricing is predetermined at the agreed upon rate for the billing account. | Supports |  |
+| CU-PC1.3.3 | MUST | PricingCategory MUST be "Committed" when the charge is subject to an existing commitment discount and is not the purchase of the commitment discount. | Supports |  |
+| CU-PC1.3.4 | MUST | PricingCategory MUST be "Dynamic" when pricing is determined by the service provider and may change over time, regardless of predetermined agreement pricing. | Not Evaluated |  |
+| CU-PC1.3.5 | MUST | PricingCategory MUST be "Other" when there is a pricing model but none of the allowed values apply. | Supports |  |
 
-### Pricing currency
+### Pricing currency (Cost and usage)
 
 The national or virtual currency denomination that a resource or service was priced in.
 
-Source: [columns/pricingcurrency.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/pricingcurrency.md)
+Source: [datasets/cost_and_usage/columns/pricingcurrency.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/pricingcurrency.md)
 
-| ID   | Type | Criteria                                                                                                                   | Status   | Notes |
-| ---- | ---- | -------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| PCu1 | MUST | PricingCurrency MUST be present in a FOCUS dataset when the provider supports pricing and billing in different currencies. | Supports |       |
-| PCu2 | MUST | PricingCurrency MUST be of type String.                                                                                    | Supports |       |
-| PCu3 | MUST | PricingCurrency MUST conform to StringHandling requirements.                                                               | Supports |       |
-| PCu4 | MUST | PricingCurrency MUST conform to CurrencyFormat requirements.                                                               | Supports |       |
-| PCu5 | MUST | PricingCurrency MUST NOT be null.                                                                                          | Supports |       |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-PrC1 | MUST | PricingCurrency MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-PrC1.1 | MUST | PricingCurrency MUST be of type String. | Supports |  |
+| CU-PrC1.2 | MUST | PricingCurrency MUST conform to StringHandling requirements. | Supports |  |
+| CU-PrC1.3 | MUST | PricingCurrency MUST conform to CurrencyFormat requirements. | Supports |  |
+| CU-PrC1.4 | MUST | PricingCurrency MUST NOT be null. | Supports |  |
 
-### Pricing currency contracted unit price
+### Pricing currency contracted unit price (Cost and usage)
 
 The agreed-upon unit price for a single Pricing Unit of the associated SKU, inclusive of negotiated discounts, if present, while excluding negotiated commitment discounts or any other discounts, and expressed in Pricing Currency.
 
-Source: [columns/pricingcurrencycontractedunitprice.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/pricingcurrencycontractedunitprice.md)
+Source: [datasets/cost_and_usage/columns/pricingcurrencycontractedunitprice.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/pricingcurrencycontractedunitprice.md)
 
-| ID         | Type        | Criteria                                                                                                                                                                                                    | Status           | Notes                                                                   |
-| ---------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------- |
-| PCuCnUP1   | MUST        | PricingCurrencyContractedUnitPrice MUST be present in a FOCUS dataset when the provider supports prices in virtual currency and publishes unit prices exclusive of discounts.                               | Not Applicable   |                                                                         |
-| PCuCnUP2   | RECOMMENDED | PricingCurrencyContractedUnitPrice is RECOMMENDED to be present in a FOCUS dataset when the provider supports pricing and billing in different currencies and publishes unit prices exclusive of discounts. | Does Not Support | Not included in the Cost Management dataset based on customer feedback. |
-| PCuCnUP3   | MAY         | PricingCurrencyContractedUnitPrice MAY be present in a FOCUS dataset in all other cases.                                                                                                                    | Not Applicable   |                                                                         |
-| PCuCnUP1   | MUST        | PricingCurrencyContractedUnitPrice MUST be of type Decimal.                                                                                                                                                 | Not Applicable   |                                                                         |
-| PCuCnUP2   | MUST        | PricingCurrencyContractedUnitPrice MUST conform to NumericFormat requirements.                                                                                                                              | Not Applicable   |                                                                         |
-| PCuCnUP2.1 | MUST        | PricingCurrencyContractedUnitPrice MUST be null when ChargeCategory is "Tax".                                                                                                                               | Not Applicable   | Taxes aren't included in any Cost Management cost and usage dataset.    |
-| PCuCnUP2.2 | MUST        | PricingCurrencyContractedUnitPrice MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction".                                                                       | Not Applicable   |                                                                         |
-| PCuCnUP2.3 | MAY         | PricingCurrencyContractedUnitPrice MAY be null in all other cases.                                                                                                                                          | Not Applicable   |                                                                         |
-| PCuCnUP2.4 | MUST        | PricingCurrencyContractedUnitPrice MUST be a non-negative decimal value.                                                                                                                                    | Not Applicable   |                                                                         |
-| PCuCnUP2.5 | MUST        | PricingCurrencyContractedUnitPrice MUST be denominated in the PricingCurrency.                                                                                                                              | Not Applicable   |                                                                         |
-| PCuCnUP3   | MAY         | Discrepancies in PricingCurrencyContractedUnitPrice, ContractedCost, or PricingQuantity MAY exist when ChargeClass is "Correction".                                                                         | Not Applicable   |                                                                         |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-PCCUP1 | MUST | PricingCurrencyContractedUnitPrice MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-PCCUP1.1 | MUST | PricingCurrencyContractedUnitPrice MUST be of type Decimal. | Not Applicable |  |
+| CU-PCCUP1.2 | MUST | PricingCurrencyContractedUnitPrice MUST conform to NumericFormat requirements. | Not Applicable |  |
+| CU-PCCUP1.3 | MUST | PricingCurrencyContractedUnitPrice MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-PCCUP1.3.1 | MUST | PricingCurrencyContractedUnitPrice MUST be null when SkuPriceId is null. | Not Evaluated |  |
+| CU-PCCUP1.3.2 | MUST | PricingCurrencyContractedUnitPrice MUST be null when ChargeCategory is "Tax". | Not Applicable | Taxes aren't included in any Cost Management cost and usage dataset. |
+| CU-PCCUP1.3.3 | MUST | PricingCurrencyContractedUnitPrice MUST NOT be null when SkuPriceId is not null. | Not Evaluated |  |
+| CU-PCCUP1.3.4 | MUST | PricingCurrencyContractedUnitPrice MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction". | Not Applicable |  |
+| CU-PCCUP1.3.5 | MAY | PricingCurrencyContractedUnitPrice MAY be null in all other cases. | Not Applicable |  |
+| CU-PCCUP1.4 | MUST | When PricingCurrencyContractedUnitPrice is not null, PricingCurrencyContractedUnitPrice MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-PCCUP1.4.1 | MUST | PricingCurrencyContractedUnitPrice MUST be a non-negative decimal value. | Not Applicable |  |
+| CU-PCCUP1.4.2 | MUST | PricingCurrencyContractedUnitPrice MUST be denominated in the PricingCurrency. | Not Applicable |  |
 
-### Pricing currency effective cost
+### Pricing currency effective cost (Cost and usage)
 
-The cost of the charge after applying all reduced rates, discounts, and the applicable portion of relevant, prepaid purchases (one-time or recurring) that covered this charge, as denominated in Pricing Currency.
+The PricingCurrency-denominated equivalent of Effective Cost, representing the cost of a charge based on the resources used, services used, or contract commitments recognized in a given charge period.
 
-Source: [columns/pricingcurrencyeffectivecost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/pricingcurrencyeffectivecost.md)
+Source: [datasets/cost_and_usage/columns/pricingcurrencyeffectivecost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/pricingcurrencyeffectivecost.md)
 
-| ID     | Type        | Criteria                                                                                                                                                                                              | Status           | Notes                                                                   |
-| ------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------- |
-| PCuEC1 | MUST        | PricingCurrencyEffectiveCost MUST be present in a FOCUS dataset when the provider supports prices in virtual currency and publishes unit prices exclusive of discounts.                               | Not Applicable   |                                                                         |
-| PCuEC2 | RECOMMENDED | PricingCurrencyEffectiveCost is RECOMMENDED to be present in a FOCUS dataset when the provider supports pricing and billing in different currencies and publishes unit prices exclusive of discounts. | Does Not Support | Not included in the Cost Management dataset based on customer feedback. |
-| PCuEC3 | MAY         | PricingCurrencyEffectiveCost MAY be present in a FOCUS dataset in all other cases.                                                                                                                    | Not Applicable   |                                                                         |
-| PCuEC1 | MUST        | PricingCurrencyEffectiveCost MUST be of type Decimal.                                                                                                                                                 | Not Applicable   |                                                                         |
-| PCuEC2 | MUST        | PricingCurrencyEffectiveCost MUST conform to NumericFormat requirements.                                                                                                                              | Not Applicable   |                                                                         |
-| PCuEC3 | MUST        | PricingCurrencyEffectiveCost MUST NOT be null.                                                                                                                                                        | Not Applicable   |                                                                         |
-| PCuEC4 | MUST        | PricingCurrencyEffectiveCost MUST be a valid decimal value.                                                                                                                                           | Not Applicable   |                                                                         |
-| PCuEC5 | MUST        | PricingCurrencyEffectiveCost MUST be 0 in the event of prepaid purchases or purchases that are applicable to previous usage.                                                                          | Not Applicable   |                                                                         |
-| PCuEC6 | MUST        | PricingCurrencyEffectiveCost MUST be denominated in the PricingCurrency.                                                                                                                              | Not Applicable   |                                                                         |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-PCEC1 | MUST | PricingCurrencyEffectiveCost MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-PCEC1.1 | MUST | PricingCurrencyEffectiveCost MUST be of type Decimal. | Not Applicable |  |
+| CU-PCEC1.2 | MUST | PricingCurrencyEffectiveCost MUST conform to NumericFormat requirements. | Not Applicable |  |
+| CU-PCEC1.3 | MUST | PricingCurrencyEffectiveCost MUST NOT be null. | Not Applicable |  |
+| CU-PCEC1.4 | MUST | PricingCurrencyEffectiveCost MUST be denominated in the PricingCurrency. | Not Applicable |  |
+| CU-PCEC1.5 | MUST | PricingCurrencyEffectiveCost MUST be the PricingCurrency-denominated equivalent of EffectiveCost. | Not Evaluated |  |
 
-### Pricing currency list unit price
+### Pricing currency list unit price (Cost and usage)
 
-The suggested provider-published unit price for a single Pricing Unit of the associated SKU, exclusive of any discounts and expressed in Pricing Currency.
+The suggested service-provider-published unit price for a single Pricing Unit of the associated SKU, exclusive of any discounts and expressed in Pricing Currency.
 
-Source: [columns/pricingcurrencylistunitprice.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/pricingcurrencylistunitprice.md)
+Source: [datasets/cost_and_usage/columns/pricingcurrencylistunitprice.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/pricingcurrencylistunitprice.md)
 
-| ID        | Type        | Criteria                                                                                                                                                                                              | Status           | Notes                                                                   |
-| --------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------- |
-| PCuLUP1   | MUST        | PricingCurrencyListUnitPrice MUST be present in a FOCUS dataset when the provider supports prices in virtual currency and publishes unit prices exclusive of discounts.                               | Not Applicable   |                                                                         |
-| PCuLUP2   | RECOMMENDED | PricingCurrencyListUnitPrice is RECOMMENDED to be present in a FOCUS dataset when the provider supports pricing and billing in different currencies and publishes unit prices exclusive of discounts. | Does Not Support | Not included in the Cost Management dataset based on customer feedback. |
-| PCuLUP3   | MAY         | PricingCurrencyListUnitPrice MAY be present in a FOCUS dataset in all other cases.                                                                                                                    | Not Applicable   |                                                                         |
-| PCuLUP1   | MUST        | PricingCurrencyListUnitPrice MUST be of type Decimal.                                                                                                                                                 | Not Applicable   |                                                                         |
-| PCuLUP2   | MUST        | PricingCurrencyListUnitPrice MUST conform to NumericFormat requirements.                                                                                                                              | Not Applicable   |                                                                         |
-| PCuLUP2.1 | MUST        | PricingCurrencyListUnitPrice MUST be null when ChargeCategory is "Tax".                                                                                                                               | Not Applicable   | Taxes aren't included in any Cost Management cost and usage dataset.    |
-| PCuLUP2.2 | MUST        | PricingCurrencyListUnitPrice MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction".                                                                       | Not Applicable   |                                                                         |
-| PCuLUP2.3 | MAY         | PricingCurrencyListUnitPrice MAY be null in all other cases.                                                                                                                                          | Not Applicable   |                                                                         |
-| PCuLUP2.4 | MUST        | PricingCurrencyListUnitPrice MUST be a non-negative decimal value.                                                                                                                                    | Not Applicable   |                                                                         |
-| PCuLUP2.5 | MUST        | PricingCurrencyListUnitPrice MUST be denominated in the PricingCurrency.                                                                                                                              | Not Applicable   |                                                                         |
-| PCuLUP2.6 | MAY         | Discrepancies in PricingCurrencyListUnitPrice, ListCost, or PricingQuantity MAY be addressed independently when ChargeClass is "Correction".                                                          | Not Applicable   |                                                                         |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-PCLUP1 | MUST | PricingCurrencyListUnitPrice MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-PCLUP1.1 | MUST | PricingCurrencyListUnitPrice MUST be of type Decimal. | Not Applicable |  |
+| CU-PCLUP1.2 | MUST | PricingCurrencyListUnitPrice MUST conform to NumericFormat requirements. | Not Applicable |  |
+| CU-PCLUP1.3 | MUST | PricingCurrencyListUnitPrice MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-PCLUP1.3.1 | MUST | PricingCurrencyListUnitPrice MUST be null when SkuPriceId is null. | Not Evaluated |  |
+| CU-PCLUP1.3.2 | MUST | PricingCurrencyListUnitPrice MUST be null when ChargeCategory is "Tax". | Not Applicable | Taxes aren't included in any Cost Management cost and usage dataset. |
+| CU-PCLUP1.3.3 | MUST | PricingCurrencyListUnitPrice MUST NOT be null when SkuPriceId is not null. | Not Evaluated |  |
+| CU-PCLUP1.3.4 | MUST | PricingCurrencyListUnitPrice MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction". | Not Applicable |  |
+| CU-PCLUP1.3.5 | MAY | PricingCurrencyListUnitPrice MAY be null in all other cases. | Not Applicable |  |
+| CU-PCLUP1.4 | MUST | When PricingCurrencyListUnitPrice is not null, PricingCurrencyListUnitPrice MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-PCLUP1.4.1 | MUST | PricingCurrencyListUnitPrice MUST be a non-negative decimal value. | Not Applicable |  |
+| CU-PCLUP1.4.2 | MUST | PricingCurrencyListUnitPrice MUST be denominated in the PricingCurrency. | Not Applicable |  |
 
-### Pricing quantity
+### Pricing quantity (Cost and usage)
 
 The volume of a given SKU associated with a resource or service used or purchased, based on the Pricing Unit.
 
-Source: [columns/pricingquantity.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/pricingquantity.md)
+Source: [datasets/cost_and_usage/columns/pricingquantity.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/pricingquantity.md)
 
-| ID    | Type | Criteria                                                                                                                                                                                                         | Status         | Notes                                                                |
-| ----- | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | -------------------------------------------------------------------- |
-| PQ1   | MUST | PricingQuantity MUST be present in a FOCUS dataset.                                                                                                                                                              | Supports       |                                                                      |
-| PQ2   | MUST | PricingQuantity MUST be of type Decimal.                                                                                                                                                                         | Supports       |                                                                      |
-| PQ3   | MUST | PricingQuantity MUST conform to NumericFormat requirements.                                                                                                                                                      | Supports       |                                                                      |
-| PQ3.1 | MUST | PricingQuantity MUST be null when ChargeCategory is "Tax".                                                                                                                                                       | Not Applicable | Taxes aren't included in any Cost Management cost and usage dataset. |
-| PQ3.2 | MUST | PricingQuantity MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction".                                                                                               | Supports       |                                                                      |
-| PQ3.3 | MAY  | PricingQuantity MAY be null in all other cases.                                                                                                                                                                  | Supports       |                                                                      |
-| PQ3.4 | MUST | PricingQuantity MUST be a valid decimal value.                                                                                                                                                                   | Supports       |                                                                      |
-| PQ3.5 | MUST | The product of PricingQuantity and a unit price (e.g., ContractedUnitPrice) MUST match the corresponding cost metric (e.g., ContractedCost) when the unit price is not null and ChargeClass is not "Correction". | Supports       |                                                                      |
-| PQ4   | MAY  | Discrepancies in PricingQuantity, unit prices (e.g., ContractedUnitPrice), or costs (e.g., ContractedCost) MAY exist when ChargeClass is "Correction".                                                           | Supports       |                                                                      |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-PQ1 | MUST | PricingQuantity MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-PQ1.1 | MUST | PricingQuantity MUST be of type Decimal. | Supports |  |
+| CU-PQ1.2 | MUST | PricingQuantity MUST conform to NumericFormat requirements. | Supports |  |
+| CU-PQ1.3 | MUST | PricingQuantity MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-PQ1.3.1 | MUST | PricingQuantity MUST be null when SkuPriceId is null. | Not Evaluated |  |
+| CU-PQ1.3.2 | MUST | PricingQuantity MUST be null when ChargeCategory is "Tax". | Not Applicable | Taxes aren't included in any Cost Management cost and usage dataset. |
+| CU-PQ1.3.3 | MUST | PricingQuantity MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction". | Supports |  |
+| CU-PQ1.3.4 | MAY | PricingQuantity MAY be null in all other cases. | Supports |  |
+| CU-PQ1.4 | MUST | Cost metric (e.g., ContractedCost) MUST equal the product of the corresponding unit price (e.g., ContractedUnitPrice) and PricingQuantity when the unit price is not null and PricingQuantity is not null. | Not Evaluated |  |
 
-### Pricing unit
+### Pricing unit (Cost and usage)
 
-Provider-specified measurement unit for determining unit prices, indicating how the provider rates measured usage and purchase quantities after applying pricing rules like block pricing.
+Service-provider-specified measurement unit for determining unit prices, indicating how the service provider rates measured usage and purchase quantities after applying pricing rules like block pricing.
 
-Source: [columns/pricingunit.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/pricingunit.md)
+Source: [datasets/cost_and_usage/columns/pricingunit.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/pricingunit.md)
 
-| ID    | Type   | Criteria                                                                                                                                                        | Status   | Notes |
-| ----- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| PU1   | MUST   | PricingUnit MUST be present in a FOCUS dataset.                                                                                                                 | Supports |       |
-| PU2   | MUST   | PricingUnit MUST be of type String.                                                                                                                             | Supports |       |
-| PU3   | MUST   | PricingUnit MUST conform to StringHandling requirements.                                                                                                        | Supports |       |
-| PU4   | SHOULD | PricingUnit SHOULD conform to UnitFormat requirements.                                                                                                          | Supports |       |
-| PU4.1 | MUST   | PricingUnit MUST be null when PricingQuantity is null.                                                                                                          | Supports |       |
-| PU4.2 | MUST   | PricingUnit MUST NOT be null when PricingQuantity is not null.                                                                                                  | Supports |       |
-| PU4.3 | MUST   | PricingUnit MUST be semantically equal to the corresponding pricing measurement unit provided in provider-published price list.                                 | Supports |       |
-| PU4.4 | MUST   | PricingUnit MUST be semantically equal to the corresponding pricing measurement unit provided in invoice, when the invoice includes a pricing measurement unit. | Supports |       |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-PU1 | MUST | PricingUnit MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-PU1.1 | MUST | PricingUnit MUST be of type String. | Supports |  |
+| CU-PU1.2 | MUST | PricingUnit MUST conform to StringHandling requirements. | Supports |  |
+| CU-PU1.3 | SHOULD | PricingUnit SHOULD conform to UnitFormat requirements. | Supports |  |
+| CU-PU1.4 | MUST | PricingUnit MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-PU1.4.1 | MUST | PricingUnit MUST be null when PricingQuantity is null. | Supports |  |
+| CU-PU1.4.2 | MUST | PricingUnit MUST NOT be null when PricingQuantity is not null. | Supports |  |
+| CU-PU1.5 | MUST | When PricingUnit is not null, PricingUnit MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-PU1.5.1 | MUST | PricingUnit MUST be semantically equal to the corresponding pricing measurement unit provided in service-provider-published price list. | Not Evaluated |  |
+| CU-PU1.5.2 | MUST | PricingUnit MUST be semantically equal to the corresponding pricing measurement unit provided in invoice, when the invoice includes a pricing measurement unit. | Supports |  |
 
-### Provider name
+### Region ID (Cost and usage)
 
-The name of the entity that made the resources or services available for purchase.
+Host-provider-assigned identifier for an isolated geographic area where a resource is provisioned or a service is provided.
 
-Source: [columns/provider.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/provider.md)
+Source: [datasets/cost_and_usage/columns/regionid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/regionid.md)
 
-| ID   | Type | Criteria                                                  | Status   | Notes |
-| ---- | ---- | --------------------------------------------------------- | -------- | ----- |
-| PvN1 | MUST | ProviderName MUST be present in a FOCUS dataset.          | Supports |       |
-| PvN2 | MUST | ProviderName MUST be of type String.                      | Supports |       |
-| PvN3 | MUST | ProviderName MUST conform to StringHandling requirements. | Supports |       |
-| PvN4 | MUST | ProviderName MUST NOT be null.                            | Supports |       |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-RI1 | MUST | RegionId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-RI1.1 | MUST | RegionId MUST be of type String. | Supports |  |
+| CU-RI1.2 | MUST | RegionId MUST conform to StringHandling requirements. | Supports |  |
+| CU-RI1.3 | MUST | RegionId MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-RI1.3.1 | MUST | RegionId MUST NOT be null when a resource or service is operated in or managed from a distinct region. | Supports |  |
+| CU-RI1.3.2 | MAY | RegionId MAY be null when a resource or service is not operated in or managed from a distinct region. | Supports |  |
 
-### Publisher name
-
-The name of the entity that produced the resources or services that were purchased.
-
-Source: [columns/publisher.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/publisher.md)
-
-| ID   | Type | Criteria                                                   | Status             | Notes                                                                                             |
-| ---- | ---- | ---------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------- |
-| PbN1 | MUST | PublisherName MUST be present in a FOCUS dataset.          | Supports           |                                                                                                   |
-| PbN2 | MUST | PublisherName MUST be of type String.                      | Supports           |                                                                                                   |
-| PbN3 | MUST | PublisherName MUST conform to StringHandling requirements. | Supports           |                                                                                                   |
-| PbN4 | MUST | PublisherName MUST NOT be null.                            | Partially Supports | `PublisherName` may be null for reservation usage and purchases, and savings plan unused charges. |
-
-### Region ID
-
-Provider-assigned identifier for an isolated geographic area where a resource is provisioned or a service is provided.
-
-Source: [columns/regionid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/regionid.md)
-
-| ID     | Type | Criteria                                                                                                                | Status   | Notes |
-| ------ | ---- | ----------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| RgI1   | MUST | RegionId MUST be present in a FOCUS dataset when the provider supports deploying resources or services within a region. | Supports |       |
-| RgI2   | MUST | RegionId MUST be of type String.                                                                                        | Supports |       |
-| RgI3   | MUST | RegionId MUST conform to StringHandling requirements.                                                                   | Supports |       |
-| RgI3.1 | MUST | RegionId MUST NOT be null when a resource or service is operated in or managed from a distinct region.                  | Supports |       |
-| RgI3.2 | MAY  | RegionId MAY be null when a resource or service is not operated in or managed from a distinct region.                   | Supports |       |
-
-### Region name
+### Region name (Cost and usage)
 
 The name of an isolated geographic area where a resource is provisioned or a service is provided.
 
-Source: [columns/regionname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/regionname.md)
+Source: [datasets/cost_and_usage/columns/regionname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/regionname.md)
 
-| ID     | Type | Criteria                                                                                                                  | Status   | Notes |
-| ------ | ---- | ------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| RgN1   | MUST | RegionName MUST be present in a FOCUS dataset when the provider supports deploying resources or services within a region. | Supports |       |
-| RgN2   | MUST | RegionName MUST be of type String.                                                                                        | Supports |       |
-| RgN3   | MUST | RegionName MUST conform to StringHandling requirements.                                                                   | Supports |       |
-| RgN3.1 | MUST | RegionName MUST be null when RegionId is null.                                                                            | Supports |       |
-| RgN3.2 | MUST | RegionName MUST NOT be null when RegionId is not null.                                                                    | Supports |       |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-RN1 | MUST | RegionName MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-RN1.1 | MUST | RegionName MUST be of type String. | Supports |  |
+| CU-RN1.2 | MUST | RegionName MUST conform to StringHandling requirements. | Supports |  |
+| CU-RN1.3 | MUST | RegionName MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-RN1.3.1 | MUST | RegionName MUST be null when RegionId is null. | Supports |  |
+| CU-RN1.3.2 | MUST | RegionName MUST NOT be null when RegionId is not null. | Supports |  |
 
-### Resource ID
+### Resource ID (Cost and usage)
 
-Identifier assigned to a resource by the provider.
+Identifier assigned to a resource by the service provider.
 
-Source: [columns/resourceid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/resourceid.md)
+Source: [datasets/cost_and_usage/columns/resourceid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/resourceid.md)
 
-| ID     | Type   | Criteria                                                                                                         | Status   | Notes                                                                                                                                                                        |
-| ------ | ------ | ---------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| RsI1   | MUST   | ResourceId MUST be present in a FOCUS dataset when the provider supports billing based on provisioned resources. | Supports |                                                                                                                                                                              |
-| RsI2   | MUST   | ResourceId MUST be of type String.                                                                               | Supports |                                                                                                                                                                              |
-| RsI3   | MUST   | ResourceId MUST conform to StringHandling requirements.                                                          | Supports |                                                                                                                                                                              |
-| RsI3.1 | MUST   | ResourceId MUST be null when a charge is not related to a resource.                                              | Supports | Purchases may not have an assigned resource ID.                                                                                                                              |
-| RsI3.2 | MUST   | ResourceId MUST NOT be null when a charge is related to a resource.                                              | Supports | `ResourceId` may be null when a resource is indirectly related to the charges. If you feel it's missing, file a support request for the service that owns the resource type. |
-| RsI3.3 | MUST   | ResourceId MUST be a unique identifier within the provider.                                                      | Supports |                                                                                                                                                                              |
-| RsI3.4 | SHOULD | ResourceId SHOULD be a fully-qualified identifier.                                                               | Supports |                                                                                                                                                                              |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-ReI1 | MUST | ResourceId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-ReI1.1 | MUST | ResourceId MUST be of type String. | Supports |  |
+| CU-ReI1.2 | MUST | ResourceId MUST conform to StringHandling requirements. | Supports |  |
+| CU-ReI1.3 | MUST | ResourceId MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-ReI1.3.1 | MUST | ResourceId MUST be null when a charge is not related to a resource. | Supports | Purchases may not have an assigned resource ID. |
+| CU-ReI1.3.2 | MUST | ResourceId MUST NOT be null when a charge is related to a resource. | Supports | `ResourceId` may be null when a resource is indirectly related to the charges. If you feel it's missing, file a support request for the service that owns the resource type. |
+| CU-ReI1.4 | MUST | When ResourceId is not null, ResourceId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-ReI1.4.1 | MUST | ResourceId MUST be a unique identifier within the service provider. | Not Evaluated |  |
+| CU-ReI1.4.2 | SHOULD | ResourceId SHOULD be a fully-qualified identifier. | Supports |  |
+| CU-ReI1.4.3 | MUST | ResourceId MUST be the identifier of the resource that received the commitment discount when CommitmentDiscountStatus is "Used". | Not Evaluated |  |
 
-### Resource name
+### Resource name (Cost and usage)
 
 Display name assigned to a resource.
 
-Source: [columns/resourcename.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/resourcename.md)
+Source: [datasets/cost_and_usage/columns/resourcename.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/resourcename.md)
 
-| ID     | Type | Criteria                                                                                                                                 | Status   | Notes |
-| ------ | ---- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| RsN1   | MUST | ResourceName MUST be present in a FOCUS dataset when the provider supports billing based on provisioned resources.                       | Supports |       |
-| RsN2   | MUST | ResourceName MUST be of type String.                                                                                                     | Supports |       |
-| RsN3   | MUST | ResourceName MUST conform to StringHandling requirements.                                                                                | Supports |       |
-| RsN3.1 | MUST | ResourceName MUST be null when ResourceId is null or when the resource does not have an assigned display name.                           | Supports |       |
-| RsN3.2 | MUST | ResourceName MUST NOT be null when ResourceId is not null and the resource has an assigned display name.                                 | Supports |       |
-| RsN4   | MUST | ResourceName MUST NOT duplicate ResourceId when the resource is not provisioned interactively or only has a system-generated ResourceId. | Supports |       |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-ReN1 | MUST | ResourceName MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-ReN1.1 | MUST | ResourceName MUST be of type String. | Supports |  |
+| CU-ReN1.2 | MUST | ResourceName MUST conform to StringHandling requirements. | Supports |  |
+| CU-ReN1.3 | MUST | ResourceName MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-ReN1.3.1 | MUST | ResourceName MUST be null when ResourceId is null or when the resource does not have an assigned display name. | Supports |  |
+| CU-ReN1.3.2 | MUST | ResourceName MUST NOT be null when ResourceId is not null and the resource has an assigned display name. | Supports |  |
+| CU-ReN1.4 | MUST | ResourceName MUST NOT duplicate ResourceId when the resource is not provisioned interactively or only has a system-generated ResourceId. | Supports |  |
 
-### Resource type
+### Resource type (Cost and usage)
 
 The kind of resource the charge applies to.
 
-Source: [columns/resourcetype.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/resourcetype.md)
+Source: [datasets/cost_and_usage/columns/resourcetype.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/resourcetype.md)
 
-| ID     | Type | Criteria                                                                                                                                                     | Status   | Notes |
-| ------ | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ----- |
-| RsT1   | MUST | ResourceType MUST be present in a FOCUS dataset when the provider supports billing based on provisioned resources and supports assigning types to resources. | Supports |       |
-| RsT2   | MUST | ResourceType MUST be of type String.                                                                                                                         | Supports |       |
-| RsT3   | MUST | ResourceType MUST conform to StringHandling requirements.                                                                                                    | Supports |       |
-| RsT3.1 | MUST | ResourceType MUST be null when ResourceId is null.                                                                                                           | Supports |       |
-| RsT3.2 | MUST | ResourceType MUST NOT be null when ResourceId is not null.                                                                                                   | Supports |       |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-RT1 | MUST | ResourceType MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-RT1.1 | MUST | ResourceType MUST be of type String. | Supports |  |
+| CU-RT1.2 | MUST | ResourceType MUST conform to StringHandling requirements. | Supports |  |
+| CU-RT1.3 | MUST | ResourceType MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-RT1.3.1 | MUST | ResourceType MUST be null when ResourceId is null. | Supports |  |
+| CU-RT1.3.2 | MUST | ResourceType MUST NOT be null when ResourceId is not null. | Supports |  |
 
-### Service category
+### Service category (Cost and usage)
 
 Highest-level classification of a service based on the core function of the service.
 
-`ServiceCategory` is set based on a resource type mapping that uses the [Services](../toolkit/open-data.md#services) dataset in the FinOps toolkit. If you see gaps, [submit a change request](https://aka.ms/ftk/ideas).
+Source: [datasets/cost_and_usage/columns/servicecategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/servicecategory.md)
 
-Source: [columns/servicecategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/servicecategory.md)
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-SC1 | MUST | ServiceCategory MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SC1.1 | MUST | ServiceCategory MUST be of type String. | Supports |  |
+| CU-SC1.2 | MUST | ServiceCategory MUST NOT be null. | Supports |  |
+| CU-SC1.3 | MUST | ServiceCategory MUST be one of the allowed values. | Supports |  |
 
-| ID   | Type | Criteria                                            | Status   | Notes |
-| ---- | ---- | --------------------------------------------------- | -------- | ----- |
-| SvC1 | MUST | ServiceCategory MUST be present in a FOCUS dataset. | Supports |       |
-| SvC2 | MUST | ServiceCategory MUST be of type String.             | Supports |       |
-| SvC3 | MUST | ServiceCategory MUST NOT be null.                   | Supports |       |
-| SvC4 | MUST | ServiceCategory MUST be one of the allowed values.  | Supports |       |
+### Service name (Cost and usage)
 
-### Service name
+An offering that can be purchased from a service provider (e.g., cloud virtual machine, SaaS database, professional services from a systems integrator).
 
-An offering that can be purchased from a provider (e.g., cloud virtual machine, SaaS database, professional services from a systems integrator).
+Source: [datasets/cost_and_usage/columns/servicename.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/servicename.md)
 
-`ServiceName` is set based on a resource type mapping that uses the [Services](../toolkit/open-data.md#services) dataset in the FinOps toolkit. If you see gaps, [submit a change request](https://aka.ms/ftk/ideas).
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-SN1 | MUST | ServiceName MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SN1.1 | MUST | ServiceName MUST be of type String. | Supports |  |
+| CU-SN1.2 | MUST | ServiceName MUST conform to StringHandling requirements. | Supports |  |
+| CU-SN1.3 | MUST | ServiceName MUST NOT be null. | Partially Supports | `ServiceName` may be empty for some purchases and adjustments. |
+| CU-SN1.4 | MUST | The relationship between ServiceName and ServiceCategory MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SN1.4.1 | MUST | ServiceName MUST have one and only one ServiceCategory that best aligns with its primary purpose, except when no suitable ServiceCategory is available. | Supports |  |
+| CU-SN1.4.2 | MUST | ServiceName MUST be associated with the ServiceCategory "Other" when no suitable ServiceCategory is available. | Supports |  |
+| CU-SN1.5 | MUST | The relationship between ServiceName and ServiceSubcategory MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SN1.5.1 | SHOULD | ServiceName SHOULD have one and only one ServiceSubcategory that best aligns with its primary purpose, except when no suitable ServiceSubcategory is available. | Supports |  |
+| CU-SN1.5.2 | SHOULD | ServiceName SHOULD be associated with the ServiceSubcategory "Other" when no suitable ServiceSubcategory is available. | Supports |  |
 
-Source: [columns/servicename.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/servicename.md)
+### Service provider name (Cost and usage)
 
-| ID     | Type   | Criteria                                                                                                                                                        | Status             | Notes                                                          |
-| ------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | -------------------------------------------------------------- |
-| SvN1   | MUST   | ServiceName MUST be present in a FOCUS dataset.                                                                                                                 | Supports           |                                                                |
-| SvN2   | MUST   | ServiceName MUST be of type String.                                                                                                                             | Supports           |                                                                |
-| SvN3   | MUST   | ServiceName MUST conform to StringHandling requirements.                                                                                                        | Supports           |                                                                |
-| SvN4   | MUST   | ServiceName MUST NOT be null.                                                                                                                                   | Partially supports | `ServiceName` may be empty for some purchases and adjustments. |
-| SvN5.1 | MUST   | ServiceName MUST have one and only one ServiceCategory that best aligns with its primary purpose, except when no suitable ServiceCategory is available.         | Supports           |                                                                |
-| SvN5.2 | MUST   | ServiceName MUST be associated with the ServiceCategory "Other" when no suitable ServiceCategory is available.                                                  | Supports           |                                                                |
-| SvN6.1 | SHOULD | ServiceName SHOULD have one and only one ServiceSubcategory that best aligns with its primary purpose, except when no suitable ServiceSubcategory is available. | Supports           |                                                                |
-| SvN6.2 | SHOULD | ServiceName SHOULD be associated with the ServiceSubcategory "Other" when no suitable ServiceSubcategory is available.                                          | Supports           |                                                                |
+The name of the entity that made the resources or services available for purchase or consumption.
 
-### Service subcategory
+Source: [datasets/cost_and_usage/columns/serviceprovidername.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/serviceprovidername.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-SPN1 | MUST | ServiceProviderName MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SPN1.1 | MUST | ServiceProviderName MUST be of type String. | Not Evaluated |  |
+| CU-SPN1.2 | MUST | ServiceProviderName MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CU-SPN1.3 | MUST | ServiceProviderName MUST NOT be null. | Not Evaluated |  |
+
+### Service subcategory (Cost and usage)
 
 Secondary classification of the Service Category for a service based on its core function.
 
-`ServiceSubcategory` is set based on a resource type mapping that uses the [Services](../toolkit/open-data.md#services) dataset in the FinOps toolkit. If you see gaps, [submit a change request](https://aka.ms/ftk/ideas).
+Source: [datasets/cost_and_usage/columns/servicesubcategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/servicesubcategory.md)
 
-Source: [columns/servicesubcategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/servicesubcategory.md)
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-SS1 | MUST | ServiceSubcategory MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SS1.1 | MUST | ServiceSubcategory MUST be of type String. | Supports |  |
+| CU-SS1.2 | MUST | ServiceSubcategory MUST NOT be null. | Supports |  |
+| CU-SS1.3 | MUST | ServiceSubcategory MUST be one of the allowed values. | Supports |  |
+| CU-SS1.4 | MUST | ServiceSubcategory MUST have one and only one parent ServiceCategory as specified in the allowed values below. | Supports |  |
 
-| ID   | Type        | Criteria                                                                                                       | Status   | Notes |
-| ---- | ----------- | -------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| SvS1 | RECOMMENDED | ServiceSubcategory is RECOMMENDED to be present in a FOCUS dataset.                                            | Supports |       |
-| SvS2 | MUST        | ServiceSubcategory MUST be of type String.                                                                     | Supports |       |
-| SvS3 | MUST        | ServiceSubcategory MUST NOT be null.                                                                           | Supports |       |
-| SvS4 | MUST        | ServiceSubcategory MUST be one of the allowed values.                                                          | Supports |       |
-| SvS5 | MUST        | ServiceSubcategory MUST have one and only one parent ServiceCategory as specified in the allowed values below. | Supports |       |
+### SKU ID (Cost and usage)
 
-### SKU ID
+Service-provider-specified unique identifier that represents a specific SKU (e.g., a quantifiable good or service offering).
 
-Provider-specified unique identifier that represents a specific SKU (e.g., a quantifiable good or service offering).
+Source: [datasets/cost_and_usage/columns/skuid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/skuid.md)
 
-Source: [columns/skuid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/skuid.md)
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-SI1 | MUST | SkuId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SI1.1 | MUST | SkuId MUST be of type String. | Supports |  |
+| CU-SI1.2 | MUST | SkuId MUST conform to StringHandling requirements. | Supports |  |
+| CU-SI1.3 | MUST | SkuId MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-SI1.3.1 | MUST | SkuId MUST be null when ChargeCategory is "Tax". | Not Applicable | Taxes aren't included in any Cost Management cost and usage dataset. |
+| CU-SI1.3.2 | MUST | SkuId MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction". | Partially Supports | `SkuId` may be null for some rows like savings plan unused charges and Marketplace charges. |
+| CU-SI1.3.3 | MAY | SkuId MAY be null in all other cases. | Supports |  |
+| CU-SI1.4 | MUST | SkuId for a given SKU MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SI1.4.1 | MUST | SkuId MUST remain consistent across billing accounts or contracts. | Supports |  |
+| CU-SI1.4.2 | MUST | SkuId MUST remain consistent across PricingCategory values. | Partially Supports | `SkuId` may be different for some `PricingCategory` values. |
+| CU-SI1.4.3 | MUST | SkuId MUST remain consistent regardless of any other factors that might impact the price but do not affect the functionality of the SKU. | Partially Supports | `SkuId` may be different for some SKUs that offer the same functionality. |
+| CU-SI1.5 | MUST | SkuId MUST be associated with a given resource or service when ChargeCategory is "Usage" or "Purchase". | Supports |  |
+| CU-SI1.6 | MAY | SkuId MAY match SkuPriceId. | Not Evaluated |  |
 
-| ID     | Type | Criteria                                                                                                                                                 | Status             | Notes                                                                                       |
-| ------ | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------- |
-| SkI1   | MUST | SkuId MUST be present in a FOCUS dataset when the provider supports unit pricing concepts and publishes price lists, publicly or as part of contracting. | Supports           |                                                                                             |
-| SkI2   | MUST | SkuId MUST be of type String.                                                                                                                            | Supports           |                                                                                             |
-| SkI3   | MUST | SkuId MUST conform to StringHandling requirements.                                                                                                       | Supports           |                                                                                             |
-| SkI4.1 | MUST | SkuId MUST be null when ChargeCategory is "Tax".                                                                                                         | Not Applicable     | Taxes aren't included in any Cost Management cost and usage dataset.                        |
-| SkI4.2 | MUST | SkuId MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction".                                                 | Partially Supports | `SkuId` may be null for some rows like savings plan unused charges and Marketplace charges. |
-| SkI4.3 | MAY  | SkuId MAY be null in all other cases.                                                                                                                    | Supports           |                                                                                             |
-| SkI5.1 | MUST | SkuId MUST remain consistent across billing accounts or contracts.                                                                                       | Supports           |                                                                                             |
-| SkI5.2 | MUST | SkuId MUST remain consistent across PricingCategory values.                                                                                              | Partially Supports | `SkuId` may be different for some `PricingCategory` values.                                 |
-| SkI5.3 | MUST | SkuId MUST remain consistent regardless of any other factors that might impact the price but do not affect the functionality of the SKU.                 | Partially Supports | `SkuId` may be different for some SKUs that offer the same functionality.                   |
-| SkI6   | MUST | SkuId MUST be associated with a given resource or service when ChargeCategory is "Usage" or "Purchase".                                                  | Supports           |                                                                                             |
-| SkI7   | MAY  | SkuId MAY equal SkuPriceId.                                                                                                                              | Supports           |                                                                                             |
-
-### SKU meter
+### SKU meter (Cost and usage)
 
 Describes the functionality being metered or measured by a particular SKU in a charge.
 
-Source: [columns/skumeter.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/skumeter.md)
+Source: [datasets/cost_and_usage/columns/skumeter.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/skumeter.md)
 
-| ID     | Type   | Criteria                                                                                                                                                    | Status             | Notes                                            |
-| ------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------ |
-| SkM1   | MUST   | SkuMeter MUST be present in a FOCUS dataset when the provider supports unit pricing concepts and publishes price lists, publicly or as part of contracting. | Supports           |                                                  |
-| SkM2   | MUST   | SkuMeter MUST be of type String.                                                                                                                            | Supports           |                                                  |
-| SkM3   | MUST   | SkuMeter MUST conform to StringHandling requirements.                                                                                                       | Supports           |                                                  |
-| SkM4.1 | MUST   | SkuMeter MUST be null when SkuId is null.                                                                                                                   | Supports           |                                                  |
-| SkM4.2 | SHOULD | SkuMeter SHOULD NOT be null when SkuId is not null.                                                                                                         | Supports           |                                                  |
-| SkM5   | SHOULD | SkuMeter SHOULD remain consistent over time for a given SkuId.                                                                                              | Partially Supports | `SkuMeter` may be different for a given `SkuId`. |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-SM1 | MUST | SkuMeter MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SM1.1 | MUST | SkuMeter MUST be of type String. | Supports |  |
+| CU-SM1.2 | MUST | SkuMeter MUST conform to StringHandling requirements. | Supports |  |
+| CU-SM1.3 | MUST | SkuMeter MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-SM1.3.1 | MUST | SkuMeter MUST be null when SkuId is null. | Supports |  |
+| CU-SM1.3.2 | SHOULD | SkuMeter SHOULD NOT be null when SkuId is not null. | Supports |  |
+| CU-SM1.4 | SHOULD | SkuMeter SHOULD remain consistent over time for a given SkuId. | Partially Supports | `SkuMeter` may be different for a given `SkuId`. |
 
-### SKU price details
+### SKU price details (Cost and usage)
 
 A set of properties of a SKU Price ID which are meaningful and common to all instances of that SKU Price ID.
 
-Source: [columns/skupricedetails.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/skupricedetails.md)
+Source: [datasets/cost_and_usage/columns/skupricedetails.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/skupricedetails.md)
 
-| ID        | Type   | Criteria                                                                                                                                                                  | Status           | Notes                                                                                |
-| --------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------ |
-| SkPD1     | MUST   | SkuPriceDetails MUST be present in a FOCUS dataset when the provider supports unit pricing concepts and publishes price lists, publicly or as part of contracting.        | Does Not Support | `SkuPriceDetails` isn't specified in the Cost Management FOCUS 1.2-preview dataset. |
-| SkPD2     | MUST   | SkuPriceDetails MUST conform to KeyValueFormat requirements.                                                                                                              | Not Applicable   |                                                                                      |
-| SkPD3     | SHOULD | SkuPriceDetails property keys SHOULD conform to PascalCase format.                                                                                                        | Not Applicable   |                                                                                      |
-| SkPD3.1   | MUST   | SkuPriceDetails MUST be null when SkuPriceId is null.                                                                                                                     | Not Applicable   |                                                                                      |
-| SkPD3.2   | MAY    | SkuPriceDetails MAY be null when SkuPriceId is not null.                                                                                                                  | Not Applicable   |                                                                                      |
-| SkPD3.3   | MUST   | SkuPriceDetails MUST be associated with a given SkuPriceId.                                                                                                               | Not Applicable   |                                                                                      |
-| SkPD3.4   | MUST   | SkuPriceDetails MUST NOT include properties that are not applicable to the corresponding SkuPriceId.                                                                      | Not Applicable   |                                                                                      |
-| SkPD3.5   | SHOULD | SkuPriceDetails SHOULD include all FOCUS-defined SKU Price properties listed below that are applicable to the corresponding SkuPriceId.                                   | Not Applicable   |                                                                                      |
-| SkPD3.6   | MUST   | SkuPriceDetails MUST include the FOCUS-defined SKU Price property when an equivalent property is included as a Provider-defined property.                                 | Not Applicable   |                                                                                      |
-| SkPD3.7   | MAY    | SkuPriceDetails MAY include properties that are already captured in other dedicated columns.                                                                              | Not Applicable   |                                                                                      |
-| SkPD3.7.1 | SHOULD | Existing SkuPriceDetails properties SHOULD remain consistent over time.                                                                                                   | Not Applicable   |                                                                                      |
-| SkPD3.7.2 | SHOULD | Existing SkuPriceDetails properties SHOULD NOT be removed.                                                                                                                | Not Applicable   |                                                                                      |
-| SkPD3.7.3 | MAY    | Additional SkuPriceDetails properties MAY be added over time.                                                                                                             | Not Applicable   |                                                                                      |
-| SkPD3.8   | SHOULD | Property key SHOULD remain consistent across comparable SKUs having that property, and the values for this key SHOULD remain in a consistent format.                      | Not Applicable   |                                                                                      |
-| SkPD3.9   | SHOULD | Property key SHOULD remain consistent across comparable SKUs having that property, and the values for this key SHOULD remain in a consistent format.                      | Not Applicable   |                                                                                      |
-| SkPD3.10  | MUST   | Property key MUST begin with the string "x_" unless it is a FOCUS-defined property.                                                                                       | Not Applicable   |                                                                                      |
-| SkPD3.11  | MUST   | Property value MUST represent the value for a single PricingUnit when the property holds a numeric value.                                                                 | Not Applicable   |                                                                                      |
-| SkPD3.12  | MUST   | Property key MUST match the spelling and casing specified for the FOCUS-defined property.                                                                                 | Not Applicable   |                                                                                      |
-| SkPD3.13  | MUST   | Property value MUST be of the type specified for that property.                                                                                                           | Not Applicable   |                                                                                      |
-| SkPD3.14  | MUST   | Property value MUST represent the value for a single PricingUnit, denominated in the unit of measure specified for that property when the property holds a numeric value. | Not Applicable   |                                                                                      |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-SPD1 | MUST | SkuPriceDetails MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SPD1.1 | MUST | SkuPriceDetails MUST be of type JSON Object (serialized as a String where necessary). | Not Evaluated |  |
+| CU-SPD1.2 | MUST | SkuPriceDetails MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CU-SPD1.3 | MUST | SkuPriceDetails MUST conform to KeyValueFormat requirements. | Not Applicable |  |
+| CU-SPD1.4 | SHOULD | SkuPriceDetails property keys SHOULD conform to PascalCase format. | Not Applicable |  |
+| CU-SPD1.5 | MUST | SkuPriceDetails MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-SPD1.5.1 | MUST | SkuPriceDetails MUST be null when SkuPriceId is null. | Not Applicable |  |
+| CU-SPD1.5.2 | MAY | SkuPriceDetails MAY be null when SkuPriceId is not null. | Not Applicable |  |
+| CU-SPD1.6 | MUST | When SkuPriceDetails is not null, SkuPriceDetails MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SPD1.6.1 | MUST | SkuPriceDetails MUST be associated with a given SkuPriceId. | Not Applicable |  |
+| CU-SPD1.6.2 | MUST | SkuPriceDetails MUST include the FOCUS-defined SKU Price property when an equivalent property is included as a custom property. | Not Evaluated |  |
+| CU-SPD1.6.3 | MUST | SkuPriceDetails MUST NOT include properties that are not applicable to the corresponding SkuPriceId. | Not Applicable |  |
+| CU-SPD1.6.4 | SHOULD | SkuPriceDetails SHOULD include all FOCUS-defined SKU Price properties listed below that are applicable to the corresponding SkuPriceId. | Not Applicable |  |
+| CU-SPD1.6.5 | SHOULD | SkuPriceDetails SHOULD include all custom SKU Price properties that are applicable to the corresponding SkuPriceId when there is no equivalent FOCUS-defined property. | Not Evaluated |  |
+| CU-SPD1.6.6 | MAY | SkuPriceDetails MAY include properties that are already captured in other dedicated columns. | Not Applicable |  |
+| CU-SPD1.6.7 | MUST | SkuPriceDetails properties for a given SkuPriceId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SPD1.6.7.1 | SHOULD | Existing SkuPriceDetails properties SHOULD remain consistent over time. | Not Applicable |  |
+| CU-SPD1.6.7.2 | SHOULD | Existing SkuPriceDetails properties SHOULD NOT be removed. | Not Applicable |  |
+| CU-SPD1.6.7.3 | MAY | Additional SkuPriceDetails properties MAY be added over time. | Not Applicable |  |
+| CU-SPD1.6.8 | SHOULD | Property key SHOULD remain consistent across comparable SKUs having that property, and the values for this key SHOULD remain in a consistent format. | Not Applicable |  |
+| CU-SPD1.6.9 | SHOULD | Property key SHOULD remain consistent across comparable SKUs having that property, and the values for this key SHOULD remain in a consistent format. | Not Applicable |  |
+| CU-SPD1.6.10 | MUST | Property key MUST begin with the string "x_" unless it is a FOCUS-defined property. | Not Applicable |  |
+| CU-SPD1.6.11 | MUST | Property value MUST represent the value for a single PricingUnit when the property holds a numeric value. | Not Applicable |  |
+| CU-SPD1.7 | MUST | FOCUS-defined SKU Price properties MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SPD1.7.1 | MUST | Property key MUST match the spelling and casing specified for the FOCUS-defined property. | Not Applicable |  |
+| CU-SPD1.7.2 | MUST | Property value MUST be of the type specified for that property. | Not Applicable |  |
+| CU-SPD1.7.3 | MUST | Property value MUST represent the value for a single PricingUnit, denominated in the unit of measure specified for that property when the property holds a numeric value. | Not Applicable |  |
 
-### SKU price ID
+### SKU price ID (Cost and usage)
 
-A provider-specified unique identifier that represents a specific SKU Price associated with a resource or service used or purchased.
+A service-provider-specified unique identifier that represents a specific SKU Price associated with a resource or service used or purchased.
 
-Source: [columns/skupriceid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/skupriceid.md)
+Source: [datasets/cost_and_usage/columns/skupriceid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/skupriceid.md)
 
-| ID      | Type | Criteria                                                                                                                                                                 | Status             | Notes                                                                                                                                                                                                                                                                                              |
-| ------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SkPI1   | MUST | SkuPriceId MUST be present in a FOCUS dataset when the provider supports unit pricing concepts and publishes price lists, publicly or as part of contracting.            | Supports           |                                                                                                                                                                                                                                                                                                    |
-| SkPI2   | MUST | SkuPriceId MUST be of type String.                                                                                                                                       | Supports           |                                                                                                                                                                                                                                                                                                    |
-| SkPI3   | MUST | SkuPriceId MUST conform to String Handling requirements.                                                                                                                 | Supports           |                                                                                                                                                                                                                                                                                                    |
-| SkPI4.1 | MUST | SkuPriceId MUST be null when ChargeCategory is "Tax".                                                                                                                    | Not Applicable     | Taxes aren't included in any Cost Management cost and usage dataset.                                                                                                                                                                                                                               |
-| SkPI4.2 | MUST | SkuPriceId MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction".                                                            | Partially Supports | `SkuPriceId` may be null for some rows like savings plan unused charges and Marketplace charges.                                                                                                                                                                                                   |
-| SkPI4.3 | MAY  | SkuPriceId MAY be null in all other cases.                                                                                                                               | Supports           |                                                                                                                                                                                                                                                                                                    |
-| SkPI5.1 | MUST | When SkuPriceId is not null... SkuPriceId MUST have one and only one parent SkuId.                                                                                       | Supports           |                                                                                                                                                                                                                                                                                                    |
-| SkPI5.2 | MUST | When SkuPriceId is not null... SkuPriceId MUST remain consistent over time.                                                                                              | Supports           |                                                                                                                                                                                                                                                                                                    |
-| SkPI5.3 | MUST | When SkuPriceId is not null... SkuPriceId MUST remain consistent across billing accounts or contracts.                                                                   | Supports           |                                                                                                                                                                                                                                                                                                    |
-| SkPI5.4 | MAY  | When SkuPriceId is not null... SkuPriceId MAY equal SkuId.                                                                                                               | Supports           |                                                                                                                                                                                                                                                                                                    |
-| SkPI5.5 | MUST | When SkuPriceId is not null... SkuPriceId MUST be associated with a given resource or service when ChargeCategory is "Usage" or "Purchase".                              | Supports           |                                                                                                                                                                                                                                                                                                    |
-| SkPI5.6 | MUST | When SkuPriceId is not null... SkuPriceId MUST reference a SKU Price in a provider-supplied price list, enabling the lookup of detailed information about the SKU Price. | Does Not Support   | `SkuPriceId` can't be directly mapped to a single SKU in the price sheet. For EA, `SkuPriceId` represents an individual SKU price but isn't available in the price sheet dataset. For MCA, `SkuPriceId` is a combination of the following price sheet columns: `{ProductId}_{SkuId}_{MeterType}`. |
-| SkPI5.7 | MUST | When SkuPriceId is not null... SkuPriceId MUST support the lookup of the ListUnitPrice when the provider publishes unit prices exclusive of discounts.                   | Does Not Support   | See SkPI5.6.                                                                                                                                                                                                                                                                                       |
-| SkPI5.8 | MUST | When SkuPriceId is not null... SkuPriceId MUST support the verification of the given ContractedUnitPrice when the provider supports negotiated pricing concepts.         | Partially Supports | `ContractedUnitPrice` may not be set or may be 0 for some rows, like reservation usage.                                                                                                                                                                                                            |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-SPI1 | MUST | SkuPriceId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SPI1.1 | MUST | SkuPriceId MUST be of type String. | Supports |  |
+| CU-SPI1.2 | MUST | SkuPriceId MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CU-SPI1.3 | MUST | SkuPriceId MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-SPI1.3.1 | MUST | SkuPriceId MUST be null when ChargeCategory is "Tax". | Not Applicable | Taxes aren't included in any Cost Management cost and usage dataset. |
+| CU-SPI1.3.2 | MUST | SkuPriceId MUST NOT be null when ChargeCategory is "Usage" or "Purchase" and ChargeClass is not "Correction". | Partially Supports | `SkuPriceId` may be null for some rows like savings plan unused charges and Marketplace charges. |
+| CU-SPI1.3.3 | MAY | SkuPriceId MAY be null in all other cases. | Supports |  |
+| CU-SPI1.4 | MUST | When SkuPriceId is not null, SkuPriceId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SPI1.4.1 | MUST | SkuPriceId MUST have one and only one parent SkuId. | Not Evaluated |  |
+| CU-SPI1.4.2 | MUST | SkuPriceId MUST remain consistent over time. | Not Evaluated |  |
+| CU-SPI1.4.3 | MUST | SkuPriceId MUST remain consistent across billing accounts or contracts. | Not Evaluated |  |
+| CU-SPI1.4.4 | MAY | SkuPriceId MAY match SkuId. | Not Evaluated |  |
+| CU-SPI1.4.5 | MUST | SkuPriceId MUST be associated with a given resource or service when ChargeCategory is "Usage" or "Purchase". | Not Evaluated |  |
+| CU-SPI1.4.6 | MUST | SkuPriceId MUST reference a SKU Price in a service-provider-supplied price list, enabling the lookup of detailed information about the SKU Price. | Not Evaluated |  |
+| CU-SPI1.4.7 | MUST | SkuPriceId MUST be a valid reference to the ListUnitPrice when the service provider publishes unit prices exclusive of discounts. | Not Evaluated |  |
+| CU-SPI1.4.8 | MUST | SkuPriceId MUST be a valid reference to the ContractedUnitPrice when the service provider supports negotiated pricing concepts. | Not Evaluated |  |
 
-### Sub account ID
+### Sub account ID (Cost and usage)
 
 An ID assigned to a grouping of resources or services, often used to manage access and/or cost.
 
-FOCUS subaccount maps to a Microsoft Cloud subscription.
+Source: [datasets/cost_and_usage/columns/subaccountid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/subaccountid.md)
 
-Source: [columns/subaccountid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/subaccountid.md)
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-SAI1 | MUST | SubAccountId MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SAI1.1 | MUST | SubAccountId MUST be of type String. | Supports |  |
+| CU-SAI1.2 | MUST | SubAccountId MUST conform to StringHandling requirements. | Supports |  |
+| CU-SAI1.3 | MUST | SubAccountId MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-SAI1.3.1 | MUST | SubAccountId MUST be null when a charge is not related to a sub account. | Supports | `SubAccountId` may be null for MCA purchases and refunds. |
+| CU-SAI1.3.2 | MUST | SubAccountId MUST NOT be null when a charge is related to a sub account. | Supports |  |
 
-| ID      | Type | Criteria                                                                                            | Status   | Notes                                                     |
-| ------- | ---- | --------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------- |
-| SbAI1   | MUST | SubAccountId MUST be present in a FOCUS dataset when the provider supports a sub account construct. | Supports |                                                           |
-| SbAI2   | MUST | SubAccountId MUST be of type String.                                                                | Supports |                                                           |
-| SbAI3   | MUST | SubAccountId MUST conform to StringHandling requirements.                                           | Supports |                                                           |
-| SbAI3.1 | MUST | SubAccountId MUST be null when a charge is not related to a sub account.                            | Supports | `SubAccountId` may be null for MCA purchases and refunds. |
-| SbAI3.2 | MUST | SubAccountId MUST NOT be null when a charge is related to a sub account.                            | Supports |                                                           |
-
-### Sub account name
+### Sub account name (Cost and usage)
 
 A name assigned to a grouping of resources or services, often used to manage access and/or cost.
 
-FOCUS subaccount maps to a Microsoft Cloud subscription.
+Source: [datasets/cost_and_usage/columns/subaccountname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/subaccountname.md)
 
-Source: [columns/subaccountname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/subaccountname.md)
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-SAN1 | MUST | SubAccountName MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SAN1.1 | MUST | SubAccountName MUST be of type String. | Supports |  |
+| CU-SAN1.2 | MUST | SubAccountName MUST conform to StringHandling requirements. | Supports |  |
+| CU-SAN1.3 | MUST | SubAccountName MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-SAN1.3.1 | MUST | SubAccountName MUST be null when SubAccountId is null. | Supports |  |
+| CU-SAN1.3.2 | MUST | SubAccountName MUST NOT be null when SubAccountId is not null. | Supports |  |
 
-| ID      | Type | Criteria                                                                                              | Status   | Notes |
-| ------- | ---- | ----------------------------------------------------------------------------------------------------- | -------- | ----- |
-| SbAN1   | MUST | SubAccountName MUST be present in a FOCUS dataset when the provider supports a sub account construct. | Supports |       |
-| SbAN2   | MUST | SubAccountName MUST be of type String.                                                                | Supports |       |
-| SbAN3   | MUST | SubAccountName MUST conform to StringHandling requirements.                                           | Supports |       |
-| SbAN3.1 | MUST | SubAccountName MUST be null when SubAccountId is null.                                                | Supports |       |
-| SbAN3.2 | MUST | SubAccountName MUST NOT be null when SubAccountId is not null.                                        | Supports |       |
+### Sub account type (Cost and usage)
 
-### Sub account type
+A service-provider-assigned name to identify the type of sub account.
 
-A provider-assigned name to identify the type of sub account.
+Source: [datasets/cost_and_usage/columns/subaccounttype.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/subaccounttype.md)
 
-FOCUS subaccount maps to a Microsoft Cloud subscription.
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-SAT1 | MUST | SubAccountType MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-SAT1.1 | MUST | SubAccountType MUST be of type String. | Supports |  |
+| CU-SAT1.2 | MUST | SubAccountType MUST conform to StringHandling requirements. | Supports |  |
+| CU-SAT1.3 | MUST | SubAccountType MUST adhere to the following nullability requirements: | Not Evaluated |  |
+| CU-SAT1.3.1 | MUST | SubAccountType MUST be null when SubAccountId is null. | Supports |  |
+| CU-SAT1.3.2 | MUST | SubAccountType MUST NOT be null when SubAccountId is not null. | Supports |  |
+| CU-SAT1.4 | MUST | SubAccountType MUST be a consistent, readable display value. | Supports |  |
 
-Source: [columns/subaccounttype.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/subaccounttype.md)
-
-| ID      | Type | Criteria                                                                                                                  | Status   | Notes |
-| ------- | ---- | ------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| SbAT1   | MUST | SubAccountType MUST be present in a FOCUS dataset when the provider supports more than one possible SubAccountType value. | Supports |       |
-| SbAT2   | MUST | SubAccountType MUST be of type String.                                                                                    | Supports |       |
-| SbAT3   | MUST | SubAccountType MUST conform to StringHandling requirements.                                                               | Supports |       |
-| SbAT3.1 | MUST | SubAccountType MUST be null when SubAccountId is null.                                                                    | Supports |       |
-| SbAT3.2 | MUST | SubAccountType MUST NOT be null when SubAccountId is not null.                                                            | Supports |       |
-| SbAT4   | MUST | SubAccountType MUST be a consistent, readable display value.                                                              | Supports |       |
-
-### Tags
+### Tags (Cost and usage)
 
 The set of tags assigned to tag sources that account for potential provider-defined or user-defined tag evaluations.
 
-Source: [columns/tags.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/tags.md)
+Source: [datasets/cost_and_usage/columns/tags.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/cost_and_usage/columns/tags.md)
 
-| ID   | Type   | Criteria                                                                                                                                                                                                                                   | Status           | Notes                                                                                                                            |
-| ---- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| T1   | MUST   | Tags MUST be present in a FOCUS dataset when the provider supports setting user or provider-defined tags.                                                                                                                                  | Supports         |                                                                                                                                  |
-| T2   | MUST   | Tags MUST conform to KeyValueFormat requirements.                                                                                                                                                                                          | Supports         |                                                                                                                                  |
-| T3   | MAY    | Tags MAY be null.                                                                                                                                                                                                                          | Supports         |                                                                                                                                  |
-| T4.1 | MUST   | Tags MUST include all user-defined and provider-defined tags.                                                                                                                                                                              | Supports         |                                                                                                                                  |
-| T4.2 | MUST   | Tags MUST only include finalized tags.                                                                                                                                                                                                     | Supports         |                                                                                                                                  |
-| T4.3 | SHOULD | Tags SHOULD include tag keys with corresponding non-null values for a given resource.                                                                                                                                                      | Supports         |                                                                                                                                  |
-| T4.4 | MAY    | Tags MAY include tag keys with a null value for a given resource depending on the provider's tag finalization process.                                                                                                                     | Supports         |                                                                                                                                  |
-| T4.5 | MUST   | Tag keys that do not support corresponding values, MUST have a corresponding true (boolean) value set.                                                                                                                                     | Not Applicable   | Microsoft Cloud tags support both keys and values.                                                                               |
-| T4.6 | SHOULD | Provider SHOULD publish tag finalization methods and semantics within their respective documentation.                                                                                                                                      | Supports         |                                                                                                                                  |
-| T4.7 | MUST   | Provider MUST NOT alter tag values unless applying true (boolean) to valueless tags.                                                                                                                                                       | Supports         |                                                                                                                                  |
-| T5.1 | MUST   | Provider-defined tag keys MUST be prefixed with a predetermined, provider-specified tag key prefix that is unique to each corresponding provider-specified tag scheme.                                                                     | Does Not Support | Provider-specified tags can't be differentiated from user-defined tags. Tags aren't modified to support backwards compatibility. |
-| T5.2 | SHOULD | Provider SHOULD publish all provider-specified tag key prefixes within their respective documentation.                                                                                                                                     | Not Applicable   | Provider prefixes aren't currently specified.                                                                                    |
-| T6.1 | MUST   | Provider MUST prefix all but one user-defined tag scheme with a predetermined, provider-specified tag key prefix that is unique to each corresponding user-defined tag scheme when the provider has more than one user-defined tag scheme. | Supports         |                                                                                                                                  |
-| T6.2 | MUST   | Provider MUST NOT prefix tag keys when the provider has only one user-defined tag scheme.                                                                                                                                                  | Supports         |                                                                                                                                  |
-| T6.3 | MUST   | Provider MUST NOT allow reserved tag key prefixes to be used as prefixes for any user-defined tag keys within a prefixless user-defined tag scheme.                                                                                        | Supports         |                                                                                                                                  |
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| CU-T1 | MUST | Tags MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-T1.1 | MUST | Tags MUST be of type JSON Object (serialized as a String where necessary). | Not Evaluated |  |
+| CU-T1.2 | MUST | Tags MUST conform to StringHandling requirements. | Not Evaluated |  |
+| CU-T1.3 | MUST | Tags MUST conform to KeyValueFormat requirements. | Supports |  |
+| CU-T1.4 | MAY | Tags MAY be null. | Supports |  |
+| CU-T1.5 | MUST | When Tags is not null, Tags MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-T1.5.1 | MUST | Tags MUST include all user-defined and provider-defined tags. | Supports |  |
+| CU-T1.5.2 | MUST | Tags MUST only include finalized tags. | Supports |  |
+| CU-T1.5.3 | SHOULD | Tags SHOULD include tag keys with corresponding non-null values for a given resource. | Supports |  |
+| CU-T1.5.4 | MAY | Tags MAY include tag keys with a null value for a given resource depending on the data generator's tag finalization process. | Not Evaluated |  |
+| CU-T1.5.5 | MUST | Tag keys that do not support corresponding values, MUST have a corresponding true (boolean) value set. | Not Applicable | Microsoft Cloud tags support both keys and values. |
+| CU-T1.5.6 | MUST | Tag values MUST match the provided values unless true (boolean) is applied to valueless tags. | Not Evaluated |  |
+| CU-T1.6 | MUST | Provider-defined tags MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-T1.6.1 | MUST | Provider-defined tag keys MUST be prefixed with a predetermined, provider-specified tag key prefix that is unique to each corresponding provider-specified tag scheme. | Does Not Support | Provider-specified tags can't be differentiated from user-defined tags. Tags aren't modified to support backwards compatibility. |
+| CU-T1.6.2 | SHOULD | Provider-specified tag key prefixes SHOULD be publicly documented. | Not Evaluated |  |
+| CU-T1.7 | MUST | User-defined tags MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-T1.7.1 | MUST | User-defined tag keys in all but one user-defined tag scheme MUST include a predetermined, provider-specified tag key prefix that is unique to each corresponding user-defined tag scheme when the data generator has more than one user-defined tag scheme. | Not Evaluated |  |
+| CU-T1.7.2 | MUST | User-defined tag keys MUST NOT include a tag scheme-specific prefix when the data generator has only one user-defined tag scheme. | Not Evaluated |  |
+| CU-T1.7.3 | MUST | Reserved tag key prefixes MUST be prevented from being used as prefixes for any user-defined tag keys within a prefixless user-defined tag scheme. | Not Evaluated |  |
+| CU-T1.8 | MUST | Tag finalization documentation MUST adhere to the following requirements: | Not Evaluated |  |
+| CU-T1.8.1 | SHOULD | Tag finalization documentation SHOULD include tag finalization methods and semantics. | Not Evaluated |  |
+| CU-T1.8.2 | SHOULD | Tag finalization documentation SHOULD be accessible to practitioners. | Not Evaluated |  |
+
+### Billed cost (Invoice detail)
+
+Cost of a charge as invoiced by the invoice issuer in a given billing period.
+
+Source: [datasets/invoice_detail/columns/billedcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/billedcost.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-BC1 | MUST | BilledCost MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-BC1.1 | MUST | BilledCost MUST be of type Decimal. | Not Evaluated |  |
+| ID-BC1.2 | MUST | BilledCost MUST conform to NumericFormat requirements. | Not Evaluated |  |
+| ID-BC1.3 | MUST | BilledCost MUST NOT be null. | Not Evaluated |  |
+| ID-BC1.4 | MUST | BilledCost MUST be denominated in the BillingCurrency. | Not Evaluated |  |
+| ID-BC1.5 | MUST | BilledCost MUST reflect all applicable pricing adjustments, including but not limited to negotiated discounts, commitment discounts, and other applicable discount programs. | Not Evaluated |  |
+| ID-BC1.6 | MUST | BilledCost MUST NOT include any portion of a covered charge that is offset by a covering charge. | Not Evaluated |  |
+| ID-BC1.7 | MUST | BilledCost MUST be 0 for charges that are fully covered by one or more covering charges. | Not Evaluated |  |
+| ID-BC1.8 | MUST | The sum of BilledCost for a given InvoiceDetailId, InvoiceId, and InvoiceIssuerName MUST be equal to the payable amount provided in the corresponding entries on the issued invoice when InvoiceIssueStatus is "Issued". | Not Evaluated |  |
+| ID-BC1.9 | MUST | When comparing BilledCost aggregated by InvoiceId and InvoiceIssuerName with CostAndUsage.BilledCost aggregated by CostAndUsage.InvoiceId and CostAndUsage.InvoiceIssuerName, BilledCost MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-BC1.9.1 | MUST | When ChargeCategory is not "Tax" and InvoiceIssueStatus is not "Open", the sum of BilledCost MUST NOT differ from the sum of CostAndUsage.BilledCost by more than `MAX(100 × Subunit, (SQRT(Rows) × 0.5) × Subunit)` as defined in Rounding Variance Tolerance. | Not Evaluated |  |
+| ID-BC1.9.2 | MAY | When ChargeCategory is "Tax" or InvoiceIssueStatus is "Open", the sum of BilledCost MAY differ from the sum of CostAndUsage.BilledCost. | Not Evaluated |  |
+| ID-BC1.10 | MUST | When comparing BilledCost aggregated by InvoiceDetailId, InvoiceId, and InvoiceIssuerName with CostAndUsage.BilledCost aggregated by CostAndUsage.InvoiceDetailId, CostAndUsage.InvoiceId, and CostAndUsage.InvoiceIssuerName, BilledCost MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-BC1.10.1 | MUST | When InvoiceIssueStatus is not "Open", the sum of BilledCost MUST NOT differ from the sum of CostAndUsage.BilledCost by more than `MAX(100 × Subunit, (SQRT(Rows) × 0.5) × Subunit)` as defined in Rounding Variance Tolerance. | Not Evaluated |  |
+| ID-BC1.10.2 | MAY | When InvoiceIssueStatus is "Open", the sum of BilledCost MAY differ from the sum of CostAndUsage.BilledCost. | Not Evaluated |  |
+
+### Billing account ID (Invoice detail)
+
+The identifier assigned to a billing account by the invoice issuer.
+
+Source: [datasets/invoice_detail/columns/billingaccountid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/billingaccountid.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-BAI1 | MUST | BillingAccountId MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-BAI1.1 | MUST | BillingAccountId MUST be of type String. | Not Evaluated |  |
+| ID-BAI1.2 | MUST | BillingAccountId MUST conform to StringHandling requirements. | Not Evaluated |  |
+| ID-BAI1.3 | MUST | BillingAccountId MUST NOT be null. | Not Evaluated |  |
+| ID-BAI1.4 | MUST | BillingAccountId MUST be a unique identifier within an invoice issuer. | Not Evaluated |  |
+| ID-BAI1.5 | SHOULD | BillingAccountId SHOULD be a fully-qualified identifier. | Not Evaluated |  |
+
+### Billing currency (Invoice detail)
+
+Represents the currency that a charge was billed in.
+
+Source: [datasets/invoice_detail/columns/billingcurrency.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/billingcurrency.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-BiC1 | MUST | BillingCurrency MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-BiC1.1 | MUST | BillingCurrency MUST be of type String. | Not Evaluated |  |
+| ID-BiC1.2 | MUST | BillingCurrency MUST conform to StringHandling requirements. | Not Evaluated |  |
+| ID-BiC1.3 | MUST | BillingCurrency MUST conform to CurrencyFormat requirements. | Not Evaluated |  |
+| ID-BiC1.4 | MUST | BillingCurrency MUST NOT be null. | Not Evaluated |  |
+| ID-BiC1.5 | MUST | BillingCurrency MUST match the currency used in the invoice generated by the invoice issuer. | Not Evaluated |  |
+| ID-BiC1.6 | MUST | BillingCurrency MUST be expressed in national currency (e.g., USD, EUR). | Not Evaluated |  |
+
+### Billing period end (Invoice detail)
+
+The exclusive end bound of a billing period.
+
+Source: [datasets/invoice_detail/columns/billingperiodend.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/billingperiodend.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-BPE1 | MUST | BillingPeriodEnd MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-BPE1.1 | MUST | BillingPeriodEnd MUST be of type Date/Time. | Not Evaluated |  |
+| ID-BPE1.2 | MUST | BillingPeriodEnd MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| ID-BPE1.3 | MUST | BillingPeriodEnd MUST NOT be null. | Not Evaluated |  |
+| ID-BPE1.4 | MUST | BillingPeriodEnd MUST be the exclusive end bound of the billing period. | Not Evaluated |  |
+| ID-BPE1.5 | MUST | BillingPeriodEnd for a given InvoiceId and InvoiceIssuerName MUST match CostAndUsage.BillingPeriodEnd for the same CostAndUsage.InvoiceId and CostAndUsage.InvoiceIssuerName. | Not Evaluated |  |
+
+### Billing period start (Invoice detail)
+
+The inclusive start bound of a billing period.
+
+Source: [datasets/invoice_detail/columns/billingperiodstart.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/billingperiodstart.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-BPS1 | MUST | BillingPeriodStart MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-BPS1.1 | MUST | BillingPeriodStart MUST be of type Date/Time. | Not Evaluated |  |
+| ID-BPS1.2 | MUST | BillingPeriodStart MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| ID-BPS1.3 | MUST | BillingPeriodStart MUST NOT be null. | Not Evaluated |  |
+| ID-BPS1.4 | MUST | BillingPeriodStart MUST be the inclusive start bound of the billing period. | Not Evaluated |  |
+| ID-BPS1.5 | MUST | BillingPeriodStart for a given InvoiceId and InvoiceIssuerName MUST match CostAndUsage.BillingPeriodStart for the same CostAndUsage.InvoiceId and CostAndUsage.InvoiceIssuerName. | Not Evaluated |  |
+
+### Charge category (Invoice detail)
+
+Represents the highest-level classification of a charge based on the nature of how it is billed.
+
+Source: [datasets/invoice_detail/columns/chargecategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/chargecategory.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-CC1 | MUST | ChargeCategory MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-CC1.1 | MUST | ChargeCategory MUST be of type String. | Not Evaluated |  |
+| ID-CC1.2 | MUST | ChargeCategory MUST NOT be null. | Not Evaluated |  |
+| ID-CC1.3 | MUST | ChargeCategory MUST be one of the allowed values. | Not Evaluated |  |
+| ID-CC1.4 | MUST | When the charge does not aggregate multiple classifications, ChargeCategory MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-CC1.4.1 | MUST | ChargeCategory MUST be "Usage" when the charge represents consumption of a service or resource. | Not Evaluated |  |
+| ID-CC1.4.2 | MUST | ChargeCategory MUST be "Purchase" when the charge represents acquisition of a service, resource, or commitment. | Not Evaluated |  |
+| ID-CC1.4.3 | MUST | ChargeCategory MUST be "Tax" when the charge represents taxes levied by the relevant authorities. | Not Evaluated |  |
+| ID-CC1.4.4 | MUST | ChargeCategory MUST be "Credit" when the charge represents a financial incentive or allowance unrelated to other charges. | Not Evaluated |  |
+| ID-CC1.4.5 | MUST | ChargeCategory MUST be "Adjustment" when the charge represents a billing modification that does not fall into other ChargeCategories. | Not Evaluated |  |
+| ID-CC1.5 | MUST | When the charge aggregates multiple classifications, ChargeCategory MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-CC1.5.1 | MAY | ChargeCategory MAY be "Usage" when the record aggregates charges across multiple allowed values other than "Tax" (e.g., aggregation of "Usage" and "Credit" is allowed, but not "Usage" and "Tax"). | Not Evaluated |  |
+
+### Invoice detail created (Invoice detail)
+
+The timestamp when the Invoice Detail record was first created.
+
+Source: [datasets/invoice_detail/columns/invoicedetailcreated.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/invoicedetailcreated.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-IDC1 | MUST | InvoiceDetailCreated MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-IDC1.1 | MUST | InvoiceDetailCreated MUST be of type Date/Time. | Not Evaluated |  |
+| ID-IDC1.2 | MUST | InvoiceDetailCreated MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| ID-IDC1.3 | MUST | InvoiceDetailCreated MUST NOT be null. | Not Evaluated |  |
+| ID-IDC1.4 | MUST | InvoiceDetailCreated MUST represent the moment in time the Invoice Detail record was instantiated. | Not Evaluated |  |
+| ID-IDC1.5 | MUST | InvoiceDetailCreated for a given BillingPeriodStart and InvoiceIssuerName MUST be earlier than or equal to BillingPeriod.BillingPeriodLastUpdated for the same BillingPeriod.BillingPeriodStart and BillingPeriod.InvoiceIssuerName when BillingPeriod.BillingPeriodStatus is "Closed". | Not Evaluated |  |
+
+### Invoice detail description (Invoice detail)
+
+The invoice-issuer-provided description of an invoice line item.
+
+Source: [datasets/invoice_detail/columns/invoicedetaildescription.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/invoicedetaildescription.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-IDD1 | MUST | InvoiceDetailDescription MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-IDD1.1 | MUST | InvoiceDetailDescription MUST be of type String. | Not Evaluated |  |
+| ID-IDD1.2 | MUST | InvoiceDetailDescription MUST conform to StringHandling requirements. | Not Evaluated |  |
+| ID-IDD1.3 | SHOULD | InvoiceDetailDescription SHOULD NOT be null. | Not Evaluated |  |
+| ID-IDD1.4 | SHOULD | InvoiceDetailDescription maximum length SHOULD be provided in the corresponding FOCUS Metadata Schema. | Not Evaluated |  |
+| ID-IDD1.5 | MUST | InvoiceDetailDescription MUST describe the charges represented by the InvoiceDetailId. | Not Evaluated |  |
+
+### Invoice detail grain (Invoice detail)
+
+The set of key-value pairs that defines the granularity of the invoice line item.
+
+Source: [datasets/invoice_detail/columns/invoicedetailgrain.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/invoicedetailgrain.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-IDG1 | MUST | InvoiceDetailGrain MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-IDG1.1 | MUST | InvoiceDetailGrain MUST be of type JSON Object (serialized as a String where necessary). | Not Evaluated |  |
+| ID-IDG1.2 | MUST | InvoiceDetailGrain MUST conform to StringHandling requirements. | Not Evaluated |  |
+| ID-IDG1.3 | MUST | InvoiceDetailGrain MUST conform to KeyValueFormat requirements. | Not Evaluated |  |
+| ID-IDG1.4 | MUST | InvoiceDetailGrain MUST NOT be null when one or more properties uniquely define the granularity of the invoice line item. | Not Evaluated |  |
+| ID-IDG1.5 | MUST | InvoiceDetailGrain MUST contain the set of all properties that uniquely define the granularity of the invoice line item. | Not Evaluated |  |
+| ID-IDG1.6 | SHOULD | InvoiceDetailGrain SHOULD use the applicable FOCUS-defined Invoice Detail Grain properties listed below to represent the granularity of the invoice line item. | Not Evaluated |  |
+| ID-IDG1.7 | MUST | InvoiceDetailGrain MUST include all custom Invoice Detail Grain properties that are applicable to the granularity of the invoice line item when there is no equivalent FOCUS-defined property. | Not Evaluated |  |
+| ID-IDG1.8 | SHOULD | InvoiceDetailGrain property keys SHOULD conform to PascalCase format. | Not Evaluated |  |
+| ID-IDG1.9 | MUST | InvoiceDetailGrain property keys MUST begin with the string "x_" unless it is a FOCUS-defined property. | Not Evaluated |  |
+| ID-IDG1.10 | MUST | FOCUS-defined InvoiceDetailGrain properties MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-IDG1.10.1 | MUST | Property key MUST match the spelling and casing specified for the FOCUS-defined property. | Not Evaluated |  |
+| ID-IDG1.10.2 | MUST | Property value MUST be of the type specified for that property. | Not Evaluated |  |
+
+### Invoice detail ID (Invoice detail)
+
+The invoice-issuer-assigned identifier for an Invoice Detail record encapsulating charges in the corresponding billing period for a given billing account.
+
+Source: [datasets/invoice_detail/columns/invoicedetailid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/invoicedetailid.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-IDI1 | MUST | InvoiceDetailId MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-IDI1.1 | MUST | InvoiceDetailId MUST be of type String. | Not Evaluated |  |
+| ID-IDI1.2 | MUST | InvoiceDetailId MUST conform to StringHandling requirements. | Not Evaluated |  |
+| ID-IDI1.3 | MUST | InvoiceDetailId MUST NOT be null. | Not Evaluated |  |
+| ID-IDI1.4 | MUST | InvoiceDetailId MUST uniquely identify a record within a given InvoiceId. | Not Evaluated |  |
+
+### Invoice detail last updated (Invoice detail)
+
+The timestamp when the Invoice Detail record was last updated.
+
+Source: [datasets/invoice_detail/columns/invoicedetaillastupdated.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/invoicedetaillastupdated.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-IDLU1 | MUST | InvoiceDetailLastUpdated MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-IDLU1.1 | MUST | InvoiceDetailLastUpdated MUST be of type Date/Time. | Not Evaluated |  |
+| ID-IDLU1.2 | MUST | InvoiceDetailLastUpdated MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| ID-IDLU1.3 | MUST | InvoiceDetailLastUpdated MUST NOT be null. | Not Evaluated |  |
+| ID-IDLU1.4 | MUST | InvoiceDetailLastUpdated MUST represent the most recent moment in time when any column value of the record identified by InvoiceDetailId was created or modified. | Not Evaluated |  |
+| ID-IDLU1.5 | MUST | InvoiceDetailLastUpdated MUST be greater than or equal to InvoiceDetailCreated. | Not Evaluated |  |
+
+### Invoice ID (Invoice detail)
+
+The invoice-issuer-assigned identifier for an invoice encapsulating charges in the corresponding billing period for a given billing account.
+
+Source: [datasets/invoice_detail/columns/invoiceid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/invoiceid.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-II1 | MUST | InvoiceId MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-II1.1 | MUST | InvoiceId MUST be of type String. | Not Evaluated |  |
+| ID-II1.2 | MUST | InvoiceId MUST conform to StringHandling requirements. | Not Evaluated |  |
+| ID-II1.3 | MUST | InvoiceId MUST NOT be null. | Not Evaluated |  |
+| ID-II1.4 | MAY | InvoiceId MAY be generated prior to an invoice being issued. | Not Evaluated |  |
+| ID-II1.5 | MUST | InvoiceId MUST uniquely identify the invoice as provided by the invoice issuer. | Not Evaluated |  |
+
+### Invoice issue date (Invoice detail)
+
+The date the invoice was issued by the invoice issuer.
+
+Source: [datasets/invoice_detail/columns/invoiceissuedate.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/invoiceissuedate.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-IID1 | MUST | InvoiceIssueDate MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-IID1.1 | MUST | InvoiceIssueDate MUST be of type Date/Time. | Not Evaluated |  |
+| ID-IID1.2 | MUST | InvoiceIssueDate MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| ID-IID1.3 | MAY | InvoiceIssueDate MAY be null. | Not Evaluated |  |
+| ID-IID1.4 | MUST | InvoiceIssueDate MUST represent the official date of issuance for the corresponding InvoiceId. | Not Evaluated |  |
+
+### Invoice issuer name (Invoice detail)
+
+The name of the entity responsible for invoicing for the resources or services consumed.
+
+Source: [datasets/invoice_detail/columns/invoiceissuername.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/invoiceissuername.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-IIN1 | MUST | InvoiceIssuerName MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-IIN1.1 | MUST | InvoiceIssuerName MUST be of type String. | Not Evaluated |  |
+| ID-IIN1.2 | MUST | InvoiceIssuerName MUST conform to StringHandling requirements. | Not Evaluated |  |
+| ID-IIN1.3 | MUST | InvoiceIssuerName MUST NOT be null. | Not Evaluated |  |
+| ID-IIN1.4 | MUST | InvoiceIssuerName MUST represent the entity that issues invoices. | Not Evaluated |  |
+
+### Invoice issue status (Invoice detail)
+
+The publication state of the invoice and the reliability of its associated delivered data, indicating if it is provisional ("Open"), issued ("Issued"), or voided ("Voided").
+
+Source: [datasets/invoice_detail/columns/invoiceissuestatus.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/invoiceissuestatus.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-IIS1 | MUST | InvoiceIssueStatus MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-IIS1.1 | MUST | InvoiceIssueStatus MUST be of type String. | Not Evaluated |  |
+| ID-IIS1.2 | MUST | InvoiceIssueStatus MUST conform to StringHandling requirements. | Not Evaluated |  |
+| ID-IIS1.3 | MUST | InvoiceIssueStatus MUST NOT be null. | Not Evaluated |  |
+| ID-IIS1.4 | MUST | InvoiceIssueStatus MUST be one of the allowed values. | Not Evaluated |  |
+| ID-IIS1.5 | MUST | InvoiceIssueStatus MUST represent the current publication state of the invoice. | Not Evaluated |  |
+| ID-IIS1.6 | MUST | InvoiceIssueStatus MUST NOT be "Open" following a previous status of "Issued", except when explicitly requested or approved by the customer. | Not Evaluated |  |
+
+### Payment currency (Invoice detail)
+
+The currency in which the invoice is paid.
+
+Source: [datasets/invoice_detail/columns/paymentcurrency.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/paymentcurrency.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-PC1 | MUST | PaymentCurrency MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-PC1.1 | MUST | PaymentCurrency MUST be of type String. | Not Evaluated |  |
+| ID-PC1.2 | MUST | PaymentCurrency MUST conform to StringHandling requirements. | Not Evaluated |  |
+| ID-PC1.3 | MUST | PaymentCurrency MUST NOT be null. | Not Evaluated |  |
+| ID-PC1.4 | MUST | PaymentCurrency MUST represent the currency in which the invoice payment was made or expected to be made. | Not Evaluated |  |
+| ID-PC1.5 | MUST | PaymentCurrency MUST be expressed in national currency (e.g., USD, EUR). | Not Evaluated |  |
+
+### Payment currency billed cost (Invoice detail)
+
+The Billed Cost as expressed in Payment Currency.
+
+Source: [datasets/invoice_detail/columns/paymentcurrencybilledcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/paymentcurrencybilledcost.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-PCBC1 | MUST | PaymentCurrencyBilledCost MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-PCBC1.1 | MUST | PaymentCurrencyBilledCost MUST be of type Decimal. | Not Evaluated |  |
+| ID-PCBC1.2 | MUST | PaymentCurrencyBilledCost MUST conform to NumericFormat requirements. | Not Evaluated |  |
+| ID-PCBC1.3 | MUST | PaymentCurrencyBilledCost MUST NOT be null. | Not Evaluated |  |
+| ID-PCBC1.4 | MUST | PaymentCurrencyBilledCost MUST be denominated in the PaymentCurrency. | Not Evaluated |  |
+| ID-PCBC1.5 | MUST | PaymentCurrencyBilledCost MUST be the PaymentCurrency-denominated equivalent of BilledCost. | Not Evaluated |  |
+| ID-PCBC1.6 | MAY | PaymentCurrencyBilledCost MAY be non-zero while BilledCost is 0 when PaymentCurrencyBilledCost represents the aggregation of BilledCost amounts (denominated in PaymentCurrency) stated in other records. | Not Evaluated |  |
+| ID-PCBC1.7 | MAY | PaymentCurrencyBilledCost MAY be 0 while BilledCost is non-zero when BilledCost (denominated in PaymentCurrency) is represented in a separate aggregate record. | Not Evaluated |  |
+
+### Payment currency invoice detail ID (Invoice detail)
+
+The identifier linking a granular record to the specific Invoice Detail record where its Payment Currency Billed Cost is represented or aggregated.
+
+Source: [datasets/invoice_detail/columns/paymentcurrencyinvoicedetailid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/paymentcurrencyinvoicedetailid.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-PCIDI1 | MUST | PaymentCurrencyInvoiceDetailId MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-PCIDI1.1 | MUST | PaymentCurrencyInvoiceDetailId MUST be of type String. | Not Evaluated |  |
+| ID-PCIDI1.2 | MUST | PaymentCurrencyInvoiceDetailId MUST conform to StringHandling requirements. | Not Evaluated |  |
+| ID-PCIDI1.3 | MUST | PaymentCurrencyInvoiceDetailId MUST NOT be null. | Not Evaluated |  |
+| ID-PCIDI1.4 | MUST | PaymentCurrencyInvoiceDetailId MUST match the InvoiceDetailId of the record representing the PaymentCurrencyBilledCost aggregation for the current row. | Not Evaluated |  |
+| ID-PCIDI1.5 | MUST | PaymentCurrencyInvoiceDetailId MUST match InvoiceDetailId of the current record when PaymentCurrencyBilledCost is non-zero. | Not Evaluated |  |
+
+### Payment due date (Invoice detail)
+
+The date by which the payment for an invoice is expected to be received by the invoice issuer.
+
+Source: [datasets/invoice_detail/columns/paymentduedate.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/paymentduedate.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-PDD1 | MUST | PaymentDueDate MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-PDD1.1 | MUST | PaymentDueDate MUST be of type Date/Time. | Not Evaluated |  |
+| ID-PDD1.2 | MUST | PaymentDueDate MUST conform to DateTimeFormat requirements. | Not Evaluated |  |
+| ID-PDD1.3 | MAY | PaymentDueDate MAY be null. | Not Evaluated |  |
+| ID-PDD1.4 | MUST | PaymentDueDate MUST be the date specified by the invoice issuer as the deadline for payment for the corresponding InvoiceId. | Not Evaluated |  |
+
+### Payment terms (Invoice detail)
+
+The terms (typically focused on timeframe) by which the invoice issuer expects to receive payment for an invoice.
+
+Source: [datasets/invoice_detail/columns/paymentterms.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/paymentterms.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-PT1 | MUST | PaymentTerms MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-PT1.1 | MUST | PaymentTerms MUST be of type String. | Not Evaluated |  |
+| ID-PT1.2 | MUST | PaymentTerms MUST conform to StringHandling requirements. | Not Evaluated |  |
+| ID-PT1.3 | MUST | PaymentTerms MUST NOT be null. | Not Evaluated |  |
+| ID-PT1.4 | MUST | PaymentTerms MUST represent the payment terms (e.g., "Net 30") as defined on the corresponding invoice. | Not Evaluated |  |
+
+### Purchase order number (Invoice detail)
+
+The unique customer-issued identifier for tracking the lifecycle of a purchase.
+
+Source: [datasets/invoice_detail/columns/purchaseordernumber.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/purchaseordernumber.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-PON1 | MUST | PurchaseOrderNumber MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-PON1.1 | MUST | PurchaseOrderNumber MUST be of type String. | Not Evaluated |  |
+| ID-PON1.2 | MUST | PurchaseOrderNumber MUST conform to StringHandling requirements. | Not Evaluated |  |
+| ID-PON1.3 | MAY | PurchaseOrderNumber MAY be null. | Not Evaluated |  |
+| ID-PON1.4 | MUST | PurchaseOrderNumber MUST represent the identifier used by the customer to uniquely identify the purchase order responsible for the charge. | Not Evaluated |  |
+
+### Reference invoice ID (Invoice detail)
+
+The invoice-issuer-assigned identifier for an invoice that affects charges as stated on a previous invoice.
+
+Source: [datasets/invoice_detail/columns/referenceinvoiceid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.4/specification/datasets/invoice_detail/columns/referenceinvoiceid.md)
+
+| ID | Type | Criteria | Status | Notes |
+|----|------|----------|--------|-------|
+| ID-RII1 | MUST | ReferenceInvoiceId MUST adhere to the following requirements: | Not Evaluated |  |
+| ID-RII1.1 | MUST | ReferenceInvoiceId MUST be of type String. | Not Evaluated |  |
+| ID-RII1.2 | MUST | ReferenceInvoiceId MUST conform to StringHandling requirements. | Not Evaluated |  |
+| ID-RII1.3 | MUST | ReferenceInvoiceId MUST NOT be null. | Not Evaluated |  |
+| ID-RII1.4 | MUST | ReferenceInvoiceId MUST match the InvoiceId of the original invoice when it adjusts another invoice. | Not Evaluated |  |
+| ID-RII1.5 | MUST | ReferenceInvoiceId MUST match the InvoiceId of the current invoice when it does not adjust another invoice. | Not Evaluated |  |
 
 <br>
 

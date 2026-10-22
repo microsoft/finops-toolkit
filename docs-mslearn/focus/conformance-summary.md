@@ -3,7 +3,7 @@ title: FOCUS conformance summary
 description: Summary of FOCUS conformance gaps in the Microsoft Cost Management FOCUS dataset with applicable workarounds.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 07/15/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -12,15 +12,15 @@ ms.reviewer: micflan
 
 # FOCUS conformance summary
 
-This document summarizes the known conformance gaps for the latest FOCUS 1.2-preview dataset in Microsoft Cost Management compared to the FOCUS 1.2 specification. To learn more about FOCUS, refer to the [FOCUS overview](./what-is-focus.md).
+This document summarizes the known conformance gaps for the latest FOCUS 1.2-preview dataset in Microsoft Cost Management. To learn more about FOCUS, refer to the [FOCUS overview](./what-is-focus.md).
 
 <br>
 
 ## Overall conformance
 
-The Microsoft Cost Management FOCUS 1.2-preview dataset has a conformance score of **94%**.
+The Microsoft Cost Management FOCUS 1.2-preview dataset has a conformance score of **96%**, which accounts for all fully supported and half of the partially supported requirements that have been evaluated. Requirements that were added or revised in FOCUS 1.3 and 1.4 haven't been evaluated yet and aren't included in the score or in the gaps below.
 
-The remaining conformance gaps are summarized in the following sections. For details on these or other FOCUS requirements, refer to the [full conformance report](./conformance-full-report.md). The IDs provided in the tables are for reference purposes only. IDs aren't defined as part of FOCUS.
+The remaining conformance gaps are summarized in the following sections. For details on these or other FOCUS requirements, refer to the [full conformance report](./conformance-full-report.md). The IDs provided in the tables are for reference purposes only. IDs aren't defined as part of FOCUS. The gaps in this summary were assessed against the FOCUS 1.2 specification and will be remapped to the updated requirement IDs as part of the FOCUS 1.4 evaluation.
 
 <br>
 
