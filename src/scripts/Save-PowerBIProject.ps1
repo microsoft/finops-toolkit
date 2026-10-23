@@ -638,19 +638,19 @@ try
                 }
 
                 $tableCommand = @{ refresh = @{ type = 'full'; applyRefreshPolicy = $false; objects = @(@{ database = $database.Name; table = $table.Name }) } } | ConvertTo-Json -Depth 5 -Compress
-                try
-                {
-                    $tableResults = $server.Execute($tableCommand)
-                    $tableErrors = @($tableResults | ForEach-Object { $_.Messages } | Where-Object { $_.GetType().Name -eq 'XmlaError' } | ForEach-Object { $_.Description })
-                }
-                catch
-                {
-                    $tableErrors = @($_.Exception.GetBaseException().Message)
-                }
+                # The same path as the full refresh, so a table stuck on a credential prompt is reported and ends
+                # at the deadline instead of hanging this loop. Assigned before wrapping in @() because the
+                # function returns its array as one object.
+                try { $tableErrors = Invoke-EngineCommand $tableCommand "Refreshing $($table.Name)" $port $mainWindow $desktop $database }
+                catch { $tableErrors = $_.Exception.GetBaseException().Message }
+                $tableErrors = @($tableErrors)
 
                 # Errors about a cancelled transaction come from another table, not this one
                 $tableErrors = @($tableErrors | Where-Object { $_ -notmatch 'another operation in the transaction' })
                 if ($tableErrors.Count -gt 0) { $broken.Add("$($table.Name): $(($tableErrors | Select-Object -First 2) -join ' ')") }
+
+                # At the deadline Desktop is ended, so there is nothing left to check the other tables against
+                if ($desktop.HasExited) { break }
             }
 
             $detail = if ($broken.Count -gt 0) { "`n  $($broken -join "`n  ")" } else { "`n  $($errors -join "`n  ")" }
