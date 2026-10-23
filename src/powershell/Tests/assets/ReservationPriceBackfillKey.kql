@@ -9,7 +9,8 @@
 // tmp_ReservationPriceLookupKey matches a price row's key:
 //
 //   old gate: isnotempty(x_SkuMeterId) and isnotempty(x_SkuOfferId)
-//   new gate: isnotempty(x_SkuMeterId)                                 -- x_SkuOfferId requirement dropped
+//   new gate: isnotempty(x_SkuMeterId) and (isnotempty(x_SkuOfferId) or CommitmentDiscountCategory == 'Usage')
+//             -- offer ID no longer required for reservation usage rows; all other rows keep the old requirement
 //
 //   key (unchanged by this fix): tolower(strcat(x_BillingProfileId, month, x_SkuMeterId, x_SkuOfferId))
 //
@@ -18,6 +19,10 @@
 // gate problem. Relaxing the gate lets the (still offer-ID-suffixed) key match, because the blank offer ID is
 // an identical no-op suffix on both sides. For EA, x_SkuOfferId stays populated and continues to differentiate
 // rows sharing a profile/meter (e.g. Production vs Dev/Test offers) exactly as before.
+//
+// Scope: this harness only varies the GATE. The lookup key is identical before and after the fix, so it cannot detect
+// a key regression (that is covered by a content assertion in HubsReservationPriceBackfill.Tests.ps1). It also does not
+// model the month segment of the key, the x_SkuPriceType filter, or several price rows sharing one key.
 //
 // NOTE: this harness intentionally does not model x_BillingProfileId format (ARM path vs bare ID). Whether the
 // Costs and Prices transforms need to agree on that format is a separate, unconfirmed question -- see the test
@@ -38,24 +43,27 @@ let cases = datatable(
     priceBillingProfileId:string,
     meterId:string,
     priceMeterId:string,
+    commitmentCategory:string, // cost-side CommitmentDiscountCategory
     offerId:string,        // cost-side x_SkuOfferId; blank for MCA (mapped from OfferId, which MCA exports never populate)
     priceOfferId:string,   // price-side x_SkuOfferId; blank for MCA (pass-through from the Price Sheet export)
     expectedDivergent:bool
 )
 [
     // EA: offer ID populated on both sides -- gate passes and key matches before; must still backfill after.
-    'EA offer ID present, matching meter',                       'ea-profile-1', 'ea-profile-1', 'meter-1', 'meter-1', 'OFFER-EA-1', 'OFFER-EA-1', false,
+    'EA offer ID present, matching meter',                       'ea-profile-1', 'ea-profile-1', 'meter-1', 'meter-1', 'Usage', 'OFFER-EA-1', 'OFFER-EA-1', false,
     // EA: same profile and meter, but genuinely different offer IDs (e.g. Production vs Dev/Test) -- the key must
     // keep separating these both before and after the fix; confirms leaving x_SkuOfferId in the key still works.
-    'EA same profile/meter, different offer (Prod vs Dev/Test)', 'ea-profile-1', 'ea-profile-1', 'meter-1', 'meter-1', 'OFFER-EA-PROD', 'OFFER-EA-DEVTEST', false,
+    'EA same profile/meter, different offer (Prod vs Dev/Test)', 'ea-profile-1', 'ea-profile-1', 'meter-1', 'meter-1', 'Usage', 'OFFER-EA-PROD', 'OFFER-EA-DEVTEST', false,
     // MCA: offer ID blank on both cost and price rows (confirmed in #2176). Old gate excludes the row outright;
     // new gate passes and, since the blank offer ID is an identical no-op suffix on both sides, the key matches.
-    'MCA blank offer ID on both sides',                          'mca-profile-1', 'mca-profile-1', 'meter-2', 'meter-2', '', '', true,
+    'MCA blank offer ID on both sides',                          'mca-profile-1', 'mca-profile-1', 'meter-2', 'meter-2', 'Usage', '', '', true,
+    // MCA non-reservation row (blank offer ID, no commitment): stays outside the gate and is left untouched.
+    'MCA non-reservation row, blank offer ID',                   'mca-profile-1', 'mca-profile-1', 'meter-2', 'meter-2', '', '', '', false,
     // Genuinely different meter within the same MCA profile: must stay unmatched under both old and new (gate
     // failure under old, key mismatch under new) -- proves the fix does not backfill unrelated rows.
-    'MCA different meter, same profile',                         'mca-profile-1', 'mca-profile-1', 'meter-2', 'meter-3', '', '', false,
+    'MCA different meter, same profile',                         'mca-profile-1', 'mca-profile-1', 'meter-2', 'meter-3', 'Usage', '', '', false,
     // Genuinely different billing profile: must not match under either, even post-fix.
-    'EA different profile entirely',                             'ea-profile-1', 'ea-profile-2', 'meter-1', 'meter-1', 'OFFER-EA-1', 'OFFER-EA-1', false,
+    'EA different profile entirely',                             'ea-profile-1', 'ea-profile-2', 'meter-1', 'meter-1', 'Usage', 'OFFER-EA-1', 'OFFER-EA-1', false,
 ]
 // old: gate requires a non-empty offer ID
 | extend old_gate = isnotempty(meterId) and isnotempty(offerId)
@@ -63,7 +71,7 @@ let cases = datatable(
 | extend old_priceKey = tolower(strcat(priceBillingProfileId, priceMeterId, priceOfferId))
 | extend old_matches = old_gate and old_costKey == old_priceKey
 // new: gate drops the offer ID requirement; key itself is unchanged
-| extend new_gate = isnotempty(meterId)
+| extend new_gate = isnotempty(meterId) and (isnotempty(offerId) or commitmentCategory == 'Usage')
 | extend new_costKey = tolower(strcat(billingProfileId, meterId, offerId))
 | extend new_priceKey = tolower(strcat(priceBillingProfileId, priceMeterId, priceOfferId))
 | extend new_matches = new_gate and new_costKey == new_priceKey
