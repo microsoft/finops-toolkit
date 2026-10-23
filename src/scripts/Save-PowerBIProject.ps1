@@ -691,6 +691,9 @@ try
                 if ($desktop.HasExited) { break }
             }
 
+            # A refresh that ran out of time on a prompt says what it was waiting on; the per-table check can't
+            $waitingOn = @($errors | Where-Object { $_ -match 'waiting on' })
+            if ($broken.Count -gt 0 -and $waitingOn.Count -gt 0) { $broken.AddRange([string[]]$waitingOn) }
             $detail = if ($broken.Count -gt 0) { "`n  $($broken -join "`n  ")" } else { "`n  $($errors -join "`n  ")" }
             throw "Data refresh failed:$detail"
         }
