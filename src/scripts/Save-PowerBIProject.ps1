@@ -78,6 +78,8 @@ if (-not $Destination) { $Destination = [System.IO.Path]::ChangeExtension($Path,
 $Destination = [System.IO.Path]::GetFullPath($Destination)
 $reportLabel = [System.IO.Path]::GetFileNameWithoutExtension($Path)
 $deadline = (Get-Date).AddMinutes($TimeoutMinutes)
+# Dialogs that were already dealt with (an error Power BI Desktop is showing), so they aren't reported as prompts
+$script:IgnoredDialogs = New-Object System.Collections.Generic.HashSet[long]
 
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Windows.Forms, System.Drawing, System.IO.Compression.FileSystem
 
@@ -405,7 +407,7 @@ function Invoke-EngineCommand([string] $Command, [string] $Description, [int] $P
                 # Desktop and its engine fails the call, which frees the worker.
                 Stop-Desktop $Process
                 $null = $worker.BeginStop($null, $null)
-                throw "$Description didn't finish within $TimeoutMinutes minutes.$(if ($reported.Count -gt 0) { " It was waiting on: $($reported -join ', ')" })"
+                throw "$Description didn't finish within $TimeoutMinutes minutes.$(if ($reported.Count -gt 0) { " It was waiting on: $(Format-Waiting $reported)" })"
             }
         }
 
@@ -418,37 +420,75 @@ function Invoke-EngineCommand([string] $Command, [string] $Description, [int] $P
 
 <#
     .SYNOPSIS
+    Finds the dialogs Power BI Desktop is showing that UI Automation can't see.
+
+    .DESCRIPTION
+    UI Automation never lists these windows, so Windows' own window list is searched. They are untitled
+    top-level windows, and their contents can't be read, so they are told apart by what they host:
+    a web page (sign-in prompts and refresh errors) or a legacy browser control (the "Access Web content"
+    prompt, and the progress box while Power BI Desktop refreshes).
+#>
+function Get-DialogWindow([int] $ProcessId, $MainWindow)
+{
+    $mainHandle = if ($MainWindow) { [IntPtr]$MainWindow.Current.NativeWindowHandle } else { [IntPtr]::Zero }
+    $found = New-Object System.Collections.Generic.List[object]
+    foreach ($handle in @($win32::GetTopLevelWindows($ProcessId)))
+    {
+        if ($handle -eq $mainHandle -or $script:IgnoredDialogs.Contains($handle.ToInt64())) { continue }
+
+        $isWeb = $false
+        $isLegacy = $false
+        $children = Get-ChildWindow $handle
+        foreach ($child in $children)
+        {
+            if ($child.Class -eq 'Internet Explorer_Server') { $isLegacy = $true; continue }
+
+            $text = New-Object System.Text.StringBuilder 512
+            $win32::SendMessageString($child.Handle, 0x000D, [IntPtr]$text.Capacity, $text) | Out-Null # WM_GETTEXT
+            if ($text.ToString() -match 'FloatingDialog/KoBrowserDialog') { $isWeb = $true }
+        }
+        if ($isWeb -or $isLegacy) { $found.Add([PSCustomObject]@{ Handle = $handle; IsWeb = $isWeb; IsLegacy = $isLegacy }) }
+    }
+    return , $found.ToArray()
+}
+
+<#
+    .SYNOPSIS
+    Names what a run was waiting on, from the prompts Show-PendingPrompt reported.
+#>
+function Format-Waiting($Reported)
+{
+    $names = @($Reported | ForEach-Object { if ($_ -match '^window \d+$') { 'a dialog in Power BI Desktop' } else { $_ } } | Select-Object -Unique)
+    return $names -join ', '
+}
+
+<#
+    .SYNOPSIS
     Reports Power BI Desktop windows that are waiting for someone to answer them.
 
     .DESCRIPTION
     Power BI Desktop asks for data source credentials the first time it reads a source, including
     anonymous ones like a file on GitHub. Nothing here can answer those, and the refresh just
-    stops until someone does, so each one is named as it appears.
+    stops until someone does, so each one is named as it appears. While Power BI Desktop runs the
+    refresh itself, a legacy browser window is its progress box rather than a prompt (-Refreshing).
 #>
-function Show-PendingPrompt($MainWindow, [int] $ProcessId, [System.Collections.Generic.HashSet[string]] $Reported)
+function Show-PendingPrompt($MainWindow, [int] $ProcessId, [System.Collections.Generic.HashSet[string]] $Reported, [switch] $Refreshing)
 {
-    # The storage sign-in ("You aren't signed in") is a web dialog in an untitled window that UI Automation never
-    # lists, so Windows' own window list is searched for the page it hosts.
-    $mainHandle = if ($MainWindow) { [IntPtr]$MainWindow.Current.NativeWindowHandle } else { [IntPtr]::Zero }
-    foreach ($handle in @($win32::GetTopLevelWindows($ProcessId)))
+    $dialogs = Get-DialogWindow $ProcessId $MainWindow
+    foreach ($dialog in $dialogs)
     {
-        if ($handle -eq $mainHandle) { continue }
-        if ($Reported.Contains("window $($handle.ToInt64())")) { continue }
+        $key = "window $($dialog.Handle.ToInt64())"
+        if ($Reported.Contains($key)) { continue }
 
-        $children = Get-ChildWindow $handle
-        foreach ($child in $children)
-        {
-            $text = New-Object System.Text.StringBuilder 512
-            $win32::SendMessageString($child.Handle, 0x000D, [IntPtr]$text.Capacity, $text) | Out-Null # WM_GETTEXT
-            if ($text.ToString() -notmatch 'FloatingDialog/KoBrowserDialog') { continue }
+        if ($dialog.IsWeb) { $what = 'a dialog, most likely asking you to sign in to a data source' }
+        elseif (-not $Refreshing) { $what = 'a dialog, most likely asking how to access a web source' }
+        else { continue }
 
-            $null = $Reported.Add("window $($handle.ToInt64())")
-            Write-Host ''
-            Write-Host '    ⚠️ ACTION NEEDED: Power BI Desktop is showing a dialog, most likely asking you to sign in to a data source.' -ForegroundColor Yellow
-            Write-Host '       Answer it in that window. Everything continues on its own afterward.' -ForegroundColor Yellow
-            Write-Host ''
-            break
-        }
+        $null = $Reported.Add($key)
+        Write-Host ''
+        Write-Host "    ⚠️ ACTION NEEDED: Power BI Desktop is showing $what." -ForegroundColor Yellow
+        Write-Host '       Answer it in that window. Everything continues on its own afterward.' -ForegroundColor Yellow
+        Write-Host ''
     }
 
     foreach ($window in @(Get-ProcessWindow $ProcessId))
@@ -493,10 +533,24 @@ function Invoke-DesktopRefresh($MainWindow, $Process, $Database)
 
     $reported = New-Object System.Collections.Generic.HashSet[string]
     $lastProgress = Get-Date
+    $stoppedPolls = 0
     while ((Get-Date) -lt $deadline)
     {
         Start-Sleep -Seconds 10
-        Show-PendingPrompt $MainWindow $Process.Id $reported
+
+        # While the refresh runs, Power BI Desktop shows a progress box (a legacy browser window), and a prompt or
+        # an error appears as a web dialog beside it. A web dialog with no progress box means the refresh ended
+        # on it, and nothing will change until it's closed, so waiting out the deadline would only hide which
+        # table failed. Two checks in a row, so a dialog that is just opening isn't mistaken for it.
+        $dialogs = Get-DialogWindow $Process.Id $MainWindow
+        $web = @($dialogs | Where-Object { $_.IsWeb })
+        if ($web.Count -gt 0 -and @($dialogs | Where-Object { $_.IsLegacy }).Count -eq 0) { $stoppedPolls++ } else { $stoppedPolls = 0 }
+        if ($stoppedPolls -ge 2)
+        {
+            foreach ($dialog in $web) { $null = $script:IgnoredDialogs.Add($dialog.Handle.ToInt64()) }
+            return , @('Power BI Desktop stopped refreshing on a dialog (an error, or a sign-in prompt it was waiting on).')
+        }
+        if ($stoppedPolls -eq 0) { Show-PendingPrompt $MainWindow $Process.Id $reported -Refreshing }
 
         # Tables stay empty until the whole refresh commits, so all of them being ready means done
         $Database.Refresh($true)
@@ -520,7 +574,7 @@ function Invoke-DesktopRefresh($MainWindow, $Process, $Database)
             Write-Step "Still refreshing in Power BI Desktop ($([int]((Get-Date) - $started).TotalMinutes) min elapsed)..."
         }
     }
-    $waiting = if ($reported.Count -gt 0) { " It was waiting on: $((@($reported) | ForEach-Object { $_ -replace '^window \d+$', 'a dialog in Power BI Desktop' }) -join ', ')" }
+    $waiting = if ($reported.Count -gt 0) { " It was waiting on: $(Format-Waiting $reported)" }
     return , @("Power BI Desktop didn't finish refreshing within $TimeoutMinutes minutes.$waiting")
 }
 
