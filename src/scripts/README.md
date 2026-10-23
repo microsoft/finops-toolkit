@@ -99,6 +99,36 @@ Examples:
   ./Initialize-CI -SubscriptionId "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e" -WhatIf
   ```
 
+### PR deployment trust boundary
+
+`PR Deploy` runs only for PRs from branches in this repository. The workflow executes build scripts and deploys templates with Azure credentials. It checks out the event's immutable head commit and does not persist Git credentials. Its module cache uses a new key prefix to avoid restoring entries from the previous privileged fork path. Adding the `Needs: Deployment` label does not deploy a fork PR.
+
+To test a fork contribution:
+
+1. Record the fork PR's full head commit SHA.
+2. Review that exact commit, including scripts, workflows, templates, dependencies, and other executable content.
+3. Promote only the reviewed commit to a branch in this repository. Follow the repository's non-destructive Git policy.
+4. Open a PR from that branch and select the deployment checkboxes in its description.
+5. For each new fork commit, repeat the review before updating the repository branch. Never track the fork's mutable branch automatically.
+
+The same-repository branch is a trust boundary, not a sandbox. A maintainer must not promote unreviewed fork code. Deployment options, template path filters, Azure resource names, and automatic cleanup remain unchanged.
+
+### Cleanup event policy
+
+`PR Cleanup` retains `pull_request_target: closed`. It needs Azure OIDC and repository write permissions to delete test resource groups and report failures, including resources from older fork deployments. The workflow does not check out code, execute PR scripts, or consume PR artifacts. Its permissions apply only to the cleanup job. Keep both the `ftk-pr` and `ftk-fork` environment credentials while cleanup can still need them.
+
+GitHub's supplied enforcement notice states that public repositories without an applicable event policy will block this trigger on **November 2, 2026**. After merge, a repository administrator with JIT access must:
+
+1. Use workflow file targeting to allow only `.github/workflows/ftk-pr-cleanup.yml`.
+2. Keep `.github/workflows/ftk-pr-deploy.yml` outside the exception. Deployment no longer uses `pull_request_target`.
+3. Check the applicable policy and required environment approvals before testing a PR closure.
+
+Do not create a repository-wide exception. This change does not modify repository settings, environment protection, Azure permissions, or the event policy. Cleanup will stop running at the deadline without the applicable exception.
+
+Before rollout, require zero CodeQL findings in these two workflows for checkout of untrusted code in privileged and non-privileged contexts, and untrusted checkout TOCTOU. An immutable checkout prevents a mutable-reference race; it does not make unreviewed code safe.
+
+References: [Preventing pwn requests](https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/) and [GitHub Actions: New patterns and mitigations](https://securitylab.github.com/resources/github-actions-new-patterns-and-mitigations/).
+
 <br>
 
 ## 🌐 Build-OpenData
