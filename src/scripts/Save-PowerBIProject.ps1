@@ -96,6 +96,18 @@ public static IntPtr[] GetDescendants(IntPtr parent)
     EnumChildWindows(parent, (h, l) => { found.Add(h); return true; }, IntPtr.Zero);
     return found.ToArray();
 }
+private delegate bool EnumTopProc(IntPtr hWnd, IntPtr lParam);
+[DllImport("user32.dll")] private static extern bool EnumWindows(EnumTopProc callback, IntPtr lParam);
+[DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+[DllImport("user32.dll")] private static extern bool IsWindowVisible(IntPtr hWnd);
+// UI Automation leaves out some of a process's windows, like Power BI Desktop's web dialogs, so the
+// visible top-level windows are listed from Windows itself.
+public static IntPtr[] GetTopLevelWindows(int processId)
+{
+    var found = new System.Collections.Generic.List<IntPtr>();
+    EnumWindows((h, l) => { uint owner; GetWindowThreadProcessId(h, out owner); if (owner == (uint)processId && IsWindowVisible(h)) { found.Add(h); } return true; }, IntPtr.Zero);
+    return found.ToArray();
+}
 [DllImport("user32.dll")] public static extern IntPtr GetParent(IntPtr hWnd);
 [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetClassName(IntPtr hWnd, System.Text.StringBuilder name, int count);
 [DllImport("user32.dll")] public static extern int GetDlgCtrlID(IntPtr hWnd);
@@ -415,32 +427,35 @@ function Invoke-EngineCommand([string] $Command, [string] $Description, [int] $P
 #>
 function Show-PendingPrompt($MainWindow, [int] $ProcessId, [System.Collections.Generic.HashSet[string]] $Reported)
 {
+    # The storage sign-in ("You aren't signed in") is a web dialog in an untitled window that UI Automation never
+    # lists, so Windows' own window list is searched for the page it hosts.
+    $mainHandle = if ($MainWindow) { [IntPtr]$MainWindow.Current.NativeWindowHandle } else { [IntPtr]::Zero }
+    foreach ($handle in @($win32::GetTopLevelWindows($ProcessId)))
+    {
+        if ($handle -eq $mainHandle) { continue }
+        if ($Reported.Contains("window $($handle.ToInt64())")) { continue }
+
+        foreach ($child in @(Get-ChildWindow $handle))
+        {
+            $text = New-Object System.Text.StringBuilder 512
+            $win32::SendMessageString($child.Handle, 0x000D, [IntPtr]$text.Capacity, $text) | Out-Null # WM_GETTEXT
+            if ($text.ToString() -notmatch 'FloatingDialog/KoBrowserDialog') { continue }
+
+            $null = $Reported.Add("window $($handle.ToInt64())")
+            Write-Host ''
+            Write-Host '    ⚠️ ACTION NEEDED: Power BI Desktop is showing a dialog, most likely asking you to sign in to a data source.' -ForegroundColor Yellow
+            Write-Host '       Answer it in that window. Everything continues on its own afterward.' -ForegroundColor Yellow
+            Write-Host ''
+            break
+        }
+    }
+
     foreach ($window in @(Get-ProcessWindow $ProcessId))
     {
         if ($MainWindow -and $window.Current.NativeWindowHandle -eq $MainWindow.Current.NativeWindowHandle) { continue }
 
         $name = $window.Current.Name
-        if (-not $name)
-        {
-            # The storage sign-in ("You aren't signed in") is a web dialog in an untitled window that UI Automation
-            # can't see into, so it is recognized by the page it hosts instead.
-            $handle = [IntPtr]$window.Current.NativeWindowHandle
-            $isWebDialog = $false
-            foreach ($child in @(Get-ChildWindow $handle))
-            {
-                $text = New-Object System.Text.StringBuilder 512
-                $win32::SendMessageString($child.Handle, 0x000D, [IntPtr]$text.Capacity, $text) | Out-Null # WM_GETTEXT
-                if ($text.ToString() -match 'FloatingDialog/KoBrowserDialog') { $isWebDialog = $true; break }
-            }
-            if ($isWebDialog -and $Reported.Add("window $($handle.ToInt64())"))
-            {
-                Write-Host ''
-                Write-Host '    ⚠️ ACTION NEEDED: Power BI Desktop is showing a dialog, most likely asking you to sign in to a data source.' -ForegroundColor Yellow
-                Write-Host '       Answer it in that window. Everything continues on its own afterward.' -ForegroundColor Yellow
-                Write-Host ''
-            }
-            continue
-        }
+        if (-not $name) { continue }
 
         # Either a known prompt title or any dialog offering to connect or sign in
         $isPrompt = $name -match "(?i)sign in|sign-in|credential|authenticat|your account|access web content|connect to"
