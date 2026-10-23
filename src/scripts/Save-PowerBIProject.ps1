@@ -420,7 +420,27 @@ function Show-PendingPrompt($MainWindow, [int] $ProcessId, [System.Collections.G
         if ($MainWindow -and $window.Current.NativeWindowHandle -eq $MainWindow.Current.NativeWindowHandle) { continue }
 
         $name = $window.Current.Name
-        if (-not $name) { continue }
+        if (-not $name)
+        {
+            # The storage sign-in ("You aren't signed in") is a web dialog in an untitled window that UI Automation
+            # can't see into, so it is recognized by the page it hosts instead.
+            $handle = [IntPtr]$window.Current.NativeWindowHandle
+            $isWebDialog = $false
+            foreach ($child in @(Get-ChildWindow $handle))
+            {
+                $text = New-Object System.Text.StringBuilder 512
+                $win32::SendMessageString($child.Handle, 0x000D, [IntPtr]$text.Capacity, $text) | Out-Null # WM_GETTEXT
+                if ($text.ToString() -match 'FloatingDialog/KoBrowserDialog') { $isWebDialog = $true; break }
+            }
+            if ($isWebDialog -and $Reported.Add("window $($handle.ToInt64())"))
+            {
+                Write-Host ''
+                Write-Host '    ⚠️ ACTION NEEDED: Power BI Desktop is showing a dialog, most likely asking you to sign in to a data source.' -ForegroundColor Yellow
+                Write-Host '       Answer it in that window. Everything continues on its own afterward.' -ForegroundColor Yellow
+                Write-Host ''
+            }
+            continue
+        }
 
         # Either a known prompt title or any dialog offering to connect or sign in
         $isPrompt = $name -match "(?i)sign in|sign-in|credential|authenticat|your account|access web content|connect to"
@@ -439,24 +459,6 @@ function Show-PendingPrompt($MainWindow, [int] $ProcessId, [System.Collections.G
         }
     }
 
-    # Some prompts are drawn inside the main window instead of as a window of their own, so no new window
-    # appears. They offer Connect (or Sign in) next to Cancel, like "You aren't signed in" for a storage account.
-    # No control type is given: these prompts don't always report their buttons as buttons.
-    if ($MainWindow)
-    {
-        $offersSignIn = (Find-Element $MainWindow 'Connect') -or (Find-Element $MainWindow 'Sign in')
-        if ($offersSignIn -and (Find-Element $MainWindow 'Cancel'))
-        {
-            $label = 'a sign-in or credential prompt inside the main window'
-            if ($Reported.Add($label))
-            {
-                Write-Host ''
-                Write-Host "    ⚠️ ACTION NEEDED: Power BI Desktop is waiting on $label." -ForegroundColor Yellow
-                Write-Host '       Look for a Connect or Sign in button in Power BI Desktop, and answer it. Everything continues on its own afterward.' -ForegroundColor Yellow
-                Write-Host ''
-            }
-        }
-    }
 }
 
 <#
