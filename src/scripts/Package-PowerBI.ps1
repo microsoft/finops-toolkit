@@ -225,9 +225,10 @@ function Test-DemoPbix([string] $Path, $Report, [datetime] $BuiltAfter = [dateti
         catch { Write-Verbose "Could not read the sensitivity label from $Path" }
     }
 
-    # A PBIX saved without loading data has a tiny data model
+    # A PBIX saved without loading data has a tiny data model (tens of KB). The demo hub holds little data, so a
+    # model that did load is only about 1 MB, which is why the limit sits well below that.
     $dataModelSize = Get-ArchiveEntrySize $Path 'DataModel'
-    if ($dataModelSize -lt 1MB)
+    if ($dataModelSize -lt 256KB)
     {
         $issues.Add("has a $(Format-Size $dataModelSize) data model, so it was saved without loading demo data. Refresh the report before saving.")
     }

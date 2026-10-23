@@ -851,12 +851,14 @@ try
             | ForEach-Object { $_; @($_.FindAll($tree::Children, [System.Windows.Automation.Condition]::TrueCondition)) } `
             | Where-Object { $_.Current.ClassName -eq '#32770' })
 
-        $fileDialog = @($dialogs | Where-Object { $_.Current.Name -match '(?i)save' }) | Select-Object -First 1
+        # Power BI Desktop can have a hidden Save As window next to the visible one, so a visible one wins
+        $fileDialog = @($dialogs | Where-Object { $_.Current.Name -match '(?i)save' } | Sort-Object { $_.Current.IsOffscreen }) | Select-Object -First 1
         if (-not $fileDialog)
         {
             $fileDialog = @($dialogs `
                 | Where-Object { -not $_.Current.Name -or $_.Current.Name -notmatch '(?i)open|import|confirm' } `
-                | Where-Object { Find-Element $_ 'Save' @($types::Button, $types::SplitButton) }) | Select-Object -First 1
+                | Where-Object { Find-Element $_ 'Save' @($types::Button, $types::SplitButton) } `
+                | Sort-Object { $_.Current.IsOffscreen }) | Select-Object -First 1
         }
         if ($fileDialog) { return $fileDialog }
 
