@@ -51,6 +51,7 @@ _Released October 2026_
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v15
 
 - **Added**
+  - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
   - Added a [Run hubs locally](hubs/run-hubs-locally.md) guide to stand up a FinOps hub in a local Kusto emulator container and ingest cost data using the same KQL, transforms, and open data as a deployed hub.
   - Added a build-generated `finops-hub-local-opendata.kql` release artifact that loads the open data reference tables from CSV, so the local hub guide stays in sync with published open data instead of hard-coding schemas.
   - Added VNet and private network modes, including opt-in NAT Gateway support for private mode; NAT Gateway incurs additional cost when enabled ([#2163](https://github.com/microsoft/finops-toolkit/pull/2163)).
@@ -123,6 +124,7 @@ _Released October 2026_
 - **Added**
   - Added [Initialize-FinOpsHubLocal](powershell/hubs/initialize-finopshublocal.md) to set up a local FinOps hub in a running Kusto emulator with one command.
   - Added [Get-FinOpsCommitmentDiscountEligibility](powershell/data/get-finopscommitmentdiscounteligibility.md) and [Get-FinOpsInstanceSizeFlexibility](powershell/data/get-finopsinstancesizeflexibility.md) to generate the commitment discount eligibility and instance size flexibility open data files ([#2298](https://github.com/microsoft/finops-toolkit/pull/2298)).
+  - Added a `-EnableKeyVaultRbacAuthorization` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that moves the hub Key Vault from access policies to Azure RBAC. Requires hub template version 15.0 or later ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
 - **Changed**
   - Updated PowerShell test compatibility with Pester 6 ([#2204](https://github.com/microsoft/finops-toolkit/pull/2204)).
 - **Fixed**

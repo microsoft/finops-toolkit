@@ -34,6 +34,9 @@
     .PARAMETER EnablePurgeProtection
     Optional. Enable purge protection for the Key Vault. Default = false.
 
+    .PARAMETER EnableKeyVaultRbacAuthorization
+    Optional. Switch the Key Vault from access policies to Azure RBAC authorization. Required for CAF/Enterprise-Scale landing zone compliance. Switching an existing vault from access policies to RBAC removes all access policies immediately; any access granted outside the template must be recreated as role assignments. Default = false.
+
     .PARAMETER RemoteHubStorageUri
     Optional. Storage account to push data to for ingestion into a remote hub.
 
@@ -144,6 +147,10 @@ function Deploy-FinOpsHub
         [Parameter()]
         [switch]
         $EnablePurgeProtection,
+
+        [Parameter()]
+        [switch]
+        $EnableKeyVaultRbacAuthorization,
 
         [Parameter()]
         [string]
@@ -267,6 +274,12 @@ function Deploy-FinOpsHub
             throw "NAT Gateway / private network mode requires hub template version 15.0 or later. Current version: $Version"
         }
 
+        # Key Vault RBAC authorization requires hub template version 15.0 or later
+        if ($EnableKeyVaultRbacAuthorization -and $Version -ne 'latest' -and [version]$Version -lt '15.0')
+        {
+            throw "-EnableKeyVaultRbacAuthorization requires hub template version 15.0 or later. Current version: $Version"
+        }
+
         # Download template
         if (Test-ShouldProcess $PSCmdlet $Version 'DownloadTemplate')
         {
@@ -320,6 +333,11 @@ function Deploy-FinOpsHub
             if ($Version -eq 'latest' -or [version]$Version -ge '13.0')
             {
                 $parameterSplat.TemplateParameterObject.Add('enablePurgeProtection', $EnablePurgeProtection.IsPresent)
+            }
+
+            if ($EnableKeyVaultRbacAuthorization -and ($Version -eq 'latest' -or [version]$Version -ge '15.0'))
+            {
+                $parameterSplat.TemplateParameterObject.Add('enableKeyVaultRbacAuthorization', $true)
             }
 
             # Only pass enableNatGateway when private mode is requested. This keeps public/vnet
