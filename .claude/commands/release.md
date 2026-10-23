@@ -179,7 +179,7 @@ Relay its status output verbatim — it says exactly which step is next. If a re
 
 If validation fails, show the reported issues verbatim. Each one names the file and the fix; don't guess at causes.
 
-If this step ran, do not proceed until all three files exist: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
+If this step ran, do not proceed until `Package-PowerBI.ps1 -Status` reports all three files complete: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip. File existence alone is not enough, because files from a previous release can still be in `release/`.
 
 ### Manual steps reminder
 

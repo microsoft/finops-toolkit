@@ -176,7 +176,20 @@ Describe 'Get-ReportLayout' {
     BeforeAll {
         $script:version = '1.2.3'
         $script:buildDate = '2026-01-01'
+
+        function New-LayoutFile([string] $Name, [object[]] $Sections, [int] $ActiveIndex)
+        {
+            New-Item "$TestDrive/$Name" -ItemType Directory -Force | Out-Null
+            $layout = @{
+                sections = $Sections
+                config   = (@{ activeSectionIndex = $ActiveIndex } | ConvertTo-Json -Compress)
+                note     = 'FinOps toolkit v$$ftkver$$ built $$build-date$$'
+            }
+            [System.IO.File]::WriteAllText("$TestDrive/$Name/report.json", ($layout | ConvertTo-Json -Depth 10))
+            return "$TestDrive/$Name"
+        }
     }
+
 
     It 'Explains a source report that was saved in the enhanced format' {
         New-Item "$TestDrive/pbir/definition" -ItemType Directory -Force | Out-Null
@@ -186,6 +199,40 @@ Describe 'Get-ReportLayout' {
     It 'Names a report that has no layout at all' {
         New-Item "$TestDrive/empty" -ItemType Directory -Force | Out-Null
         { Get-ReportLayout "$TestDrive/empty" 'storage/Example' } | Should -Throw '*has no report.json*'
+    }
+
+    It 'Stamps the version and build date' {
+        $dir = New-LayoutFile 'stamp' @(@{ displayName = 'Get started'; ordinal = 0 }, @{ displayName = 'Summary'; ordinal = 1 }) 0
+        $json = Get-ReportLayout $dir 'storage/Example' 3>$null
+        $json | Should -Match '1\.2\.3'
+        $json | Should -Match '2026-01-01'
+        $json | Should -Not -Match '\$\$ftkver\$\$|\$\$build-date\$\$'
+    }
+
+    It 'Leaves the layout alone when it already opens on Get started' {
+        $dir = New-LayoutFile 'already' @(@{ displayName = 'Get started'; ordinal = 0 }, @{ displayName = 'Summary'; ordinal = 1 }) 0
+        $out = @(Get-ReportLayout $dir 'storage/Example' 3>&1)
+        @($out | Where-Object { $_ -is [System.Management.Automation.WarningRecord] }).Count | Should -Be 0
+        ($out | Where-Object { $_ -is [string] }) | Should -Be ((Get-Content "$dir/report.json" -Raw) -replace '\$\$ftkver\$\$', '1.2.3' -replace '\$\$build-date\$\$', '2026-01-01')
+    }
+
+    It 'Resets the active page using the display order, not the order in the file' {
+        # Summary comes first in the file but is displayed second, so Get started is display index 0 even though it is array index 1
+        $dir = New-LayoutFile 'reset' @(@{ displayName = 'Summary'; ordinal = 1 }, @{ displayName = 'Get started'; ordinal = 0 }) 1
+        $out = @(Get-ReportLayout $dir 'storage/Example' 3>&1)
+        @($out | Where-Object { $_ -is [System.Management.Automation.WarningRecord] }).Count | Should -Be 1
+
+        $result = ($out | Where-Object { $_ -is [string] }) | ConvertFrom-Json -Depth 20
+        ($result.config | ConvertFrom-Json).activeSectionIndex | Should -Be 0
+        @($result.sections).Count | Should -Be 2
+        $result.note | Should -Be 'FinOps toolkit v1.2.3 built 2026-01-01'
+    }
+
+    It 'Warns and leaves the layout when there is no Get started page' {
+        $dir = New-LayoutFile 'nostart' @(@{ displayName = 'Summary'; ordinal = 0 }) 0
+        $out = @(Get-ReportLayout $dir 'storage/Example' 3>&1)
+        (@($out | Where-Object { $_ -is [System.Management.Automation.WarningRecord] })[0]).Message | Should -Match "no 'Get started' page"
+        ((($out | Where-Object { $_ -is [string] }) | ConvertFrom-Json -Depth 20).config | ConvertFrom-Json).activeSectionIndex | Should -Be 0
     }
 }
 

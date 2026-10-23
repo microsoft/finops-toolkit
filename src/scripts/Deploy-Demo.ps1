@@ -47,7 +47,7 @@
     Optional. Number of months of data the hub keeps. Default = 36 for the current demo hub, 3 for the current and previous 3 releases, 1 for older releases.
 
     .PARAMETER DataExplorerSku
-    Optional. Data Explorer SKU. Use a dev/test SKU, because production SKUs cost too much for demo instances. Default = "Dev(No SLA)_Standard_D11_v2".
+    Optional. Data Explorer SKU. Must be a dev/test SKU ("Dev(No SLA)_..."), because production SKUs cost too much for demo instances. Default = "Dev(No SLA)_Standard_D11_v2".
 
     .PARAMETER WaitMinutes
     Optional. Minutes to wait for data to be ingested before finishing. Default = 30. Use 0 to not wait.
@@ -124,6 +124,7 @@ $useLocalBuild = $true
 if ($isVersioned)
 {
     $number = if ($Version -match '^v?0\.(\d+)$' -or $Version -match '^v?(\d+)$') { [int]$Matches[1] } else { throw "Version '$Version' isn't valid. Use a release like v14, v07, or v0.7." }
+    if ($number -gt $currentMajor) { throw "Version v$number is newer than this toolkit ($toolkitVersion). Use a released version, or v$currentMajor for the version being built." }
     $name = 'ftk-demo-v{0:D2}' -f $number
     $releaseVersion = if ($number -le 11) { "0.$number" } else { "$number" }
 
@@ -143,6 +144,7 @@ if (-not $Retention) { $Retention = if (-not $isVersioned) { 36 } elseif ($numbe
 
 # Dev/test SKUs only. Production SKUs cost too much for instances nobody is using.
 if (-not $DataExplorerSku) { $DataExplorerSku = 'Dev(No SLA)_Standard_D11_v2' }
+if ($DataExplorerSku -notlike 'Dev(No SLA)_*') { throw "'$DataExplorerSku' isn't a dev/test SKU. Demo instances use Dev(No SLA) SKUs, because production SKUs cost too much to leave running." }
 
 #region Helpers
 

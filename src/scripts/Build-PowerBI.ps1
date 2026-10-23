@@ -276,6 +276,9 @@ function Export-PrunedDataset([string] $SourceDir, [string] $TargetDir, [string[
     New-Item (Split-Path $TargetDir -Parent) -ItemType Directory -Force | Out-Null
     Copy-Item $SourceDir $TargetDir -Recurse -Force
 
+    # Local Power BI Desktop state (gitignored) doesn't belong in a generated project
+    Remove-Item "$TargetDir/.pbi/cache.abf", "$TargetDir/.pbi/localSettings.json" -Force -ErrorAction SilentlyContinue
+
     $definitionDir = "$TargetDir/definition"
     $dropped = New-Object System.Collections.Generic.List[string]
     $kept = New-Object System.Collections.Generic.List[string]
@@ -847,6 +850,7 @@ foreach ($inputFile in $reports)
         $stagedReport = "$pbixDir/$baseName.Report"
         Remove-Item $stagedReport -Recurse -Force -ErrorAction SilentlyContinue
         Copy-Item $reportDir $stagedReport -Recurse -Force
+        Remove-Item "$stagedReport/.pbi/cache.abf", "$stagedReport/.pbi/localSettings.json" -Force -ErrorAction SilentlyContinue
 
         [System.IO.File]::WriteAllText("$stagedReport/report.json", (Get-ReportLayout $reportDir $baseName), $script:Utf8NoBom)
 
