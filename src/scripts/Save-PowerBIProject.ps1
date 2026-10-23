@@ -435,7 +435,8 @@ function Show-PendingPrompt($MainWindow, [int] $ProcessId, [System.Collections.G
         if ($handle -eq $mainHandle) { continue }
         if ($Reported.Contains("window $($handle.ToInt64())")) { continue }
 
-        foreach ($child in @(Get-ChildWindow $handle))
+        $children = Get-ChildWindow $handle
+        foreach ($child in $children)
         {
             $text = New-Object System.Text.StringBuilder 512
             $win32::SendMessageString($child.Handle, 0x000D, [IntPtr]$text.Capacity, $text) | Out-Null # WM_GETTEXT
@@ -519,7 +520,8 @@ function Invoke-DesktopRefresh($MainWindow, $Process, $Database)
             Write-Step "Still refreshing in Power BI Desktop ($([int]((Get-Date) - $started).TotalMinutes) min elapsed)..."
         }
     }
-    return , @("Power BI Desktop didn't finish refreshing within $TimeoutMinutes minutes.")
+    $waiting = if ($reported.Count -gt 0) { " It was waiting on: $((@($reported) | ForEach-Object { $_ -replace '^window \d+$', 'a dialog in Power BI Desktop' }) -join ', ')" }
+    return , @("Power BI Desktop didn't finish refreshing within $TimeoutMinutes minutes.$waiting")
 }
 
 <#
