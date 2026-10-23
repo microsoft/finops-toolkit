@@ -575,7 +575,7 @@ Saved PBIX files are checked for the mistakes that are easy to make by hand — 
 | `‑Unattended`       | Optional. Saves the projects with Power BI Desktop automatically, then validates and packages them. Windows only. Default = false. |
 | `‑Open`             | Optional. Opens the projects that still need to be saved as PBIX files. Default = false.                                           |
 | `‑Build`            | Optional. Rebuilds the templates and projects even if they already exist. Default = false.                                         |
-| `‑Status`           | Optional. Reports what's done and what's left without changing anything. Default = false.                                          |
+| `‑Status`           | Optional. Reports what's done and what's left without changing anything. Exits with 1 while anything is pending. Default = false.                  |
 | `‑SensitivityLabel` | Optional. Sensitivity label demo reports must have, if they have one. Default = "Public".                                          |
 | `‑OpenDataUrl`      | Optional. Base URL demo reports read open data from when they are rebuilt. Default = the `main` branch. |
 | `‑TestOpenDataUrl`  | Optional. Allows `‑OpenDataUrl` to point at a branch. Reports built that way are not packaged. Default = false. |

@@ -171,7 +171,7 @@ On Windows, tell the user not to use the mouse or keyboard until it finishes, th
 pwsh -Command "./src/scripts/Package-PowerBI.ps1 -Unattended"
 ```
 
-On other platforms, run `pwsh -Command "./src/scripts/Package-PowerBI.ps1 -Status"` and tell the user to run `Package-PowerBI.ps1 -Unattended` on a Windows machine with Power BI Desktop, then say "done".
+On other platforms, tell the user to run `Package-PowerBI.ps1 -Unattended` on a Windows machine with Power BI Desktop, then paste the final output of that run (the "Power BI release files" block, or `Package-PowerBI.ps1 -Status` from that machine) and say "done". Don't check with `-Status` on this machine: the files are on the Windows machine, and `Package-Toolkit -Build` clears this machine's build.
 
 It takes about an hour (roughly 10 minutes per demo report). If it stops because the reports were built from a test open data URL ("isn't permanent"), rerun it once with `-Build` to rebuild against the main branch; don't use `-Build` otherwise, because it discards reports that are already saved.
 
@@ -179,7 +179,7 @@ Relay its status output verbatim — it says exactly which step is next. If a re
 
 If validation fails, show the reported issues verbatim. Each one names the file and the fix; don't guess at causes.
 
-If this step ran, do not proceed until `Package-PowerBI.ps1 -Status` reports all three files complete: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip. File existence alone is not enough, because files from a previous release can still be in `release/`.
+If this step ran, do not proceed until all three files are complete: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip. On Windows, `Package-PowerBI.ps1 -Status` exits 0 only when they are; check the exit code and relay its text. On another platform, the pasted output from the Windows machine has to show the final "Power BI release files" block. File existence alone is not enough, because files from a previous release can still be in `release/`.
 
 ### Manual steps reminder
 
@@ -190,4 +190,4 @@ After packaging succeeds, inform the user of remaining manual steps documented i
 
 ### Final issue update
 
-Update the release tracking issue checkboxes for finalize-phase items using the same label-based process as Release readiness. Mark `release:finalize` and `release:package` complete. Mark `release:powerbi` complete only when `Package-PowerBI.ps1 -Status` reports all three Power BI files complete. Then report completion and wish the user well.
+Update the release tracking issue checkboxes for finalize-phase items using the same label-based process as Release readiness. Mark `release:finalize` and `release:package` complete. Mark `release:powerbi` complete only when the Power BI gate above is met. Then report completion and wish the user well.

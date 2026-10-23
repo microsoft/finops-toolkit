@@ -367,7 +367,7 @@ if ($isStale)
     Write-Host '     On Windows, run: ' -NoNewline
     Write-Host './Package-PowerBI -Unattended' -ForegroundColor Cyan -NoNewline
     Write-Host ' (it rebuilds first).'
-    return
+    exit 1
 }
 
 if (-not $manifest)
@@ -377,7 +377,7 @@ if (-not $manifest)
     Write-Host './Package-PowerBI -Unattended' -ForegroundColor Cyan -NoNewline
     Write-Host ' (it builds first). To only build, run: ' -NoNewline
     Write-Host './Package-PowerBI -Build' -ForegroundColor Cyan
-    return
+    exit 1
 }
 
 $builtAt = [datetime]$manifest.built
@@ -401,6 +401,16 @@ $state = Get-SaveState
 $demoZipCurrent = (Test-Path $demoZip) -and $state.Missing.Count -eq 0 -and (Get-Item $demoZip).LastWriteTimeUtc -ge $builtAt.ToUniversalTime() -and `
     -not @($state.Saved | Where-Object { (Get-Item "$pbixDir/$($_.pbix)").LastWriteTimeUtc -gt (Get-Item $demoZip).LastWriteTimeUtc }).Count
 
+# A failed save restores the previous file, which can be stale or wrongly labelled. That report is "saved" but
+# still needs saving, so it is saved again (or opened with -Open) just like a missing one.
+$invalid = @{}
+foreach ($report in $state.Saved)
+{
+    $found = @(Test-DemoPbix "$pbixDir/$($report.pbix)" $report $builtAt $SensitivityLabel)
+    if ($found.Count -gt 0) { $invalid[$report.pbix] = $found }
+}
+$toSave = @($state.Missing) + @($state.Saved | Where-Object { $invalid.ContainsKey($_.pbix) })
+
 #endregion State
 
 #region Report status
@@ -413,11 +423,19 @@ $zipsBuilt = @($templateZips | Where-Object { Test-Path $_ })
 Write-Host "  $(if ($builtTemplates.Count -eq $manifest.reports.Count -and $zipsBuilt.Count -eq 2) { '✅' } else { '⏳' }) Templates    $($builtTemplates.Count)/$($manifest.reports.Count) PBIT, $($zipsBuilt.Count)/2 ZIP"
 $staleSaves = @($state.Saved | Where-Object { (Get-Item "$pbixDir/$($_.pbix)").LastWriteTimeUtc -lt $builtAt.ToUniversalTime() })
 $staleNote = if ($staleSaves.Count -gt 0) { ", $($staleSaves.Count) saved before the latest build" } else { '' }
-Write-Host "  $(if ($state.Missing.Count -eq 0 -and $staleSaves.Count -eq 0) { '✅' } else { '⏳' }) Demo reports $($state.Saved.Count)/$($demoReports.Count) PBIX saved$staleNote"
+$invalidNote = if ($invalid.Count -gt 0) { ", $($invalid.Count) failing validation" } else { '' }
+Write-Host "  $(if ($state.Missing.Count -eq 0 -and $staleSaves.Count -eq 0 -and $invalid.Count -eq 0) { '✅' } else { '⏳' }) Demo reports $($state.Saved.Count)/$($demoReports.Count) PBIX saved$staleNote$invalidNote"
 Write-Host "  $(if ($demoZipCurrent) { '✅' } else { '⏳' }) Demo package $(if ($demoZipCurrent) { Format-Size (Get-Item $demoZip).Length } elseif (Test-Path $demoZip) { 'PowerBI-demo.zip is out of date' } else { 'PowerBI-demo.zip not created' })"
 Write-Host ''
 
-if ($Status) { return }
+if ($Status)
+{
+    # Non-zero while anything is pending, so a caller can gate on the exit code instead of reading the text
+    $complete = $builtTemplates.Count -eq $manifest.reports.Count -and $zipsBuilt.Count -eq 2 -and $state.Missing.Count -eq 0 -and `
+        $staleSaves.Count -eq 0 -and $invalid.Count -eq 0 -and $demoZipCurrent
+    if (-not $complete) { exit 1 }
+    return
+}
 
 #endregion Report status
 
@@ -437,7 +455,6 @@ if ($Unattended)
     }
 
     # Anything that fails validation is saved again, so rerunning fixes a bad save without cleanup
-    $toSave = @($state.Missing) + @($state.Saved | Where-Object { (Test-DemoPbix "$pbixDir/$($_.pbix)" $_ $builtAt $SensitivityLabel).Count -gt 0 })
 
     if ($toSave.Count -gt 0)
     {
@@ -479,10 +496,13 @@ if ($Unattended)
         $demoZipCurrent = $false
     }
 }
-elseif ($state.Missing.Count -gt 0)
+elseif ($toSave.Count -gt 0)
 {
-    Write-Host "⏳ $($state.Missing.Count) Power BI project$(if ($state.Missing.Count -ne 1) { 's' }) still $(if ($state.Missing.Count -eq 1) { 'needs' } else { 'need' }) to be saved as PBIX:"
-    $state.Missing | ForEach-Object { Write-Host "     $($_.pbip) → $($_.pbix)" }
+    Write-Host "⏳ $($toSave.Count) Power BI project$(if ($toSave.Count -ne 1) { 's' }) still $(if ($toSave.Count -eq 1) { 'needs' } else { 'need' }) to be saved as PBIX:"
+    $toSave | ForEach-Object {
+        Write-Host "     $($_.pbip) → $($_.pbix)"
+        if ($invalid.ContainsKey($_.pbix)) { $invalid[$_.pbix] | ForEach-Object { Write-Host "       $_" -ForegroundColor Red } }
+    }
     Write-Host ''
 
     if (-not $Open)
@@ -505,13 +525,13 @@ elseif ($state.Missing.Count -gt 0)
 
     if ($null -eq $IsWindows -or $IsWindows)
     {
-        $state.Missing | ForEach-Object { Invoke-Item "$pbixDir/$($_.pbip)" }
-        Write-Host "Opened $($state.Missing.Count) project$(if ($state.Missing.Count -ne 1) { 's' }) in Power BI Desktop."
+        $toSave | ForEach-Object { Invoke-Item "$pbixDir/$($_.pbip)" }
+        Write-Host "Opened $($toSave.Count) project$(if ($toSave.Count -ne 1) { 's' }) in Power BI Desktop."
     }
     else
     {
         Write-Warning 'Power BI Desktop only runs on Windows. Open these projects there:'
-        $state.Missing | ForEach-Object { Write-Host "     $((Resolve-Path "$pbixDir/$($_.pbip)").Path)" }
+        $toSave | ForEach-Object { Write-Host "     $((Resolve-Path "$pbixDir/$($_.pbip)").Path)" }
     }
 
     Write-Host ''

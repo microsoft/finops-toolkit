@@ -413,6 +413,23 @@ Describe 'Test-DemoPbix' {
         Test-DemoPbix "$TestDrive/coincidence.pbix" $report | Should -Match "doesn't mention version 1.2.3"
     }
 
+    It 'Fails a report that is missing a required part' {
+        $parts = New-ValidParts
+        $parts.Remove('Metadata')
+        New-TestPbix "$TestDrive/noparts.pbix" $parts
+        Test-DemoPbix "$TestDrive/noparts.pbix" $report | Should -Match 'is missing the Metadata part'
+    }
+
+    It 'Does not guess the page of an enhanced report that has no active page' {
+        $parts = New-ValidParts
+        $parts.Remove('Report/Layout')
+        $parts['Report/definition/report.json'] = '{"name":"report","text":"FinOps toolkit v1.2.3"}'
+        $parts['Report/definition/pages/pages.json'] = '{}'
+        $parts['Report/definition/pages/page1/page.json'] = '{"name":"page1","displayName":"Summary"}'
+        New-TestPbix "$TestDrive/noactive.pbix" $parts
+        Test-DemoPbix "$TestDrive/noactive.pbix" $report | Should -Not -Match "opens on"
+    }
+
     It 'Fails a report with tables it does not use' {
         $parts = New-ValidParts
         $parts.DiagramLayout = @{ diagrams = @(@{ nodes = @(@{ nodeIndex = 'Costs' }, @{ nodeIndex = 'Resources' }) }) } | ConvertTo-Json -Depth 5 -Compress
