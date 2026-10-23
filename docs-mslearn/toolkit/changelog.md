@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/19/2026
+ms.date: 10/21/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -67,6 +67,9 @@ _Released October 2026_
   - Fixed the `PathNotFound` error in the `msexports_ETL_ingestion` pipeline's "Get Existing Parquet Files" step on the first ingestion for a scope, dataset, and month, by checking that the destination folder exists before listing its files ([#2247](https://github.com/microsoft/finops-toolkit/pull/2247)).
   - Fixed ADF schedule trigger deployment failures (`InvalidWorkflowTriggerRecurrence`) in regions not covered by the region-to-time-zone map (for example, Sweden Central), where the trigger's `startTime` was missing the required `Z` suffix for the `UTC` fallback time zone ([#2157](https://github.com/microsoft/finops-toolkit/issues/2157), [#2291](https://github.com/microsoft/finops-toolkit/pull/2291)).
   - Fixed Data Factory ingestion memory pressure during emptiness filtering.
+  - Fixed the `PathNotFound` error in the `msexports_ETL_ingestion` and analytics ingestion pipelines on the first ingestion for a scope, dataset, and month, most often hit by reservation recommendation exports ([#2088](https://github.com/microsoft/finops-toolkit/issues/2088), [#2247](https://github.com/microsoft/finops-toolkit/pull/2247)).
+  - Fixed managed exports schedule trigger validation failing for Japan by mapping the region to `Tokyo Standard Time` instead of `Japan Standard Time` ([#2236](https://github.com/microsoft/finops-toolkit/pull/2236)).
+  - Fixed commitment purchases inflating savings and effective savings rate (ESR) in the FinOps hub dashboard. Summary and Rate optimization tiles now exclude purchase rows consistently ([#2315](https://github.com/microsoft/finops-toolkit/issues/2315), [#2352](https://github.com/microsoft/finops-toolkit/pull/2352)).
   - Hardened the reservation price backfill to select the highest on-demand price (`max()` instead of `min()`) when duplicate price rows collapse under a single reservation price lookup key, preventing understated commitment discount savings ([#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
   - Fixed the `ContractedCost` recompute guard to compare with a null-safe tolerance instead of exact float equality, eliminating millions of no-op rewrites that polluted the `x_SourceValues` audit trail while preserving the null-cost backfill and no longer overwriting an existing cost when the unit price is missing ([#2216](https://github.com/microsoft/finops-toolkit/issues/2216)).
   - Fixed the SQL VMs without Azure Hybrid Benefit recommendation query to join on the SQL VM `virtualMachineResourceId` instead of a case-sensitive VM name match that skipped VMs with uppercase names and dropped duplicate names, and made all Azure Resource Graph join kinds explicit so no query relies on the `innerunique` default ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
@@ -86,6 +89,7 @@ _Released October 2026_
     - The `AdvisorRecommendations` and `AdvisorReservationRecommendations` tables now return complete results per batch instead of silently dropping rows beyond the payload limit.
     - A batch that still exceeds the limit surfaces an error rather than truncating; see [Reduce the batch size](help/errors.md#option-1-reduce-the-batch-size).
   - Fixed the rate optimization report data quality link, which landed on a Bing search page ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
+  - Fixed the duplicate `Region` column in the `AdvisorReservationRecommendations` table that broke Advisor reservation recommendations in the storage and KQL datasets ([#2347](https://github.com/microsoft/finops-toolkit/issues/2347), [#2351](https://github.com/microsoft/finops-toolkit/pull/2351)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v15
 
