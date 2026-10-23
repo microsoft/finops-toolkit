@@ -454,6 +454,25 @@ function Get-DialogWindow([int] $ProcessId, $MainWindow)
 
 <#
     .SYNOPSIS
+    Returns the CPU seconds used so far by Power BI Desktop, its engine, and its data mashup processes.
+
+    .DESCRIPTION
+    A refresh that is still working keeps these busy, and one that stopped on a dialog does not, which is
+    what tells a "Working on it" overlay apart from an error.
+#>
+function Get-DesktopActivity([string] $ProcessName = 'PBIDesktop')
+{
+    $names = @($ProcessName, 'msmdsrv', 'Microsoft.Mashup.Container*')
+    $total = 0.0
+    foreach ($process in @(Get-Process -Name $names -ErrorAction SilentlyContinue))
+    {
+        try { $total += [double]$process.CPU } catch { Write-Verbose "Could not read the CPU time of $($process.Name): $($_.Exception.Message)" }
+    }
+    return $total
+}
+
+<#
+    .SYNOPSIS
     Names what a run was waiting on, from the prompts Show-PendingPrompt reported.
 #>
 function Format-Waiting($Reported)
@@ -534,6 +553,7 @@ function Invoke-DesktopRefresh($MainWindow, $Process, $Database)
     $reported = New-Object System.Collections.Generic.HashSet[string]
     $lastProgress = Get-Date
     $stoppedPolls = 0
+    $activityAtStop = 0.0
     while ((Get-Date) -lt $deadline)
     {
         Start-Sleep -Seconds 10
@@ -547,14 +567,30 @@ function Invoke-DesktopRefresh($MainWindow, $Process, $Database)
         # While the refresh runs, Power BI Desktop shows a progress box (a legacy browser window), and a prompt or
         # an error appears as a web dialog beside it. A web dialog with no progress box means the refresh ended
         # on it, and nothing will change until it's closed, so waiting out the deadline would only hide which
-        # table failed. Two checks in a row, so a dialog that is just opening isn't mistaken for it.
+        # table failed. A "Working on it" overlay looks the same while a big report commits and calculates, so
+        # it has to persist for 4 checks in a row with nothing doing any work in the meantime.
         $dialogs = Get-DialogWindow $Process.Id $MainWindow
         $web = @($dialogs | Where-Object { $_.IsWeb })
-        if ($web.Count -gt 0 -and @($dialogs | Where-Object { $_.IsLegacy }).Count -eq 0) { $stoppedPolls++ } else { $stoppedPolls = 0 }
-        if ($stoppedPolls -ge 2)
+        $activity = Get-DesktopActivity
+        if ($web.Count -gt 0 -and @($dialogs | Where-Object { $_.IsLegacy }).Count -eq 0)
         {
-            foreach ($dialog in $web) { $null = $script:IgnoredDialogs.Add($dialog.Handle.ToInt64()) }
-            return , @('Power BI Desktop stopped refreshing on a dialog (an error, or a sign-in prompt it was waiting on).')
+            $stoppedPolls++
+            if ($stoppedPolls -eq 1) { $activityAtStop = $activity }
+        }
+        else { $stoppedPolls = 0 }
+        if ($stoppedPolls -ge 4)
+        {
+            if (($activity - $activityAtStop) -gt 2)
+            {
+                # Still working behind the dialog, so start the count again
+                $stoppedPolls = 1
+                $activityAtStop = $activity
+            }
+            else
+            {
+                foreach ($dialog in $web) { $null = $script:IgnoredDialogs.Add($dialog.Handle.ToInt64()) }
+                return , @('Power BI Desktop stopped refreshing on a dialog (an error, or a sign-in prompt it was waiting on).')
+            }
         }
         if ($stoppedPolls -eq 0) { Show-PendingPrompt $MainWindow $Process.Id $reported -Refreshing }
 
