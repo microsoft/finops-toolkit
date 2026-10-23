@@ -538,6 +538,12 @@ function Invoke-DesktopRefresh($MainWindow, $Process, $Database)
     {
         Start-Sleep -Seconds 10
 
+        # Tables stay empty until the whole refresh commits, so all of them being ready means done
+        $Database.Refresh($true)
+        $notReady = @($Database.Model.Tables `
+            | Where-Object { @($_.Partitions | Where-Object { $_.State -ne [Microsoft.AnalysisServices.Tabular.ObjectState]::Ready }).Count -gt 0 })
+        if ($notReady.Count -eq 0) { return , @() }
+
         # While the refresh runs, Power BI Desktop shows a progress box (a legacy browser window), and a prompt or
         # an error appears as a web dialog beside it. A web dialog with no progress box means the refresh ended
         # on it, and nothing will change until it's closed, so waiting out the deadline would only hide which
@@ -552,11 +558,6 @@ function Invoke-DesktopRefresh($MainWindow, $Process, $Database)
         }
         if ($stoppedPolls -eq 0) { Show-PendingPrompt $MainWindow $Process.Id $reported -Refreshing }
 
-        # Tables stay empty until the whole refresh commits, so all of them being ready means done
-        $Database.Refresh($true)
-        $notReady = @($Database.Model.Tables `
-            | Where-Object { @($_.Partitions | Where-Object { $_.State -ne [Microsoft.AnalysisServices.Tabular.ObjectState]::Ready }).Count -gt 0 })
-        if ($notReady.Count -eq 0) { return , @() }
 
         # Desktop reports a failed refresh in a window, and the tables never become ready
         foreach ($window in @(Get-ProcessWindow $Process.Id | Where-Object { $_.Current.NativeWindowHandle -ne $MainWindow.Current.NativeWindowHandle }))
@@ -745,8 +746,8 @@ try
                 if ($desktop.HasExited) { break }
             }
 
-            # A refresh that ran out of time on a prompt says what it was waiting on; the per-table check can't
-            $waitingOn = @($errors | Where-Object { $_ -match 'waiting on' })
+            # A refresh that ran out of time says so, and on what, which the per-table check can't
+            $waitingOn = @($errors | Where-Object { $_ -match "^Power BI Desktop didn't finish refreshing" })
             if ($broken.Count -gt 0 -and $waitingOn.Count -gt 0) { $broken.AddRange([string[]]$waitingOn) }
             $detail = if ($broken.Count -gt 0) { "`n  $($broken -join "`n  ")" } else { "`n  $($errors -join "`n  ")" }
             throw "Data refresh failed:$detail"
