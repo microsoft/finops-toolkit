@@ -190,4 +190,4 @@ After packaging succeeds, inform the user of remaining manual steps documented i
 
 ### Final issue update
 
-Update the release tracking issue checkboxes for finalize-phase items using the same label-based process as Release readiness. Mark `release:finalize` and `release:package` complete. Mark `release:powerbi` complete only when all three Power BI files exist. Then report completion and wish the user well.
+Update the release tracking issue checkboxes for finalize-phase items using the same label-based process as Release readiness. Mark `release:finalize` and `release:package` complete. Mark `release:powerbi` complete only when `Package-PowerBI.ps1 -Status` reports all three Power BI files complete. Then report completion and wish the user well.

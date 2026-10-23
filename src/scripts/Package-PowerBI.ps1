@@ -360,6 +360,16 @@ if ((-not $manifest -or $isStale) -and -not $Status -and -not $Build)
     $isStale = $false
 }
 
+if ($isStale)
+{
+    # Only -Status gets here: any other run rebuilt above. Don't report an older build's files as done.
+    Write-Host "⏳ These Power BI files were built for $($manifest.version) (or by an older build script), not for $version."
+    Write-Host '     On Windows, run: ' -NoNewline
+    Write-Host './Package-PowerBI -Unattended' -ForegroundColor Cyan -NoNewline
+    Write-Host ' (it rebuilds first).'
+    return
+}
+
 if (-not $manifest)
 {
     Write-Host '⏳ Nothing is built for this version yet.'
