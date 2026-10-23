@@ -3,7 +3,7 @@ title: FinOps hubs data model
 description: Learn about the tables and functions available in FinOps hubs to build your own queries, reports, and dashboards.
 author: flanakin
 ms.author: micflan
-ms.date: 10/16/2026
+ms.date: 10/23/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -553,11 +553,6 @@ parse_resourceid('/subscriptions/###/resourceGroups/foo/providers/Microsoft.Comp
 ## percent() KQL function
 
 The **percent(table: (Count: long))** function in Data Explorer calculates the percentage of each record based on a required Count column.
-
-{
-let total = todouble(toscalar(t | summarize sum(Count)));
-percentOfTotal(t, total)
-}
 
 <br>
 

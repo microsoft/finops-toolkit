@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/19/2026
+ms.date: 10/23/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -68,6 +68,9 @@ _Released October 2026_
   - Fixed FinOps hub dashboard "Governance, policy, and risk" and "FinOps tools and services" links that landed on a 404 page by linking directly to the Microsoft Learn pages ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
   - Fixed ADF schedule trigger deployment failures (`InvalidWorkflowTriggerRecurrence`) in regions not covered by the region-to-time-zone map (for example, Sweden Central), where the trigger's `startTime` was missing the required `Z` suffix for the `UTC` fallback time zone ([#2157](https://github.com/microsoft/finops-toolkit/issues/2157), [#2291](https://github.com/microsoft/finops-toolkit/pull/2291)).
   - Fixed Data Factory ingestion memory pressure during emptiness filtering.
+  - Fixed the `PathNotFound` error in the `msexports_ETL_ingestion` and analytics ingestion pipelines on the first ingestion for a scope, dataset, and month, most often hit by reservation recommendation exports ([#2088](https://github.com/microsoft/finops-toolkit/issues/2088), [#2247](https://github.com/microsoft/finops-toolkit/pull/2247)).
+  - Fixed managed exports schedule trigger validation failing for Japan by mapping the region to `Tokyo Standard Time` instead of `Japan Standard Time` ([#2236](https://github.com/microsoft/finops-toolkit/pull/2236)).
+  - Fixed commitment purchases inflating savings and effective savings rate (ESR) in the FinOps hub dashboard. Summary and Rate optimization tiles now exclude purchase rows consistently ([#2315](https://github.com/microsoft/finops-toolkit/issues/2315), [#2352](https://github.com/microsoft/finops-toolkit/pull/2352)).
   - Hardened the reservation price backfill to select the highest on-demand price (`max()` instead of `min()`) when duplicate price rows collapse under a single reservation price lookup key, preventing understated commitment discount savings ([#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
   - Fixed the `ContractedCost` recompute guard to compare with a null-safe tolerance instead of exact float equality, eliminating millions of no-op rewrites that polluted the `x_SourceValues` audit trail while preserving the null-cost backfill and no longer overwriting an existing cost when the unit price is missing ([#2216](https://github.com/microsoft/finops-toolkit/issues/2216)).
   - Fixed the SQL VMs without Azure Hybrid Benefit recommendation query to join on the SQL VM `virtualMachineResourceId` instead of a case-sensitive VM name match that skipped VMs with uppercase names and dropped duplicate names, and made all Azure Resource Graph join kinds explicit so no query relies on the `innerunique` default ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
@@ -81,11 +84,15 @@ _Released October 2026_
   - Updated report labels and documentation to use current FinOps Framework capability names, including Usage optimization and Governance, policy, and risk ([#2170](https://github.com/microsoft/finops-toolkit/pull/2170)).
   - Switched the InstanceSizeFlexibility table in the storage and KQL shared datasets from the retired `ccmstorageprod` AutofitComboMeterData.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file, joined to reservation recommendations on the unique ARM SKU name ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 - **Fixed**
+  - Fixed report templates opening with a preconfigured demo data source. Storage and cluster settings are now empty when you open a template.
+  - Fixed storage report refresh errors for exports using earlier FOCUS versions, which don't have the `CapacityReservationId` and `CapacityReservationStatus` columns. They're now added as empty columns, like `AvailabilityZone` already was.
+  - Fixed the managed disks table on the **Virtual machines** page of the [Governance](power-bi/governance.md) report, which showed an error because the report template didn't include the disks data.
   - Fixed the storage reports failing to refresh when the Cost Management export uses the FOCUS 1.2 schema. The FOCUS 1.2 branch searched for a column named `SkuMeterName` instead of `SkuMeter`, and the surrounding block assumed the FOCUS 1.0 columns (`x_InvoiceId`, `x_PricingCurrency`, `x_SkuMeterName`) were always present, which fails for a storage container that holds only FOCUS 1.2 exports. Added a lint rule that fails the build when a Power Query column name doesn't exist ([#2332](https://github.com/microsoft/finops-toolkit/issues/2332)).
   - Fixed Power BI storage report refresh errors caused by ISO 8601 duration `x_SkuTerm` values (like `P3Y`) and empty strings in cost exports ([#2174](https://github.com/microsoft/finops-toolkit/issues/2174)).
-  - Paginated Azure Resource Graph queries by subscription to mitigate [payload size limit](help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) errors in the [Governance](power-bi/governance.md) and [Workload optimization](power-bi/workload-optimization.md) reports ([#1768](https://github.com/microsoft/finops-toolkit/issues/1768)).
-    - The `AdvisorRecommendations` and `AdvisorReservationRecommendations` tables now return complete results per batch instead of silently dropping rows beyond the payload limit.
-    - A batch that still exceeds the limit surfaces an error rather than truncating; see [Reduce the batch size](help/errors.md#option-1-reduce-the-batch-size).
+  - Paginate Azure Resource Graph queries by subscription to mitigate [payload size limit](help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) errors in the [Governance](power-bi/governance.md) and [Workload optimization](power-bi/workload-optimization.md) reports ([#1768](https://github.com/microsoft/finops-toolkit/issues/1768)). Queries still surface a payload size error (rather than silently returning truncated results) if a single batch of subscriptions exceeds the limit; see [Reduce the batch size](help/errors.md#option-1-reduce-the-batch-size) for the mitigation. As part of this change, the `AdvisorRecommendations` and `AdvisorReservationRecommendations` tables now return complete (non-truncated) results per batch, matching every other batched table; previously these two tables silently dropped rows beyond the payload limit instead of erroring.
+  - Fixed duplicate `Region` and `region` columns in the `AdvisorReservationRecommendations` table, which Power BI treats as the same name ([#2347](https://github.com/microsoft/finops-toolkit/issues/2347)).
+  - Fixed the [Governance](power-bi/governance.md) report template missing the policy definitions query.
+  - Fixed report templates showing tables in the model diagram that the report doesn't use.
   - Fixed the rate optimization report data quality link, which landed on a Bing search page ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v15
@@ -123,6 +130,7 @@ _Released October 2026_
 - **Changed**
   - Updated PowerShell test compatibility with Pester 6 ([#2204](https://github.com/microsoft/finops-toolkit/pull/2204)).
 - **Fixed**
+  - Fixed [Deploy-FinOpsHub](powershell/hubs/deploy-finopshub.md) failing when deploying FinOps hubs 12 or later with `-Version`, and when more than one hub is deployed at the same time ([#2322](https://github.com/microsoft/finops-toolkit/pull/2322)).
   - Fixed [Get-FinOpsCostExport](powershell/cost/get-finopscostexport.md) `-RunHistory` to return the complete run history ([#2063](https://github.com/microsoft/finops-toolkit/issues/2063)).
   - Bumped the `Az.Accounts` required-module minimum to 2.17.0 so dependency resolution can't land on a version missing the `Get-AzAccessToken -AsSecureString` parameter that `Invoke-Rest` relies on ([#2185](https://github.com/microsoft/finops-toolkit/issues/2185)).
   - Fixed [Start-FinOpsCostExport](powershell/cost/start-finopscostexport.md) exporting the wrong period for anyone running in a positive UTC offset. `-StartDate` and `-EndDate` are now treated as UTC calendar dates instead of being time zone converted, so the days you request are the days that get exported. Previously, local midnight converted to the previous UTC day, which moved the period back a day and made `-Backfill` run one extra month ([#2255](https://github.com/microsoft/finops-toolkit/issues/2255)).

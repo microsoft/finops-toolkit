@@ -3,7 +3,7 @@ title: FinOps hubs data processing
 description: Learn how FinOps hubs process data, including scope setup, data normalization, and optimization, to enhance cost management and analysis.
 author: flanakin
 ms.author: micflan
-ms.date: 10/16/2026
+ms.date: 10/23/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -223,7 +223,7 @@ Transforms:
   - Implemented the following columns when not set by Cost Management:
     - `CommitmentDiscountUnit`
 - v15+:
-  - Swap `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility` to match the `CommitmentDiscountCategory` value assigned by the same transform. The spend column now reports savings plan pricing and the usage column reports reservation pricing. Prices ingested before upgrading keep the old values until they're reingested.
+  - Fix `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility` values. Prices ingested before upgrading keep the old values until they're re-ingested.
 
 ### Recommendation data transforms
 
