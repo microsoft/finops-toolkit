@@ -438,6 +438,25 @@ function Show-PendingPrompt($MainWindow, [int] $ProcessId, [System.Collections.G
             Write-Host ''
         }
     }
+
+    # Some prompts are drawn inside the main window instead of as a window of their own, so no new window
+    # appears. They offer Connect (or Sign in) next to Cancel, like "You aren't signed in" for a storage account.
+    # No control type is given: these prompts don't always report their buttons as buttons.
+    if ($MainWindow)
+    {
+        $offersSignIn = (Find-Element $MainWindow 'Connect') -or (Find-Element $MainWindow 'Sign in')
+        if ($offersSignIn -and (Find-Element $MainWindow 'Cancel'))
+        {
+            $label = 'a sign-in or credential prompt inside the main window'
+            if ($Reported.Add($label))
+            {
+                Write-Host ''
+                Write-Host "    ⚠️ ACTION NEEDED: Power BI Desktop is waiting on $label." -ForegroundColor Yellow
+                Write-Host '       Look for a Connect or Sign in button in Power BI Desktop, and answer it. Everything continues on its own afterward.' -ForegroundColor Yellow
+                Write-Host ''
+            }
+        }
+    }
 }
 
 <#
