@@ -18,7 +18,7 @@ const outDir = arg('--out', path.join(os.homedir(), '.claude', 'ftk-reports'));
 fs.mkdirSync(outDir, { recursive: true });
 const today = new Date();
 const iso = d => d.toISOString().slice(0, 10);
-const prior = fs.readdirSync(outDir).filter(f => /^support-\d{4}-\d{2}-\d{2}\.md$/.test(f)).sort().pop();
+const prior = fs.readdirSync(outDir).filter(f => /^support-\d{4}-\d{2}-\d{2}\.md$/.test(f) && f !== `support-${iso(today)}.md`).sort().pop();
 const since = arg('--since', prior ? prior.slice(8, 18) : iso(new Date(today - 7 * 864e5)));
 const days = d => Math.round((today - new Date(d)) / 864e5);
 
@@ -29,13 +29,13 @@ const people = nodes => nodes.filter(n => n.author && !BOTS.test(n.author.login)
 // Open issues (paged)
 const issues = [];
 for (let after = null; ;) {
-  const r = gql(`{repository(owner:"${OWNER}",name:"${NAME}"){issues(states:OPEN,first:100${after ? `,after:"${after}"` : ''}){pageInfo{hasNextPage endCursor}nodes{number title createdAt author{login} authorAssociation labels(first:20){nodes{name}} milestone{title} comments(last:20){nodes{author{login} authorAssociation createdAt}}}}}}`).issues;
+  const r = gql(`{repository(owner:"${OWNER}",name:"${NAME}"){issues(states:OPEN,first:100${after ? `,after:"${after}"` : ''}){pageInfo{hasNextPage endCursor}nodes{number title createdAt author{login} authorAssociation labels(first:20){nodes{name}} milestone{title} comments(last:100){nodes{author{login} authorAssociation createdAt}}}}}}`).issues;
   issues.push(...r.nodes); if (!r.pageInfo.hasNextPage) break; after = r.pageInfo.endCursor;
 }
 // Open discussions (paged)
 const discussions = [];
 for (let after = null; ;) {
-  const r = gql(`{repository(owner:"${OWNER}",name:"${NAME}"){discussions(first:100,states:OPEN${after ? `,after:"${after}"` : ''}){pageInfo{hasNextPage endCursor}nodes{number title createdAt author{login} authorAssociation category{name} answer{id} comments(last:20){nodes{author{login} authorAssociation createdAt replies(last:20){nodes{author{login} authorAssociation createdAt}}}}}}}}`).discussions;
+  const r = gql(`{repository(owner:"${OWNER}",name:"${NAME}"){discussions(first:100,states:OPEN${after ? `,after:"${after}"` : ''}){pageInfo{hasNextPage endCursor}nodes{number title createdAt author{login} authorAssociation category{name} answer{id} comments(last:100){nodes{author{login} authorAssociation createdAt replies(last:100){nodes{author{login} authorAssociation createdAt}}}}}}}}`).discussions;
   discussions.push(...r.nodes); if (!r.pageInfo.hasNextPage) break; after = r.pageInfo.endCursor;
 }
 
@@ -46,7 +46,7 @@ const items = [
     const labels = i.labels.nodes.map(l => l.name);
     const authorUs = isUs(i.author?.login, i.authorAssociation);
     return { kind: 'issue', n: i.number, title: i.title, created: i.createdAt, labels, sev: sev(labels), milestone: i.milestone?.title,
-      authorUs, triage: labels.includes('Needs: Triage 🔍'),
+      authorUs, outside: c.some(x => !isUs(x.author.login, x.authorAssociation)), triage: labels.includes('Needs: Triage 🔍'),
       lastUs: last ? isUs(last.author.login, last.authorAssociation) : authorUs, lastAt: last?.createdAt || i.createdAt,
       newThem: c.filter(x => x.createdAt >= since && !isUs(x.author.login, x.authorAssociation)).length,
       newUs: c.filter(x => x.createdAt >= since && isUs(x.author.login, x.authorAssociation)).length };
@@ -62,12 +62,12 @@ const items = [
 ];
 
 // "Waiting on us" = a non-maintainer spoke last (or opened it with no reply) and it isn't an answered discussion.
-const waiting = items.filter(x => !x.lastUs && !x.answered && !(x.kind === 'issue' && x.authorUs && !x.newThem));
+const waiting = items.filter(x => !x.lastUs && !x.answered && !(x.kind === 'issue' && x.authorUs && !x.outside));
 const byAge = (a, b) => days(b.lastAt) - days(a.lastAt);
 const triage = items.filter(x => x.triage);
 const s01 = items.filter(x => x.kind === 'issue' && ['S0', 'S1'].includes(x.sev));
 const newOpened = items.filter(x => x.created >= since && !x.authorUs);
-const ref = x => `#${x.n}`;
+const ref = x => `[#${x.n}](https://github.com/${REPO}/issues/${x.n})`;
 const list = (arr, max = 5) => arr.slice(0, max).map(ref).join(', ') + (arr.length > max ? ` +${arr.length - max}` : '') || 'none';
 
 const waitingIssues = waiting.filter(x => x.kind === 'issue'), waitingDisc = waiting.filter(x => x.kind === 'discussion');
@@ -88,5 +88,5 @@ const md = [
 
 const file = path.join(outDir, `support-${iso(today)}.md`);
 fs.writeFileSync(file, md);
-fs.writeFileSync(path.join(outDir, `support-${iso(today)}.json`), JSON.stringify({ since, waiting: waiting.map(ref), triage: triage.map(ref), s01: s01.map(ref), over7: over7.map(x => ({ n: x.n, kind: x.kind, days: days(x.lastAt), title: x.title })) }, null, 1));
+fs.writeFileSync(path.join(outDir, `support-${iso(today)}.json`), JSON.stringify({ since, waiting: waiting.map(x => `#${x.n}`), triage: triage.map(x => `#${x.n}`), s01: s01.map(x => `#${x.n}`), over7: over7.map(x => ({ n: x.n, kind: x.kind, days: days(x.lastAt), title: x.title })) }, null, 1));
 process.stdout.write(md + `\n<!-- saved: ${file} -->\n`);

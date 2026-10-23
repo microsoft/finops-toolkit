@@ -5,7 +5,7 @@ description: Generate the FinOps toolkit support status report (customers waitin
 
 # FTK support status report
 
-Produce a TLDR support status for maintainers. Read-only: never comment, label, or post anywhere.
+Produce a TLDR support status for maintainers. Read-only on GitHub: never comment, label, or post there. Teams posting goes only through `post-teams.mjs`.
 
 ## Steps
 
@@ -18,7 +18,7 @@ Produce a TLDR support status for maintainers. Read-only: never comment, label, 
    - It compares against the last saved report in `~/.claude/ftk-reports/` (or the last 7 days if none) and saves `support-YYYY-MM-DD.md` and `.json` there.
    - "Waiting on us" means a non-maintainer spoke last, the thread isn't an answered discussion, and it isn't a maintainer-filed issue with no outside reply. Feature requests are counted separately.
 
-2. Add judgment the script can't (keep each to one line, `#N` refs only):
+2. Add judgment the script can't (keep each to one line; link every issue, PR, and discussion as `[#N](https://github.com/microsoft/finops-toolkit/issues/N)`):
    - **Needs a maintainer:** up to 3 threads where a reply needs a decision, not just an answer. Say what the decision is.
    - **v15/release risk:** any waiting S0/S1 or data-loss thread. Note it for 🧰 Release Manager.
    - **Wins:** threads resolved or answered since the last report (optional, one line).

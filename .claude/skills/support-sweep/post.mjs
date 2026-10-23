@@ -19,7 +19,7 @@ const dir = sweepDir(flags.sweep);
 // Body checks
 const body = fs.existsSync(bodyFile) ? fs.readFileSync(bodyFile, 'utf8').trim() : die(`Body file not found: ${bodyFile}`);
 if (!body) die('Body file is empty.');
-if (!/^(🤖 \[AI\]|⚛️ \[Catalyst\])/u.test(body)) die('Body must start with "🤖 [AI]".');
+if (!/^🤖 \[AI\]/u.test(body)) die('Body must start with "🤖 [AI]".');
 
 // Snapshot from the sweep
 const snap = (readJson(path.join(dir, 'threads.json'), { threads: [] }).threads).find(t => t.n === n);

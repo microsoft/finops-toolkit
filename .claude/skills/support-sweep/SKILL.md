@@ -103,7 +103,7 @@ Publish `<sweep>/support-sweep.html` with the Artifact tool (`icon: "inbox"`):
 
 - If `~/.claude/ftk-sweeps/artifact-url.txt` exists, read that artifact first, then publish with `url` set to it so the link stays the same.
 - Otherwise publish a new artifact and save its URL to `~/.claude/ftk-sweeps/artifact-url.txt`.
-- Reply with the link and one line: counts for Reply now, Needs you, and Old.
+- Reply with the link and one line: counts for Reply now, Needs you, and Old. Link every issue, PR, and discussion you mention as `[#N](https://github.com/microsoft/finops-toolkit/issues/N)`.
 
 ## 4. Post approved replies
 
