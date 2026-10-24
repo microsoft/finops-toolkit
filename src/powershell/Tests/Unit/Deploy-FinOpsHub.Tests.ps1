@@ -261,6 +261,29 @@ InModuleScope 'FinOpsToolkit' {
                 Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -Times 0
             }
 
+            It 'Should download each deployment to its own folder' {
+                $script:destinations = @()
+                Mock -CommandName 'Save-FinOpsHubTemplate' -MockWith { $script:destinations += $Destination }
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '14' | Out-Null
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '14' | Out-Null
+                $script:destinations.Count | Should -Be 2
+                ($script:destinations | Select-Object -Unique).Count | Should -Be 2
+            }
+
+            It 'Should accept release versions listed without a minor number' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '14' } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.ContainsKey('enableManagedExports') -and $TemplateParameterObject.ContainsKey('enablePurgeProtection')
+                } -Times 1
+            }
+
+            It 'Should not pass parameters a release version does not have' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '0.7' } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    -not $TemplateParameterObject.ContainsKey('enableManagedExports') -and -not $TemplateParameterObject.ContainsKey('fabricQueryUri')
+                } -Times 1
+            }
+
             It 'Should pass enableNatGateway when private mode targets version 15.0 or later' {
                 { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version '15.0' } | Should -Not -Throw
                 Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
