@@ -262,8 +262,8 @@ function Deploy-FinOpsHub
         $effectiveNetworkMode = if ($NetworkMode) { $NetworkMode } elseif ($DisablePublicAccess) { 'vnet' } else { 'public' }
         if (-not $NetworkMode -and $DisablePublicAccess) { Write-Warning "-DisablePublicAccess is deprecated; use -NetworkMode 'vnet' or -NetworkMode 'private'." }
 
-        # Releases are listed with just a major number (for example, 14), which is not a valid version on its own
-        $templateVersion = if ($Version -ne 'latest') { [version]($Version -replace '^v?(\d+)$', '$1.0') }
+        # Releases are listed with just a major number (for example, 14), which is not a valid version on its own; also accept a "v" prefix (for example, v14 or v14.0)
+        $templateVersion = if ($Version -ne 'latest') { [version](($Version -replace '^v', '') -replace '^(\d+)$', '$1.0') }
 
         # Private network mode (NAT Gateway) requires hub template version 15.0 or later
         if ($effectiveNetworkMode -eq 'private' -and $Version -ne 'latest' -and $templateVersion -lt '15.0')

@@ -351,6 +351,42 @@ InModuleScope 'FinOpsToolkit' {
                 $shortKeys | Should -Not -Match 'enablePurgeProtection'
             }
 
+            It 'Should accept a "v" prefix like "<version>" and match the unprefixed version' -ForEach @(
+                @{ version = 'v13'; plain = '13' }
+                @{ version = 'v13.0'; plain = '13.0' }
+                @{ version = 'v12'; plain = '12.0' }
+            ) {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version $version } | Should -Not -Throw
+                $prefixedKeys = ($script:capturedParams.Keys | Sort-Object) -join ','
+
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version $plain
+                $plainKeys = ($script:capturedParams.Keys | Sort-Object) -join ','
+
+                $prefixedKeys | Should -Be $plainKeys
+            }
+
+            It 'Should gate private mode on a "v" prefixed version like "<version>"' -ForEach @(
+                @{ version = 'v14'; shouldThrow = $true }
+                @{ version = 'v14.0'; shouldThrow = $true }
+                @{ version = 'v15'; shouldThrow = $false }
+                @{ version = 'v15.1'; shouldThrow = $false }
+            ) {
+                $call = { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version $version }
+                if ($shouldThrow) { $call | Should -Throw -ExpectedMessage '*requires hub template version 15.0*' }
+                else { $call | Should -Not -Throw }
+            }
+
+            It 'Should treat a two-digit minor version like "0.10" as newer than "0.7"' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '0.10' } | Should -Not -Throw
+                $script:capturedParams.Keys | Should -Contain 'fabricQueryUri'
+                $script:capturedParams.Keys | Should -Not -Contain 'enableManagedExports'
+            }
+
+            It 'Should skip version checks and include the latest parameters for "latest"' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Not -Throw
+                $script:capturedParams.Keys | Should -Contain 'enablePurgeProtection'
+            }
+
             It 'Should not break an already-dotted version like "0.4"' {
                 { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '0.4' } | Should -Not -Throw
                 $script:capturedParams.Keys | Should -Contain 'remoteHubStorageUri'
