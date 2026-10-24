@@ -78,7 +78,7 @@ The following section lists features and enhancements that are currently in deve
 
 - **Fixed**
   - Fixed [Start-FinOpsCostExport](powershell/cost/start-finopscostexport.md) exporting the wrong period for anyone running in a positive UTC offset. `-StartDate` and `-EndDate` are now treated as UTC calendar dates instead of being time zone converted, so the days you request are the days that get exported. Previously, local midnight converted to the previous UTC day, which moved the period back a day and made `-Backfill` run one extra month ([#2255](https://github.com/microsoft/finops-toolkit/issues/2255)).
-  - Fixed [Deploy-FinOpsHub](powershell/hubs/deploy-finopshub.md) failing when -Version is a single-part release tag like 13 or has a  prefix like 14 ([#2293](https://github.com/microsoft/finops-toolkit/issues/2293)).
+  - Fixed [Deploy-FinOpsHub](powershell/hubs/deploy-finopshub.md) failing when `-Version` is a single-part release tag like `13` or has a `v` prefix like `v14` ([#2293](https://github.com/microsoft/finops-toolkit/issues/2293)).
 
 ### [Open data](open-data.md) updates
 
