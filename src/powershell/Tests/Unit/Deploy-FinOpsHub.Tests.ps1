@@ -291,5 +291,37 @@ InModuleScope 'FinOpsToolkit' {
                 } -Times 1
             }
         }
+
+        Context 'Retention' {
+            BeforeAll {
+                Mock -CommandName 'Get-AzResourceGroup' -MockWith { return @{ ResourceGroupName = $rgName } }
+                Mock -CommandName 'New-AzResourceGroup'
+                Mock -CommandName 'Save-FinOpsHubTemplate'
+                Mock -CommandName 'Initialize-FinOpsHubDeployment'
+                $templateFile = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath 'FinOps/finops-hub-v1.0.0/main.bicep'
+                Mock -CommandName 'Get-ChildItem' -MockWith { return @{ FullName = $templateFile } }
+                Mock -CommandName 'New-AzResourceGroupDeployment'
+            }
+
+            It 'Should not pass retention when not specified so a redeploy keeps stored values (#2206, #2348)' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    -not $TemplateParameterObject.ContainsKey('exportRetentionInDays') `
+                        -and -not $TemplateParameterObject.ContainsKey('ingestionRetentionInMonths') `
+                        -and -not $TemplateParameterObject.ContainsKey('dataExplorerRawRetentionInDays') `
+                        -and -not $TemplateParameterObject.ContainsKey('dataExplorerFinalRetentionInMonths')
+                } -Times 1
+            }
+
+            It 'Should pass retention when specified, including 0' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' -ExportRetentionInDays 0 -IngestionRetentionInMonths 36 -DataExplorerRawRetentionInDays 30 -DataExplorerFinalRetentionInMonths 60 } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.ContainsKey('exportRetentionInDays') -and $TemplateParameterObject.exportRetentionInDays -eq 0 `
+                        -and $TemplateParameterObject.ingestionRetentionInMonths -eq 36 `
+                        -and $TemplateParameterObject.dataExplorerRawRetentionInDays -eq 30 `
+                        -and $TemplateParameterObject.dataExplorerFinalRetentionInMonths -eq 60
+                } -Times 1
+            }
+        }
     }
 }
