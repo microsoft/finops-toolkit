@@ -3,7 +3,7 @@ title: Set up Power BI reports
 description: Learn how to set up Power BI FinOps reports using the FinOps toolkit, customize visuals, and connect to your cost data for detailed analysis.
 author: flanakin
 ms.author: micflan
-ms.date: 07/30/2026
+ms.date: 10/23/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -105,8 +105,8 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
        4. Append the container and export path, if applicable.
    - **Number of Months** &ndash; Optional number of closed months you would like to report on if you want to always show a specific number of recent months. If not specified, the report will include all data in storage.
    - **RangeStart** / **RangeEnd** &ndash; Optional date range you would like to limit to. If not specified, the report will include all data in storage.
-     - We generally recommend leaving these dates empty. They are included to support incremental refresh.
-     - If you need to configure incremental refresh, consider using [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer instead.
+     - We generally recommend leaving these dates empty. They are included to support incremental refresh. For steps, see [Configure incremental refresh](#configure-incremental-refresh).
+     - For larger datasets, consider using [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer instead.
      - FinOps hubs with Data Explorer offers improved performance and is recommended for anyone monitoring over $100,000 in total spend.
      - Storage reports only support ~$2 million of data without incremental refresh and ~$2 million per month in raw cost details. To learn more, see [Configure incremental refresh](/power-bi/connect-data/incremental-refresh-configure#define-policy).
 
@@ -118,6 +118,28 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
    - **<https://github.com/>...** &ndash; Anonymous access. This URL is used for FinOps toolkit open data files.
 
 If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../help/troubleshooting.md).
+
+<br>
+
+## Configure incremental refresh
+
+Storage reports support incremental refresh on the **Costs** table. Incremental refresh is only needed when you have more cost data than Power BI can load in one refresh. If you're monitoring over $100,000 in total spend, consider [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer instead.
+
+To configure incremental refresh:
+
+1. Open the storage report in Power BI Desktop.
+2. Select **Transform data** to open Power Query Editor.
+3. Set **RangeStart** and **RangeEnd** to a small, recent date range, like the first day of last month and the first day of this month.
+   - These values only apply in Power BI Desktop. The incremental refresh policy replaces them after you publish.
+4. Select **Close & Apply**.
+5. In the **Data** pane, right-click the **Costs** table and select **Incremental refresh**.
+6. Turn on **Incrementally refresh this table**, set the archive and refresh periods, and then select **Apply**.
+   - The **Costs** query filters the `x_IncrementalRefreshDate` column by **RangeStart** and **RangeEnd**.
+7. Publish the report and refresh the semantic model in the Power BI service.
+
+Rows without a charge date (`x_IncrementalRefreshDate` is empty) are kept in every partition when a range is set, so they can be counted more than once. These rows are rare, but if you see inflated totals after enabling incremental refresh, check for them.
+
+If you leave **RangeStart** and **RangeEnd** empty, the **Costs** query doesn't filter by them and the report uses **Number of Months** as before. To learn more, see [Configure incremental refresh](/power-bi/connect-data/incremental-refresh-configure).
 
 <br>
 
