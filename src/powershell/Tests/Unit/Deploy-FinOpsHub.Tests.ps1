@@ -365,6 +365,16 @@ InModuleScope 'FinOpsToolkit' {
                 $prefixedKeys | Should -Be $plainKeys
             }
 
+            It 'Should pass "<version>" to Save-FinOpsHubTemplate as "<expected>" so the release is found' -ForEach @(
+                @{ version = 'v13'; expected = '13' }
+                @{ version = 'v13.0'; expected = '13.0' }
+                @{ version = '13'; expected = '13' }
+                @{ version = 'latest'; expected = 'latest' }
+            ) {
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version $version
+                Should -Invoke -CommandName 'Save-FinOpsHubTemplate' -ParameterFilter { $Version -ceq $expected } -Times 1 -Exactly
+            }
+
             It 'Should gate private mode on a "v" prefixed version like "<version>"' -ForEach @(
                 @{ version = 'v14'; shouldThrow = $true }
                 @{ version = 'v14.0'; shouldThrow = $true }
