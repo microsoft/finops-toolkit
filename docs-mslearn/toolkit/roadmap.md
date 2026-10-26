@@ -30,13 +30,13 @@ While our community is growing, we don't have a dedicated staff and can't commit
 With the October 2026 release establishing the foundation for agentic FinOps, Azure capacity management, AI tokenomics queries, local development, private networking, and automated open data, the [Governing board](https://github.com/microsoft/finops-toolkit/wiki/Governing-board) identified the following high-level themes for the remainder of 2026:
 
 - **AI-powered FinOps and FinOps for AI (tokenomics)**<br>
-  Enable interactive and autonomous FinOps and capacity operations through AI agents, skills, and Model Context Protocol (MCP) tools while expanding AI billing, tokenomics (token-to-dollar attribution, provisioned throughput utilization, and unit economics), and telemetry visibility across Microsoft Foundry, Azure OpenAI, Azure API Management, OpenTelemetry, and GitHub Copilot.
+  Enable interactive and autonomous FinOps and capacity operations through AI agents, skills, and Model Context Protocol (MCP) tools while expanding AI billing, tokenomics (token-to-dollar attribution, provisioned throughput utilization, and unit economics), and telemetry visibility across Microsoft Foundry, Azure OpenAI, Azure API Management, OpenTelemetry, and GitHub Copilot.<br>&nbsp;
 - **End-to-end FinOps and cloud capacity management**<br>
-  Expand the FinOps toolkit to connect cost reporting, rate and usage optimization, recommendations, and cloud capacity management—including quota headroom, SKU and zone restrictions, capacity reservation groups, and commitment discount coordination—across the Microsoft Cloud and cross-cloud environments.
+  Expand the FinOps toolkit to connect cost reporting, rate and usage optimization, recommendations, and cloud capacity management—including quota headroom, SKU and zone restrictions, capacity reservation groups, and commitment discount coordination—across the Microsoft Cloud and cross-cloud environments.<br>&nbsp;
 - **Solidify the foundation and data quality**<br>
-  Strengthen FinOps hubs security, private networking, multi-version FinOps Open Cost and Usage Specification (FOCUS) 1.3 and 1.4 conformance, and automated data-quality and release guardrails.
+  Strengthen FinOps hubs security, private networking, multi-version FinOps Open Cost and Usage Specification (FOCUS) 1.5 conformance, and automated data-quality and release guardrails.<br>&nbsp;
 - **Enable the community and ecosystem**<br>
-  Expand support resources, clarify tool ownership and support models, streamline contributor and triage workflows with agentic automation, and highlight partner and community solutions across the [FinOps toolkit ecosystem](https://microsoft.github.io/finops-toolkit/ecosystem).
+  Expand support resources, streamline contributor and triage workflows with agentic automation, and highlight partner and community solutions across the [FinOps toolkit ecosystem](https://microsoft.github.io/finops-toolkit/ecosystem).
 
 <br>
 
@@ -45,10 +45,9 @@ With the October 2026 release establishing the foundation for agentic FinOps, Az
 - Completed - FinOps toolkit ecosystem – Curated directory of partner and community FinOps solutions built for the Microsoft Cloud.
 - Completed - Office hours – Recurring community call to get real-time help and support for FinOps toolkit solutions.
 - Completed - FinOps hub upgrade guidance – Document schema upgrades and preview conventions for multi-version FOCUS adoption.
-- In development - FOCUS 1.3 and 1.4 ([Issue #2120](https://github.com/microsoft/finops-toolkit/issues/2120)) – Add support for FOCUS 1.3 and 1.4 across FinOps hubs, Power BI reports, agent plugins, and documentation.
+- In development - FOCUS 1.5 ([Issue #2120](https://github.com/microsoft/finops-toolkit/issues/2120)) – Add support for FOCUS 1.5 across FinOps hubs, Power BI reports, agent plugins, and documentation.
 - In development - AI-assisted triage and repository automation ([Issue #2357](https://github.com/microsoft/finops-toolkit/issues/2357)) – Automate issue triage, link checking, moderation, and repository maintenance with GitHub Agentic Workflows.
 - In development - Release automation ([Issue #888](https://github.com/microsoft/finops-toolkit/issues/888)) – Automate the end-to-end CI/CD release and Power BI template packaging process.
-- In development - Official toolkit support and ownership model – Define ownership, lifecycle hygiene, and support boundaries across core, community-supported, and ecosystem tools.
 - Not started - Demo environment – Publicly available demo environment.
 
 <br>
@@ -56,10 +55,10 @@ With the October 2026 release establishing the foundation for agentic FinOps, Az
 ## Learning resources
 
 - Completed - FinOps Framework updates – Align capability guides, reports, and workbooks with current FinOps Framework terminology.
-- Completed - FOCUS 1.2 data dictionary and hub schema reference ([Issue #2329](https://github.com/microsoft/finops-toolkit/issues/2329)) – Align data dictionary definitions with FOCUS 1.2 and document nested FinOps hub `Costs()` columns.
-- In development - FOCUS 1.4 documentation and query library – Schema upgrade, compatibility, and conformance documentation plus a reusable FOCUS query library.
+- Completed - FOCUS 1.2 data dictionary and hub schema reference – Align data dictionary definitions with FOCUS 1.2 and document the nested FinOps hub `Costs()` columns.
+- In development - FOCUS 1.5 documentation and query library – Schema upgrade, compatibility, and conformance documentation plus a reusable FOCUS query library.
+- In development - FinOps toolkit overview deck ([Issue #663](https://github.com/microsoft/finops-toolkit/issues/663)) – Slide deck to summarize FinOps toolkit solutions.
 - In development - Well-Architected Cost Optimization Assessment – Guidance and assessment alignment for Well-Architected cost optimization.
-- Not started - FinOps toolkit overview deck ([Issue #663](https://github.com/microsoft/finops-toolkit/issues/663)) – Slide deck to summarize FinOps toolkit solutions.
 
 <br>
 
@@ -67,63 +66,48 @@ With the October 2026 release establishing the foundation for agentic FinOps, Az
 
 - Completed - Sovereign cloud support ([Issue #2081](https://github.com/microsoft/finops-toolkit/issues/2081)) – Support deployments in Azure Government and Azure operated by 21Vianet.
 - Completed - Recommendations ingestion ([Issue #2011](https://github.com/microsoft/finops-toolkit/issues/2011)) – Ingest Azure Advisor and custom Azure Resource Graph recommendations.
-- Completed - Extensibility – Modular Bicep app architecture to support optional hub components.
-- Completed - Private endpoints and virtual network modes ([Issue #2258](https://github.com/microsoft/finops-toolkit/issues/2258)) – Virtual network and private network modes with opt-in NAT Gateway, an Azure Files private endpoint for deployment scripts, and customer-managed private endpoint guidance.
-- Completed - Retention configuration and preservation ([Issue #2348](https://github.com/microsoft/finops-toolkit/issues/2348)) – Configure storage and Data Explorer retention and preserve custom retention settings across redeployments and upgrades.
+- Completed - Private networking – Virtual network and private network modes with opt-in NAT Gateway and customer-managed private endpoint guidance.
 - Completed - Run hubs locally – Run FinOps hubs KQL databases, transforms, and open data locally in a Kusto emulator container.
-- Completed - KQL query catalog and AI tokenomics queries – Scenario-specific KQL queries for Azure OpenAI token usage, model cost comparison, AI spend trends, application cost allocation, and FinOps Foundation KPIs.
-- Completed - KQL performance and savings accuracy ([Issue #2213](https://github.com/microsoft/finops-toolkit/issues/2213)) – Faster KQL operators, corrected commitment discount eligibility and reservation price backfills, and consistent dashboard savings.
-- In development - FOCUS 1.4 ingestion and hub functions – Add the `v1_4` ingestion schema and hub functions, with `ContractCommitments` tables and functions remaining empty until Cost Management supports exporting the dataset.
-- In development - Quota, capacity, and savings plan recommendation ingestion ([Issue #1721](https://github.com/microsoft/finops-toolkit/issues/1721)) – Ingest quota usage and headroom into a normalized `Quota()` hub function alongside 1-year and 3-year Azure savings plan recommendations.
-- In development - FinOps for AI, tokenomics, and capacity dashboards – Add AI billing, tokenomics, and capacity dashboards that join operational token and quota telemetry with FinOps hub `Costs()` and `Prices()`.
-- In development - Key Vault RBAC and existing Key Vault support ([Issue #1067](https://github.com/microsoft/finops-toolkit/issues/1067)) – Add opt-in Key Vault role-based access control (RBAC) authorization and support for an existing Key Vault instance.
-- In development - Disable storage Shared Key access ([Issue #2312](https://github.com/microsoft/finops-toolkit/issues/2312)) – Add an opt-in parameter to disable storage account Shared Key authorization.
-- In development - MCA price sheet `2024-08-01` and invoice PDF ingestion ([Issue #2311](https://github.com/microsoft/finops-toolkit/issues/2311)) – Support the `2024-08-01` Microsoft Customer Agreement price sheet schema and download Microsoft invoice PDFs into the hub data lake.
-- In development - Data Factory Resource Graph pagination and custom naming ([Issue #2320](https://github.com/microsoft/finops-toolkit/issues/2320)) – Paginate Azure Resource Graph ingestion queries past 1,000 rows, support custom resource naming, and add cost center aggregation.
-- In development - Cross-cloud cost ingestion and Terraform module ([Issue #910](https://github.com/microsoft/finops-toolkit/issues/910)) – Support non-Azure (AWS and GCP) FOCUS cost ingestion, multi-cloud test data generation, and a Terraform module for FinOps hubs.
+- Completed - KQL query catalog and AI tokenomics queries – Scenario-specific KQL queries for Azure OpenAI token usage, model cost comparison, AI spend trends, and application cost allocation.
+- In development - Extensibility – Expand the modular Bicep app architecture toward fully extensible hub components.
+- In development - FOCUS 1.5 ingestion and hub functions – Add the `v1_5` ingestion schema and hub functions.
+- In development - Quota, capacity, and savings plan recommendations – Ingest quota usage and headroom into a normalized `Quota()` hub function alongside Azure savings plan recommendations.
+- In development - FinOps for AI, tokenomics, and capacity dashboards – Add AI billing, tokenomics, and capacity dashboards that join operational token and quota telemetry with FinOps hub cost and price data.
+- In development - Security hardening – Add opt-in Key Vault role-based access control (RBAC), existing Key Vault support, and the option to disable storage Shared Key access.
+- In development - Cross-cloud cost ingestion and Terraform module ([Issue #910](https://github.com/microsoft/finops-toolkit/issues/910)) – Support non-Azure (AWS and GCP) FOCUS cost ingestion and a Terraform module for FinOps hubs.
 - Not started - Autobackfill – Backfill historical data from Microsoft Cost Management.
-- Not started - Management UX – Website to create and manage resources.
 
 <br>
 
 ## AI agents and plugins
 
 - Completed - **New tool**: FinOps Hub Copilot Studio template – Copilot Studio agent template for conversational FinOps hubs analysis.
-- Completed - **New tool**: Claude Code and GitHub Copilot CLI plugin ([Issue #2013](https://github.com/microsoft/finops-toolkit/issues/2013)) – Shared AI plugin with 5 specialist agents (CFO, FinOps practitioner, database query, hubs agent, and Azure capacity manager), 4 commands, a FinOps hubs KQL skill, and a read-only Azure MCP server.
+- Completed - **New tool**: Claude Code and GitHub Copilot CLI plugin ([Issue #2013](https://github.com/microsoft/finops-toolkit/issues/2013)) – Shared AI plugin with specialist agents, commands, a FinOps hubs KQL skill, and a read-only Azure MCP server.
 - Completed - Project coordination agents – Chief of staff, release manager, and support agents plus the Microsoft Writing Style Guide skill to help run the project.
 - In development - **New tool**: FinOps and capacity SRE Agent template ([Issue #1555](https://github.com/microsoft/finops-toolkit/issues/1555)) – Installable Azure SRE Agent template for scheduled FinOps reporting, AI workload and tokenomics analysis, commitment reviews, and end-to-end capacity management.
-- In development - FOCUS 1.3 and 1.4 agent and Copilot Studio updates ([Issue #2119](https://github.com/microsoft/finops-toolkit/issues/2119)) – Refresh agent skills, Copilot Studio knowledge, and the query catalog for FOCUS 1.3 and 1.4, and add a code-review skill.
+- In development - FOCUS 1.5 agent and Copilot Studio updates ([Issue #2119](https://github.com/microsoft/finops-toolkit/issues/2119)) – Refresh agent skills, Copilot Studio knowledge, and the query catalog for FOCUS 1.5.
 
 <br>
 
 ## Power BI reports
 
-- Completed - Azure Resource Graph pagination and FOCUS 1.2 storage compatibility ([Issue #1768](https://github.com/microsoft/finops-toolkit/issues/1768)) – Subscription-batched Resource Graph pagination, FOCUS 1.2 and ISO 8601 `x_SkuTerm` compatibility in storage reports, and instance size flexibility open data integration.
-- In development - FOCUS 1.4 schema update – Update Power BI reports to the FOCUS 1.4 (`v1_4`) schema.
-- In development - Incremental refresh and query performance ([Issue #2336](https://github.com/microsoft/finops-toolkit/issues/2336)) – Support partitioned incremental refresh on the storage `Costs` table, optimize tag promotion CPU performance, and expand unattached disks reporting.
+- In development - FOCUS 1.5 schema update – Update Power BI reports to the FOCUS 1.5 (`v1_5`) schema.
+- In development - Incremental refresh and query performance ([Issue #2336](https://github.com/microsoft/finops-toolkit/issues/2336)) – Support partitioned incremental refresh on the storage `Costs` table and faster report refresh.
 - In development - Community reports and data-only template – Community Power BI reports repository and a data-only Power BI report template.
 - Not started - Update notification – Show an update notification when new releases are available.
 
 <br>
 
-## Cost optimization workbook
-
-- Completed - General updates and KQL join accuracy – FinOps Framework terminology alignment and explicit KQL join fixes across savings plan and Azure Hybrid Benefit queries.
-- Not started - FinOps hubs support – Merge cost from FinOps hubs with recommendations.
-
-<br>
-
 ## Optimization engine
 
-- Completed - Reference documentation, DCR ingestion, and ISF open data ([Issue #1271](https://github.com/microsoft/finops-toolkit/issues/1271)) – Comprehensive architecture reference, Log Analytics Data Collection Rule (DCR) ingestion migration, and instance size flexibility open data integration with retired-SKU reservation visibility.
-- In development - Reservation workbook ratio scale and KQL join refinements ([Issue #2309](https://github.com/microsoft/finops-toolkit/issues/2309)) – Align reservation workbook quantity scales and KQL join patterns.
+- Completed - Reference documentation and Data Collection Rule ingestion ([Issue #1271](https://github.com/microsoft/finops-toolkit/issues/1271)) – Comprehensive architecture reference and Log Analytics Data Collection Rule (DCR) ingestion migration.
 
 <br>
 
 ## PowerShell
 
 - Completed - Open data commands – `Get-FinOpsCommitmentDiscountEligibility` and `Get-FinOpsInstanceSizeFlexibility` commands.
-- Completed - Local FinOps hub initialization and export fixes ([Issue #2255](https://github.com/microsoft/finops-toolkit/issues/2255)) – `Initialize-FinOpsHubLocal` for local Kusto emulator testing, UTC calendar date handling in `Start-FinOpsCostExport`, complete `-RunHistory`, and hub version parsing fixes.
+- Completed - Local FinOps hub initialization – `Initialize-FinOpsHubLocal` for local Kusto emulator testing.
 - In development - FinOps Explorer – Interactive cross-platform terminal UI for FinOps scanning and exploration.
 - Not started - Deploy-FinOpsWorkbook – Deploy toolkit workbooks.
 
@@ -132,7 +116,7 @@ With the October 2026 release establishing the foundation for agentic FinOps, Az
 ## Open data
 
 - Completed - Instance size flexibility dataset ([Issue #2090](https://github.com/microsoft/finops-toolkit/issues/2090)) – Automated weekly dataset from the Azure Reservations Catalogs API replacing deprecated `ccmstorageprod` CSV files across all Azure regions.
-- Completed - Commitment discount eligibility validation and FOCUS alignment ([Issue #2279](https://github.com/microsoft/finops-toolkit/issues/2279)) – Dual-traversal verified refresh, FOCUS spend and usage category alignment, and CI family-count regression protection.
+- Completed - Commitment discount eligibility – Automated, verified weekly refresh aligned to FOCUS spend and usage commitment categories.
 - In development - Advisor recommendation types and unified service metadata ([Issue #1255](https://github.com/microsoft/finops-toolkit/issues/1255)) – Add an Azure Advisor `RecommendationTypes` dataset and merge resource types and services open data.
 
 <br>
