@@ -73,16 +73,16 @@
     Example: @('/subscriptions/00000000-0000-0000-0000-000000000000', '/subscriptions/11111111-1111-1111-1111-111111111111')
 
     .PARAMETER ExportRetentionInDays
-    Optional. Number of days of data to retain in the msexports container. Default: 0.
+    Optional. Number of days of data to retain in the msexports container. If not specified, keeps the current value (0 for new hubs).
 
     .PARAMETER IngestionRetentionInMonths
-    Optional. Number of months of data to retain in the ingestion container. Default: 13.
+    Optional. Number of months of data to retain in the ingestion container. If not specified, keeps the current value (13 for new hubs).
 
     .PARAMETER DataExplorerRawRetentionInDays
-    Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.
+    Optional. Number of days of data to retain in the Data Explorer *_raw tables. If not specified, keeps the current value (0 for new hubs).
 
     .PARAMETER DataExplorerFinalRetentionInMonths
-    Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.
+    Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. If not specified, keeps the current value (13 for new hubs).
 
     .PARAMETER NetworkMode
     Optional. Network mode for the hub: 'public' (default), 'vnet' (private endpoints, default outbound), or 'private' (private endpoints + NAT Gateway for controlled outbound access - required when the 'Subnets should be private' policy is enforced).
@@ -183,12 +183,12 @@ function Deploy-FinOpsHub
         [Parameter()]
         [ValidateRange(0, 9999)]
         [int]
-        $DataExplorerRawRetentionInDays = 0,
+        $DataExplorerRawRetentionInDays,
 
         [Parameter()]
         [ValidateRange(0, 999)]
         [int]
-        $DataExplorerFinalRetentionInMonths = 13,
+        $DataExplorerFinalRetentionInMonths,
 
         [Parameter()]
         [ValidateSet('public', 'vnet', 'private')]
@@ -218,12 +218,12 @@ function Deploy-FinOpsHub
         [Parameter()]
         [ValidateRange(0, 9999)]
         [int]
-        $ExportRetentionInDays = 0,
+        $ExportRetentionInDays,
 
         [Parameter()]
         [ValidateRange(0, 999)]
         [int]
-        $IngestionRetentionInMonths = 13
+        $IngestionRetentionInMonths
     )
 
     # Initialize toolkitPath before try block to ensure cleanup works even if early failure occurs
@@ -304,13 +304,27 @@ function Deploy-FinOpsHub
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerName', $DataExplorerName)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerSku', $DataExplorerSku)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerCapacity', $DataExplorerCapacity)
-                $parameterSplat.TemplateParameterObject.Add('dataExplorerRawRetentionInDays', $DataExplorerRawRetentionInDays)
-                $parameterSplat.TemplateParameterObject.Add('dataExplorerFinalRetentionInMonths', $DataExplorerFinalRetentionInMonths)
                 $parameterSplat.TemplateParameterObject.Add('enablePublicAccess', ($effectiveNetworkMode -eq 'public'))
                 $parameterSplat.TemplateParameterObject.Add('virtualNetworkAddressPrefix', $VirtualNetworkAddressPrefix)
-                $parameterSplat.TemplateParameterObject.Add('exportRetentionInDays', $ExportRetentionInDays)
-                $parameterSplat.TemplateParameterObject.Add('ingestionRetentionInMonths', $IngestionRetentionInMonths)
                 $parameterSplat.TemplateParameterObject.Add('scopesToMonitor', $ScopesToMonitor)
+
+                # Only pass retention when specified so a redeploy keeps the current values (#2206, #2348)
+                if ($PSBoundParameters.ContainsKey('DataExplorerRawRetentionInDays'))
+                {
+                    $parameterSplat.TemplateParameterObject.Add('dataExplorerRawRetentionInDays', $DataExplorerRawRetentionInDays)
+                }
+                if ($PSBoundParameters.ContainsKey('ExportRetentionInDays'))
+                {
+                    $parameterSplat.TemplateParameterObject.Add('exportRetentionInDays', $ExportRetentionInDays)
+                }
+                if ($PSBoundParameters.ContainsKey('IngestionRetentionInMonths'))
+                {
+                    $parameterSplat.TemplateParameterObject.Add('ingestionRetentionInMonths', $IngestionRetentionInMonths)
+                }
+                if ($PSBoundParameters.ContainsKey('DataExplorerFinalRetentionInMonths'))
+                {
+                    $parameterSplat.TemplateParameterObject.Add('dataExplorerFinalRetentionInMonths', $DataExplorerFinalRetentionInMonths)
+                }
             }
 
             if ($Version -eq 'latest' -or $templateVersion -ge '0.10')
