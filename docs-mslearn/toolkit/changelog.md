@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/23/2026
+ms.date: 10/25/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -75,6 +75,8 @@ _Released October 2026_
   - Fixed managed exports failing with an `Unauthorized` error because the Role Based Access Control Administrator role was never assigned to the Data Factory identity. Roles requested by a hub app are now assigned on the publisher storage account even when the app doesn't create the storage account itself ([#2253](https://github.com/microsoft/finops-toolkit/issues/2253)).
   - Fixed private-network deployments that Azure Policy blocked when `defaultOutboundAccess` was omitted. Private mode subnets now set it to `false`, while an Azure Files private endpoint supports deployment-script storage and the NAT Gateway provides required container egress ([#2258](https://github.com/microsoft/finops-toolkit/issues/2258), [#2259](https://github.com/microsoft/finops-toolkit/pull/2259)).
   - Fixed the v1_0 and v1_2 price transforms setting `x_CommitmentDiscountSpendEligibility` from reservation meters and `x_CommitmentDiscountUsageEligibility` from savings plan meters, the opposite of the FOCUS `CommitmentDiscountCategory` value the same transform assigns. The spend column now reports savings plan pricing and the usage column reports reservation pricing. Prices ingested after upgrading carry the corrected values; rows ingested earlier keep the old values until they are reingested ([#2279](https://github.com/microsoft/finops-toolkit/issues/2279)).
+  - Fixed the Reservations tab in the Rate optimization report showing no data for Microsoft Customer Agreement (MCA) accounts ([#1769](https://github.com/microsoft/finops-toolkit/issues/1769), [#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
+  - Fixed hub redeploys and upgrades resetting data retention to the defaults and purging historical data ([#2206](https://github.com/microsoft/finops-toolkit/issues/2206), [#2348](https://github.com/microsoft/finops-toolkit/issues/2348)).
 
 ### [Power BI reports](power-bi/reports.md) v15
 
@@ -132,6 +134,7 @@ _Released October 2026_
   - Fixed [Get-FinOpsCostExport](powershell/cost/get-finopscostexport.md) `-RunHistory` to return the complete run history ([#2063](https://github.com/microsoft/finops-toolkit/issues/2063)).
   - Bumped the `Az.Accounts` required-module minimum to 2.17.0 so dependency resolution can't land on a version missing the `Get-AzAccessToken -AsSecureString` parameter that `Invoke-Rest` relies on ([#2185](https://github.com/microsoft/finops-toolkit/issues/2185)).
   - Fixed [Start-FinOpsCostExport](powershell/cost/start-finopscostexport.md) exporting the wrong period for anyone running in a positive UTC offset. `-StartDate` and `-EndDate` are now treated as UTC calendar dates instead of being time zone converted, so the days you request are the days that get exported. Previously, local midnight converted to the previous UTC day, which moved the period back a day and made `-Backfill` run one extra month ([#2255](https://github.com/microsoft/finops-toolkit/issues/2255)).
+  - Fixed [Deploy-FinOpsHub](powershell/hubs/deploy-finopshub.md) failing when `-Version` is a single-part release tag like `13` or has a `v` prefix like `v14` ([#2293](https://github.com/microsoft/finops-toolkit/issues/2293)).
 
 ### [Open data](open-data.md) v15
 
