@@ -140,7 +140,7 @@ With release **v15** establishing the foundation for agentic FinOps, Azure capac
 
 ## PowerShell
 
-- Completed (v15) - FinOps Multitool ([PR #2155](https://github.com/microsoft/finops-toolkit/pull/2155)) – Interactive `Start-FinOpsMultitool` cross-platform terminal UI for FinOps scanning and exploration.<br>
+- In development - FinOps Explorer (was "FinOps Multitool") – Interactive `Start-FinOpsMultitool` cross-platform terminal UI for FinOps scanning and exploration.<br>
 - Completed (v15) - Open data commands ([PR #2298](https://github.com/microsoft/finops-toolkit/pull/2298)) – `Get-FinOpsCommitmentDiscountEligibility` and `Get-FinOpsInstanceSizeFlexibility` commands.<br>
 - Completed (v15) - Local FinOps hub initialization and export fixes ([PR #2187](https://github.com/microsoft/finops-toolkit/pull/2187), [Issue #2255](https://github.com/microsoft/finops-toolkit/issues/2255), [Issue #2063](https://github.com/microsoft/finops-toolkit/issues/2063), [PR #2304](https://github.com/microsoft/finops-toolkit/pull/2304)) – `Initialize-FinOpsHubLocal` for local Kusto emulator testing, UTC calendar date handling in `Start-FinOpsCostExport`, complete `-RunHistory`, and hub version parsing fixes.<br>
 - In development (v16) - FinOps Multitool diagnostics and generated docs ([Issue #2335](https://github.com/microsoft/finops-toolkit/issues/2335), [PR #935](https://github.com/microsoft/finops-toolkit/pull/935)) – Expand `Start-FinOpsMultitool` diagnostic accuracy, read-only test guards, and entry-point help, and generate PowerShell documentation from code.<br>
