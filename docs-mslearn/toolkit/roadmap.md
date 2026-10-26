@@ -111,7 +111,7 @@ With release **v15** establishing the foundation for agentic FinOps, Azure capac
 - Completed - Data ingestion report – Report to monitor FinOps hubs data ingestion and data quality warnings.<br>
 - Completed - Raw exports – Support for raw exports without FinOps hubs.<br>
 - Completed - Tags demo – Example of how to use tags.<br>
-- Completed - KQL and Microsoft Fabric reports – DirectQuery reports for Azure Data Explorer and Microsoft Fabric Real-Time Intelligence, plus OneLake storage support.<br>
+- Completed - KQL and Microsoft Fabric reports – DirectQuery reports for Azure Data Explorer and Microsoft Fabric Real-Time Intelligence.<br>
 - Completed - Expanded report suite – Governance, Workload optimization, Rate optimization, and Invoicing and chargeback reports.<br>
 - Completed (v15) - Azure Resource Graph pagination and FOCUS 1.2 storage compatibility ([Issue #1768](https://github.com/microsoft/finops-toolkit/issues/1768), [Issue #2174](https://github.com/microsoft/finops-toolkit/issues/2174), [Issue #2332](https://github.com/microsoft/finops-toolkit/issues/2332), [Issue #2347](https://github.com/microsoft/finops-toolkit/issues/2347)) – Subscription-batched Resource Graph pagination in Governance and Workload optimization reports, FOCUS 1.2 `SkuMeter` and ISO 8601 `x_SkuTerm` compatibility, and instance size flexibility open data integration.<br>
 - In development (v16) - FOCUS 1.4 schema update ([PR #2209](https://github.com/microsoft/finops-toolkit/pull/2209)) – Update Power BI reports to the FOCUS 1.4 (`v1_4`) schema.<br>
