@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/26/2026
+ms.date: 10/25/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -61,6 +61,7 @@ _Released October 2026_
   - Replaced redundant `tolower()` comparisons in hub KQL with case-insensitive operators (`has`, `=~`, `!~`) so the engine can use the term index instead of scanning every row ([#2213](https://github.com/microsoft/finops-toolkit/issues/2213)).
   - Replaced whole-term `contains` matches with `has` across hub KQL and the query catalog (resource ID paths, licensing phrases, SKU description terms) and added a per-row operator-equivalence regression harness with unit test coverage ([#2220](https://github.com/microsoft/finops-toolkit/pull/2220)).
   - Switched dimension enrichment in the v1_0/v1_2 ingestion transforms (`PricingUnits`, `Regions`, `ResourceTypes`, `Services`) from `join` to the broadcast-optimized `lookup` operator and deduplicated the `Services` mapping per resource type to prevent cost row fan-out ([#2225](https://github.com/microsoft/finops-toolkit/pull/2225)).
+  - Updated the FinOps hubs data model and upgrade documentation for upgrading across multiple FOCUS versions ([#2123](https://github.com/microsoft/finops-toolkit/pull/2123)).
 - **Fixed**
   - Fixed FinOps hubs labeling FOCUS 1.0 cost data as FOCUS 1.2 in `x_SourceVersion`. The cost transform backfilled `PricingCurrency` from `x_PricingCurrency` before detecting the FOCUS version, so every 1.0 row looked like 1.2 and skipped the 1.0-specific fixes (for example, the savings plan purchase `ChargeFrequency` correction). Version detection now uses the value delivered by the export ([#2333](https://github.com/microsoft/finops-toolkit/pull/2333)).
   - Fixed FinOps hub dashboard "Governance, policy, and risk" and "FinOps tools and services" links that landed on a 404 page by linking directly to the Microsoft Learn pages ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
