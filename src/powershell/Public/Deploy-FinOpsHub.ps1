@@ -248,7 +248,8 @@ function Deploy-FinOpsHub
         }
 
         # Create folder for download
-        $toolkitPath = Join-Path ([System.IO.Path]::GetTempPath()) -ChildPath 'FinOpsToolkit'
+        # Each deployment gets its own folder, so deployments running at the same time don't delete each other's files
+        $toolkitPath = Join-Path ([System.IO.Path]::GetTempPath()) -ChildPath "FinOpsToolkit-$([guid]::NewGuid().ToString('N').Substring(0, 8))"
         if (Test-ShouldProcess $PSCmdlet $toolkitPath 'CreateTempDirectory')
         {
             New-Directory -Path $toolkitPath
@@ -261,8 +262,14 @@ function Deploy-FinOpsHub
         $effectiveNetworkMode = if ($NetworkMode) { $NetworkMode } elseif ($DisablePublicAccess) { 'vnet' } else { 'public' }
         if (-not $NetworkMode -and $DisablePublicAccess) { Write-Warning "-DisablePublicAccess is deprecated; use -NetworkMode 'vnet' or -NetworkMode 'private'." }
 
+        # Accept a "v" prefix (for example, v14 or v14.0); releases are matched without it
+        $Version = $Version -replace '^v', ''
+
+        # Releases are listed with just a major number (for example, 14), which is not a valid version on its own
+        $templateVersion = if ($Version -ne 'latest') { [version]($Version -replace '^(\d+)$', '$1.0') }
+
         # Private network mode (NAT Gateway) requires hub template version 15.0 or later
-        if ($effectiveNetworkMode -eq 'private' -and $Version -ne 'latest' -and [version]$Version -lt '15.0')
+        if ($effectiveNetworkMode -eq 'private' -and $Version -ne 'latest' -and $templateVersion -lt '15.0')
         {
             throw "NAT Gateway / private network mode requires hub template version 15.0 or later. Current version: $Version"
         }
@@ -285,13 +292,13 @@ function Deploy-FinOpsHub
                 }
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '0.4')
+            if ($Version -eq 'latest' -or $templateVersion -ge '0.4')
             {
                 $parameterSplat.TemplateParameterObject.Add('remoteHubStorageUri', $RemoteHubStorageUri)
                 $parameterSplat.TemplateParameterObject.Add('remoteHubStorageKey', $RemoteHubStorageKey)
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '0.7')
+            if ($Version -eq 'latest' -or $templateVersion -ge '0.7')
             {
                 $parameterSplat.TemplateParameterObject.Add('enableInfrastructureEncryption', $EnableInfrastructureEncryption.IsPresent)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerName', $DataExplorerName)
@@ -320,25 +327,25 @@ function Deploy-FinOpsHub
                 }
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '0.10')
+            if ($Version -eq 'latest' -or $templateVersion -ge '0.10')
             {
                 $parameterSplat.TemplateParameterObject.Add('fabricQueryUri', $FabricQueryUri)
                 $parameterSplat.TemplateParameterObject.Add('fabricCapacityUnits', $FabricCapacityUnits)
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '12.0')
+            if ($Version -eq 'latest' -or $templateVersion -ge '12.0')
             {
                 $parameterSplat.TemplateParameterObject.Add('enableManagedExports', $EnableManagedExports.IsPresent)
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '13.0')
+            if ($Version -eq 'latest' -or $templateVersion -ge '13.0')
             {
                 $parameterSplat.TemplateParameterObject.Add('enablePurgeProtection', $EnablePurgeProtection.IsPresent)
             }
 
             # Only pass enableNatGateway when private mode is requested. This keeps public/vnet
             # deployments compatible with template versions that predate the parameter.
-            if ($effectiveNetworkMode -eq 'private' -and ($Version -eq 'latest' -or [version]$Version -ge '15.0'))
+            if ($effectiveNetworkMode -eq 'private' -and ($Version -eq 'latest' -or $templateVersion -ge '15.0'))
             {
                 $parameterSplat.TemplateParameterObject.Add('enableNatGateway', $true)
             }
