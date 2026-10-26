@@ -36,7 +36,7 @@ _Released October 2026_
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v15
 
 - **Added**
-  - Added a [FinOps toolkit ecosystem page](https://microsoft.github.io/finops-toolkit/ecosystem) listing independent tools and organizations that build on or support the toolkit.
+  - Added a [FinOps toolkit ecosystem page](https://microsoft.github.io/finops-toolkit/ecosystem) listing independent tools and organizations that build on or support the FinOps toolkit.
 - **Changed**
   - Updated guidance to use current FinOps Framework capability names, like Usage optimization and Governance, policy, and risk.
     - Capability names and links were aligned across the guidance.
