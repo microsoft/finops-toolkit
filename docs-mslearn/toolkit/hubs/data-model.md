@@ -3,7 +3,7 @@ title: FinOps hubs data model
 description: Learn about the tables and functions available in FinOps hubs to build your own queries, reports, and dashboards.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 10/26/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -642,6 +642,15 @@ Columns in the **Prices** managed dataset include:
 | SkuMeter                             | String    | New in FOCUS 1.2. Renamed from x_SkuMeterName.    |
 | SkuPriceId                           | String    |                                                   |
 | SkuPriceIdv2                         | String    | Source: Hubs add-on.                              |
+
+### FOCUS 1.5 SKU prices preview
+
+A draft of the FOCUS 1.5 SKU Price dataset is available in the `src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/preview/SkuPrices_v1_5` folder of the [FinOps toolkit repository](https://github.com/microsoft/finops-toolkit). It isn't deployed with FinOps hubs and may change before release. The preview builds 2 tables from **Prices_final_v1_2** in the **Ingestion** database:
+
+- **SkuPrices_v1_5** has one row per SKU price and price type (`x_UnitPriceType` of List, Base, Contracted, or Effective) with effective start and end dates.
+- **SkuPricesWide_v1_5** has the same prices with each price type in its own column.
+
+To try it, run `Build-SkuPrices.ps1` against your hub, then `Test-SkuPrices.ps1` to validate the results. See the README in that folder for mapping decisions and known gaps.
 | x_BaseUnitPrice                      | Real      | Source: Microsoft.                                |
 | x_BillingAccountAgreement            | String    | Source: Hubs add-on.                              |
 | x_BillingAccountId                   | String    | Source: Microsoft, MCA only.                      |

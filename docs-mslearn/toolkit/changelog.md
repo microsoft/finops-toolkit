@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 09/11/2026
+ms.date: 10/26/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -29,6 +29,7 @@ The following section lists features and enhancements that are currently in deve
 
 - **Added**
   - Added VNet and private network modes, including opt-in NAT Gateway support for private mode; NAT Gateway incurs additional cost when enabled ([#2163](https://github.com/microsoft/finops-toolkit/pull/2163)).
+  - Added a draft FOCUS 1.5 SKU Price preview (`SkuPrices_v1_5` and `SkuPricesWide_v1_5`) with validation and scenario scripts under `Analytics/preview/SkuPrices_v1_5`. The preview is not deployed with FinOps hubs; run it manually against a hub ([#2339](https://github.com/microsoft/finops-toolkit/pull/2339)).
 - **Changed**
   - Clarified that the FinOps toolkit exclusively manages the FinOps hub virtual network and documented customer-managed private endpoints as the preferred private-access topology, with virtual network peering as a secondary option ([#2156](https://github.com/microsoft/finops-toolkit/issues/2156)).
   - Replaced redundant `tolower()` comparisons in hub KQL with case-insensitive operators (`has`, `=~`, `!~`) so the engine can use the term index instead of scanning every row ([#2213](https://github.com/microsoft/finops-toolkit/issues/2213)).
