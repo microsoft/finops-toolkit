@@ -159,7 +159,7 @@ With release **v15** establishing the foundation for agentic FinOps, Azure capac
 
 ## New tools
 
-- Completed - **New tool**: FinOps alerts ([Milestone #24](https://github.com/microsoft/finops-toolkit/milestone/24)) – Automated budget and anomaly alert notifications.<br>
+- Completed - **New tool**: FinOps alerts ([Milestone #24](https://github.com/microsoft/finops-toolkit/milestone/24)) – Automated idle-resource detection and cost optimization notifications.<br>
 
 <br>
 
