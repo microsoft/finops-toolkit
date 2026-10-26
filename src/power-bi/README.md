@@ -4,6 +4,7 @@ On this page:
 
 - [� Prerequisites](#-prerequisites)
 - [📐 Design guidelines](#-design-guidelines)
+- [🌐 Community reports](#-community-reports)
 - [ℹ️ Cost Management template app](#ℹ️-cost-management-template-app)
 
 ---
@@ -73,6 +74,17 @@ Power BI reports in the FinOps toolkit must adhere to the following guidelines:
 
 > [!NOTE]
 > Remember: These are general rules of thumb for consistency. They are not set in stone. Please propose updates by submitting a PR, starting a discussion, or creating an issue. In general, use your best judgement to make the report as useful as possible. We just want everything to feel consistent and familiar.
+
+<br>
+
+## 🌐 Community reports
+
+In addition to official FinOps toolkit reports, the community has contributed specialized reports for specific use cases and industries. Community reports are maintained by their contributors and provided "AS IS" without formal support from the FinOps toolkit team.
+
+For a full list of available community reports and contribution guidelines, see the [community reports directory](community/README.md).
+
+> [!IMPORTANT]
+> Community reports are not officially maintained by the FinOps toolkit team. Each report is the responsibility of its contributor. Quality, compatibility, and ongoing maintenance may vary.
 
 <br>
 
