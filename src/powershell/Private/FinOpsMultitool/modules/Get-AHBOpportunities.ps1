@@ -13,10 +13,10 @@ param()
 #          using Azure Hybrid Benefit (AHB) but could be. AHB saves up
 #          to 85% on Windows Server and SQL Server licensing costs.
 #
-# Eligible resources:
+# Configuration candidates (license entitlement requires separate verification):
 #   - Windows VMs without licenseType = 'Windows_Server'
 #   - SQL Server VMs without licenseType = 'AHUB'
-#   - SQL Databases/Managed Instances without licenseType = 'BasePrice'
+#   - Provisioned vCore SQL Databases without licenseType = 'BasePrice'
 #
 # Reference: https://learn.microsoft.com/en-us/azure/azure-sql/azure-hybrid-benefit
 ###########################################################################
@@ -33,7 +33,7 @@ function Get-AHBOpportunities {
     # -- Windows VMs without AHB ----------------------------------------
     $windowsVMs = @()
     try {
-        Write-Host "  Scanning Windows VMs for AHB eligibility..." -ForegroundColor Cyan
+        Write-Host "  Scanning Windows VMs for AHB candidates..." -ForegroundColor Cyan
         $vmQuery = @"
 resources
 | where type == 'microsoft.compute/virtualmachines'
@@ -46,7 +46,8 @@ resources
 | order by subscriptionId asc, name asc
 "@
         $result = Search-AzGraphSafe -Query $vmQuery -Subscription $subIds -First 1000 -All
-        $windowsVMs = if ($result) { @($result.Data) } else { @() }
+        if ($null -eq $result -or $null -eq $result.Data) { throw 'Resource Graph response is unreadable.' }
+        $windowsVMs = @($result.Data)
     }
     catch {
         throw "Windows VM AHB inventory is incomplete: $($_.Exception.Message)"
@@ -65,7 +66,7 @@ resources
     # -- SQL Server VMs without AHB -------------------------------------
     $sqlVMs = @()
     try {
-        Write-Host "  Scanning SQL Server VMs for AHB eligibility..." -ForegroundColor Cyan
+        Write-Host "  Scanning SQL Server VMs for AHB candidates..." -ForegroundColor Cyan
         $sqlVMQuery = @"
 resources
 | where type == 'microsoft.sqlvirtualmachine/sqlvirtualmachines'
@@ -76,7 +77,8 @@ resources
 | order by subscriptionId asc, name asc
 "@
         $result = Search-AzGraphSafe -Query $sqlVMQuery -Subscription $subIds -First 1000 -All
-        $sqlVMs = if ($result) { @($result.Data) } else { @() }
+        if ($null -eq $result -or $null -eq $result.Data) { throw 'Resource Graph response is unreadable.' }
+        $sqlVMs = @($result.Data)
     }
     catch {
         throw "SQL VM AHB inventory is incomplete: $($_.Exception.Message)"
@@ -85,11 +87,16 @@ resources
     # -- SQL Databases without AHB --------------------------------------
     $sqlDBs = @()
     try {
-        Write-Host "  Scanning SQL Databases for AHB eligibility..." -ForegroundColor Cyan
+        Write-Host "  Scanning SQL Databases for AHB candidates..." -ForegroundColor Cyan
         $sqlDBQuery = @"
 resources
 | where type == 'microsoft.sql/servers/databases'
-| where sku.tier != 'Free' and name != 'master'
+| where sku.tier in~ ('GeneralPurpose', 'BusinessCritical', 'Hyperscale')
+| where sku.name matches regex '(?i)^(GP|BC|HS)_'
+| where not(sku.name matches regex '(?i)^(GP|BC|HS)_S_')
+| where isempty(properties.computeModel) or properties.computeModel !~ 'Serverless'
+| where isempty(kind) or kind !has 'serverless'
+| where name !~ 'master' and name !endswith '/master'
 | where isempty(properties.licenseType) or properties.licenseType !~ 'BasePrice'
 | project id, name, resourceGroup, subscriptionId, location,
           currentLicense = coalesce(tostring(properties.licenseType), 'LicenseIncluded'),
@@ -98,7 +105,8 @@ resources
 | order by subscriptionId asc, name asc
 "@
         $result = Search-AzGraphSafe -Query $sqlDBQuery -Subscription $subIds -First 1000 -All
-        $sqlDBs = if ($result) { @($result.Data) } else { @() }
+        if ($null -eq $result -or $null -eq $result.Data) { throw 'Resource Graph response is unreadable.' }
+        $sqlDBs = @($result.Data)
     }
     catch {
         throw "SQL Database AHB inventory is incomplete: $($_.Exception.Message)"
@@ -117,6 +125,7 @@ resources
         EstMonthlyVMSavings = [math]::Round($ahbVMSavings, 2)
         SavingsCurrency     = 'USD'
         SavingsPeriod       = '730-hour estimate for current VM inventory'
-        Summary             = "Found $($windowsVMs.Count) Windows VMs, $($sqlVMs.Count) SQL VMs, $($sqlDBs.Count) SQL DBs eligible for AHB"
+        Note                = 'Configuration candidates only. Verify qualifying licenses, available entitlement, and service eligibility with your licensing team before enabling Azure Hybrid Benefit.'
+        Summary             = "Found $($windowsVMs.Count) Windows VMs, $($sqlVMs.Count) SQL VMs, $($sqlDBs.Count) provisioned vCore SQL DBs to review for AHB"
     }
 }

@@ -88,9 +88,15 @@ Describe 'FinOps Hub Kusto provider' {
             }
         }
 
-        It 'Keeps a valid zero-row table as successful empty data' -Tag 'ProviderTransport' {
-            InModuleScope FinOpsMultitool {
-                Mock Invoke-RestMethod { '{"Tables":[{"TableName":"PrimaryResult","Columns":[{"ColumnName":"Actual"}],"Rows":[]}]}' | ConvertFrom-Json }
+        It 'Keeps a valid zero-row table as successful empty data for <ResponseForm>' -Tag 'ProviderTransport' -ForEach @(
+            @{ ResponseForm = 'object' }
+            @{ ResponseForm = 'JSON text' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ ResponseForm = $ResponseForm } {
+                param($ResponseForm)
+                $fixtureResponse = '{"Tables":[{"TableName":"PrimaryResult","Columns":[{"ColumnName":"Actual"}],"Rows":[]}]}'
+                if ($ResponseForm -eq 'object') { $fixtureResponse = $fixtureResponse | ConvertFrom-Json }
+                Mock Invoke-RestMethod { $fixtureResponse }
 
                 $result = Invoke-FOHubKustoQuery -ClusterUri 'http://localhost:8082' -Query 'print Actual=0 | take 0'
 
@@ -98,6 +104,43 @@ Describe 'FinOps Hub Kusto provider' {
                 $result.RowCount | Should -Be 0
                 @($result.Rows).Count | Should -Be 0
                 $result.Error | Should -BeNullOrEmpty
+            }
+        }
+
+        It 'Preserves case-distinct dynamic keys in JSON text responses' -Tag 'ProviderTransport' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-RestMethod {
+                    '{"Tables":[{"Columns":[{"ColumnName":"Tags"},{"ColumnName":"Actual"}],"Rows":[[{"Project":"first","project":"second"},-12.5]]}]}'
+                }
+
+                $result = Invoke-FOHubKustoQuery -ClusterUri 'http://localhost:8082' -Query 'Costs | take 1'
+
+                $result.Ok | Should -BeTrue
+                $result.RowCount | Should -Be 1
+                $result.Rows[0].Actual | Should -Be -12.5
+                $result.Rows[0].Tags.Count | Should -Be 2
+                $result.Rows[0].Tags['Project'] | Should -BeExactly 'first'
+                $result.Rows[0].Tags['project'] | Should -BeExactly 'second'
+            }
+        }
+
+        It 'Rejects JSON text with <Case> without returning partial rows' -Tag 'ProviderTransport' -ForEach @(
+            @{ Case = 'invalid JSON'; Response = '{"Tables":[' }
+            @{ Case = 'missing tables'; Response = '{}' }
+            @{ Case = 'array root'; Response = '[{"Tables":[{"Columns":[{"ColumnName":"Cost"}],"Rows":[[10]]}]}]' }
+            @{ Case = 'case-colliding columns'; Response = '{"Tables":[{"Columns":[{"ColumnName":"Cost"},{"ColumnName":"cost"}],"Rows":[[10,20]]}]}' }
+            @{ Case = 'partial query failure'; Response = '{"Tables":[{"Columns":[{"ColumnName":"Actual"}],"Rows":[[10]]},{"TableName":"QueryStatus","Columns":[{"ColumnName":"Severity"},{"ColumnName":"StatusDescription"}],"Rows":[[2,"Partial query failure"]]}]}' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Response = $Response } {
+                param($Response)
+                Mock Invoke-RestMethod { $Response }
+
+                $result = Invoke-FOHubKustoQuery -ClusterUri 'http://localhost:8082' -Query 'print Actual=10'
+
+                $result.Ok | Should -BeFalse
+                $result.RowCount | Should -Be 0
+                @($result.Rows).Count | Should -Be 0
+                $result.Error | Should -Not -BeNullOrEmpty
             }
         }
 

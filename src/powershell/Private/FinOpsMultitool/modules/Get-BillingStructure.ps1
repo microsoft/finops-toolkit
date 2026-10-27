@@ -172,7 +172,7 @@ function Get-BillingStructure {
                     foreach ($rule in $carResult.value) {
                         $rProps = $rule.properties
                         $costAllocationRules += [PSCustomObject]@{
-                            RuleName       = $rProps.name
+                            RuleName       = $rule.name
                             Description    = $rProps.description
                             Status         = $rProps.status
                             BillingAccount = $ba.DisplayName

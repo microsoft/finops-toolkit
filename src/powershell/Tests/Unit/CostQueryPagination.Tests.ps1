@@ -750,12 +750,12 @@ Describe 'Cost Management query pagination' {
                     [void]$queryBodies.Add(($Payload | ConvertFrom-Json))
                     $rows = @(
                         if ($Path -like '*page=2') {
-                            , @(20.0, $databaseId, 'fixture', 'USD')
-                            , @(30.0, $reservationId, '', 'USD')
-                            , @(40.0, $reservationGroupId, '', 'USD')
-                            , @(50.0, '', '', 'USD')
+                            , @(-1.015, $databaseId, 'fixture', 'USD')
+                            , @(1.025, $reservationId, '', 'USD')
+                            , @(0.0, $reservationGroupId, '', 'USD')
+                            , @(149.0, '', '', 'USD')
                         }
-                        else { , @(10.0, $vmId, 'fixture', 'USD') }
+                        else { , @(1.015, $vmId, 'fixture', 'USD') }
                     )
                     $properties = @{
                         columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' }, @{ name = 'ResourceGroupName' }, @{ name = 'Currency' })
@@ -765,13 +765,18 @@ Describe 'Cost Management query pagination' {
                     [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
                 }
                 $subscriptions = @([pscustomobject]@{ Id = $subId; Name = 'Example subscription'; TenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' })
-                $costData = @{ $subId = @{ Actual = 150; Forecast = 150; ForecastSource = 'Forecast'; Currency = 'USD' } }
+                $costData = @{ $subId = @{ Actual = 150.02; Forecast = 300.04; ForecastSource = 'Forecast'; Currency = 'USD' } }
 
                 $rows = @(Get-ResourceCosts -Subscriptions $subscriptions -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -CostData $costData -RestrictToSelected)
 
                 $rows.Count | Should -Be 5
-                ($rows | Measure-Object Actual -Sum).Sum | Should -Be 150
+                ($rows | Measure-Object Actual -Sum).Sum | Should -Be 150.02
                 foreach ($row in $rows) {
+                    $row.Actual | Should -BeOfType ([double])
+                    $unattributedMgRow = $fixturePath -eq 'ManagementGroup' -and -not $row.SubscriptionId
+                    $forecastRatio = if ($unattributedMgRow) { 31 } else { 2 }
+                    $row.Forecast | Should -Be ([math]::Round($row.Actual * $forecastRatio, 2))
+                    $row.ForecastSource | Should -Be $(if ($unattributedMgRow) { 'Linear projection' } else { 'Forecast' })
                     $row.ActualPeriodStart | Should -Be ([datetime]::new(2026, 10, 1, 0, 0, 0, [DateTimeKind]::Utc))
                     $row.ActualPeriodEnd | Should -Be $capturedUtc
                     $row.ActualPeriodSource | Should -Be 'Query window'
@@ -785,20 +790,25 @@ Describe 'Cost Management query pagination' {
                     $body.type | Should -Be 'ActualCost'
                 }
                 $vm = $rows | Where-Object ResourcePath -EQ $vmId
+                $vm.Actual | Should -Be 1.02
                 $vm.SubscriptionId | Should -Be $subId
                 $vm.Subscription | Should -Be 'Example subscription'
                 $vm.ResourceName | Should -Be 'fixture-vm'
                 $vm.ResourceType | Should -Be 'Virtual Machine'
                 $database = $rows | Where-Object ResourcePath -EQ $databaseId
+                $database.Actual | Should -Be -1.02
                 $database.ResourceName | Should -Be 'fixture-db'
                 $database.ResourceType | Should -Be 'SQL Database'
                 $reservation = $rows | Where-Object ResourcePath -EQ $reservationId
+                $reservation.Actual | Should -Be 1.02
                 $reservation.ResourceName | Should -Be 'fixture-reservation'
                 $reservation.ResourceType | Should -Be 'Reservation charge'
                 $reservationGroup = $rows | Where-Object ResourcePath -EQ $reservationGroupId
+                $reservationGroup.Actual | Should -Be 0
                 $reservationGroup.ResourceName | Should -Be 'Reservation charge (order fixture-order)'
                 $reservationGroup.ResourceType | Should -Be 'Reservation charge'
                 $unattributed = $rows | Where-Object { [string]::IsNullOrWhiteSpace($_.ResourcePath) }
+                $unattributed.Actual | Should -Be 149
                 $unattributed.ResourceType | Should -Be 'Unattributed charge'
                 $unattributed.ResourceName | Should -Be 'No resource ID recorded'
                 foreach ($charge in @($reservation, $reservationGroup, $unattributed)) {
@@ -1056,22 +1066,41 @@ Describe 'Cost Management query pagination' {
             }
         }
 
-        It 'Keeps Hub model token rows distinct by account without live requests' -Tag 'AIReconciliation' {
-            InModuleScope FinOpsMultitool {
+        It 'Keeps Hub model token rows distinct by account with <TypeCase> without live requests' -Tag 'AIReconciliation' -ForEach @(
+            @{ TypeCase = 'canonical FOCUS extension'; ResourceType = 'Azure AI services'; ExtensionType = 'Microsoft.CognitiveServices/accounts' }
+            @{ TypeCase = 'legacy resource type'; ResourceType = 'microsoft.cognitiveservices/accounts'; ExtensionType = $null }
+            @{ TypeCase = 'blank extension fallback'; ResourceType = 'microsoft.cognitiveservices/accounts'; ExtensionType = '' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ ResourceType = $ResourceType; ExtensionType = $ExtensionType } {
+                param($ResourceType, $ExtensionType)
                 Mock Invoke-AzRestMethodWithRetry { throw 'No live cost calls are allowed.' }
                 Mock Invoke-WebRequest { throw 'No live metric calls are allowed.' }
                 $hubRows = @(foreach ($accountName in @('first', 'second')) {
                     $subscriptionId = if ($accountName -eq 'first') { '11111111-1111-1111-1111-111111111111' } else { '22222222-2222-2222-2222-222222222222' }
-                    [pscustomobject]@{
+                    $values = [ordered]@{
                         SubAccountId = $subscriptionId; ResourceName = $accountName
                         ResourceId = "/subscriptions/$subscriptionId/resourceGroups/fixture/providers/Microsoft.CognitiveServices/accounts/$accountName"
-                        ResourceType = 'microsoft.cognitiveservices/accounts'; EffectiveCost = 100; BilledCost = 100; BillingCurrency = 'USD'
-                        ChargePeriodStart = '2026-09-01'; ConsumedQuantity = 10; ConsumedUnit = '1K tokens'; x_SkuMeterName = 'gpt-example input tokens'
+                        ResourceType = $ResourceType; EffectiveCost = 100; BilledCost = 100; BillingCurrency = 'USD'
+                        ChargePeriodStart = '2026-09-01'; ConsumedQuantity = 10; ConsumedUnit = '1K tokens'; x_SkuDescription = 'gpt-example input tokens'
                     }
+                    if ($null -ne $ExtensionType) { $values.x_ResourceType = $ExtensionType }
+                    [pscustomobject]$values
                 })
+                $other = $hubRows[0].PSObject.Copy()
+                $other.ResourceId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Storage/storageAccounts/other'
+                $other.ResourceName = 'other'
+                $other.ResourceType = if ($null -eq $ExtensionType) { 'Microsoft.Storage/storageAccounts' } else { 'microsoft.cognitiveservices/accounts' }
+                if ($null -ne $ExtensionType) { $other.x_ResourceType = 'Microsoft.Storage/storageAccounts' }
+                $other.EffectiveCost = 900
+                $other.BilledCost = 900
+                $hubRows += $other
+                $inputBefore = $hubRows | ConvertTo-Json -Depth 5
 
                 $result = ConvertTo-AIHubAggregates -HubData $hubRows
 
+                ($hubRows | ConvertTo-Json -Depth 5) | Should -BeExactly $inputBefore
+                $result.CostByAcct.Count | Should -Be 2
+                $result.AICost | Should -Be 200
                 $result.ModelTokens.Count | Should -Be 2
                 @($result.ModelTokens.Values.Deployment | Select-Object -Unique).Count | Should -Be 1
                 @($result.ModelTokens.Values.ResourceId | Select-Object -Unique).Count | Should -Be 2
@@ -1998,6 +2027,92 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
         }
     }
 
+    Context 'Selected cost scope discovery' {
+        It 'Filters every financial probe to the selected subscriptions (root readable: <RootReadable>)' -ForEach @(
+            @{ RootReadable = $true; ExpectedProbes = 1 }
+            @{ RootReadable = $false; ExpectedProbes = 2 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ RootReadable = $RootReadable; ExpectedProbes = $ExpectedProbes } {
+                param($RootReadable, $ExpectedProbes)
+                Reset-CostMgScope
+                $tenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222' }
+                )
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Method -eq 'GET') { return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[{"name":"child"}]}' } }
+                    $filter = ($Payload | ConvertFrom-Json).dataset.filter.dimensions
+                    $filter.name | Should -Be 'SubscriptionId'
+                    $filter.operator | Should -Be 'In'
+                    @($filter.values).Count | Should -Be 2
+                    $filter.values | Should -Contain $subscriptions[0].Id
+                    $filter.values | Should -Contain $subscriptions[1].Id
+                    [pscustomobject]@{ StatusCode = $(if ($RootReadable -or $Path -like '*/child/*') { 200 } else { 403 }); Content = '{}' }
+                }
+                try {
+                    Resolve-CostMgId -TenantId $tenantId -Subscriptions $subscriptions | Should -Be $(if ($RootReadable) { $tenantId } else { 'child' })
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times $ExpectedProbes -Exactly -ParameterFilter { $Method -eq 'POST' }
+                }
+                finally { Reset-CostMgScope }
+            }
+        }
+
+        It 'Uses the existing direct paths for a single selected subscription without probing' {
+            InModuleScope FinOpsMultitool {
+                Reset-CostMgScope
+                Mock Invoke-AzRestMethodWithRetry { throw 'A single subscription must not trigger management-group discovery.' }
+                try {
+                    Resolve-CostMgId -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions @(
+                        [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111' }
+                    ) | Should -BeNullOrEmpty
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly
+                }
+                finally { Reset-CostMgScope }
+            }
+        }
+
+        It 'Separates selection caches without clearing the tenant throttle window' {
+            InModuleScope FinOpsMultitool {
+                Reset-CostMgScope
+                $tenantId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                $first = [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111' }
+                $second = [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222' }
+                $third = [pscustomobject]@{ Id = '33333333-3333-3333-3333-333333333333' }
+                Mock Write-Host { }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Method -eq 'GET') { return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' } }
+                    $ids = @((($Payload | ConvertFrom-Json).dataset.filter.dimensions).values)
+                    [pscustomobject]@{ StatusCode = $(if ($ids -contains $third.Id) { 200 } else { 403 }); Content = '{}' }
+                }
+                try {
+                    Resolve-CostMgId -TenantId $tenantId -Subscriptions @($first, $second) | Should -BeNullOrEmpty
+                    Test-MgCostScope | Should -BeFalse
+                    Register-CostMgmtThrottle -Key 'query' -Seconds 3600
+                    Resolve-CostMgId -TenantId $tenantId -Subscriptions @($first, $third) | Should -Be $tenantId
+                    Test-MgCostScope | Should -BeTrue
+                    (Get-CostMgmtThrottleRemaining -Key 'query') | Should -BeGreaterThan 3500
+                    Resolve-CostMgId -TenantId $tenantId -Subscriptions @($third, $first) | Should -Be $tenantId
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter { $Method -eq 'POST' }
+                }
+                finally { Reset-CostMgScope }
+            }
+        }
+
+        It 'Rejects a selection without IDs instead of probing unfiltered' {
+            InModuleScope FinOpsMultitool {
+                Reset-CostMgScope
+                Mock Invoke-AzRestMethodWithRetry { throw 'Invalid selection must not send a financial probe.' }
+                try {
+                    { Resolve-CostMgId -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions @([pscustomobject]@{ Name = 'Missing ID' }) } |
+                        Should -Throw '*requires subscription IDs*'
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly
+                }
+                finally { Reset-CostMgScope }
+            }
+        }
+    }
+
     Context 'Paged billing discovery' {
         It 'Retains incomplete membership evidence after a partial <FailurePath> match' -Tag 'CommitmentScopeCoverage' -ForEach @(
             @{ FailurePath = 'membership page' }
@@ -2170,7 +2285,7 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
                     $pageNumber = if ($Path -like '*page=2') { 2 } else { 1 }
                     if ($failSection -and $Path -like '*invoiceSections*page=2') { return [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
                     $name = "fixture-$pageNumber"
-                    $properties = @{ displayName = $name; name = $name; agreementType = $(if ($pageNumber -eq 1) { 'EnterpriseAgreement' } else { 'MicrosoftCustomerAgreement' }) }
+                    $properties = @{ displayName = $name; agreementType = $(if ($pageNumber -eq 1) { 'EnterpriseAgreement' } else { 'MicrosoftCustomerAgreement' }) }
                     $body = @{ value = @(@{ name = $name; id = (($Path -split '\?')[0] + "/$name"); properties = $properties }) }
                     if ($pageNumber -eq 1) { $body.nextLink = "$Path&page=2" }
                     [pscustomobject]@{ StatusCode = 200; Content = ($body | ConvertTo-Json -Depth 8) }
@@ -2182,6 +2297,8 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
                 $result.BillingProfiles.Count | Should -Be 2
                 $result.EADepartments.Count | Should -Be 2
                 $result.CostAllocationRules.Count | Should -Be 4
+                @($result.CostAllocationRules | Where-Object RuleName -EQ 'fixture-1').Count | Should -Be 2
+                @($result.CostAllocationRules | Where-Object RuleName -EQ 'fixture-2').Count | Should -Be 2
                 $result.CoverageIncomplete | Should -Be $PageFails
                 if ($PageFails) {
                     $result.InvoiceSections | Should -BeNullOrEmpty

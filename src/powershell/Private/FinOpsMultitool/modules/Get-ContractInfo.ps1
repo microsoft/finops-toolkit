@@ -79,52 +79,27 @@ function Get-ContractInfo {
         }
     }
 
-    # -- Step 2: Try billing accounts API, filtered by inferred type -----
+    # -- Step 2: Resolve the billing account from subscription ownership --
     try {
+        if (-not ($subsToCheck | Where-Object { $_ -and -not [string]::IsNullOrWhiteSpace([string]$_.Id) })) {
+            throw 'No subscription ID is available to confirm billing account ownership.'
+        }
         $response = Invoke-AzRestMethodWithRetry -Path "/providers/Microsoft.Billing/billingAccounts?api-version=2024-04-01" -Method GET
         $result = Get-FinOpsListResult -FirstResponse $response -Context 'contract billing accounts'
 
         if ($result.value -and $result.value.Count -gt 0) {
-            $matchedAccount = $null
-
-            # Billing accounts are visible across every tenant the signed-in
-            # identity can reach, and even a single visible account can belong to
-            # another tenant. Picking by agreement type alone can surface an
-            # unrelated account, so confirm the account owns one of the scanned
-            # subscriptions before trusting it. Prefer the inferred agreement.
-            $scanIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
-            foreach ($sc in $subsToCheck) { if ($sc.Id) { [void]$scanIds.Add([string]$sc.Id) } }
-
-            $candidates = if ($inferredAgreement) {
-                @($result.value | Where-Object { $_.properties.agreementType -eq $inferredAgreement })
+            $scope = Get-FinOpsBillingScope -BillingAccounts @($result.value) -Subscriptions $subsToCheck
+            foreach ($scopeError in @($scope.ReadErrors | Where-Object { $_ })) {
+                $probeErrors.Add([string]$scopeError)
             }
-            else { @() }
-            if (-not $candidates -or $candidates.Count -eq 0) { $candidates = @($result.value) }
-
-            foreach ($cand in $candidates) {
-                if ($scanIds.Count -eq 0) { break }
-                try {
-                    $bsPath = "/providers/Microsoft.Billing/billingAccounts/$($cand.name)/billingSubscriptions?api-version=2024-04-01"
-                    $bsResp = Invoke-AzRestMethodWithRetry -Path $bsPath -Method GET
-                    $bsData = Get-FinOpsListResult -FirstResponse $bsResp -Context "billing membership for $($cand.name)"
-                    if ($bsResp -and $bsResp.StatusCode -eq 200 -and $bsResp.Content) {
-                        $owns = $false
-                        foreach ($bs in @($bsData.value)) {
-                            $bsSubId = if ($bs.properties.subscriptionId) { [string]$bs.properties.subscriptionId } else { [string]$bs.name }
-                            if ($scanIds.Contains($bsSubId)) { $owns = $true; break }
-                        }
-                        if ($owns) { $matchedAccount = $cand; break }
-                    }
-                }
-                catch {
-                    $probeErrors.Add("$($cand.name): $($_.Exception.Message)")
-                    Write-Warning "Contract billing membership probe failed for $($cand.name): $($_.Exception.Message)"
-                }
+            if ($scope.CoverageIncomplete) {
+                Write-Warning "Contract billing account correlation is incomplete. $($scope.Reason)"
             }
-            # No account could be confirmed to own the scanned subscription -
-            # fall through to the subscription-accurate quotaId inference.
 
-            if (-not $matchedAccount) { throw "No billing account confirmed for the scanned subscription" }
+            $ownedAccounts = @($scope.Accounts | Where-Object { $_ })
+            $matchedAccount = $ownedAccounts | Where-Object { $_.properties.agreementType -eq $inferredAgreement } | Select-Object -First 1
+            if (-not $matchedAccount) { $matchedAccount = $ownedAccounts | Select-Object -First 1 }
+            if (-not $scope.Resolved -or -not $matchedAccount) { throw "No billing account confirmed for the scanned subscription" }
 
             $props = $matchedAccount.properties
             $friendlyType = switch ($props.agreementType) {
@@ -141,9 +116,9 @@ function Get-ContractInfo {
                     AgreementType      = $props.agreementType
                     FriendlyType       = $friendlyType
                     AccountStatus      = $props.accountStatus
-                    CoverageIncomplete = ($probeErrors.Count -gt 0)
+                    CoverageIncomplete = ($scope.CoverageIncomplete -or $probeErrors.Count -gt 0)
                     ReadErrors         = @($probeErrors)
-                    Note               = if ($probeErrors.Count -gt 0) { 'Some contract probes failed. ' + ($probeErrors -join ' ') } else { $null }
+                    Note               = if ($probeErrors.Count -gt 0) { 'Some contract probes failed. ' + ($probeErrors -join ' ') } elseif ($scope.CoverageIncomplete) { $scope.Reason } else { $null }
                     # soldTo is a billing mailing address, so this is a country, not a currency.
                     SoldToCountry      = if ($props.soldTo) { $props.soldTo.country } else { 'Unknown' }
                 })

@@ -178,84 +178,9 @@ function Get-CommitmentUtilization {
     }
     $reservations += @($latestReservation.Values)
 
-    # -- Step 2: Try the Reservation Orders API at billing scope --
-    # This endpoint is tenant-wide and cannot be filtered to the requested
-    # subscriptions, so anything it returns is flagged as unscoped rather than
-    # presented as belonging to the scan scope.
-    $unscopedFallback = $false
-    if ($reservations.Count -eq 0) {
-        try {
-            $roPath = "/providers/Microsoft.Capacity/reservationOrders?api-version=2022-11-01"
-            $resp = Invoke-AzRestMethodWithRetry -Path $roPath -Method GET
-            if ($resp.StatusCode -eq 200) {
-                $orders = @(foreach ($page in (Get-CostQueryResponsePage -FirstResponse $resp -Context 'reservation orders' -RootNextLink)) { ($page.Content | ConvertFrom-Json).value })
-                $seenReservations = @{}
-                if ($orders) {
-                    foreach ($order in $orders) {
-                        $op = $order.properties
-                        if ($op.reservations) {
-                            foreach ($ri in $op.reservations) {
-                                if ($ri.id -notmatch '^/providers/Microsoft\.Capacity/reservationOrders/[a-zA-Z0-9-]+/reservations/[a-zA-Z0-9-]+$') {
-                                    $utilFailures.Add('A reservation order returned an invalid reservation resource ID.')
-                                    continue
-                                }
-                                if ($seenReservations.ContainsKey($ri.id)) { continue }
-                                $seenReservations[$ri.id] = $true
-                                # Get utilization summary for each reservation
-                                try {
-                                    $utilPath = "$($ri.id)/providers/Microsoft.Consumption/reservationSummaries?grain=monthly&api-version=2023-05-01&`$filter=properties/UsageDate ge $usageFrom and properties/UsageDate le $usageTo"
-                                    $utilResp = Invoke-AzRestMethodWithRetry -Path $utilPath -Method GET
-                                    if ($utilResp.StatusCode -in @(401, 403)) { $accessDenied = $true }
-                                    $usageRows = @(foreach ($page in (Get-CostQueryResponsePage -FirstResponse $utilResp -Context 'reservation fallback utilization' -RootNextLink)) { ($page.Content | ConvertFrom-Json).value })
-                                    if ($utilResp.StatusCode -eq 200) {
-                                        if ($usageRows.Count -gt 0) {
-                                            $latest = $null
-                                            foreach ($usageRow in $usageRows) {
-                                                if (-not $latest -or (Test-UsageDateIsNewer -Candidate $usageRow.properties.usageDate -Existing $latest.properties.usageDate)) { $latest = $usageRow }
-                                            }
-                                            $up = $latest.properties
-                                            $reservations += [PSCustomObject]@{
-                                                ReservationOrderId = $order.name
-                                                ReservationId      = $ri.id.Split('/')[-1]
-                                                SkuName            = $up.skuName
-                                                Kind               = $up.kind
-                                                AvgUtilization     = ConvertTo-CommitmentPercentage $up.avgUtilizationPercentage
-                                                MinUtilization     = ConvertTo-CommitmentPercentage $up.minUtilizationPercentage
-                                                MaxUtilization     = ConvertTo-CommitmentPercentage $up.maxUtilizationPercentage
-                                                ReservedHours      = $up.reservedHours
-                                                UsedHours          = $up.usedHours
-                                                UsageDate          = $up.usageDate
-                                            }
-                                        }
-                                    }
-                                }
-                                catch {
-                                    # Dropping this reservation silently would understate
-                                    # the count and read as better coverage than reality.
-                                    [void]$utilFailures.Add("$($ri.id.Split('/')[-1]): $($_.Exception.Message)")
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            elseif ($resp.StatusCode -in @(401, 403)) { $accessDenied = $true }
-            else { $utilFailures.Add("Reservation orders: HTTP $($resp.StatusCode)") }
-        }
-        catch {
-            $utilFailures.Add("Reservation orders: $($_.Exception.Message)")
-            if ("$($_.Exception.Message)" -match '403|Forbidden|Authorization|AuthorizationFailed|access') { $accessDenied = $true }
-            Write-Warning "  Reservation orders query failed: $($_.Exception.Message)"
-        }
-        # This block only runs when the scoped queries returned nothing, so
-        # anything present now came from the tenant-wide endpoint.
-        if ($reservations.Count -gt 0) {
-            $unscopedFallback = $true
-            Write-Warning "  Commitments were read from every reservation order this account can see; they are not limited to the scanned subscriptions."
-        }
-    }
+    # Empty scoped summaries must not trigger tenant-wide reservation order reads.
 
-    # -- Step 3: Savings Plans utilization via Benefit Utilization Summaries --
+    # -- Step 2: Savings Plans utilization via Benefit Utilization Summaries --
     # Keyed on benefitId, not benefitOrderId: one order can hold several savings
     # plans, so ordering alone would collapse distinct plans into one and drop
     # real commitments. Only the newest period per plan is kept, so SPCount
@@ -339,9 +264,9 @@ function Get-CommitmentUtilization {
             $utilFailures.Add("$identity : Average utilization is missing or invalid.")
         }
     }
-    $coverageIncomplete = $scopeCoverageIncomplete -or $accessDenied -or $utilFailures.Count -gt 0 -or @($commitmentScopes).Count -eq 0 -or $unscopedFallback
+    $coverageIncomplete = $scopeCoverageIncomplete -or $accessDenied -or $utilFailures.Count -gt 0 -or @($commitmentScopes).Count -eq 0
 
-    # -- Step 4: Calculate summary stats --
+    # -- Step 3: Calculate summary stats --
     $riAvgUtil = $null
     $riCount = $reservations.Count
     if ($riCount -gt 0 -and -not $coverageIncomplete) {
@@ -402,13 +327,9 @@ function Get-CommitmentUtilization {
         HasData                  = ($riCount -gt 0 -or $spCount -gt 0)
         AccessDenied             = $denied
         ScopesQueried            = @($commitmentScopes).Count
-        # True when the figures came from the tenant-wide reservation order
-        # endpoint, which cannot be filtered to the scanned subscriptions.
-        UnscopedFallback         = $unscopedFallback
-        Note                     = if ($unscopedFallback) {
-            'No commitments were readable at the resolved billing scopes, so these figures come from every reservation order this account can see and are not limited to the scanned subscriptions.'
-        }
-        else { $note }
+        # Retained for compatibility; only resolved billing scopes are queried.
+        UnscopedFallback         = $false
+        Note                     = $note
         # Reservations excluded because their utilization could not be read.
         UtilizationFailures      = $utilFailures.Count
         UtilizationFailureDetail = @($utilFailures)

@@ -21,15 +21,19 @@ Azure Advisor commonly returns **the same purchase 3-6 times**. The records diff
 
 Summing `annualSavingsAmount` across raw Advisor records inflates the estimate several-fold. On a large estate this turns a real $40k opportunity into a reported $200k, and nothing in the response signals that anything is wrong.
 
-De-duplicate on the meaningful tuple before totalling:
+Collapse duplicate generations only when this complete identity matches:
 
 ```text
-subscriptionId | resourceType | term | SKU | region | quantity | annualSavings
+subscriptionId | assessedResourceId | resourceName | resourceType |
+recommendationTypeId | problem | solution | term | SKU | region |
+quantity | annualSavings | savingsCurrency | purchaseOptions
 ```
+
+Use Advisor's assessed resource ID, not the recommendation's root `id`, which identifies the recommendation itself. Preserve all purchase option fields, including scope and lookback, when comparing options. Sort option property names before comparing serialized objects. If the assessed resource ID is missing, keep the records separate; a display name alone doesn't establish that they refer to the same target.
 
 Keep a count of how many records collapsed into each row. It's useful context, and a high count is itself a signal that Advisor is churning recommendations.
 
-Report the de-duplicated total. If you present a raw Advisor sum, say explicitly that it may contain duplicates.
+Report the distinct options by target, term, and currency. Don't sum alternative terms, scopes, or lookback windows, or overlapping reservation and savings plan options. Only report an additive total when the targets are disjoint and the currencies and periods are comparable; otherwise, withhold it and explain why.
 
 ### Interpreting the recommendation
 
