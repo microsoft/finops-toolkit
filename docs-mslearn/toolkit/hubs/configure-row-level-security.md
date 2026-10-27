@@ -27,7 +27,7 @@ This article walks you through scoping FinOps hub data by subscription with row-
 Review these limitations before you start:
 
 - **Azure Data Explorer only**: This article covers hubs that use Azure Data Explorer. Microsoft Fabric eventhouses are out of scope.
-- **Raw tables**: Row-level security can't be enabled on the raw tables in the **Ingestion** database, like `Costs_raw`, because they feed update policies. They're only safe when the hub's raw retention (`dataExplorerRawRetentionInDays`) is `0`, the default, because they then keep no data. With raw retention above 0, team members could read the retained raw rows, so you also need the [restricted view access policy](/kusto/management/restricted-view-access-policy) on the raw tables.
+- **Raw tables**: Row-level security can't be enabled on the raw tables in the **Ingestion** database, like `Costs_raw`, because they feed update policies. This guide requires the hub's raw retention (`dataExplorerRawRetentionInDays`) to be `0`, the default, and the raw tables to be empty, so they hold no rows to expose. Hubs that retain raw data are out of scope: the [restricted view access policy](/kusto/management/restricted-view-access-policy) isn't an alternative, because the hub's update policies read the raw tables, and [update policies can't read tables that have restricted view access enabled](/kusto/management/update-policy#query-limitations).
 - **Service identities**: Row-level security applies to every principal. Every service identity that queries the hub, like the Data Factory managed identity used for ingestion and any identity that refreshes reports or runs alerts, must be in the allow-all list, or it silently sees no rows.
 - **Rows without a subscription**: Rows with an empty `SubAccountId`, like billing account level purchases and shared reservations, match no team. Only principals in the allow-all list see them.
 - **Hub upgrades**: Row-level security is bound to table names. A hub upgrade can add or change tables, for example a new table version, which then has no policy. Re-check row-level security after every hub upgrade.
@@ -63,26 +63,38 @@ Each function returns all rows for an allow-all list of admins and service ident
 
 ## Configure row-level security
 
-### Step 1: Check the raw retention and blockers
+### Step 1: Check the raw tables and blockers
 
-Confirm that the raw tables don't keep data. Run this in the **Ingestion** database; every raw table should show a `SoftDeletePeriod` of `00:00:00`:
+Confirm that the raw tables don't keep data and are empty. Run these in the **Ingestion** database. Every raw table must show a `SoftDeletePeriod` of `00:00:00` and a `TotalRowCount` of `0`:
 
 ```kusto
 .show table * policy retention
-| where EntityName has '_raw'
+| where EntityName contains '_raw'
 ```
 
-If any raw table keeps data, protect the raw tables first, as described in [Limitations](#limitations).
+```kusto
+.show tables details
+| where TableName endswith '_raw'
+| project TableName, TotalRowCount
+```
 
-Row-level security can't be enabled on a table in some cases. For each table, run these commands in the **Ingestion** database and resolve anything they report:
+A retention of zero alone isn't enough: rows retained under an earlier setting are deleted asynchronously and can still be readable. If any raw table keeps data or has rows, stop: this guide doesn't apply to that hub, as described in [Limitations](#limitations).
+
+Row-level security can't be enabled on a table that's read by an update policy that doesn't use a managed identity. Check every table's update policy in the **Ingestion** database for a source table or query that reads one of the final tables; the result should be empty:
 
 ```kusto
-.show table Costs_final_v1_2 policy update
+.show tables details
+| where UpdatePolicy contains '_final_v'
+| project TableName, UpdatePolicy
+```
+
+The hub's own update policies read the raw tables, not the final tables, so they aren't blockers. If you added update policies of your own, also check the functions their queries call. Also check these, for each table:
+
+```kusto
 .show table Costs_final_v1_2 policy restricted_view_access
 .show materialized-views
 ```
 
-- Row-level security can't be enabled on a table that an update policy references without a managed identity.
 - Row-level security and the restricted view access policy can't be combined on the same table.
 - A materialized view over the table needs its own row-level security policy.
 
@@ -116,7 +128,13 @@ Write the subscription IDs in lowercase, because the function compares them with
 
 ### Step 3: Test before you enable
 
-Creating the function doesn't change anything yet. Before you enable the policy, check that you keep seeing all rows when the function is applied to you. Both counts must match:
+Creating the function doesn't change anything yet. Attach it to the table as a **disabled** policy. A disabled policy doesn't affect anyone, but it lets you apply it to your own queries:
+
+```kusto
+.alter table Costs_final_v1_2 policy row_level_security disable "FinOpsRls_Costs_v1_2()"
+```
+
+Then check that you keep seeing all rows when the policy is applied to you. `set query_force_row_level_security` applies the table's policy to your query even while it's disabled. Both counts must match:
 
 ```kusto
 Costs_final_v1_2
@@ -168,12 +186,19 @@ Check the result with each test user:
 - **A user in no team**, or in a team that doesn't own any of the data, gets an empty result, not an error.
 - **An admin in the allow-all list** sees all subscriptions, with the same totals as before.
 
-Then open the Data Explorer dashboard as a team member and confirm that only their spend appears. After every hub upgrade, confirm that the policies are still enabled on all final tables:
+Then open the Data Explorer dashboard as a team member and confirm that only their spend appears.
+
+After every hub upgrade, run this in the **Ingestion** database. It lists every final table, including tables that have no policy:
 
 ```kusto
-.show table * policy row_level_security
-| where Policy != 'null'
+.show tables details
+| where TableName contains '_final_v'
+| extend p = parse_json(RowLevelSecurityPolicy)
+| project TableName, Enabled = iff(isempty(RowLevelSecurityPolicy) or isnull(p), 'missing', tostring(p.IsEnabled)), Query = tostring(p.Query)
+| order by TableName asc
 ```
+
+Every `Costs`, `CommitmentDiscountUsage`, `Recommendations`, and `Transactions` final table must show `true`. A table that shows `missing` or `false`, such as a new table version added by the upgrade, isn't protected: create its function and enable its policy as described in [Configure row-level security](#configure-row-level-security). `Prices` tables aren't filtered and show `missing`.
 
 <br>
 
@@ -217,7 +242,7 @@ Related FinOps capabilities:
 Related products:
 
 - [Row-level security policy](/kusto/management/row-level-security-policy)
-- [Restricted view access policy](/kusto/management/restricted-view-access-policy)
+- [Update policy](/kusto/management/update-policy)
 - [Database security roles](/kusto/management/manage-database-security-roles#database-level-security-roles)
 
 Related solutions:
