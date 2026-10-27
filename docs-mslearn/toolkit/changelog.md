@@ -25,6 +25,11 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+### [FinOps hubs](hubs/finops-hubs-overview.md)
+
+- **Added**
+  - Added optional guidance to scope FinOps hub data by subscription with Azure Data Explorer row-level security, so each team sees only its own subscriptions in KQL, dashboards, and AI agents ([#2372](https://github.com/microsoft/finops-toolkit/issues/2372)).
+
 -->
 
 <br><a name="latest"></a>
