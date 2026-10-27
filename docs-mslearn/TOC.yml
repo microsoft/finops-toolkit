@@ -132,6 +132,8 @@
           href: toolkit/hubs/run-hubs-locally.md
         - name: Configure private networking
           href: toolkit/hubs/private-networking.md
+        - name: Configure row-level security
+          href: toolkit/hubs/configure-row-level-security.md
         - name: Configure scopes
           href: toolkit/hubs/configure-scopes.md
         - name: Configure recommendations
