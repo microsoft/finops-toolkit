@@ -67,7 +67,7 @@ _Released October 2026_
     - Documents the organization chain and the two parallel service chains.
     - Added 27 missing columns and corrected three columns still listed under names that hubs v12 renamed.
     - Fixed one column typed as `long` instead of `int`.
-  - Added a note that the `config_RunBackfillJob` backfill option isn't supported on Microsoft Customer Agreement (MCA) billing accounts or profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
+  - Documented that the `config_RunBackfillJob` backfill option isn't supported on Microsoft Customer Agreement (MCA) billing accounts or profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
   - Clarified that the FinOps toolkit manages the hub virtual network, and that customer-managed private endpoints are the preferred private-access option ([#2156](https://github.com/microsoft/finops-toolkit/issues/2156)).
     - Virtual network peering is documented as a secondary option.
   - Changed hub queries to use case-insensitive comparisons that run faster on large datasets ([#2213](https://github.com/microsoft/finops-toolkit/issues/2213)).
@@ -83,7 +83,7 @@ _Released October 2026_
   - Fixed dashboard links for "Governance, policy, and risk" and "FinOps tools and services" that landed on a 404 page ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
     - Links now go directly to the Microsoft Learn pages.
   - Fixed Data Factory trigger deployment failures in regions without a time zone mapping, like Sweden Central ([#2157](https://github.com/microsoft/finops-toolkit/issues/2157)).
-    - Deployments failed with `InvalidWorkflowTriggerRecurrence` because the trigger start time was missing the `Z` suffix for the UTC fallback time zone.
+    - Deployments failed with `InvalidWorkflowTriggerRecurrence`.
   - Fixed Data Factory memory pressure during ingestion.
     - Affected the step that filters out empty files.
   - Fixed a `PathNotFound` error on the first ingestion for a scope, dataset, and month, most often hit by reservation recommendation exports ([#2088](https://github.com/microsoft/finops-toolkit/issues/2088)).
@@ -93,12 +93,12 @@ _Released October 2026_
   - Fixed commitment purchases inflating savings and effective savings rate (ESR) in the dashboard ([#2315](https://github.com/microsoft/finops-toolkit/issues/2315)).
     - Summary and Rate optimization tiles now exclude purchase rows consistently.
   - Fixed understated commitment discount savings when duplicate reservation price rows exist ([#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
-    - The reservation price backfill now picks the highest on-demand price (`max()` instead of `min()`) when duplicate price rows share a lookup key.
+    - The reservation price backfill now uses the highest on-demand price when duplicate price rows exist.
   - Fixed unnecessary `ContractedCost` rewrites that cluttered the `x_SourceValues` audit trail ([#2216](https://github.com/microsoft/finops-toolkit/issues/2216)).
     - Removed millions of no-op rewrites caused by exact floating-point comparisons.
     - Still backfills null costs, and no longer overwrites an existing cost when the unit price is missing.
   - Fixed the SQL VMs without Azure Hybrid Benefit recommendation skipping VMs with uppercase names.
-    - The query also dropped VMs with duplicate names; it now matches on the SQL VM `virtualMachineResourceId`.
+    - The query also dropped VMs with duplicate names.
   - Fixed managed exports failing with an `Unauthorized` error because a required role wasn't assigned to Data Factory ([#2253](https://github.com/microsoft/finops-toolkit/issues/2253)).
     - The Role Based Access Control Administrator role is now assigned to the Data Factory identity.
     - Roles requested by a hub app are now assigned on the publisher storage account even when the app doesn't create it.
@@ -190,7 +190,7 @@ _Released October 2026_
     - Failed when deploying hubs 12 or later with `-Version`, and when more than one hub was deployed at the same time.
     - Failed for single-part tags like `13` and `v`-prefixed tags like `v14`.
   - Fixed [Get-FinOpsCostExport](powershell/cost/get-finopscostexport.md) `-RunHistory` not returning the complete run history ([#2063](https://github.com/microsoft/finops-toolkit/issues/2063)).
-  - Updated the minimum `Az.Accounts` version to 2.17.0 to avoid a missing `Get-AzAccessToken` parameter ([#2185](https://github.com/microsoft/finops-toolkit/issues/2185)).
+  - Fixed a missing `Get-AzAccessToken` parameter error by raising the minimum `Az.Accounts` version to 2.17.0 ([#2185](https://github.com/microsoft/finops-toolkit/issues/2185)).
     - Dependency resolution could previously land on a version missing the `-AsSecureString` parameter.
   - Fixed [Start-FinOpsCostExport](powershell/cost/start-finopscostexport.md) exporting the wrong period in positive UTC offsets ([#2255](https://github.com/microsoft/finops-toolkit/issues/2255)).
     - `-StartDate` and `-EndDate` are now treated as UTC calendar dates instead of being converted to local time.
@@ -206,7 +206,7 @@ _Released October 2026_
   - Fixed the [commitment discount eligibility](open-data.md#commitment-discount-eligibility) refresh so retired meters age out and previously missed meters are included.
     - The refresh is now reproducible and complete.
   - Fixed the weekly commitment discount eligibility refresh timing out, which left the dataset unchanged since v14.
-    - The refresh now walks each price type directly and verifies completeness by comparing two independent traversals before publishing.
+    - The refresh now verifies the data is complete before publishing.
   - Fixed [instance size flexibility](open-data.md#instance-size-flexibility) ratio scale and region coverage; the dataset grew from 1,353 to 1,363 SKUs ([#2309](https://github.com/microsoft/finops-toolkit/issues/2309)).
     - Regenerating the dataset now produces the same output on any host.
   - Fixed `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility` carrying each other's values since v14 ([#2279](https://github.com/microsoft/finops-toolkit/issues/2279)).
