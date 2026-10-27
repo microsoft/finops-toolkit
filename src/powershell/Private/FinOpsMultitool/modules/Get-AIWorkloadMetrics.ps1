@@ -334,7 +334,7 @@ resources
     $costQueryOk = $false
     if (-not $fromHub) {
         try {
-            $mgScopeId = Resolve-CostMgId -TenantId $TenantId
+            $mgScopeId = Resolve-CostMgId -TenantId $TenantId -Subscriptions $Subscriptions
             $cognitiveSubs = @($Subscriptions | Where-Object { $_.Id -and $cognitiveSubIds.Contains([string]$_.Id) })
             if ($mgScopeId -and $cognitiveSubs.Count -gt 0 -and -not (Test-CostMgCoverage -ManagementGroupId $mgScopeId -TenantId $TenantId -Subscriptions $cognitiveSubs)) { $mgScopeId = $null }
 

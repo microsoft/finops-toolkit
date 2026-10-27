@@ -86,6 +86,10 @@ function Invoke-FOHubKustoQuery {
         $resp = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body `
             -TimeoutSec $TimeoutSec -MaximumRedirection 0 -ErrorAction Stop
 
+        if ($resp -is [string]) {
+            $resp = ConvertFrom-Json -InputObject $resp -AsHashtable -NoEnumerate -ErrorAction Stop
+        }
+
         if (($resp -isnot [System.Collections.IDictionary] -and $resp -isnot [PSCustomObject]) -or
             $resp.Tables -isnot [System.Collections.IList]) {
             throw 'The Kusto response does not contain a valid Tables array.'

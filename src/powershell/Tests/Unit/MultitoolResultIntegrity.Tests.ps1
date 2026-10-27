@@ -159,14 +159,19 @@ Describe 'Multitool result scope, currency, and coverage' {
         }
 
         It 'Confirms billing account ownership for <Scenario>' -ForEach @(
-            @{ Scenario = 'an unrelated single account'; Owner = '99999999-9999-9999-9999-999999999999'; Confirmed = $false }
-            @{ Scenario = 'the account that owns the subscription'; Owner = '11111111-1111-1111-1111-111111111111'; Confirmed = $true }
-            @{ Scenario = 'unreadable membership'; Owner = $null; Confirmed = $false }
+            @{ Scenario = 'an unrelated single account'; Owner = '99999999-9999-9999-9999-999999999999'; BillingOwner = 'another-account'; Confirmed = $false }
+            @{ Scenario = 'the account that owns the subscription'; Owner = '11111111-1111-1111-1111-111111111111'; BillingOwner = 'single-account'; Confirmed = $true }
+            @{ Scenario = 'unreadable membership'; Owner = $null; BillingOwner = $null; Confirmed = $false }
         ) {
-            InModuleScope FinOpsMultitool -Parameters @{ Owner = $Owner; Confirmed = $Confirmed } {
-                param($Owner, $Confirmed)
+            InModuleScope FinOpsMultitool -Parameters @{ Owner = $Owner; BillingOwner = $BillingOwner; Confirmed = $Confirmed } {
+                param($Owner, $BillingOwner, $Confirmed)
                 $fixtureOwner = $Owner
+                $fixtureBillingOwner = $BillingOwner
                 Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*billingProperty/default*') {
+                        if (-not $fixtureBillingOwner) { return [pscustomobject]@{ StatusCode = 403; Content = '{}' } }
+                        return [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ billingAccountId = "/providers/Microsoft.Billing/billingAccounts/$fixtureBillingOwner" } } | ConvertTo-Json) }
+                    }
                     if ($Path -like '*/billingSubscriptions*' -and -not $fixtureOwner) { return [pscustomobject]@{ StatusCode = 403; Content = '{"error":{"code":"AuthorizationFailed"}}' } }
                     $response = if ($Path -like '*/billingSubscriptions*') {
                         @{ value = @(@{ name = $fixtureOwner; properties = @{ subscriptionId = $fixtureOwner } }) }
@@ -190,7 +195,74 @@ Describe 'Multitool result scope, currency, and coverage' {
                     $result[0].AccountId | Should -Not -Be 'single-account'
                     $result[0].Note | Should -Match 'not confirmed'
                 }
-                Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter { $Path -like '*/billingSubscriptions*' }
+                $membershipReads = if ($Confirmed) { 0 } else { 1 }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times $membershipReads -Exactly -ParameterFilter { $Path -like '*/billingSubscriptions*' }
+            }
+        }
+
+        It 'Uses the confirmed <Agreement> owner without paging unrelated accounts' -ForEach @(
+            @{ Agreement = 'EnterpriseAgreement' }
+            @{ Agreement = 'MicrosoftCustomerAgreement' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Agreement = $Agreement } {
+                param($Agreement)
+                $ownerAgreement = $Agreement
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*billingProperty/default*') {
+                        return [pscustomobject]@{ StatusCode = 200; Content = '{"properties":{"billingAccountId":"/providers/Microsoft.Billing/billingAccounts/selected-owner"}}' }
+                    }
+                    if ($Path -like '/subscriptions/*') {
+                        return [pscustomobject]@{ StatusCode = 200; Content = '{"subscriptionPolicies":{"quotaId":"EnterpriseAgreement"}}' }
+                    }
+                    if ($Path -like '*/billingSubscriptions*') { throw 'Unrelated billing membership must not be enumerated.' }
+                    $accounts = @(
+                        @{ name = 'unrelated-one'; properties = @{ agreementType = 'EnterpriseAgreement' } }
+                        @{ name = 'unrelated-two'; properties = @{ agreementType = 'EnterpriseAgreement' } }
+                        @{ name = 'selected-owner'; properties = @{ displayName = 'Selected owner'; agreementType = $ownerAgreement; accountStatus = 'Active' } }
+                    )
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ value = $accounts } | ConvertTo-Json -Depth 6) }
+                }
+
+                $result = @(Get-ContractInfo -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Selected subscription' }))
+
+                $result[0].AccountId | Should -Be 'selected-owner'
+                $result[0].AgreementType | Should -Be $Agreement
+                $result[0].CoverageIncomplete | Should -BeFalse
+                $result[0].ReadErrors | Should -BeNullOrEmpty
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter { $Path -like '*billingProperty/default*' }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly -ParameterFilter { $Path -like '*/billingSubscriptions*' }
+            }
+        }
+
+        It 'Does not confirm billing ownership when <Scenario>' -ForEach @(
+            @{ Scenario = 'subscription discovery returns no rows'; DiscoveryFails = $false; Selected = @() }
+            @{ Scenario = 'subscription discovery fails'; DiscoveryFails = $true; Selected = @() }
+            @{ Scenario = 'a selected subscription has no ID'; DiscoveryFails = $false; Selected = @([pscustomobject]@{ Name = 'Missing ID' }) }
+            @{ Scenario = 'a selected subscription has a blank ID'; DiscoveryFails = $false; Selected = @([pscustomobject]@{ Id = ' '; Name = 'Blank ID' }) }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ DiscoveryFails = $DiscoveryFails; Selected = $Selected } {
+                param($DiscoveryFails, $Selected)
+                Mock Get-AzSubscription {
+                    if ($DiscoveryFails) { throw 'Subscription discovery denied.' }
+                    @()
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '/providers/Microsoft.Billing/billingAccounts*') {
+                        $account = @{ name = 'unrelated-account'; properties = @{ displayName = 'Unrelated account'; agreementType = 'EnterpriseAgreement'; accountStatus = 'Active' } }
+                        return [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @($account) } | ConvertTo-Json -Depth 6) }
+                    }
+                    [pscustomobject]@{ StatusCode = 403; Content = '{}' }
+                }
+
+                $result = @(Get-ContractInfo -Subscriptions @($Selected) -WarningAction SilentlyContinue)
+
+                $result.Count | Should -Be 1
+                $result[0].AgreementType | Should -Be 'Unknown'
+                $result[0].PSObject.Properties['AccountId'] | Should -BeNullOrEmpty
+                $result[0].CoverageIncomplete | Should -BeTrue
+                ($result[0].ReadErrors -join ' ') | Should -Match 'No subscription ID'
+                if ($DiscoveryFails) { ($result[0].ReadErrors -join ' ') | Should -Match 'Subscription discovery denied' }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly -ParameterFilter { $Path -like '/providers/Microsoft.Billing/billingAccounts*' -or $Path -like '*billingProperty/default*' }
             }
         }
 
@@ -436,6 +508,65 @@ Describe 'Multitool result scope, currency, and coverage' {
     }
 
     Context 'Tag values and allocation' {
+        It 'Rounds actual tag costs from decimal input while preserving allocation for <Case>' -ForEach @(
+            @{ Case = 'a positive midpoint'; Amount = 1.015; Expected = 1.02 }
+            @{ Case = 'a negative midpoint credit'; Amount = -1.015; Expected = -1.02 }
+            @{ Case = 'an even midpoint'; Amount = 1.025; Expected = 1.02 }
+            @{ Case = 'a measured zero'; Amount = 0.0; Expected = 0.0 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Amount = $Amount; Expected = $Expected } {
+                param($Amount, $Expected)
+                $rgId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture'
+                $firstId = "$rgId/providers/Microsoft.Compute/disks/disk-a"
+                $secondId = "$rgId/providers/Microsoft.Compute/disks/disk-b"
+                $fallbackId = "$rgId/providers/Microsoft.Compute/disks/disk-c"
+                $untaggedId = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/other/providers/Microsoft.Compute/disks/disk-d'
+                Mock Search-AzGraphSafe {
+                    if ($Query -match '^resources\s') {
+                        return @{ Data = @(
+                                [pscustomobject]@{ id = $firstId; tags = @{ CostCenter = 'Prod' } }
+                                [pscustomobject]@{ id = $secondId; tags = @{ CostCenter = 'prod' } }
+                            ) }
+                    }
+                    @{ Data = @([pscustomobject]@{ id = $rgId; tags = @{ CostCenter = 'fallback' } }) }
+                }
+                $fixtureContent = (@{ properties = @{
+                            columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' }, @{ name = 'Currency' })
+                            rows = @(@(10.0, $firstId, 'USD'), @($Amount, $secondId, 'USD'), @(2.0, $fallbackId, 'USD'), @(3.0, $untaggedId, 'USD'), @(-1.0, '', 'USD'))
+                        } } | ConvertTo-Json -Depth 8 -Compress).Replace("'", "''")
+                $definition = (Get-Command Get-CostByTag).Definition
+                $ast = [Management.Automation.Language.Parser]::ParseInput($definition, [ref]$null, [ref]$null)
+                $transport = $ast.Find({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Invoke-ParallelRestCalls' }, $true)
+                $transport | Should -Not -BeNullOrEmpty
+                $replacement = 'function Invoke-ParallelRestCalls { param([array]$Calls, [int]$TimeoutSeconds); foreach ($call in $Calls) { @{ Call = $call; Result = [pscustomobject]@{ StatusCode = 200; Content = ''' + $fixtureContent + ''' } } } }'
+                $scan = [scriptblock]::Create($definition.Remove($transport.Extent.StartOffset, $transport.Extent.EndOffset - $transport.Extent.StartOffset).Insert($transport.Extent.StartOffset, $replacement))
+
+                $result = & $scan -TenantId 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'A' }) -ExistingTags @{ CostCenter = [pscustomobject]@{ TotalResources = 4 } }
+
+                $buckets = @($result.CostByTag.CostCenter)
+                ($buckets | Where-Object { $_.TagValue -ceq 'Prod' }).Cost | Should -Be 10
+                $lower = @($buckets | Where-Object { $_.TagValue -ceq 'prod' })
+                if ($Expected -eq 0) { $lower.Count | Should -Be 0 }
+                else {
+                    $lower.Count | Should -Be 1
+                    $lower[0].Cost | Should -Be $Expected
+                    $lower[0].Cost | Should -BeOfType ([double])
+                }
+                ($buckets | Where-Object TagValue -EQ 'fallback').Cost | Should -Be 2
+                ($buckets | Where-Object TagValue -EQ '(untagged)').Cost | Should -Be 3
+                ($buckets | Where-Object TagValue -EQ '(non-resource charges)').Cost | Should -Be -1
+                [math]::Round(($buckets | Measure-Object Cost -Sum).Sum, 2) | Should -Be (14 + $Expected)
+                $result.AllocatedCost | Should -Be (12 + $Expected)
+                $result.UnallocatedCost | Should -Be 3
+                $result.ResourceCostSeen | Should -Be (15 + $Expected)
+                [math]::Round(($result.AllocatedCost + $result.UnallocatedCost), 2) | Should -Be $result.ResourceCostSeen
+                $result.Currency | Should -Be 'USD'
+                @($buckets | Where-Object Currency -NE 'USD').Count | Should -Be 0
+                $result.CoverageIncomplete | Should -BeFalse
+                $result.SuccessfulSubscriptionIds | Should -Be @('11111111-1111-1111-1111-111111111111')
+            }
+        }
+
         It 'Keeps case-distinct tag values and counts <TagName> as an allocation tag' -ForEach @(
             @{ TagName = 'CostCenter' }
             @{ TagName = 'ApplicationName' }
@@ -909,14 +1040,14 @@ Describe 'Multitool result scope, currency, and coverage' {
                 $fixtureRecommendation = @{ subscriptionId = '11111111-1111-1111-1111-111111111111'; shortDescriptionProblem = 'Consider virtual machine reserved instances'; shortDescriptionSolution = 'Buy reserved instances'; impact = 'High'; impactedField = 'Microsoft.Compute/virtualMachines'; savingsCurrency = 'USD'; term = 'P1Y'; region = 'eastus'; displayQty = '1' }
                 Mock Search-AzGraphSafe {
                     @{ SkipToken = $null; Data = @(
-                            [pscustomobject](@{ recName = 'rec-a'; impactedValue = 'vm-a'; displaySKU = 'Standard_D2s_v5'; annualSavings = '100' } + $fixtureRecommendation)
-                            [pscustomobject](@{ recName = 'rec-b'; impactedValue = 'vm-b'; displaySKU = 'Standard_D4s_v5'; annualSavings = 'not available' } + $fixtureRecommendation)
+                            [pscustomobject](@{ recName = 'rec-a'; impactedValue = 'vm-a'; assessedResourceId = '/subscriptions/fixture/resourceGroups/a/providers/Microsoft.Compute/virtualMachines/vm-a'; displaySKU = 'Standard_D2s_v5'; annualSavings = '100' } + $fixtureRecommendation)
+                            [pscustomobject](@{ recName = 'rec-b'; impactedValue = 'vm-b'; assessedResourceId = '/subscriptions/fixture/resourceGroups/a/providers/Microsoft.Compute/virtualMachines/vm-b'; displaySKU = 'Standard_D4s_v5'; annualSavings = 'not available' } + $fixtureRecommendation)
                         ) }
                 }
                 Mock Invoke-AzRestMethodWithRetry {
                     if ($Path -notlike '*/Microsoft.Advisor/recommendations*') { return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' } }
                     $items = foreach ($fixture in @(@('rec-a', 'vm-a', 'Standard_D2s_v5', '100'), @('rec-b', 'vm-b', 'Standard_D4s_v5', '50'))) {
-                        @{ name = $fixture[0]; properties = @{ impact = 'High'; impactedField = 'Microsoft.Compute/virtualMachines'; impactedValue = $fixture[1]; shortDescription = @{ problem = 'Consider virtual machine reserved instances'; solution = 'Buy reserved instances' }; extendedProperties = @{ annualSavingsAmount = $fixture[3]; savingsCurrency = 'USD'; term = 'P1Y'; displaySKU = $fixture[2]; region = 'eastus'; displayQty = '1' } } }
+                        @{ name = $fixture[0]; properties = @{ impact = 'High'; impactedField = 'Microsoft.Compute/virtualMachines'; impactedValue = $fixture[1]; resourceMetadata = @{ resourceId = "/subscriptions/fixture/resourceGroups/a/providers/Microsoft.Compute/virtualMachines/$($fixture[1])" }; shortDescription = @{ problem = 'Consider virtual machine reserved instances'; solution = 'Buy reserved instances' }; extendedProperties = @{ annualSavingsAmount = $fixture[3]; savingsCurrency = 'USD'; term = 'P1Y'; displaySKU = $fixture[2]; region = 'eastus'; displayQty = '1' } } }
                     }
                     [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @($items) } | ConvertTo-Json -Depth 8) }
                 }
@@ -956,13 +1087,382 @@ Describe 'Multitool result scope, currency, and coverage' {
         }
     }
 
+    Context 'Recommendation source contracts' {
+        It 'Falls back from <Shape> ARG data and reports REST status <Status> honestly' -ForEach @(
+            @{ Shape = 'null'; Status = 503; Incomplete = $true; Denied = $false }
+            @{ Shape = 'missing Data'; Status = 403; Incomplete = $true; Denied = $true }
+            @{ Shape = 'null Data'; Status = 401; Incomplete = $true; Denied = $true }
+            @{ Shape = 'null'; Status = 408; Incomplete = $true; Denied = $false }
+            @{ Shape = 'null'; Status = 200; Incomplete = $false; Denied = $false }
+            @{ Shape = 'missing Data'; Status = 204; Incomplete = $false; Denied = $false }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Shape = $Shape; Status = $Status; Incomplete = $Incomplete; Denied = $Denied } {
+                param($Shape, $Status, $Incomplete, $Denied)
+                $fixtureShape = $Shape
+                $fixtureStatus = $Status
+                Mock Search-AzGraphSafe {
+                    switch ($fixtureShape) {
+                        'null' { return $null }
+                        'missing Data' { return @{ Count = 0 } }
+                        'null Data' { return @{ Data = $null } }
+                    }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $code = if ($fixtureStatus -eq 204 -and $Path -match 'Microsoft.Advisor') { 200 } else { $fixtureStatus }
+                    [pscustomobject]@{ StatusCode = $code; Content = $(if ($code -eq 200) { '{"value":[]}' } else { '' }) }
+                }
+                $result = Get-ReservationAdvice -Subscriptions @([pscustomobject]@{ Id = 'fixture'; Name = 'Fixture' }) -WarningAction SilentlyContinue
+
+                $result.CoverageIncomplete | Should -Be $Incomplete
+                $result.AccessDenied | Should -Be $Denied
+                $result.EstimatedAnnualSavings | Should -BeNullOrEmpty
+                $result.TotalAdvisorCount | Should -Be 0
+                $result.TotalReservationCount | Should -Be 0
+                if ($Incomplete) {
+                    $result.ReadErrors.Count | Should -BeGreaterThan 0
+                    $result.Note | Should -Match 'incomplete'
+                }
+                Should -Invoke Search-AzGraphSafe -Times 1 -Exactly -ParameterFilter { $All -and $Query -match 'project id, subscriptionId' }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter { $Path -match 'Microsoft.Advisor' }
+            }
+        }
+
+        It 'Treats <Payload> as incomplete rather than empty recommendation data' -ForEach @(
+            @{ Payload = 'no response'; Content = $null }
+            @{ Payload = 'invalid JSON'; Content = 'not JSON' }
+            @{ Payload = 'missing list'; Content = '{}' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Content = $Content } {
+                param($Content)
+                $fixtureContent = $Content
+                Mock Search-AzGraphSafe { @{ Data = @() } }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($null -eq $fixtureContent) { return $null }
+                    [pscustomobject]@{ StatusCode = 200; Content = $fixtureContent }
+                }
+                $result = Get-ReservationAdvice -Subscriptions @([pscustomobject]@{ Id = 'fixture'; Name = 'Fixture' }) -WarningAction SilentlyContinue
+                $result.CoverageIncomplete | Should -BeTrue
+                $result.AccessDenied | Should -BeFalse
+                $result.ReadErrors.Count | Should -Be 15
+            }
+        }
+
+        It 'Follows Advisor and Consumption continuation pages without publishing a failed chain (<FailContinuation>)' -ForEach @(
+            @{ FailContinuation = $false }
+            @{ FailContinuation = $true }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ FailContinuation = $FailContinuation } {
+                param($FailContinuation)
+                $fixtureFailure = $FailContinuation
+                $fixtureFamilies = [Collections.Generic.HashSet[string]]::new()
+                Mock Search-AzGraphSafe { throw 'Use the REST fallback.' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $isAdvisor = $Path -match 'Microsoft.Advisor'
+                    $isVM = [uri]::UnescapeDataString($Path) -match "resourceType eq 'VirtualMachines'"
+                    $isNext = $Path -match '/fixture-next/'
+                    if (-not $isAdvisor -and -not $isNext) {
+                        $family = [regex]::Match([uri]::UnescapeDataString($Path), "properties/resourceType eq '([^']+)'").Groups[1].Value
+                        $null = $fixtureFamilies.Add($family)
+                    }
+                    if ($isNext -and $fixtureFailure) { return [pscustomobject]@{ StatusCode = 503; Content = '' } }
+                    $number = if ($isNext) { 2 } else { 1 }
+                    $item = if ($isAdvisor) {
+                        @{ name = "advisor-$number"; properties = @{
+                                impactedField = 'Microsoft.Compute/virtualMachines'; impactedValue = "vm-$number"
+                                resourceMetadata = @{ resourceId = "/subscriptions/fixture/resourceGroups/fixture/providers/Microsoft.Compute/virtualMachines/vm-$number" }
+                                recommendationTypeId = 'purchase'
+                                shortDescription = @{ problem = 'Reserve instances'; solution = 'Buy reservations' }
+                                extendedProperties = @{ annualSavingsAmount = 100; savingsCurrency = 'USD'; term = 'P1Y' }
+                            } }
+                    }
+                    else {
+                        @{ name = "purchase-$number"; location = 'eastus'; sku = "VM-$number"; properties = @{ netSavings = 10; term = 'P1Y'; lookBackPeriod = 'Last30Days' } }
+                    }
+                    $items = if ($isAdvisor -or $isVM -or $isNext) { @($item) } else { @() }
+                    $payload = @{ value = @($items | Where-Object { $_ }) }
+                    if (-not $isNext -and ($isAdvisor -or $isVM)) {
+                        $provider = if ($isAdvisor) { 'Microsoft.Advisor' } else { 'Microsoft.Consumption' }
+                        $payload.nextLink = "/fixture-next/$provider"
+                    }
+                    [pscustomobject]@{ StatusCode = 200; Content = ($payload | ConvertTo-Json -Depth 10) }
+                }
+                $result = Get-ReservationAdvice -Subscriptions @([pscustomobject]@{ Id = 'fixture'; Name = 'Fixture' }) -WarningAction SilentlyContinue
+                $result.CoverageIncomplete | Should -Be $FailContinuation
+                if ($FailContinuation) {
+                    $result.TotalAdvisorCount | Should -Be 0
+                    $result.TotalReservationCount | Should -Be 0
+                    $result.EstimatedAnnualSavings | Should -BeNullOrEmpty
+                    $result.ReadErrors.Count | Should -Be 2
+                }
+                else {
+                    $result.TotalAdvisorCount | Should -Be 2
+                    $result.TotalReservationCount | Should -Be 2
+                    $result.EstimatedAnnualSavings | Should -Be 200
+                    @($result.AdvisorRecommendations.ResourceName) | Should -Be @('vm-1', 'vm-2')
+                    @($result.ReservationRecommendations.SKU) | Should -Be @('VM-1', 'VM-2')
+                }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 2 -Exactly -ParameterFilter { $Path -like '/fixture-next/*' -and $Method -eq 'GET' }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 15 -Exactly -ParameterFilter {
+                    $Path -like '/subscriptions/fixture/providers/Microsoft.Consumption/reservationRecommendations?api-version=2023-05-01&$filter=*' -and
+                    $Path -notmatch '\s' -and $Method -eq 'GET' -and
+                    [uri]::UnescapeDataString($Path) -match "properties/scope eq 'Single' and properties/resourceType eq '[A-Za-z]+' and properties/lookBackPeriod eq 'Last30Days'"
+                }
+                @($fixtureFamilies | Sort-Object) | Should -Be @(
+                    'VirtualMachines', 'SQLDatabases', 'PostgreSQL', 'ManagedDisk', 'MySQL',
+                    'RedHat', 'MariaDB', 'RedisCache', 'CosmosDB', 'SqlDataWarehouse',
+                    'SUSELinux', 'AppService', 'BlockBlob', 'AzureDataExplorer', 'VMwareCloudSimple'
+                | Sort-Object)
+            }
+        }
+
+        It 'Retains both valid Advisor records with the invalid record <Position>' -ForEach @(
+            @{ Position = 'first' }
+            @{ Position = 'middle' }
+            @{ Position = 'last' }
+            @{ Position = 'absent' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Position = $Position } {
+                param($Position)
+                $fixturePosition = $Position
+                Mock Search-AzGraphSafe { throw 'Use the REST fallback.' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -notmatch 'Microsoft.Advisor') { return [pscustomobject]@{ StatusCode = 204; Content = '' } }
+                    $first = @{ name = 'first-valid'; savings = 100 }
+                    $last = @{ name = 'last-valid'; savings = 200 }
+                    $invalid = @{ name = 'invalid'; savings = 'not a number' }
+                    $records = switch ($fixturePosition) {
+                        'first' { @($invalid, $first, $last) }
+                        'middle' { @($first, $invalid, $last) }
+                        'last' { @($first, $last, $invalid) }
+                        'absent' { @($first, $last) }
+                    }
+                    $items = @($records | ForEach-Object {
+                            @{ name = $_.name; properties = @{
+                                    impactedValue = $_.name; impactedField = 'Microsoft.Compute/virtualMachines'
+                                    resourceMetadata = @{ resourceId = "/subscriptions/fixture/resourceGroups/a/providers/Microsoft.Compute/virtualMachines/$($_.name)" }
+                                    recommendationTypeId = 'purchase'
+                                    shortDescription = @{ problem = 'Purchase reservations' }
+                                    extendedProperties = @{ annualSavingsAmount = $_.savings; savingsCurrency = 'USD'; term = 'P1Y' }
+                                } }
+                        })
+                    [pscustomobject]@{ StatusCode = 200; Content = (ConvertTo-Json -InputObject @{ value = $items } -Depth 10) }
+                }
+                $warnings = @()
+                $result = Get-ReservationAdvice -Subscriptions @([pscustomobject]@{ Id = 'fixture'; Name = 'Fixture' }) -WarningAction SilentlyContinue -WarningVariable warnings
+
+                $result.TotalAdvisorCount | Should -Be 2
+                @($result.AdvisorRecommendations.ResourceName) | Should -Be @('first-valid', 'last-valid')
+                @($result.AdvisorRecommendations.AnnualSavings) | Should -Be @(100, 200)
+                $result.AccessDenied | Should -BeFalse
+                if ($Position -eq 'absent') {
+                    $result.CoverageIncomplete | Should -BeFalse
+                    $result.ReadErrors.Count | Should -Be 0
+                    $result.EstimatedAnnualSavings | Should -Be 300
+                }
+                else {
+                    $result.CoverageIncomplete | Should -BeTrue
+                    $result.ReadErrors.Count | Should -Be 1
+                    $result.ReadErrors[0] | Should -Match 'Advisor / Fixture / invalid'
+                    $result.Note | Should -Match 'invalid'
+                    ($warnings -join "`n") | Should -Match 'Advisor / Fixture / invalid'
+                    $result.EstimatedAnnualSavings | Should -BeNullOrEmpty
+                    $result.CostIssue | Should -Match 'incomplete'
+                }
+            }
+        }
+
+        It 'Retains successful subscriptions without hiding denied reads or publishing a partial total' {
+            InModuleScope FinOpsMultitool {
+                Mock Search-AzGraphSafe { throw 'Use the REST fallback.' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -match '/subscriptions/denied/') { return [pscustomobject]@{ StatusCode = 403; Content = '' } }
+                    $items = if ($Path -match 'Microsoft.Advisor') {
+                        @(@{ name = 'one'; properties = @{ impactedValue = 'vm'; shortDescription = @{ problem = 'Buy reservations' }; extendedProperties = @{ annualSavingsAmount = 100; savingsCurrency = 'USD' } } })
+                    } else { @() }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @($items | Where-Object { $_ }) } | ConvertTo-Json -Depth 8) }
+                }
+                $result = Get-ReservationAdvice -Subscriptions @(
+                    [pscustomobject]@{ Id = 'good'; Name = 'Readable' }
+                    [pscustomobject]@{ Id = 'denied'; Name = 'Denied' }
+                ) -WarningAction SilentlyContinue
+                $result.TotalAdvisorCount | Should -Be 1
+                $result.AdvisorRecommendations[0].AnnualSavings | Should -Be 100
+                $result.AccessDenied | Should -BeTrue
+                $result.CoverageIncomplete | Should -BeTrue
+                $result.EstimatedAnnualSavings | Should -BeNullOrEmpty
+                $result.Note | Should -Match 'Denied'
+                $result.CostIssue | Should -Match 'incomplete'
+            }
+        }
+
+        It 'Keeps modern Money and legacy scalar amounts with their own currencies, locations, and periods' {
+            InModuleScope FinOpsMultitool {
+                Mock Search-AzGraphSafe { @{ Data = @() } }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $items = if ([uri]::UnescapeDataString($Path) -match "resourceType eq 'VirtualMachines'") {
+                        @(
+                            @{ name = 'modern'; kind = 'modern'; properties = @{
+                                    skuName = 'ModernVM'; location = 'westus2'; term = 'P3Y'; lookBackPeriod = 60
+                                    costWithNoReservedInstances = @{ currency = 'USD'; value = 100.125 }
+                                    totalCostWithReservedInstances = @{ currency = 'EUR'; value = 50 }
+                                    netSavings = @{ currency = 'USD'; value = 0 }
+                                } }
+                            @{ name = 'legacy'; location = 'eastus'; sku = 'LegacyVM'; properties = @{
+                                    term = 'P1Y'; lookBackPeriod = 'Last30Days'
+                                    costWithNoReservedInstances = 100.125; totalCostWithReservedInstances = 50; netSavings = 50.125
+                                } }
+                        )
+                    } else { @() }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @($items | Where-Object { $_ }) } | ConvertTo-Json -Depth 10) }
+                }
+                $result = Get-ReservationAdvice -Subscriptions @([pscustomobject]@{ Id = 'fixture'; Name = 'Fixture' })
+                $result.CoverageIncomplete | Should -BeFalse
+                $result.TotalReservationCount | Should -Be 2
+                $modern, $legacy = $result.ReservationRecommendations
+                $modern.NetSavings | Should -Be 0
+                $modern.Currency | Should -Be 'USD'
+                $modern.CostWithoutRICurrency | Should -Be 'USD'
+                $modern.CostWithRICurrency | Should -Be 'EUR'
+                $modern.CostWithoutRI | Should -Be 100.12
+                $modern.Region | Should -Be 'westus2'
+                $modern.LookBackPeriod | Should -Be 60
+                $modern.Term | Should -Be 'P3Y'
+                $legacy.NetSavings | Should -Be 50.12
+                $legacy.Currency | Should -Be 'Unknown'
+                $legacy.Region | Should -Be 'eastus'
+                $legacy.SKU | Should -Be 'LegacyVM'
+                $legacy.CostPeriod | Should -Match 'not an annual'
+                $result.EstimatedAnnualSavings | Should -BeNullOrEmpty
+            }
+        }
+
+        It 'Retains valid rows after an invalid Money record and reports the data error' {
+            InModuleScope FinOpsMultitool {
+                Mock Search-AzGraphSafe { @{ Data = @() } }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $items = if ([uri]::UnescapeDataString($Path) -match "resourceType eq 'VirtualMachines'") {
+                        @(
+                            @{ name = 'invalid'; properties = @{ netSavings = @{ value = 'not a number'; currency = 'USD' } } }
+                            @{ name = 'valid'; properties = @{ netSavings = @{ value = 10; currency = 'USD' } } }
+                        )
+                    } else { @() }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @($items | Where-Object { $_ }) } | ConvertTo-Json -Depth 8) }
+                }
+                $result = Get-ReservationAdvice -Subscriptions @([pscustomobject]@{ Id = 'fixture'; Name = 'Fixture' }) -WarningAction SilentlyContinue
+                $result.TotalReservationCount | Should -Be 1
+                $result.ReservationRecommendations[0].NetSavings | Should -Be 10
+                $result.CoverageIncomplete | Should -BeTrue
+                $result.Note | Should -Match 'invalid'
+            }
+        }
+
+        It 'Preserves <Difference> while collapsing only duplicate generation records' -ForEach @(
+            @{ Difference = 'independent targets'; ExpectedCount = 2; Total = 200 }
+            @{ Difference = 'recommendation types'; ExpectedCount = 2; Total = $null }
+            @{ Difference = 'purchase options'; ExpectedCount = 2; Total = $null }
+            @{ Difference = 'alternative terms'; ExpectedCount = 2; Total = $null }
+            @{ Difference = 'overlapping savings plans'; ExpectedCount = 2; Total = $null }
+            @{ Difference = 'duplicate generations'; ExpectedCount = 1; Total = 100 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Difference = $Difference; ExpectedCount = $ExpectedCount; Total = $Total } {
+                param($Difference, $ExpectedCount, $Total)
+                $first = [pscustomobject]@{
+                    subscriptionId = 'fixture'; recName = 'generation-1'; assessedResourceId = '/subscriptions/fixture/resourceGroups/a/providers/Microsoft.Compute/virtualMachines/same-name'
+                    impactedValue = 'same-name'; impactedField = 'Microsoft.Compute/virtualMachines'; recommendationTypeId = 'purchase'
+                    shortDescriptionProblem = 'Buy reserved instances'; shortDescriptionSolution = 'Purchase reservations'
+                    annualSavings = 100; savingsCurrency = 'USD'; term = 'P1Y'; options = @{ scope = 'Single'; commitment = 'one' }
+                }
+                $second = $first.PSObject.Copy()
+                $second.recName = 'generation-2'
+                switch ($Difference) {
+                    'independent targets' { $second.assessedResourceId = '/subscriptions/fixture/resourceGroups/b/providers/Microsoft.Compute/virtualMachines/same-name' }
+                    'recommendation types' { $second.recommendationTypeId = 'renewal' }
+                    'purchase options' { $second.options = @{ scope = 'Shared'; commitment = 'two' } }
+                    'alternative terms' { $second.term = 'P3Y' }
+                    'overlapping savings plans' { $second.shortDescriptionSolution = 'Purchase a savings plan'; $second.assessedResourceId = '/subscriptions/fixture' }
+                }
+                $fixtureRows = @($first, $second)
+                Mock Search-AzGraphSafe { @{ Data = $fixtureRows } }
+                Mock Invoke-AzRestMethodWithRetry { [pscustomobject]@{ StatusCode = 204; Content = '' } }
+                $result = Get-ReservationAdvice -Subscriptions @([pscustomobject]@{ Id = 'fixture'; Name = 'Fixture' })
+                $result.TotalAdvisorCount | Should -Be $ExpectedCount
+                $result.EstimatedAnnualSavings | Should -Be $Total
+                $result.CoverageIncomplete | Should -BeFalse
+                if ($null -eq $Total) { $result.CostIssue | Should -Match 'not additive' }
+                if ($ExpectedCount -eq 1) { $result.AdvisorRecommendations[0].DuplicateCount | Should -Be 2 }
+            }
+        }
+
+        It 'Excludes solution-only commitment advice from optimization in <Source> results' -ForEach @(
+            @{ Source = 'ARG' }
+            @{ Source = 'REST' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Source = $Source } {
+                param($Source)
+                $fixtureSource = $Source
+                Mock Search-AzGraphSafe {
+                    if ($fixtureSource -eq 'REST') { throw 'Use REST.' }
+                    @{ Data = @(
+                            [pscustomobject]@{ subscriptionId = 'fixture'; impactedValue = 'commitment'; shortDescriptionProblem = 'Reduce compute costs'; shortDescriptionSolution = 'Purchase a savings plan'; annualSavings = 100; savingsCurrency = 'USD' }
+                            [pscustomobject]@{ subscriptionId = 'fixture'; impactedValue = 'resize'; shortDescriptionProblem = 'Reduce compute costs'; shortDescriptionSolution = 'Resize the virtual machine'; annualSavings = 50; savingsCurrency = 'USD' }
+                        ) }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $items = if ($Path -match 'Microsoft.Advisor') {
+                        @(
+                            @{ properties = @{ impactedValue = 'commitment'; shortDescription = @{ problem = 'Reduce compute costs'; solution = 'Purchase a savings plan' }; extendedProperties = @{ annualSavingsAmount = 100; savingsCurrency = 'USD' } } }
+                            @{ properties = @{ impactedValue = 'resize'; shortDescription = @{ problem = 'Reduce compute costs'; solution = 'Resize the virtual machine' }; extendedProperties = @{ annualSavingsAmount = 50; savingsCurrency = 'USD' } } }
+                        )
+                    } else { @() }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @($items | Where-Object { $_ }) } | ConvertTo-Json -Depth 8) }
+                }
+                $result = Get-OptimizationAdvice -Subscriptions @([pscustomobject]@{ Id = 'fixture'; Name = 'Fixture' }) -WarningAction SilentlyContinue
+                $result.TotalCount | Should -Be 1
+                $result.Recommendations[0].ResourceName | Should -Be 'resize'
+                $result.EstimatedAnnualSavings | Should -Be 50
+            }
+        }
+
+        It 'Requests only provisioned vCore SQL AHB candidates and labels entitlement as unverified' {
+            InModuleScope FinOpsMultitool {
+                Mock Search-AzGraphSafe {
+                    if ($Query -match "type == 'microsoft.sql/servers/databases'") {
+                        return @{ Data = @([pscustomobject]@{ name = 'provisioned'; sku = 'GeneralPurpose / GP_Gen5_2' }) }
+                    }
+                    @{ Data = @() }
+                }
+                $result = Get-AHBOpportunities -Subscriptions @([pscustomobject]@{ Id = 'fixture'; Name = 'Fixture' })
+                $result.SQLDatabases[0].name | Should -Be 'provisioned'
+                $result.TotalOpportunities | Should -Be 1
+                $result.Note | Should -Match 'Verify qualifying licenses'
+                $result.Summary | Should -Not -Match 'eligible'
+                Should -Invoke Search-AzGraphSafe -Times 1 -Exactly -ParameterFilter {
+                    $All -and $Query -match "sku.tier in~ \('GeneralPurpose', 'BusinessCritical', 'Hyperscale'\)" -and
+                    $Query -match "not\(sku.name matches regex '\(\?i\)\^\(GP\|BC\|HS\)_S_'\)" -and
+                    $Query -match "isempty\(properties.computeModel\) or properties.computeModel !~ 'Serverless'" -and
+                    $Query -match "isempty\(kind\) or kind !has 'serverless'" -and
+                    $Query -match "properties.licenseType !~ 'BasePrice'" -and
+                    $Query -match "name !endswith '/master'"
+                }
+            }
+        }
+
+        It 'Does not treat an unreadable AHB inventory as no opportunities' {
+            InModuleScope FinOpsMultitool {
+                Mock Search-AzGraphSafe { $null }
+                { Get-AHBOpportunities -Subscriptions @([pscustomobject]@{ Id = 'fixture'; Name = 'Fixture' }) } |
+                    Should -Throw '*inventory is incomplete*'
+            }
+        }
+    }
+
     Context 'Report and runner consumers' {
         BeforeAll {
             $launcher = Join-Path $PSScriptRoot '../../Private/FinOpsMultitool/Invoke-FinOpsMultitool.ps1'
             $script:LauncherFunctions = @(([System.Management.Automation.Language.Parser]::ParseFile($launcher, [ref]$null, [ref]$null)).FindAll({
                         $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
                         $args[0].Name -in @('Invoke-SelectedScans', 'Get-FinOpsReportRoot', 'Assert-FinOpsReportPath', 'New-FinOpsReportDirectory', 'Write-FinOpsReportFile',
-                            'Show-ResultsSummary', 'Show-Banner', 'Write-SectionHeader', 'Write-ColorizedLine', 'Write-FinOpsConsole', 'Protect-FinOpsExportText', 'ConvertTo-FinOpsExportCell', 'ConvertTo-FinOpsExportRows')
+                            'Show-ResultsSummary', 'Show-PermissionReadout', 'Show-Banner', 'Write-SectionHeader', 'Write-ColorizedLine', 'Write-FinOpsConsole', 'Protect-FinOpsExportText', 'ConvertTo-FinOpsExportCell', 'ConvertTo-FinOpsExportRows')
                     }, $true) | ForEach-Object { $_.Extent.Text })
         }
 
@@ -979,6 +1479,169 @@ Describe 'Multitool result scope, currency, and coverage' {
                 $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
                 $html | Should -Match 'Advisor recommendations are incomplete'
                 $html | Should -Not -Match 'well optimized'
+            }
+        }
+
+        It 'Preserves recommendation evidence and diagnostics in HTML, CSV, text, raw, and console (<Scenario>)' -ForEach @(
+            @{ Scenario = 'purchase only'; Purchase = $true; Incomplete = $false }
+            @{ Scenario = 'partial purchase'; Purchase = $true; Incomplete = $true }
+            @{ Scenario = 'all failed'; Purchase = $false; Incomplete = $true }
+            @{ Scenario = 'complete empty'; Purchase = $false; Incomplete = $false }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{
+                Functions = $script:LauncherFunctions; ReportRoot = (Join-Path $TestDrive $Scenario)
+                Purchase = $Purchase; Incomplete = $Incomplete
+            } {
+                param($Functions, $ReportRoot, $Purchase, $Incomplete)
+                foreach ($definition in $Functions) { . ([scriptblock]::Create($definition)) }
+                $fixturePurchase = $Purchase
+                $fixtureIncomplete = $Incomplete
+                $fixtureConsole = [Collections.Generic.List[string]]::new()
+                Mock Write-FinOpsConsole { $fixtureConsole.Add([string]$Object) }
+                Mock Search-AzGraphSafe { @{ Data = @() } }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($fixtureIncomplete -and [uri]::UnescapeDataString($Path) -match "resourceType eq 'SQLDatabases'") {
+                        return [pscustomobject]@{ StatusCode = 403; Content = '' }
+                    }
+                    $items = if ($fixturePurchase -and [uri]::UnescapeDataString($Path) -match "resourceType eq 'VirtualMachines'") {
+                        @(@{ name = 'modern'; properties = @{
+                                    skuName = 'FixtureVM'; location = 'westus2'; term = 'P3Y'; lookBackPeriod = 60
+                                    costWithNoReservedInstances = @{ currency = 'USD'; value = 100 }
+                                    totalCostWithReservedInstances = @{ currency = 'EUR'; value = 40 }
+                                    netSavings = @{ currency = 'USD'; value = 60 }
+                                } })
+                    } else { @() }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @($items | Where-Object { $_ }) } | ConvertTo-Json -Depth 10) }
+                }
+                $advice = Get-ReservationAdvice -Subscriptions @([pscustomobject]@{ Id = 'fixture'; Name = 'Fixture subscription' }) -WarningAction SilentlyContinue
+                $results = @{ 'Get-ReservationAdvice' = $advice }
+                $modules = @(@{ Fn = 'Get-ReservationAdvice'; Name = 'Reservation Advice'; Selected = $true; Category = 'Commitments' })
+                $null = Show-ResultsSummary -Results $results -Modules $modules -ExportPath $ReportRoot -ErrorAction Stop
+
+                $run = @(Get-ChildItem -LiteralPath $ReportRoot -Directory)[0].FullName
+                $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+                $text = Get-Content -LiteralPath (Join-Path $run 'ScanSummary.txt') -Raw
+                $csv = @(Import-Csv -LiteralPath (Join-Path $run 'Get-ReservationAdvice.csv'))
+                $console = $fixtureConsole -join "`n"
+                $html | Should -Not -Match 'coverage appears sufficient'
+                $console | Should -Not -Match 'coverage appears sufficient'
+                ($advice | ConvertTo-Json -Depth 15 | ConvertFrom-Json).CoverageIncomplete | Should -Be $Incomplete
+                if ($Incomplete) {
+                    $html | Should -Match '>Limited data</td>'
+                    $html | Should -Match 'Recommendation coverage is incomplete'
+                    $text | Should -Match 'Limited data'
+                    $console | Should -Match 'incomplete'
+                    @($csv | Where-Object { $_.'Summary.CoverageIncomplete' -eq 'True' }).Count | Should -Be $csv.Count
+                }
+                else {
+                    $text | Should -Not -Match 'Limited data'
+                }
+                if ($Purchase) {
+                    $row = @($csv | Where-Object RecordType -EQ 'ReservationRecommendations')[0]
+                    $row.NetSavings | Should -Be '60'
+                    $row.Currency | Should -Be 'USD'
+                    $row.CostWithRICurrency | Should -Be 'EUR'
+                    $row.Term | Should -Be 'P3Y'
+                    $row.LookBackPeriod | Should -Be '60'
+                    $row.CostPeriod | Should -Match 'not an annual'
+                    $html | Should -Match '0 Advisor and 1 reservation purchase'
+                    $html | Should -Match 'USD 60.00'
+                    $html | Should -Match 'EUR 40.00'
+                    $html | Should -Match 'not annual savings'
+                    $console | Should -Match 'FixtureVM'
+                    $console | Should -Match 'Consumption'
+                    $console | Should -Match 'USD 60.00'
+                    $advice.ReservationRecommendations[0].NetSavings | Should -Be 60
+                }
+                else { $html | Should -Match 'No recommendation rows were returned' }
+                @(Get-KpiInsightsForResult -FunctionName 'Get-ReservationAdvice' -Output $advice | Where-Object status -EQ 'computed').Count | Should -Be 0
+            }
+        }
+
+        It 'Renders assessed-resource identity from <Source> for same-named targets (different groups: <DifferentGroups>)' -ForEach @(
+            @{ Source = 'ARG'; DifferentGroups = $true }
+            @{ Source = 'ARG'; DifferentGroups = $false }
+            @{ Source = 'REST'; DifferentGroups = $true }
+            @{ Source = 'REST'; DifferentGroups = $false }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{
+                Functions = $script:LauncherFunctions; ReportRoot = (Join-Path $TestDrive "identity-$Source-$DifferentGroups")
+                Source = $Source; DifferentGroups = $DifferentGroups
+            } {
+                param($Functions, $ReportRoot, $Source, $DifferentGroups)
+                foreach ($definition in $Functions) { . ([scriptblock]::Create($definition)) }
+                $fixtureSource = $Source
+                $firstId = '/subscriptions/fixture/resourceGroups/alpha/providers/Microsoft.Sql/servers/server/databases/same-name'
+                $secondId = if ($DifferentGroups) { $firstId.Replace('/alpha/', '/beta/') } else { $firstId }
+                $generation = 0
+                $fixtureRows = @(
+                    foreach ($target in @($firstId, $secondId)) {
+                        $generation++
+                        $recommendationId = "$target/providers/Microsoft.Advisor/recommendations/generation-$generation"
+                        [pscustomobject]@{
+                            subscriptionId = 'fixture'; recName = "generation-$generation"; assessedResourceId = $target
+                            id = $recommendationId; ResourceId = $recommendationId
+                            impactedValue = 'same-name'; impactedField = 'Microsoft.Sql/servers/databases'; recommendationTypeId = 'purchase'
+                            shortDescriptionProblem = 'Buy reserved instances'; shortDescriptionSolution = 'Purchase reservations'
+                            annualSavings = 100; savingsCurrency = 'USD'; term = 'P1Y'
+                            options = @{ annualSavingsAmount = 100; savingsCurrency = 'USD'; term = 'P1Y' }
+                        }
+                    }
+                )
+                $fixtureConsole = [Collections.Generic.List[string]]::new()
+                Mock Write-FinOpsConsole { $fixtureConsole.Add([string]$Object) }
+                Mock Search-AzGraphSafe {
+                    if ($fixtureSource -eq 'REST') { throw 'Use the REST fallback.' }
+                    @{ Data = $fixtureRows }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -notmatch 'Microsoft.Advisor') { return [pscustomobject]@{ StatusCode = 204; Content = '' } }
+                    $items = @($fixtureRows | ForEach-Object {
+                            @{ name = $_.recName; properties = @{
+                                    impactedValue = $_.impactedValue; impactedField = $_.impactedField
+                                    resourceMetadata = @{ resourceId = $_.assessedResourceId }; recommendationTypeId = $_.recommendationTypeId
+                                    shortDescription = @{ problem = $_.shortDescriptionProblem; solution = $_.shortDescriptionSolution }
+                                    extendedProperties = $_.options
+                                } }
+                        })
+                    [pscustomobject]@{ StatusCode = 200; Content = (ConvertTo-Json -InputObject @{ value = $items } -Depth 10) }
+                }
+                $subscriptions = @([pscustomobject]@{ Id = 'fixture'; Name = 'Fixture subscription' })
+                $advice = Get-ReservationAdvice -Subscriptions $subscriptions -WarningAction SilentlyContinue
+                $expectedCount = if ($DifferentGroups) { 2 } else { 1 }
+                $advice.TotalAdvisorCount | Should -Be $expectedCount
+                $advice.AdvisorRecommendations[0].ResourceId | Should -Be $firstId
+                $advice.AdvisorRecommendations[0].RecommendationId | Should -Be 'generation-1'
+                @($advice.AdvisorRecommendations.ResourceId | Where-Object { $_ -match '/providers/Microsoft.Advisor/recommendations/' }).Count | Should -Be 0
+                $advice.EstimatedAnnualSavings | Should -Be (100 * $expectedCount)
+                $advice.CoverageIncomplete | Should -BeFalse
+                Should -Invoke Search-AzGraphSafe -Times 1 -Exactly -ParameterFilter {
+                    $Query -match 'assessedResourceId\s*=\s*tostring\(properties.resourceMetadata.resourceId\)'
+                }
+                $modules = @(@{ Fn = 'Get-ReservationAdvice'; Name = 'Reservation Advice'; Selected = $true; Category = 'Commitments' })
+                $null = Show-ResultsSummary -Results @{ 'Get-ReservationAdvice' = $advice } -Modules $modules -ExportPath $ReportRoot -Subscriptions $subscriptions -ErrorAction Stop
+
+                $run = @(Get-ChildItem -LiteralPath $ReportRoot -Directory)[0].FullName
+                $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+                $advisorTable = [regex]::Match($html, '(?s)<table[^>]+id="table-Get-ReservationAdvice".*?</table>').Value
+                $advisorTable | Should -Not -BeNullOrEmpty
+                [regex]::Matches($advisorTable, '<tr>').Count | Should -Be ($expectedCount + 1)
+                [regex]::Matches($advisorTable, '<summary>Resource ID</summary>').Count | Should -Be $expectedCount
+                $advisorTable | Should -Match ([regex]::Escape($firstId))
+                $console = $fixtureConsole -join "`n"
+                $console | Should -Match ([regex]::Escape($firstId))
+                $csv = @(Import-Csv -LiteralPath (Join-Path $run 'Get-ReservationAdvice.csv') | Where-Object RecordType -EQ 'AdvisorRecommendations')
+                $csv.Count | Should -Be $expectedCount
+                if ($DifferentGroups) {
+                    $advisorTable | Should -Match ([regex]::Escape($secondId))
+                    $console | Should -Match ([regex]::Escape($secondId))
+                    @($csv.ResourceId) | Should -Be @($firstId, $secondId)
+                }
+                else {
+                    $advisorTable | Should -Not -Match '/resourceGroups/beta/'
+                    $console | Should -Not -Match '/resourceGroups/beta/'
+                    $advice.AdvisorRecommendations[0].DuplicateCount | Should -Be 2
+                }
             }
         }
 

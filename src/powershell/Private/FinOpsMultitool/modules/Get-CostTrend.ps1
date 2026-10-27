@@ -237,7 +237,7 @@ function Get-CostTrend {
             # group by SubscriptionId so a single call returns the month x
             # subscription matrix (aggregate + per-sub) in one response.
             # Keep the grouped query filtered to the selected subscriptions.
-            $mgScopeId = Resolve-CostMgId -TenantId $TenantId
+            $mgScopeId = Resolve-CostMgId -TenantId $TenantId -Subscriptions $Subscriptions
             $useMgScope = [bool]$mgScopeId
             $groupedOk = $false
 

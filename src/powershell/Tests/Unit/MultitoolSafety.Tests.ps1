@@ -423,7 +423,7 @@ Describe 'FinOps Multitool safety' {
 
         It 'Labels AHB retail estimates and preserves unavailable per-VM rates' {
             Mock Search-AzGraphSafe -ModuleName FinOpsMultitool {
-                @{ Data = $(if ($Query -like '*microsoft.compute/virtualmachines*') {
+                @{ Data = @(if ($Query -like '*microsoft.compute/virtualmachines*') {
                             @([pscustomobject]@{ name = 'priced'; vmSize = 'known'; location = 'eastus' }, [pscustomobject]@{ name = 'unpriced'; vmSize = 'unknown'; location = 'eastus' })
                         }
                         else { @() })
@@ -463,6 +463,97 @@ Describe 'FinOps Multitool safety' {
             ($result.Allocations | Measure-Object AllocatedShared -Sum).Sum | Should -Be 1000
             ($result.RuleTargets | Measure-Object percentage -Sum).Sum | Should -Be 100
             $result.Currency | Should -Be 'EUR'
+        }
+
+        It 'Reconciles rounded shared allocation <Amount> with <SpokeCount> spokes (<Method>, fixed ratio <Ratio>)' -ForEach @(
+            @{ Amount = 100.01; SpokeCount = 6; Method = 'equal'; Ratio = 0.5; ZeroWeights = $false }
+            @{ Amount = 100; SpokeCount = 3; Method = 'equal'; Ratio = 0.5; ZeroWeights = $false }
+            @{ Amount = 0.04; SpokeCount = 6; Method = 'equal'; Ratio = 0.5; ZeroWeights = $false }
+            @{ Amount = 0.01; SpokeCount = 9; Method = 'equal'; Ratio = 0.5; ZeroWeights = $false }
+            @{ Amount = 0.03; SpokeCount = 5; Method = 'equal'; Ratio = 1; ZeroWeights = $false }
+            @{ Amount = 0.03; SpokeCount = 5; Method = 'equal'; Ratio = 0; ZeroWeights = $false }
+            @{ Amount = 100.01; SpokeCount = 6; Method = 'resourceCount'; Ratio = 0.3; ZeroWeights = $true }
+            @{ Amount = 100.01; SpokeCount = 6; Method = 'resourceCount'; Ratio = 0.3; ZeroWeights = $false }
+            @{ Amount = -100.01; SpokeCount = 6; Method = 'equal'; Ratio = 0.5; ZeroWeights = $false }
+            @{ Amount = -0.04; SpokeCount = 6; Method = 'equal'; Ratio = 0.5; ZeroWeights = $false }
+            @{ Amount = 100.014; SpokeCount = 6; Method = 'equal'; Ratio = 0.5; ZeroWeights = $false }
+            @{ Amount = 1.015; SpokeCount = 3; Method = 'equal'; Ratio = 0.5; ZeroWeights = $false }
+            @{ Amount = -1.015; SpokeCount = 3; Method = 'equal'; Ratio = 0.5; ZeroWeights = $false }
+            @{ Amount = 0; SpokeCount = 3; Method = 'equal'; Ratio = 0.5; ZeroWeights = $false }
+        ) {
+            $fixtureAmount = $Amount
+            $fixtureSpokes = @(1..$SpokeCount | ForEach-Object { "spoke-$_" })
+            $fixtureZeroWeights = $ZeroWeights
+            Mock Resolve-SharedCostPool -ModuleName FinOpsMultitool {
+                @([pscustomobject]@{ Id = 'pool'; Name = 'Pool'; Type = 'fixture'; SubscriptionId = 'hub' })
+            }
+            Mock Get-AllocationCostMaps -ModuleName FinOpsMultitool {
+                $ownCosts = @{}
+                foreach ($spoke in $fixtureSpokes) { $ownCosts[$spoke] = 200.004 }
+                @{ ByResource = @{ pool = $fixtureAmount }; BySub = $ownCosts; Currency = 'EUR'; Source = 'FinOpsHub'; Period = '2026-08' }
+            }
+            Mock Search-AzGraphSafe -ModuleName FinOpsMultitool {
+                @{ Data = @(for ($i = 0; $i -lt $fixtureSpokes.Count; $i++) {
+                            [pscustomobject]@{ subscriptionId = $fixtureSpokes[$i]; c = $(if ($fixtureZeroWeights) { 0 } else { $i + 1 }) }
+                        })
+                }
+            }
+
+            $result = Get-SharedCostAllocation -SharedResourceIds 'pool' -Spokes $fixtureSpokes -WeightingMethod $Method -FixedRatio $Ratio
+
+            $expectedPool = [math]::Round([decimal]$Amount, 2)
+            $expectedFixed = [math]::Round($expectedPool * [decimal]$Ratio, 2)
+            $expectedWeightTotal = if ($Method -eq 'equal') { $SpokeCount } elseif ($ZeroWeights) { 0 } else { $SpokeCount * ($SpokeCount + 1) / 2 }
+            $sharedSum = [decimal]0
+            $fixedSum = [decimal]0
+            $variableSum = [decimal]0
+            foreach ($allocation in $result.Allocations) {
+                $fixed = [decimal]$allocation.AllocatedFixed
+                $variable = [decimal]$allocation.AllocatedVar
+                $shared = [decimal]$allocation.AllocatedShared
+                $expectedWeight = if ($Method -eq 'equal') { 1 } elseif ($ZeroWeights) { 0 } else { [array]::IndexOf($fixtureSpokes, $allocation.Spoke) + 1 }
+                $expectedVariable = if ($expectedWeightTotal -gt 0) {
+                    ($expectedPool - $expectedFixed) * [decimal]$expectedWeight / $expectedWeightTotal
+                }
+                else {
+                    ($expectedPool - $expectedFixed) / $SpokeCount
+                }
+                $allocation.WeightUnits | Should -Be $expectedWeight
+                [math]::Abs($fixed - $expectedFixed / $SpokeCount) | Should -BeLessThan 0.01
+                [math]::Abs($variable - $expectedVariable) | Should -BeLessThan 0.01
+                ($fixed + $variable) | Should -Be $shared
+                ([decimal]$allocation.OwnCost + $shared) | Should -Be ([decimal]$allocation.SolutionCost)
+                if ($Amount -ge 0) {
+                    $fixed | Should -BeGreaterOrEqual 0
+                    $variable | Should -BeGreaterOrEqual 0
+                }
+                else {
+                    $fixed | Should -BeLessOrEqual 0
+                    $variable | Should -BeLessOrEqual 0
+                }
+                if ($Method -eq 'equal' -or $ZeroWeights) {
+                    [math]::Abs($shared - $expectedPool / $SpokeCount) | Should -BeLessThan 0.01
+                }
+                $sharedSum += $shared
+                $fixedSum += $fixed
+                $variableSum += $variable
+            }
+            $result.Allocations.Count | Should -Be $SpokeCount
+            $result.SharedPool.TotalCost | Should -Be $expectedPool
+            $result.SharedPool.Resources[0].Cost | Should -Be $expectedPool
+            $sharedSum | Should -Be $expectedPool
+            $fixedSum | Should -Be $expectedFixed
+            $variableSum | Should -Be ($expectedPool - $expectedFixed)
+            $result.Currency | Should -Be 'EUR'
+            $result.Period | Should -Be '2026-08'
+            $result.Source | Should -Be 'FinOpsHub'
+            $result.WeightingMethod | Should -Be $Method
+            if ($expectedPool -gt 0) {
+                ($result.RuleTargets | Measure-Object percentage -Sum).Sum | Should -Be 100
+            }
+            else {
+                $result.RuleTargets | Should -BeNullOrEmpty
+            }
         }
 
         It 'Keeps usage-weighted allocation nonnegative and reconciles <Amount> across <Consumers> consumers' -ForEach @(
@@ -816,7 +907,7 @@ console.log('Credit, numeric, and unavailable sorting passed');
             $purchaseHtml = $html.Substring($purchaseStart, $purchaseEnd - $purchaseStart)
             $purchaseHtml | Should -Match '<div class="table-scroll"><table class="report-table table-reservation-purchases" id="table-reservation-purchases">'
             $purchaseHtml | Should -Not -Match '<table><thead>'
-            [regex]::Matches($purchaseHtml, '<th scope="col">').Count | Should -Be 9
+            [regex]::Matches($purchaseHtml, '<th scope="col">').Count | Should -Be 10
             [regex]::Matches($purchaseHtml, '<tr><td>').Count | Should -Be $Rows
             $purchaseHtml.Contains('data-table-id="table-reservation-purchases"') | Should -Be $HasControls
             $purchaseHtml | Should -Match '</tbody></table></div><p class="table-note">From the Consumption reservation recommendation API'
@@ -1506,6 +1597,37 @@ console.log('Credit, numeric, and unavailable sorting passed');
             $manyStory = [regex]::Match((Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw), '(?s)<section id="tab-FinOpsStory"[^>]*>.*?</section>').Value
             $manyStory | Should -Match '5 subscriptions: Full-month forecast unavailable\.'
             $manyStory | Should -Not -Match 'Example 1: Full-month forecast unavailable'
+        }
+
+        It 'Preserves the full savings estimate basis in HTML without a results table (incomplete: <Incomplete>)' -ForEach @(
+            @{ Incomplete = $false }
+            @{ Incomplete = $true }
+        ) {
+            $reportRoot = Join-Path $TestDrive "savings-estimate-basis-$Incomplete"
+            Mock Write-Host { }
+            $basis = "Assumed discounts: RI 40% & SP 25%, not <measured savings>. Purchases, refunds, and unused charges are excluded. MTD and 730-hour estimates aren't additive."
+            $savings = [pscustomobject]@{
+                RISavingsMonthToDate = 10.0; SPSavingsMonthToDate = 5.0; CommitmentSavingsMonthToDate = 15.0; Currency = 'EUR'
+                Period = '2026-10-01T00:00:00Z to 2026-10-12T00:00:00Z'; AHBSavingsMonthly = 20.0; AHBCurrency = 'USD'; AHBPeriod = '730-hour estimate'
+                CommittedAmortized = 100.0; OnDemandAmortized = 100.0; SpotAmortized = 0.0; CommitmentCoveragePct = 50.0
+                Details = @(); IsEstimate = $true; EstimateBasis = $basis; HasData = $true
+                CoverageIncomplete = $Incomplete; Note = if ($Incomplete) { 'Some commitment reads failed.' } else { $null }
+            }
+            $modules = @(@{ Fn = 'Get-SavingsRealized'; Name = 'Savings Realized'; Selected = $true; Category = 'Commitments' })
+
+            $null = Show-ResultsSummary -Results @{ 'Get-SavingsRealized' = $savings } -Modules $modules -ExportPath $reportRoot -ErrorAction Stop
+
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $encodedBasis = [System.Net.WebUtility]::HtmlEncode($basis)
+            [regex]::Matches($html, [regex]::Escape($encodedBasis)).Count | Should -Be 1
+            $html | Should -Not -Match '<table[^>]+id="table-Get-SavingsRealized"'
+            $html | Should -Not -Match '<measured savings>'
+            $html | Should -Match 'EUR 15\.00'
+            $html | Should -Match 'USD 20\.00'
+            $html | Should -Match '730-hour estimate'
+            $csv = @(Import-Csv -LiteralPath (Join-Path $run 'Get-SavingsRealized.csv'))
+            $csv[0].'Summary.EstimateBasis' | Should -Be $basis
         }
 
         It 'Explains partial commitment savings and withholds the KPIs built on them' {
@@ -2582,7 +2704,8 @@ console.log('Credit, numeric, and unavailable sorting passed');
                 $notesSb.ToString() | Should -Match 'EUR 66.67'
                 $notesSb.ToString() | Should -Match 'USD 73.00'
                 $notesSb.ToString() | Should -Match '730-hour'
-                $tableNote | Should -Be $data.EstimateBasis
+                $notesSb.ToString() | Should -Match ([regex]::Escape([System.Net.WebUtility]::HtmlEncode([string]$data.EstimateBasis)))
+                $tableNote | Should -BeNullOrEmpty
                 $kpi = Get-KpiComputedValue -KpiId 'effective-savings-rate' -Data $data
                 $kpi.Display | Should -Match 'estimated savings'
                 $kpi.Display | Should -Not -Match 'realized'

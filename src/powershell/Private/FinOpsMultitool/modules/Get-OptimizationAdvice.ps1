@@ -50,7 +50,7 @@ advisorresources
         Write-Host "  Querying Advisor cost recommendations via Resource Graph..." -ForegroundColor Cyan
         # -All follows continuation tokens and fails on unreadable or truncated pages.
         $result = Search-AzGraphSafe -Query $query -Subscription $subIds -First 1000 -All
-        if (-not $result) { throw 'Advisor recommendations could not be read from Resource Graph; results are incomplete.' }
+        if ($null -eq $result -or $null -eq $result.Data) { throw 'Advisor recommendations could not be read from Resource Graph; results are incomplete.' }
         $allRows = @($result.Data)
 
         Write-Host "  Retrieved $($allRows.Count) Advisor cost recommendations." -ForegroundColor Cyan
@@ -60,7 +60,7 @@ advisorresources
             $solution = $row.shortDescriptionSolution
 
             # Skip reservation/savings plan recs (handled by Get-ReservationAdvice)
-            if ($problem -match 'reserv|savings plan') { continue }
+            if ($problem -match 'reserv|savings plan' -or $solution -match 'reserv|savings plan') { continue }
 
             # Categorize the recommendation
             $catText = "$problem $solution"
@@ -110,7 +110,7 @@ advisorresources
 
                 foreach ($item in $advResult.value) {
                     $rec = $item.properties
-                    if ($rec.shortDescription.problem -match 'reserv|savings plan') { continue }
+                    if ($rec.shortDescription.problem -match 'reserv|savings plan' -or $rec.shortDescription.solution -match 'reserv|savings plan') { continue }
 
                     $catText = "$($rec.shortDescription.problem) $($rec.shortDescription.solution)"
                     $category = switch -Regex ($catText) {

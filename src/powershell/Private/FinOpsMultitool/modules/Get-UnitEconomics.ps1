@@ -278,7 +278,7 @@ resources
     $costScope = 'none'
     $mgFailed = $false
     try {
-        $mgScopeId = Resolve-CostMgId -TenantId $TenantId
+        $mgScopeId = Resolve-CostMgId -TenantId $TenantId -Subscriptions $Subscriptions
         if ($mgScopeId -and -not (Test-CostMgCoverage -ManagementGroupId $mgScopeId -TenantId $TenantId -Subscriptions $Subscriptions)) { $mgScopeId = $null }
         if ($mgScopeId) {
             $dataset = @{

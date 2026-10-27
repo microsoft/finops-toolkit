@@ -135,9 +135,9 @@ function Get-ResourceCosts {
     # query but add a server-side SubscriptionId filter so only the selected
     # subs' resources are returned - avoids the slow per-subscription fan-out
     # that triggers 429 throttling.
-    $mgScopeId = if ($TenantId) { Resolve-CostMgId -TenantId $TenantId } else { $null }
+    $mgScopeId = if ($TenantId) { Resolve-CostMgId -TenantId $TenantId -Subscriptions $Subscriptions } else { $null }
     if ($mgScopeId -and -not (Test-CostMgCoverage -ManagementGroupId $mgScopeId -TenantId $TenantId -Subscriptions $Subscriptions)) { $mgScopeId = $null }
-    $subFilter = if ($RestrictToSelected) { Get-CostSubscriptionFilter -Subscriptions $Subscriptions } else { $null }
+    $subFilter = if ($RestrictToSelected -or $Subscriptions.Count -gt 0) { Get-CostSubscriptionFilter -Subscriptions $Subscriptions } else { $null }
     if ($mgScopeId) {
         try {
             Write-Host "  Querying resource costs (MG scope)..." -ForegroundColor Cyan
@@ -178,7 +178,7 @@ function Get-ResourceCosts {
                             Write-Host "    Page $pageNum ($($page.properties.rows.Count) rows)..." -ForegroundColor Gray
                         }
                         foreach ($row in $page.properties.rows) {
-                            $cost = [math]::Round($row[$cols['Cost']], 2)
+                            $cost = [double][math]::Round([decimal]$row[$cols['Cost']], 2)
                             $currency = $row[$cols['Currency']]
                                 $resourceId = [string]$row[$cols['ResourceId']]
                             $rg = $row[$cols['ResourceGroupName']]
@@ -301,7 +301,7 @@ function Get-ResourceCosts {
                         $page = $responsePage.Content | ConvertFrom-Json
                         if ($page.properties.rows) {
                             foreach ($row in $page.properties.rows) {
-                                $cost = [math]::Round($row[$cols['Cost']], 2)
+                                $cost = [double][math]::Round([decimal]$row[$cols['Cost']], 2)
                                 $currency = $row[$cols['Currency']]
                                 $resourceId = [string]$row[$cols['ResourceId']]
                                 $rg = $row[$cols['ResourceGroupName']]

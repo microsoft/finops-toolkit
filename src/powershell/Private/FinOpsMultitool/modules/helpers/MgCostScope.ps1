@@ -24,14 +24,16 @@ function Set-MgCostScopeFailed {
 # than the tenant-root group (whose id == tenant GUID), so querying
 # managementGroups/<tenantId> returns 401. Resolve-CostMgId probes the tenant
 # root first, then a bounded set of accessible MGs, and caches the first usable
-# scope for this tenant. Falls back to per-subscription when none work.
+# scope for this tenant and selection. Falls back to per-subscription when none work.
 $script:CostMgId = $null
 $script:CostMgTenantId = $null
+$script:CostMgSelectionKey = $null
 $script:CostMgCoverage = @{}
 
 function Reset-CostMgScope {
     $script:CostMgId = $null
     $script:CostMgTenantId = $null
+    $script:CostMgSelectionKey = $null
     $script:MgCostScopeFailed = $false
     $script:CostMgCoverage = @{}
     # A throttle window describes one tenant's quota, so it doesn't outlive the tenant.
@@ -59,23 +61,41 @@ function Get-CostMgProbeResult {
 function Resolve-CostMgId {
     param(
         [Parameter(Mandatory)]
-        [string]$TenantId
+        [string]$TenantId,
+        [object[]]$Subscriptions
     )
 
     if ($script:CostMgTenantId -ne $TenantId) {
         Reset-CostMgScope
         $script:CostMgTenantId = $TenantId
     }
+    $subscriptionFilter = Get-CostSubscriptionFilter -Subscriptions $Subscriptions
+    if ($Subscriptions.Count -gt 0 -and -not $subscriptionFilter) {
+        throw 'Cost scope discovery requires subscription IDs for the selected subscriptions.'
+    }
+    $selectedIds = if ($subscriptionFilter) { @($subscriptionFilter.dimensions.values | Sort-Object -Unique) } else { @() }
+    $selectionKey = if ($subscriptionFilter) { ($selectedIds -join ',').ToLowerInvariant() } else { '*' }
+    if ($script:CostMgSelectionKey -ne $selectionKey) {
+        $script:CostMgId = $null
+        $script:MgCostScopeFailed = $false
+        $script:CostMgSelectionKey = $selectionKey
+    }
+    # Selection changes don't clear the tenant's throttle window.
+    # A single subscription uses the existing direct paths without a probe.
+    if ($subscriptionFilter -and $selectedIds.Count -eq 1) { return $null }
+
     if ($script:MgCostScopeFailed) { return $null }
     if ($script:CostMgId) { return $script:CostMgId }
 
+    $probeDataset = @{
+        granularity = 'None'
+        aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
+    }
+    if ($subscriptionFilter) { $probeDataset['filter'] = $subscriptionFilter }
     $probeBody = @{
         type      = 'ActualCost'
         timeframe = 'MonthToDate'
-        dataset   = @{
-            granularity = 'None'
-            aggregation = @{ totalCost = @{ name = 'Cost'; function = 'Sum' } }
-        }
+        dataset   = $probeDataset
     } | ConvertTo-Json -Depth 10
 
     # Throttled isn't denied: access is unknown, so management-group queries stay

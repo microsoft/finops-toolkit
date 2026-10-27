@@ -397,39 +397,73 @@ function Get-SharedCostAllocation {
         $poolResources += [PSCustomObject]@{
             Name = $p.Name
             Type = $p.Type
-            Cost = [math]::Round($c, 2)
+            Cost = [math]::Round([decimal]$c, 2)
         }
     }
 
     # -- Build the weighting vector ---------------------------------------
     Write-Host "  Building weighting ($WeightingMethod)..." -ForegroundColor Cyan
     $weights = Get-SpokeWeighting -Spokes $Spokes -Method $WeightingMethod -Values $WeightingValues -SubscriptionIds $scanSubs -WorkspaceId $WorkspaceId -LookbackDays $LookbackDays -Query $WeightingQuery
-    $totalWeight = 0.0
-    foreach ($w in $weights.Values) { $totalWeight += [double]$w }
+    $totalWeight = [decimal]0
+    foreach ($w in $weights.Values) { $totalWeight += [decimal]$w }
 
     # -- Allocate ----------------------------------------------------------
     $nSpokes = $Spokes.Count
-    $fixedTotal = $poolTotal * $FixedRatio
-    $varTotal = $poolTotal * (1 - $FixedRatio)
+    $roundedPool = [math]::Round([decimal]$poolTotal, 2)
+    $fixedTotal = [math]::Round($roundedPool * [decimal]$FixedRatio, 2)
+    $varTotal = $roundedPool - $fixedTotal
 
     $allocations = @()
+    $unrounded = @{}
     foreach ($s in $Spokes) {
         $w = [double]$weights[$s]
         $allocFixed = if ($nSpokes -gt 0) { $fixedTotal / $nSpokes } else { 0 }
-        $allocVar = if ($totalWeight -gt 0) { $varTotal * ($w / $totalWeight) } elseif ($nSpokes -gt 0) { $varTotal / $nSpokes } else { 0 }
+        $allocVar = if ($totalWeight -gt 0) { $varTotal * ([decimal]$w / $totalWeight) } elseif ($nSpokes -gt 0) { $varTotal / $nSpokes } else { 0 }
         $allocShared = $allocFixed + $allocVar
-        $ownCost = if ($maps.BySub.ContainsKey($s)) { [double]$maps.BySub[$s] } else { 0.0 }
+        $ownCost = if ($maps.BySub.ContainsKey($s)) { [decimal]$maps.BySub[$s] } else { [decimal]0 }
+        $unrounded[$s] = @{ AllocatedFixed = $allocFixed; AllocatedVar = $allocVar }
 
         $allocations += [PSCustomObject]@{
             Spoke           = $s
             WeightUnits     = [math]::Round($w, 2)
-            WeightPct       = if ($totalWeight -gt 0) { [math]::Round(($w / $totalWeight) * 100, 1) } else { [math]::Round(100.0 / [math]::Max($nSpokes, 1), 1) }
+            WeightPct       = if ($totalWeight -gt 0) { [math]::Round(($w / [double]$totalWeight) * 100, 1) } else { [math]::Round(100.0 / [math]::Max($nSpokes, 1), 1) }
             AllocatedFixed  = [math]::Round($allocFixed, 2)
             AllocatedVar    = [math]::Round($allocVar, 2)
             AllocatedShared = [math]::Round($allocShared, 2)
             OwnCost         = [math]::Round($ownCost, 2)
             SolutionCost    = [math]::Round($ownCost + $allocShared, 2)
         }
+    }
+
+    # Balance each rounded pool one cent at a time, prioritizing rounding error.
+    foreach ($component in @('AllocatedFixed', 'AllocatedVar')) {
+        $target = if ($component -eq 'AllocatedFixed') { $fixedTotal } else { $varTotal }
+        $allocated = [decimal]0
+        foreach ($allocation in $allocations) { $allocated += $allocation.$component }
+        $residual = $target - $allocated
+        if ($residual -eq 0) { continue }
+
+        $direction = [math]::Sign($residual)
+        $corrections = [int][math]::Abs($residual * 100)
+        if ($corrections -gt $allocations.Count) {
+            throw 'Rounded allocation amounts could not be reconciled to the shared pool.'
+        }
+        $ranked = @($allocations | Sort-Object -Property @{
+                Expression = { $direction * ($unrounded[$_.Spoke][$component] - $_.$component) }
+                Descending = $true
+            }, @{
+                Expression = {
+                    $direction * ($unrounded[$_.Spoke].AllocatedFixed + $unrounded[$_.Spoke].AllocatedVar - $_.AllocatedFixed - $_.AllocatedVar)
+                }
+                Descending = $true
+            }, Spoke)
+        foreach ($allocation in ($ranked | Select-Object -First $corrections)) {
+            $allocation.$component += $direction / [decimal]100
+        }
+    }
+    foreach ($allocation in $allocations) {
+        $allocation.AllocatedShared = $allocation.AllocatedFixed + $allocation.AllocatedVar
+        $allocation.SolutionCost = $allocation.OwnCost + $allocation.AllocatedShared
     }
     $allocations = @($allocations | Sort-Object SolutionCost -Descending)
 
@@ -469,7 +503,7 @@ function Get-SharedCostAllocation {
         WeightingMethod = $WeightingMethod
         FixedRatio      = $FixedRatio
         SharedPool      = [PSCustomObject]@{
-            TotalCost = [math]::Round($poolTotal, 2)
+            TotalCost = $roundedPool
             Resources = @($poolResources | Sort-Object Cost -Descending)
         }
         Allocations     = $allocations

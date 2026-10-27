@@ -1459,7 +1459,7 @@ function ConvertTo-AIHubAggregates {
     $currency = $costSchema.Currency
 
     foreach ($row in $HubData) {
-        $resType = Get-HubRowValue -Row $row -Props $props -Names @('ResourceType', 'x_ResourceType', 'ConsumedService')
+        $resType = Get-HubRowValue -Row $row -Props $props -Names @('x_ResourceType', 'ResourceType', 'ConsumedService')
         if (-not $resType -or "$resType".ToLowerInvariant() -notmatch 'cognitiveservices') { continue }
 
         $rid = Get-HubRowValue -Row $row -Props $props -Names @('ResourceId', 'x_ResourceId')

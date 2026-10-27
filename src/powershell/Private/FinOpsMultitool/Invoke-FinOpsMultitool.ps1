@@ -2045,6 +2045,7 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-AHBOpportunities' {
+                    if ($data.Note) { Write-FinOpsConsole "    $($data.Note)" -ForegroundColor Yellow }
                     $rows = @()
                     if ($data.WindowsVMs) {
                         $rows += @($data.WindowsVMs) | ForEach-Object {
@@ -2068,27 +2069,40 @@ function Invoke-FinOpsMultitool {
                     if ($data.AccessDenied) {
                         Show-PermissionReadout -Fn 'Get-ReservationAdvice' -PermissionInfo $permissionInfo -Activity 'Advisor / reservation recommendations'
                     }
-                    else {
-                        $rows = $data.AdvisorRecommendations | ForEach-Object {
-                            $resLabel = if ($_.Subscription -and $_.Subscription -ne $_.SubscriptionId) { $_.Subscription }
-                            elseif ($_.Solution) { $_.Solution.Substring(0, [math]::Min(50, $_.Solution.Length)) }
-                            else { ($_.ResourceName -split '/')[-1] }
-                            # Console width is tight once SKU/Region/Qty are shown.
-                            if ($resLabel.Length -gt 22) { $resLabel = $resLabel.Substring(0, 21) + [char]0x2026 }
+                    $rows = @(
+                        $data.AdvisorRecommendations | Where-Object { $_ } | ForEach-Object {
                             [PSCustomObject]@{
-                                Resource = $resLabel
+                                Source   = 'Advisor'
+                                Resource = $_.ResourceName
                                 Type     = ($_.ResourceType -split '/')[-1]
                                 SKU      = $_.SKU
                                 Region   = $_.Region
                                 Qty      = $_.Qty
                                 Term     = $_.Term
                                 Savings  = Format-BudgetAmount -Value $_.AnnualSavings -Currency $_.Currency
-                                Impact   = $_.Impact
+                                Period   = 'Annual'
                             }
                         }
-                        $cols = @('Resource', 'Type', 'SKU', 'Region', 'Qty', 'Term', 'Savings', 'Impact')
-                        Write-ColorizedLine -Text "    Est. annual savings: $(Format-BudgetAmount -Value $data.EstimatedAnnualSavings -Currency $data.Currency)" -DefaultColor 'White'
-                        if ($data.CostIssue) { Write-FinOpsConsole "    $($data.CostIssue)" -ForegroundColor Yellow }
+                        $data.ReservationRecommendations | Where-Object { $_ } | ForEach-Object {
+                            [PSCustomObject]@{
+                                Source   = 'Consumption'
+                                Resource = $_.Subscription
+                                Type     = $_.ResourceType
+                                SKU      = $_.SKU
+                                Region   = $_.Region
+                                Qty      = $_.RecommendedQty
+                                Term     = $_.Term
+                                Savings  = Format-BudgetAmount -Value $_.NetSavings -Currency $(if ($_.Currency -and $_.Currency -ne 'Unknown') { $_.Currency } else { 'Unknown currency' })
+                                Period   = "Lookback: $($_.LookBackPeriod)"
+                            }
+                        }
+                    )
+                    $cols = @('Source', 'Resource', 'Type', 'SKU', 'Region', 'Qty', 'Term', 'Savings', 'Period')
+                    Write-ColorizedLine -Text "    Est. annual savings: $(Format-BudgetAmount -Value $data.EstimatedAnnualSavings -Currency $data.Currency)" -DefaultColor 'White'
+                    if ($data.CostIssue) { Write-FinOpsConsole "    $($data.CostIssue)" -ForegroundColor Yellow }
+                    if ($data.Note) { Write-FinOpsConsole "    $($data.Note)" -ForegroundColor Yellow }
+                    foreach ($recommendation in @($data.AdvisorRecommendations | Where-Object { $_.ResourceId })) {
+                        Write-FinOpsConsole "    Advisor resource $($recommendation.ResourceName): $($recommendation.ResourceId)" -ForegroundColor DarkGray
                     }
                 }
                 'Get-CommitmentUtilization' {
@@ -2662,15 +2676,14 @@ function Invoke-FinOpsMultitool {
                     $ahbCount = if ($rows) { @($rows).Count } else { 0 }
                     if ($ahbCount -gt 5) {
                         $guidanceItems = @(
-                            @{ Severity = 'Red'; Message = "$ahbCount resources eligible for Azure Hybrid Benefit — up to 40% savings on Windows, 55% on SQL licensing." }
-                            @{ Severity = 'Red'; Message = "FinOps Action: AHB is one of the highest-impact, lowest-effort optimizations. Apply to all eligible VMs and SQL resources." }
-                            @{ Severity = 'Yellow'; Message = "Requires Software Assurance or qualifying subscription licenses. Check with your licensing team."; Docs = 'https://learn.microsoft.com/azure/virtual-machines/windows/hybrid-use-benefit-licensing' }
+                            @{ Severity = 'Yellow'; Message = "$ahbCount configuration candidates for Azure Hybrid Benefit. This scan does not verify license entitlement." }
+                            @{ Severity = 'Yellow'; Message = 'Verify qualifying licenses, available entitlement, and service eligibility with your licensing team before enabling the benefit.'; Docs = 'https://learn.microsoft.com/azure/virtual-machines/windows/hybrid-use-benefit-licensing' }
                         )
                     }
                     elseif ($ahbCount -gt 0) {
                         $guidanceItems = @(
-                            @{ Severity = 'Yellow'; Message = "$ahbCount resources can use Azure Hybrid Benefit (up to 40% Windows / 55% SQL savings)." }
-                            @{ Severity = 'Yellow'; Message = "Requires Software Assurance. Low effort to apply — high cost impact."; Docs = 'https://learn.microsoft.com/azure/virtual-machines/windows/hybrid-use-benefit-licensing' }
+                            @{ Severity = 'Yellow'; Message = "$ahbCount configuration candidates for Azure Hybrid Benefit. This scan does not verify license entitlement." }
+                            @{ Severity = 'Yellow'; Message = 'Verify qualifying licenses, available entitlement, and service eligibility with your licensing team before enabling the benefit.'; Docs = 'https://learn.microsoft.com/azure/virtual-machines/windows/hybrid-use-benefit-licensing' }
                         )
                     }
                 }
@@ -2861,38 +2874,19 @@ function Invoke-FinOpsMultitool {
                     }
                 }
                 'Get-ReservationAdvice' {
-                    if ($data.CostIssue) {
-                        $guidanceItems = @(@{ Severity = 'Yellow'; Message = [string]$data.CostIssue })
-                    }
-                    elseif ($data.AdvisorRecommendations -and @($data.AdvisorRecommendations).Count -gt 0) {
-                        $totalSavings = if ($data.EstimatedAnnualSavings) { $data.EstimatedAnnualSavings } else { 0 }
-                        if ($totalSavings -gt 10000) {
-                            $guidanceItems = @(
-                                @{ Severity = 'Red'; Message = "Estimated reservation savings: $(Format-BudgetAmount -Value $data.EstimatedAnnualSavings -Currency $data.Currency)/year." }
-                                @{ Severity = 'Red'; Message = "FinOps Principle: Commitment-based discounts (RIs, Savings Plans) are the single largest cost lever — typically 30-60% savings." }
-                                @{ Severity = 'Yellow'; Message = "Start with 1-year terms for flexibility. Use shared scope to maximize utilization across subscriptions." }
-                                @{ Severity = 'Yellow'; Message = "Review 14-day usage trends before purchasing to ensure steady-state workloads."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations' }
-                            )
-                        }
-                        else {
-                            $guidanceItems = @(
-                                @{ Severity = 'Yellow'; Message = "Estimated reservation savings: $(Format-BudgetAmount -Value $data.EstimatedAnnualSavings -Currency $data.Currency)/year. Review the individual recommendations for steady-state workloads." }
-                                @{ Severity = 'Yellow'; Message = "Start with 1-year terms. Use shared scope for best utilization."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations' }
-                            )
-                        }
+                    $advisorCount = @($data.AdvisorRecommendations | Where-Object { $_ }).Count
+                    $purchaseCount = @($data.ReservationRecommendations | Where-Object { $_ }).Count
+                    $guidanceItems = @()
+                    if ($advisorCount + $purchaseCount -gt 0) {
+                        $guidanceItems += @{ Severity = 'Yellow'; Message = "$advisorCount Advisor and $purchaseCount reservation purchase recommendations returned. Compare terms, scope, and steady-state usage before purchasing. Advisor and Consumption can describe overlapping opportunities; do not add their estimates."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations' }
                     }
                     else {
-                        if ($data.AccessDenied) {
-                            $guidanceItems = @(
-                                @{ Severity = 'Red'; Message = "Access denied reading Advisor / reservation recommendations — results are blocked, not empty." }
-                                @{ Severity = 'Yellow'; Message = "Required role: $($permissionInfo['Get-ReservationAdvice'].Role) at $($permissionInfo['Get-ReservationAdvice'].Scope) scope. Ask a billing/subscription admin to assign it, then re-scan."; Docs = 'https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations' }
-                            )
-                        }
-                        else {
-                            $guidanceItems = @(
-                                @{ Severity = 'Green'; Message = "No reservation recommendations. Current commitment coverage appears sufficient." }
-                            )
-                        }
+                        $guidanceItems += @{ Severity = 'Yellow'; Message = 'No recommendation rows were returned. This does not establish sufficient commitment coverage.' }
+                    }
+                    if ($data.CostIssue) { $guidanceItems += @{ Severity = 'Yellow'; Message = [string]$data.CostIssue } }
+                    if ($data.AccessDenied) { $guidanceItems += @{ Severity = 'Red'; Message = 'Access was denied for some Advisor or reservation reads. Returned recommendations do not cover every requested source.' } }
+                    if ($data.CoverageIncomplete -or $null -eq $data.CoverageIncomplete) {
+                        $guidanceItems += @{ Severity = 'Yellow'; Message = $(if ($data.Note) { [string]$data.Note } else { 'Recommendation coverage is not verified; missing data is not sufficient coverage.' }) }
                     }
                 }
                 'Get-CommitmentUtilization' {
@@ -3813,6 +3807,7 @@ h2[id] { scroll-margin-top: 85px; }
                         $htmlCols = @('StorageAccount', 'ResourceGroup', 'CurrentTier', 'CapacityGB', 'Recommendation')
                     }
                     'Get-AHBOpportunities' {
+                        if ($data.Note) { [void]$notesSb.Append("<p>$([System.Net.WebUtility]::HtmlEncode([string]$data.Note))</p>") }
                         $ahbRows = @()
                         if ($data.WindowsVMs) { $ahbRows += @($data.WindowsVMs) | ForEach-Object { $est = if ($null -ne $_.estMonthlySavings) { "$(Format-BudgetAmount -Value $_.estMonthlySavings -Currency $data.SavingsCurrency)/mo" } else { 'n/a' }; [PSCustomObject]@{ Type = 'Windows VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.vmSize; License = $_.currentLicense; 'Est Savings' = $est } } }
                         if ($data.SQLVMs) { $ahbRows += @($data.SQLVMs) | ForEach-Object { [PSCustomObject]@{ Type = 'SQL VM'; Name = $_.name; ResourceGroup = $_.resourceGroup; Size = $_.sqlEdition; License = $_.currentLicense; 'Est Savings' = '-' } } }
@@ -3988,21 +3983,22 @@ h2[id] { scroll-margin-top: 85px; }
                             [void]$htmlSb.Append((ConvertTo-ReportTableControlHtml -TableId 'table-reservation-purchases' -Title 'reservation purchase detail' -RowCount $rrRows.Count))
                             # The report script only turns table.report-table into a scrolling, pageable grid.
                             [void]$htmlSb.Append('<div class="table-scroll"><table class="report-table table-reservation-purchases" id="table-reservation-purchases"><thead><tr>')
-                            foreach ($c in @('SKU', 'Resource type', 'Region', 'Qty', 'Term', 'Lookback', 'Cost without RI', 'Cost with RI', 'Net savings')) {
+                            foreach ($c in @('Subscription', 'SKU', 'Resource type', 'Region', 'Qty', 'Term', 'Lookback', 'Cost without RI', 'Cost with RI', 'Net savings')) {
                                 [void]$htmlSb.Append("<th scope=`"col`">$([System.Net.WebUtility]::HtmlEncode($c))</th>")
                             }
                             [void]$htmlSb.Append('</tr></thead><tbody>')
                             foreach ($rr in $rrRows) {
                                 $cells = @(
+                                    [string]$rr.Subscription
                                     [string]$rr.SKU
                                     [string]$rr.ResourceType
                                     [string]$rr.Region
                                     [string]$rr.RecommendedQty
                                     [string]$rr.Term
                                     [string]$rr.LookBackPeriod
-                                    $(if ($null -ne $rr.CostWithoutRI) { '{0:N2}' -f [double]$rr.CostWithoutRI } else { '-' })
-                                    $(if ($null -ne $rr.CostWithRI) { '{0:N2}' -f [double]$rr.CostWithRI } else { '-' })
-                                    $(if ($null -ne $rr.NetSavings) { '{0:N2}' -f [double]$rr.NetSavings } else { '-' })
+                                    (Format-BudgetAmount -Value $rr.CostWithoutRI -Currency $(if ($rr.CostWithoutRICurrency -and $rr.CostWithoutRICurrency -ne 'Unknown') { $rr.CostWithoutRICurrency } else { 'Unknown currency' }))
+                                    (Format-BudgetAmount -Value $rr.CostWithRI -Currency $(if ($rr.CostWithRICurrency -and $rr.CostWithRICurrency -ne 'Unknown') { $rr.CostWithRICurrency } else { 'Unknown currency' }))
+                                    (Format-BudgetAmount -Value $rr.NetSavings -Currency $(if ($rr.Currency -and $rr.Currency -ne 'Unknown') { $rr.Currency } else { 'Unknown currency' }))
                                 )
                                 [void]$htmlSb.Append('<tr>')
                                 for ($ci = 0; $ci -lt $cells.Count; $ci++) {
@@ -4013,13 +4009,16 @@ h2[id] { scroll-margin-top: 85px; }
                                 [void]$htmlSb.Append('</tr>')
                             }
                             [void]$htmlSb.Append('</tbody></table></div>')
-                            [void]$htmlSb.Append('<p class="table-note">From the Consumption reservation recommendation API at single-subscription scope over the last 30 days, queried per resource type. Costs are modeled over the lookback window and the API does not return a currency.</p>')
+                            [void]$htmlSb.Append('<p class="table-note">From the Consumption reservation recommendation API at single-subscription scope, queried per resource type with a 30-day lookback filter. Each row retains its returned lookback and commitment term. Amounts model the lookback period, not annual savings or the full commitment price. Modern amounts retain their currencies; legacy amounts without currency are labeled unknown. Terms and Advisor recommendations can overlap; do not add these options.</p>')
                             [void]$htmlSb.Append('<h3>Advisor recommendations</h3>')
                         }
 
                         $htmlRows = $data.AdvisorRecommendations | ForEach-Object {
                             [PSCustomObject]@{
                                 Resource = ($_.ResourceName -split '/')[-1]
+                                ResourceName = $_.ResourceName
+                                ResourcePath = $_.ResourceId
+                                Subscription = $_.Subscription
                                 Type     = ($_.ResourceType -split '/')[-1]
                                 SKU      = $_.SKU
                                 Region   = $_.Region
@@ -4029,7 +4028,8 @@ h2[id] { scroll-margin-top: 85px; }
                                 Impact   = $_.Impact
                             }
                         }
-                        $htmlCols = @('Resource', 'Type', 'SKU', 'Region', 'Qty', 'Term', 'Savings', 'Impact')
+                        $htmlCols = @('Subscription', 'Resource', 'Type', 'SKU', 'Region', 'Qty', 'Term', 'Savings', 'Impact')
+                        $tableNote = @($tableNote; 'Advisor savings are annual estimates. Compare individual commitment options before purchasing; alternative terms and savings plans can overlap.') -join ' '
                     }
                     'Get-CommitmentUtilization' {
                         [void]$notesSb.Append("<p>Reservations: $($data.RICount) (average $(Format-ReportMetric $data.RIAvgUtilization -Format '0.#' -Suffix '%')) &nbsp;|&nbsp; Savings plans: $($data.SPCount) (average $(Format-ReportMetric $data.SPAvgUtilization -Format '0.#' -Suffix '%'))</p>")
@@ -4054,7 +4054,7 @@ h2[id] { scroll-margin-top: 85px; }
                         [void]$notesSb.Append("<p>AHB: <span class=`"money`">$([System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.AHBSavingsMonthly -Currency $data.AHBCurrency)))</span> ($([System.Net.WebUtility]::HtmlEncode([string]$data.AHBPeriod)))</p>")
                         if ($data.AHBIssue) { [void]$notesSb.Append("<p>$([System.Net.WebUtility]::HtmlEncode([string]$data.AHBIssue))</p>") }
                         if ($data.CoverageIncomplete -and $data.Note) { [void]$notesSb.Append("<p class=`"guidance yellow`">$([System.Net.WebUtility]::HtmlEncode([string]$data.Note))</p>") }
-                        if ($data.EstimateBasis) { $tableNote = [string]$data.EstimateBasis }
+                        if ($data.EstimateBasis) { [void]$notesSb.Append("<p class=`"story-note`">$([System.Net.WebUtility]::HtmlEncode([string]$data.EstimateBasis))</p>") }
                     }
                     'Get-BudgetStatus' {
                         $htmlCoverage = if ($data.CoverageIncomplete) {
@@ -4267,7 +4267,7 @@ h2[id] { scroll-margin-top: 85px; }
                             }
                             $cellClass = if ($c -in @('Resources', 'Values', 'Cost', 'Actual', 'Forecast', 'Amount', 'Spent', 'PctUsed', 'AvgCPU14d', 'AvgUtil', 'MinUtil', 'PromptTokens', 'GeneratedTokens', 'TotalTokens', 'PctOfTokens', 'Input tokens', 'Output tokens', 'Total tokens', 'Token share', 'Avg utilization')) { ' class="numeric-cell"' } else { '' }
                             [void]$htmlSb.Append("<td$cellClass>")
-                            if ($fn -eq 'Get-ResourceCosts' -and $c -eq 'Resource') {
+                            if ($fn -in @('Get-ResourceCosts', 'Get-ReservationAdvice') -and $c -eq 'Resource') {
                                 [void]$htmlSb.Append((ConvertTo-ResourceIdentityHtml -Resource $r))
                             }
                             elseif (($fn -eq 'Get-CommitmentUtilization' -and $c -eq 'Commitment') -or ($fn -eq 'Get-AIWorkloadMetrics' -and $c -eq 'Account' -and $r.ResourcePath)) {

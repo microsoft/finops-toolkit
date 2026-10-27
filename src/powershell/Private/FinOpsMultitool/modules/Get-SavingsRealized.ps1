@@ -255,7 +255,7 @@ function Get-SavingsRealized {
     }
     elseif ($hasCommitments) {
         # -- Strategy 1: MG-scope grouped by SubscriptionId (2 calls, per-sub attribution) --
-        $mgScopeId = if ($TenantId) { Resolve-CostMgId -TenantId $TenantId } else { $null }
+        $mgScopeId = if ($TenantId) { Resolve-CostMgId -TenantId $TenantId -Subscriptions $Subscriptions } else { $null }
         if ($mgScopeId -and -not (Test-CostMgCoverage -ManagementGroupId $mgScopeId -TenantId $TenantId -Subscriptions $Subscriptions)) { $mgScopeId = $null }
         if ($mgScopeId) {
             try {

@@ -220,7 +220,7 @@ function Get-CostByTag {
         if ($costIdx -lt 0 -or $ridIdx -lt 0 -or $currIdx -lt 0) { throw 'Cost-by-tag requires explicit cost, resource ID, and currency columns.' }
 
         foreach ($row in $result.properties.rows) {
-            $cost = [math]::Round([double]$row[$costIdx], 2)
+            $cost = [double][math]::Round([decimal]$row[$costIdx], 2)
             $rid = if ($ridIdx -ge 0 -and $ridIdx -lt $row.Count -and $row[$ridIdx]) { [string]$row[$ridIdx] } else { '' }
             $currency = ([string]$row[$currIdx]).Trim().ToUpperInvariant()
             if ($currency -notmatch '^[A-Z]{3}$' -or $currency -in @('XXX', 'XTS')) { throw 'Cost-by-tag billing currency is missing or invalid.' }

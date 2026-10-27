@@ -74,8 +74,8 @@ function Get-CostData {
     # MG-scope query but add a server-side SubscriptionId filter so only the
     # selected subs are returned - this avoids the slow per-subscription
     # fan-out (N calls per timeframe) that triggers 429 throttling.
-    $mgScopeId = Resolve-CostMgId -TenantId $TenantId
-    $subFilter = if ($RestrictToSelected) { Get-CostSubscriptionFilter -Subscriptions $Subscriptions } else { $null }
+    $mgScopeId = Resolve-CostMgId -TenantId $TenantId -Subscriptions $Subscriptions
+    $subFilter = if ($RestrictToSelected -or $selectedSubs) { Get-CostSubscriptionFilter -Subscriptions $Subscriptions } else { $null }
     if (-not $mgScopeId) {
         Write-Host "  Querying actual costs (per-subscription)..." -ForegroundColor Cyan
         return Get-CostDataPerSubscription -Subscriptions $Subscriptions

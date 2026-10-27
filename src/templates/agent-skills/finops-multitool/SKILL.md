@@ -15,7 +15,7 @@ This is the routing hub for FinOps investigations. It answers "what should I loo
 
 Two ways to gather the data:
 
-- **Interactively** - `Start-FinOpsMultitool` launches a terminal UI that runs 30 read-only scan modules, renders the results, and exports them. Best when a person wants the full picture.
+- **Interactively** - `Start-FinOpsMultitool` launches a terminal UI with 26 selectable read-only scans, renders the results, and exports them. Four additional investigations are available as direct functions. Best when a person wants the full picture.
 - **Directly** - query Azure Resource Graph, Cost Management, Advisor, Monitor, or a FinOps hub yourself with `az` or an Azure MCP server. Best when answering one question inside a conversation. This skill carries the queries and the interpretation rules.
 
 Prefer the direct path for a single question. Suggest the terminal UI when the user wants a full assessment.
@@ -70,7 +70,7 @@ The reference pages carry the API calls, the sequencing, and the interpretation 
 This is the part raw API output gets wrong. Apply these before reporting a number.
 
 - **Deallocated VMs are still costing money.** Compute stops billing when a VM is deallocated, but attached managed disks and static public IPs keep billing. A "stopped" VM is a finding, not a resolved item. Report the disk and IP cost, and recommend deleting if the VM is genuinely unused.
-- **Advisor repeats reservation recommendations.** Advisor commonly returns the same purchase 3-6 times across overlapping scopes. Summing them inflates the savings estimate several-fold. De-duplicate on subscription + resource type + term + SKU + region + quantity before totalling. See [references/commitments.md](references/commitments.md).
+- **Advisor repeats recommendations.** Collapse duplicate generations only when the assessed resource ID, recommendation type, and all purchase options and monetary fields match. Keep distinct targets and alternative terms or scopes separate. A recommendation's root ID is not its assessed resource ID. Don't sum overlapping alternatives. See [references/commitments.md](references/commitments.md).
 - **Cost by tag returns nothing although resources are tagged.** Two usual causes: the tags are on resource groups or subscriptions, which reach usage records only when **tag inheritance** is enabled in Cost Management, or the tags are newer than the usage, because tags aren't applied to historical usage and can take up to 24 hours to appear. Confirm the tag is applied to the resources that incur the cost, then recommend tag inheritance when the allocation tags live higher up.
 - **Empty cost results early in the month.** Cost Management data lags by a day or more. Say so rather than reporting "$0".
 - **Azure Hybrid Benefit uses a different marker per resource type.** `Windows_Server` on Windows VMs, `AHUB` on SQL Server VMs, `BasePrice` on SQL Database and Managed Instance. Checking only the first will miss most of the estate and overstate the opportunity.
