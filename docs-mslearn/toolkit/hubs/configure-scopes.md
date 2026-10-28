@@ -3,7 +3,7 @@ title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: flanakin
 ms.author: micflan
-ms.date: 05/14/2026
+ms.date: 10/28/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -265,17 +265,20 @@ Managed exports use a managed identity (MI) to configure the exports automatical
 
    #### Option 1: Using config_RunBackfillJob pipeline
 
-   Use the **config_RunBackfillJob** pipeline to process historical data after it's been exported. For more information about running Azure Data Factory pipelines, see [Azure Data Factory pipelines](/azure/data-factory/concepts-pipelines-activities).
+   Use the backfill pipelines to run the managed exports for past months. For more information about running Azure Data Factory pipelines, see [Azure Data Factory pipelines](/azure/data-factory/concepts-pipelines-activities).
+
+   - **config_StartBackfillProcess** backfills every month in your retention period. It doesn't need any parameters and runs **config_RunBackfillJob** once per month.
+   - **config_RunBackfillJob** backfills one calendar month. It requires the `StartDate` and `EndDate` parameters, and both dates must be in the same month, for example `2026-09-01` and `2026-09-30`. Cost Management runs an export for one month at a time, so the pipeline fails with a `DateRangeSpansMonths` error when the dates are in different months.
 
    > [!IMPORTANT]
    > This option relies on managed exports and is **not supported for Microsoft Customer Agreement (MCA) billing accounts or billing profiles**. The pipeline calls the Cost Management `exports/run` API using the Data Factory managed identity, which Cost Management rejects on MCA scopes regardless of role assignments — typically with an `RBACAccessDenied` error. For MCA, use [Option 2](#option-2-using-cost-management-exports) or [Option 3](#option-3-using-start-finopscostexport-powershell-command) instead.
 
    To run the pipeline from the Azure portal:
 
-   1. From the FinOps hub resource group, open the Data Factory instance, select **Launch Studio**, and navigate to **Author** > **Pipelines** > **config_RunBackfillJob**.
+   1. From the FinOps hub resource group, open the Data Factory instance, select **Launch Studio**, and navigate to **Author** > **Pipelines** > **config_StartBackfillProcess**.
    2. Select **Debug** in the command bar to run the pipeline. The total run time varies depending on the retention period and number of scopes you're monitoring.
 
-   To run the pipeline from PowerShell:
+   To backfill every month in your retention period from PowerShell:
 
    ```powershell
    Get-AzDataFactoryV2 `
@@ -285,7 +288,22 @@ Managed exports use a managed identity (MI) to configure the exports automatical
        Invoke-AzDataFactoryV2Pipeline `
          -ResourceGroupName $_.ResourceGroupName `
          -DataFactoryName $_.DataFactoryName `
-         -PipelineName 'config_RunBackfillJob'
+         -PipelineName 'config_StartBackfillProcess'
+   }
+   ```
+
+   To backfill one month from PowerShell:
+
+   ```powershell
+   Get-AzDataFactoryV2 `
+     -ResourceGroupName "{hub-resource-group}" `
+     -ErrorAction SilentlyContinue `
+   | ForEach-Object {
+       Invoke-AzDataFactoryV2Pipeline `
+         -ResourceGroupName $_.ResourceGroupName `
+         -DataFactoryName $_.DataFactoryName `
+         -PipelineName 'config_RunBackfillJob' `
+         -Parameter @{ StartDate = '2026-09-01'; EndDate = '2026-09-30' }
    }
    ```
 

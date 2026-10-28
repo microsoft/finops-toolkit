@@ -425,10 +425,45 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
     name: '${core.containers.config}_RunBackfillJob'
     properties: {
       activities: [
+        { // Validate Date Range
+          name: 'Validate Date Range'
+          description: 'Cost Management runs an export for one calendar month at a time. Fail early with a clear message instead of a BadRequest from the export run.'
+          type: 'IfCondition'
+          dependsOn: []
+          userProperties: []
+          typeProperties: {
+            expression: {
+              value: '@not(equals(formatDateTime(pipeline().parameters.StartDate, \'yyyy-MM\'), formatDateTime(pipeline().parameters.EndDate, \'yyyy-MM\')))'
+              type: 'Expression'
+            }
+            ifTrueActivities: [
+              {
+                name: 'Date Range Spans Months'
+                type: 'Fail'
+                dependsOn: []
+                userProperties: []
+                typeProperties: {
+                  message: {
+                    value: '@concat(\'StartDate (\', pipeline().parameters.StartDate, \') and EndDate (\', pipeline().parameters.EndDate, \') must be in the same calendar month. Run config_RunBackfillJob once per month, or run config_StartBackfillProcess to backfill every month in the retention period.\')'
+                    type: 'Expression'
+                  }
+                  errorCode: 'DateRangeSpansMonths'
+                }
+              }
+            ]
+          }
+        }
         { // Get Config
           name: 'Get Config'
           type: 'Lookup'
-          dependsOn: []
+          dependsOn: [
+            {
+              activity: 'Validate Date Range'
+              dependencyConditions: [
+                'Succeeded'
+              ]
+            }
+          ]
           policy: {
             timeout: '0.00:05:00'
             retry: 2

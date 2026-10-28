@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/26/2026
+ms.date: 10/28/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -136,6 +136,8 @@ _Released June 2026_
   - Fixed inflated savings in the Data Explorer dashboard Summary and Rate optimization pages by excluding commitment discount purchases from list cost, contracted cost, and savings ([#2315](https://github.com/microsoft/finops-toolkit/issues/2315)).
   - Fixed the Reservations tab in the Rate optimization report showing no data for Microsoft Customer Agreement (MCA) accounts ([#1769](https://github.com/microsoft/finops-toolkit/issues/1769), [#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
   - Fixed hub redeploys and upgrades resetting data retention to the defaults and purging historical data ([#2206](https://github.com/microsoft/finops-toolkit/issues/2206), [#2348](https://github.com/microsoft/finops-toolkit/issues/2348)).
+  - Fixed `config_RunBackfillJob` failing with a misleading `Set Scopes` error when `StartDate` and `EndDate` were in different months.
+    - The pipeline now fails early with a `DateRangeSpansMonths` error, and the [backfill instructions](hubs/configure-scopes.md) explain when to use `config_StartBackfillProcess` and when to use `config_RunBackfillJob`.
 
 ### [Power BI reports](power-bi/reports.md) v15
 
