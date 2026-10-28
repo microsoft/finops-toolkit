@@ -267,7 +267,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
 
    Use the backfill pipelines to run the managed exports for past months. For more information about running Azure Data Factory pipelines, see [Azure Data Factory pipelines](/azure/data-factory/concepts-pipelines-activities).
 
-   - **config_StartBackfillProcess** backfills every month in your retention period. It doesn't need any parameters and runs **config_RunBackfillJob** once per month.
+   - **config_StartBackfillProcess** runs **config_RunBackfillJob** once per month, from last month back to the number of months in your ingestion retention setting (`ingestionRetentionInMonths`). It doesn't need any parameters. The current month is covered by the daily managed export.
    - **config_RunBackfillJob** backfills one calendar month. It requires the `StartDate` and `EndDate` parameters, and both dates must be in the same month, for example `2026-09-01` and `2026-09-30`. Cost Management runs an export for one calendar month at a time and rejects a date range that spans months.
 
    > [!IMPORTANT]
@@ -278,7 +278,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    1. From the FinOps hub resource group, open the Data Factory instance, select **Launch Studio**, and navigate to **Author** > **Pipelines** > **config_StartBackfillProcess**.
    2. Select **Debug** in the command bar to run the pipeline. The total run time varies depending on the retention period and number of scopes you're monitoring.
 
-   To backfill every month in your retention period from PowerShell:
+   To backfill the months covered by your ingestion retention setting from PowerShell:
 
    ```powershell
    Get-AzDataFactoryV2 `
