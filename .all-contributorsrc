@@ -824,7 +824,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/9788612?v=4",
       "profile": "https://github.com/JacobStruiksma",
       "contributions": [
-        "code"
+        "code",
+        "bug"
       ]
     },
     {
@@ -998,6 +999,51 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "Christopherloof",
+      "name": "Christopherloof",
+      "avatar_url": "https://avatars.githubusercontent.com/u/119003550?v=4",
+      "profile": "https://github.com/Christopherloof",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "haflidif",
+      "name": "Haflidi Fridthjofsson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26624010?v=4",
+      "profile": "https://linktr.ee/haflidif",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "josesarsa",
+      "name": "josearsa",
+      "avatar_url": "https://avatars.githubusercontent.com/u/89536192?v=4",
+      "profile": "https://github.com/josesarsa",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "sharmilamusunuru",
+      "name": "sharmilamusunuru",
+      "avatar_url": "https://avatars.githubusercontent.com/u/70754330?v=4",
+      "profile": "https://github.com/sharmilamusunuru",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "xan-archera",
+      "name": "xan-archera",
+      "avatar_url": "https://avatars.githubusercontent.com/u/248541667?v=4",
+      "profile": "https://github.com/xan-archera",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
@@ -1009,3 +1055,4 @@
     }
   }
 }
+
