@@ -263,7 +263,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
 
    As soon as you configure a new scope, FinOps hubs will start to monitor current and future costs. To backfill historical data, you have several options:
 
-   #### Option 1: Using config_RunBackfillJob pipeline
+   #### Option 1: Using the backfill pipelines
 
    Use the backfill pipelines to run the managed exports for past months. For more information about running Azure Data Factory pipelines, see [Azure Data Factory pipelines](/azure/data-factory/concepts-pipelines-activities).
 
