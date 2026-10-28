@@ -79,7 +79,7 @@ _Released October 2026_
 - **Fixed**
   - Fixed FOCUS 1.0 cost data being labeled as FOCUS 1.2 in `x_SourceVersion` ([#2332](https://github.com/microsoft/finops-toolkit/issues/2332)).
     - FOCUS 1.0 rows also skipped 1.0-specific fixes, like the savings plan purchase `ChargeFrequency` correction.
-    - Version detection now uses the value delivered by the export.
+    - Version detection now runs before provider columns are backfilled, so it only sees the columns the export delivered.
   - Fixed dashboard links for "Governance, policy, and risk" and "FinOps tools and services" that landed on a 404 page ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
     - Links now go directly to the Microsoft Learn pages.
   - Fixed Data Factory trigger deployment failures in regions without a time zone mapping, like Sweden Central ([#2157](https://github.com/microsoft/finops-toolkit/issues/2157)).
