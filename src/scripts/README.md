@@ -95,33 +95,42 @@ Examples:
   ./Initialize-CI -SubscriptionId "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e" -WhatIf
   ```
 
-### PR deployment trust boundary
+### Test PR changes
 
-`PR Deploy` runs only for PRs from branches in this repository. The workflow executes build scripts and deploys templates with Azure credentials. It checks out the event's immutable head commit and does not persist Git credentials. Its module cache uses a new key prefix to avoid restoring entries from the previous privileged fork path. Adding the `Needs: Deployment` label does not deploy a fork PR.
+`PR Deploy` runs only for PRs from branches in this repository. It runs build scripts and deploys templates with Azure credentials. It checks out the exact commit from the PR event and does not save Git credentials. Its module cache uses a new name to exclude entries from earlier fork deployments. Adding the `Needs: Deployment` label does not deploy a fork PR.
 
 To test a fork contribution:
 
-1. Record the fork PR's full head commit SHA.
-2. Review that exact commit, including scripts, workflows, templates, dependencies, and other executable content.
-3. Promote only the reviewed commit to a branch in this repository. Follow the repository's non-destructive Git policy.
+1. Record the full commit ID (SHA) from the fork PR.
+2. Review that exact commit, including scripts, workflows, templates, dependencies, and other code.
+3. Copy only the reviewed commit to a branch in this repository. Follow the repository's Git policy to preserve commit history.
 4. Open a PR from that branch and select the deployment checkboxes in its description.
-5. For each new fork commit, repeat the review before updating the repository branch. Never track the fork's mutable branch automatically.
+5. Review each new fork commit before you update the repository branch. Do not copy later fork commits automatically.
 
-The same-repository branch is a trust boundary, not a sandbox. A maintainer must not promote unreviewed fork code. Deployment options, template path filters, Azure resource names, and automatic cleanup remain unchanged.
+A branch in this repository can run code with Azure credentials. A maintainer must review fork code before copying it to that branch. The `ftk-pr` environment does not necessarily require reviewer approval; check its current settings. Deployment options, template path filters, Azure resource names, and automatic cleanup do not change.
 
 ### Cleanup event policy
 
-`PR Cleanup` retains `pull_request_target: closed`. It needs Azure OIDC and repository write permissions to delete test resource groups and report failures, including resources from older fork deployments. The workflow does not check out code, execute PR scripts, or consume PR artifacts. Its permissions apply only to the cleanup job. Keep both the `ftk-pr` and `ftk-fork` environment credentials while cleanup can still need them.
+`PR Cleanup` keeps `pull_request_target: closed`. This event starts cleanup when a PR closes, including a PR from a fork. The task needs Azure sign-in and repository write permissions to delete test resource groups and report failures. It does not check out code, run PR scripts, or use files from PR builds. Its permissions apply only to the cleanup job. Keep credentials for both `ftk-pr` and `ftk-fork` while cleanup can need them.
 
-GitHub's supplied enforcement notice states that public repositories without an applicable event policy will block this trigger on **November 2, 2026**. After merge, a repository administrator with JIT access must:
+The October 28 reminder extends the deadline from November 2 to **December 2, 2026**. The notice states that GitHub will block this trigger in public repositories without an applicable event policy. A repository administrator must obtain temporary administrator access through JIT (just-in-time access). The administrator must then:
 
-1. Use workflow file targeting to allow only `.github/workflows/ftk-pr-cleanup.yml`.
-2. Keep `.github/workflows/ftk-pr-deploy.yml` outside the exception. Deployment no longer uses `pull_request_target`.
-3. Check the applicable policy and required environment approvals before testing a PR closure.
+1. Open **Settings > Actions > Policy insights** to check which runs GitHub will block.
+2. Set an event policy that allows only `.github/workflows/ftk-pr-cleanup.yml`.
+3. Keep `.github/workflows/ftk-pr-deploy.yml` outside that policy. Deployment no longer uses `pull_request_target`.
+4. Check the policy and required environment approvals before a cleanup test.
 
-Do not create a repository-wide exception. This change does not modify repository settings, environment protection, Azure permissions, or the event policy. Cleanup will stop running at the deadline without the applicable exception.
+Do not allow this trigger for the whole repository. This code change does not change repository settings, environment protection, Azure permissions, or the event policy. Cleanup will stop at the deadline without a policy that allows it.
 
-Before rollout, require zero CodeQL findings in these two workflows for checkout of untrusted code in privileged and non-privileged contexts, and untrusted checkout TOCTOU. An immutable checkout prevents a mutable-reference race; it does not make unreviewed code safe.
+Before use, run the five CodeQL checks for untrusted checkout and checkout timing errors against these two workflows. Require zero findings, or obtain the security-team review allowed by the notice. Checking out an exact commit prevents the checked version from changing. It does not make unreviewed code safe.
+
+Run the local workflow tests with:
+
+```powershell
+Invoke-Pester -Path ./src/powershell/Tests/Unit/PrWorkflowSecurity.Tests.ps1 -Output Detailed
+```
+
+These tests check deployment restrictions, all six checkboxes, template file selection, API errors, and resource deletion. Azure commands use test responses; the tests do not connect to Azure or delete resources. Bash is required. On Windows, the tests use Bash from Git for Windows. The separate Fabric URI extractor requires GNU grep and is not part of these local tests.
 
 References: [Preventing pwn requests](https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/) and [GitHub Actions: New patterns and mitigations](https://securitylab.github.com/resources/github-actions-new-patterns-and-mitigations/).
 

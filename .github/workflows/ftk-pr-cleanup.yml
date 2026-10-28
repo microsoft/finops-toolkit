@@ -3,7 +3,7 @@
 
 name: 'PR Cleanup'
 
-# Requires a workflow-file-targeted event policy exception before November 2, 2026.
+# Requires an event policy that allows this workflow file before December 2, 2026.
 # Keep this privileged workflow checkout-free, including for closed fork PRs.
 on:
   pull_request_target:
