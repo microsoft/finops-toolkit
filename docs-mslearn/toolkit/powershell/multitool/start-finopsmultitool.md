@@ -3,7 +3,7 @@ title: Start-FinOpsMultitool command
 description: Launch the FinOps multitool interactive terminal UI to scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 10/07/2026
+ms.date: 10/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -141,7 +141,7 @@ In accessible mode, three invalid or blank source-menu answers cancel the run in
 
 ## FinOps hub data paths
 
-When you select [FinOps Hub](../../hubs/finops-hubs-overview.md), the tool prefers the configured or discovered Kusto database. Kusto aggregates the data and returns summaries without loading raw cost records into PowerShell. To query a local hub, set `FINOPS_HUB_KUSTO_URI` to its endpoint. A configured endpoint doesn't require a discovered storage account. When no Kusto endpoint is configured or discovered, the tool reads hub storage exports, which is intended for smaller datasets. A failed query remains an error; it doesn't silently switch sources. For more information, see [FinOps multitool commands](finops-multitool-commands.md).
+When you select [FinOps Hub](../../hubs/finops-hubs-overview.md), the tool uses the Kusto database that you configure. Kusto aggregates the data and returns summaries without loading raw cost records into PowerShell. To query a hub, set `FINOPS_HUB_KUSTO_URI` to its endpoint. A configured endpoint doesn't require a discovered storage account. The tool doesn't discover a Kusto cluster automatically. When no Kusto endpoint is configured, the tool reads hub storage exports, which is intended for smaller datasets. A failed query remains an error; it doesn't silently switch sources. For more information, see [FinOps multitool commands](finops-multitool-commands.md).
 
 Reading Parquet exports prepares a pinned reader using NuGet on Windows or .NET SDK 8 or later on Linux. NuGet signed-package verification [isn't supported on macOS](/dotnet/core/tools/nuget-signed-package-verification#macos); use a configured Kusto source or available hub CSV exports there. Package signatures and hashes are checked before loading cached assemblies. An unavailable verifier leaves the cache unloaded but intact. If the reader can't be prepared, the tool warns you with the reason and attempts the hub's `msexports` CSV instead of normalized Parquet data. A failed export read remains an error, not zero cost.
 

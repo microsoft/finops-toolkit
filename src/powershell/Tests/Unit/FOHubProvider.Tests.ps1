@@ -49,7 +49,6 @@ Describe 'FinOps Hub Kusto provider' {
                     }
                     @{ Data = @([pscustomobject]@{ c = 0 }) }
                 }
-                Mock Get-HubKustoCluster { $null }
                 Mock Test-HubStorageAccess { @{ Readable = $true; Context = [pscustomobject]@{ Synthetic = $true } } }
                 Mock Get-HubCoverage { @{ Subs = @(); Freshness = $null } }
 
@@ -59,6 +58,7 @@ Describe 'FinOps Hub Kusto provider' {
                 $result.CoveragePct | Should -BeNullOrEmpty
                 $result.CoverageKnown | Should -BeFalse
                 $result.Message | Should -Match 'could not be confirmed'
+                Should -Invoke Search-AzGraphSafe -Times 0 -Exactly -ParameterFilter { $Query -match 'microsoft.kusto/clusters' }
             }
         }
     }
@@ -448,108 +448,24 @@ Describe 'FinOps Hub Kusto provider' {
         }
     }
 
-    Context 'Resolve-FOHubProvider - discovery and none' {
-        It 'Distinguishes <Outcome> discovery from an empty successful lookup' -Tag 'ProviderDiscovery' -ForEach @(
-            @{ Outcome = 'exception'; ExpectedWarnings = 1 }
-            @{ Outcome = 'null response'; ExpectedWarnings = 1 }
-            @{ Outcome = 'empty success'; ExpectedWarnings = 0 }
-        ) {
-            InModuleScope FinOpsMultitool -Parameters @{ Outcome = $Outcome; ExpectedWarnings = $ExpectedWarnings } {
-                param($Outcome, $ExpectedWarnings)
+    Context 'Resolve-FOHubProvider - no automatic binding' {
+        It 'Requires an explicit endpoint instead of an unbound decision or cluster discovery' -Tag 'ProviderDiscovery' {
+            InModuleScope FinOpsMultitool {
                 $previousUri = $env:FINOPS_HUB_KUSTO_URI
                 try {
                     $env:FINOPS_HUB_KUSTO_URI = $null
-                    $fixtureOutcome = $Outcome
-                    Mock Search-AzGraphSafe {
-                        if ($fixtureOutcome -eq 'exception') { throw "Denied$([char]27)[2J$([char]0x202e)`r`nquery" }
-                        if ($fixtureOutcome -eq 'null response') { return $null }
-                        @{ Data = @() }
+                    Mock Search-AzGraphSafe { throw 'Automatic cluster discovery must not run.' }
+                    $decision = [pscustomobject]@{ KustoClusterUri = 'https://other.eastus.kusto.windows.net'; KustoDatabase = 'Hub' }
+                    foreach ($result in @(
+                            (Resolve-FOHubProvider -Subscriptions @('11111111-1111-1111-1111-111111111111'))
+                            (Resolve-FOHubProvider -Decision $decision)
+                        )) {
+                        $result.Found | Should -BeFalse
+                        $result.Mode | Should -Be 'None'
                     }
-
-                    $result = Resolve-FOHubProvider -Subscriptions @('11111111-1111-1111-1111-111111111111') -WarningAction SilentlyContinue -WarningVariable warnings
-
-                    $result.Found | Should -BeFalse
-                    $result.Mode | Should -Be 'None'
-                    @($warnings).Count | Should -Be $ExpectedWarnings
-                    if ($ExpectedWarnings) {
-                        ($warnings -join '') | Should -Match 'Kusto.*could not be verified'
-                        ($warnings -join '') | Should -Not -Match '[\p{Cc}\p{Cf}]'
-                    }
-                    Should -Invoke Search-AzGraphSafe -Times 1 -Exactly -ParameterFilter {
-                        @($Subscription).Count -eq 1 -and $Subscription[0] -eq '11111111-1111-1111-1111-111111111111' -and $First -eq 1
-                    }
+                    Should -Invoke Search-AzGraphSafe -Times 0 -Exactly
                 }
                 finally { $env:FINOPS_HUB_KUSTO_URI = $previousUri }
-            }
-        }
-
-        It 'Uses a cluster already discovered on the decision object' {
-            $decision = [PSCustomObject]@{ KustoClusterUri = 'https://disc.westus.kusto.windows.net'; KustoDatabase = 'Hub'; HubVersion = '0.10' }
-            $p = Resolve-FOHubProvider -Decision $decision
-            $p.Found | Should -BeTrue
-            $p.Mode | Should -Be 'Kusto'
-            $p.ClusterUri | Should -Be 'https://disc.westus.kusto.windows.net'
-            $p.Source | Should -Be 'Discovered'
-        }
-
-        It 'Returns None when no override and discovery finds nothing' {
-            InModuleScope FinOpsMultitool {
-                Mock Search-AzGraphSafe { @{ Data = @() } }
-                $p = Resolve-FOHubProvider -Subscriptions @('00000000-0000-0000-0000-000000000000')
-                $p.Found | Should -BeFalse
-                $p.Mode | Should -Be 'None'
-            }
-        }
-
-        It 'Discovers a cluster directly when no decision is passed (TUI path)' {
-            InModuleScope FinOpsMultitool {
-                Mock Search-AzGraphSafe {
-                    @{ Data = @(
-                            [PSCustomObject]@{ clusterUri = 'https://tui.eastus.kusto.windows.net'; hubVersion = '0.11'; resourceGroup = 'rg-hub'; subscriptionId = '1' }
-                        ) }
-                }
-                $p = Resolve-FOHubProvider -Subscriptions @('1')
-                $p.Found | Should -BeTrue
-                $p.Mode | Should -Be 'Kusto'
-                $p.UseAuth | Should -BeTrue
-                $p.ClusterUri | Should -Be 'https://tui.eastus.kusto.windows.net'
-                $p.Source | Should -Be 'Discovered'
-            }
-        }
-    }
-
-    Context 'Get-HubKustoCluster - online discovery' {
-        It 'Discovers a FinOps hub Kusto cluster via Resource Graph' {
-            InModuleScope FinOpsMultitool {
-                Mock Search-AzGraphSafe {
-                    @{ Data = @(
-                            [PSCustomObject]@{ clusterUri = 'https://ftk.eastus.kusto.windows.net'; hubVersion = '0.11'; resourceGroup = 'rg-hub'; subscriptionId = '11111111-1111-1111-1111-111111111111' }
-                        ) }
-                }
-                $c = Get-HubKustoCluster -RequestedSubscriptionIds @('11111111-1111-1111-1111-111111111111')
-                $c | Should -Not -BeNullOrEmpty
-                $c.ClusterUri | Should -Be 'https://ftk.eastus.kusto.windows.net'
-                $c.HubVersion | Should -Be '0.11'
-            }
-        }
-
-        It 'Prefers the cluster in the hub resource group' {
-            InModuleScope FinOpsMultitool {
-                Mock Search-AzGraphSafe {
-                    @{ Data = @(
-                            [PSCustomObject]@{ clusterUri = 'https://other.eastus.kusto.windows.net'; hubVersion = '0.11'; resourceGroup = 'rg-other'; subscriptionId = '1' }
-                            [PSCustomObject]@{ clusterUri = 'https://mine.eastus.kusto.windows.net'; hubVersion = '0.11'; resourceGroup = 'rg-hub'; subscriptionId = '1' }
-                        ) }
-                }
-                $c = Get-HubKustoCluster -RequestedSubscriptionIds @('1') -HubResourceGroup 'rg-hub'
-                $c.ClusterUri | Should -Be 'https://mine.eastus.kusto.windows.net'
-            }
-        }
-
-        It 'Returns null when no cluster is found' {
-            InModuleScope FinOpsMultitool {
-                Mock Search-AzGraphSafe { @{ Data = @() } }
-                Get-HubKustoCluster -RequestedSubscriptionIds @('1') | Should -BeNullOrEmpty
             }
         }
     }
@@ -605,19 +521,25 @@ Describe 'FinOps Hub Kusto provider' {
                         Error    = $null
                         Rows     = @(
                             [PSCustomObject]@{ _CostValidation = $true; _InvalidCosts = 0; _CurrencyCount = 1; _SourceRows = 2; _MissingSubscriptions = 0 }
-                            [PSCustomObject]@{ Subscription = 'Sub A'; ResourceGroup = 'rg1'; ResourceType = 'Microsoft.Compute/virtualMachines'; ResourcePath = '/subscriptions/x/rg1/vm1'; Actual = 50.0; Currency = 'USD' }
-                            [PSCustomObject]@{ Subscription = 'Sub A'; ResourceGroup = 'rg2'; ResourceType = 'Microsoft.Storage/storageAccounts'; ResourcePath = '/subscriptions/x/rg2/sa1'; Actual = 200.0; Currency = 'USD' }
+                            [PSCustomObject]@{ SubscriptionId = '11111111-1111-1111-1111-111111111111'; Subscription = 'Shared name'; ResourceGroup = 'rg'; ResourceType = 'Microsoft.Compute/virtualMachines'; ResourcePath = ''; Actual = 50.0; Currency = 'USD' }
+                            [PSCustomObject]@{ SubscriptionId = '22222222-2222-2222-2222-222222222222'; Subscription = 'Shared name'; ResourceGroup = 'rg'; ResourceType = 'Microsoft.Compute/virtualMachines'; ResourcePath = ''; Actual = 200.0; Currency = 'USD' }
                         )
                     }
                 }
                 $prov = @{ Found = $true; Mode = 'KustoLocal'; ClusterUri = 'http://localhost:8082'; Database = 'Hub'; UseAuth = $false }
-                $rows = Get-FOHubResourceCosts -Provider $prov
+                $rows = Get-FOHubResourceCosts -Provider $prov -SubscriptionIds @('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222')
 
                 @($rows).Count | Should -Be 2
                 $rows[0].PSObject.Properties.Name | Should -Contain 'ResourcePath'
                 $rows[0].PSObject.Properties.Name | Should -Contain 'Forecast'
                 $rows[0].Actual | Should -Be 200.0
                 $rows[0].Forecast | Should -BeNullOrEmpty
+                $rows[0].SubscriptionId | Should -Be '22222222-2222-2222-2222-222222222222'
+                $rows[1].SubscriptionId | Should -Be '11111111-1111-1111-1111-111111111111'
+                $rows[0].Subscription | Should -Be 'Shared name'
+                Should -Invoke Invoke-FOHubKustoQuery -Times 1 -Exactly -ParameterFilter {
+                    $Query -match 'by\s+SubscriptionId\s*=\s*_sub,\s*Subscription\s*=\s*SubAccountName'
+                }
             }
         }
     }

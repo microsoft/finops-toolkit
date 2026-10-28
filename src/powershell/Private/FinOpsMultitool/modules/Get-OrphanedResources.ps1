@@ -80,7 +80,7 @@ resources
 | join kind=leftouter (
     resources
     | where type =~ 'microsoft.network/networkinterfaces'
-    | mv-expand ipc = properties.ipConfigurations
+    | mv-expand ipc = properties.ipConfigurations limit 256
     | project nicName = name,
               nicVmId = tolower(tostring(properties.virtualMachine.id)),
               ipConfigId = tolower(tostring(ipc.id))
@@ -379,16 +379,22 @@ resources
         }
     }
 
+    # Shared disks can appear on multiple VM rows; total each billed ID only once.
+    $aggregateCosts = @{}
     foreach ($orphan in $allOrphans) {
         $ridKey = if ($orphan.ResourceId) { ([string]$orphan.ResourceId).ToLowerInvariant() } else { $null }
         $ownParts = @(if ($ridKey -and $costMap.ContainsKey($ridKey)) { $costMap[$ridKey] })
+        $partKeys = @(if ($ownParts.Count -gt 0) { $ridKey })
 
         # A deallocated VM bills nothing on its own object, so fold in its disks.
         $attachedParts = @()
         if ($orphan.PSObject.Properties['ChildResourceIds']) {
             foreach ($childId in @($orphan.ChildResourceIds)) {
                 $childKey = ([string]$childId).ToLowerInvariant()
-                if ($costMap.ContainsKey($childKey)) { $attachedParts += $costMap[$childKey] }
+                if ($costMap.ContainsKey($childKey)) {
+                    $attachedParts += $costMap[$childKey]
+                    $partKeys += $childKey
+                }
             }
         }
 
@@ -401,6 +407,7 @@ resources
             $orphanCurrency = [string]$partCurrencies[0]
             $combined = [math]::Round(($parts | Measure-Object -Property Amount -Sum).Sum, 2)
             if ($attachedParts.Count -gt 0) { $attachedCost = [math]::Round(($attachedParts | Measure-Object -Property Amount -Sum).Sum, 2) }
+            foreach ($key in $partKeys) { $aggregateCosts[$key] = $costMap[$key] }
         }
         elseif ($partCurrencies.Count -gt 1) {
             [void]$costFailures.Add("$($orphan.ResourceName): costs use multiple billing currencies")
@@ -413,7 +420,7 @@ resources
     $costed = @($allOrphans | Where-Object { $null -ne $_.MonthlyCost })
     $costCurrencies = @($costed | ForEach-Object { $_.Currency } | Select-Object -Unique)
     $totalCurrency = if ($costCurrencies.Count -eq 1) { [string]$costCurrencies[0] } else { $null }
-    $totalMonthlyCost = if ($costed.Count -gt 0 -and $totalCurrency) { [math]::Round((($costed | Measure-Object -Property MonthlyCost -Sum).Sum), 2) } else { $null }
+    $totalMonthlyCost = if ($costed.Count -gt 0 -and $totalCurrency) { [math]::Round((($aggregateCosts.Values | Measure-Object -Property Amount -Sum).Sum), 2) } else { $null }
     if ($costCurrencies.Count -gt 1) { [void]$costFailures.Add('Observed costs use multiple billing currencies, so no combined total is shown') }
     $costAvailable = ($costQueried -gt 0)
     $costIssue = if ($costFailures.Count -gt 0) { ($costFailures | Select-Object -Unique) -join '; ' } else { $null }

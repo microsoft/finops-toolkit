@@ -582,6 +582,155 @@ Describe 'FinOps Multitool safety' {
         }
     }
 
+    Context 'Resource-backed usage allocation' {
+        It 'Refuses unbound automatic allocation for <Selector>' -ForEach @(
+            @{ Selector = 'resource IDs'; Scope = @{ SharedResourceIds = @('pool') } }
+            @{ Selector = 'resource group'; Scope = @{ SharedResourceGroup = 'pool' } }
+            @{ Selector = 'IDs with an explicit fallback'; Scope = @{ SharedResourceIds = @('pool'); PoolAmount = 100 } }
+        ) {
+            Mock Resolve-SharedCostPool -ModuleName FinOpsMultitool { throw 'Unsafe allocation must stop before discovery.' }
+            Mock Get-TelemetryWeighting -ModuleName FinOpsMultitool { throw 'Unsafe allocation must not query telemetry.' }
+
+            $r = Get-UsageProportionalAllocation @Scope -WorkspaceId fixture
+
+            $r.HasData | Should -BeFalse
+            $r.Allocations | Should -BeNullOrEmpty
+            $r.Note | Should -Match 'WeightingQuery'
+            Should -Invoke Resolve-SharedCostPool -ModuleName FinOpsMultitool -Times 0 -Exactly
+            Should -Invoke Get-TelemetryWeighting -ModuleName FinOpsMultitool -Times 0 -Exactly
+        }
+
+        It 'Preserves <Path> weighting' -ForEach @(
+            @{ Path = 'caller query with selectors and fallback'; Custom = $true }
+            @{ Path = 'explicit amount without selectors'; Custom = $false }
+        ) {
+            Mock Resolve-SharedCostPool -ModuleName FinOpsMultitool { @() }
+            Mock Invoke-AzOperationalInsightsQuery -ModuleName FinOpsMultitool {
+                [pscustomobject]@{ Results = @(
+                        [pscustomobject]@{ Consumer = 'consumer-not-an-ARM-ID'; Weight = '1.75' }
+                        [pscustomobject]@{ Consumer = 'consumer-b'; Weight = '2' }
+                        [pscustomobject]@{ Consumer = 'nonfinite'; Weight = '1e309' }
+                    ) }
+            }
+            $scope = if ($Custom) { @{ SharedResourceIds = @('pool'); WeightingQuery = 'Usage | project Consumer, Weight' } } else { @{} }
+
+            $originalCulture = [Threading.Thread]::CurrentThread.CurrentCulture
+            try {
+                [Threading.Thread]::CurrentThread.CurrentCulture = [cultureinfo]::GetCultureInfo('de-DE')
+                $weights = InModuleScope FinOpsMultitool { (Get-TelemetryWeighting -WorkspaceId fixture).Weights }
+                $weights['consumer-not-an-ARM-ID'] | Should -Be 1.75
+                $weights.Count | Should -Be 2
+                $r = Get-UsageProportionalAllocation @scope -PoolAmount 100 -PoolCurrency EUR -PoolPeriod '2026-10' -WorkspaceId fixture
+
+                $r.HasData | Should -BeTrue
+                ($r.Allocations | Where-Object Consumer -EQ 'consumer-not-an-ARM-ID').AllocatedCost | Should -Be 46.67
+                ($r.Allocations | Where-Object Consumer -EQ 'consumer-b').AllocatedCost | Should -Be 53.33
+                ($r.Allocations | Measure-Object AllocatedCost -Sum).Sum | Should -Be 100
+                $r.Mode | Should -Be Showback
+                $r.BillingWritable | Should -BeFalse
+                $r.RuleTargets | Should -BeNullOrEmpty
+                if ($Custom) {
+                    Should -Invoke Invoke-AzOperationalInsightsQuery -ModuleName FinOpsMultitool -Times 1 -Exactly -ParameterFilter { $Query -ceq 'Usage | project Consumer, Weight' }
+                }
+                else { Should -Invoke Resolve-SharedCostPool -ModuleName FinOpsMultitool -Times 0 -Exactly }
+            }
+            finally {
+                [Threading.Thread]::CurrentThread.CurrentCulture = $originalCulture
+            }
+        }
+    }
+
+    Context 'RAM capacity completeness' {
+        It 'Parses fractional SKU memory invariantly without accepting localized grouping' {
+            InModuleScope FinOpsMultitool {
+                Mock Invoke-AzRestMethodWithRetry {
+                    [pscustomobject]@{
+                        StatusCode = 200
+                        Content = '{"value":[{"resourceType":"virtualMachines","name":"Standard_A1","capabilities":[{"name":"vCPUs","value":"1"},{"name":"MemoryGB","value":"1.75"}]},{"resourceType":"virtualMachines","name":"InvalidMemory","capabilities":[{"name":"vCPUs","value":"1"},{"name":"MemoryGB","value":"1,75"}]}]}'
+                    }
+                }
+                $originalCulture = [Threading.Thread]::CurrentThread.CurrentCulture
+                try {
+                    [Threading.Thread]::CurrentThread.CurrentCulture = [cultureinfo]::GetCultureInfo('de-DE')
+                    $cache = @{}
+                    $capacity = Get-VmSizeCapability -SubId '11111111-1111-1111-1111-111111111111' -Location 'eastus' -VmSize 'Standard_A1' -Cache $cache
+                    $capacity.VCpu | Should -Be 1
+                    $capacity.MemGb | Should -Be 1.75
+                    (Get-VmSizeCapability -SubId '11111111-1111-1111-1111-111111111111' -Location 'eastus' -VmSize 'InvalidMemory' -Cache $cache).MemGb | Should -Be 0
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly
+                }
+                finally {
+                    [Threading.Thread]::CurrentThread.CurrentCulture = $originalCulture
+                }
+            }
+        }
+
+        It 'Preserves independent results with <CapabilityCase>' -ForEach @(
+            @{ CapabilityCase = 'regional lookup failed'; Complete = $false; ExactCpu = $false; Compute = 120 }
+            @{ CapabilityCase = 'positive CPU with zero RAM'; Complete = $false; ExactCpu = $true; Compute = 120 }
+            @{ CapabilityCase = 'positive CPU with overflowing RAM'; Complete = $false; ExactCpu = $true; Compute = 120 }
+            @{ CapabilityCase = 'complete RAM and zero cost'; Complete = $true; ExactCpu = $true; Compute = 0 }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ CapabilityCase = $CapabilityCase; Complete = $Complete; ExactCpu = $ExactCpu; Compute = $Compute } {
+                param($CapabilityCase, $Complete, $ExactCpu, $Compute)
+                $fixtureCase = $CapabilityCase
+                $fixtureCompute = $Compute
+                Mock Write-Host { }
+                Mock Search-AzGraphSafe {
+                    if ($Query -match 'virtualmachines') {
+                        [pscustomobject]@{ Data = @(
+                                [pscustomobject]@{ cnt = 1; vmSize = 'Standard_D4s_v5'; loc = 'eastus'; subId = '11111111-1111-1111-1111-111111111111' }
+                                [pscustomobject]@{ cnt = 1; vmSize = 'Standard_D8s_v5'; loc = 'westus'; subId = '11111111-1111-1111-1111-111111111111' }
+                            ) }
+                    }
+                    elseif ($Query -match 'microsoft.compute/disks') { [pscustomobject]@{ Data = @([pscustomobject]@{ totalGb = 16 }) } }
+                    elseif ($Query -match 'storageaccounts') { [pscustomobject]@{ Data = @() } }
+                    else { throw 'Unexpected inventory request.' }
+                }
+                Mock Resolve-CostMgId { $null }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*/Microsoft.Compute/skus?*') {
+                        $west = $Path -match 'westus'
+                        if ($west -and $fixtureCase -eq 'regional lookup failed') { return [pscustomobject]@{ StatusCode = 403; Content = '{}' } }
+                        $memory = if (-not $west) { '16' } elseif ($fixtureCase -eq 'positive CPU with zero RAM') { '0' } elseif ($fixtureCase -eq 'positive CPU with overflowing RAM') { '1e309' } else { '32' }
+                        return [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @(@{
+                                        resourceType = 'virtualMachines'; name = $(if ($west) { 'Standard_D8s_v5' } else { 'Standard_D4s_v5' })
+                                        capabilities = @(@{ name = 'vCPUs'; value = $(if ($west) { '8' } else { '4' }) }, @{ name = 'MemoryGB'; value = $memory })
+                                    }) } | ConvertTo-Json -Depth 8) }
+                    }
+                    if ($Path -like '*/Microsoft.CostManagement/query?*' -and $Method -eq 'POST') {
+                        return [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{
+                                        columns = @(@{ name = 'Cost' }, @{ name = 'MeterCategory' }, @{ name = 'Currency' })
+                                        rows = @(@($fixtureCompute, 'Virtual Machines', 'EUR'), @(24, 'Storage', 'EUR'))
+                                    } } | ConvertTo-Json -Depth 8) }
+                    }
+                    throw 'Unexpected REST request.'
+                }
+
+                $r = Get-UnitEconomics -TenantId '22222222-2222-2222-2222-222222222222' -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111' })
+
+                $r.ComputeCost | Should -Be $Compute
+                $r.StorageCost | Should -Be 24
+                $r.TotalStorageGb | Should -Be 16
+                $r.CostPerGb | Should -Be 1.5
+                $r.VmCount | Should -Be 2
+                $r.TotalVCpu | Should -Be 12
+                $r.CostPerVCpu | Should -Be ($Compute / 12)
+                $r.VCpuExact | Should -Be $ExactCpu
+                if ($Complete) {
+                    $r.TotalMemoryGb | Should -Be 48
+                    $r.CostPerGbRam | Should -Not -BeNullOrEmpty
+                    $r.CostPerGbRam | Should -Be 0
+                }
+                else {
+                    $r.TotalMemoryGb | Should -BeNullOrEmpty
+                    $r.CostPerGbRam | Should -BeNullOrEmpty
+                    $r.Note | Should -Match 'RAM.*unavailable'
+                }
+            }
+        }
+    }
+
     Context 'Storage tier metric evidence' {
         It 'Distinguishes <Case> from valid activity measurements' -ForEach @(
             @{ Case = 'empty transactions'; TransactionPoints = @(); CapacityPoints = @(@{ average = 10GB }); ExpectedFailures = 1; ExpectedRecommendations = 0 }
@@ -1240,6 +1389,27 @@ console.log('Credit, numeric, and unavailable sorting passed');
             $row.ComputeCost | Should -BeNullOrEmpty
             $row.CostPerVCpu | Should -BeNullOrEmpty
             $row.TotalVCpu | Should -Be '8'
+        }
+
+        It 'Reports unavailable RAM capacity in the console and HTML without a zero GB claim' {
+            $reportRoot = Join-Path $TestDrive 'unavailable-ram'
+            $data = [pscustomobject]@{
+                HasData = $true; Currency = 'USD'; CostAvailable = $true; CostIssue = $null
+                ComputeCost = 10; StorageCost = 0; ComputeSharePct = 100; StorageSharePct = 0
+                CostPerVCpu = 1.25; CostPerGbRam = $null; CostPerVm = 2.5; CostPerGb = $null
+                VmCount = 4; TotalVCpu = 8; TotalMemoryGb = $null; DiskGb = 0; BlobFileGb = 0; TotalStorageGb = 0
+                Note = 'RAM capacity could not be read for every VM size, so total RAM and cost per GB RAM are unavailable.'
+            }
+            $modules = @(@{ Fn = 'Get-UnitEconomics'; Name = 'Unit Economics'; Selected = $true; Category = 'Cost Analysis' })
+
+            $console = Show-ResultsSummary -Results @{ 'Get-UnitEconomics' = $data } -Modules $modules -ExportPath $reportRoot -ErrorAction Stop 6>&1 | Out-String
+
+            $console | Should -Match '8 vCPU / RAM unavailable'
+            $console | Should -Not -Match '\d GB RAM'
+            $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
+            $html = Get-Content -LiteralPath (Join-Path $run 'FinOpsReport.html') -Raw
+            $html | Should -Match '8 vCPU, RAM unavailable'
+            $html | Should -Not -Match '\d GB RAM'
         }
 
         It 'Reports incompatible AI costs without hiding measured usage or inventing a permissions issue' {
@@ -3626,13 +3796,14 @@ Describe 'FinOps Multitool cost math' {
             }
         }
 
-        It 'Keeps same-named resources in different subscriptions separate' -Tag 'GenericExportStorage' {
+        It 'Binds classic resource names to subscription and resource group' -Tag 'GenericExportStorage' {
             InModuleScope FinOpsMultitool {
                 $first = '11111111-1111-1111-1111-111111111111'
                 $second = '22222222-2222-2222-2222-222222222222'
                 $exportRows = @(
-                    [pscustomobject]@{ SubscriptionId = $first; InstanceName = 'shared-vm'; Cost = 10; Currency = 'USD'; Date = '2026-09-30' }
-                    [pscustomobject]@{ SubscriptionId = $second; InstanceName = 'shared-vm'; Cost = 20; Currency = 'USD'; Date = '2026-09-30' }
+                    [pscustomobject]@{ SubscriptionId = $first; ResourceGroup = 'rg-a'; InstanceName = 'shared-vm'; Cost = 10; Currency = 'USD'; Date = '2026-09-30' }
+                    [pscustomobject]@{ SubscriptionId = $first; ResourceGroup = 'rg-b'; InstanceName = 'shared-vm'; Cost = 20; Currency = 'USD'; Date = '2026-09-30' }
+                    [pscustomobject]@{ SubscriptionId = $second; ResourceGroup = 'rg-a'; InstanceName = 'shared-vm'; Cost = 30; Currency = 'USD'; Date = '2026-09-30' }
                 )
                 $exportData = [pscustomobject]@{ Rows = $exportRows; ColMap = (Resolve-ExportColumns -Header $exportRows[0].PSObject.Properties.Name); Currency = 'USD'; CostBasis = 'ActualCost'; DataDate = [datetime]'2026-10-01' }
                 $subscriptions = @(
@@ -3642,9 +3813,16 @@ Describe 'FinOps Multitool cost math' {
 
                 $result = @(ConvertTo-ResourceCostsFromExport -ExportData $exportData -Subscriptions $subscriptions)
 
-                $result.Count | Should -Be 2
+                $result.Count | Should -Be 3
                 @($result | Where-Object { $_.Actual -eq 10 }).Count | Should -Be 1
                 @($result | Where-Object { $_.Actual -eq 20 }).Count | Should -Be 1
+                ($result | Where-Object Actual -EQ 20).ResourceGroup | Should -Be 'rg-b'
+                ($result | Where-Object Actual -EQ 30).Subscription | Should -Be 'Second'
+                $exportRows[0].ResourceGroup = ' '
+                $result = @(ConvertTo-ResourceCostsFromExport -ExportData $exportData -Subscriptions $subscriptions)
+                $result.Count | Should -Be 3
+                ($result | Where-Object Actual -EQ 10).Subscription | Should -Be 'First'
+                ($result | Where-Object Actual -EQ 10).ResourcePath | Should -Be 'shared-vm'
             }
         }
 

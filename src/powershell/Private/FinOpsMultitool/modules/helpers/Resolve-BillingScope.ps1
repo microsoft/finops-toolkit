@@ -123,6 +123,12 @@ function Get-FinOpsBillingScope {
         }
     }
 
+    foreach ($owner in $ownerNames) {
+        if (-not $matchedNames.Contains($owner)) {
+            $readErrors.Add("The confirmed billing owner '$owner' was not returned in the reachable billing accounts; its coverage is unavailable.")
+        }
+    }
+
     $out.CoverageIncomplete = $readErrors.Count -gt 0
     $out.ReadErrors = @($readErrors)
     if ($out.CoverageIncomplete) { $out.Reason = 'Billing account correlation is incomplete. ' + ($readErrors -join ' ') }

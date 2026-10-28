@@ -18,7 +18,7 @@ Use it when the user mentions showback, chargeback, allocation, cost centers, "w
 
 ## Allocation readiness checklist
 
-1. **Coverage** — what % of cost carries the allocation tag(s)? Below ~95% means material spend is unallocated. Use tag inventory.
+1. **Coverage** — what % of cost carries the allocation tag(s)? Below ~95% means material spend is unallocated. Use the cost by tag scan, which reports cost per tag value including `(untagged)`. Tag inventory counts resources, not cost, so its percentages show resource-count coverage and don't answer this question.
 2. **Consistency** — no casing or spelling drift in tag keys/values (`CostCenter` vs `costcenter`, `managed_by` vs `managedBy`). Use tag recommendations.
 3. **Usage records** — cost data includes tags applied directly to resources. Resource group and subscription tags reach usage records only when tag inheritance is enabled in Cost Management, and tags aren't applied to historical usage.
 4. **Inheritance** — for resources that are missed, Azure Policy can apply resource group tags to the resources themselves; see the `azure-policy-governance` skill. For resources that can't be tagged, use Cost Management tag inheritance, which applies subscription and resource group tags to usage records without changing the resources.

@@ -373,6 +373,42 @@ Describe 'Policy effect resolution' {
             }
         }
 
+        It 'Emits resource-level effective policy-state rollup before subscription counts' {
+            InModuleScope FinOpsMultitool {
+                $subId = '11111111-1111-1111-1111-111111111111'
+                $queries = [System.Collections.Generic.List[string]]::new()
+                Mock Write-Host { }
+                Mock Get-AzContext { throw 'Policy rollup fixtures must not read an Azure context.' }
+                Mock Invoke-RestMethod { throw 'Policy rollup fixtures must not send HTTP requests.' }
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*policyAssignments*') { return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[]}' } }
+                    throw 'Complete ARG resource counts must not use a REST compliance fallback.'
+                }
+                Mock Search-AzGraphSafe {
+                    [void]$queries.Add($Query)
+                    @{ Data = @([pscustomobject]@{ subscriptionId = $subId; Total = 1; Compliant = 0; NonCompliant = 1 }) }
+                }
+
+                $result = Get-PolicyInventory -Subscriptions @([pscustomobject]@{ Id = $subId; Name = 'Selected' })
+
+                $queries.Count | Should -Be 1
+                $queries[0] | Should -Match 'resourceId = tolower\(tostring\(properties\.resourceId\)\)'
+                $queries[0] | Should -Match "(?s)stateWeight = case\(\s*complianceState =~ 'NonCompliant', 7,\s*complianceState =~ 'Compliant', 6,\s*complianceState =~ 'Error', 5,\s*complianceState in~ \('Conflict', 'Conflicting'\), 4,\s*complianceState =~ 'Protected', 3,\s*complianceState =~ 'Exempt', 2,\s*complianceState =~ 'Unknown', 1,\s*0\)"
+                $queries[0] | Should -Match '(?s)\|\s*where stateWeight > 0\s*\|\s*summarize stateWeight = max\(stateWeight\) by subscriptionId, resourceId\s*\|\s*summarize\s*Compliant\s*=\s*countif\(stateWeight == 6\),\s*NonCompliant\s*=\s*countif\(stateWeight == 7\),\s*Total\s*=\s*count\(\)\s*by subscriptionId'
+                $queries[0] | Should -Not -Match 'arg_max|take_any'
+                $result.ComplianceBySubMap[$subId].TotalResources | Should -Be 1
+                $result.TotalCompliant | Should -Be 0
+                $result.TotalNonCompliant | Should -Be 1
+                $result.TotalEvaluated | Should -Be 1
+                $result.CompliancePct | Should -Be 0
+                $result.ComplianceCoverageIncomplete | Should -BeFalse
+                $result.HasComplianceData | Should -BeTrue
+                Should -Invoke Search-AzGraphSafe -Times 1 -Exactly -ParameterFilter {
+                    $All -and $First -eq 1000 -and @($Subscription).Count -eq 1 -and $Subscription[0] -eq $subId
+                }
+            }
+        }
+
         It 'Replaces partial ARG state counts with resource summaries for every subscription' {
             InModuleScope FinOpsMultitool {
                 $subscriptions = @(

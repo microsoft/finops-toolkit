@@ -466,6 +466,69 @@ Describe 'Multitool result scope, currency, and coverage' {
             }
         }
 
+        It 'Counts a shared billed disk once in the orphan total while retaining both VM rows' {
+            InModuleScope FinOpsMultitool {
+                $resourceRoot = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/fixture/providers/Microsoft.Compute'
+                $sharedDiskId = "$resourceRoot/disks/shared"
+                Mock Search-AzGraphSafe {
+                    if ($Query -match "type = 'Deallocated VM'") {
+                        return @{ Data = @(foreach ($number in 1..2) {
+                                [pscustomobject]@{
+                                    id = "$resourceRoot/virtualMachines/vm-$number"; name = "vm-$number"
+                                    resourceGroup = 'fixture'; subscriptionId = '11111111-1111-1111-1111-111111111111'
+                                    location = 'eastus'; vmSize = 'Standard_D2s_v5'; osDiskId = $null
+                                    dataDisks = @(@{ managedDisk = @{ id = if ($number -eq 1) { $sharedDiskId } else { $sharedDiskId.ToUpperInvariant() } } })
+                                }
+                            }) }
+                    }
+                    @{ Data = @() }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{
+                                columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' }, @{ name = 'Currency' })
+                                rows = @(@(100, $sharedDiskId, 'USD'), @(999, "$resourceRoot/disks/unrelated", 'USD'))
+                            } } | ConvertTo-Json -Depth 8) }
+                }
+
+                $result = Get-OrphanedResources -Subscriptions @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Selected' }
+                )
+
+                $result.TotalCount | Should -Be 2
+                $result.CostedCount | Should -Be 2
+                $result.CostAvailable | Should -BeTrue
+                $result.MonthlyCost | Should -Be 100
+                $result.Currency | Should -Be 'USD'
+                $result.CostIssue | Should -BeNullOrEmpty
+                @($result.Orphans | Where-Object { $_.MonthlyCost -eq 100 -and $_.AttachedCost -eq 100 -and $_.Currency -eq 'USD' }).Count | Should -Be 2
+            }
+        }
+
+        It 'Bounds orphan public-IP NIC expansion at 256 while retaining joins and native pagination' {
+            InModuleScope FinOpsMultitool {
+                $queries = [System.Collections.Generic.List[string]]::new()
+                Mock Search-AzGraphSafe {
+                    [void]$queries.Add($Query)
+                    @{ Data = @() }
+                }
+
+                $result = Get-OrphanedResources -Subscriptions @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111'; Name = 'Selected' }
+                ) -SkipCost
+
+                $pipQuery = @($queries | Where-Object { $_ -match "type =~ 'microsoft.network/publicipaddresses'" })
+                $pipQuery.Count | Should -Be 1
+                $pipQuery[0] | Should -Match '\|\s*mv-expand ipc = properties\.ipConfigurations limit 256'
+                $pipQuery[0] | Should -Match '\|\s*project id, name, resourceGroup, subscriptionId'
+                @([regex]::Matches($pipQuery[0], '\|\s*join kind=leftouter')).Count | Should -Be 2
+                $result.TotalCount | Should -Be 0
+                Should -Invoke Search-AzGraphSafe -Times 1 -Exactly -ParameterFilter {
+                    $Query -match "type =~ 'microsoft.network/publicipaddresses'" -and $All -and $First -eq 1000 -and
+                    @($Subscription).Count -eq 1 -and $Subscription[0] -eq '11111111-1111-1111-1111-111111111111'
+                }
+            }
+        }
+
         It 'Totals orphaned-resource costs only within one billing currency (<Scenario>)' -ForEach @(
             @{ Scenario = 'mixed currencies'; SecondCurrency = 'USD'; ExpectedTotal = $null; ExpectedCurrency = $null }
             @{ Scenario = 'one currency'; SecondCurrency = 'EUR'; ExpectedTotal = 300; ExpectedCurrency = 'EUR' }
@@ -1523,6 +1586,8 @@ Describe 'Multitool result scope, currency, and coverage' {
                 $text = Get-Content -LiteralPath (Join-Path $run 'ScanSummary.txt') -Raw
                 $csv = @(Import-Csv -LiteralPath (Join-Path $run 'Get-ReservationAdvice.csv'))
                 $console = $fixtureConsole -join "`n"
+                $console | Should -Not -Match 'Total findings|\d+ findings'
+                $text | Should -Not -Match 'Total findings|\d+ findings'
                 $html | Should -Not -Match 'coverage appears sufficient'
                 $console | Should -Not -Match 'coverage appears sufficient'
                 ($advice | ConvertTo-Json -Depth 15 | ConvertFrom-Json).CoverageIncomplete | Should -Be $Incomplete

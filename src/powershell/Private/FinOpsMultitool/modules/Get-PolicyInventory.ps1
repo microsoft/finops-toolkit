@@ -273,9 +273,21 @@ policyresources
 policyresources
 | where type =~ 'microsoft.policyinsights/policystates'
 | extend complianceState = tostring(properties.complianceState)
+| extend resourceId = tolower(tostring(properties.resourceId)),
+    stateWeight = case(
+        complianceState =~ 'NonCompliant', 7,
+        complianceState =~ 'Compliant', 6,
+        complianceState =~ 'Error', 5,
+        complianceState in~ ('Conflict', 'Conflicting'), 4,
+        complianceState =~ 'Protected', 3,
+        complianceState =~ 'Exempt', 2,
+        complianceState =~ 'Unknown', 1,
+        0)
+| where stateWeight > 0
+| summarize stateWeight = max(stateWeight) by subscriptionId, resourceId
 | summarize
-    Compliant    = countif(complianceState =~ 'Compliant'),
-    NonCompliant = countif(complianceState =~ 'NonCompliant'),
+    Compliant    = countif(stateWeight == 6),
+    NonCompliant = countif(stateWeight == 7),
     Total        = count()
     by subscriptionId
 "@

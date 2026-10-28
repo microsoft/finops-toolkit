@@ -3,6 +3,7 @@
 
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '', Justification = 'Private helper; the returned shape varies by scan and is not a declared contract.')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'Private helper named for the collection it processes.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Justification = 'Subscriptions and Decision remain accepted for caller compatibility; Kusto requires an explicit endpoint.')]
 param()
 
 ###########################################################################
@@ -17,15 +18,12 @@ param()
 # Date: Created for FinOps Multitool scalable hub data path
 #
 # Description:
-# Provider selection (same code path serves all three):
+# Provider selection:
 #   1. Explicit override  - FINOPS_HUB_KUSTO_URI (+ FINOPS_HUB_KUSTO_DB).
 #      Covers the offline ftklocal Kusto emulator (anonymous) AND a user-
 #      pinned ADX/Fabric cluster. Mirrors the toolkit's "use a provided
 #      cluster URI" connect option.
-#   2. Online discovery   - Azure Resource Graph for the hub's ADX cluster
-#      (microsoft.kusto/clusters tagged ftk-tool == 'FinOps hubs'), exactly
-#      the query the FinOps Toolkit's own ftk-hubs-connect flow uses.
-#   3. None               - no cluster; caller falls back to the storage
+#   2. None               - no explicit cluster; caller falls back to the storage
 #      export reader (small-dataset path).
 #
 # Each intent (Get-FOHubCostSummary / Get-FOHubResourceCosts /
@@ -37,13 +35,13 @@ param()
 # Cost parity: actual-cost summaries use BilledCost, including measured zero.
 #
 # ── Functions ───────────────────────────────────────────────────
-# Resolve-FOHubProvider     Decide provider (override | discovered | none)
+# Resolve-FOHubProvider     Decide provider (override | none)
 # Get-FOHubCostSummary      -> @{ subId = @{ Actual; Forecast; Currency } }
 # Get-FOHubResourceCosts    -> @(PSCustomObject Subscription/RG/Type/Path/...)
 # Get-FOHubCostByTag        -> @{ TagsQueried; CostByTag; NoTagsFound; ... }
 #
 # Prerequisites:
-# - Invoke-FOHubKustoQuery.ps1, Get-PlainAccessToken.ps1, Search-AzGraphSafe.ps1
+# - Invoke-FOHubKustoQuery.ps1, Get-PlainAccessToken.ps1
 #
 # Usage:
 #   $p = Resolve-FOHubProvider -Subscriptions $subs
@@ -181,53 +179,6 @@ function Resolve-FOHubProvider {
         }
     }
 
-    # 2. A cluster already discovered by Resolve-CostDataSource.
-    if ($Decision -and $Decision.KustoClusterUri) {
-        $null = Resolve-FinOpsRequestUri -Uri $Decision.KustoClusterUri
-        return @{
-            Found      = $true
-            Mode       = 'Kusto'
-            ClusterUri = [string]$Decision.KustoClusterUri
-            Database   = if ($Decision.KustoDatabase) { [string]$Decision.KustoDatabase } else { 'Hub' }
-            UseAuth    = $true
-            HubVersion = $Decision.HubVersion
-            Source     = 'Discovered'
-        }
-    }
-
-    # 3. Online discovery via Resource Graph (the toolkit's own connect query).
-    try {
-        $clusterQuery = @"
-resources
-| where type =~ 'microsoft.kusto/clusters'
-| where tags['ftk-tool'] == 'FinOps hubs'
-| extend hubVersion = tostring(tags['ftk-version'])
-| project clusterUri = tostring(properties.uri), hubVersion, resourceGroup, subscriptionId
-| take 1
-"@
-        $res = Search-AzGraphSafe -Query $clusterQuery -Subscription @($Subscriptions) -First 1
-        if ($null -eq $res) { throw 'Resource Graph did not return a readable discovery response.' }
-        if ($res -and $res.Data -and @($res.Data).Count -gt 0) {
-            $row = @($res.Data)[0]
-            if ($row.clusterUri) {
-                $null = Resolve-FinOpsRequestUri -Uri $row.clusterUri
-                return @{
-                    Found      = $true
-                    Mode       = 'Kusto'
-                    ClusterUri = [string]$row.clusterUri
-                    Database   = 'Hub'
-                    UseAuth    = $true
-                    HubVersion = $row.hubVersion
-                    Source     = 'Discovered'
-                }
-            }
-        }
-    }
-    catch {
-        # Discovery failed - fall through to None (storage fallback).
-        Write-Warning ([regex]::Replace("Kusto provider discovery could not be verified: $($_.Exception.Message)", '[\p{Cc}\p{Cf}]', ' '))
-    }
-
     return @{ Found = $false; Mode = 'None'; ClusterUri = $null; Database = $null; UseAuth = $false; HubVersion = $null; Source = 'None' }
 }
 
@@ -279,7 +230,7 @@ function Get-FOHubResourceCosts {
     $query = @"
 src
 | summarize Actual = sum(_cost), Currency = take_any(BillingCurrency)
-    by Subscription = SubAccountName, ResourceGroup = x_ResourceGroupName, ResourceType, ResourcePath = ResourceId
+    by SubscriptionId = _sub, Subscription = SubAccountName, ResourceGroup = x_ResourceGroupName, ResourceType, ResourcePath = ResourceId
 | order by Actual desc
 | take $Top
 "@
@@ -288,6 +239,7 @@ src
 
     $out = foreach ($row in $r.Rows) {
         [PSCustomObject]@{
+            SubscriptionId = [string]$row.SubscriptionId
             Subscription  = if ($row.Subscription) { [string]$row.Subscription } else { 'unknown' }
             ResourceGroup = if ($row.ResourceGroup) { [string]$row.ResourceGroup } else { 'unknown' }
             ResourceType  = if ($row.ResourceType) { [string]$row.ResourceType } else { 'unknown' }

@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/23/2026
+ms.date: 10/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -79,7 +79,6 @@ The following section lists features and enhancements that are currently in deve
   - Fixed malformed budget records counting toward confirmed budget coverage.
   - Preserved budget inventory failures and partial coverage in budget history reports.
   - Rejected unsafe export blob paths and invalid fallback container names, and escaped control characters in storage-discovery diagnostics.
-  - Made failed and unreadable Kusto discovery visible without changing the selected tenant or subscriptions.
   - Rejected malformed Kusto responses and partial query failures instead of returning incomplete or empty success results.
   - Rejected empty authentication tokens before sending Kusto queries and retained detailed Kusto HTTP errors on PowerShell 7.
   - Reported the macOS Parquet signature-verification limitation before invoking a package client or downloading packages.
