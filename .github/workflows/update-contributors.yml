@@ -1,0 +1,121 @@
+name: Update contributors
+
+# Finds contributors who are missing from .all-contributorsrc (merged PR authors, PR reviewers, and the reporters of
+# fixed or accepted bugs and feature requests) and opens a pull request that adds them. Only contribution types that
+# GitHub data can prove are handled; everything else (question, design, security, mentoring, promotion, leader) is
+# left to humans. See "Recognizing contributors" in CONTRIBUTING.md and src/scripts/Update-Contributors.ps1.
+#
+# Requires the repo setting "Allow GitHub Actions to create and approve pull requests" (Settings > Actions >
+# General). If it is off, or the org blocks it, the branch is still pushed and the job summary links to the
+# "create pull request" page, like the open data workflows.
+#
+# Pull requests opened with GITHUB_TOKEN don't start other workflows, so close and reopen the PR to run its checks.
+
+on:
+  schedule:
+    - cron: '0 7 * * 1'  # Every Monday at 07:00 UTC
+  workflow_dispatch:
+    inputs:
+      since:
+        description: 'Credit contributions since this date (YYYY-MM-DD). Default is 60 days ago.'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-contributors
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Credit new contributors
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Scheduled workflows also run in forks, where there is nothing to credit and no permission to push. Only run in
+    # the upstream repo, from dev, so manual runs from other branches can't push their commits into the PR.
+    if: github.repository == 'microsoft/finops-toolkit' && github.ref == 'refs/heads/dev'
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BRANCH: automation/update-contributors
+    steps:
+      - name: Checkout dev
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The repo's own devDependency (all-contributors-cli). Scripts are not run during install.
+      - name: Install all-contributors-cli
+        run: npm ci --ignore-scripts
+
+      # The default window is long on purpose: the script only adds what is missing, so re-checking recent work is
+      # harmless, and an unmerged PR from a previous week keeps its entries when the branch is rebuilt from dev.
+      - name: Add missing contributors
+        id: update
+        shell: pwsh
+        env:
+          SINCE_INPUT: ${{ inputs.since }}
+        run: |
+          $since = if ($env:SINCE_INPUT) { $env:SINCE_INPUT } else { (Get-Date).AddDays(-60).ToString('yyyy-MM-dd') }
+          "since=$since" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          ./src/scripts/Update-Contributors.ps1 -Since $since -Apply -SummaryPath "$env:RUNNER_TEMP/contributors.md"
+        # A failure for one login shouldn't lose the credits that worked. The last step fails the job afterwards.
+        continue-on-error: true
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet -- .all-contributorsrc README.md docs/README.md; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No missing contributors."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- .all-contributorsrc README.md docs/README.md
+          fi
+
+      - name: Push branch and open pull request
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          SINCE: ${{ steps.update.outputs.since }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add .all-contributorsrc README.md docs/README.md
+          git commit -m "docs: Credit new contributors"
+
+          # The branch is rebuilt from dev every run, so an open PR is updated in place
+          git push --force origin "$BRANCH"
+
+          {
+            echo "Adds contributor credits found by [\`Update-Contributors.ps1\`](https://github.com/${GITHUB_REPOSITORY}/blob/dev/src/scripts/Update-Contributors.ps1) for work since $SINCE."
+            echo ""
+            cat "$RUNNER_TEMP/contributors.md"
+            echo ""
+            echo "Review before merging: credits come from GitHub data only (merged PRs, reviews, and fixed or accepted bugs and feature requests). Other types, like question, design, security, mentoring, and promotion, are added by hand. See [Recognizing contributors](https://github.com/${GITHUB_REPOSITORY}/blob/dev/CONTRIBUTING.md#-recognizing-contributors)."
+            echo ""
+            echo "_Opened by the [Update contributors](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) workflow. Close and reopen this PR to run its checks._"
+          } > "$RUNNER_TEMP/pr-body.md"
+          cat "$RUNNER_TEMP/pr-body.md" >> "$GITHUB_STEP_SUMMARY"
+
+          PR_NUMBER=$(gh pr list --head "$BRANCH" --base dev --state open --json number --jq '.[0].number // empty')
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr edit "$PR_NUMBER" --body-file "$RUNNER_TEMP/pr-body.md"
+            echo "Updated PR #$PR_NUMBER"
+          elif ! gh pr create --base dev --head "$BRANCH" --title "[Docs] Credit new contributors" --body-file "$RUNNER_TEMP/pr-body.md"; then
+            # Creating PRs from Actions is a repo/org setting. Don't lose the work if it is off.
+            PR_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/dev...${BRANCH}?expand=1"
+            echo "::warning::Could not open the pull request (is \"Allow GitHub Actions to create and approve pull requests\" off?). The branch $BRANCH was pushed."
+            {
+              echo ""
+              echo "GitHub Actions could not open the pull request. Branch \`$BRANCH\` was pushed, so open it manually:"
+              echo ""
+              echo "[**Create pull request**]($PR_URL)"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Fail if credits could not be added
+        if: steps.update.outcome == 'failure'
+        run: |
+          echo "::error::Update-Contributors.ps1 failed. See the 'Add missing contributors' step."
+          exit 1
