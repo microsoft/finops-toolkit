@@ -3,7 +3,7 @@ title: FinOps toolkit roadmap
 description: Explore the FinOps toolkit roadmap to learn about upcoming features, key themes, and initiatives planned for the future.
 author: flanakin
 ms.author: micflan
-ms.date: 10/19/2026
+ms.date: 10/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -36,7 +36,7 @@ With release **v15** establishing the foundation for agentic FinOps, Azure capac
 - **Solidify the foundation and data quality**<br>
   Strengthen FinOps hubs security, private networking, multi-version FinOps Open Cost and Usage Specification (FOCUS) 1.3 and 1.4 conformance, and automated data-quality and release guardrails.<br>&nbsp;
 - **Enable the community and ecosystem**<br>
-  Expand support resources, clarify tool ownership and support models, streamline contributor and triage workflows with agentic automation, and highlight partner and community solutions across the [FinOps toolkit ecosystem](finops-toolkit-ecosystem.md).
+  Expand support resources, clarify tool ownership and support models, streamline contributor and triage workflows with agentic automation, and highlight partner and community solutions across the [FinOps toolkit ecosystem](https://microsoft.github.io/finops-toolkit/ecosystem).
 
 <br>
 
