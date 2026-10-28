@@ -3,7 +3,7 @@ title: Set up Power BI reports
 description: Learn how to set up Power BI FinOps reports using the FinOps toolkit, customize visuals, and connect to your cost data for detailed analysis.
 author: flanakin
 ms.author: micflan
-ms.date: 10/26/2026
+ms.date: 10/28/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
