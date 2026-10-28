@@ -44,7 +44,7 @@ _Released November 2026_
 
 ## v15
 
-_Released October 2026_
+_Released October 28, 2026_
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v15
 
