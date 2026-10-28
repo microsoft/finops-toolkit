@@ -1881,6 +1881,17 @@ table Costs
 				        // NOTE: This option slows down the query significantly. Disable it if tag queries are failing.
 				        Trim_spaces_from_tags = true,
 				
+				    // Tag helpers
+				    TagColumn = (tag as text) as text => "tag_" & Text.Replace(Text.Replace(tag, ":", "_"), " ", ""),
+				    // Regex that finds the tag key in the serialized Tags JSON and captures its string value, honoring the tag options above
+				    TagPattern = (tag as text) as text =>
+				        let
+				            spaces = if Trim_spaces_from_tags then " *" else "",
+				            name = if Trim_spaces_from_tags then Text.Replace(tag, " ", "") else tag,
+				            key = Text.Combine(List.Transform(Text.ToList(name), each (if Text.Contains("\.^$|?*+()[]{}", _) then "\" else "") & Text.Replace(_, "'", "''") & spaces))
+				        in
+				            (if Handle_mixed_case_tags then "(?i)" else "") & "[{,]""" & spaces & key & """:""((?:[^""\\]|\\.)*)""",
+				
 				    // Init report parameters
 				    lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
 				    Source = AzureDataExplorer.Contents(#"Cluster URL", "Hub", "
@@ -1937,18 +1948,14 @@ table Costs
 				        'Unknown'
 				    )
 				    //" & (if List.Count(PromotedTags) > 0 then (
+				        // Match keys with a regex on the serialized tags; each tag_* column stays independent, so queries that don't use it skip it
 				        if Handle_mixed_case_tags or Trim_spaces_from_tags then ("
-				            | extend keys = bag_keys(Tags)
-				            | extend cleankeys = " & (
-				                if Handle_mixed_case_tags and Trim_spaces_from_tags then "parse_json(replace_string(tolower(keys), ' ', ''))"
-				                else if Handle_mixed_case_tags                      then "parse_json(tolower(keys))"
-				                else if Trim_spaces_from_tags                       then "parse_json(replace_string(keys, ' ', ''))"
-				                else "keys"
-				            ) & "
-				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & Text.Replace(Text.Replace(_, ":", "_"), " ", "") & " = iff(array_index_of(cleankeys, tolower('" & _ & "')) < 0, '', tostring(Tags[tostring(keys[toint(array_index_of(cleankeys, tolower('" & _ & "')))])]))"), ", ") & "
-				            | project-away keys, cleankeys"
+				            | extend tmp_TagsText = tostring(Tags)
+				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tmp_" & TagColumn(_) & " = extract(@'" & TagPattern(_) & "', 1, tmp_TagsText)"), ", ") & "
+				            | extend " & Text.Combine(List.Transform(PromotedTags, each TagColumn(_) & " = iff(tmp_" & TagColumn(_) & " contains @'\', tostring(parse_json(strcat('""', tmp_" & TagColumn(_) & ", '""'))), tmp_" & TagColumn(_) & ")"), ", ") & "
+				            | project-away tmp_TagsText, tmp_tag_*"
 				        ) else ("
-				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & Text.Replace(Text.Replace(_, ":", "_"), " ", "") & " = tostring(Tags['" & _ & "'])"), ", ")
+				            | extend " & Text.Combine(List.Transform(PromotedTags, each TagColumn(_) & " = tostring(Tags['" & _ & "'])"), ", ")
 				        )
 				    ) else "") & "
 				    //

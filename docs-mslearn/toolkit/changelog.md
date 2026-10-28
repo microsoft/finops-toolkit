@@ -62,6 +62,8 @@ The following section lists features and enhancements that are currently in deve
 - **Changed**
   - Switched the InstanceSizeFlexibility table in the storage and KQL shared datasets from the retired `ccmstorageprod` AutofitComboMeterData.csv to the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file, joined to reservation recommendations on the unique ARM SKU name ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
 - **Fixed**
+  - Fixed slow KQL report visuals that use a promoted `tag_*` column. Tag keys are now matched with one case-insensitive regex per tag instead of normalizing every key on every row, so a visual pays only for the tags it uses. A single-tag visual uses about one-third of the previous CPU, and visuals that don't use tags are unchanged ([#2336](https://github.com/microsoft/finops-toolkit/issues/2336)).
+  - Fixed the KQL reports failing to load when `Trim_spaces_from_tags` is enabled without `Handle_mixed_case_tags`, which generated a query that called `replace_string()` on an array ([#2336](https://github.com/microsoft/finops-toolkit/issues/2336)).
   - Fixed the storage reports failing to refresh when the Cost Management export uses the FOCUS 1.2 schema. The FOCUS 1.2 branch searched for a column named `SkuMeterName` instead of `SkuMeter`, and the surrounding block assumed the FOCUS 1.0 columns (`x_InvoiceId`, `x_PricingCurrency`, `x_SkuMeterName`) were always present, which fails for a storage container that holds only FOCUS 1.2 exports. Added a lint rule that fails the build when a Power Query column name doesn't exist ([#2332](https://github.com/microsoft/finops-toolkit/issues/2332)).
 
 ### [Optimization Engine](optimization-engine/overview.md)
