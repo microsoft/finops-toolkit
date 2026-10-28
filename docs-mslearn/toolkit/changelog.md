@@ -129,6 +129,7 @@ _Released June 2026_
   - Added a build-generated `finops-hub-local-opendata.kql` release artifact that loads the open data reference tables from CSV, so the local hub guide stays in sync with published open data instead of hard-coding schemas.
 - **Changed**
   - Added a callout to the `config_RunBackfillJob` backfill option clarifying that it isn't supported on Microsoft Customer Agreement (MCA) billing accounts or billing profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
+  - Updated the [backfill instructions](hubs/configure-scopes.md) to use `config_StartBackfillProcess` for the retention period, and to explain that `config_RunBackfillJob` requires `StartDate` and `EndDate` in the same calendar month.
 - **Fixed**
   - Fixed Data Factory ingestion memory pressure during emptiness filtering.
     - Replaced `isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))` with separate `isnotempty()` checks in FinOps hub ingestion scripts to avoid temporary string allocation.
@@ -136,8 +137,6 @@ _Released June 2026_
   - Fixed inflated savings in the Data Explorer dashboard Summary and Rate optimization pages by excluding commitment discount purchases from list cost, contracted cost, and savings ([#2315](https://github.com/microsoft/finops-toolkit/issues/2315)).
   - Fixed the Reservations tab in the Rate optimization report showing no data for Microsoft Customer Agreement (MCA) accounts ([#1769](https://github.com/microsoft/finops-toolkit/issues/1769), [#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
   - Fixed hub redeploys and upgrades resetting data retention to the defaults and purging historical data ([#2206](https://github.com/microsoft/finops-toolkit/issues/2206), [#2348](https://github.com/microsoft/finops-toolkit/issues/2348)).
-  - Fixed `config_RunBackfillJob` failing with a misleading `Set Scopes` error when `StartDate` and `EndDate` were in different months.
-    - The pipeline now fails early with a `DateRangeSpansMonths` error, and the [backfill instructions](hubs/configure-scopes.md) explain when to use `config_StartBackfillProcess` and when to use `config_RunBackfillJob`.
 
 ### [Power BI reports](power-bi/reports.md) v15
 

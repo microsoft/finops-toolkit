@@ -268,7 +268,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    Use the backfill pipelines to run the managed exports for past months. For more information about running Azure Data Factory pipelines, see [Azure Data Factory pipelines](/azure/data-factory/concepts-pipelines-activities).
 
    - **config_StartBackfillProcess** backfills every month in your retention period. It doesn't need any parameters and runs **config_RunBackfillJob** once per month.
-   - **config_RunBackfillJob** backfills one calendar month. It requires the `StartDate` and `EndDate` parameters, and both dates must be in the same month, for example `2026-09-01` and `2026-09-30`. Cost Management runs an export for one month at a time, so the pipeline fails with a `DateRangeSpansMonths` error when the dates are in different months.
+   - **config_RunBackfillJob** backfills one calendar month. It requires the `StartDate` and `EndDate` parameters, and both dates must be in the same month, for example `2026-09-01` and `2026-09-30`. Cost Management runs an export for one calendar month at a time and rejects a date range that spans months.
 
    > [!IMPORTANT]
    > This option relies on managed exports and is **not supported for Microsoft Customer Agreement (MCA) billing accounts or billing profiles**. The pipeline calls the Cost Management `exports/run` API using the Data Factory managed identity, which Cost Management rejects on MCA scopes regardless of role assignments — typically with an `RBACAccessDenied` error. For MCA, use [Option 2](#option-2-using-cost-management-exports) or [Option 3](#option-3-using-start-finopscostexport-powershell-command) instead.
