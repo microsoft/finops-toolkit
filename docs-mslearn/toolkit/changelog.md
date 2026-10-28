@@ -137,7 +137,6 @@ _Released June 2026_
   - Fixed the Reservations tab in the Rate optimization report showing no data for Microsoft Customer Agreement (MCA) accounts ([#1769](https://github.com/microsoft/finops-toolkit/issues/1769), [#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
   - Fixed hub redeploys and upgrades resetting data retention to the defaults and purging historical data ([#2206](https://github.com/microsoft/finops-toolkit/issues/2206), [#2348](https://github.com/microsoft/finops-toolkit/issues/2348)).
   - Fixed private network deployments with Data Explorer failing with a `ServiceIsInMaintenance` error when the Data Explorer private endpoint connections were approved.
-    - Private endpoint changes now wait for the Data Explorer database scripts to finish, so the deployment doesn't write to the cluster while another change is in progress.
 
 ### [Power BI reports](power-bi/reports.md) v15
 
