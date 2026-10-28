@@ -46,7 +46,7 @@ Propose an outline.
 
 The outline is **fixed** — do not invent new sections. Use this structure (matches `announce/2025/2025-08_v12.md` and `announce/2026/2026-02_v13.md`):
 
-1. **Title** — `What's new in FinOps toolkit {N} – {Month} {Year}`
+1. **Title** — `What's new in FinOps toolkit v{N} – {Month} {Year}`
 2. **Intro paragraph** — One paragraph: who this release is for, what it emphasizes (themes, not full list), and a "read on for details" hook.
 3. **New to the FinOps toolkit?** — Boilerplate intro for new readers. Reuse from the prior release; update links if they changed.
 4. **Featured sections** (3–5) — Themed deep-dives on the biggest changes from the changelog. Each gets its own H2 with a benefit-led title (not just the feature name). This is the only part that varies per release. Inline contributor thanks belong here when relevant (e.g., "Thanks to @username for contributing this feature.").
