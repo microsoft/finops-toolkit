@@ -3,7 +3,7 @@ title: FinOps hubs data processing
 description: Learn how FinOps hubs process data, including scope setup, data normalization, and optimization, to enhance cost management and analysis.
 author: flanakin
 ms.author: micflan
-ms.date: 10/27/2026
+ms.date: 10/28/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
