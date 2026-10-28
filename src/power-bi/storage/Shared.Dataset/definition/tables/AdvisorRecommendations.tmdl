@@ -101,6 +101,16 @@ table AdvisorRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
+	column 'properties.extendedProperties.savingsAmount'
+		dataType: double
+		lineageTag: fe066f63-af23-441a-b614-df90e7b459c2
+		summarizeBy: sum
+		sourceColumn: properties.extendedProperties.savingsAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
 	column 'properties.extendedProperties.DatabaseSize'
 		dataType: string
 		lineageTag: 291bcdda-5321-4bb3-8900-62cb86a30af8
@@ -285,6 +295,17 @@ table AdvisorRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
+	column 'properties.lastUpdated'
+		dataType: dateTime
+		formatString: Mmm d h:nn AM/PM
+		lineageTag: d3bf7cce-83bc-4589-a2da-ece0e146e1d3
+		summarizeBy: none
+		sourceColumn: properties.lastUpdated
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
 	column 'properties.category'
 		dataType: string
 		lineageTag: d4071f11-546e-49cc-9131-675482ae0927
@@ -337,28 +358,9 @@ table AdvisorRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
-	column 'properties.lastUpdated'
-		dataType: dateTime
-		formatString: General Date
-		lineageTag: 432519ca-6b39-470a-875a-7011290482ba
-		summarizeBy: none
-		sourceColumn: properties.lastUpdated
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'properties.extendedProperties.savingsAmount'
-		dataType: double
-		lineageTag: 588d3c29-5bb7-4bb6-a5bd-b35aedd8131a
-		summarizeBy: sum
-		sourceColumn: properties.extendedProperties.savingsAmount
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
 	column type
 		dataType: string
-		lineageTag: ac61d87d-1570-4b1a-97b1-0178fc944bb3
+		lineageTag: 6813f654-5807-4a26-b6bf-e31b3977973b
 		summarizeBy: none
 		sourceColumn: type
 
@@ -366,7 +368,7 @@ table AdvisorRecommendations
 
 	column tenantId
 		dataType: string
-		lineageTag: 9f303a32-9ab0-4a62-97b5-09ce9630feee
+		lineageTag: 36908dc0-7497-4120-97a2-e6a4b4bfb9f2
 		summarizeBy: none
 		sourceColumn: tenantId
 
@@ -374,7 +376,7 @@ table AdvisorRecommendations
 
 	column kind
 		dataType: string
-		lineageTag: a113728e-e322-41d5-9605-c61609c31352
+		lineageTag: 739bec08-ec0a-499e-9918-fd0f1964ee4a
 		summarizeBy: none
 		sourceColumn: kind
 
@@ -382,7 +384,7 @@ table AdvisorRecommendations
 
 	column location
 		dataType: string
-		lineageTag: 763782ff-4b2b-4c62-88ab-81426f80db79
+		lineageTag: 0175f893-f6cc-4204-bba9-cf95a23fce9c
 		summarizeBy: none
 		sourceColumn: location
 
@@ -390,7 +392,7 @@ table AdvisorRecommendations
 
 	column resourceGroup
 		dataType: string
-		lineageTag: 9d01f317-2b3c-429a-9edd-d5e000cf7eab
+		lineageTag: 2d586d61-76f4-4b13-8a85-ee65c0b58ba5
 		summarizeBy: none
 		sourceColumn: resourceGroup
 
@@ -398,7 +400,7 @@ table AdvisorRecommendations
 
 	column subscriptionId
 		dataType: string
-		lineageTag: 64459c7e-80f2-42d2-b149-27201ab28ecc
+		lineageTag: eb535a29-a6bf-47f4-86b9-9e6fa7355300
 		summarizeBy: none
 		sourceColumn: subscriptionId
 
@@ -406,7 +408,7 @@ table AdvisorRecommendations
 
 	column managedBy
 		dataType: string
-		lineageTag: 8115cac1-1999-4fd2-acd9-198d1efa40a1
+		lineageTag: 8236cdb5-25a3-4129-be24-09a6c7c4a8d1
 		summarizeBy: none
 		sourceColumn: managedBy
 
@@ -414,7 +416,7 @@ table AdvisorRecommendations
 
 	column sku
 		dataType: string
-		lineageTag: c6148b22-09be-4d0d-9ffe-5ecc3a0fdf15
+		lineageTag: 210e2ef6-f18e-47a4-a91f-e9cd57aab99f
 		summarizeBy: none
 		sourceColumn: sku
 
@@ -422,7 +424,7 @@ table AdvisorRecommendations
 
 	column plan
 		dataType: string
-		lineageTag: 20739f02-9f27-49a4-b777-72b7a22d11c9
+		lineageTag: 0d1b5da0-fc60-422f-b3ce-dea583eed0b2
 		summarizeBy: none
 		sourceColumn: plan
 
@@ -430,7 +432,7 @@ table AdvisorRecommendations
 
 	column properties
 		dataType: string
-		lineageTag: 5a807d2f-0fd7-4cc4-8148-fb54899da4fa
+		lineageTag: 9dd67b79-1ce0-45b0-89b6-9d30aec09db3
 		summarizeBy: none
 		sourceColumn: properties
 
@@ -438,7 +440,7 @@ table AdvisorRecommendations
 
 	column tags
 		dataType: string
-		lineageTag: efb6b31c-93d6-4eda-9033-31af080009fe
+		lineageTag: d1007741-8139-4599-80dc-8d1ab3dd4026
 		summarizeBy: none
 		sourceColumn: tags
 
@@ -446,7 +448,7 @@ table AdvisorRecommendations
 
 	column identity
 		dataType: string
-		lineageTag: edf81095-af38-4974-9320-6567dd06ae16
+		lineageTag: 6ca4aa2c-1c77-4e55-9bd2-c65007a92631
 		summarizeBy: none
 		sourceColumn: identity
 
@@ -454,7 +456,7 @@ table AdvisorRecommendations
 
 	column zones
 		dataType: string
-		lineageTag: 8338ea34-4f56-4839-a052-d7a72d4ba7b4
+		lineageTag: 49a9a75a-1589-4e24-a622-31603e416086
 		summarizeBy: none
 		sourceColumn: zones
 
@@ -462,7 +464,7 @@ table AdvisorRecommendations
 
 	column extendedLocation
 		dataType: string
-		lineageTag: 64c356d0-098f-431c-bf9c-929f991acb02
+		lineageTag: 65908216-087d-4693-88b1-bcafb39cf8c8
 		summarizeBy: none
 		sourceColumn: extendedLocation
 
@@ -473,10 +475,8 @@ table AdvisorRecommendations
 		queryGroup: 'Resource Graph'
 		source = ```
 				let
-				  Source = AzureResourceGraph.Query("
-				
-				
-				  advisorresources 
+				  query = "
+				  advisorresources
 				  | where type == 'microsoft.advisor/recommendations'
 				  | where properties.category == 'Cost'
 				  | extend
@@ -521,11 +521,10 @@ table AdvisorRecommendations
 				    ['properties.resourceMetadata.action'] = properties.resourceMetadata.action,
 				    ['properties.resourceMetadata.source'] = properties.resourceMetadata.source,
 				    SortOrder = case(properties.impact == 'High', 1, properties.impact == 'Medium', 2, properties.impact == 'Low', 3, 9)
-				
-				
-				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = true]),
+				  ",
+				  Source = ftk_QueryARG(query, 2),
 				  NullHandling =
-				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+				    if Source = null then
 							#table(
 								{ "id", "name", "type", "properties.recommendationTypeId", "properties.shortDescription", "properties.resourceMetadata", "properties.suppressionIds", "properties.impactedField", "properties.impactedValue", "properties.lastUpdated", "properties.category", "properties.metadata", "properties.impact", "properties.shortDescription.problem", "properties.shortDescription.solution", "properties.extendedProperties.ObservationPeriodStartDate", "properties.extendedProperties.ObservationPeriodEndDate", "properties.extendedProperties.annualSavingsAmount", "properties.extendedProperties.HasRecommendation", "properties.extendedProperties.savingsCurrency", "properties.extendedProperties.IsInReplication", "properties.extendedProperties.Recommended_DTU", "properties.extendedProperties.Recommended_SKU", "properties.extendedProperties.ResourceGroup", "properties.extendedProperties.savingsAmount", "properties.extendedProperties.DatabaseSize", "properties.extendedProperties.DatabaseName", "properties.extendedProperties.ServerName", "properties.extendedProperties.Region", "properties.extendedProperties.lookbackPeriod", "properties.extendedProperties.subId", "properties.extendedProperties.scope", "properties.extendedProperties.term", "properties.extendedProperties.sku", "properties.extendedProperties.commitment", "properties.extendedProperties.currentSku", "properties.extendedProperties.targetSku", "properties.extendedProperties.recommendationMessage", "properties.resourceMetadata.resourceId", "properties.resourceMetadata.singular", "properties.resourceMetadata.plural", "properties.resourceMetadata.action", "properties.resourceMetadata.source", "SortOrder" },
 								{}
@@ -538,9 +537,11 @@ table AdvisorRecommendations
 				      {"properties.extendedProperties.ObservationPeriodStartDate", type datetimezone},
 				      {"properties.extendedProperties.ObservationPeriodEndDate",   type datetimezone},
 				      {"properties.lastUpdated",                                   type datetimezone}
-				    }, "en-US")
+				    }, "en-US"),
+				  // Table.Combine concatenates per-batch results in batch order, so re-sort here to restore SortOrder ordering across the combined table
+				  Sorted = Table.Sort(Types, {{"SortOrder", Order.Ascending}})
 				in
-				  Types
+				  Sorted
 				```
 
 	annotation PBI_NavigationStepName = Navigation

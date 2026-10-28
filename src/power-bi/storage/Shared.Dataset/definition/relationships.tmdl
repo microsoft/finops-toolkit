@@ -64,10 +64,6 @@ relationship 2ad9b8bc-59fb-e94c-a36f-1fa66aaa02a8
 	fromColumn: AdvisorRecommendations.'properties.resourceMetadata.resourceId'
 	toColumn: Resources.id
 
-relationship AutoDetected_d442ee36-a039-47be-83cf-fd058a0973d7
-	fromColumn: AdvisorReservationRecommendations.subscriptionId
-	toColumn: Subscriptions.subscriptionId
-
 relationship AutoDetected_19cbab3d-1150-45a4-9258-ca0b47ba687d
 	isActive: false
 	fromColumn: AdvisorRecommendations.subscriptionId
@@ -94,9 +90,8 @@ relationship b4df7db2-17c9-dcef-7d32-4d6aaf3b4f3c
 
 relationship c0c15128-2725-100f-2945-f99368d742f6
 	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
-	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
+	fromColumn: ReservationRecommendations.x_CommitmentDiscountNormalizedSize
+	toColumn: InstanceSizeFlexibility.x_SkuType
 
 relationship AutoDetected_8af1c026-78c9-4c32-ba5d-c90a60061c83
 	fromColumn: VirtualMachinesDisks.subscriptionId

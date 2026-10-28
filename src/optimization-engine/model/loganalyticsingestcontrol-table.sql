@@ -8,7 +8,8 @@ AND OBJECTPROPERTY(id, N'IsUserTable') = 1)
 			[LastProcessedDateTime] [datetime] NULL,
 			[LastProcessedLine] [int] NULL,
 			[LogAnalyticsSuffix] [varchar](50) NOT NULL,
-			[CollectedType] [varchar](50) NULL
+			[CollectedType] [varchar](50) NULL,
+			[DCRImmutableId] [varchar](100) NULL
 		)
 
 		ALTER TABLE [dbo].[LogAnalyticsIngestControl] ADD PRIMARY KEY CLUSTERED 
@@ -18,8 +19,12 @@ AND OBJECTPROPERTY(id, N'IsUserTable') = 1)
 	END
 ELSE
 	BEGIN
-		IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[LogAnalyticsIngestControl]') AND name = 'CollectedType'
-)		BEGIN
+		IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[LogAnalyticsIngestControl]') AND name = 'CollectedType')
+		BEGIN
 			ALTER TABLE [dbo].[LogAnalyticsIngestControl] ADD [CollectedType] VARCHAR (50) NULL
+		END
+		IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[LogAnalyticsIngestControl]') AND name = 'DCRImmutableId')
+		BEGIN
+			ALTER TABLE [dbo].[LogAnalyticsIngestControl] ADD [DCRImmutableId] VARCHAR (100) NULL
 		END
 	END

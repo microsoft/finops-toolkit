@@ -51,5 +51,6 @@ To make the most of your time, we recommend:
 - 🧰 [About the FinOps toolkit](https://aka.ms/finops/toolkit)
 - 🛠️ [Troubleshooting guide](https://aka.ms/ftk/trouble)
 - 🙋‍♀️ [How to get support](./help)
+- 🤝 [FinOps toolkit ecosystem](./ecosystem)
 
 <br>

@@ -91,10 +91,10 @@ table Resources
 				      ['creationTime'] = properties.creationTime,
 				      ['timeModified'] = properties.timeModified
 				    | project id, name, type, tenantId, location, subscriptionId, resourceGroup, creationTime, timeModified
-				  " & ftk_DemoFilter(),
-				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  ",
+				  Source = ftk_QueryARG(query),
 				  NullHandling =
-				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+				    if Source = null then
 				      #table(
 				        { "id", "name", "type", "tenantId", "location", "subscriptionId", "resourceGroup", "creationTime", "timeModified" },
 				        {}

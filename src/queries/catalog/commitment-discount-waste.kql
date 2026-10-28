@@ -1,0 +1,88 @@
+// ============================================================================
+// Query: Percentage of Commitment Discount Waste
+// Description:
+//   Computes the percentage of commitment discount waste for each commitment by
+//   comparing unused amortized EffectiveCost to total commitment EffectiveCost.
+//   Includes a grand-total row per BillingCurrency across all commitments in the
+//   reporting window.
+// KPI: Percentage of Commitment Discount Waste
+// Formula: (Cost of Commitment Discount unused / total cost Commitment Discount) x 100
+// Author: FinOps toolkit
+// Parameters:
+//   startDate: datetime = startofmonth(ago(30d))
+//   endDate: datetime = startofmonth(now())
+// Output:
+//   BillingCurrency: string. Billing currency for the commitment or grand-total row.
+//   CommitmentDiscountId: string. Commitment identifier; empty string on the grand-total row.
+//   CommitmentDiscountName: string. Commitment name; '(All Commitments)' on the grand-total row.
+//   CommitmentDiscountType: string. Commitment type; empty string on the grand-total row.
+//   UnusedCost: double. Sum of EffectiveCost for rows where CommitmentDiscountStatus == 'Unused'.
+//   TotalCost: double. Sum of EffectiveCost across all commitment rows after filters.
+//   WastePercent: double. Percentage of TotalCost represented by UnusedCost.
+// Usage:
+//   Use this query to identify underutilized commitment discounts and quantify waste by commitment and billing currency.
+// Scope Notes:
+//   - Double-counting prevention: This query operates on amortized-style rows only
+//     (purchase rows excluded).
+//   - Unused row semantics: CommitmentDiscountStatus == 'Unused' rows represent
+//     wasted amortized commitment cost for the charge period.
+//   - CommitmentDiscountStatus values: Only 'Used' and 'Unused' are expected.
+//   - Currency mixing: Grand-total output is scoped per BillingCurrency; cross-
+//     currency aggregation is out of scope.
+//   - Period window: Default startDate/endDate cover one calendar month; adjust
+//     the let bindings for rolling windows.
+//   - KPI limitation vs canonical definition: This implementation uses
+//     EffectiveCost as the cost basis for commitment-discount waste analytics.
+// Last Tested: 2026-05-28 against a FinOps Hub ADX cluster (1,366,763 cost rows in 2026-04 window). UAT result: PASS_SCHEMA_WITH_DATA_GAP — query executed and returned expected columns; the hub has 0 commitment-discount rows in the test window, so value semantics require re-UAT on a commitment-active hub.
+// =========================================================================
+let startDate = startofmonth(ago(30d));
+let endDate = startofmonth(now());
+let filteredCosts =
+    Costs()
+    | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+    | where isnotempty(CommitmentDiscountId)
+    | where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory));
+let commitmentWaste =
+    filteredCosts
+    | summarize
+        UnusedCost = sum(iff(CommitmentDiscountStatus == 'Unused', EffectiveCost, real(0))),
+        TotalCost = sum(EffectiveCost)
+        by BillingCurrency, CommitmentDiscountId, CommitmentDiscountName, CommitmentDiscountType
+    | extend WastePercent = iff(TotalCost == 0.0, 0.0, todouble(UnusedCost) / todouble(TotalCost) * 100.0)
+    | project
+        BillingCurrency,
+        CommitmentDiscountId,
+        CommitmentDiscountName,
+        CommitmentDiscountType,
+        UnusedCost = todouble(UnusedCost),
+        TotalCost = todouble(TotalCost),
+        WastePercent = todouble(WastePercent);
+let grandTotals =
+    filteredCosts
+    | summarize
+        UnusedCost = sum(iff(CommitmentDiscountStatus == 'Unused', EffectiveCost, real(0))),
+        TotalCost = sum(EffectiveCost)
+        by BillingCurrency
+    | extend
+        CommitmentDiscountId = '',
+        CommitmentDiscountName = '(All Commitments)',
+        CommitmentDiscountType = ''
+    | extend WastePercent = iff(TotalCost == 0.0, 0.0, todouble(UnusedCost) / todouble(TotalCost) * 100.0)
+    | project
+        BillingCurrency,
+        CommitmentDiscountId,
+        CommitmentDiscountName,
+        CommitmentDiscountType,
+        UnusedCost = todouble(UnusedCost),
+        TotalCost = todouble(TotalCost),
+        WastePercent = todouble(WastePercent);
+union commitmentWaste, grandTotals
+| order by BillingCurrency asc, WastePercent desc, CommitmentDiscountName asc
+| project
+    BillingCurrency,
+    CommitmentDiscountId,
+    CommitmentDiscountName,
+    CommitmentDiscountType,
+    UnusedCost,
+    TotalCost,
+    WastePercent

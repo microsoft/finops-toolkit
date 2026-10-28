@@ -36,7 +36,7 @@ param remoteHubStorageUri string = ''
 @secure()
 param remoteHubStorageKey string = ''
  
-@description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant User Access Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
+@description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant the Role Based Access Control Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
 param enableManagedExports bool = true
 
 @description('Optional. Enable recommendations ingested from Azure Resource Graph based on configurable queries. The Data Factory managed identity requires Reader role on management groups or subscriptions to execute Resource Graph queries. Default: false.')
@@ -144,20 +144,23 @@ param tagsByResource object = {}
 @description('Optional. List of scope IDs to monitor and ingest cost for.')
 param scopesToMonitor array = []
 
-@description('Optional. Number of days of data to retain in the msexports container. Default: 0.')
-param exportRetentionInDays int = 0
+@description('Optional. Number of days of data to retain in the msexports container. If not specified, keeps the current value from settings.json (0 for new hubs).')
+param exportRetentionInDays int?
 
-@description('Optional. Number of months of data to retain in the ingestion container. Default: 13.')
-param ingestionRetentionInMonths int = 13
+@description('Optional. Number of months of data to retain in the ingestion container. If not specified, keeps the current value from settings.json (13 for new hubs).')
+param ingestionRetentionInMonths int?
 
-@description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
-param dataExplorerRawRetentionInDays int = 0
+@description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. If not specified, keeps the current value from settings.json (0 for new hubs).')
+param dataExplorerRawRetentionInDays int?
 
-@description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
-param dataExplorerFinalRetentionInMonths int = 13
+@description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. If not specified, keeps the current value from settings.json (13 for new hubs).')
+param dataExplorerFinalRetentionInMonths int?
 
 @description('Optional. Enable public access to FinOps hubs resources.  Default: true.')
 param enablePublicAccess bool = true
+
+@description('Optional. Deploy a NAT Gateway for controlled outbound access when private routing is enabled. When true, the script and Data Explorer subnets route outbound traffic through the NAT Gateway. Ignored when enablePublicAccess is true. Default: false.')
+param enableNatGateway bool = false
 
 @description('Optional. Address space for the workload. Minimum /26 subnet size is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
@@ -195,6 +198,7 @@ module hub 'modules/hub.bicep' = {
     remoteHubStorageUri: remoteHubStorageUri
     remoteHubStorageKey: remoteHubStorageKey
     enablePublicAccess: enablePublicAccess
+    enableNatGateway: enableNatGateway
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
   }
 }
