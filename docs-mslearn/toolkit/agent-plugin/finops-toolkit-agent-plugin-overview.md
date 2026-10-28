@@ -21,7 +21,8 @@ Install the plugin from the FinOps toolkit repository:
 
 ```bash
 # Claude Code
-claude plugin add microsoft/finops-toolkit
+claude plugin marketplace add microsoft/finops-toolkit
+claude plugin install microsoft-finops-toolkit@finops-toolkit
 
 # GitHub Copilot CLI
 copilot plugin install microsoft/finops-toolkit
