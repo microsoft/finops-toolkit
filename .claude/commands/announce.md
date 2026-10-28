@@ -84,6 +84,7 @@ Present the proposed outline via AskUserQuestion with options to approve, reorde
 2. Determine the slug. For release announcements, use `v{N}` (e.g., `v14`). Otherwise, use a short kebab-cased topic (e.g., `azure-openai-costs`).
 3. Write the draft to `announce/{year}/{yyyy-MM}_{slug}.md` using `Write`.
 4. **Tone:** active voice, benefit-led, friendly but not breathless. Match the voice of recent releases in `announce/`.
+   - Apply the content standards in [Coding-guidelines.md](../../docs-wiki/Coding-guidelines.md#-content-strings-and-microcopy): stay positive, spell out "FinOps hubs" and "FinOps toolkit v##" on first reference per section (title, preview, and social posts included).
 5. **Microsoft style:** sentence casing for headings (not Title Case), no end punctuation on short headings, follow [Coding-guidelines.md](../../docs-wiki/Coding-guidelines.md) content rules.
 6. **Length:** release announcements run ~6–10 minute reads. Featured sections are 2–4 short paragraphs each. Don't pad.
 7. **Links:** prefer `aka.ms` short links when they exist (check the changelog for examples). Use full Learn URLs for deep documentation.
