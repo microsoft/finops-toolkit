@@ -3,7 +3,7 @@ title: FinOps hubs data model
 description: Learn about the tables and functions available in FinOps hubs to build your own queries, reports, and dashboards.
 author: flanakin
 ms.author: micflan
-ms.date: 10/26/2026
+ms.date: 10/28/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -473,6 +473,12 @@ Examples:
 
 <br>
 
+## InstanceSizeFlexibility table
+
+The **InstanceSizeFlexibility** table in Power BI and Data Explorer is populated from the [Instance size flexibility open data file](../open-data.md#instance-size-flexibility). This table is used to identify reservation-eligible SKUs that share instance size flexibility with a purchased reservation.
+
+<br>
+
 ## ManagementGroups table
 
 The **ManagementGroups** table in Power BI reports that queries Azure management groups from Azure Resource Graph.
@@ -533,12 +539,12 @@ parse_resourceid('/subscriptions/###/resourceGroups/foo/providers/Microsoft.Comp
 
 ```json
 {
-    "ResourceId": "/subscriptions/###/resourceGroups/foo/providers/Microsoft.Compute/virtualMachines/bar",
-    "ResourceName": "bar",
-    "SubAccountId": "###",
-    "x_ResourceGroupName": "foo",
-    "x_ResourceProvider": "Microsoft.Compute",
-    "x_ResourceType": "microsoft.compute/virtualmachines"
+  "ResourceId": "/subscriptions/###/resourceGroups/foo/providers/Microsoft.Compute/virtualMachines/bar",
+  "ResourceName": "bar",
+  "SubAccountId": "###",
+  "x_ResourceGroupName": "foo",
+  "x_ResourceProvider": "Microsoft.Compute",
+  "x_ResourceType": "microsoft.compute/virtualmachines"
 }
 ```
 
@@ -547,11 +553,6 @@ parse_resourceid('/subscriptions/###/resourceGroups/foo/providers/Microsoft.Comp
 ## percent() KQL function
 
 The **percent(table: (Count: long))** function in Data Explorer calculates the percentage of each record based on a required Count column.
-
-{
-    let total = todouble(toscalar(t | summarize sum(Count)));
-    percentOfTotal(t, total)
-}
 
 <br>
 
@@ -575,12 +576,12 @@ Examples:
 
 ## plusminus() KQL function
 
-The ****plusminus KQL function in Data Explorer a +/- sign based on the direction of the number.
-plusminus(val: string)
-{
-    let neg = substring(val, 0, 1) == '-';
-    iff(neg, val, strcat('+', val))
-}
+The **plusminus()** KQL function in Data Explorer returns a +/- sign based on the direction of the number.
+
+Examples:
+
+- `plusminus(0.5)` = "+0.5"
+- `plusminus(-0.5)` = "-0.5"
 
 <br>
 
@@ -642,15 +643,6 @@ Columns in the **Prices** managed dataset include:
 | SkuMeter                             | String    | New in FOCUS 1.2. Renamed from x_SkuMeterName.    |
 | SkuPriceId                           | String    |                                                   |
 | SkuPriceIdv2                         | String    | Source: Hubs add-on.                              |
-
-### FOCUS 1.5 SKU prices preview
-
-A draft of the FOCUS 1.5 SKU Price dataset is available in the `src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/preview/SkuPrices_v1_5` folder of the [FinOps toolkit repository](https://github.com/microsoft/finops-toolkit). It isn't deployed with FinOps hubs and may change before release. The preview builds 2 tables from **Prices_final_v1_2** in the **Ingestion** database:
-
-- **SkuPrices_v1_5** has one row per SKU price and price type (`x_UnitPriceType` of List, Base, Contracted, or Effective) with effective start and end dates.
-- **SkuPricesWide_v1_5** has the same prices with each price type in its own column.
-
-To try it, run `Build-SkuPrices.ps1` against your hub, then `Test-SkuPrices.ps1` to validate the results. See the README in that folder for mapping decisions and known gaps.
 | x_BaseUnitPrice                      | Real      | Source: Microsoft.                                |
 | x_BillingAccountAgreement            | String    | Source: Hubs add-on.                              |
 | x_BillingAccountId                   | String    | Source: Microsoft, MCA only.                      |
@@ -690,6 +682,15 @@ To try it, run `Build-SkuPrices.ps1` against your hub, then `Test-SkuPrices.ps1`
 | x_SourceVersion                      | String    | Source: Hubs add-on.                              |
 | x_TotalUnitPriceDiscount             | Real      | Source: Hubs add-on.                              |
 | x_TotalUnitPriceDiscountPercent      | Real      | Source: Hubs add-on.                              |
+
+### FOCUS 1.5 SKU prices preview
+
+A draft of the FOCUS 1.5 SKU Price dataset is available in the `src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/preview/SkuPrices_v1_5` folder of the [FinOps toolkit repository](https://github.com/microsoft/finops-toolkit). It isn't deployed with FinOps hubs and may change before release. The preview builds 2 tables from **Prices_final_v1_2** in the **Ingestion** database:
+
+- **SkuPrices_v1_5** has one row per SKU price and price type (`x_UnitPriceType` of List, Base, Contracted, or Effective) with effective start and end dates.
+- **SkuPricesWide_v1_5** has the same prices with each price type in its own column.
+
+To try it, run `Build-SkuPrices.ps1` against your hub, then `Test-SkuPrices.ps1` to validate the results. See the README in that folder for mapping decisions and known gaps.
 
 <br>
 
