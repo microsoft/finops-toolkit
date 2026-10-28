@@ -117,10 +117,10 @@ Status icons:
 - [ ] <!-- release:powerbi --> Package Power BI files on Windows: `<root>/src/scripts/Package-PowerBI.ps1 -Unattended`
   > _Builds, saves demo PBIX files with Power BI Desktop, validates, and packages. Takes about an hour. Don't use the mouse or keyboard while it runs. If it stops because the reports were built from a test open data URL, rerun once with `-Build`._
   >
-  > _First, sign in to Power BI Desktop and refresh one demo project by hand so the data source credentials are stored and the "Public" sensitivity label is available. The command can't sign in or answer a credential prompt._
+  > _First, sign in to Power BI Desktop and refresh one demo project by hand so the data source credentials are stored and, if your tenant uses sensitivity labels, the "Public" label is available. The "Public" label is only needed when sensitivity labels are enabled. The command can't sign in or answer a credential prompt._
   - If a report can't be saved automatically, the command names the step that failed and saves a screenshot. Save that report by hand, then rerun the command:
     - Run `Package-PowerBI.ps1 -Open` to open the projects that need to be saved.
-    - Refresh the report, select **File** > **Save as**, keep the `<root>/release/pbix` folder, change the file type to PBIX, and set the sensitivity to "Public".
+    - Refresh the report, select **File** > **Save as**, keep the `<root>/release/pbix` folder, change the file type to PBIX, and set the sensitivity to "Public" (only if sensitivity labels are enabled).
     > _Queries are already trimmed and the Get started page is already selected. There is nothing else to change._
   - [ ] Confirm all 3 files were created: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
 - [ ] Check the docs for broken links:

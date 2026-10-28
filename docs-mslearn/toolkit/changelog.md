@@ -68,6 +68,8 @@ _Released October 2026_
     - Added 27 missing columns and corrected three columns still listed under names that hubs v12 renamed.
     - Fixed one column typed as `long` instead of `int`.
   - Documented that the `config_RunBackfillJob` backfill option isn't supported on Microsoft Customer Agreement (MCA) billing accounts or profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
+  - Updated the [backfill instructions](hubs/configure-scopes.md) to use `config_StartBackfillProcess` for the months covered by the ingestion retention setting.
+    - Clarified that `config_RunBackfillJob` requires `StartDate` and `EndDate` in the same calendar month.
   - Clarified that the FinOps toolkit manages the hub virtual network, and that customer-managed private endpoints are the preferred private-access option ([#2156](https://github.com/microsoft/finops-toolkit/issues/2156)).
     - Virtual network peering is documented as a secondary option.
   - Changed hub queries to use case-insensitive comparisons that run faster on large datasets ([#2213](https://github.com/microsoft/finops-toolkit/issues/2213)).
@@ -113,6 +115,7 @@ _Released October 2026_
   - Fixed the Reservations tab in the Rate optimization report showing no data for MCA accounts ([#1769](https://github.com/microsoft/finops-toolkit/issues/1769), [#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
   - Fixed hub redeploys and upgrades resetting data retention and purging historical data ([#2206](https://github.com/microsoft/finops-toolkit/issues/2206), [#2348](https://github.com/microsoft/finops-toolkit/issues/2348)).
     - Retention now stays as configured unless you specify a new value.
+  - Fixed private network deployments with Data Explorer failing with a `ServiceIsInMaintenance` error when approving the Data Explorer private endpoint connections.
 
 ### [Power BI reports](power-bi/reports.md) v15
 
@@ -129,6 +132,7 @@ _Released October 2026_
 - **Fixed**
   - Fixed report templates opening with a preconfigured demo data source.
     - Storage and cluster settings are now empty when you open a template.
+  - Fixed storage reports showing no data when they read Cost Management exports that use gzip-compressed CSV (`.csv.gz`).
   - Fixed storage report refresh errors for exports that use earlier FOCUS versions.
     - Those exports lack the `CapacityReservationId` and `CapacityReservationStatus` columns, which are now added as empty columns like `AvailabilityZone`.
   - Fixed the managed disks table on the **Virtual machines** page of the [Governance](power-bi/governance.md) report showing an error.

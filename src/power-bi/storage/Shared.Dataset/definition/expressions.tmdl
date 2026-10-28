@@ -196,7 +196,7 @@ expression ftk_Storage = ```
 						),
 						{"Folder Path"}
 					),
-					FilterExpData = Table.SelectRows(FilterExports, each ([Extension] = ".parquet" or [Extension] = ".csv") and List.Contains(Table.Column(DatasetPaths, "Folder Path"), [Folder Path])),
+					FilterExpData = Table.SelectRows(FilterExports, each ([Extension] = ".parquet" or [Extension] = ".csv" or [Extension] = ".gz") and List.Contains(Table.Column(DatasetPaths, "Folder Path"), [Folder Path])),
 					ExportMonth = Table.AddColumn(FilterExpData, "StartDate", each if data = "reservationrecommendations" then null else _toMonth([Segments]{[SegmentCount]-(if Text.Length([Segments]{[SegmentCount]-2}) = 17 then 2 else 3)}), type date)
 				in ExportMonth
 				otherwise null

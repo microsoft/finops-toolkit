@@ -159,7 +159,7 @@ Package everything, not only the toolkit zips, and delete `release/` first so no
 Before packaging, two things have to be done:
 
 1. The demo hub (`ftk-demo` in the FTK Prod subscription, which holds demo resources and isn't real production) is on this release and has current data, because the demo reports are saved with its data. Run `pwsh -Command "./src/scripts/Deploy-Demo.ps1"` in the background, because it takes 15 to 45 minutes, which is longer than a foreground command can run. It deploys or updates the hub and waits until data is ingested. It fails if the hub still isn't ready after 30 minutes; run it again to keep waiting. Show its warnings verbatim.
-2. Someone has signed in to Power BI Desktop on the Windows machine and refreshed one demo project from `release/pbix` by hand, once. That stores the data source credentials and makes the Public sensitivity label available, and the packaging command can't answer a credential prompt. Ask the user to confirm with "done".
+2. Someone has signed in to Power BI Desktop on the Windows machine and refreshed one demo project from `release/pbix` by hand, once. That stores the data source credentials and makes the Public sensitivity label available (the label is only needed, and only checked, when sensitivity labels are enabled for the tenant), and the packaging command can't answer a credential prompt. Ask the user to confirm with "done".
 
 On Windows, tell the user not to use the mouse or keyboard until it finishes, then run it in the background, because it takes about an hour:
 
@@ -171,7 +171,7 @@ On other platforms, tell the user to run `Package-PowerBI.ps1 -Unattended` on a 
 
 It takes about an hour (roughly 10 minutes per demo report). If it stops because the reports were built from a test open data URL ("isn't permanent"), rerun it once with `-Build` to rebuild against the main branch; don't use `-Build` otherwise, because it discards reports that are already saved.
 
-Relay its status output verbatim — it says exactly which step is next. If a report can't be saved automatically, relay the failed step and screenshot path, tell the user to run `Package-PowerBI.ps1 -Open` and save that project as PBIX (refresh, Save as PBIX in `release/pbix`, sensitivity "Public"), then say "done" so you can rerun the command to validate and package.
+Relay its status output verbatim — it says exactly which step is next. If a report can't be saved automatically, relay the failed step and screenshot path, tell the user to run `Package-PowerBI.ps1 -Open` and save that project as PBIX (refresh, Save as PBIX in `release/pbix`, sensitivity "Public" if sensitivity labels are enabled), then say "done" so you can rerun the command to validate and package.
 
 If validation fails, show the reported issues verbatim. Each one names the file and the fix; don't guess at causes.
 
