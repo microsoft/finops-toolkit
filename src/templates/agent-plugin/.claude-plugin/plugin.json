@@ -9,7 +9,16 @@
   "homepage": "https://aka.ms/finops/toolkit",
   "repository": "https://github.com/microsoft/finops-toolkit",
   "license": "MIT",
-  "keywords": ["finops", "cost-management", "reservations", "savings-plans", "cloud-optimization", "commitments", "credits", "macc"],
+  "keywords": [
+    "finops",
+    "cost-management",
+    "reservations",
+    "savings-plans",
+    "cloud-optimization",
+    "commitments",
+    "credits",
+    "macc"
+  ],
   "commands": "./commands/",
   "skills": [
     "./skills/"

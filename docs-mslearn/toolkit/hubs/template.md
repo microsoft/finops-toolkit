@@ -3,7 +3,7 @@ title: FinOps hub template
 description: Learn about what's included in the FinOps hub template including parameters, resources, and outputs.
 author: flanakin
 ms.author: micflan
-ms.date: 10/26/2026
+ms.date: 10/28/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -133,7 +133,7 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
     - `config_InitializeHub` – Initializes (or updates) the FinOps hub instance after deployment.
     - `config_ConfigureExports` – Creates Cost Management exports for all scopes.
     - `config_StartBackfillProcess` – Runs the backfill job for each month based on retention settings.
-    - `config_RunBackfillJob` – Creates and triggers exports for all defined scopes for the specified date range.
+    - `config_RunBackfillJob` – Runs the monthly managed export for all defined scopes for one calendar month. Requires the `StartDate` and `EndDate` parameters in the same month.
     - `config_StartExportProcess` – Gets a list of all Cost Management exports configured for this hub based on the scopes defined in settings.json, then runs each export using the config_RunExportJobs pipeline.
     - `config_RunExportJobs` – Runs the specified Cost Management exports.
     - `msexports_ExecuteETL` – Queues the `msexports_ETL_ingestion` pipeline to account for Data Factory pipeline trigger limits.
