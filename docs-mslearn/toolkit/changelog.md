@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/26/2026
+ms.date: 10/28/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -129,6 +129,7 @@ _Released June 2026_
   - Added a build-generated `finops-hub-local-opendata.kql` release artifact that loads the open data reference tables from CSV, so the local hub guide stays in sync with published open data instead of hard-coding schemas.
 - **Changed**
   - Added a callout to the `config_RunBackfillJob` backfill option clarifying that it isn't supported on Microsoft Customer Agreement (MCA) billing accounts or billing profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
+  - Updated the [backfill instructions](hubs/configure-scopes.md) to use `config_StartBackfillProcess` for the months covered by the ingestion retention setting, and to explain that `config_RunBackfillJob` requires `StartDate` and `EndDate` in the same calendar month.
 - **Fixed**
   - Fixed Data Factory ingestion memory pressure during emptiness filtering.
     - Replaced `isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))` with separate `isnotempty()` checks in FinOps hub ingestion scripts to avoid temporary string allocation.
