@@ -108,7 +108,7 @@ expression '▶️  START HERE' = ```
 	annotation PBI_NavigationStepName = Navigation
 
 /// Optional. Number of months to include in the report before the RangeEnd date. Ignored if RangeStart is specified. Default: (all available data).
-expression 'Number of Months' = 1 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
+expression 'Number of Months' = 3 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
 	lineageTag: 1d47668d-4de6-404c-8e53-f89a35081e8b
 	queryGroup: '🛠️ Setup'
 
