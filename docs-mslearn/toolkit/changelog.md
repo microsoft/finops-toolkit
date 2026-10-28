@@ -125,6 +125,7 @@ _Released October 2026_
     - Applies to the [Governance](power-bi/governance.md) and [Workload optimization](power-bi/workload-optimization.md) reports.
     - A payload size error still appears, instead of silently truncated results, if a single batch of subscriptions exceeds the limit.
     - If errors persist, [reduce the batch size](help/errors.md#option-1-reduce-the-batch-size).
+  - Changed the default **Number of Months** in storage reports from 1 to 3 to show more cost history.
 - **Fixed**
   - Fixed report templates opening with a preconfigured demo data source.
     - Storage and cluster settings are now empty when you open a template.
