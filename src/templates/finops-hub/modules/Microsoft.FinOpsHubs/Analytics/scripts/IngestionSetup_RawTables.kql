@@ -130,9 +130,6 @@
 ]
 ```
 
-// ActualCosts_raw retention policy (clear historical data)
-.alter-merge table ActualCosts_raw policy retention softdelete = 0d recoverability = disabled
-
 // ActualCosts_raw retention policy (set the user-defined retention period)
 .alter-merge table ActualCosts_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
@@ -262,9 +259,6 @@
 ]
 ```
 
-// AmortizedCosts_raw retention policy (clear historical data)
-.alter-merge table AmortizedCosts_raw policy retention softdelete = 0d recoverability = disabled
-
 // AmortizedCosts_raw retention policy (set the user-defined retention period)
 .alter-merge table AmortizedCosts_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
@@ -324,9 +318,6 @@
     { "Column": "x_SourceVersion",          "Properties": { "Field": "x_SourceVersion" } }
 ]
 ```
-
-// CommitmentDiscountUsage_raw retention policy (clear historical data)
-.alter-merge table CommitmentDiscountUsage_raw policy retention softdelete = 0d recoverability = disabled
 
 // CommitmentDiscountUsage_raw retention policy (set the user-defined retention period)
 .alter-merge table CommitmentDiscountUsage_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
@@ -656,9 +647,6 @@
 ]
 ```
 
-// Costs_raw retention policy (clear historical data)
-.alter-merge table Costs_raw policy retention softdelete = 0d recoverability = disabled
-
 // Costs_raw retention policy (set the user-defined retention period)
 .alter-merge table Costs_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
@@ -764,9 +752,6 @@
     { "Column": "x_SourceVersion",    "Properties": { "Field": "x_SourceVersion" } }
 ]
 ```
-
-// Prices_raw retention policy (clear historical data)
-.alter-merge table Prices_raw policy retention softdelete = 0d recoverability = disabled
 
 // Prices_raw retention policy (set the user-defined retention period)
 .alter-merge table Prices_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
@@ -878,9 +863,6 @@
 ]
 ```
 
-// Recommendations_raw retention policy (clear historical data)
-.alter-merge table Recommendations_raw policy retention softdelete = 0d recoverability = disabled
-
 // Recommendations_raw retention policy (set the user-defined retention period)
 .alter-merge table Recommendations_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
@@ -976,9 +958,6 @@
     { "Column": "x_SourceVersion",            "Properties": { "Field": "x_SourceVersion" } }
 ]
 ```
-
-// Transactions_raw retention policy (clear historical data)
-.alter-merge table Transactions_raw policy retention softdelete = 0d recoverability = disabled
 
 // Transactions_raw retention policy (set the user-defined retention period)
 .alter-merge table Transactions_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
