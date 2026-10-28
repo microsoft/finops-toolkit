@@ -28,6 +28,9 @@
     .PARAMETER Status
     Optional. Reports what's done and what's left without changing anything. Default = false.
 
+    .PARAMETER ValidateTemplates
+    Optional. Opens each PBIT template in Power BI Desktop with Test-PowerBITemplates before packaging, so a template that shows an error or the wrong parameter prompt fails here instead of shipping. Windows only. Default = false.
+
     .PARAMETER SensitivityLabel
     Optional. Sensitivity label demo reports must have, when the tenant has labels. Reports saved without any label pass. Default = "Public".
 
@@ -68,6 +71,8 @@ param(
     [switch] $Build,
 
     [switch] $Status,
+
+    [switch] $ValidateTemplates,
 
     [string] $SensitivityLabel = 'Public',
 
@@ -567,6 +572,18 @@ if ($failed -gt 0)
 {
     Write-Host ''
     throw "$failed demo report$(if ($failed -ne 1) { 's' }) failed validation. Fix the issues above, save again (or run ./Package-PowerBI -Unattended), and rerun this command."
+}
+
+if ($ValidateTemplates)
+{
+    if ($null -ne $IsWindows -and -not $IsWindows)
+    {
+        throw 'Validating templates needs Power BI Desktop, which only runs on Windows. Run this command on Windows, or leave out -ValidateTemplates.'
+    }
+
+    Write-Host ''
+    Write-Host 'Opening the templates in Power BI Desktop...'
+    $null = & "$PSScriptRoot/Test-PowerBITemplates.ps1" -Path $pbitDir
 }
 
 Write-Host ''
