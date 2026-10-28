@@ -29,19 +29,6 @@ The following section lists features and enhancements that are currently in deve
 
 <br><a name="latest"></a>
 
-## v16
-
-_Released November 2026_
-
-<!-- prettier-ignore-start -->
-> [!div class="nextstepaction"]
-> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v16)
-> [!div class="nextstepaction"]
-> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v15...v16)
-<!-- prettier-ignore-end -->
-
-<br>
-
 ## v15
 
 _Released October 2026_
