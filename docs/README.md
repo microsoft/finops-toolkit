@@ -254,6 +254,8 @@ Whether you're looking for a little assistance or are interested in contributing
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/xan-archera"><img src="https://avatars.githubusercontent.com/u/248541667?v=4?s=100" width="100px;" alt="xan-archera"/><br /><sub><b>xan-archera</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Axan-archera" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/bpurchell"><img src="https://avatars.githubusercontent.com/u/40211715?v=4?s=100" width="100px;" alt="Brian Purchell"/><br /><sub><b>Brian Purchell</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=bpurchell" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/danfiedler-msft"><img src="https://avatars.githubusercontent.com/u/151573964?v=4?s=100" width="100px;" alt="Dan Fiedler"/><br /><sub><b>Dan Fiedler</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=danfiedler-msft" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

@@ -1044,6 +1044,24 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "bpurchell",
+      "name": "Brian Purchell",
+      "avatar_url": "https://avatars.githubusercontent.com/u/40211715?v=4",
+      "profile": "https://github.com/bpurchell",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "danfiedler-msft",
+      "name": "Dan Fiedler",
+      "avatar_url": "https://avatars.githubusercontent.com/u/151573964?v=4",
+      "profile": "https://github.com/danfiedler-msft",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitType": "docs",
