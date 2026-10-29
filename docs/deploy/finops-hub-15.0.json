@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "1691189861300030888"
+      "templateHash": "7714892940236779248"
     }
   },
   "parameters": {
@@ -372,7 +372,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "18408477848667566914"
+              "templateHash": "10261134030155853573"
             }
           },
           "definitions": {
@@ -18008,7 +18008,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "10710649458740224211"
+                      "templateHash": "12961192081775428375"
                     },
                     "hubApp": {
                       "id": "Microsoft.FinOpsHubs.Analytics",
@@ -18875,7 +18875,8 @@
                       },
                       "dependsOn": [
                         "appRegistration",
-                        "cluster"
+                        "cluster",
+                        "dataExplorerEndpoint"
                       ]
                     },
                     "dataFactory": {
@@ -19014,7 +19015,8 @@
                         ]
                       },
                       "dependsOn": [
-                        "cluster"
+                        "cluster",
+                        "hub_LatestScripts"
                       ]
                     },
                     "dataExplorerPrivateDnsZoneGroup": {

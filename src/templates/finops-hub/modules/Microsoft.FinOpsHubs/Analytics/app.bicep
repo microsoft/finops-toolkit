@@ -481,8 +481,12 @@ resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtu
 }
 
 // Private endpoint
+// Kusto rejects concurrent cluster writes with ServiceIsInMaintenance, so private endpoint changes wait for the database scripts
 resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (useAzure && app.hub.options.privateRouting) {
   name: '${cluster.name}-ep'
+  dependsOn: [
+    hub_LatestScripts
+  ]
   location: app.hub.location
   tags: union(app.tags, app.hub.tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
   properties: {
@@ -546,6 +550,9 @@ resource dataFactoryVNet 'Microsoft.DataFactory/factories/managedVirtualNetworks
 
   resource dataExplorerManagedPrivateEndpoint 'managedPrivateEndpoints' = {
     name: HUB_DATA_EXPLORER
+    dependsOn: [
+      dataExplorerEndpoint
+    ]
     properties: {
       name: HUB_DATA_EXPLORER
       groupId: 'cluster'
