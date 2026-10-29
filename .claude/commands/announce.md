@@ -46,7 +46,7 @@ Propose an outline.
 
 The outline is **fixed** — do not invent new sections. Use this structure (matches `announce/2025/2025-08_v12.md` and `announce/2026/2026-02_v13.md`):
 
-1. **Title** — `What's new in FinOps toolkit v{N} – {Month} {Year}`
+1. **Title** — `What's new in FinOps toolkit {N} – {Month} {Year}`
 2. **Intro paragraph** — One paragraph: who this release is for, what it emphasizes (themes, not full list), and a "read on for details" hook.
 3. **New to the FinOps toolkit?** — Boilerplate intro for new readers. Reuse from the prior release; update links if they changed.
 4. **Featured sections** (3–5) — Themed deep-dives on the biggest changes from the changelog. Each gets its own H2 with a benefit-led title (not just the feature name). This is the only part that varies per release. Inline contributor thanks belong here when relevant (e.g., "Thanks to @username for contributing this feature.").
@@ -84,7 +84,7 @@ Present the proposed outline via AskUserQuestion with options to approve, reorde
 2. Determine the slug. For release announcements, use `v{N}` (e.g., `v14`). Otherwise, use a short kebab-cased topic (e.g., `azure-openai-costs`).
 3. Write the draft to `announce/{year}/{yyyy-MM}_{slug}.md` using `Write`.
 4. **Tone:** active voice, benefit-led, friendly but not breathless. Match the voice of recent releases in `announce/`.
-   - Apply the content standards in [Coding-guidelines.md](../../docs-wiki/Coding-guidelines.md#-content-strings-and-microcopy): stay positive, spell out product names and versions (like "FinOps hubs" and "FinOps toolkit v##") on first reference per section, and only abbreviate on secondary references (preview and social posts included; titles can drop the "v").
+   - Apply the content standards in [Coding-guidelines.md](../../docs-wiki/Coding-guidelines.md#-content-strings-and-microcopy): stay positive, spell out references on first use per section (like "FinOps hubs" and "FinOps toolkit 15", no "v"), and only abbreviate secondary references (preview and social posts included).
 5. **Microsoft style:** sentence casing for headings (not Title Case), no end punctuation on short headings, follow [Coding-guidelines.md](../../docs-wiki/Coding-guidelines.md) content rules.
 6. **Length:** release announcements run ~6–10 minute reads. Featured sections are 2–4 short paragraphs each. Don't pad.
 7. **Links:** prefer `aka.ms` short links when they exist (check the changelog for examples). Use full Learn URLs for deep documentation.
