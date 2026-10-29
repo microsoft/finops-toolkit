@@ -4,10 +4,14 @@ description: Learn how to upgrade your existing FinOps hub instance to the lates
 author: flanakin
 ms.author: micflan
 <<<<<<< HEAD
+<<<<<<< HEAD
 ms.date: 10/28/2026
 =======
 ms.date: 10/18/2026
 >>>>>>> 37f94aba (chore: Update ms.date in docs-mslearn files)
+=======
+ms.date: 10/29/2026
+>>>>>>> 57cc2db1 (chore: Update ms.date in docs-mslearn files)
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
