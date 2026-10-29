@@ -98,7 +98,7 @@ Prices_transform_v1_2()
     // applied to another's savings plan rows (meter IDs are already region-specific). take_any()
     // stays as a defence so the dimension side is exactly one row per key (a duplicate would fan
     // out matching SavingsPlan rows, #1736), and the prefilter limits it to savings plan meters.
-    | lookup kind=leftouter (prices | where x_SkuPriceType == 'Consumption' | summarize take_any(ListUnitPrice), take_any(ContractedUnitPrice), take_any(x_BaseUnitPrice) by tmp_SavingsPlanKey) on tmp_SavingsPlanKey
+    | lookup kind=leftouter (prices | where x_SkuPriceType == 'Consumption' | where x_SkuMeterId in (spMeters) | summarize take_any(ListUnitPrice), take_any(ContractedUnitPrice), take_any(x_BaseUnitPrice) by tmp_SavingsPlanKey) on tmp_SavingsPlanKey
     | extend ListUnitPrice = coalesce(ListUnitPrice, ListUnitPrice1)
     | extend ContractedUnitPrice = coalesce(ContractedUnitPrice, ContractedUnitPrice1)
     | extend x_BaseUnitPrice = coalesce(x_BaseUnitPrice, x_BaseUnitPrice1)
