@@ -20,6 +20,14 @@ InModuleScope 'FinOpsToolkit' {
             Should -Invoke -CommandName 'Invoke-RestMethod' -Times 1 -ParameterFilter { $Body -like "*.add database Hub admins ('aadapp=p-id;t-id')*" }
         }
 
+        It 'Should send a plain-text bearer token when Get-AzAccessToken returns a SecureString' {
+            Mock -CommandName 'Get-AzAccessToken' { [pscustomobject]@{ Token = (ConvertTo-SecureString 'secret' -AsPlainText -Force) } }
+
+            Grant-FinOpsHubFabricAccess -QueryUri 'https://x/' -PrincipalId 'p' -TenantId 't' -Confirm:$false
+
+            Should -Invoke -CommandName 'Invoke-RestMethod' -Times 2 -ParameterFilter { $Headers.Authorization -eq 'Bearer secret' }
+        }
+
         It 'Should not call the eventhouse with -WhatIf' {
             Grant-FinOpsHubFabricAccess -QueryUri 'https://x/' -PrincipalId 'p' -TenantId 't' -WhatIf
 
