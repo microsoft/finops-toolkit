@@ -672,6 +672,20 @@
                 }
               },
               {
+                "name": "enableDataExplorerDiskEncryption",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable Data Explorer disk encryption",
+                "toolTip": "Enable disk encryption for the Azure Data Explorer cluster.",
+                "defaultValue": false
+              },
+              {
+                "name": "enableDataExplorerDoubleEncryption",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable Data Explorer double encryption",
+                "toolTip": "Enable double encryption for the Azure Data Explorer cluster. This setting can only be enabled when the cluster is created.",
+                "defaultValue": false
+              },
+              {
                 "name": "rawDays",
                 "type": "Microsoft.Common.TextBox",
                 "label": "Raw data retention (days)",
@@ -1006,6 +1020,8 @@
       "enableNatGateway": "[steps('advanced').networking.enableNatGateway]",
       "virtualNetworkAddressPrefix": "[steps('advanced').networking.virtualNetworkAddressPrefix]",
       "dataExplorerSku": "[steps('pricing').dataExplorer.dataExplorerSku]",
+      "enableDataExplorerDiskEncryption": "[steps('retention').dataExplorer.enableDataExplorerDiskEncryption]",
+      "enableDataExplorerDoubleEncryption": "[steps('retention').dataExplorer.enableDataExplorerDoubleEncryption]",
       "exportRetentionInDays": "[if(or(equals(steps('retention').storage.msexportsDays, ''), equals(steps('retention').storage.msexportsDays, '0')), parse('null'), steps('retention').storage.msexportsDays)]",
       "ingestionRetentionInMonths": "[if(or(equals(steps('retention').storage.ingestionMonths, ''), equals(steps('retention').storage.ingestionMonths, '13')), parse('null'), steps('retention').storage.ingestionMonths)]",
       "dataExplorerRawRetentionInDays": "[if(or(equals(steps('retention').dataExplorer.rawDays, ''), equals(steps('retention').dataExplorer.rawDays, '0')), parse('null'), steps('retention').dataExplorer.rawDays)]",
