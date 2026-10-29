@@ -109,16 +109,20 @@ Status icons:
   - Build all toolkit templates and resolve any issues: `<root>/src/scripts/Build-Toolkit`
     > _This step is optional, but can catch issues earlier. You can also add the `-Build` parameter to the publish command in the next step._
   - Ensure all tests pass: `<root>/src/scripts/Test-PowerShell -Unit -Integration`
-- [ ] <!-- release:package --> Package all release files (except Power BI): `<root>/src/scripts/Package-Toolkit.ps1 -Build -CopyFiles` script
-- [ ] Package Power BI files
-  - [ ] Run `Package-Toolkit.ps1 -OpenPBI` script.
-  - [ ] Save and close each Power BI project:
-    - Select the `<root>/release/pbix` folder.
-    - Change the file extension to PBIX.
-    - When prompted, set the sensitivity to "Public".
-    - Manually remove unused queries based on what's documented in Build-PowerBI.ps1 ~line 120.
-    - Verify all pages, switch to the Get started page, and save again.
-  - [ ] Run `Package-Toolkit -ZipPBI` script.
+- [ ] <!-- release:package --> Package all release files: `<root>/src/scripts/Package-Toolkit.ps1 -Build -CopyFiles` script
+  > _Package from the release prep branch; don't wait for the merge to main. Commit and push the generated `docs/deploy` files to the prep branch. To get files ready early, create a draft GitHub release and upload the files from `release/`; add PowerBI-demo.zip when this step finishes._
+- [ ] Confirm the data source saved in the Power BI semantic models points at the current demo hub.
+- [ ] Make sure the demo hub is on this release and has current data: `<root>/src/scripts/Deploy-Demo.ps1`
+  - It deploys or updates the hub and waits until data is ingested, so Power BI can be packaged right after.
+- [ ] <!-- release:powerbi --> Package Power BI files on Windows: `<root>/src/scripts/Package-PowerBI.ps1 -Unattended`
+  > _Builds, saves demo PBIX files with Power BI Desktop, validates, and packages. Takes about an hour. Don't use the mouse or keyboard while it runs. If it stops because the reports were built from a test open data URL, rerun once with `-Build`._
+  >
+  > _First, sign in to Power BI Desktop and refresh one demo project by hand so the data source credentials are stored and, if your tenant uses sensitivity labels, the "Public" label is available. The "Public" label is only needed when sensitivity labels are enabled. The command can't sign in or answer a credential prompt._
+  - If a report can't be saved automatically, the command names the step that failed and saves a screenshot. Save that report by hand, then rerun the command:
+    - Run `Package-PowerBI.ps1 -Open` to open the projects that need to be saved.
+    - Refresh the report, select **File** > **Save as**, keep the `<root>/release/pbix` folder, change the file type to PBIX, and set the sensitivity to "Public" (only if sensitivity labels are enabled).
+    > _Queries are already trimmed and the Get started page is already selected. There is nothing else to change._
+  - [ ] Confirm all 3 files were created: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
 - [ ] Check the docs for broken links:
   - Create a personal fork of the main repo.
   - If you already have one, update it to the latest.

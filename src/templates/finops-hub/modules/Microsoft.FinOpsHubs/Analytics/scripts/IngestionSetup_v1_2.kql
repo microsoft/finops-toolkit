@@ -364,9 +364,6 @@ Costs_transform_v1_2()
         iff(x_SkuTerm == '1Year' or x_SkuTerm == '3Years' or x_SkuTerm == '5Years',                                                 'SkuTermShouldBeAnInteger,',         '')
     ))
     //
-    // Handle provider columns that moved to FOCUS
-    | extend PricingCurrency = coalesce(PricingCurrency, x_PricingCurrency)
-    //
     // Backup original prices/costs before the merge
     | extend old_ContractedCost = ContractedCost
     | extend old_ContractedUnitPrice = ContractedUnitPrice
@@ -399,6 +396,9 @@ Costs_transform_v1_2()
         strcat(x_SourceChanges, iff(isempty(x_SourceChanges), '', ','), iff(x_SourceVersion == '', 'UnknownFocusVersion', 'LegacyFocusVersion'))
     )
     //
+    // Handle provider columns that moved to FOCUS -- After version detection, which must only see what the export delivered (backfilling x_PricingCurrency first would make FOCUS 1.0 look like 1.2)
+    | extend PricingCurrency = coalesce(PricingCurrency, x_PricingCurrency)
+    //
     // Fix quantities
     | extend old_PricingQuantity = PricingQuantity, PricingQuantity = case(
         PricingQuantity != 0 or (EffectiveCost == 0 and BilledCost == 0), PricingQuantity,
@@ -413,12 +413,13 @@ Costs_transform_v1_2()
         ConsumedQuantity
     )
     //
-    // Populate missing prices -- mapping to on-demand prices requires meter ID and offer ID
+    // Populate missing prices -- mapping to on-demand prices requires meter ID; offer ID is EA-only, so rows without one are recovered only when they are reservation usage (CommitmentDiscountCategory == 'Usage')
     | extend tmp_MissingPrices = ProviderName == 'Microsoft'
         and (isempty(ListUnitPrice) or isempty(ContractedUnitPrice) or ListUnitPrice == 0 or ContractedUnitPrice == 0)
         and x_EffectiveUnitPrice != 0
         and not(CommitmentDiscountCategory == 'Spend' and CommitmentDiscountStatus == 'Unused')
-        and isnotempty(x_SkuMeterId) and isnotempty(x_SkuOfferId)
+        and isnotempty(x_SkuMeterId)
+        and (isnotempty(x_SkuOfferId) or CommitmentDiscountCategory == 'Usage')
     | as allCosts
     | where tmp_MissingPrices
     | extend tmp_ReservationPriceLookupKey = tolower(strcat(x_BillingProfileId, substring(ChargePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId))

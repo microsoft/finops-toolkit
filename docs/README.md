@@ -18,9 +18,9 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 ---
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in April 2026<span class="ftk-version">v14</span></h3>
+    <h3>What's new in October 2026<span class="ftk-version">v15</span></h3>
     <p>
-        April adds recommendations ingestion and a Copilot Studio agent template for FinOps hubs, a new commitment discount eligibility open dataset, simplified hub deployment UI, Azure Optimization Engine pricesheet API upgrade, and minor improvements in Power BI, FinOps workbooks, and the PowerShell module.
+        October adds a shared FinOps Toolkit plugin for Claude Code and GitHub Copilot CLI, private networking support for FinOps hubs, a new Instance size flexibility open dataset, several KQL performance and correctness fixes across hubs, workbooks, and alerts, and minor improvements in Power BI, the Optimization Engine, and the PowerShell module.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -61,9 +61,9 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
         <a href="./optimization-engine">Learn more</a>
     </div>
     <div class="ftk-tile">
-        <div>🌐 Open data</div>
-        <div>Useful data for anyone to access, use, and share.</div>
-        <a href="./open-data">Learn more</a>
+        <div>🤖 Agent plugin</div>
+        <div>AI-powered cloud financial management for Claude Code and GitHub Copilot CLI.</div>
+        <a href="./agent-plugin">Learn more</a>
     </div>
     <div class="ftk-tile">
         <div>🖥️ PowerShell</div>
@@ -74,6 +74,11 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
         <div>🦾 Bicep Registry</div>
         <div>Official repository for Bicep modules.</div>
         <a href="./bicep">Learn more</a>
+    </div>
+    <div class="ftk-tile">
+        <div>🌐 Open data</div>
+        <div>Useful data for anyone to access, use, and share.</div>
+        <a href="./open-data">Learn more</a>
     </div>
 </div>
 
@@ -241,6 +246,7 @@ Whether you're looking for a little assistance or are interested in contributing
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/TakumiSeo"><img src="https://avatars.githubusercontent.com/u/49015441?v=4?s=100" width="100px;" alt="TakuSe"/><br /><sub><b>TakuSe</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=TakumiSeo" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/sandhyakumili"><img src="https://avatars.githubusercontent.com/u/173696668?v=4?s=100" width="100px;" alt="sandhyakumili"/><br /><sub><b>sandhyakumili</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Asandhyakumili" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
