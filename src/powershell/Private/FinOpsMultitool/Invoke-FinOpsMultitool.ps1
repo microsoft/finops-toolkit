@@ -516,11 +516,9 @@ function Invoke-FinOpsMultitool {
                 $choice = Read-FinOpsAnswer '  Select [1/2/3/4]: '
                 switch ($choice) {
                     '1' {
-                        # The [1] Hub choice uses the scalable Kusto engine when the
-                        # hub has an ADX/Fabric cluster (auto-discovered) or
-                        # FINOPS_HUB_KUSTO_URI is set (ftklocal). If neither exists,
-                        # cost scans fall back to the STORAGE READER, which loads cost
-                        # rows into PowerShell.
+                        # The [1] Hub choice uses the scalable Kusto engine when
+                        # FINOPS_HUB_KUSTO_URI is set. If it is not set, cost scans use
+                        # the STORAGE READER, which loads cost rows into PowerShell.
                         $hubSubIds = @($Subscriptions | ForEach-Object { $_.Id })
                         $prov = $null
                         try { $prov = Resolve-FOHubProvider -Subscriptions $hubSubIds } catch {
@@ -569,7 +567,7 @@ function Invoke-FinOpsMultitool {
                             # path so it is never mistaken for the scalable engine.
                             Write-FinOpsConsole ""
                             Write-FinOpsConsole "  Using the FinOps Hub storage reader (small-dataset path; $($hubSize.Display))." -ForegroundColor DarkGray
-                            Write-FinOpsConsole "  Larger hubs should query Kusto: deploy ADX/Fabric, or set FINOPS_HUB_KUSTO_URI (ftklocal)." -ForegroundColor DarkGray
+                            Write-FinOpsConsole "  Larger hubs should query Kusto: set FINOPS_HUB_KUSTO_URI to the hub Kusto endpoint (ADX, Fabric, or a local emulator)." -ForegroundColor DarkGray
                             return @{ Source = 'Hub'; HubStorage = $hubStorage; HubProviderResolved = $true }
                         }
 
@@ -581,8 +579,8 @@ function Invoke-FinOpsMultitool {
                         Write-FinOpsConsole "  Cost scans will use the storage reader, which loads cost rows into" -ForegroundColor DarkGray
                         Write-FinOpsConsole "  memory. On a large hub (tens of GB) this can be slow or run out of" -ForegroundColor DarkGray
                         Write-FinOpsConsole "  memory before completing." -ForegroundColor DarkGray
-                        Write-FinOpsConsole "  For the scalable engine path: deploy ADX/Fabric on the hub, or set" -ForegroundColor DarkGray
-                        Write-FinOpsConsole "  FINOPS_HUB_KUSTO_URI to a local ftklocal emulator, then re-run." -ForegroundColor DarkGray
+                        Write-FinOpsConsole "  For the scalable engine path: set FINOPS_HUB_KUSTO_URI to the hub" -ForegroundColor DarkGray
+                        Write-FinOpsConsole "  Kusto endpoint (ADX, Fabric, or a local emulator), then re-run." -ForegroundColor DarkGray
                         Write-FinOpsConsole ""
                         Write-FinOpsConsole "  Switch to the live Cost Management API instead? " -ForegroundColor White -NoNewline
                         Write-FinOpsConsole "(N = continue with the storage reader)" -ForegroundColor DarkGray
@@ -1049,12 +1047,11 @@ function Invoke-FinOpsMultitool {
         $hubCostByTag = $null
         $hubScanErrors = @{}
 
-        # Scalable Kusto path: when a FinOps Hub Kusto database is reachable
-        # (a FINOPS_HUB_KUSTO_URI override for an ftklocal emulator or a pinned
-        # cluster, or a discovered ADX/Fabric cluster), push aggregation into
-        # the engine and return only summaries - never load raw rows. This is
-        # what lets the tool scale to large hub datasets. Falls back to the
-        # storage reader below when no cluster is available.
+        # Scalable Kusto path: when FINOPS_HUB_KUSTO_URI configures a FinOps Hub
+        # Kusto database (an ftklocal emulator or a pinned cluster), push
+        # aggregation into the engine and return only summaries - never load raw
+        # rows. This is what lets the tool scale to large hub datasets. Uses the
+        # storage reader below when no endpoint is configured.
         $kustoProvider = $null
         $subIdsForDisco = @($Subscriptions | ForEach-Object { $_.Id })
         if ($DataSource.Source -eq 'Hub') {
@@ -1125,7 +1122,7 @@ function Invoke-FinOpsMultitool {
             $hub = $DataSource.HubStorage
             Write-FinOpsConsole ""
             Write-FinOpsConsole "  Loading cost data from FinOps Hub storage (small-dataset reader)..." -ForegroundColor Green
-            Write-FinOpsConsole "  For large hubs, query the Kusto database instead (ADX/Fabric, or set FINOPS_HUB_KUSTO_URI for ftklocal)." -ForegroundColor DarkGray
+            Write-FinOpsConsole "  For large hubs, query Kusto: set FINOPS_HUB_KUSTO_URI to the hub Kusto endpoint (ADX, Fabric, or a local emulator)." -ForegroundColor DarkGray
             try {
                 $hubRaw = Read-FinOpsHubData -StorageAccountName $hub.name -ResourceGroupName $hub.resourceGroup -Months 1 -SubscriptionIds $subIdsForDisco
             }
@@ -1914,13 +1911,11 @@ function Invoke-FinOpsMultitool {
         Write-SectionHeader 'SCAN COMPLETE'
         Write-FinOpsConsole ""
 
-        $totalFindings = 0
         foreach ($mod in ($Modules | Where-Object { $_.Selected })) {
             $data = $Results[$mod.Fn]
             $errorKey = "_error_$($mod.Fn)"
             $hasError = $Results.ContainsKey($errorKey)
             $count = if ($data) { @($data).Count } else { 0 }
-            $totalFindings += $count
             if ($hasError) {
                 $icon = '!'
                 $color = 'Red'
@@ -1929,18 +1924,16 @@ function Invoke-FinOpsMultitool {
             elseif ($count -gt 0) {
                 $icon = '*'
                 $color = 'Yellow'
-                $suffix = "$count findings"
+                $suffix = 'result returned'
             }
             else {
                 $icon = '-'
                 $color = 'DarkGray'
-                $suffix = '0 findings'
+                $suffix = 'no data'
             }
             Write-FinOpsConsole "  $icon $($mod.Name.PadRight(30)) $suffix" -ForegroundColor $color
         }
 
-        Write-FinOpsConsole ""
-        Write-FinOpsConsole "  Total findings: $totalFindings" -ForegroundColor White
         Write-FinOpsConsole ""
 
         # -- Display results per module ------------------------------------
@@ -2453,7 +2446,7 @@ function Invoke-FinOpsMultitool {
                 'Get-UnitEconomics' {
                     $computeShare = if ($null -ne $data.ComputeSharePct) { "$($data.ComputeSharePct)% of VM compute + storage spend" } else { 'Unavailable' }
                     $storageShare = if ($null -ne $data.StorageSharePct) { "$($data.StorageSharePct)% of VM compute + storage spend" } else { 'Unavailable' }
-                    Write-ColorizedLine -Text "    Compute: $(Format-BudgetAmount -Value $data.ComputeCost -Currency $data.Currency) ($computeShare) over $($data.VmCount) VMs / $($data.TotalVCpu) vCPU / $($data.TotalMemoryGb) GB RAM" -DefaultColor 'White'
+                    Write-ColorizedLine -Text "    Compute: $(Format-BudgetAmount -Value $data.ComputeCost -Currency $data.Currency) ($computeShare) over $($data.VmCount) VMs / $($data.TotalVCpu) vCPU / $(if ($null -eq $data.TotalMemoryGb) { 'RAM unavailable' } else { "$($data.TotalMemoryGb) GB RAM" })" -DefaultColor 'White'
                     Write-ColorizedLine -Text "    Storage: $(Format-BudgetAmount -Value $data.StorageCost -Currency $data.Currency) ($storageShare) over $($data.TotalStorageGb) GB ($($data.DiskGb) GB disk + $($data.BlobFileGb) GB blob/file)" -DefaultColor 'White'
                     $unitContext = Get-FinOpsUnitCostContext -Data $data
                     Write-FinOpsConsole "    $($unitContext.Summary)" -ForegroundColor DarkGray
@@ -4149,7 +4142,7 @@ h2[id] { scroll-margin-top: 85px; }
                         $storageAmount = [System.Net.WebUtility]::HtmlEncode((Format-BudgetAmount -Value $data.StorageCost -Currency $data.Currency))
                         $computeShare = if ($null -ne $data.ComputeSharePct) { [System.Net.WebUtility]::HtmlEncode("$($data.ComputeSharePct)% of VM compute + storage spend") } else { 'Unavailable' }
                         $storageShare = if ($null -ne $data.StorageSharePct) { [System.Net.WebUtility]::HtmlEncode("$($data.StorageSharePct)% of VM compute + storage spend") } else { 'Unavailable' }
-                        [void]$notesSb.Append("<p>Compute: $computeAmount ($computeShare) over $($data.VmCount) VMs, $($data.TotalVCpu) vCPU, $($data.TotalMemoryGb) GB RAM</p>")
+                        [void]$notesSb.Append("<p>Compute: $computeAmount ($computeShare) over $($data.VmCount) VMs, $($data.TotalVCpu) vCPU, $(if ($null -eq $data.TotalMemoryGb) { 'RAM unavailable' } else { "$($data.TotalMemoryGb) GB RAM" })</p>")
                         [void]$notesSb.Append("<p>Storage: $storageAmount ($storageShare) over $($data.TotalStorageGb) GB</p>")
                         $unitContext = Get-FinOpsUnitCostContext -Data $data
                         [void]$notesSb.Append("<p class=`"story-note`">$([System.Net.WebUtility]::HtmlEncode($unitContext.Summary))</p>")
@@ -4656,7 +4649,6 @@ h2[id] { scroll-margin-top: 85px; }
                 "FinOps Explorer TUI Scan Summary"
                 "Generated: $timestamp"
                 "Subscriptions: $subList"
-                "Total findings: $totalFindings"
                 if ($kpiReferenceIssue) { $kpiReferenceIssue }
                 ""
             )
@@ -4673,7 +4665,7 @@ h2[id] { scroll-margin-top: 85px; }
                     $summaryData.AccessDenied -contains $true -or @(@($summaryData.CostIssue; $summaryData.RateIssue; $summaryData.AHBIssue; $summaryData.Error) | Where-Object { $_ }).Count -gt 0 -or
                     @($summaryData.MetricFailures | Where-Object { $_ -gt 0 }).Count -gt 0) { "Limited data: $(if ($summaryNote) { $summaryNote } else { 'Some evidence could not be verified.' })" }
                 elseif ($count -eq 0) { 'No data' }
-                else { "$count findings" }
+                else { 'Result returned' }
                 $summaryLines += "$($mod.Name): $status"
             }
             Write-FinOpsReportFile -Directory $exportDir -Name 'ScanSummary.txt' -Lines $summaryLines -ErrorAction Stop

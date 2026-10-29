@@ -10,12 +10,12 @@ metadata:
 
 # Cost data source routing
 
-Cost questions can be answered from a **FinOps hub**, from existing **Cost Management exports**, or from the **live Cost Management API** (real-time, but slow at scale). The terminal UI exposes these as `Start-FinOpsExplorer -DataSource Hub`, `Export`, or `API`; `GraphOnly` skips cost scans entirely. When a hub is used, the tool picks the path inside the hub automatically:
+Cost questions can be answered from a **FinOps hub**, from existing **Cost Management exports**, or from the **live Cost Management API** (real-time, but slow at scale). The terminal UI exposes these as `Start-FinOpsExplorer -DataSource Hub`, `Export`, or `API`; `GraphOnly` skips cost scans entirely. When a hub is used, the path inside the hub depends on whether `FINOPS_HUB_KUSTO_URI` is set:
 
-- **Hub Kusto database** (Azure Data Explorer / Fabric, or a local ftklocal emulator) — the scalable path. Aggregation runs in the engine and only summaries return, so it handles large datasets (tens of GB / hundreds of millions of rows) without loading rows.
-- **Hub storage reader** (FOCUS parquet/CSV in storage) — a small-dataset convenience fallback used when no Kusto cluster is reachable. Rows are aggregated in PowerShell.
+- **Hub Kusto database** (Azure Data Explorer / Fabric, or a local ftklocal emulator) — the scalable path, used when `FINOPS_HUB_KUSTO_URI` is set. Aggregation runs in the engine and only summaries return, so it handles large datasets (tens of GB / hundreds of millions of rows) without loading rows.
+- **Hub storage reader** (FOCUS parquet/CSV in storage) — a small-dataset convenience fallback used when no Kusto endpoint is configured. Rows are aggregated in PowerShell.
 
-This skill decides between a hub, exports, and the live API so cost scans stay fast and the session stays interactive. The storage-versus-Kusto choice within the hub is automatic — you don't pick it.
+This skill decides between a hub, exports, and the live API so cost scans stay fast and the session stays interactive. The tool doesn't discover a Kusto cluster automatically.
 
 This routing applies **only** to the spend-breakdown scans that can read hub or export data:
 
@@ -31,7 +31,7 @@ Other cost-family scans — budget status, anomaly alerts, reservation advice, c
 For any spend question that maps to one of the scans above, do this **before** running a cost scan:
 
 1. **Confirm scope.** State the tenant and subscriptions you'll read (see `finops-explorer`).
-2. **Look for a hub.** Query Azure Resource Graph, scoped to the selected subscriptions, for Azure Data Explorer clusters tagged `ftk-tool` = `FinOps hubs` and storage accounts whose `cm-resource-parent` tag contains `Microsoft.Cloud/hubs`. `FINOPS_HUB_KUSTO_URI` points the terminal UI at a specific Kusto endpoint, such as a local ftklocal emulator.
+2. **Look for a hub.** Query Azure Resource Graph, scoped to the selected subscriptions, for storage accounts whose `cm-resource-parent` tag contains `Microsoft.Cloud/hubs`. The tool doesn't discover a Kusto cluster automatically. `FINOPS_HUB_KUSTO_URI` points the terminal UI at a specific Kusto endpoint, such as a local ftklocal emulator.
 3. **Check access.** Kusto needs database query access. The storage reader needs Storage Blob Data Reader on the hub storage account. A hub existing doesn't mean you can read it.
 4. **Check coverage and freshness.** Compare the subscriptions in the hub data with the requested scope, and note the newest data date.
 5. **Decide** with the table below. Never silently run a slow API scan — warn and ask first.
@@ -96,6 +96,6 @@ Always tell the user which source the numbers came from and, for hub or export d
 ## Prerequisites
 
 - An authenticated Azure session (`az login`, or `Connect-AzAccount` for the terminal UI).
-- The scalable hub path needs read access to the FinOps Hub Kusto database — an Azure Data Explorer / Fabric cluster (discovered automatically), or a reachable ftklocal emulator via `FINOPS_HUB_KUSTO_URI`.
+- The scalable hub path needs read access to the FinOps Hub Kusto database — an Azure Data Explorer / Fabric cluster or a reachable ftklocal emulator, configured with `FINOPS_HUB_KUSTO_URI`.
 - The storage-reader fallback and the export reader need **Storage Blob Data Reader** or equivalent data access on the storage account, plus network access.
 - Everything this skill routes is read-only.

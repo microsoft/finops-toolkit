@@ -995,12 +995,15 @@ function ConvertTo-ResourceCostsFromExport {
         $rid = if ($cm.ResourceId) { "$($r.$($cm.ResourceId))".Trim() } else { '' }
         $subId = [string]$r.($cm.SubscriptionId)
         $cost = ConvertTo-ExportAmount "$($r.$($cm.Cost))"
-        # Classic exports can carry a bare instance name, so the subscription has
-        # to be part of the key or same-named resources would merge across them.
-        $key = if ($rid) { "$subId|$($rid.ToLower())" } else { "$subId|non-resource charges" }
+        $rg = if ($cm.ResourceGroup) { "$($r.$($cm.ResourceGroup))" } else { '' }
+        if (-not $rg -and $rid -match '/resourcegroups/([^/]+)/') { $rg = $Matches[1] }
+        if ($rid -and -not $rid.StartsWith('/') -and -not [string]::IsNullOrWhiteSpace($rg)) {
+            $key = "$subId|$($rg.Trim().ToLowerInvariant())|$($rid.ToLowerInvariant())"
+        }
+        else {
+            $key = if ($rid) { "$subId|$($rid.ToLower())" } else { "$subId|non-resource charges" }
+        }
         if (-not $agg.ContainsKey($key)) {
-            $rg = if ($cm.ResourceGroup) { "$($r.$($cm.ResourceGroup))" } else { '' }
-            if (-not $rg -and $rid -match '/resourcegroups/([^/]+)/') { $rg = $Matches[1] }
             $agg[$key] = @{
                 ResourcePath  = if ($rid) { $rid } else { '(non-resource charges)' }
                 ResourceGroup = $rg

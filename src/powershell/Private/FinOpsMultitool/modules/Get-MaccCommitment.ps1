@@ -2,6 +2,7 @@
 # Licensed under the MIT License.
 
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Interactive console tool; the formatted console output is the user interface.')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Justification = 'AgreementType remains accepted for caller compatibility; eligibility uses correlated billing accounts.')]
 param()
 
 ###########################################################################
@@ -21,7 +22,7 @@ param()
 #
 # ── Parameters ──────────────────────────────────────────────────
 # Subscriptions      Subscriptions in scope (used only to bound discovery)
-# AgreementType      Detected agreement type from Get-ContractInfo
+# AgreementType      Accepted for compatibility; account eligibility is scoped
 #
 # Notes:
 # - The lots API is supported for Microsoft Customer Agreement (MCA) and
@@ -54,15 +55,6 @@ function Get-MaccCommitment {
         ReadErrors         = @()
     }
 
-    # -- Step 0: Gate on agreement type ---------------------------------
-    # The lots API only returns data for MCA and Direct EA billing accounts.
-    if ($AgreementType -and $AgreementType -notin @('EnterpriseAgreement', 'MicrosoftCustomerAgreement')) {
-        $result.Applicable = $false
-        $result.Reason = "MACC tracking applies to Enterprise Agreement (EA) and Microsoft Customer Agreement (MCA) only. Detected agreement type: $AgreementType."
-        Write-Host "  MACC not applicable for agreement type '$AgreementType'." -ForegroundColor DarkGray
-        return $result
-    }
-
     # -- Step 1: Discover reachable billing accounts --------------------
     $billingAccounts = @()
     try {
@@ -88,16 +80,13 @@ function Get-MaccCommitment {
         return $result
     }
 
-    if ($billingAccounts.Count -eq 0) {
-        $result.Reason = 'No EA/MCA billing account is reachable. Assign a billing role (Billing Account Reader or EA Reader) to view MACC data.'
-        Write-Host "  MACC: no reachable EA/MCA billing account." -ForegroundColor DarkGray
-        return $result
-    }
-
     # Keep only accounts that own a scanned subscription. Listing billingAccounts
     # returns every account the caller can read, which would otherwise mix in
     # commitments from unrelated enrollments.
-    $scope = Get-FinOpsBillingScope -BillingAccounts $billingAccounts -Subscriptions $Subscriptions
+    $scope = Get-FinOpsBillingScope -BillingAccounts @($parsed.value) -Subscriptions $Subscriptions
+    $result.CoverageIncomplete = [bool]$scope.CoverageIncomplete
+    $result.ReadErrors = @($scope.ReadErrors)
+    if ($scope.CoverageIncomplete) { $result.Reason = $scope.Reason }
     if (-not $scope.Resolved) {
         $result.Reason = $scope.Reason
         $result.CoverageIncomplete = $true
@@ -107,7 +96,14 @@ function Get-MaccCommitment {
     if (@($scope.Accounts).Count -lt $billingAccounts.Count) {
         Write-Host "  MACC: scoped to $(@($scope.Accounts).Count) of $($billingAccounts.Count) reachable billing account(s)." -ForegroundColor DarkGray
     }
-    $billingAccounts = @($scope.Accounts)
+    $billingAccounts = @($billingAccounts | Where-Object { $_.Name -in @($scope.Accounts.name) })
+    if ($billingAccounts.Count -eq 0) {
+        if (-not $result.CoverageIncomplete) {
+            $result.Reason = 'No EA/MCA billing account is reachable. Assign a billing role (Billing Account Reader or EA Reader) to view MACC data.'
+        }
+        Write-Host "  MACC: $($result.Reason)" -ForegroundColor DarkGray
+        return $result
+    }
 
     # -- Step 2: List MACC lots per billing account ---------------------
     $lots = [System.Collections.Generic.List[PSCustomObject]]::new()

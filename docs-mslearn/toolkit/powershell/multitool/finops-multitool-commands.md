@@ -3,7 +3,7 @@ title: FinOps Explorer TUI commands
 description: Learn about PowerShell commands in the FinOpsToolkit module that scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 10/21/2026
+ms.date: 10/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -108,8 +108,8 @@ Commitment estimates cover usage charges in the reported UTC month-to-date perio
 
 When a [FinOps hub](../../hubs/finops-hubs-overview.md) is present, cost scans read from the hub and choose the path automatically:
 
-- **Kusto database (used when available)** – When the hub has an Azure Data Explorer or Microsoft Fabric cluster, FinOps Explorer discovers it through Azure Resource Graph and pushes aggregation into the engine, returning only summarized results. This scales to large datasets without loading raw cost rows into PowerShell. To query a local hub on your own hardware, set the `FINOPS_HUB_KUSTO_URI` environment variable to a local Kusto endpoint (optionally set `FINOPS_HUB_KUSTO_DB`, which defaults to `Hub`).
-- **Storage reader (small-dataset fallback)**: when no Kusto endpoint is configured or discovered, FinOps Explorer reads the hub's storage export and aggregates in PowerShell. Use this for smaller datasets. Reading Parquet exports prepares a pinned reader using NuGet on Windows or .NET SDK 8 or later on Linux. NuGet signed-package verification [isn't supported on macOS](/dotnet/core/tools/nuget-signed-package-verification#macos); use Kusto or available CSV exports there. The reader doesn't bypass signature verification. If it can't be prepared, the tool warns with the reason and attempts `msexports` CSV instead. The CSV fallback checks at most 2,000 export manifests; above that, use Kusto or the Cost Management API. It doesn't download a manifest larger than 1 MB, and it stops instead of counting a CSV file that two export runs list. A failed export read remains an error, not zero cost.
+- **Kusto database (used when configured)** – When you set the `FINOPS_HUB_KUSTO_URI` environment variable to the endpoint of an Azure Data Explorer or Microsoft Fabric cluster, or to a local Kusto endpoint, FinOps Explorer pushes aggregation into the engine and returns only summarized results. This scales to large datasets without loading raw cost rows into PowerShell. Optionally set `FINOPS_HUB_KUSTO_DB`, which defaults to `Hub`. FinOps Explorer doesn't discover a Kusto cluster automatically.
+- **Storage reader (small-dataset fallback)**: when no Kusto endpoint is configured, FinOps Explorer reads the hub's storage export and aggregates in PowerShell. Use this for smaller datasets. Reading Parquet exports prepares a pinned reader using NuGet on Windows or .NET SDK 8 or later on Linux. NuGet signed-package verification [isn't supported on macOS](/dotnet/core/tools/nuget-signed-package-verification#macos); use Kusto or available CSV exports there. The reader doesn't bypass signature verification. If it can't be prepared, the tool warns with the reason and attempts `msexports` CSV instead. The CSV fallback checks at most 2,000 export manifests; above that, use Kusto or the Cost Management API. It doesn't download a manifest larger than 1 MB, and it stops instead of counting a CSV file that two export runs list. A failed export read remains an error, not zero cost.
 
 Storage reads require Storage Blob Data Reader or equivalent data access. Kusto queries require database query access. Both paths need network access to the endpoint. Local Kusto queries are anonymous, but the public launcher still uses Azure context and resource metadata.
 
@@ -121,7 +121,7 @@ Automatic hub discovery queries only the selected subscriptions in the verified 
 
 Provider-discovery exceptions for a detected hub warn and fall back to that hub's storage-reader checks. Existing size and reachability warnings still apply. The scan runner keeps the selected storage path without repeating provider discovery. Explicit Kusto endpoint failures and failed Kusto cost queries don't silently switch sources.
 
-The internal Kusto provider lookup also warns for failed or unreadable Resource Graph responses. Kusto query results must contain valid table and row shapes with nonblank, noncolliding column names. A partial failure reported by `QueryStatus` rejects the response rather than returning partial cost rows. Valid empty results, zero amounts, and credits are preserved.
+Kusto query results must contain valid table and row shapes with nonblank, noncolliding column names. A partial failure reported by `QueryStatus` rejects the response rather than returning partial cost rows. Valid empty results, zero amounts, and credits are preserved.
 
 GraphOnly excludes cost-dependent scans and orphan cost enrichment. Remaining scans can still use Azure Monitor, Advisor, policy, and carbon APIs. Dependencies can't re-enable an excluded cost scan.
 

@@ -39,13 +39,18 @@ param()
 # DimensionName      Override the consumer dimension (e.g. APIM 'API ID')
 # WeightingQuery     Full KQL override - must return columns Consumer, Weight
 #
+# Resource-backed pools require an appropriately scoped WeightingQuery.
+# Built-in presets read the whole workspace and can only be used with an
+# explicit PoolAmount when no resource selectors are supplied.
+#
 # Prerequisites:
 # - Az.OperationalInsights + read on the workspace
 # - The platform must emit the telemetry (Container Insights / App Insights
 #   token metrics / AOAI diagnostic metrics)
 #
 # Usage: Get-UsageProportionalAllocation -Preset aksNamespace `
-#          -SharedResourceGroup rg-aks -WorkspaceId <guid>
+#          -SharedResourceGroup rg-aks -WorkspaceId <guid> `
+#          -WeightingQuery <platform-scoped-query>
 ###########################################################################
 
 # -- Preset registry: each preset maps a shared platform to a usage key ----
@@ -152,8 +157,8 @@ function Get-TelemetryWeighting {
         foreach ($row in @($qr.Results)) {
             $c = [string]$row.Consumer
             if (-not $c) { continue }
-            $w = 0.0; [double]::TryParse([string]$row.Weight, [ref]$w) | Out-Null
-            if ($w -gt 0) { $weights[$c] = $w }
+            $w = 0.0; [double]::TryParse([string]$row.Weight, [Globalization.NumberStyles]::Float, [cultureinfo]::InvariantCulture, [ref]$w) | Out-Null
+            if ($w -gt 0 -and -not [double]::IsNaN($w) -and -not [double]::IsInfinity($w)) { $weights[$c] = $w }
         }
         if ($weights.Count -eq 0) {
             $note = 'Telemetry query returned no rows. Verify the workspace has the expected data and that the query returns Consumer + Weight columns.'
@@ -230,6 +235,12 @@ function Get-UsageProportionalAllocation {
         return [PSCustomObject]@{
             HasData = $false
             Note    = 'Provide the shared pool: sharedResourceIds / sharedResourceGroup (cost is resolved), or poolAmount (an explicit cost to split).'
+        }
+    }
+    if ($haveResources -and -not $WeightingQuery) {
+        return [PSCustomObject]@{
+            HasData = $false
+            Note    = 'Automatic presets cannot bind workspace telemetry to the selected cost pool. Supply an appropriately scoped WeightingQuery.'
         }
     }
 

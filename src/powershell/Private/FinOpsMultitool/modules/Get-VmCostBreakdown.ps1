@@ -141,16 +141,17 @@ resources
 resources
 | where type =~ 'microsoft.network/networkinterfaces'
 | where id in~ ($nicList)
-| mv-expand ipc = properties.ipConfigurations
+| mv-expand ipc = properties.ipConfigurations limit 256
 | extend pip = tostring(ipc.properties.publicIPAddress.id)
 | where isnotempty(pip)
-| project pip
+| project id, pip
 "@
         try {
-            $pipRes = Search-AzGraphSafe -Query $pipQuery -Subscription $SubscriptionIds -First 100
+            $pipRes = Search-AzGraphSafe -Query $pipQuery -Subscription $SubscriptionIds -First 100 -All
+            if ($null -eq $pipRes) { throw 'Resource Graph did not return a readable public IP response.' }
             foreach ($p in @($pipRes.Data)) { if ($p.pip) { [void]$assoc.Add([string]$p.pip) } }
         }
-        catch { Write-Warning "  Public IP resolution failed: $($_.Exception.Message)" }
+        catch { throw "Public IP resolution failed; VM cost coverage is incomplete: $($_.Exception.Message)" }
     }
 
     return [PSCustomObject]@{
@@ -256,7 +257,7 @@ function Get-VmCostBreakdown {
     else {
         # ---- Live Cost Management API path -------------------------------
         Write-Host "  Querying cost (Cost Management, MonthToDate)..." -ForegroundColor Cyan
-        $rgFilter = @{ dimensions = @{ name = 'ResourceGroupName'; operator = 'In'; values = @($vm.ResourceGroup) } }
+        $resourceFilter = @{ dimensions = @{ name = 'ResourceId'; operator = 'In'; values = @($vm.Associated) } }
         $body = @{
             type      = 'AmortizedCost'
             timeframe = 'MonthToDate'
@@ -270,7 +271,7 @@ function Get-VmCostBreakdown {
                     @{ type = 'Dimension'; name = 'ResourceId' }
                     @{ type = 'Dimension'; name = 'MeterCategory' }
                 )
-                filter      = $rgFilter
+                filter      = $resourceFilter
             }
         } | ConvertTo-Json -Depth 12
 

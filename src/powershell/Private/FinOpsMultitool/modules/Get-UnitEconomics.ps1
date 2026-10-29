@@ -58,7 +58,7 @@ function Get-VmSizeCapability {
                     $vc = 0; $mem = 0.0
                     foreach ($c in @($s.capabilities)) {
                         if ($c.name -eq 'vCPUs') { [void][int]::TryParse([string]$c.value, [ref]$vc) }
-                        elseif ($c.name -eq 'MemoryGB') { [void][double]::TryParse([string]$c.value, [ref]$mem) }
+                        elseif ($c.name -eq 'MemoryGB') { [void][double]::TryParse([string]$c.value, [Globalization.NumberStyles]::Float, [cultureinfo]::InvariantCulture, [ref]$mem) }
                     }
                     $map[$s.name] = @{ VCpu = $vc; MemGb = $mem }
                 }
@@ -193,6 +193,7 @@ function Get-UnitEconomics {
     # -- 1: Provisioned compute capacity (exact vCPU + RAM via Compute SKUs) --
     $totalVCpu = 0
     $totalMemGb = 0.0
+    $memoryComplete = $true
     $vmCount = 0
     $vcpuExact = $true
     $skuCache = @{}
@@ -207,11 +208,11 @@ resources
         $rows = if ($result) { @($result.Data) } else { @() }
         foreach ($r in $rows) {
             $count = [int]$r.cnt
+            if ($count -le 0) { continue }
             $vmCount += $count
             $caps = Get-VmSizeCapability -SubId $r.subId -Location $r.loc -VmSize $r.vmSize -Cache $skuCache
             if ($caps -and $caps.VCpu -gt 0) {
                 $totalVCpu += ($caps.VCpu * $count)
-                $totalMemGb += ($caps.MemGb * $count)
             }
             else {
                 # Fall back to the leading core digit in the size name.
@@ -221,8 +222,14 @@ resources
                 if ($cores -lt 1) { $cores = 1 }
                 $totalVCpu += ($cores * $count)
             }
+            if ($caps -and $caps.MemGb -gt 0) {
+                $totalMemGb += ($caps.MemGb * $count)
+            }
+            else { $memoryComplete = $false }
         }
-        Write-Host "    VMs: $vmCount  |  vCPUs: $totalVCpu  |  RAM: $([math]::Round($totalMemGb, 0)) GB" -ForegroundColor Gray
+        if ([double]::IsNaN($totalMemGb) -or [double]::IsInfinity($totalMemGb)) { $memoryComplete = $false }
+        $ramText = if ($memoryComplete) { "$([math]::Round($totalMemGb, 0)) GB" } else { 'unavailable' }
+        Write-Host "    VMs: $vmCount  |  vCPUs: $totalVCpu  |  RAM: $ramText" -ForegroundColor Gray
     }
     catch {
         throw "Compute capacity inventory is incomplete: $($_.Exception.Message)"
@@ -372,7 +379,7 @@ resources
     $costPerVCpu = if ($costAvailable -and $totalVCpu -gt 0) { $computeCost / $totalVCpu } else { $null }
     $costPerVm = if ($costAvailable -and $vmCount -gt 0) { $computeCost / $vmCount } else { $null }
     $costPerGb = if ($costAvailable -and $diskOk -and $blobFileOk -and $totalGb -gt 0) { $storageCost / $totalGb } else { $null }
-    $costPerGbRam = if ($costAvailable -and $totalMemGb -gt 0) { $computeCost / $totalMemGb } else { $null }
+    $costPerGbRam = if ($costAvailable -and $memoryComplete -and $totalMemGb -gt 0) { $computeCost / $totalMemGb } else { $null }
 
     $totalKnown = if ($costAvailable) { $computeCost + $storageCost } else { $null }
     $computeSharePct = if ($costAvailable -and $totalKnown -gt 0) { [math]::Round(100 * $computeCost / $totalKnown, 1) } else { $null }
@@ -396,7 +403,10 @@ resources
         $notes += 'Storage capacity could not be read for every managed disk and storage account, so cost per GB stored is unavailable.'
     }
     if (-not $vcpuExact) {
-        $notes += 'Some vCPU/RAM values approximated from VM size names (SKU capability lookup unavailable for a region).'
+        $notes += 'Some vCPU values approximated from VM size names (SKU capability lookup unavailable for a region).'
+    }
+    if (-not $memoryComplete) {
+        $notes += 'RAM capacity could not be read for every VM size, so total RAM and cost per GB RAM are unavailable.'
     }
     if ($notes.Count -eq 0) {
         $notes += 'vCPU/RAM are exact (Compute SKU capabilities); storage GB combines managed disks and Storage-account used capacity.'
@@ -415,7 +425,7 @@ resources
         StorageSharePct    = $storageSharePct
         VmCount            = $vmCount
         TotalVCpu          = $totalVCpu
-        TotalMemoryGb      = [math]::Round($totalMemGb, 0)
+        TotalMemoryGb      = if ($memoryComplete) { [math]::Round($totalMemGb, 0) } else { $null }
         DiskGb             = [math]::Round($diskGb, 1)
         BlobFileGb         = [math]::Round($blobFileGb, 1)
         TotalStorageGb     = [math]::Round($totalGb, 1)

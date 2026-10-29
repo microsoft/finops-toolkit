@@ -1334,6 +1334,100 @@ Describe 'Cost Management query pagination' {
             }
         }
 
+        It 'Queries resolved VM resources across resource groups while retaining a valid no-PIP response' -Tag 'CorroboratedVmScope' {
+            InModuleScope FinOpsMultitool {
+                $subId = '11111111-1111-1111-1111-111111111111'
+                $vmId = "/subscriptions/$subId/resourceGroups/compute/providers/Microsoft.Compute/virtualMachines/test"
+                $diskId = "/subscriptions/$subId/resourceGroups/storage/providers/Microsoft.Compute/disks/test"
+                $nicId = "/subscriptions/$subId/resourceGroups/network/providers/Microsoft.Network/networkInterfaces/test"
+                Mock Search-AzGraphSafe {
+                    if ($Query -match 'microsoft.compute/virtualmachines') {
+                        return @{ Data = @([pscustomobject]@{
+                                    id = $vmId; name = 'test'; resourceGroup = 'compute'; subscriptionId = $subId
+                                    osDiskId = $diskId; nics = @(@{ id = $nicId }); dataDisks = @()
+                                }) }
+                    }
+                    [pscustomobject]@{ Data = $null; Count = 0 }
+                }
+                Mock Invoke-AzRestMethodWithRetry {
+                    $properties = @{
+                        columns = @(@{ name = 'Cost' }, @{ name = 'ResourceId' }, @{ name = 'MeterCategory' }, @{ name = 'Currency' })
+                        rows    = @(@(10, $vmId, 'Virtual Machines', 'USD'), @(2, $diskId, 'Storage', 'USD'), @(99, "$vmId-unrelated", 'Virtual Machines', 'USD'))
+                    }
+                    [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = $properties } | ConvertTo-Json -Depth 8) }
+                }
+
+                $result = Get-VmCostBreakdown -VmName 'test' -Subscriptions @([pscustomobject]@{ Id = $subId })
+
+                $result.HasData | Should -BeTrue
+                $result.TotalCost | Should -Be 12
+                $result.ResourcesIncluded | Should -Contain $diskId
+                $result.ResourcesIncluded | Should -Contain $nicId
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter {
+                    $Path -eq "/subscriptions/$subId/providers/Microsoft.CostManagement/query?api-version=2023-11-01" -and
+                    $Method -eq 'POST' -and
+                    ($Payload | ConvertFrom-Json).dataset.filter.dimensions.name -eq 'ResourceId' -and
+                    ($Payload | ConvertFrom-Json).dataset.filter.dimensions.values.Count -eq 3 -and
+                    ($Payload | ConvertFrom-Json).dataset.filter.dimensions.values -contains $diskId
+                }
+            }
+        }
+
+        It 'Retains public IP associations beyond the first native page' -Tag 'CorroboratedVmScope' {
+            InModuleScope FinOpsMultitool {
+                $subId = '11111111-1111-1111-1111-111111111111'
+                $vmId = "/subscriptions/$subId/resourceGroups/test/providers/Microsoft.Compute/virtualMachines/test"
+                $nicId = "/subscriptions/$subId/resourceGroups/test/providers/Microsoft.Network/networkInterfaces/test"
+                $pipPrefix = "/subscriptions/$subId/resourceGroups/test/providers/Microsoft.Network/publicIPAddresses/pip"
+                Mock Invoke-AzGraphQueryPage {
+                    if ($Query -match 'microsoft.compute/virtualmachines') {
+                        return [pscustomobject]@{ Data = @([pscustomobject]@{ id = $vmId; name = 'test'; subscriptionId = $subId; nics = @(@{ id = $nicId }) }); Count = 1 }
+                    }
+                    if ($SkipToken) { return [pscustomobject]@{ Data = @([pscustomobject]@{ id = $nicId; pip = "${pipPrefix}101" }); Count = 1; SkipToken = $null } }
+                    [pscustomobject]@{
+                        Data = @(1..100 | ForEach-Object { [pscustomobject]@{ id = $nicId; pip = "$pipPrefix$_" } })
+                        Count = 100
+                        SkipToken = 'next'
+                    }
+                }
+
+                $result = Resolve-VmAssociation -SubscriptionIds @($subId) -VmName 'test'
+
+                $result.Associated | Should -Contain "${pipPrefix}101"
+                $result.Associated.Count | Should -Be 103
+                Should -Invoke Invoke-AzGraphQueryPage -Times 1 -Exactly -ParameterFilter {
+                    $SkipToken -eq 'next' -and $Query -match '\|\s*project\s+id\s*,\s*pip' -and
+                    $Query -match '\|\s*mv-expand\s+ipc\s*=\s*properties\.ipConfigurations\s+limit\s+256'
+                }
+            }
+        }
+
+        It 'Refuses a VM total after public IP discovery returns <Outcome>' -Tag 'CorroboratedVmScope' -ForEach @(
+            @{ Outcome = 'an exception' }
+            @{ Outcome = 'a null response' }
+        ) {
+            InModuleScope FinOpsMultitool -Parameters @{ Outcome = $Outcome } {
+                param($Outcome)
+                $fixtureOutcome = $Outcome
+                Mock Search-AzGraphSafe {
+                    if ($Query -match 'microsoft.compute/virtualmachines') {
+                        return @{ Data = @([pscustomobject]@{
+                                    id = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test/providers/Microsoft.Compute/virtualMachines/test'
+                                    name = 'test'; subscriptionId = '11111111-1111-1111-1111-111111111111'
+                                    nics = @(@{ id = '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/test/providers/Microsoft.Network/networkInterfaces/test' })
+                                }) }
+                    }
+                    if ($fixtureOutcome -eq 'an exception') { throw 'Public IP lookup denied.' }
+                    $null
+                }
+                Mock Invoke-AzRestMethodWithRetry { throw 'An incomplete association must not query cost.' }
+
+                { Get-VmCostBreakdown -VmName 'test' -Subscriptions @([pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111' }) } |
+                Should -Throw '*Public IP*incomplete*'
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly
+            }
+        }
+
         It 'Requires complete <Scan> cost pages (continuation fails: <PageFails>)' -ForEach @(
             @{ Scan = 'AI'; PageFails = $false }
             @{ Scan = 'AI'; PageFails = $true }
@@ -2119,6 +2213,7 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
             @{ FailurePath = 'subscription lookup' }
             @{ FailurePath = 'empty lookup' }
             @{ FailurePath = 'whitespace lookup' }
+            @{ FailurePath = 'unlisted proven owner' }
         ) {
             InModuleScope FinOpsMultitool -Parameters @{ FailurePath = $FailurePath } {
                 param($FailurePath)
@@ -2130,8 +2225,13 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
                 $accounts = @('unreadable', 'readable') | ForEach-Object {
                     [pscustomobject]@{ name = $_; id = "/providers/Microsoft.Billing/billingAccounts/$_"; properties = @{ displayName = $_; agreementType = 'EnterpriseAgreement' } }
                 }
+                if ($FailurePath -eq 'unlisted proven owner') { $accounts = @($accounts | Where-Object name -EQ 'readable') }
                 Mock Invoke-AzRestMethodWithRetry {
                     if ($Path -like '*billingProperty*') {
+                        if ($fixtureFailurePath -eq 'unlisted proven owner') {
+                            $owner = if ($Path -like '*/11111111-*') { 'missing-owner' } else { 'readable' }
+                            return [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ billingAccountId = "/providers/Microsoft.Billing/billingAccounts/$owner" } } | ConvertTo-Json) }
+                        }
                         if ($fixtureFailurePath -ne 'membership page' -and $Path -like '*/22222222-*') {
                             return [pscustomobject]@{ StatusCode = 200; Content = '{"properties":{"billingAccountId":"/providers/Microsoft.Billing/billingAccounts/readable"}}' }
                         }
@@ -2164,7 +2264,8 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
                 $scope.Resolved | Should -BeTrue
                 $scope.Accounts[0].name | Should -Be 'readable'
                 $scope.CoverageIncomplete | Should -BeTrue
-                $expectedReason = if ($FailurePath -in @('empty lookup', 'whitespace lookup')) { 'no content' } else { '503' }
+                $expectedReason = if ($FailurePath -eq 'unlisted proven owner') { 'missing-owner' }
+                elseif ($FailurePath -in @('empty lookup', 'whitespace lookup')) { 'no content' } else { '503' }
                 ($scope.ReadErrors -join ' ') | Should -Match $expectedReason
                 $billing.CoverageIncomplete | Should -BeTrue
                 $billing.Note | Should -Match $expectedReason
@@ -2178,6 +2279,78 @@ if ($FixtureScenario -eq 'failed continuation' -and $second) { $properties.nextL
                 $utilization.SPAvgUtilization | Should -BeNullOrEmpty
                 $utilization.ScopeResolutionErrors | Should -Not -BeNullOrEmpty
                 $utilization.Note | Should -Match $expectedReason
+                if ($FailurePath -eq 'unlisted proven owner') {
+                    Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly -ParameterFilter { $Path -like '*billingSubscriptions*' }
+                }
+            }
+        }
+
+        It 'Preserves incomplete ownership when no eligible MACC account is listed' -Tag 'CommitmentScopeCoverage' {
+            InModuleScope FinOpsMultitool {
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222' }
+                )
+                $accountRows = @(@{ name = 'csp'; properties = @{ agreementType = 'MicrosoftPartnerAgreement' } })
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -match '/billingAccounts\?') {
+                        return [pscustomobject]@{ StatusCode = 200; Content = (@{ value = @($accountRows) } | ConvertTo-Json -Depth 6) }
+                    }
+                    if ($Path -like '*billingProperty*') {
+                        $owner = if ($Path -like '*/11111111-*') { 'csp' } else { 'missing-owner' }
+                        return [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ billingAccountId = "/providers/Microsoft.Billing/billingAccounts/$owner" } } | ConvertTo-Json) }
+                    }
+                    throw "Unexpected request: $Path"
+                }
+
+                $result = Get-MaccCommitment -Subscriptions $subscriptions
+
+                $result.HasMacc | Should -BeFalse
+                $result.CoverageIncomplete | Should -BeTrue
+                ($result.ReadErrors -join ' ') | Should -Match 'missing-owner'
+                $result.Reason | Should -Match 'missing-owner'
+                $accountRows = @()
+                $empty = Get-MaccCommitment -Subscriptions $subscriptions
+                $empty.CoverageIncomplete | Should -BeTrue
+                $empty.Reason | Should -Match 'No billing accounts'
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly -ParameterFilter {
+                    $Path -like '*billingSubscriptions*' -or $Path -like '*/lots?*'
+                }
+            }
+        }
+
+        It 'Does not let a sampled agreement veto a correlated eligible MACC account' -Tag 'CommitmentScopeCoverage' {
+            InModuleScope FinOpsMultitool {
+                $subscriptions = @(
+                    [pscustomobject]@{ Id = '11111111-1111-1111-1111-111111111111' }
+                    [pscustomobject]@{ Id = '22222222-2222-2222-2222-222222222222' }
+                )
+                Mock Invoke-AzRestMethodWithRetry {
+                    if ($Path -like '*billingProperty*') {
+                        $owner = if ($Path -like '*/11111111-*') { 'paygo' } else { 'eligible' }
+                        return [pscustomobject]@{ StatusCode = 200; Content = (@{ properties = @{ billingAccountId = "/providers/Microsoft.Billing/billingAccounts/$owner" } } | ConvertTo-Json) }
+                    }
+                    if ($Path -match '/billingAccounts\?') {
+                        $accounts = @(
+                            @{ name = 'paygo'; properties = @{ displayName = 'PAYGO'; agreementType = 'MicrosoftOnlineServicesProgram' } }
+                            @{ name = 'eligible'; properties = @{ displayName = 'Eligible'; agreementType = 'EnterpriseAgreement' } }
+                        )
+                        return [pscustomobject]@{ StatusCode = 200; Content = (@{ value = $accounts } | ConvertTo-Json -Depth 6) }
+                    }
+                    if ($Path -like '*/eligible/providers/Microsoft.Consumption/lots?*') {
+                        return [pscustomobject]@{ StatusCode = 200; Content = '{"value":[{"properties":{"source":"ConsumptionCommitment","originalAmount":{"value":100},"closedBalance":{"value":25},"billingCurrency":"EUR"}}]}' }
+                    }
+                    throw "Unexpected request: $Path"
+                }
+
+                $result = Get-MaccCommitment -Subscriptions $subscriptions -AgreementType 'MicrosoftOnlineServicesProgram'
+
+                $result.HasMacc | Should -BeTrue
+                $result.CoverageIncomplete | Should -BeFalse
+                $result.Commitments[0].BillingAccount | Should -Be 'Eligible'
+                $result.Commitments[0].Consumed | Should -Be 75
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 1 -Exactly -ParameterFilter { $Path -like '*/eligible/providers/Microsoft.Consumption/lots?*' }
+                Should -Invoke Invoke-AzRestMethodWithRetry -Times 0 -Exactly -ParameterFilter { $Path -like '*/paygo/providers/Microsoft.Consumption/lots?*' -or $Path -like '*billingSubscriptions*' }
             }
         }
 
