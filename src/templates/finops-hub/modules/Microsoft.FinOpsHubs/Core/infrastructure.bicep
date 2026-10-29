@@ -378,7 +378,7 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = i
   tags: getHubTags(hub, 'Microsoft.Storage/storageAccounts')
   properties: {
     supportsHttpsTrafficOnly: true
-    allowSharedKeyAccess: !hub.options.disableStorageSharedKeyAccess
+    allowSharedKeyAccess: true  // Required: deployment scripts mount this storage account in Azure Container Instances using the account key. See https://learn.microsoft.com/azure/azure-resource-manager/bicep/deployment-script-develop#use-an-existing-storage-account
     isHnsEnabled: false
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false

@@ -77,7 +77,7 @@ type HubRoutingProperties = {
     natGateway: 'Indicates whether a NAT Gateway should be deployed for controlled outbound internet access. When enabled, the script and Data Explorer subnets route outbound traffic through the NAT Gateway.'
     privateRouting: 'Indicates whether private network routing is enabled.'
     publisherIsolation: 'Indicates whether FinOps hub resources should be separated by publisher for advanced security.'
-    disableStorageSharedKeyAccess: 'Indicates whether Shared Key (storage account key) authentication is disabled on hub storage accounts. When enabled, only Microsoft Entra ID and managed identity authentication are allowed. This does not affect Data Factory, which already authenticates via managed identity and RBAC.'
+    disableStorageSharedKeyAccess: 'Indicates whether Shared Key (storage account key) authentication is disabled on hub storage accounts. When enabled, only Microsoft Entra ID and managed identity authentication are allowed. This does not affect Data Factory, which already authenticates via managed identity and RBAC. Does not apply to the private-mode deployment script storage account, which requires Shared Key access.'
     storageInfrastructureEncryption: 'Indicates whether infrastructure encryption is enabled for the storage account.'
     storageSku: 'Storage account SKU. Allowed values: "Premium_LRS", "Premium_ZRS".'
   }

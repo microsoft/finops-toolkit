@@ -27,7 +27,7 @@ param storageSku string = 'Premium_LRS'
 @description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
 param enableInfrastructureEncryption bool = false
 
-@description('Optional. Disable Shared Key (storage account key) authentication on hub storage accounts. When enabled, only Microsoft Entra ID and managed identity authentication are allowed. Data Factory already authenticates using managed identity and RBAC, so this does not affect data ingestion. Default = false.')
+@description('Optional. Disable Shared Key (storage account key) authentication on hub storage accounts. When enabled, only Microsoft Entra ID and managed identity authentication are allowed. Data Factory already authenticates using managed identity and RBAC, so this does not affect data ingestion. Do not enable this on a hub that receives data from other hubs (remote hub ingestion authenticates with the storage account key). The private-mode deployment script storage account always allows Shared Key access because deployment scripts require it. Default = false.')
 param disableStorageSharedKeyAccess bool = false
 
 @description('Optional. SKU to use for the KeyVault instance, if enabled. Allowed values: "standard", "premium". Default: "premium".')

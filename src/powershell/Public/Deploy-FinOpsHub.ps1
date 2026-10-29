@@ -35,7 +35,7 @@
     Optional. Enable purge protection for the Key Vault. Default = false.
 
     .PARAMETER DisableStorageSharedKeyAccess
-    Optional. Disable Shared Key (storage account key) authentication on hub storage accounts. When enabled, only Microsoft Entra ID and managed identity authentication are allowed. Data Factory already authenticates using managed identity and RBAC, so this does not affect data ingestion. Default = false.
+    Optional. Disable Shared Key (storage account key) authentication on hub storage accounts. When enabled, only Microsoft Entra ID and managed identity authentication are allowed. Data Factory already authenticates using managed identity and RBAC, so this does not affect data ingestion. Do not enable this on a hub that receives data from other hubs (remote hub ingestion authenticates with the storage account key). The private-mode deployment script storage account always allows Shared Key access because deployment scripts require it. Default = false.
 
     .PARAMETER RemoteHubStorageUri
     Optional. Storage account to push data to for ingestion into a remote hub.
