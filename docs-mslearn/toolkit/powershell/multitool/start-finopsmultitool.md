@@ -3,7 +3,7 @@ title: Start-FinOpsExplorer command
 description: Launch the FinOps Explorer terminal UI to scan an Azure environment for cost, governance, and optimization insights.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 10/27/2026
+ms.date: 10/29/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

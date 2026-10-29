@@ -3,7 +3,7 @@ title: FinOps Explorer TUI overview
 description: Learn how the FinOps Explorer TUI scans an Azure environment for cost, governance, and optimization insights, and how AI agents use its skills.
 author: z-larsen
 ms.author: zlarsen
-ms.date: 10/21/2026
+ms.date: 10/29/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
