@@ -76,16 +76,16 @@
     Example: @('/subscriptions/00000000-0000-0000-0000-000000000000', '/subscriptions/11111111-1111-1111-1111-111111111111')
 
     .PARAMETER ExportRetentionInDays
-    Optional. Number of days of data to retain in the msexports container. Default: 0.
+    Optional. Number of days of data to retain in the msexports container. If not specified, keeps the current value (0 for new hubs).
 
     .PARAMETER IngestionRetentionInMonths
-    Optional. Number of months of data to retain in the ingestion container. Default: 13.
+    Optional. Number of months of data to retain in the ingestion container. If not specified, keeps the current value (13 for new hubs).
 
     .PARAMETER DataExplorerRawRetentionInDays
-    Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.
+    Optional. Number of days of data to retain in the Data Explorer *_raw tables. If not specified, keeps the current value (0 for new hubs).
 
     .PARAMETER DataExplorerFinalRetentionInMonths
-    Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.
+    Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. If not specified, keeps the current value (13 for new hubs).
 
     .PARAMETER NetworkMode
     Optional. Network mode for the hub: 'public' (default), 'vnet' (private endpoints, default outbound), or 'private' (private endpoints + NAT Gateway for controlled outbound access - required when the 'Subnets should be private' policy is enforced).
@@ -190,12 +190,12 @@ function Deploy-FinOpsHub
         [Parameter()]
         [ValidateRange(0, 9999)]
         [int]
-        $DataExplorerRawRetentionInDays = 0,
+        $DataExplorerRawRetentionInDays,
 
         [Parameter()]
         [ValidateRange(0, 999)]
         [int]
-        $DataExplorerFinalRetentionInMonths = 13,
+        $DataExplorerFinalRetentionInMonths,
 
         [Parameter()]
         [ValidateSet('public', 'vnet', 'private')]
@@ -225,12 +225,12 @@ function Deploy-FinOpsHub
         [Parameter()]
         [ValidateRange(0, 9999)]
         [int]
-        $ExportRetentionInDays = 0,
+        $ExportRetentionInDays,
 
         [Parameter()]
         [ValidateRange(0, 999)]
         [int]
-        $IngestionRetentionInMonths = 13
+        $IngestionRetentionInMonths
     )
 
     # Initialize toolkitPath before try block to ensure cleanup works even if early failure occurs
@@ -255,7 +255,8 @@ function Deploy-FinOpsHub
         }
 
         # Create folder for download
-        $toolkitPath = Join-Path ([System.IO.Path]::GetTempPath()) -ChildPath 'FinOpsToolkit'
+        # Each deployment gets its own folder, so deployments running at the same time don't delete each other's files
+        $toolkitPath = Join-Path ([System.IO.Path]::GetTempPath()) -ChildPath "FinOpsToolkit-$([guid]::NewGuid().ToString('N').Substring(0, 8))"
         if (Test-ShouldProcess $PSCmdlet $toolkitPath 'CreateTempDirectory')
         {
             New-Directory -Path $toolkitPath
@@ -268,8 +269,14 @@ function Deploy-FinOpsHub
         $effectiveNetworkMode = if ($NetworkMode) { $NetworkMode } elseif ($DisablePublicAccess) { 'vnet' } else { 'public' }
         if (-not $NetworkMode -and $DisablePublicAccess) { Write-Warning "-DisablePublicAccess is deprecated; use -NetworkMode 'vnet' or -NetworkMode 'private'." }
 
+        # Accept a "v" prefix (for example, v14 or v14.0); releases are matched without it
+        $Version = $Version -replace '^v', ''
+
+        # Releases are listed with just a major number (for example, 14), which is not a valid version on its own
+        $templateVersion = if ($Version -ne 'latest') { [version]($Version -replace '^(\d+)$', '$1.0') }
+
         # Private network mode (NAT Gateway) requires hub template version 15.0 or later
-        if ($effectiveNetworkMode -eq 'private' -and $Version -ne 'latest' -and [version]$Version -lt '15.0')
+        if ($effectiveNetworkMode -eq 'private' -and $Version -ne 'latest' -and $templateVersion -lt '15.0')
         {
             throw "NAT Gateway / private network mode requires hub template version 15.0 or later. Current version: $Version"
         }
@@ -292,39 +299,53 @@ function Deploy-FinOpsHub
                 }
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '0.4')
+            if ($Version -eq 'latest' -or $templateVersion -ge '0.4')
             {
                 $parameterSplat.TemplateParameterObject.Add('remoteHubStorageUri', $RemoteHubStorageUri)
                 $parameterSplat.TemplateParameterObject.Add('remoteHubStorageKey', $RemoteHubStorageKey)
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '0.7')
+            if ($Version -eq 'latest' -or $templateVersion -ge '0.7')
             {
                 $parameterSplat.TemplateParameterObject.Add('enableInfrastructureEncryption', $EnableInfrastructureEncryption.IsPresent)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerName', $DataExplorerName)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerSku', $DataExplorerSku)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerCapacity', $DataExplorerCapacity)
-                $parameterSplat.TemplateParameterObject.Add('dataExplorerRawRetentionInDays', $DataExplorerRawRetentionInDays)
-                $parameterSplat.TemplateParameterObject.Add('dataExplorerFinalRetentionInMonths', $DataExplorerFinalRetentionInMonths)
                 $parameterSplat.TemplateParameterObject.Add('enablePublicAccess', ($effectiveNetworkMode -eq 'public'))
                 $parameterSplat.TemplateParameterObject.Add('virtualNetworkAddressPrefix', $VirtualNetworkAddressPrefix)
-                $parameterSplat.TemplateParameterObject.Add('exportRetentionInDays', $ExportRetentionInDays)
-                $parameterSplat.TemplateParameterObject.Add('ingestionRetentionInMonths', $IngestionRetentionInMonths)
                 $parameterSplat.TemplateParameterObject.Add('scopesToMonitor', $ScopesToMonitor)
+
+                # Only pass retention when specified so a redeploy keeps the current values (#2206, #2348)
+                if ($PSBoundParameters.ContainsKey('DataExplorerRawRetentionInDays'))
+                {
+                    $parameterSplat.TemplateParameterObject.Add('dataExplorerRawRetentionInDays', $DataExplorerRawRetentionInDays)
+                }
+                if ($PSBoundParameters.ContainsKey('ExportRetentionInDays'))
+                {
+                    $parameterSplat.TemplateParameterObject.Add('exportRetentionInDays', $ExportRetentionInDays)
+                }
+                if ($PSBoundParameters.ContainsKey('IngestionRetentionInMonths'))
+                {
+                    $parameterSplat.TemplateParameterObject.Add('ingestionRetentionInMonths', $IngestionRetentionInMonths)
+                }
+                if ($PSBoundParameters.ContainsKey('DataExplorerFinalRetentionInMonths'))
+                {
+                    $parameterSplat.TemplateParameterObject.Add('dataExplorerFinalRetentionInMonths', $DataExplorerFinalRetentionInMonths)
+                }
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '0.10')
+            if ($Version -eq 'latest' -or $templateVersion -ge '0.10')
             {
                 $parameterSplat.TemplateParameterObject.Add('fabricQueryUri', $FabricQueryUri)
                 $parameterSplat.TemplateParameterObject.Add('fabricCapacityUnits', $FabricCapacityUnits)
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '12.0')
+            if ($Version -eq 'latest' -or $templateVersion -ge '12.0')
             {
                 $parameterSplat.TemplateParameterObject.Add('enableManagedExports', $EnableManagedExports.IsPresent)
             }
 
-            if ($Version -eq 'latest' -or [version]$Version -ge '13.0')
+            if ($Version -eq 'latest' -or $templateVersion -ge '13.0')
             {
                 $parameterSplat.TemplateParameterObject.Add('enablePurgeProtection', $EnablePurgeProtection.IsPresent)
             }
@@ -336,7 +357,7 @@ function Deploy-FinOpsHub
 
             # Only pass enableNatGateway when private mode is requested. This keeps public/vnet
             # deployments compatible with template versions that predate the parameter.
-            if ($effectiveNetworkMode -eq 'private' -and ($Version -eq 'latest' -or [version]$Version -ge '15.0'))
+            if ($effectiveNetworkMode -eq 'private' -and ($Version -eq 'latest' -or $templateVersion -ge '15.0'))
             {
                 $parameterSplat.TemplateParameterObject.Add('enableNatGateway', $true)
             }
