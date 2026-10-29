@@ -10,8 +10,17 @@ name: Update contributors
 # "create pull request" page, like the open data workflows.
 #
 # Pull requests opened with GITHUB_TOKEN don't start other workflows, so close and reopen the PR to run its checks.
+#
+# Two ways to run:
+# - On every pull request from this repo, the author (code, doc) and reviewers (review) of that PR are credited with a
+#   commit on the PR branch, like the ms.date workflow. Pull requests from forks can't be pushed to, so they are
+#   skipped here.
+# - Weekly (and on demand), everything from the last 60 days is checked, which catches fork PRs, reviews added after
+#   the PR was last updated, and fixed or accepted bugs and feature requests.
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened]
   schedule:
     - cron: '0 7 * * 1'  # Every Monday at 07:00 UTC
   workflow_dispatch:
@@ -25,15 +34,56 @@ permissions:
   contents: write
   pull-requests: write
 
-concurrency:
-  group: update-contributors
-  cancel-in-progress: false
-
 jobs:
+  credit-pr:
+    name: Credit pull request contributors
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Same-repo pull requests only (forks have a read-only token). Skip the weekly PR, which is already the credit.
+    if: >-
+      github.event_name == 'pull_request'
+      && github.event.pull_request.head.repo.full_name == github.repository
+      && github.head_ref != 'automation/update-contributors'
+    concurrency:
+      group: update-contributors-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install all-contributors-cli
+        run: npm ci --ignore-scripts
+
+      - name: Add missing credits for this pull request
+        shell: pwsh
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: ./src/scripts/Update-Contributors.ps1 -PullRequest ([int]$env:PR_NUMBER) -Apply
+
+      - name: Commit and push changes
+        run: |
+          if git diff --quiet -- .all-contributorsrc README.md docs/README.md; then
+            echo "No missing credits."
+            exit 0
+          fi
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .all-contributorsrc README.md docs/README.md
+          git commit -m "docs: Credit contributors"
+          git push
+
   update:
     name: Credit new contributors
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    concurrency:
+      group: update-contributors
+      cancel-in-progress: false
     # Scheduled workflows also run in forks, where there is nothing to credit and no permission to push. Only run in
     # the upstream repo, from dev, so manual runs from other branches can't push their commits into the PR.
     if: github.repository == 'microsoft/finops-toolkit' && github.ref == 'refs/heads/dev'

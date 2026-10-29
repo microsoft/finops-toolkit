@@ -17,15 +17,27 @@ Describe 'update-contributors GitHub Action' {
         $workflowContent | Should -Match 'workflow_dispatch:\s*\r?\n\s+inputs:\s*\r?\n\s+since:'
     }
 
-    It 'Should not run on push or pull_request events' {
-        $workflowContent | Should -Not -Match '\n\s+(push|pull_request|pull_request_target):'
+    It 'Should run on pull requests but never on push or pull_request_target' {
+        # pull_request_target would give fork PRs a write token
+        $workflowContent | Should -Match 'on:\s*\r?\n\s+pull_request:\s*\r?\n\s+types:\s*\[opened, synchronize, reopened\]'
+        $workflowContent | Should -Not -Match '\n\s+(push|pull_request_target):'
+    }
+
+    It 'Should only credit same-repo pull requests and skip its own automation branch' {
+        $workflowContent | Should -Match 'github\.event\.pull_request\.head\.repo\.full_name == github\.repository'
+        $workflowContent | Should -Match "github\.head_ref != 'automation/update-contributors'"
+    }
+
+    It 'Should credit the pull request with -PullRequest' {
+        $workflowContent | Should -Match 'Update-Contributors\.ps1 -PullRequest \(\[int\]\$env:PR_NUMBER\) -Apply'
+        $workflowContent | Should -Match 'PR_NUMBER:\s*\$\{\{\s*github\.event\.pull_request\.number\s*\}\}'
     }
 
     It 'Should use only the minimal permissions' {
         $workflowContent | Should -Match 'permissions:\s*\r?\n\s+contents:\s*write\s*\r?\n\s+pull-requests:\s*write\s*\r?\n\r?\n'
     }
 
-    It 'Should only run in the upstream repo, from dev' {
+    It 'Should only run the weekly job in the upstream repo, from dev' {
         $workflowContent | Should -Match "if:\s*github\.repository == 'microsoft/finops-toolkit' && github\.ref == 'refs/heads/dev'"
     }
 

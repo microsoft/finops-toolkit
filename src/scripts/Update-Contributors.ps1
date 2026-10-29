@@ -50,6 +50,11 @@
     .PARAMETER Milestone
     Optional. Credit contributions in this milestone (for example, v15).
 
+    .PARAMETER PullRequest
+    Optional. Credit only this pull request: its author (code, doc) and its reviewers (review), whether or not it is
+    merged. Issues are not checked. Use alone; it replaces -Since and -Milestone. The workflow uses this to credit
+    a pull request's author on the pull request itself.
+
     .PARAMETER Repository
     Optional. Repository to read from, as owner/name. Default = microsoft/finops-toolkit.
 
@@ -80,6 +85,11 @@
     ./Update-Contributors.ps1 -Since 2026-04-29 -Apply
 
     Adds everyone who is missing credits for work since April 29, 2026.
+
+    .EXAMPLE
+    ./Update-Contributors.ps1 -PullRequest 2395 -Apply
+
+    Adds the author and reviewers of pull request 2395 if they are missing credits for it.
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param (
@@ -88,6 +98,9 @@ param (
 
     [string]
     $Milestone,
+
+    [int]
+    $PullRequest,
 
     [ValidatePattern('^[\w.-]+/[\w.-]+$')]
     [string]
@@ -667,9 +680,13 @@ if ($MyInvocation.InvocationName -eq '.') { return }
 
 $ErrorActionPreference = 'Stop'
 
-if (-not $Since -and -not $Milestone)
+if (-not $Since -and -not $Milestone -and -not $PullRequest)
 {
-    throw 'Specify -Since <date> and/or -Milestone <name> so the script knows which contributions to look at.'
+    throw 'Specify -Since <date>, -Milestone <name>, or -PullRequest <number> so the script knows which contributions to look at.'
+}
+if ($PullRequest -and ($Since -or $Milestone))
+{
+    throw '-PullRequest cannot be combined with -Since or -Milestone.'
 }
 
 # Find gh (it is not always on PATH, especially on Windows)
@@ -695,12 +712,14 @@ $unclassified = @{}   # authors of fixed/accepted issues with no Type label, whi
 $scope = @(
     if ($Since) { "since $($Since.ToString('yyyy-MM-dd'))" }
     if ($Milestone) { "in milestone $Milestone" }
+    if ($PullRequest) { "in PR #$PullRequest" }
 ) -join ' and '
 Write-Host "Looking for contributions to $Repository $scope..."
 
 # Merged PRs: authors get code/doc, reviewers get review
-$prs = @(Get-MergedPullRequest -Repository $Repository -Since $Since -Milestone $Milestone)
-Write-Host "  $($prs.Count) merged PRs"
+$prs = if ($PullRequest) { @((Invoke-Gh @('pr', 'view', "$PullRequest", '-R', $Repository, '--json', 'number,author')) -join '' | ConvertFrom-Json) }
+       else { @(Get-MergedPullRequest -Repository $Repository -Since $Since -Milestone $Milestone) }
+Write-Host "  $($prs.Count) $(if ($PullRequest) { 'PR' } else { 'merged PRs' })"
 if ($prs.Count -gt 0)
 {
     # PR details use 2 REST calls each. Stop early with a clear message instead of failing partway through.
@@ -735,7 +754,7 @@ if ($prs.Count -gt 0)
 }
 
 # Issues: Bug label gets bug, Feature label gets ideas
-$issues = @(Get-IssueCandidate -Repository $Repository -Since $Since -Milestone $Milestone)
+$issues = if ($PullRequest) { @() } else { @(Get-IssueCandidate -Repository $Repository -Since $Since -Milestone $Milestone) }
 Write-Host "  $($issues.Count) issues"
 foreach ($issue in $issues)
 {

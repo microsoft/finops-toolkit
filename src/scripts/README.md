@@ -764,8 +764,9 @@ Examples:
 
 | Parameter      | Description                                                                                                                              |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `‑Since`       | Optional. Credit PRs merged and issues created or closed on or after this date. Either `‑Since` or `‑Milestone` is required.             |
+| `‑Since`       | Optional. Credit PRs merged and issues created or closed on or after this date. Either `‑Since`, `‑Milestone`, or `‑PullRequest` is required. |
 | `‑Milestone`   | Optional. Credit PRs and issues in this milestone, for example `v15`.                                                                    |
+| `‑PullRequest` | Optional. Credit only this pull request's author and reviewers, merged or not. Use alone.                                              |
 | `‑Apply`       | Optional. Adds the missing credits to `.all-contributorsrc`, `README.md`, and `docs/README.md`. Requires `npm ci --ignore-scripts` once. |
 | `‑Exclude`     | Optional. Logins to never credit.                                                                                                        |
 | `‑SummaryPath` | Optional. Writes a markdown summary to this file.                                                                                        |
@@ -784,6 +785,12 @@ Examples:
   ./Update-Contributors -Since 2026-04-29 -Apply
   ```
 
-The [update-contributors](../../.github/workflows/update-contributors.yml) workflow runs this weekly and opens a pull request with the changes.
+- Credit the author and reviewers of one pull request.
+
+  ```powershell
+  ./Update-Contributors -PullRequest 2395 -Apply
+  ```
+
+The [update-contributors](../../.github/workflows/update-contributors.yml) workflow runs this on every pull request from this repo, adding a commit with the author's and reviewers' credits to the PR branch. It also runs weekly and opens a pull request with everything else, including fork PRs, bugs, and feature requests.
 
 <br>
