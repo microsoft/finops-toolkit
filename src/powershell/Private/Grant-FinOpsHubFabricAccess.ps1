@@ -45,6 +45,8 @@ function Grant-FinOpsHubFabricAccess
         try
         {
             $token = (Get-AzAccessToken -ResourceUrl 'https://kusto.kusto.windows.net').Token
+            # Az.Accounts 14+ returns a SecureString; older versions return plain text
+            if ($token -is [securestring]) { $token = [System.Net.NetworkCredential]::new('', $token).Password }
             $body = @{ db = $database; csl = ".add database $database admins ('aadapp=$PrincipalId;$TenantId')" } | ConvertTo-Json
             Invoke-RestMethod -Method Post -Uri "$($QueryUri.TrimEnd('/'))/v1/rest/mgmt" -Headers @{ Authorization = "Bearer $token" } -ContentType 'application/json' -Body $body | Out-Null
         }
