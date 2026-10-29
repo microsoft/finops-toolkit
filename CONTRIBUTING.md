@@ -64,7 +64,7 @@ For details about contributing code changes and submitting pull requests, see [H
 
 ## 🏅 Recognizing contributors
 
-We recognize every kind of contribution equally with the [all-contributors](https://allcontributors.org) list in the [README](./README.md#-contributors). Anyone who contributes in any of the ways below should be listed. If we missed you, let us know.
+We recognize every kind of contribution equally with the [all-contributors](https://allcontributors.org) list in the [README](./README.md). Anyone who contributes in any of the ways below should be listed. If we missed you, let us know.
 
 | Type | Emoji | Credit for |
 | ---- | ----- | ---------- |
