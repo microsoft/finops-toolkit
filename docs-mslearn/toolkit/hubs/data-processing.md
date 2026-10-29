@@ -3,7 +3,7 @@ title: FinOps hubs data processing
 description: Learn how FinOps hubs process data, including scope setup, data normalization, and optimization, to enhance cost management and analysis.
 author: flanakin
 ms.author: micflan
-ms.date: 10/26/2026
+ms.date: 10/28/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -184,6 +184,11 @@ Transforms:
     - `x_CommitmentDiscountPercent`
     - `x_TotalDiscountPercent`
   - Added `x_SourceValues` to track data changes during ingestion.
+- v15+:
+  - Select the highest on-demand price when duplicate price rows collapse under a single reservation price lookup key, so commitment discount savings aren't understated.
+  - Only recompute `ContractedCost` when it differs beyond a null-safe tolerance, avoiding no-op rewrites that polluted the `x_SourceValues` audit trail.
+  - Enrich dimensions (`PricingUnits`, `Regions`, `ResourceTypes`, `Services`) with `lookup` instead of `join`.
+  - Deduplicate the `Services` mapping per resource type to prevent cost row fan-out.
 
 ### Price data transforms
 
@@ -218,6 +223,8 @@ Transforms:
     - Renamed `x_SkuMeterName` to `SkuMeter`.
   - Implemented the following columns when not set by Cost Management:
     - `CommitmentDiscountUnit`
+- v15+:
+  - Fix `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility` values. Prices ingested before upgrading keep the old values until they're re-ingested.
 
 ### Recommendation data transforms
 
