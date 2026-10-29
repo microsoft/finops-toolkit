@@ -155,17 +155,17 @@ param tagsByResource object = {}
 @description('Optional. List of scope IDs to monitor and ingest cost for.')
 param scopesToMonitor array = []
 
-@description('Optional. Number of days of data to retain in the msexports container. Default: 0.')
-param exportRetentionInDays int = 0
+@description('Optional. Number of days of data to retain in the msexports container. If not specified, keeps the current value from settings.json (0 for new hubs).')
+param exportRetentionInDays int?
 
-@description('Optional. Number of months of data to retain in the ingestion container. Default: 13.')
-param ingestionRetentionInMonths int = 13
+@description('Optional. Number of months of data to retain in the ingestion container. If not specified, keeps the current value from settings.json (13 for new hubs).')
+param ingestionRetentionInMonths int?
 
-@description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
-param dataExplorerRawRetentionInDays int = 0
+@description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. If not specified, keeps the current value from settings.json (0 for new hubs).')
+param dataExplorerRawRetentionInDays int?
 
-@description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
-param dataExplorerFinalRetentionInMonths int = 13
+@description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. If not specified, keeps the current value from settings.json (13 for new hubs).')
+param dataExplorerFinalRetentionInMonths int?
 
 @description('Optional. Enable public access to the data lake. Default: true.')
 param enablePublicAccess bool = true
@@ -309,7 +309,8 @@ module analytics 'Microsoft.FinOpsHubs/Analytics/app.bicep' = if (useFabric || u
     clusterName: dataExplorerName
     clusterSku: dataExplorerSku
     clusterCapacity: dataExplorerCapacity
-    rawRetentionInDays: dataExplorerRawRetentionInDays
+    // Use the effective value from settings.json so a redeploy that omits the parameter keeps the current raw retention
+    rawRetentionInDays: core.outputs.rawRetentionInDays
     // TODO: Figure out why this is breaking upgrades -- clusterTrustedExternalTenants: dataExplorerTrustedExternalTenants
   }
 }
