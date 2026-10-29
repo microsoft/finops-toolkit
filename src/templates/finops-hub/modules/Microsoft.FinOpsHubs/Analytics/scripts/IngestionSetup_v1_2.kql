@@ -89,12 +89,21 @@ Prices_transform_v1_2()
     prices
     | where x_SkuPriceType == 'SavingsPlan'
     // If we use join, specify the shuffle key
+<<<<<<< HEAD
     // TODO: Compare join vs. lookup perf -- | join kind=leftouter hint.strategy=shuffle (prices | where x_SkuPriceType == 'Consumption' | summarize take_any(ListUnitPrice), take_any(ContractedUnitPrice), take_any(x_BaseUnitPrice) by tmp_SavingsPlanKey) on tmp_SavingsPlanKey
     // The dimension side must be unique per tmp_SavingsPlanKey (meter+product+SKU+tier+offer, no region/currency):
     // `distinct` over the price columns does not guarantee that when the same key has rows with
     // different prices (e.g. multi-region exports), so it can fan out matching SavingsPlan rows.
     // `summarize take_any(...) by tmp_SavingsPlanKey` guarantees exactly one row per key.
     | lookup kind=leftouter (prices | where x_SkuPriceType == 'Consumption' | summarize take_any(ListUnitPrice), take_any(ContractedUnitPrice), take_any(x_BaseUnitPrice) by tmp_SavingsPlanKey) on tmp_SavingsPlanKey
+=======
+    // TODO: Compare join vs. lookup perf -- | join kind=leftouter hint.strategy=shuffle (prices | where x_SkuPriceType == 'Consumption' | where x_SkuMeterId in (spMeters) | summarize take_any(ListUnitPrice), take_any(ContractedUnitPrice), take_any(x_BaseUnitPrice) by tmp_SavingsPlanKey) on tmp_SavingsPlanKey
+    // The key includes billing profile and currency so one profile's or currency's prices are never
+    // applied to another's savings plan rows (meter IDs are already region-specific). take_any()
+    // stays as a defence so the dimension side is exactly one row per key (a duplicate would fan
+    // out matching SavingsPlan rows, #1736), and the prefilter limits it to savings plan meters.
+    | lookup kind=leftouter (prices | where x_SkuPriceType == 'Consumption' | where x_SkuMeterId in (spMeters) | summarize take_any(ListUnitPrice), take_any(ContractedUnitPrice), take_any(x_BaseUnitPrice) by tmp_SavingsPlanKey) on tmp_SavingsPlanKey
+>>>>>>> beb9c1d7 (fix(hubs): restore savings plan prefilter and add price transform regression tests)
     | extend ListUnitPrice = coalesce(ListUnitPrice, ListUnitPrice1)
     | extend ContractedUnitPrice = coalesce(ContractedUnitPrice, ContractedUnitPrice1)
     | extend x_BaseUnitPrice = coalesce(x_BaseUnitPrice, x_BaseUnitPrice1)
