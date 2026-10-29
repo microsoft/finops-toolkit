@@ -43,8 +43,8 @@ We adhere to the [Microsoft style guide](https://docs.microsoft.com/style-guide/
 - Don't be spacey
 - Revise weak writing
 - Stay positive – Lead with what works, the right path, and what's better in the new version. Don't dwell on what was broken, missing, or unsupported.
-- Spell out product names – Use the full name "FinOps hubs" for the first reference in each section, including titles, previews, and social posts. Shorter references like "hubs" or "hub" are fine later in the same section. Never use "hubs" alone to mean FinOps hubs since other products use the term.
-- Qualify versions – Use "FinOps toolkit v15" for the first reference to a version in each section, never "v15" by itself. Later references in the same section can use "v15".
+- Spell out references – Spell out product names and versions on first use in each section, including titles, previews, and social posts, and only abbreviate secondary references in that section. For example, use "FinOps hubs" first and "hub" later. Never use "hubs" alone to mean FinOps hubs since other products use the term.
+- Format versions – Write "FinOps toolkit 15" and "FinOps hubs 15", without a "v", since Microsoft doesn't usually add one to spelled-out versions. Use "v15" only on its own.
 
 [Learn more](https://docs.microsoft.com/style-guide/welcome)
 
