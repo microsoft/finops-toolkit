@@ -668,7 +668,7 @@
                 "type": "Microsoft.Common.TextBlock",
                 "visible": true,
                 "options": {
-                  "text": "Configure data retention settings for Azure Data Explorer."
+                  "text": "Configure data retention settings for Azure Data Explorer. When you redeploy or upgrade a hub, values left at the default keep the current retention settings and changed values are applied. To set a value back to the default, edit config/settings.json in the hub storage account or deploy with PowerShell."
                 }
               },
               {
@@ -1022,10 +1022,10 @@
       "dataExplorerSku": "[steps('pricing').dataExplorer.dataExplorerSku]",
       "enableDataExplorerDiskEncryption": "[steps('retention').dataExplorer.enableDataExplorerDiskEncryption]",
       "enableDataExplorerDoubleEncryption": "[steps('retention').dataExplorer.enableDataExplorerDoubleEncryption]",
-      "exportRetentionInDays": "[steps('retention').storage.msexportsDays]",
-      "ingestionRetentionInMonths": "[steps('retention').storage.ingestionMonths]",
-      "dataExplorerRawRetentionInDays": "[steps('retention').dataExplorer.rawDays]",
-      "dataExplorerFinalRetentionInMonths": "[steps('retention').dataExplorer.finalMonths]",
+      "exportRetentionInDays": "[if(or(equals(steps('retention').storage.msexportsDays, ''), equals(steps('retention').storage.msexportsDays, '0')), parse('null'), steps('retention').storage.msexportsDays)]",
+      "ingestionRetentionInMonths": "[if(or(equals(steps('retention').storage.ingestionMonths, ''), equals(steps('retention').storage.ingestionMonths, '13')), parse('null'), steps('retention').storage.ingestionMonths)]",
+      "dataExplorerRawRetentionInDays": "[if(or(equals(steps('retention').dataExplorer.rawDays, ''), equals(steps('retention').dataExplorer.rawDays, '0')), parse('null'), steps('retention').dataExplorer.rawDays)]",
+      "dataExplorerFinalRetentionInMonths": "[if(or(equals(steps('retention').dataExplorer.finalMonths, ''), equals(steps('retention').dataExplorer.finalMonths, '13')), parse('null'), steps('retention').dataExplorer.finalMonths)]",
       "remoteHubStorageUri": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), basics('analyticsBackend').remoteHubStorageUri, '')]",
       "remoteHubStorageKey": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), basics('analyticsBackend').remoteHubStorageKey, '')]",
       "enablePurgeProtection": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), coalesce(basics('analyticsBackend').enablePurgeProtection, false), false)]",
