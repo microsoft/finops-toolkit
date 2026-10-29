@@ -445,12 +445,13 @@ Costs_transform_v1_2()
         ConsumedQuantity
     )
     //
-    // Populate missing prices -- mapping to on-demand prices requires meter ID and offer ID
+    // Populate missing prices -- mapping to on-demand prices requires meter ID; offer ID is EA-only, so rows without one are recovered only when they are reservation usage (CommitmentDiscountCategory == 'Usage')
     | extend tmp_MissingPrices = ProviderName == 'Microsoft'
         and (isempty(ListUnitPrice) or isempty(ContractedUnitPrice) or ListUnitPrice == 0 or ContractedUnitPrice == 0)
         and x_EffectiveUnitPrice != 0
         and not(CommitmentDiscountCategory == 'Spend' and CommitmentDiscountStatus == 'Unused')
-        and isnotempty(x_SkuMeterId) and isnotempty(x_SkuOfferId)
+        and isnotempty(x_SkuMeterId)
+        and (isnotempty(x_SkuOfferId) or CommitmentDiscountCategory == 'Usage')
     | as allCosts
     | where tmp_MissingPrices
     | extend tmp_ReservationPriceLookupKey = tolower(strcat(x_BillingProfileId, substring(ChargePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId))
