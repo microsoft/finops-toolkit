@@ -22,7 +22,7 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
 <div id="whats-new" class="ftk-new">
     <h3>What's new in October 2026<span class="ftk-version">v15</span></h3>
     <p>
-        In October, the PowerShell module added Initialize-FinOpsHubLocal for setting up a local FinOps hub with one command, plus commands to generate the commitment discount eligibility and instance size flexibility open data, updated test compatibility with Pester 6, and fixed Get-FinOpsCostExport -RunHistory and Start-FinOpsCostExport date handling for UTC offsets.
+        In October, the PowerShell module added Initialize-FinOpsHubLocal for setting up a local FinOps hub with one command, plus commands to generate the commitment discount eligibility and instance size flexibility open data, updated test compatibility with Pester 6, and fixed Deploy-FinOpsHub version handling, Get-FinOpsCostExport -RunHistory, and Start-FinOpsCostExport date handling for UTC offsets.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>

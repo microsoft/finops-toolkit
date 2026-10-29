@@ -22,7 +22,7 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 <div id="whats-new" class="ftk-new">
     <h3>What's new in October 2026<span class="ftk-version">v15</span></h3>
     <p>
-        In October, FinOps hubs added VNet and private network modes with optional NAT Gateway support, a guide to run FinOps hubs using a local Kusto emulator, and fixed several KQL join, managed export permission, and cost recompute issues.
+        In October, FinOps hubs added VNet and private network modes with optional NAT Gateway support, a guide to run FinOps hubs using a local Kusto emulator, and fixed redeploys resetting data retention, missing reservation savings for Microsoft Customer Agreement accounts, and several KQL join, managed export permission, and dashboard savings issues.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>

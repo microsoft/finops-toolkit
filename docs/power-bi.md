@@ -22,7 +22,7 @@ FinOps toolkit Power BI reports provide a great starting point for FinOps report
 <div id="whats-new" class="ftk-new">
     <h3>What's new in October 2026<span class="ftk-version">v15</span></h3>
     <p>
-        In October, Power BI reports switched to the new Instance size flexibility open dataset, fixed storage report refresh errors from ISO 8601 duration values, and paginated Azure Resource Graph queries to avoid payload size errors.
+        In October, Power BI reports switched to the new Instance size flexibility open dataset, fixed storage report refresh errors from FOCUS 1.2 exports and ISO 8601 duration values, removed a duplicate Region column that could stop reports from opening, and paginated Azure Resource Graph queries to avoid payload size errors.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
