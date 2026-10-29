@@ -261,10 +261,177 @@ InModuleScope 'FinOpsToolkit' {
                 Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -Times 0
             }
 
+            It 'Should download each deployment to its own folder' {
+                $script:destinations = @()
+                Mock -CommandName 'Save-FinOpsHubTemplate' -MockWith { $script:destinations += $Destination }
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '14' | Out-Null
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '14' | Out-Null
+                $script:destinations.Count | Should -Be 2
+                ($script:destinations | Select-Object -Unique).Count | Should -Be 2
+            }
+
+            It 'Should accept release versions listed without a minor number' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '14' } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.ContainsKey('enableManagedExports') -and $TemplateParameterObject.ContainsKey('enablePurgeProtection')
+                } -Times 1
+            }
+
+            It 'Should not pass parameters a release version does not have' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '0.7' } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    -not $TemplateParameterObject.ContainsKey('enableManagedExports') -and -not $TemplateParameterObject.ContainsKey('fabricQueryUri')
+                } -Times 1
+            }
+
             It 'Should pass enableNatGateway when private mode targets version 15.0 or later' {
                 { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version '15.0' } | Should -Not -Throw
                 Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
                     $TemplateParameterObject.enableNatGateway -eq $true
+                } -Times 1
+            }
+
+            It 'Should throw when private mode targets single-component version "14"' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version '14' } | Should -Throw -ExpectedMessage '*requires hub template version 15.0*'
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -Times 0
+            }
+
+            It 'Should pass enableNatGateway when private mode targets single-component version "15"' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version '15' } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.enableNatGateway -eq $true
+                } -Times 1
+            }
+        }
+
+        Context 'Version parsing' {
+            BeforeAll {
+                Mock -CommandName 'Get-AzResourceGroup' -MockWith { return @{ ResourceGroupName = $rgName } }
+                Mock -CommandName 'New-AzResourceGroup'
+                Mock -CommandName 'Save-FinOpsHubTemplate'
+                Mock -CommandName 'Initialize-FinOpsHubDeployment'
+                $templateFile = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath 'FinOps/finops-hub-v1.0.0/main.bicep'
+                Mock -CommandName 'Get-ChildItem' -MockWith { return @{ FullName = $templateFile } }
+            }
+
+            BeforeEach {
+                $script:capturedParams = $null
+                Mock -CommandName 'New-AzResourceGroupDeployment' -MockWith { $script:capturedParams = $TemplateParameterObject }
+            }
+
+            It 'Should not throw for a single-component version like "13"' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '13' } | Should -Not -Throw
+            }
+
+            It 'Should pass the raw single-component version to Save-FinOpsHubTemplate' {
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '13'
+                Should -Invoke -CommandName 'Save-FinOpsHubTemplate' -ParameterFilter { $Version -eq '13' } -Times 1
+            }
+
+            It 'Should produce the same parameter set for "13" as for "13.0"' {
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '13'
+                $shortKeys = ($script:capturedParams.Keys | Sort-Object) -join ','
+
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '13.0'
+                $dottedKeys = ($script:capturedParams.Keys | Sort-Object) -join ','
+
+                $shortKeys | Should -Be $dottedKeys
+                $shortKeys | Should -Match 'enablePurgeProtection'
+            }
+
+            It 'Should produce the same parameter set for "12" as for "12.0"' {
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '12'
+                $shortKeys = ($script:capturedParams.Keys | Sort-Object) -join ','
+
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '12.0'
+                $dottedKeys = ($script:capturedParams.Keys | Sort-Object) -join ','
+
+                $shortKeys | Should -Be $dottedKeys
+                $shortKeys | Should -Match 'enableManagedExports'
+                $shortKeys | Should -Not -Match 'enablePurgeProtection'
+            }
+
+            It 'Should accept a "v" prefix like "<version>" and match the unprefixed version' -ForEach @(
+                @{ version = 'v13'; plain = '13' }
+                @{ version = 'v13.0'; plain = '13.0' }
+                @{ version = 'v12'; plain = '12.0' }
+            ) {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version $version } | Should -Not -Throw
+                $prefixedKeys = ($script:capturedParams.Keys | Sort-Object) -join ','
+
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version $plain
+                $plainKeys = ($script:capturedParams.Keys | Sort-Object) -join ','
+
+                $prefixedKeys | Should -Be $plainKeys
+            }
+
+            It 'Should pass "<version>" to Save-FinOpsHubTemplate as "<expected>" so the release is found' -ForEach @(
+                @{ version = 'v13'; expected = '13' }
+                @{ version = 'v13.0'; expected = '13.0' }
+                @{ version = '13'; expected = '13' }
+                @{ version = 'latest'; expected = 'latest' }
+            ) {
+                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version $version
+                Should -Invoke -CommandName 'Save-FinOpsHubTemplate' -ParameterFilter { $Version -ceq $expected } -Times 1 -Exactly
+            }
+
+            It 'Should gate private mode on a "v" prefixed version like "<version>"' -ForEach @(
+                @{ version = 'v14'; shouldThrow = $true }
+                @{ version = 'v14.0'; shouldThrow = $true }
+                @{ version = 'v15'; shouldThrow = $false }
+                @{ version = 'v15.1'; shouldThrow = $false }
+            ) {
+                $call = { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -NetworkMode 'private' -Version $version }
+                if ($shouldThrow) { $call | Should -Throw -ExpectedMessage '*requires hub template version 15.0*' }
+                else { $call | Should -Not -Throw }
+            }
+
+            It 'Should treat a two-digit minor version like "0.10" as newer than "0.7"' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '0.10' } | Should -Not -Throw
+                $script:capturedParams.Keys | Should -Contain 'fabricQueryUri'
+                $script:capturedParams.Keys | Should -Not -Contain 'enableManagedExports'
+            }
+
+            It 'Should skip version checks and include the latest parameters for "latest"' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Not -Throw
+                $script:capturedParams.Keys | Should -Contain 'enablePurgeProtection'
+            }
+
+            It 'Should not break an already-dotted version like "0.4"' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version '0.4' } | Should -Not -Throw
+                $script:capturedParams.Keys | Should -Contain 'remoteHubStorageUri'
+                $script:capturedParams.Keys | Should -Not -Contain 'enableInfrastructureEncryption'
+            }
+        }
+
+        Context 'Retention' {
+            BeforeAll {
+                Mock -CommandName 'Get-AzResourceGroup' -MockWith { return @{ ResourceGroupName = $rgName } }
+                Mock -CommandName 'New-AzResourceGroup'
+                Mock -CommandName 'Save-FinOpsHubTemplate'
+                Mock -CommandName 'Initialize-FinOpsHubDeployment'
+                $templateFile = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath 'FinOps/finops-hub-v1.0.0/main.bicep'
+                Mock -CommandName 'Get-ChildItem' -MockWith { return @{ FullName = $templateFile } }
+                Mock -CommandName 'New-AzResourceGroupDeployment'
+            }
+
+            It 'Should not pass retention when not specified so a redeploy keeps stored values (#2206, #2348)' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    -not $TemplateParameterObject.ContainsKey('exportRetentionInDays') `
+                        -and -not $TemplateParameterObject.ContainsKey('ingestionRetentionInMonths') `
+                        -and -not $TemplateParameterObject.ContainsKey('dataExplorerRawRetentionInDays') `
+                        -and -not $TemplateParameterObject.ContainsKey('dataExplorerFinalRetentionInMonths')
+                } -Times 1
+            }
+
+            It 'Should pass retention when specified, including 0' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' -ExportRetentionInDays 0 -IngestionRetentionInMonths 36 -DataExplorerRawRetentionInDays 30 -DataExplorerFinalRetentionInMonths 60 } | Should -Not -Throw
+                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                    $TemplateParameterObject.ContainsKey('exportRetentionInDays') -and $TemplateParameterObject.exportRetentionInDays -eq 0 `
+                        -and $TemplateParameterObject.ingestionRetentionInMonths -eq 36 `
+                        -and $TemplateParameterObject.dataExplorerRawRetentionInDays -eq 30 `
+                        -and $TemplateParameterObject.dataExplorerFinalRetentionInMonths -eq 60
                 } -Times 1
             }
         }

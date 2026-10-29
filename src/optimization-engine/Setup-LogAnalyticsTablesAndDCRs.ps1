@@ -338,7 +338,7 @@ $tableSchemas = @{
         @{ name = "PublisherName_s"; type = "string" }
         @{ name = "PublisherType_s"; type = "string" }
         @{ name = "Quantity_s"; type = "string" }
-        @{ name = "ReservationId_s"; type = "string" }
+        @{ name = "ReservationId_g"; type = "string" }
         @{ name = "ReservationName_s"; type = "string" }
         @{ name = "ResourceGroup"; type = "string" }
         @{ name = "ResourceId"; type = "string" }

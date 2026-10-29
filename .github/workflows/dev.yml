@@ -11,13 +11,19 @@ on:
       - 'src/templates/finops-hub/**/timeZones.bicep'
       - 'docs/deploy/finops-hub-latest.json'
       - 'docs/deploy/finops-hub-preview.json'
+      # Power BI report definitions and build scripts are covered by PowerBIReports.Tests.ps1 and Build-PowerBI.Tests.ps1
+      - 'src/power-bi/kql/**'
+      - 'src/power-bi/storage/**'
+      - 'src/power-bi/reports.json'
+      - 'src/scripts/Build-PowerBI.ps1'
+      - 'src/scripts/Package-PowerBI.ps1'
 jobs:
   run_pester_tests:
     name: Pester
     runs-on: Windows-latest
     steps:
       - name: Install and cache PowerShell modules
-        uses: potatoqualitee/psmodulecache@ee5e9494714abf56f6efbfa51527b2aec5c761b8 # v6.2.1
+        uses: potatoqualitee/psmodulecache@9e4b63833c22c1768d648e115a9c849afdda22a5 # v6.3
         with:
           modules-to-cache: InvokeBuild, PSScriptAnalyzer, Pester:6.0.0, Az.Accounts, Az.Resources
           shell: pwsh

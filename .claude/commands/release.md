@@ -121,7 +121,7 @@ Present as a prioritized list — no AUQ needed, just a summary the user can act
 Update the release tracking issue checkboxes:
 
 1. Run `gh issue view {number} --json body` and capture the output. Parse the JSON to extract the `body` field, then write it to `/tmp/release-issue-body.md` using the Write tool (not shell redirection).
-2. Read the file with the Read tool. Each `/release`-managed checkbox in the template has an HTML comment label like `<!-- release:core -->`, `<!-- release:finalize -->`, or `<!-- release:package -->`. To mark a step complete, find the line containing the matching label and change its `- [ ]` to `- [x]`. Use the Edit tool to write the updated body back to the file. In Phase 2 Release readiness, mark `release:core` complete.
+2. Read the file with the Read tool. Each `/release`-managed checkbox in the template has an HTML comment label like `<!-- release:core -->`, `<!-- release:finalize -->`, `<!-- release:package -->`, or `<!-- release:powerbi -->`. To mark a step complete, find the line containing the matching label and change its `- [ ]` to `- [x]`. Use the Edit tool to write the updated body back to the file. In Phase 2 Release readiness, mark `release:core` complete.
 3. Run `gh issue edit {number} --body-file /tmp/release-issue-body.md` to push the updates.
 
 Then present a summary and next action via AskUserQuestion:
@@ -148,14 +148,63 @@ pwsh -Command "./src/scripts/Package-Toolkit.ps1 -Build -CopyFiles"
 
 If it fails, show the error and ask whether to investigate or skip.
 
+### Package Power BI
+
+Power BI packaging reports its own state and saves demo reports with Power BI Desktop, which only runs on Windows.
+
+Package from the release prep branch. Don't wait for the merge to main: the checklist merges to main after the Azure Quickstart Templates review, which can take days. The prep PR stays open until the release is published, so late changes go there. After packaging, commit and push the generated `docs/deploy` files to the prep branch.
+
+Package everything, not only the toolkit zips, and delete `release/` first so no files from an earlier release are left behind. Create the draft GitHub release as soon as `Package-Toolkit` finishes (see "Draft the GitHub release" below) so the files are ready while the rest of the checklist closes.
+
+Before packaging, two things have to be done:
+
+1. The demo hub (`ftk-demo` in the FTK Prod subscription, which holds demo resources and isn't real production) is on this release and has current data, because the demo reports are saved with its data. Run `pwsh -Command "./src/scripts/Deploy-Demo.ps1"` in the background, because it takes 15 to 45 minutes, which is longer than a foreground command can run. It deploys or updates the hub and waits until data is ingested. It fails if the hub still isn't ready after 30 minutes; run it again to keep waiting. Show its warnings verbatim.
+2. Someone has signed in to Power BI Desktop on the Windows machine and refreshed one demo project from `release/pbix` by hand, once. That stores the data source credentials and makes the Public sensitivity label available (the label is only needed, and only checked, when sensitivity labels are enabled for the tenant), and the packaging command can't answer a credential prompt. Ask the user to confirm with "done".
+
+On Windows, tell the user not to use the mouse or keyboard until it finishes, then run it in the background, because it takes about an hour:
+
+```bash
+pwsh -Command "./src/scripts/Package-PowerBI.ps1 -Unattended"
+```
+
+On other platforms, tell the user to run `Package-PowerBI.ps1 -Unattended` on a Windows machine with Power BI Desktop, then paste the final output of that run (the "Power BI release files" block, or `Package-PowerBI.ps1 -Status` from that machine) and say "done". Don't check with `-Status` on this machine: the files are on the Windows machine, and `Package-Toolkit -Build` clears this machine's build.
+
+It takes about an hour (roughly 10 minutes per demo report). If it stops because the reports were built from a test open data URL ("isn't permanent"), rerun it once with `-Build` to rebuild against the main branch; don't use `-Build` otherwise, because it discards reports that are already saved.
+
+Relay its status output verbatim — it says exactly which step is next. If a report can't be saved automatically, relay the failed step and screenshot path, tell the user to run `Package-PowerBI.ps1 -Open` and save that project as PBIX (refresh, Save as PBIX in `release/pbix`, sensitivity "Public" if sensitivity labels are enabled), then say "done" so you can rerun the command to validate and package.
+
+If validation fails, show the reported issues verbatim. Each one names the file and the fix; don't guess at causes.
+
+If this step ran, do not proceed until all three files are complete: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip. On Windows, `Package-PowerBI.ps1 -Status` exits 0 only when they are; check the exit code and relay its text. On another platform, the pasted output from the Windows machine has to show the final "Power BI release files" block. File existence alone is not enough, because files from a previous release can still be in `release/`.
+
+### Draft the GitHub release
+
+A draft is only visible to maintainers and doesn't create the tag, so it is safe to create early. Create it after `Package-Toolkit` finishes and update it again after Power BI packaging.
+
+1. Create the draft with the files in `release/` (files only, not folders). Skip the agent plugin zips (`agent-plugin.zip`, `claude-plugin-*.zip`, `agent-skills-*.zip`) unless something in `docs/` or `docs-mslearn/` links to them, because the plugins install from the marketplace JSON.
+
+   ```powershell
+   $files = Get-ChildItem release -File | Where-Object Name -notmatch '^(agent-plugin|claude-plugin|agent-skills)' | ForEach-Object FullName
+   gh release create v{N} --repo microsoft/finops-toolkit --draft --target main --title "{Mmm yyyy} (v{N})" --notes "DRAFT" @files
+   ```
+
+2. Write the body from the previous release's body (`gh release view v{N-1} --json body --jq .body`) and this version's changelog section:
+   - **New in {Month yyyy}**: one line per tool for new features, each with the tool emoji and a link to its page (don't link individual features).
+   - **Updated**: one line per tool for changes and fixes, in the same tool order as the previous release. Keep it to the notable items; don't list every change.
+   - **Contributors**: code contributors come from `gh api --paginate repos/microsoft/finops-toolkit/compare/v{N-1}...dev --jq '.commits[].author.login'` (drop bots; list `@MSBrett` and `@flanakin` last). Supporters are issue reporters from the milestone (`gh issue list --milestone v{N} --state all --json author`) who aren't contributors, sorted alphabetically. Tell the user these lists miss reviewers and discussion participants, so they need a final review.
+   - **Footer**: copy the previous footer with the version updated. Keep the blog and download links commented out until the release is published.
+3. Set the body with `gh api --method PATCH repos/microsoft/finops-toolkit/releases/{id} -F body=@{file}`. Find `{id}` with `gh api repos/microsoft/finops-toolkit/releases --jq '.[] | select(.draft and .tag_name=="v{N}") | .id'`.
+4. After Power BI packaging, upload the remaining files with `gh release upload`. `gh` can't find a draft by its `v{N}` tag, so use the `untagged-…` name from the draft's URL: `gh release upload untagged-{hash} release/PowerBI-demo.zip --repo microsoft/finops-toolkit`.
+
+Don't publish the draft. Publishing creates the tag and is done from the checklist.
+
 ### Manual steps reminder
 
 After packaging succeeds, inform the user of remaining manual steps documented in the release checklist issue (include a link):
 
-1. Power BI packaging
-2. Publish release
-3. Publish announcements
+1. Publish release
+2. Publish announcements
 
 ### Final issue update
 
-Update the release tracking issue checkboxes for finalize-phase items using the same label-based process as Release readiness. Mark `release:finalize` and `release:package` complete. Then report completion and wish the user well.
+Update the release tracking issue checkboxes for finalize-phase items using the same label-based process as Release readiness. Mark `release:finalize` and `release:package` complete. Mark `release:powerbi` complete only when the Power BI gate above is met. Then report completion and wish the user well.
