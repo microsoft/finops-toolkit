@@ -20,7 +20,8 @@
 //        tmp_MissingPrices narrows that further to rows the price-sheet join can resolve
 //        tmp_MissingCost   = (isempty(ListUnitPrice) or isempty(ContractedUnitPrice) or ListUnitPrice == 0 or ContractedUnitPrice == 0)
 //            and x_EffectiveUnitPrice != 0 and not(unused spend commitment)
-//        tmp_MissingPrices = tmp_MissingCost and isnotempty(x_SkuMeterId) and isnotempty(x_SkuOfferId)
+//        tmp_MissingPrices = tmp_MissingCost and isnotempty(x_SkuMeterId)
+//            and (isnotempty(x_SkuOfferId) or CommitmentDiscountCategory == 'Usage')
 //
 // A row that is tmp_MissingCost but NOT tmp_MissingPrices now enters the repair block (skips the join, all joined
 // columns come back null) and falls through the existing case() branches' null-safe fallback to EffectiveCost-based

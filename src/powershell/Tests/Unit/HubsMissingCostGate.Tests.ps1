@@ -42,7 +42,7 @@ Describe 'HubsMissingCostGate' {
 
         It 'Should narrow tmp_MissingPrices from tmp_MissingCost plus the meter/offer ID requirement: <Name>' -ForEach $guardFiles {
             $content = Get-Content -Path $FullName -Raw
-            $content | Should -Match 'extend\s+tmp_MissingPrices\s*=\s*tmp_MissingCost\s+and\s+isnotempty\(x_SkuMeterId\)\s+and\s+isnotempty\(x_SkuOfferId\)' `
+            $content | Should -Match 'extend\s+tmp_MissingPrices\s*=\s*tmp_MissingCost\s+and\s+isnotempty\(x_SkuMeterId\)\s+and\s+\(isnotempty\(x_SkuOfferId\) or CommitmentDiscountCategory == ''Usage''\)' `
                 -Because 'only the price-sheet join needs a meter/offer ID; the cost-repair fallback below does not'
         }
 
