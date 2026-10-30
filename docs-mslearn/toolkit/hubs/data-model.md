@@ -683,6 +683,15 @@ Columns in the **Prices** managed dataset include:
 | x_TotalUnitPriceDiscount             | Real      | Source: Hubs add-on.                              |
 | x_TotalUnitPriceDiscountPercent      | Real      | Source: Hubs add-on.                              |
 
+### FOCUS 1.5 SKU prices preview
+
+A draft of the FOCUS 1.5 SKU Price dataset is available in the `src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/preview/SkuPrices_v1_5` folder of the [FinOps toolkit repository](https://github.com/microsoft/finops-toolkit). It isn't deployed with FinOps hubs and may change before release. The preview builds 2 tables from **Prices_final_v1_2** in the **Ingestion** database:
+
+- **SkuPrices_v1_5** has one row per SKU price and price type (`x_UnitPriceType` of List, Base, Contracted, or Effective) with effective start and end dates.
+- **SkuPricesWide_v1_5** has the same prices with each price type in its own column.
+
+To try it, run `Build-SkuPrices.ps1` against your hub, then `Test-SkuPrices.ps1` to validate the results. See the README in that folder for mapping decisions and known gaps.
+
 <br>
 
 ## PricingUnits table

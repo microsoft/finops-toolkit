@@ -25,6 +25,11 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+### [FinOps hubs](hubs/finops-hubs-overview.md)
+
+- **Added**
+  - Added a draft FOCUS 1.5 SKU Price preview (`SkuPrices_v1_5` and `SkuPricesWide_v1_5`) with validation and scenario scripts under `Analytics/preview/SkuPrices_v1_5`. The preview is not deployed with FinOps hubs; run it manually against a hub ([#2339](https://github.com/microsoft/finops-toolkit/pull/2339)).
+
 -->
 
 <br><a name="latest"></a>
