@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/28/2026
+ms.date: 10/29/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -18,14 +18,16 @@ ms.reviewer: brettwil
 
 This article summarizes the features and enhancements in each release of the FinOps toolkit.
 
-<!--
 <br>
 
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
 
--->
+### [FinOps hubs](hubs/finops-hubs-overview.md)
+
+- **Fixed**
+  - Fixed Fabric eventhouse deployments leaving the Data Factory identity without access to the Ingestion and Hub databases. `Deploy-FinOpsHub -FabricQueryUri` now grants the admin role automatically, and warns that Fabric ingestion cannot pass the storage firewall in VNet or private modes. Approach informed by [Zahir Hussain Shah](https://github.com/zhshah/Azure-FinOps-Automation-Deployment-Utility) (MIT) ([#2061](https://github.com/microsoft/finops-toolkit/issues/2061)).
 
 <br><a name="latest"></a>
 
