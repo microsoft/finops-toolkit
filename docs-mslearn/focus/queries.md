@@ -49,6 +49,7 @@ Costs
 | summarize
     BilledCost = sum(BilledCost)
     by
+    BillingCurrency,
     BillingAccountId,
     BillingAccountName,
     BillingAccountType,
@@ -61,18 +62,24 @@ Costs
 
 ```sql
 SELECT
+  BillingCurrency,
   BillingAccountId,
   BillingAccountName,
   BillingAccountType,
   SubAccountId,
   SubAccountName,
   SubAccountType,
-  SUM(BilledCost)
+  SUM(BilledCost) AS BilledCost
 FROM Costs
 WHERE BillingPeriodStart = DATEADD(month, -1, DATEADD(month, DATEDIFF(month, 0, GETDATE()), 0))
 GROUP BY
+  BillingCurrency,
   BillingAccountId,
-  SubAccountId
+  BillingAccountName,
+  BillingAccountType,
+  SubAccountId,
+  SubAccountName,
+  SubAccountType
 ```
 
 <br>
