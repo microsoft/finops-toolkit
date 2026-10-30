@@ -470,7 +470,7 @@ function Test-Template([System.IO.FileInfo] $Template)
                 {
                     $unexpected.Add("'$title' dialog$(if ($page) { ": $($page.Text.Substring(0, [Math]::Min(300, $page.Text.Length)))" })")
                 }
-                if ($title -eq $label) { $prompt = $page }
+                if ($title -eq $label -and $page) { $prompt = $page }
             }
 
             $result.Screenshot = Save-Screenshot (Join-Path $ScreenshotPath "$label.png")

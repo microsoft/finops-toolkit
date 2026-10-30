@@ -445,6 +445,23 @@ if ($Status)
 
 #endregion Report status
 
+#region Validate templates
+
+# Templates are already built at this point, so this doesn't depend on saving PBIX files
+if ($ValidateTemplates)
+{
+    if ($null -ne $IsWindows -and -not $IsWindows)
+    {
+        throw 'Validating templates needs Power BI Desktop, which only runs on Windows. Run this command on Windows, or leave out -ValidateTemplates.'
+    }
+
+    Write-Host ''
+    Write-Host 'Opening the templates in Power BI Desktop...'
+    $null = & "$PSScriptRoot/Test-PowerBITemplates.ps1" -Path $pbitDir
+}
+
+#endregion Validate templates
+
 #region Save PBIX files
 
 # Fail before saving (which takes about an hour for all reports) when the build can't be released
@@ -572,18 +589,6 @@ if ($failed -gt 0)
 {
     Write-Host ''
     throw "$failed demo report$(if ($failed -ne 1) { 's' }) failed validation. Fix the issues above, save again (or run ./Package-PowerBI -Unattended), and rerun this command."
-}
-
-if ($ValidateTemplates)
-{
-    if ($null -ne $IsWindows -and -not $IsWindows)
-    {
-        throw 'Validating templates needs Power BI Desktop, which only runs on Windows. Run this command on Windows, or leave out -ValidateTemplates.'
-    }
-
-    Write-Host ''
-    Write-Host 'Opening the templates in Power BI Desktop...'
-    $null = & "$PSScriptRoot/Test-PowerBITemplates.ps1" -Path $pbitDir
 }
 
 Write-Host ''

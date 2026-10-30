@@ -175,7 +175,7 @@ Describe 'Power BI templates' {
         $script:sourceParameters.storage.Keys | Should -Contain 'Storage URL'
     }
 
-    It 'Has 6 <_> templates' -ForEach 'kql', 'storage' {
+    It 'Has a <_> template per report' -ForEach 'kql', 'storage' {
         if (-not $script:anyBuilt) { Set-ItResult -Skipped -Because $script:notBuilt; return }
 
         # One template per report in reports.json, named <report>.<type>
@@ -183,10 +183,9 @@ Describe 'Power BI templates' {
         $expected = @($script:config.PSObject.Properties.Name | ForEach-Object { "$_.$type" } | Sort-Object)
         $built = @($script:templatePath.Keys | Where-Object { $_.EndsWith(".$type") } | Sort-Object)
         $built | Should -Be $expected
-        $built.Count | Should -Be 6
     }
 
-    It 'Has a PowerBI-<_>.zip with the same 6 templates' -ForEach 'kql', 'storage' {
+    It 'Has a PowerBI-<_>.zip with the same templates' -ForEach 'kql', 'storage' {
         $zip = Join-Path $script:releaseDir "PowerBI-$_.zip"
         if (-not (Test-Path $zip)) { Set-ItResult -Skipped -Because "release/PowerBI-$_.zip is not built. $script:notBuilt"; return }
 
@@ -326,7 +325,7 @@ Describe 'Power BI template <Label>' -ForEach $templates {
         if ($reason = Get-SkipReason) { Set-ItResult -Skipped -Because $reason; return }
 
         # A name in front of the endpoint is an account. Help text only mentions the bare endpoint.
-        $pattern = '(?i)[a-z0-9][a-z0-9-]*\.(?:dfs|blob)\.core\.windows\.net|[a-z0-9][a-z0-9-]*\.[a-z0-9]+\.kusto\.windows\.net'
+        $pattern = '(?i)[a-z0-9][a-z0-9-]*\.(?:dfs|blob)\.core\.windows\.net|[a-z0-9][a-z0-9-]*\.[a-z0-9]+\.kusto\.windows\.net|[a-z0-9][a-z0-9-]*(?:\.[a-z0-9]+)?\.kusto\.fabric\.microsoft\.com'
         $found = [regex]::Matches($script:allText, $pattern) | ForEach-Object { $_.Value } | Sort-Object -Unique
         $found | Should -BeNullOrEmpty -Because 'templates ship without a data source'
     }
