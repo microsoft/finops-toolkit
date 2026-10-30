@@ -113,6 +113,10 @@ Describe 'Storage incremental refresh' {
         $filter | Should -Match '\bRangeStart\b'
         $filter | Should -Match '\bRangeEnd\b'
         $filter | Should -Match 'x_IncrementalRefreshDate'
+        # Half-open interval: >= RangeStart and < RangeEnd, so boundary days are not counted in two partitions
+        $filter | Should -Match '>=\s*Date\.StartOfDay\(DateTime\.From\(RangeStart\)\)' -Because 'the lower bound must be inclusive (>= RangeStart)'
+        $filter | Should -Match '<\s*Date\.StartOfDay\(DateTime\.From\(RangeEnd\)\)' -Because 'the upper bound must be exclusive (< RangeEnd)'
+        $filter | Should -Not -Match '<=' -Because 'an inclusive upper bound would count boundary days twice'
     }
 
     It 'Types x_IncrementalRefreshDate as dateTime in <_>' -ForEach @('Costs', 'Prices', 'ReservationDetails', 'ReservationRecommendations', 'ReservationTransactions') {
