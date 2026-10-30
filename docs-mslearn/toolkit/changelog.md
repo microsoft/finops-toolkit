@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/28/2026
+ms.date: 10/29/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -18,14 +18,16 @@ ms.reviewer: brettwil
 
 This article summarizes the features and enhancements in each release of the FinOps toolkit.
 
-<!--
 <br>
 
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
 
--->
+### [Power BI reports](power-bi/reports.md)
+
+- **Fixed**
+  - Fixed the storage-based Costs query failing to refresh with `Type mismatch (DISP_E_TYPEMISMATCH 0x80020005)` when a row's SKU details didn't carry a clean numeric VCPUs/vCores value (for example, a Marketplace or reservation purchase row). The value is now coerced to null instead of throwing ([#2297](https://github.com/microsoft/finops-toolkit/issues/2297)).
 
 <br><a name="latest"></a>
 
