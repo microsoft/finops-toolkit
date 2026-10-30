@@ -3,7 +3,7 @@ title: FOCUS query library
 description: Collection of SQL and KQL queries that leverage the FinOps Open Cost and Usage Specification (FOCUS).
 author: flanakin
 ms.author: micflan
-ms.date: 03/11/2025
+ms.date: 10/30/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
