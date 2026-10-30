@@ -98,3 +98,30 @@ Describe 'Demo data source' {
         $inList | Should -BeTrue -Because "$account should be in the ftk_DemoFilter storage account list"
     }
 }
+
+Describe 'Storage incremental refresh' {
+    BeforeAll {
+        $tablesDir = Join-Path $PSScriptRoot '../../../power-bi/storage/Shared.Dataset/definition/tables'
+    }
+
+    It 'Ends the Costs query with a RangeStart/RangeEnd row filter' {
+        # Power BI only offers incremental refresh when the table's own query filters rows with RangeStart and RangeEnd
+        $text = Get-Content (Join-Path $tablesDir 'Costs.tmdl') -Raw
+        $isLastStep = $text -match '(?s)Output\s*=\s*Table\.SelectRows\((?<filter>(?:(?!Table\.SelectRows).)*?)\)\s*in\s+Output\s*\r?\n\s*```'
+        $isLastStep | Should -BeTrue -Because 'the final step of the Costs query must be Table.SelectRows so Power BI detects the filter'
+        $filter = $Matches['filter']
+        $filter | Should -Match '\bRangeStart\b'
+        $filter | Should -Match '\bRangeEnd\b'
+        $filter | Should -Match 'x_IncrementalRefreshDate'
+        # Half-open interval: >= RangeStart and < RangeEnd, so boundary days are not counted in two partitions
+        $filter | Should -Match '>=\s*Date\.StartOfDay\(DateTime\.From\(RangeStart\)\)' -Because 'the lower bound must be inclusive (>= RangeStart)'
+        $filter | Should -Match '<\s*Date\.StartOfDay\(DateTime\.From\(RangeEnd\)\)' -Because 'the upper bound must be exclusive (< RangeEnd)'
+        $filter | Should -Not -Match '<=' -Because 'an inclusive upper bound would count boundary days twice'
+    }
+
+    It 'Types x_IncrementalRefreshDate as dateTime in <_>' -ForEach @('Costs', 'Prices', 'ReservationDetails', 'ReservationRecommendations', 'ReservationTransactions') {
+        $text = Get-Content (Join-Path $tablesDir "$_.tmdl") -Raw
+        $isDateTime = $text -match '(?m)^\tcolumn x_IncrementalRefreshDate\r?\n\t\tdataType: dateTime\b'
+        $isDateTime | Should -BeTrue -Because 'incremental refresh needs a Date/Time column to compare with RangeStart and RangeEnd'
+    }
+}

@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/28/2026
+ms.date: 10/30/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -24,6 +24,15 @@ This article summarizes the features and enhancements in each release of the Fin
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
+
+### [Power BI reports](power-bi/reports.md)
+
+_**Breaking change**_
+
+- **Added**
+  - Added support for incremental refresh on the **Costs** table in storage reports. Power BI can now detect the **RangeStart**/**RangeEnd** filter on the `x_IncrementalRefreshDate` column. To learn more, see [Configure incremental refresh](power-bi/setup.md#configure-incremental-refresh) ([#2314](https://github.com/microsoft/finops-toolkit/issues/2314)).
+- **Changed**
+  - Changed the `x_IncrementalRefreshDate` column in storage reports from text to Date/Time. Update any custom filters, measures, or visuals that treat it as text or a number ([#2314](https://github.com/microsoft/finops-toolkit/issues/2314)).
 
 -->
 
