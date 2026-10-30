@@ -3,7 +3,7 @@ title: FinOps toolkit agent plugin overview
 description: The FinOps toolkit agent plugin brings AI-powered cloud financial management to Claude Code and GitHub Copilot CLI.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/28/2026
+ms.date: 10/29/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -21,7 +21,8 @@ Install the plugin from the FinOps toolkit repository:
 
 ```bash
 # Claude Code
-claude plugin add microsoft/finops-toolkit
+claude plugin marketplace add microsoft/finops-toolkit
+claude plugin install microsoft-finops-toolkit@finops-toolkit
 
 # GitHub Copilot CLI
 copilot plugin install microsoft/finops-toolkit
