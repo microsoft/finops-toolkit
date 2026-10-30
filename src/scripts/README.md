@@ -467,9 +467,9 @@ Demo reports in `PowerBI-demo.zip` are saved with data from a demo hub, so that 
 Two kinds of instances:
 
 - `ftk-demo` is the current demo hub, with 36 months of data. Demo reports are built from it. Its Data Explorer cluster is `ftk-demo-hub`, because cluster names are unique across Azure and `ftk-demo` is taken.
-- `ftk-demo-v{NN}` (for example, `ftk-demo-v07` or `ftk-demo-v14`) is for opening reports from that release. The resource group, hub, and Data Explorer cluster share the name. The version being built deploys from source; older releases use the released template through the FinOps toolkit module. The current and previous 3 releases keep 3 months of data, and older ones keep 1 month.
+- `ftk-demo-v{NN}` (for example, `ftk-demo-v07` or `ftk-demo-v14`) is for opening reports from that release. The resource group, hub, and Data Explorer cluster share the name. The version being built deploys from source and, like the current demo hub, keeps 36 months of data from the demo billing account. Older releases use the released template through the FinOps toolkit module and export the subscription. The previous 3 releases keep 3 months of data, and older ones keep 1 month.
 
-Every instance uses a dev/test Data Explorer SKU and stops itself when idle, so an instance nobody is using costs almost nothing to keep. The script also gives the hub access to the scopes it exports and starts the export setup, because managed exports don't run without that access.
+Every instance uses a dev/test Data Explorer SKU and stops itself when idle, so an instance nobody is using costs almost nothing to keep. The script also gives the hub access to the scopes it exports (Cost Management Contributor on subscriptions, and the Enterprise Administrator (read only) billing role on the EA billing account, which needs an enrollment administrator) and starts the export setup, because managed exports don't run without that access.
 
 One call does everything an instance needs. It deploys the hub, gives it access to the scopes it exports, sets up the exports, loads history for a new instance, turns on auto-stop, and waits until current data is ingested. It's safe to run again, which updates the instance. Run it once per version, and it ends by reporting whether the instance is ready.
 
@@ -481,8 +481,8 @@ To get the demo hub ready for a release, sign in with `Connect-AzAccount` using 
 | `‑Subscription`  | Optional. Name or ID of the subscription to deploy to. Default = "FTK Prod".                       |
 | `‑ResourceGroup` | Optional. Name of the resource group. Default = the instance name.                                 |
 | `‑Location`      | Optional. Azure region. Default = "westus".                                                        |
-| `‑Scope`         | Optional. Resource IDs to export cost data for. Default = the subscription being deployed to.      |
-| `‑Retention`     | Optional. Months of data the hub keeps. Default = 36, 3 for the current and previous 3 releases, or 1 for older releases.               |
+| `‑Scope`         | Optional. Resource IDs to export cost data for. Default = the demo billing account for the current demo hub and the version being built, or the subscription for older releases. Don't list a billing account and a subscription it contains, because costs are duplicated. Exports left on scopes you no longer list are removed. |
+| `‑Retention`     | Optional. Months of data the hub keeps. Default = 36 for the current demo hub and the version being built, 3 for the previous 3 releases, or 1 for older releases. |
 | `‑DataExplorerSku` | Optional. Data Explorer SKU. Use a dev/test SKU. Default = "Dev(No SLA)_Standard_D11_v2". |
 | `‑Backfill`      | Optional. Months of history to load. Default = the retention, loaded once: it is skipped when the history export already exists. Use 0 to skip. |
 | `‑WaitMinutes`   | Optional. Minutes to wait for data to be ingested before finishing. Default = 30. Use 0 to not wait. |
