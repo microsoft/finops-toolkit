@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/28/2026
+ms.date: 10/29/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -18,14 +18,17 @@ ms.reviewer: brettwil
 
 This article summarizes the features and enhancements in each release of the FinOps toolkit.
 
-<!--
 <br>
 
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
 
--->
+### [FinOps hubs](hubs/finops-hubs-overview.md)
+
+- **Fixed**
+  - Fixed the v1_0/v1_2 price transforms creating more rows than were ingested: the savings plan price `lookup` deduplicated its Consumption dimension side with `distinct` over price columns, so a meter with more than one price fanned out every matching savings plan row. The lookup key now includes billing profile and currency so one profile's or currency's price is never applied to another's savings plan rows, and the dimension side uses `summarize take_any(...)` for a guaranteed one-row-per-key result ([#1736](https://github.com/microsoft/finops-toolkit/issues/1736)).
+  - Fixed commitment discount eligibility (`x_CommitmentDiscountSpendEligibility`, `x_CommitmentDiscountUsageEligibility`) being computed incorrectly when a pricesheet export lands as multiple parquet files: because `Prices_transform_v1_0`/`v1_2` are Data Explorer update policy functions, each file triggers a separate invocation that only sees that file's rows of `Prices_raw`, so a meter's Reservation/SavingsPlan row and its Consumption row could each be visible in different invocations and eligibility would be computed against a partial view. Eligibility is now sourced from the [Commitment discount eligibility](open-data.md#commitment-discount-eligibility) open-data table, ingested into a new `CommitmentDiscountEligibility` ADX table, which isn't affected by per-invocation partitioning ([#1625](https://github.com/microsoft/finops-toolkit/issues/1625)). If a meter isn't in the open-data table (for example, Azure Government or China meters, or a newly released meter), the transform falls back to the previous pricesheet-derived answer instead of reporting "Not Eligible". Local FinOps hubs load the table from the open-data release artifact. Fabric users who rerun the versioned script on an existing eventhouse must run the infrastructure script (`IngestionSetup_HubInfra.kql`) first to create the new table. Both sides of the eligibility lookup are normalized to lowercase before joining, since the pricesheet's meter ID casing isn't guaranteed to match the open-data table's.
 
 <br><a name="latest"></a>
 
