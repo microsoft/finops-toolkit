@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/28/2026
+ms.date: 10/29/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -93,6 +93,9 @@ _Released October 28, 2026_
     - Applies to the `PricingUnits`, `Regions`, `ResourceTypes`, and `Services` lookups in the FOCUS 1.0 and 1.2 ingestion transforms.
   - Updated the hubs data model and upgrade documentation for upgrading across multiple FOCUS versions.
 - **Fixed**
+  - Fixed `ListCost` and `ContractedCost` staying at 0 for rows without a meter or offer ID, like third-party Marketplace purchases ([#2214](https://github.com/microsoft/finops-toolkit/issues/2214), [#2286](https://github.com/microsoft/finops-toolkit/issues/2286)).
+    - The repair now falls back to `EffectiveCost` for these rows, so Effective Savings Rate (ESR) reporting is no longer skewed.
+    - The `MissingListCost` data quality flag is cleared once a row is repaired.
   - Fixed FOCUS 1.0 cost data being labeled as FOCUS 1.2 in `x_SourceVersion`.
     - The cost transform backfilled `PricingCurrency` from `x_PricingCurrency` before detecting the FOCUS version, so every 1.0 row looked like 1.2.
     - FOCUS 1.0 rows also skipped 1.0-specific fixes, like the savings plan purchase `ChargeFrequency` correction.
