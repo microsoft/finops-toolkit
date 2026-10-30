@@ -47,14 +47,14 @@ A billing account is the account where invoices are generated. Each billing acco
 Costs
 | where BillingPeriodStart == startofmonth(now(), -1)
 | summarize
-    BillingAccountName = take_any(BillingAccountName),
-    BillingAccountType = take_any(BillingAccountType),
-    SubAccountName     = take_any(SubAccountName),
-    SubAccountType     = take_any(SubAccountType),
-    BilledCost         = sum(BilledCost)
+    BilledCost = sum(BilledCost)
     by
     BillingAccountId,
-    SubAccountId
+    BillingAccountName,
+    BillingAccountType,
+    SubAccountId,
+    SubAccountName,
+    SubAccountType
 ```
 
 **SQL**
