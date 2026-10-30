@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/28/2026
+ms.date: 10/29/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -18,14 +18,17 @@ ms.reviewer: brettwil
 
 This article summarizes the features and enhancements in each release of the FinOps toolkit.
 
-<!--
 <br>
 
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
 
--->
+### [FinOps hubs](hubs/finops-hubs-overview.md) v16
+
+- **Changed**
+  - Changed the Data Explorer dashboard's Cost summary, Savings summary, Savings breakdown by month, savings pie and trend, stacked cost + savings, and Effective Savings Rate tiles to derive their displayed List cost and Contracted cost operands from the same clamped, row-level savings basis as the results shown alongside them, so the on-screen equations (for example, "List − Contracted = Negotiated savings") always reconcile. This changes the Effective Savings Rate definition on the affected tiles from `(sum(ListCost) − sum(EffectiveCost)) / sum(ListCost)` to a derived List cost built from Effective cost plus the clamped Negotiated and Commitment savings sums. Total savings is now the sum of the clamped Negotiated and Commitment savings everywhere it is shown, commitment discount purchases are excluded from savings on every Summary and Rate optimization tile using the same `x_AmortizationClass != 'Principal'` filter, and the Effective Savings Rate shows blank instead of NaN when List cost is 0 ([#2093](https://github.com/microsoft/finops-toolkit/issues/2093)).
+
 
 <br><a name="latest"></a>
 
