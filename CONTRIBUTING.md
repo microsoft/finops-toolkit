@@ -80,7 +80,7 @@ We recognize every kind of contribution equally with the [all-contributors](http
 | `promotion` | 📣 | Promoting the toolkit in blogs, talks, and events |
 | `leader` | 🌟 | Serving on the governing board |
 
-To add someone, comment `@allcontributors please add @username for code, doc` on any issue or pull request in this repo, or run `npm ci --ignore-scripts` once and then `npm run contrib -- username code doc`.
+To add someone, comment `@allcontributors please add @username for code, doc` on any issue or pull request in this repo, or run `npm ci --ignore-scripts` once and then `npm run contrib -- username code,doc`.
 
 <br>
 
