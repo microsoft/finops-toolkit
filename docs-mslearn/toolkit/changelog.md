@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/28/2026
+ms.date: 10/29/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -94,6 +94,7 @@ _Released October 28, 2026_
   - Updated the hubs data model and upgrade documentation for upgrading across multiple FOCUS versions.
 - **Fixed**
   - Fixed FOCUS 1.0 cost data being labeled as FOCUS 1.2 in `x_SourceVersion`.
+  - Fixed the Azure Resource Graph query pipeline only ingesting the first 1,000 rows of any query (for example, `Recommendations-Microsoft-AdvisorCost`). The pipeline now loops until Azure Resource Graph stops returning a `$skipToken`, writing each page to its own Parquet file ([#2320](https://github.com/microsoft/finops-toolkit/issues/2320)).
     - The cost transform backfilled `PricingCurrency` from `x_PricingCurrency` before detecting the FOCUS version, so every 1.0 row looked like 1.2.
     - FOCUS 1.0 rows also skipped 1.0-specific fixes, like the savings plan purchase `ChargeFrequency` correction.
     - Version detection now runs before provider columns are backfilled, so it only sees the columns the export delivered.
