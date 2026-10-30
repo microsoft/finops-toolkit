@@ -23,7 +23,7 @@ $workspaceSubscriptionId = Get-AutomationVariable -Name  "AzureOptimization_LogA
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
 
 
-$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue 
+$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "recommendationsexports"
 }
@@ -52,12 +52,12 @@ $LogAnalyticsIngestControlTable = "LogAnalyticsIngestControl"
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -73,25 +73,25 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$LogAnalyticsIngestControlTable] WHERE CollectedType IN ('AADObjects')"
-    
+
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $controlRows = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($controlRows) | Out-Null            
+        $sqlAdapter.Fill($controlRows) | Out-Null
         $connectionSuccess = $true
     }
     catch {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -103,8 +103,8 @@ $aadObjectsTableName = $lognamePrefix + ($controlRows | Where-Object { $_.Collec
 
 Write-Output "Will run query against tables $aadObjectsTableName"
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 $recommendationSearchTimeSpan = 1
 
@@ -122,7 +122,7 @@ $recommendationsErrors = 0
 
 # Execute the expiring creds recommendation query against Log Analytics
 
-$baseQuery = @" 
+$baseQuery = @"
     let expiryInterval = $($expiringCredsDays)d;
     let AppsAndKeys = materialize ($aadObjectsTableName
     | where TimeGenerated > ago(1d)
@@ -133,7 +133,7 @@ $baseQuery = @"
     | project-away Keys_s
     | mv-expand Keys
     | evaluate bag_unpack(Keys)
-    | union ( 
+    | union (
         $aadObjectsTableName
         | where TimeGenerated > ago(1d)
         | where ObjectType_s in ('Application','ServicePrincipal')
@@ -170,7 +170,7 @@ try
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -251,7 +251,7 @@ Write-Output "[$now] Removed $jsonExportPath from local disk..."
 
 # Execute the not expiring in less than X years creds recommendation query against Log Analytics
 
-$baseQuery = @" 
+$baseQuery = @"
     let expiryInterval = $($notExpiringCredsDays)d;
     let AppsAndKeys = materialize ($aadObjectsTableName
     | where TimeGenerated > ago(1d)
@@ -261,7 +261,7 @@ $baseQuery = @"
     | project-away Keys_s
     | mv-expand Keys
     | evaluate bag_unpack(Keys)
-    | union ( 
+    | union (
         $aadObjectsTableName
         | where TimeGenerated > ago(1d)
         | where ObjectSubType_s != 'ManagedIdentity'
@@ -286,7 +286,7 @@ try
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }

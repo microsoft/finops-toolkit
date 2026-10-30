@@ -20,6 +20,9 @@ function Initialize-FinOpsHubDeployment
 {
     [CmdletBinding(SupportsShouldProcess)]
     param()
-    
-    Register-FinOpsHubProviders -WhatIf:$WhatIfPreference | Out-Null
+
+    if ($PSCmdlet.ShouldProcess('FinOps hub resource providers', 'Register'))
+    {
+        Register-FinOpsHubProviders | Out-Null
+    }
 }

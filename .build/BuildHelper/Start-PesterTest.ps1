@@ -14,6 +14,7 @@ function Start-PesterTest
     $rootPath = ((Get-Item -Path $PSScriptRoot).Parent.Parent).FullName
     $pesterArgs = New-PesterConfiguration
     $pesterArgs.Output.Verbosity = 'Detailed'
+    $pesterArgs.Run.Exit = $true
 
     switch ($Type)
     {

@@ -32,7 +32,7 @@ cd "<repo-root>"
 src/scripts/Build-Toolkit "<template-name>"
 ```
 
-To build all templates and modules, simply remove the template name or run `npm run build`, if you have NPM setup. To learn more about the build script, see [Build-Toolkit](https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-build-toolkit).
+To build all templates and modules, simply remove the template name or run `npm run build`, if you have NPM setup. To learn more about the build script, see [Build-Toolkit](../tree/dev/src/scripts/README.md#-build-toolkit).
 
 To build and deploy templates, run:
 
@@ -41,9 +41,9 @@ cd "<repo-root>"
 src/scripts/Deploy-Toolkit "<template-name>" -Build
 ```
 
-For more local deployment options, see [Deploy-Toolkit](https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-deploy-toolkit).
+For more local deployment options, see [Deploy-Toolkit](../tree/dev/src/scripts/README.md#-deploy-toolkit).
 
-To learn more, see [FinOps toolkit templates](https://github.com/microsoft/finops-toolkit/blob/dev/src/templates/README.md).
+To learn more, see [FinOps toolkit templates](../tree/dev/src/templates/README.md).
 
 ### Building workbooks
 
@@ -65,7 +65,7 @@ src/scripts/Deploy-Toolkit "<workbook-name>-workbook" -Build
 
 The Build-Toolkit script calls an internal Build-Workbook script, which does all the work. You can also call this directly; however, we recommend running the Build-Toolkit script for a complete build process.
 
-To learn more, see [Workbook modules](https://github.com/microsoft/finops-toolkit/blob/dev/src/workbooks/README.md).
+To learn more, see [Workbook modules](../tree/dev/src/workbooks/README.md).
 
 ### Building Bicep Registry modules
 
@@ -92,7 +92,7 @@ cd "<repo-root>"
 src/scripts/Deploy-Toolkit "<module-name>" -Build -Test
 ```
 
-To learn more, see [Bicep Registry modules](https://github.com/microsoft/finops-toolkit/blob/dev/src/bicep-registry/README.md).
+To learn more, see [Bicep Registry modules](../tree/dev/src/bicep-registry/README.md).
 
 ### Building open data files
 
@@ -104,7 +104,7 @@ To build open data, run:
 src/Build-OpenData
 ```
 
-To learn more about open data, see [Open data](https://github.com/microsoft/finops-toolkit/blob/dev/src/open-data/README.md).
+To learn more about open data, see [Open data](../tree/dev/src/open-data/README.md).
 
 ### Building PowerShell
 
@@ -132,16 +132,23 @@ The Build-PowerShell script calls an Invoke-Build task internally.
 
 ### Building Power BI reports
 
-Power BI reports cannot be built automatically. Generating PBIT and PBIX files must be done manually:
+Run [Build-PowerBI](../tree/dev/src/scripts/README.md#-build-powerbi) to generate the Power BI release artifacts:
 
-1. Open the desired Power BI report.
-2. Save the report as a `.pbix` file using the same name in the `releases` folder.
-3. Remove unnecessary queries.
-4. Remove setup instructions for unnecessary parameters.
-5. Remove unnecessary parameters.
-6. Save the report again.
-7. Copy the first paragraph description from the main page.
-8. Save the report as a `.pbit` file using the copied description and add "To learn more, see https://aka.ms/ftk/<report-name-no-spaces>".
+```powershell
+cd <root>/src/scripts
+./Build-PowerBI
+```
+
+This generates two things from a single prune, so the template and the demo report can't drift:
+
+- PBIT templates in `release/pbit`, zipped into `PowerBI-kql.zip` and `PowerBI-storage.zip`.
+- PBIP projects for demo reports in `release/pbix`, each containing only the tables, relationships, and queries that report needs.
+
+The tables and queries each report keeps are listed in [src/power-bi/reports.json](../tree/dev/src/power-bi/reports.json). When a report starts using a new table or query, add it there. The build fails when a visual, query, table, or measure uses something the report doesn't keep. The `PowerBIReports` lint test checks the visuals and the list itself in pull requests.
+
+Demo projects keep the data source saved in the semantic model. They read open data from the `main` branch, because the release URL resolves to the last published release and doesn't have open data files added during the release being built. Templates always ship with the data source set to null and the release open data URL. Only permanent URLs are accepted, because the URL ships inside the demo reports. To test before the merge to `main`, add `-TestOpenDataUrl` and pass a branch with `-OpenDataUrl`. Reports built that way are not packaged.
+
+Demo PBIX files need Power BI Desktop to load and save them. On Windows, run [Package-PowerBI](../tree/dev/src/scripts/README.md#-package-powerbi) `-Unattended` to save, validate, and package them automatically.
 
 ### Building documentation
 

@@ -33,6 +33,7 @@
 
 function Remove-FinOpsHub
 {
+    [OutputType([bool])]
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
     param (
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
@@ -49,7 +50,7 @@ function Remove-FinOpsHub
         [Parameter(ParameterSetName = 'Name')]
         [Parameter(ParameterSetName = 'Object')]
         [switch]$KeepStorageAccount,
-        
+
         [Parameter(ParameterSetName = 'Name')]
         [Parameter(ParameterSetName = 'Object')]
         [switch]$Force
@@ -90,7 +91,7 @@ function Remove-FinOpsHub
         Write-Verbose -Message "Found FinOps Hub: $Name in resource group $ResourceGroupName"
 
         $uniqueId = Get-HubIdentifier -Collection $hub.Resources.Name
-        
+
         $resources = Get-AzResource -ResourceGroupName $ResourceGroupName |
         Where-Object -FilterScript { $_.Name -like "*$uniqueId*" -and ((-not $KeepStorageAccount) -or $_.ResourceType -ne "Microsoft.Storage/storageAccounts") }
         Write-Verbose -Message "Filtered Resources: $($resources | ForEach-Object { $_.Name })"
@@ -102,8 +103,8 @@ function Remove-FinOpsHub
         }
 
         # List all resources to be deleted
-        Write-Host "The following resources will be deleted:"
-        $resources | ForEach-Object { Write-Host "- $($_.ResourceId)" }
+        Write-Information "The following resources will be deleted:"
+        $resources | ForEach-Object { Write-Information "- $($_.ResourceId)" }
 
         # Prompt the user for confirmation
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
@@ -164,7 +165,7 @@ function Remove-FinOpsHub
                     # Delete the resource
                     Write-Verbose -Message "Deleting resource: $($resource.Name)"
                     Remove-AzResource -ResourceId $resource.ResourceId -Force -ErrorAction Stop
-                    Write-Host "Deleted resource: $($resource.Name)"
+                    Write-Information "Deleted resource: $($resource.Name)"
                 }
                 catch
                 {

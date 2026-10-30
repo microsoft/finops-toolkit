@@ -1,9 +1,9 @@
 ---
 title: Contribute to the FinOps toolkit
 description: Learn how to contribute to the FinOps toolkit, like fixing bugs, suggest new features, review pull requests, and update documentation.
-author: bandersmsft
-ms.author: banders
-ms.date: 12/02/2024
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -25,6 +25,8 @@ There are several ways you can contribute to the FinOps toolkit:
 - **Update documentation:** Documentation serves as a crucial resource for users, developers, and contributors alike. We strive to keep documentation accurate, comprehensive, and up to date. It's essential for the success of the toolkit.
 
 We appreciate your interest in contributing to the FinOps toolkit!
+
+Want to stay connected with the team? Join our [weekly contributor sync](https://aka.ms/ftk/contrib-sync) on Wednesdays at 8 AM Pacific / 4 PM UTC or [biweekly office hours](https://aka.ms/ftk/office-hours) at 8:30 AM Pacific / 4:30 PM UTC.
 
 <br>
 

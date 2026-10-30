@@ -1,9 +1,9 @@
 ---
 title: FinOps toolkit Power BI reports
 description: Learn about the Power BI reports in the FinOps toolkit to customize and enhance your FinOps reporting and connect to Cost Management exports or FinOps hubs.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/13/2025
+author: flanakin
+ms.author: micflan
+ms.date: 06/21/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -11,7 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to learn about FinOps reports so that I can use them to better understand my cost data.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Power BI reports
 
 The FinOps toolkit Power BI reports provide a great starting point for your FinOps reporting. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed. You can also copy and paste visuals between reports to create your own custom reports.
@@ -28,19 +27,22 @@ The FinOps toolkit includes reports that connect to different data sources. We r
 
 - [Cost summary](cost-summary.md) – Overview of amortized costs with common breakdowns.
 - [Rate optimization](rate-optimization.md) – Summarizes existing and potential savings from commitment discounts.
-- [Workload optimization](workload-optimization.md) – Summarizes opportunities to achieve resource cost and usage efficiencies.
-- [Cloud policy and governance](governance.md) – Summarize cloud governance posture including areas like compliance, security, operations, and resource management.
+- [Invoicing and chargeback](invoicing.md) – Summarizes billed cost trends and facilitates invoice reconciliation and chargeback.
+- [Usage optimization](workload-optimization.md) – Summarizes opportunities to achieve resource cost and usage efficiencies.
+- [Governance, policy, and risk](governance.md) – Summarizes the governance posture including areas like compliance, security, operations, and resource management.
 - [Data ingestion](data-ingestion.md) – Provides insights into your data ingestion layer.
 
-If you need to monitor more than $2 million in spend, we generally recommend using Kusto Query Language (KQL) reports that connect to [FinOps hubs](../hubs/finops-hubs-overview.md) with Azure Data Explorer. As of November 2024, only the Cost summary, Rate optimization, and Data ingestion reports connect to Data Explorer. Organizations who need other reports can continue to connect to the underlying hub storage account.
+If you need to monitor more than $1 million in spend, we generally recommend using Kusto Query Language (KQL) reports that connect to [FinOps hubs](../hubs/finops-hubs-overview.md) with Azure Data Explorer or Microsoft Fabric. Organizations who need other reports can continue to connect to the underlying hub storage account.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download demo](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-demo.zip)
+<!-- prettier-ignore-end -->
 
 In addition, the following reports use the Cost Management connector for Power BI to connect to your data. While the connector isn't recommended due to performance and scalability, these reports are also available for Enterprise Agreement (EA) and Microsoft Customer Agreement (MCA) accounts.
 
 - [Cost Management connector](connector.md) – Summarizes costs, savings, and commitment discounts using the Cost Management connector for Enterprise Agreements and Microsoft Customer Agreement accounts.
 - [Cost Management template app](template-app.md) (EA only) – The original Cost Management template app as a customizable .pbix file.
-
-> [!div class="nextstepaction"]
-> [Download demo](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-demo.zip)
 
 <br>
 
@@ -64,13 +66,13 @@ If you use more than $2 million in monthly spend, we generally recommend using F
 
 **FinOps hubs with Azure Data Explorer**
 
-Cost Management pushes cost and usage data to Azure Data Lake Storage in your subscription. FinOps hubs includes an Azure Data Factory pipeline that will prepare, normalize, and ingest data into Azure Data Explorer. Power BI will connect to your data using the Azure Data Explorer connector.
+Cost Management pushes cost and usage data to Azure Data Lake Storage in your subscription. FinOps hubs includes an Azure Data Factory pipeline that will prepare, normalize, and ingest data into Azure Data Explorer or Microsoft Fabric Real-Time Intelligence (RTI). Power BI will connect to your data using the Azure Data Explorer connector.
 
-Azure Data Explorer offers the best performance and additional capabilities, like populating missing prices and costs. We recommend using FinOps hubs with Data Explorer for the best experience.
+Azure Data Explorer and Microsoft Fabric RTI offer the best performance and additional capabilities, like populating missing prices and costs. We recommend using FinOps hubs with Data Explorer or Microsoft Fabric for the best experience.
 
 **Microsoft Fabric**
 
-While FinOps toolkit Power BI reports don't support Microsoft Fabric yet, you can customize them to connect to data stored in OneLake. Customizing reports to connect to OneLake would require experience with Power Query M language.
+While FinOps toolkit Power BI reports don't support Microsoft Fabric yet, you can customize them to connect to data stored in OneLake. Customizing reports to connect to OneLake would require experience with Power Query M language. If looking for data in Microsoft Fabric, we generally recommend using FinOps hubs with Microsoft Fabric Real-Time Intelligence for the best performance and most functionality.
 
 <br>
 
@@ -80,19 +82,28 @@ The core reports in the FinOps toolkit are available in two versions. One that c
 
 Reports are provided as Power BI template (.pbit) files that do not include sample data. To explore sample reports without connecting your data, download the [demo reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-demo.zip). When you're ready to connect to your account, download the set of report templates based on your backend data source.
 
-| Data source                                | Download                                                                                                                             | Notes                                                                                                    |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| FinOps hubs with Data Explorer             | [KQL reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)                                  | Recommended when monitoring more than $2 million per month or more than 13 months of data.               |
-| Exports in storage (including FinOps hubs) | [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)                          | Not recommended when monitoring more than $2 million per month.                                          |
-| Cost Management connector                  | [Cost Management connector report](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.zip) | Not recommended when monitoring more than $1M in total cost or accounts that contain savings plan usage. |
+| Data source                                        | Download                                                                                                                             | Notes                                                                                                    |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| FinOps hubs with Data Explorer or Microsoft Fabric | [KQL reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)                                  | Recommended when monitoring more than $1 million per month or more than 13 months of data.               |
+| Exports in storage (including FinOps hubs)         | [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)                          | Not recommended when monitoring more than $2 million per month.                                          |
+| Cost Management connector                          | [Cost Management connector report](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.zip) | Not recommended when monitoring more than $1M in total cost or accounts that contain savings plan usage. |
 
-Configure FinOps hubs or Cost Management exports with KQL or storage reports. For FinOps hubs, refer to [Configure scopes](../hubs/configure-scopes.md). For Cost Management exports, refer to [How to create exports](/azure/cost-management-billing/costs/tutorial-improved-exports). Power BI reports use the following export types:
+Configure FinOps hubs or Cost Management exports with KQL or storage reports. For FinOps hubs, refer to [Configure scopes](../hubs/configure-scopes.md). For Cost Management exports, refer to [How to create exports](/azure/cost-management-billing/costs/tutorial-improved-exports).
 
-- Cost and usage (FOCUS) &ndash; Required for all reports.
-- Price sheet
-- Reservation details
-- Reservation recommendations &ndash; Required to see reservation recommendations in the Rate optimization report.
-- Reservation transactions
+### Export requirements
+
+**Before using any Power BI report**, you need to configure the appropriate Cost Management exports. Different reports require different datasets:
+
+| Dataset                     | Version                          | Required for reports                                 | Notes                                                              |
+| --------------------------- | -------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------ |
+| Cost and usage (FOCUS)      | `1.0`, `1.0r2`, or `1.2-preview` | **All reports**                                      | Primary cost and usage data. Required for all functionality.       |
+| Price sheet                 | `2023-05-01`                     | All reports (recommended for accurate pricing)       | Required to populate missing prices for EA and MCA accounts.       |
+| Reservation details         | `2023-03-01`                     | Rate optimization (recommended)                      | Provides detailed reservation usage data for utilization analysis. |
+| Reservation recommendations | `2023-05-01`                     | **Rate optimization** (required for recommendations) | Required to display reservation purchase recommendations.          |
+| Reservation transactions    | `2023-05-01`                     | Rate optimization, Invoicing (optional)              | Provides reservation purchase and refund details.                  |
+
+> [!IMPORTANT]
+> Each report documentation page includes specific export requirements. Review the "Export requirements" section on each report page before downloading to ensure you have the necessary data configured.
 
 For more information, see [How to setup Power BI](setup.md#set-up-your-first-report).
 
@@ -102,8 +113,10 @@ For more information, see [How to setup Power BI](setup.md#set-up-your-first-rep
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Share feedback](https://aka.ms/ftk/ideas)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -113,7 +126,7 @@ Related FinOps capabilities:
 
 - [Reporting and analytics](../../framework/understand/reporting.md)
 - [Rate optimization](../../framework/optimize/rates.md)
-- [Workload optimization](../../framework/optimize/workloads.md)
+- [Usage optimization](../../framework/optimize/workloads.md)
 
 Related products:
 

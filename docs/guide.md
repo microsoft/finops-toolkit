@@ -16,9 +16,9 @@ Your guide to implementing FinOps in the Microsoft Cloud.
 FinOps is an expansive area with branches that extend out into many cloud management and governance activities. Cost especially is a part of many cloud and business initiatives, like security, resiliency, and adopting cloud-native solutions like AI. And to streamline cloud adoption in a way that prioritizes business value, you need the right guidance to help you make the right data-driven decisions. The Implementing FinOps guide is a collection of resources that help you facilitate your FinOps goals.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in February 2025<span class="ftk-version">v0.8</span></h3>
+    <h3>What's new in October 2026<span class="ftk-version">v15</span></h3>
     <p>
-        February added the Learning FOCUS blog series to the FOCUS overview.
+        In October, the Implementing FinOps guide added a FinOps toolkit ecosystem page and aligned capability names and links to current FinOps Framework terminology.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -32,11 +32,6 @@ If you're new to FinOps, there are a few places you can get started:
         <div>ℹ️ What is FinOps?</div>
         <div>Quick introduction to FinOps for those new to the topic.</div>
         <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/overview">Read the doc</a>
-    </div>
-    <div class="ftk-tile">
-        <div>📑 Standardized reporting</div>
-        <div>Executive walkthrough of the FinOps principles for anyone.</div>
-        <a target="_blank" href="https://aka.ms/finops/ebook">Download the e-book</a>
     </div>
     <div class="ftk-tile">
         <div>🏫 Get started with FinOps</div>

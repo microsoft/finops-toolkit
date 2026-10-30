@@ -20,9 +20,9 @@ Open, extensible, and scalable cost governance for the enterprise.
 FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, and optimization – virtual command centers for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in February 2025<span class="ftk-version">v0.8</span></h3>
+    <h3>What's new in October 2026<span class="ftk-version">v15</span></h3>
     <p>
-        February introduced a simpler public networking architecture, a new Data Explorer dashboard, major Power BI optimizations and design improvements, and many small fixes and improvements.
+        In October, FinOps hubs added VNet and private network modes with optional NAT Gateway support, a guide to run FinOps hubs using a local Kusto emulator, and fixed redeploys resetting data retention, missing reservation savings for Microsoft Customer Agreement accounts, and several KQL join, managed export permission, and dashboard savings issues.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -32,48 +32,56 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 
 <div class="ftk-gallery">
     <div class="ftk-tile">
-        <div>📥 Ingest FinOps data</div>
-        <div>Automate data ingestion into Azure Data Explorer to facilitate big data analytics at scale.</div>
-    </div>
-    <div class="ftk-tile">
         <div>📊 Standardized reporting</div>
-        <div>Flexible reports in Power BI and Data Explorer using the FinOps Open Cost and Usage Specification.</div>
+        <div>Flexible reports in Fabric, Power BI, and Data Explorer using the FinOps Open Cost and Usage Specification.</div>
     </div>
     <div class="ftk-tile">
-        <div>🏗️ Extensible platform</div>
-        <div>Bring your own data, build a custom allocation model, trigger custom alerts, and more.</div>
+        <div>🤖 AI-powered experiences</div>
+        <div>Accelerate FinOps efforts with AI-powered tools that understand FinOps and seamlessly connect to your data.</div>
     </div>
     <div class="ftk-tile">
         <div>☁️ Consolidate accounts</div>
         <div>Centralize FinOps data across multiple subscriptions, accounts, and clouds.</div>
     </div>
     <div class="ftk-tile">
-        <div>🛡️ Secure processing</div>
-        <div>Secure financial and organizational data on a private, isolated network you control and govern.</div>
-    </div>
-    <div class="ftk-tile">
         <div>🪛 Data preparation</div>
         <div>FinOps hubs tunes data to fill gaps and improve overall data quality and completeness.</div>
+    </div>
+    <div class="ftk-tile">
+        <div>🏗️ Extensible platform</div>
+        <div>Bring your own data, build a custom allocation model, trigger custom alerts, and more.</div>
+    </div>
+    <div class="ftk-tile">
+        <div>🛡️ Secure processing</div>
+        <div>Secure financial and organizational data on a private, isolated network you control and govern.</div>
     </div>
 </div>
 
 <div id="pricing" class="ftk-pricing">
     <h3>Estimated cost for FinOps hubs</h3>
-    <p>FinOps hubs starts at $120/mo + $10 per $1 million in monitored spend.</p>
+    <p>FinOps hubs starts at $120/mo + $10/mo per $1 million in monitored spend.</p>
     <p>Costs may be lower depending on your negotiated and commitment discounts.</p>
+</div>
+
+## Unlocking scalable FinOps intelligence
+
+FinOps hubs streamline cost governance with an open architecture that leverages Azure Data Factory to orchestrate seamless data ingestion into Microsoft Fabric or Azure Data Explorer. With rich reports, dashboards, and an AI agent that understands your data, FinOps hubs empower organizations with scalable analytics and actionable insights to facilitate data-driven financial decisions that maximize efficiency with confidence.
+
+<div style="padding:2rem; text-align:center">
+    <img src="assets/img/architecture.png" alt="Diagram depicting the FinOps hubs architecture with Cost Management exporting data into Data Lake storage, Data Factory transforming and ingesting data into Data Explorer or Fabric, and GitHub Copilot, Power BI reports, and ADX/Fabric dashboards querying data.">
 </div>
 <a name="deploy"></a>
 
-## Deploy FinOps hub
+## Deploy FinOps hubs
 
 Create a new or update an existing FinOps hub instance.
 
 <div class="ftk-instructions">
     <div class="ftk-step">
-        <button class="ftk-accordion">1️⃣&nbsp; Register EventGrid</button>
+        <button class="ftk-accordion">1️⃣&nbsp; Register resource providers</button>
         <div>
             <p>
-                Register the <b>Microsoft.EventGrid</b> resource provider for your subscription.
+                Register the <b>Microsoft.CostManagementExports</b> and <b>Microsoft.EventGrid</b> resource providers for your subscription.
             </p>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/Microsoft_Azure_Billing/SubscriptionsBladeV2">Go to subscriptions</a>
@@ -119,19 +127,33 @@ Create a new or update an existing FinOps hub instance.
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">3️⃣&nbsp; Deploy the template</button>
+        <button class="ftk-accordion">3️⃣&nbsp; Optional: Configure Microsoft Fabric</button>
+        <div>
+            <p>
+                If connecting FinOps hubs to Microsoft Fabric, you will need to set up Real-Time Intelligence (RTI) before deploying the template and configure access after deploying the template.
+            </p>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/deploy#optional-set-up-microsoft-fabric">Configure RTI (before deployment)</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/deploy#optional-configure-fabric-access">Grant access (after deployment)</a>
+            </p>
+        </div>
+    </div>
+    <div class="ftk-step">
+        <button class="ftk-accordion">4️⃣&nbsp; Deploy the template</button>
         <div>
             <p>
                 FinOps hubs works best with the <strong>Owner</strong> role. See template details for least-privilege roles.
             </p>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/finops/hubs/deploy">Deploy to Azure</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/finops/hubs/deploy/gov">Deploy to Azure Gov</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/finops/hubs/deploy/china">Deploy to Azure China</a>
                 <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink ftk-btnlink" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/template">About the template</a>
             </p>
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">4️⃣&nbsp; Configure scopes to monitor</button>
+        <button class="ftk-accordion">5️⃣&nbsp; Configure scopes to monitor</button>
         <div>
             <p>
                 Configure exports manually or grant access to your hub to manage exports for you.
@@ -142,7 +164,7 @@ Create a new or update an existing FinOps hub instance.
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">5️⃣&nbsp; Set up reports and dashboards</button>
+        <button class="ftk-accordion">6️⃣&nbsp; Set up reports and dashboards</button>
         <div>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/configure-dashboards">Set up ADX dashboard</a>
@@ -150,9 +172,24 @@ Create a new or update an existing FinOps hub instance.
             </p>
         </div>
     </div>
+    <div class="ftk-step">
+        <button class="ftk-accordion">🙋‍♀️&nbsp; Help + support</button>
+        <div>
+            <p>
+                If you run into any issues, retrace your steps to ensure all steps were followed correctly and completely. Most issues are caused by missed or incomplete steps. If you are receiving an error, check for mitigation steps; otherwise, use the troubleshooting guide to identify and resolve common issues.
+            </p>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/errors">Review errors</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/troubleshooting">Start troubleshooting</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-btnlink" target="_blank" href="https://aka.ms/ftk/discuss">Ask a question</a>
+            </p>
+        </div>
+    </div>
 </div>
 
-<br><a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK{% include ftkver.txt %}/bladeName/Hubs/featureName/Marketing.Deploy">💜 Give feedback</a>
+<br>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/deploy">Deployment tutorial</a>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK{% include ftkver.txt %}/bladeName/Hubs/featureName/Marketing.Deploy">💜 Give feedback</a>
 <a name="docs"></a>
 
 ## Learn more from documentation
@@ -173,6 +210,10 @@ Create a new or update an existing FinOps hub instance.
     <div class="ftk-tile">
         <div>📦 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/template">Deployment template</a></div>
         <div>Details about what's included in the FinOps hub deployment template.<br>&nbsp;</div>
+    </div>
+    <div class="ftk-tile">
+        <div>🔗 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/deploy#optional-configure-remote-hubs">Remote hubs</a></div>
+        <div>Configure cross-tenant data collection where satellite hubs send data to a central hub.</div>
     </div>
     <div class="ftk-tile">
         <div>🧮 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/compatibility">Compatibility guide</a></div>

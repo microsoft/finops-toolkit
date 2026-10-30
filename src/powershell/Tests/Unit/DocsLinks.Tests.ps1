@@ -1,0 +1,450 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+<#
+    .SYNOPSIS
+    Validates documentation links across all documentation folders.
+
+    .DESCRIPTION
+    Tests that internal markdown links resolve to real files and anchors across
+    docs-mslearn, docs (Jekyll site), docs-wiki (GitHub Wiki), and root markdown
+    files. Also validates that wiki double-bracket links reference existing pages,
+    that wiki repo-relative links point to real files, that no
+    https://learn.microsoft.com links appear in docs-mslearn (they should be
+    root-relative), and that no language locale segments appear in MS Learn links.
+#>
+
+BeforeDiscovery {
+    $repoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
+
+    # Helper: Remove HTML comments from content to avoid matching links inside <!-- ... -->
+    function Remove-HtmlComments([string]$text)
+    {
+        return [regex]::Replace($text, '<!--[\s\S]*?-->', { param($m) "`n" * ($m.Value -split "`n").Count })
+    }
+
+    # Helper: Collect markdown files from a folder
+    function Get-MarkdownFiles([string]$folderPath, [string]$rootForRelative)
+    {
+        if (-not (Test-Path $folderPath)) { return @() }
+        Get-ChildItem -Path $folderPath -Recurse -Include '*.md' | ForEach-Object {
+            @{
+                FullName     = $_.FullName
+                RelativePath = $_.FullName.Substring($rootForRelative.Length + 1) -replace '\\', '/'
+                Content      = Get-Content -Path $_.FullName -Raw
+            }
+        }
+    }
+
+    # Helper: Extract internal relative markdown links from files
+    function Get-InternalMdLinks([array]$mdFiles)
+    {
+        $links = @()
+        foreach ($file in $mdFiles)
+        {
+            $cleanContent = Remove-HtmlComments $file.Content
+            $linkMatches = [regex]::Matches($cleanContent, '\[([^\]]*)\]\(([^)]+)\)')
+            foreach ($match in $linkMatches)
+            {
+                $linkTarget = $match.Groups[2].Value
+
+                # Skip external links, absolute paths, anchor-only links, special schemes, and Jekyll templates
+                if ($linkTarget -match '^(https?://|mailto:|/|#|\{\{)') { continue }
+
+                # Parse out any anchor
+                $pathPart = $linkTarget -replace '#.*$', ''
+                $anchorPart = if ($linkTarget -match '#(.+)$') { $Matches[1] } else { $null }
+
+                # Skip empty path parts (anchor-only links that somehow got through)
+                if ([string]::IsNullOrEmpty($pathPart) -and -not [string]::IsNullOrEmpty($anchorPart)) { continue }
+
+                # Only check .md files
+                if ($pathPart -and $pathPart -notmatch '\.md$') { continue }
+
+                $links += @{
+                    SourceFile  = $file.FullName
+                    SourceRel   = $file.RelativePath
+                    LinkText    = $match.Groups[1].Value
+                    LinkTarget  = $linkTarget
+                    PathPart    = $pathPart
+                    AnchorPart  = $anchorPart
+                    LineNumber  = ($file.Content.Substring(0, $match.Index) -split "`n").Count
+                }
+            }
+        }
+        return $links
+    }
+
+    # Helper: Extract all URLs from markdown files
+    function Get-MarkdownUrls([array]$mdFiles)
+    {
+        $urls = @()
+        foreach ($file in $mdFiles)
+        {
+            $cleanContent = Remove-HtmlComments $file.Content
+            $urlMatches = [regex]::Matches($cleanContent, '\[([^\]]*)\]\((https?://[^)]+)\)')
+            foreach ($match in $urlMatches)
+            {
+                $urls += @{
+                    SourceFile  = $file.FullName
+                    SourceRel   = $file.RelativePath
+                    LinkText    = $match.Groups[1].Value
+                    Url         = $match.Groups[2].Value
+                    LineNumber  = ($file.Content.Substring(0, $match.Index) -split "`n").Count
+                }
+            }
+        }
+        return $urls
+    }
+
+    #region docs-mslearn
+    $mslearnRoot = Join-Path $repoRoot 'docs-mslearn'
+    $mslearnFiles = Get-MarkdownFiles $mslearnRoot $mslearnRoot
+    $mslearnInternalLinks = Get-InternalMdLinks $mslearnFiles
+    $mslearnUrls = Get-MarkdownUrls $mslearnFiles
+    $knownBrokenExternalUrls = @(
+        'https://azure.microsoft.com/products/managed-disks',
+        'https://www.finops.org/framework/capabilities/onboarding-workloads/',
+        'https://www.finops.org/framework/capabilities/benchmarking',
+        'https://aka.ms/finops/hubs/settings-schema'
+    )
+    # Match incomplete ccmstorageprod URLs (no domain suffix), while allowing valid hosts like ccmstorageprod.blob.core.windows.net.
+    $incompletePlaceholderUrlPattern = 'https://ccmstorageprod(?!\.)'
+    $knownBrokenExternalUrlMatches = @()
+    $incompleteExternalUrlMatches = @()
+    foreach ($file in $mslearnFiles)
+    {
+        $cleanContent = Remove-HtmlComments $file.Content
+        foreach ($url in $knownBrokenExternalUrls)
+        {
+            $urlMatches = [regex]::Matches($cleanContent, [regex]::Escape($url))
+            foreach ($match in $urlMatches)
+            {
+                $knownBrokenExternalUrlMatches += @{
+                    SourceFile = $file.FullName
+                    SourceRel  = $file.RelativePath
+                    Url        = $url
+                    Pattern    = "^$([regex]::Escape($url))$"
+                    LineNumber = ($cleanContent.Substring(0, $match.Index) -split "`n").Count
+                }
+            }
+        }
+
+        $placeholderMatches = [regex]::Matches($cleanContent, $incompletePlaceholderUrlPattern)
+        foreach ($match in $placeholderMatches)
+        {
+            $incompleteExternalUrlMatches += @{
+                SourceFile = $file.FullName
+                SourceRel  = $file.RelativePath
+                Url        = $match.Value
+                Pattern    = $incompletePlaceholderUrlPattern
+                LineNumber = ($cleanContent.Substring(0, $match.Index) -split "`n").Count
+            }
+        }
+    }
+    #endregion
+
+    #region docs (Jekyll site)
+    $jekyllRoot = Join-Path $repoRoot 'docs'
+    # Exclude _automation/ (parked files pending migration to docs-mslearn)
+    $jekyllFiles = Get-MarkdownFiles $jekyllRoot $jekyllRoot | Where-Object { $_.RelativePath -notmatch '^_automation/' }
+    $jekyllInternalLinks = Get-InternalMdLinks $jekyllFiles
+    #endregion
+
+    #region docs-wiki (GitHub Wiki)
+    $wikiRoot = Join-Path $repoRoot 'docs-wiki'
+    $wikiFiles = Get-MarkdownFiles $wikiRoot $wikiRoot
+    # Exclude ../tree/ and ../wiki/ GitHub navigation links from internal link checks
+    $wikiInternalLinks = Get-InternalMdLinks $wikiFiles | Where-Object { $_.LinkTarget -notmatch '^\.\./tree/' -and $_.LinkTarget -notmatch '^\.\./wiki/' }
+
+    # Get all wiki page filenames for case-insensitive lookup
+    $wikiPageFileNames = @()
+    if (Test-Path $wikiRoot)
+    {
+        $wikiPageFileNames = Get-ChildItem -Path $wikiRoot -Filter '*.md' -File | ForEach-Object { $_.Name }
+    }
+
+    # Extract wiki double-bracket links: [[Page]] or [[Display|Page]]
+    $wikiPageLinks = @()
+    foreach ($file in $wikiFiles)
+    {
+        $cleanContent = Remove-HtmlComments $file.Content
+        $wikiMatches = [regex]::Matches($cleanContent, '\[\[(?:([^\]|]+)\|)?([^\]]+)\]\]')
+        foreach ($match in $wikiMatches)
+        {
+            $pageName = $match.Groups[2].Value.Trim()
+            $wikiPageLinks += @{
+                SourceFile  = $file.FullName
+                SourceRel   = $file.RelativePath
+                DisplayText = if ($match.Groups[1].Success) { $match.Groups[1].Value } else { $pageName }
+                PageName    = $pageName
+                LineNumber  = ($file.Content.Substring(0, $match.Index) -split "`n").Count
+            }
+        }
+    }
+
+    # Extract wiki ../tree/dev/ repo-relative links
+    $wikiRepoLinks = @()
+    foreach ($file in $wikiFiles)
+    {
+        $cleanContent = Remove-HtmlComments $file.Content
+        $repoMatches = [regex]::Matches($cleanContent, '\[([^\]]*)\]\((\.\./tree/dev/[^)]+)\)')
+        foreach ($match in $repoMatches)
+        {
+            $linkTarget = $match.Groups[2].Value
+            $repoPath = $linkTarget -replace '^\.\./tree/dev/', '' -replace '#.*$', ''
+            $wikiRepoLinks += @{
+                SourceFile  = $file.FullName
+                SourceRel   = $file.RelativePath
+                LinkText    = $match.Groups[1].Value
+                LinkTarget  = $linkTarget
+                RepoPath    = $repoPath
+                LineNumber  = ($file.Content.Substring(0, $match.Index) -split "`n").Count
+            }
+        }
+    }
+    #endregion
+
+    #region Root markdown files
+    $rootMdFiles = @()
+    if (Test-Path $repoRoot)
+    {
+        $rootMdFiles = Get-ChildItem -Path $repoRoot -Filter '*.md' -File | ForEach-Object {
+            @{
+                FullName     = $_.FullName
+                RelativePath = $_.Name
+                Content      = Get-Content -Path $_.FullName -Raw
+            }
+        }
+    }
+    $rootInternalLinks = Get-InternalMdLinks $rootMdFiles
+    #endregion
+}
+
+Describe 'Documentation links' {
+
+    BeforeAll {
+        $repoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
+        $wikiRoot = Join-Path $repoRoot 'docs-wiki'
+        $wikiPageFileNames = @()
+        if (Test-Path $wikiRoot)
+        {
+            $wikiPageFileNames = Get-ChildItem -Path $wikiRoot -Filter '*.md' -File | ForEach-Object { $_.Name }
+        }
+
+        # Helper: Extract anchors (from headings and HTML elements) from a file
+        function Get-FileAnchors([string]$filePath)
+        {
+            $content = Get-Content -Path $filePath -Raw
+            $headings = [regex]::Matches($content, '(?m)^#{1,6}\s+(.+)$')
+            $anchors = @($headings | ForEach-Object {
+                $heading = $_.Groups[1].Value.Trim()
+                $heading `
+                    -replace '<!--.*?-->', '' `
+                    -replace '\[([^\]]*)\]\([^)]*\)', '$1' `
+                    -replace '`([^`]*)`', '$1' `
+                    -replace '[^a-zA-Z0-9\s\-_]', '' `
+                    -replace '\s+', '-' `
+                    | ForEach-Object { $_.Trim('-').ToLower() }
+            })
+            $htmlAnchors = [regex]::Matches($content, '<a\s+(?:name|id)=[''"]([^''"]+)[''"]')
+            $anchors += @($htmlAnchors | ForEach-Object { $_.Groups[1].Value.ToLower() })
+            return $anchors
+        }
+    }
+
+    #region docs-mslearn
+
+    Context 'docs-mslearn: Internal relative links' {
+
+        It 'Should resolve to an existing file: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach $mslearnInternalLinks {
+            $sourceDir = Split-Path $SourceFile -Parent
+
+            if ([string]::IsNullOrEmpty($PathPart))
+            {
+                Set-ItResult -Skipped -Because 'anchor-only link'
+                return
+            }
+
+            $resolvedPath = Join-Path $sourceDir $PathPart | Resolve-Path -ErrorAction SilentlyContinue
+            $resolvedPath | Should -Not -BeNullOrEmpty -Because "link target '$PathPart' in ${SourceRel}:${LineNumber} should resolve to an existing file"
+        }
+
+        It 'Should have a valid anchor: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach ($mslearnInternalLinks | Where-Object { $_.AnchorPart }) {
+            $sourceDir = Split-Path $SourceFile -Parent
+            $resolvedPath = Join-Path $sourceDir $PathPart
+
+            if (-not (Test-Path $resolvedPath))
+            {
+                Set-ItResult -Skipped -Because 'target file does not exist (covered by file resolution test)'
+                return
+            }
+
+            $anchors = Get-FileAnchors $resolvedPath
+            $anchors | Should -Contain $AnchorPart -Because "anchor '#$AnchorPart' should match a heading or HTML anchor in $(Split-Path $resolvedPath -Leaf) (link in ${SourceRel}:${LineNumber})"
+        }
+    }
+
+    Context 'docs-mslearn: No learn.microsoft.com URLs' {
+        $learnMicrosoftLinks = @($mslearnUrls | Where-Object { $_.Url -match 'learn\.microsoft\.com' })
+        if ($learnMicrosoftLinks.Count -gt 0) {
+            It 'Should not contain https://learn.microsoft.com links: <SourceRel>:<LineNumber>' -AllowNullOrEmptyForEach -ForEach $learnMicrosoftLinks {
+                $Url | Should -Not -Match 'learn\.microsoft\.com' -Because "links in docs-mslearn should use root-relative paths (e.g., /azure/...) instead of full URLs since docs are deployed to learn.microsoft.com (${SourceRel}:${LineNumber})"
+            }
+        }
+        else {
+            It 'Should not contain https://learn.microsoft.com links' {
+                $learnMicrosoftLinks | Should -BeNullOrEmpty -Because 'docs-mslearn should not contain fully qualified learn.microsoft.com URLs'
+            }
+        }
+    }
+
+    Context 'docs-mslearn: No language locale in MS Learn links' {
+        $localizedMsLearnLinks = @($mslearnUrls | Where-Object { $_.Url -match 'learn\.microsoft\.com/[a-z]{2}-[a-z]{2}/' })
+        if ($localizedMsLearnLinks.Count -gt 0) {
+            It 'Should not contain language locale in URL: <SourceRel>:<LineNumber> <Url>' -AllowNullOrEmptyForEach -ForEach $localizedMsLearnLinks {
+                $Url | Should -Not -Match 'learn\.microsoft\.com/[a-z]{2}-[a-z]{2}/' -Because "MS Learn links should not include language locale segments like /en-us/ (${SourceRel}:${LineNumber})"
+            }
+        }
+        else {
+            It 'Should not contain language locale in MS Learn links' {
+                $localizedMsLearnLinks | Should -BeNullOrEmpty -Because 'MS Learn links should not include language locale segments like /en-us/'
+            }
+        }
+    }
+
+    Context 'docs-mslearn: No known broken external URLs' {
+        if ($knownBrokenExternalUrlMatches.Count -gt 0) {
+            It 'Should not contain known broken external URL: <SourceRel>:<LineNumber> <Url>' -AllowNullOrEmptyForEach -ForEach $knownBrokenExternalUrlMatches {
+                $Url | Should -Not -Match $Pattern -Because "known broken external URLs should not appear in docs-mslearn content (${SourceRel}:${LineNumber})"
+            }
+        }
+        else {
+            It 'Should not contain known broken external URLs' {
+                $knownBrokenExternalUrlMatches | Should -BeNullOrEmpty -Because 'docs-mslearn should not contain any known broken external URLs'
+            }
+        }
+    }
+
+    Context 'docs-mslearn: No incomplete placeholder external URLs' {
+        if ($incompleteExternalUrlMatches.Count -gt 0) {
+            It 'Should not contain incomplete placeholder URL: <SourceRel>:<LineNumber> <Url>' -AllowNullOrEmptyForEach -ForEach $incompleteExternalUrlMatches {
+                $Url | Should -Not -Match $Pattern -Because "incomplete placeholder URLs should not appear in docs-mslearn content (${SourceRel}:${LineNumber})"
+            }
+        }
+        else {
+            It 'Should not contain incomplete placeholder external URLs' {
+                $incompleteExternalUrlMatches | Should -BeNullOrEmpty -Because 'docs-mslearn should not contain placeholder external URLs'
+            }
+        }
+    }
+
+    #endregion
+
+    #region docs (Jekyll site)
+
+    Context 'docs: Internal relative links' {
+
+        It 'Should resolve to an existing file: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach $jekyllInternalLinks {
+            $sourceDir = Split-Path $SourceFile -Parent
+
+            if ([string]::IsNullOrEmpty($PathPart))
+            {
+                Set-ItResult -Skipped -Because 'anchor-only link'
+                return
+            }
+
+            $resolvedPath = Join-Path $sourceDir $PathPart | Resolve-Path -ErrorAction SilentlyContinue
+            $resolvedPath | Should -Not -BeNullOrEmpty -Because "link target '$PathPart' in ${SourceRel}:${LineNumber} should resolve to an existing file"
+        }
+
+        It 'Should have a valid anchor: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach ($jekyllInternalLinks | Where-Object { $_.AnchorPart }) {
+            $sourceDir = Split-Path $SourceFile -Parent
+            $resolvedPath = Join-Path $sourceDir $PathPart
+
+            if (-not (Test-Path $resolvedPath))
+            {
+                Set-ItResult -Skipped -Because 'target file does not exist (covered by file resolution test)'
+                return
+            }
+
+            $anchors = Get-FileAnchors $resolvedPath
+            $anchors | Should -Contain $AnchorPart -Because "anchor '#$AnchorPart' should match a heading or HTML anchor in $(Split-Path $resolvedPath -Leaf) (link in ${SourceRel}:${LineNumber})"
+        }
+    }
+
+    #endregion
+
+    #region docs-wiki (GitHub Wiki)
+
+    Context 'docs-wiki: Wiki page links' {
+
+        It 'Should reference an existing wiki page: <SourceRel>:<LineNumber> [[<DisplayText>]]' -AllowNullOrEmptyForEach -ForEach $wikiPageLinks {
+            $pageFileName = ($PageName -replace '\s', '-') + '.md'
+            # Case-insensitive match against actual wiki files
+            $found = $wikiPageFileNames | Where-Object { $_ -ieq $pageFileName }
+            $found | Should -Not -BeNullOrEmpty -Because "wiki link '[[${PageName}]]' in ${SourceRel}:${LineNumber} should reference an existing wiki page (expected file: $pageFileName)"
+        }
+    }
+
+    Context 'docs-wiki: Repo-relative links' {
+
+        It 'Should resolve to an existing repo path: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach $wikiRepoLinks {
+            $fullPath = Join-Path $repoRoot $RepoPath
+            $exists = (Test-Path $fullPath) -or (Test-Path "$fullPath.md")
+            $exists | Should -BeTrue -Because "repo-relative link '$RepoPath' in ${SourceRel}:${LineNumber} should point to an existing file or directory"
+        }
+    }
+
+    Context 'docs-wiki: Internal relative links' {
+
+        It 'Should resolve to an existing file: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach $wikiInternalLinks {
+            $sourceDir = Split-Path $SourceFile -Parent
+
+            if ([string]::IsNullOrEmpty($PathPart))
+            {
+                Set-ItResult -Skipped -Because 'anchor-only link'
+                return
+            }
+
+            $resolvedPath = Join-Path $sourceDir $PathPart | Resolve-Path -ErrorAction SilentlyContinue
+            $resolvedPath | Should -Not -BeNullOrEmpty -Because "link target '$PathPart' in ${SourceRel}:${LineNumber} should resolve to an existing file"
+        }
+    }
+
+    #endregion
+
+    #region Root markdown files
+
+    Context 'Root files: Internal relative links' {
+
+        It 'Should resolve to an existing file: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach $rootInternalLinks {
+            $sourceDir = Split-Path $SourceFile -Parent
+
+            if ([string]::IsNullOrEmpty($PathPart))
+            {
+                Set-ItResult -Skipped -Because 'anchor-only link'
+                return
+            }
+
+            $resolvedPath = Join-Path $sourceDir $PathPart | Resolve-Path -ErrorAction SilentlyContinue
+            $resolvedPath | Should -Not -BeNullOrEmpty -Because "link target '$PathPart' in ${SourceRel}:${LineNumber} should resolve to an existing file"
+        }
+
+        It 'Should have a valid anchor: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -AllowNullOrEmptyForEach -ForEach ($rootInternalLinks | Where-Object { $_.AnchorPart }) {
+            $sourceDir = Split-Path $SourceFile -Parent
+            $resolvedPath = Join-Path $sourceDir $PathPart
+
+            if (-not (Test-Path $resolvedPath))
+            {
+                Set-ItResult -Skipped -Because 'target file does not exist (covered by file resolution test)'
+                return
+            }
+
+            $anchors = Get-FileAnchors $resolvedPath
+            $anchors | Should -Contain $AnchorPart -Because "anchor '#$AnchorPart' should match a heading or HTML anchor in $(Split-Path $resolvedPath -Leaf) (link in ${SourceRel}:${LineNumber})"
+        }
+    }
+
+    #endregion
+}

@@ -5,8 +5,6 @@
   items:
     - name: What is FinOps?
       href: overview.md
-    - name: FinOps on Azure e-book
-      href: https://aka.ms/finops/ebook
     - name: What's new
       href: https://aka.ms/finops/blog
 - name: Implementing FinOps
@@ -26,7 +24,7 @@
           items:
             - name: Understand
               items:
-                - name: Understand cloud usage and cost
+                - name: Understand usage and cost
                   href: framework/understand/understand-cloud-usage-cost.md
                 - name: Data ingestion
                   href: framework/understand/ingestion.md
@@ -36,10 +34,6 @@
                   href: framework/understand/reporting.md
                 - name: Anomalies
                   href: framework/understand/anomalies.md
-                - name: Data analysis
-                  href: framework/understand/reporting.md
-                - name: Data ingestion
-                  href: framework/understand/ingestion.md
             - name: Quantify
               items:
                 - name: Quantify business value
@@ -56,16 +50,16 @@
                   href: framework/quantify/unit-economics.md
             - name: Optimize
               items:
-                - name: Optimize cloud usage and cost
+                - name: Optimize usage and cost
                   href: framework/optimize/optimize-cloud-usage-cost.md
                 - name: Architecting for cloud
                   href: framework/optimize/architecting.md
-                - name: Workload management
+                - name: Workload optimization
                   href: framework/optimize/workloads.md
-                - name: Licensing + SaaS
-                  href: framework/optimize/licensing.md
                 - name: Rate optimization
                   href: framework/optimize/rates.md
+                - name: Licensing + SaaS
+                  href: framework/optimize/licensing.md
                 - name: Cloud sustainability
                   href: framework/optimize/sustainability.md
             - name: Manage
@@ -76,7 +70,7 @@
                   href: framework/manage/operations.md
                 - name: Education + enablement
                   href: framework/manage/education.md
-                - name: Cloud policy + governance
+                - name: Policy + governance
                   href: framework/manage/governance.md
                 - name: Invoicing + chargeback
                   href: framework/manage/invoicing-chargeback.md
@@ -132,12 +126,26 @@
       items:
         - name: Overview
           href: toolkit/hubs/finops-hubs-overview.md
+        - name: Create or upgrade hubs
+          href: toolkit/hubs/deploy.md
+        - name: Run hubs locally
+          href: toolkit/hubs/run-hubs-locally.md
         - name: Configure private networking
           href: toolkit/hubs/private-networking.md
         - name: Configure scopes
           href: toolkit/hubs/configure-scopes.md
+        - name: Configure recommendations
+          href: toolkit/hubs/configure-recommendations.md
         - name: Configure dashboards
           href: toolkit/hubs/configure-dashboards.md
+        - name: Configure AI agents
+          href: toolkit/hubs/configure-ai.md
+        - name: Configure AI in Copilot Studio
+          href: toolkit/hubs/configure-ai-copilot-studio.md
+        - name: Configure remote hubs
+          href: toolkit/hubs/configure-remote-hubs.md
+        - name: Savings calculations
+          href: toolkit/hubs/savings-calculations.md
         - name: Deployment template
           href: toolkit/hubs/template.md
         - name: Data model
@@ -160,6 +168,8 @@
           href: toolkit/power-bi/cost-summary.md
         - name: Governance report
           href: toolkit/power-bi/governance.md
+        - name: Invoicing and chargeback report
+          href: toolkit/power-bi/invoicing.md
         - name: Rate optimization report
           href: toolkit/power-bi/rate-optimization.md
         - name: Workload optimization report
@@ -180,6 +190,12 @@
           href: toolkit/workbooks/optimization.md
         - name: Customize workbooks
           href: toolkit/workbooks/customize-workbooks.md
+    - name: FinOps alerts
+      items:
+        - name: Overview
+          href: toolkit/alerts/finops-alerts-overview.md
+        - name: Configure alerts
+          href: toolkit/alerts/configure-finops-alerts.md
     - name: Optimization engine
       items:
         - name: Overview
@@ -198,8 +214,10 @@
           href: toolkit/optimization-engine/faq.md
         - name: Troubleshooting guide
           href: toolkit/optimization-engine/troubleshooting.md
-    - name: Open data
-      href: toolkit/open-data.md
+        - name: Reference
+          href: toolkit/optimization-engine/reference.md
+    - name: Agent plugins
+      href: toolkit/agent-plugin/finops-toolkit-agent-plugin-overview.md
     - name: PowerShell
       items:
         - name: All commands
@@ -214,6 +232,8 @@
           items:
             - name: Cost Management commands
               href: toolkit/powershell/cost/cost-management-commands.md
+            - name: Add-FinOpsServicePrincipal
+              href: toolkit/powershell/cost/add-finopsserviceprincipal.md
             - name: Get-FinOpsCostExport
               href: toolkit/powershell/cost/get-finopscostexport.md
             - name: New-FinOpsCostExport
@@ -230,6 +250,8 @@
               href: toolkit/powershell/hubs/deploy-finopshub.md
             - name: Initialize-FinOpsHubDeployment
               href: toolkit/powershell/hubs/initialize-finopshubdeployment.md
+            - name: Initialize-FinOpsHubLocal
+              href: toolkit/powershell/hubs/initialize-finopshublocal.md
             - name: Register-FinOpsHubProviders
               href: toolkit/powershell/hubs/register-finopshubproviders.md
             - name: Remove-FinOpsHub
@@ -242,6 +264,10 @@
           items:
             - name: Open data commands
               href: toolkit/powershell/data/open-data-commands.md
+            - name: Get-FinOpsCommitmentDiscountEligibility
+              href: toolkit/powershell/data/get-finopscommitmentdiscounteligibility.md
+            - name: Get-FinOpsInstanceSizeFlexibility
+              href: toolkit/powershell/data/get-finopsinstancesizeflexibility.md
             - name: Get-FinOpsPricingUnit
               href: toolkit/powershell/data/get-finopspricingunit.md
             - name: Get-FinOpsRegion
@@ -256,6 +282,10 @@
           href: toolkit/bicep-registry/modules.md
         - name: Scheduled actions
           href: toolkit/bicep-registry/scheduled-actions.md
+    - name: Open data
+      href: toolkit/open-data.md
+    - name: Data Lake Storage connectivity
+      href: toolkit/data-lake-storage-connectivity.md
     - name: Help + support
       items:
         - name: Help options

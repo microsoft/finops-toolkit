@@ -6,10 +6,10 @@ Describe 'Get-VersionNumber' {
         # Arrange
         $expected = . "$PSScriptRoot/../../../scripts/Get-Version.ps1"
         . "$PSScriptRoot/../../Private/Get-VersionNumber.ps1"
-        
+
         # Act
         $actual = Get-VersionNumber
-        
+
         # Assert
         $actual | Should -Be $expected
     }

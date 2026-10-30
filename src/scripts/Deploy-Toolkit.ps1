@@ -42,7 +42,7 @@
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-deploy-toolkit
 #>
-Param(
+param(
     [Parameter(Position = 0)][string]$Template = "finops-hub",
     [string]$ResourceGroup,
     [string]$Location = "westus",
@@ -78,9 +78,10 @@ if ($Test -and $Demo)
 # Generates a unique name based on the signed in username and computer name for local testing
 function Get-UniqueName()
 {
+    # Cross-platform name detection (PowerShell 7+)
     # NOTE: For some reason, using variables directly does not get the value until we write them
-    $c = $env:ComputerName
-    $u = $env:USERNAME
+    $u = $env:USERNAME ?? $env:USER ?? "unknown"
+    $c = ($env:COMPUTERNAME ?? $env:HOSTNAME ?? "local").Trim()
     $c | Out-Null
     $u | Out-Null
     return "ftk-$u-$c".ToLower()
@@ -104,13 +105,27 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
 
 # Find bicep file
 # NOTE: Include templates after release to account for test templates, which are not included in release builds
-@("$PSScriptRoot/../../release") `
-| ForEach-Object { Get-Item (Join-Path $_ $Template (iff $Test test/main.test.bicep main.bicep)) -ErrorAction SilentlyContinue } `
+# Resolve template file candidates first to avoid silent exit when none are found
+$templateFileCandidates = @("$PSScriptRoot/../../release") `
+| ForEach-Object { Get-Item (Join-Path $_ $Template (iff $Test test/main.test.bicep main.bicep)) -ErrorAction SilentlyContinue }
+if (-not $templateFileCandidates)
+{
+    Write-Error "Template '$Template' not found under '$PSScriptRoot/../../release'."
+    return
+}
+
+$templateFileCandidates `
 | ForEach-Object {
     $templateFile = $_
     $templateName = iff $Test ($templateFile.Directory.Parent.Name + "/test") $templateFile.Directory.Name
     $parentFolder = iff $Test $templateFile.Directory.Parent.Parent.Name $templateFile.Directory.Parent.Name
-    $targetScope = (Get-Content $templateFile | Select-String "targetScope = '([^']+)'").Matches[0].Captures[0].Groups[1].Value
+    $tsMatch = (Get-Content $templateFile | Select-String "targetScope = '([^']+)'")
+    if ($null -eq $tsMatch -or $tsMatch.Matches.Count -eq 0)
+    {
+        Write-Error "Could not determine targetScope in $($templateFile.FullName). Expected: targetScope = 'resourceGroup'|'subscription'|'tenant'."
+        return
+    }
+    $targetScope = $tsMatch.Matches[0].Groups[1].Value
 
     # Fall back to default parameters if none were provided
     $Parameters = iff ($null -eq $Parameters) $defaultParameters["$templateName$(iff $Demo '/demo' '')"] $Parameters
@@ -145,17 +160,17 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
             else
             {
                 # Create resource group if it doesn't exist
-                Write-Verbose 'Checking resource group $ResourceGroup...'
+                Write-Verbose "Checking resource group $ResourceGroup..."
                 $rg = Get-AzResourceGroup $ResourceGroup -ErrorAction SilentlyContinue
                 if ($null -eq $rg)
                 {
-                    Write-Verbose 'Creating resource group $ResourceGroup...'
+                    Write-Verbose "Creating resource group $ResourceGroup..."
                     New-AzResourceGroup `
                         -Name $ResourceGroup `
                         -Location $Location `
                     | Out-Null
                 }
-                
+
                 # Start deployment
                 Write-Verbose "Deploying $templateFile..."
                 $global:ftkDeployment = New-AzResourceGroupDeployment `
@@ -203,9 +218,9 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
         "tenant"
         {
             Write-Verbose 'Starting tenant deployment...'
-    
+
             $azContext = (Get-AzContext).Tenant
-            Write-Host "  → [tenant] $(iff ([string]::IsNullOrWhitespace($azContext.Name)) $azContext.Id $azContext.Name)..."
+            Write-Host "  → [tenant] $(iff ([string]::IsNullOrWhiteSpace($azContext.Name)) $azContext.Id $azContext.Name)..."
             $Parameters.Keys | ForEach-Object { Write-Host "             $($_) = $($Parameters[$_])" }
 
             if ($Debug)

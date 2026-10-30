@@ -67,18 +67,20 @@ If consensus cannot be reached within 14 days and the board believes the issue i
 
 The governing board consists of the following representative seats:
 
-| Seat                                       | Member           |
-| ------------------------------------------ | ---------------- |
-| Business sponsor                           | Nelson Pereira   |
-| Community                                  | Sonia Cuff       |
-| Consulting                                 | Manfred Simonis  |
-| Engineering                                | Arthur Clares    |
-| Marketing                                  | Vacant           |
-| Product                                    | Michael Flanakin |
-| FinOps Certified Professional              | Vacant           |
-| Internal customer (one per FinOps persona) | Vacant           |
-| External customer (one per FinOps persona) | Vacant           |
-| Advisory Council                           | Vacant           |
+| Seat                          | Member              | Time zone |
+| ----------------------------- | ------------------- | --------- |
+| Engineering                   | Brett Wilson        | UTC-8     |
+| FinOps Certified Professional | Dirk Brinkmann      | UTC+1     |
+| Community                     | Sonia Cuff          | UTC+10    |
+| Product (external)            | Michael Flanakin    | UTC-8     |
+| Consulting (external)         | Roland Krummenacher | UTC+1     |
+| Finance (external)            | Karl Kraft          | UTC-6     |
+| Marketing                     | Vacant              |           |
+| Leadership (exec)             | Vacant              |           |
+| Business                      | Vacant              |           |
+| Procurement                   | Vacant              |           |
+| Sustainability                | Vacant              |           |
+| Advisory Council              | Vacant              |           |
 
 Individuals must meet the following criteria in order to attain a board seat:
 
@@ -94,6 +96,30 @@ Individuals must meet the following criteria in order to attain a board seat:
 
 ## 📑 Meetings
 
-Governing board meetings are held on Tuesdays at 6am UTC. Meetings are recorded to support asynchronous collaboration for those not able to join. Advisory council members, contributors, and active community members may request to join these calls or view recordings. Recordings are only stored for 30 days.
+Board members are expected to participate (synchronously or asynchronously) in the following meetings. Meetings are recorded to support asynchronous collaboration for those not able to join. Advisory council members, contributors, and active community members may request to join these calls or view recordings. Recordings are only stored for 30 days.
+
+- **Biweekly governing board meetings**
+
+  > Governing board meetings are held biweekly with the following agenda:
+  >
+  > - Monthly updates (5m)
+  > - Milestone progress, blockers, and risks (5-10m)
+  > - OKR and KPI review (5-10m)
+  > - New and ongoing initiatives (30m)
+  > - Action items and next steps (5m)
+  >
+  > Governing board members are expected to attend or participate offline at least monthly.
+
+- **Weekly contributor sync**
+
+  > The [weekly contributor sync](https://aka.ms/ftk/contrib-sync) is held on Wednesdays at 8 AM Pacific / 4 PM UTC. This is the primary meeting for FinOps toolkit contributors to discuss progress, blockers, and upcoming work.
+  >
+  > Governing board members are encouraged but not expected to join the contributor syncs.
+
+- **Biweekly office hours**
+
+  > [Biweekly office hours](https://aka.ms/ftk/office-hours) are held every other Wednesday at 8:30 AM Pacific / 4:30 PM UTC. This is an open forum for anyone to ask questions, get help with issues, or discuss FinOps toolkit topics.
+  >
+  > Governing board members are encouraged but not expected to join the office hours.
 
 <br>

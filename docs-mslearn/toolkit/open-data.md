@@ -2,9 +2,9 @@
 title: Open data for FinOps
 description: Use open data to normalize and enhance your FinOps reporting, ensuring accurate and consistent data for better insights and decision-making.
 ms.topic: concept-article
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 10/12/2026
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
@@ -12,7 +12,6 @@ ms.custom: references_regions
 # customer intent: As a FinOps practitioner, I want to understand FinOps reporting so that I can clean or normalize my data.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Open data for FinOps
 
 Reporting is the life-blood of any FinOps initiative. And your reports are only as good as your data. It's why [data ingestion](../framework/understand/ingestion.md) is such an important part of FinOps (and any big data effort). The following datasets can be used to clean and normalize your data as part of data ingestion, reporting, or other solutions.
@@ -44,10 +43,12 @@ A few important notes about the data:
 
 In the Cost Management FOCUS dataset, `UnitOfMeasure` is renamed to `x_PricingUnitDescription`. Both `PricingUnit` and `ConsumedUnit` in FOCUS are set to the `DistinctUnits` column.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv)
 > [!div class="nextstepaction"]
 > [See PowerShell](powershell/data/get-finopspricingunit.md)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -73,10 +74,12 @@ Sample data:
 
 Convert region values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv)
 > [!div class="nextstepaction"]
 > [See PowerShell](powershell/data/get-finopsregion.md)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -104,12 +107,14 @@ Sample data:
 
 Convert resource type values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv)
+> [Download CSV](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv)
 > [!div class="nextstepaction"]
-> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json)
+> [Download JSON](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json)
 > [!div class="nextstepaction"]
 > [See PowerShell](powershell/data/get-finopsresourcetype.md)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -139,10 +144,68 @@ A few important notes about the data:
 
 Most mappings can rely on resource type alone. In a future update, we will merge this list with [Resource types](#resource-types) to provide only a single dataset. Currently, the only known case where resource type is shared that ConsumedService can help identify is for Microsoft Defender for Cloud. To simplify your mapping, you can only map those 5 rows and rely on a resource type mapping for everything else.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv)
 > [!div class="nextstepaction"]
 > [See PowerShell](powershell/data/get-finopsservice.md)
+<!-- prettier-ignore-end -->
+
+<br>
+
+## Commitment discount eligibility
+
+Azure meters can be eligible for commitment-based discounts such as reservations and savings plans. The commitment discount eligibility file provides a pre-computed lookup of which meters are eligible for each type, sourced from the [Azure Retail Prices API](/rest/api/cost-management/retail-prices/azure-retail-prices).
+
+Sample data:
+
+| MeterId                              | x_CommitmentDiscountSpendEligibility | x_CommitmentDiscountUsageEligibility |
+| ------------------------------------ | ------------------------------------ | ------------------------------------ |
+| 00003b45-e996-5b04-b673-a2db710f9237 | Eligible                             | Eligible                             |
+| 00020329-e657-5687-9d1a-0be9876e5116 | Not Eligible                         | Eligible                             |
+| 0003c425-b1df-551f-a855-9c95a08cb4ae | Eligible                             | Not Eligible                         |
+
+A few important notes about the data:
+
+- `x_CommitmentDiscountSpendEligibility` indicates whether the meter has savings plan pricing. FOCUS classifies a savings plan as a spend commitment because you commit to an amount of money.
+- `x_CommitmentDiscountUsageEligibility` indicates whether the meter has reservation pricing. FOCUS classifies a reservation as a usage commitment because you commit to a quantity of usage.
+- Only primary meter regions are included to avoid duplicates.
+- Data is updated weekly via a GitHub Actions workflow.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CommitmentDiscountEligibility.csv)
+> [!div class="nextstepaction"]
+> [See PowerShell](powershell/data/get-finopscommitmentdiscounteligibility.md)
+<!-- prettier-ignore-end -->
+
+<br>
+
+## Instance size flexibility
+
+Instance size flexibility (ISF) lets a reservation apply across multiple SKUs in the same flexibility group, weighted by a ratio. The instance size flexibility file maps each ARM SKU to its flexibility group and ratio, sourced from the [Azure Reservations Catalogs API](/azure/cost-management-billing/reservations/instance-size-flexibility#extract-instance-size-flexibility-ratios-using-azure-catalogs-api). It replaces the static ISF ratio files that were previously hosted on `ccmstorageprod.blob.core.windows.net`, which Microsoft is retiring.
+
+Sample data:
+
+| InstanceSizeFlexibilityGroup         | ArmSkuName        | Ratio |
+| ------------------------------------ | ----------------- | ----- |
+| Virtual Machines Dadsv6-series Linux | Standard_D2ads_v6 | 1     |
+| Virtual Machines Dadsv6-series Linux | Standard_D4ads_v6 | 2     |
+| Virtual Machines Dadsv6-series Linux | Standard_D8ads_v6 | 4     |
+
+A few important notes about the data:
+
+- It covers Virtual Machines, Redis Cache, and Dedicated Host across every physical Azure region.
+- `ArmSkuName` is unique across the file and can be used as a join key on its own.
+- Ratios are normalized so the smallest SKU in each flexibility group has a ratio of `1`. Compare ratios only within a flexibility group.
+- Data is updated weekly via a GitHub Actions workflow and always reflects the current API catalog, so retired SKUs are removed automatically.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/InstanceSizeFlexibility.csv)
+> [!div class="nextstepaction"]
+> [See PowerShell](powershell/data/get-finopsinstancesizeflexibility.md)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -160,8 +223,10 @@ The following files are examples of what you see when you export data from Micro
 - Reservation transactions (`2023-05-01`)
 - Reservation recommendations (`2023-05-01`)
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download all examples](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-examples.zip)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -186,8 +251,10 @@ Metadata is available for the following datasets:
   - [FOCUS 1.0](../focus/metadata.md#focuscost-10)
   - [FOCUS 1.0-preview(v1)](../focus/metadata.md#focuscost-10-previewv1)
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download all metadata](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -195,13 +262,17 @@ Metadata is available for the following datasets:
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/OpenData/featureName/Overview)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/OpenData/featureName/Overview)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

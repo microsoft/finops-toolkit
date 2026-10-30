@@ -1,9 +1,9 @@
 ---
 title: Planning and estimating
 description: This article helps you understand the planning and estimating capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 06/21/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -11,7 +11,6 @@ ms.reviewer: micflan
 # customer intent: As a FinOps practitioner, I want to understand the FinOps practice operations capability so that I can implement it in the Microsoft Cloud.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Planning and estimating
 
 This article helps you understand the planning and estimating capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
@@ -57,9 +56,7 @@ Starting with well-defined requirements that are aligned across teams helps set 
 ## Getting started
 
 - If you're migrating on-premises infrastructure to the cloud:
-  - Use the [Total Cost of Ownership (TCO) Calculator](https://azure.microsoft.com/pricing/tco/calculator) to get a high-level comparison of on-premises vs. cloud servers, databases, storage, and networking infrastructure.
-    > After entering details of your on-premises infrastructure, the TCO Calculator presents cost reports showcasing the cost differences between running workloads on-premises compared to Azure that can be saved and shared across team members.
-  - Use [Azure Migrate](https://azure.microsoft.com/products/azure-migrate) to automate the discovering and migration of your on-premises workloads.
+  - Use [Azure Migrate](https://azure.microsoft.com/products/azure-migrate) to automate the discovering and migration of your on-premises workloads and get an estimate comparison of on-premises vs. Azure costs.
 - If you're estimating changes to an existing workload, review the [Forecasting](./forecasting.md) capability.
 - If you're building a new solution, start with the [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator) to estimate costs based on projected usage patterns.
   > Within the pricing calculator, custom scenarios can be analyzed by generating estimates and configuring resources to match specific parameters. Cost savings such as reservations, savings plans, and Azure Hybrid Benefit can also be evaluated. Sign in to save estimates based on your enterprise pricing.
@@ -87,13 +84,17 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Guide.Framework/featureName/Capabilities.Quantify.Planning)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Guide.Framework/featureName/Capabilities.Quantify.Planning)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -103,7 +104,7 @@ Related FinOps capabilities:
 
 - [Forecasting](./forecasting.md)
 - [Architecting for cloud](../optimize/architecting.md)
-- [Workload optimization](../optimize/workloads.md)
+- [Usage optimization](../optimize/workloads.md)
 - [Rate optimization](../optimize/rates.md)
 
 Related products:

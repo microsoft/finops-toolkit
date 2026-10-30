@@ -20,12 +20,13 @@ Engineering hub to maximize cloud ROI through FinOps.
 FinOps workbooks are Azure workbooks that provide a series of tools to help engineers perform targeted FinOps tasks, modeled after the Well-Architected Framework guidance.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in February 2025<span class="ftk-version">v0.8</span></h3>
+    <h3>What's new in October 2026<span class="ftk-version">v15</span></h3>
     <p>
-        February introduced Azure Arc Windows license management, enabled CSV exports for idle backups, and tuned VM processor details.
+        In October, FinOps workbooks fixed savings plan and Azure Hybrid Benefit queries that were silently dropping or missing recommendations due to implicit join behavior.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
+
 <a name="features"></a>
 
 ## A central hub for efficiency and control
@@ -64,7 +65,9 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
 
 ## Deploy FinOps workbooks
 
-FinOps workbooks require the <strong>Workbook Contributor</strong> role to deploy and <strong>Reader</strong> to view all tabs.
+FinOps workbooks require the <strong>Contributor</strong> role or a role with both <strong>Microsoft.Resources/deployments/validate/action</strong> and <strong>Microsoft.Resources/deployments/write</strong> permissions for ARM template deployments, <strong>Workbook Contributor</strong> role to save changes, and <strong>Reader</strong> on all subscriptions you want to monitor.
+
+> If you only have Reader access, you can download the workbook JSON files from the finops-workbooks.zip package available in the [latest release](https://aka.ms/ftk/latest), and then import them directly into Azure Monitor Workbooks.
 
 <br>
 <a class="btn btn-primary mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json">Deploy to Azure</a>

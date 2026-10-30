@@ -35,7 +35,7 @@ $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSi
 $storageAccountSinkEnv = Get-AutomationVariable -Name "AzureOptimization_StorageSinkEnvironment" -ErrorAction SilentlyContinue
 if (-not($storageAccountSinkEnv))
 {
-    $storageAccountSinkEnv = $cloudEnvironment    
+    $storageAccountSinkEnv = $cloudEnvironment
 }
 $storageAccountSinkKeyCred = Get-AutomationPSCredential -Name "AzureOptimization_StorageSinkKey" -ErrorAction SilentlyContinue
 $storageAccountSinkKey = $null
@@ -66,12 +66,12 @@ if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -79,7 +79,7 @@ switch ($authenticationOption) {
 if (-not($storageAccountSinkKey))
 {
     Write-Output "Getting Storage Account context with login"
-    
+
     $saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 }
 else
@@ -91,8 +91,8 @@ else
 if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 {
     "Logging in to Azure with $externalCredentialName external credential..."
-    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential 
-    $cloudEnvironment = $externalCloudEnvironment   
+    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential
+    $cloudEnvironment = $externalCloudEnvironment
 }
 
 Write-Output "Getting subscriptions target $TargetSubscription"
@@ -132,7 +132,7 @@ if (-not([string]::IsNullOrEmpty($CategoryFilter)))
     for ($i = 0; $i -lt $categories.Count; $i++)
     {
         $categories[$i] = "'" + $categories[$i] + "'"
-    }    
+    }
     $FinalCategoryFilter = " and properties.category in (" + ($categories -join ",") + ")"
 }
 
@@ -186,7 +186,7 @@ foreach ($advisorRecommendation in $recommendationsARG)
     }
     else
     {
-        # otherwise it is not a resource-specific recommendation (e.g., reservations)
+        # otherwise it is not a resource-specific recommendation (for example, reservations)
         $resourceGroup = "notavailable"
         $instanceId = $advisorRecommendation.id.ToLower()
         $subscriptionId = $resourceIdParts[2]
@@ -200,7 +200,7 @@ foreach ($advisorRecommendation in $recommendationsARG)
     {
         $additionalInfo = $null
     }
-    
+
     $recommendation = New-Object PSObject -Property @{
         Timestamp = $timestamp
         Cloud = $cloudEnvironment
@@ -219,7 +219,7 @@ foreach ($advisorRecommendation in $recommendationsARG)
         TenantGuid = $tenantId
     }
 
-    $recommendations += $recommendation    
+    $recommendations += $recommendation
 }
 
 Write-Output "Found $($recommendations.Count) ($CategoryFilter) recommendations..."
@@ -242,6 +242,6 @@ Write-Output "[$now] Uploaded $csvBlobName to Blob Storage..."
 Remove-Item -Path $csvExportPath -Force
 
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-Write-Output "[$now] Removed $csvExportPath from local disk..."    
+Write-Output "[$now] Removed $csvExportPath from local disk..."
 
 Write-Output "DONE!"

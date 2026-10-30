@@ -1,73 +1,982 @@
 ---
 title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: MSBrett
+ms.author: brettwil
+ms.date: 10/28/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
-ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand what changes were made in the latest FinOps toolkit releases.
+ms.reviewer: brettwil
+#customer intent: As a FinOps practitioner, I want to understand what changes were made in the latest FinOps toolkit releases.
 ---
 
 <!-- cSpell:ignore nextstepaction -->
-<!-- markdownlint-disable MD036 -->
-<!-- markdownlint-disable-next-line MD025 -->
+<!-- markdownlint-disable no-emphasis-as-heading -->
+
 # FinOps toolkit changelog
 
 This article summarizes the features and enhancements in each release of the FinOps toolkit.
 
+<!--
 <br>
 
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
 
-### Bicep Registry module pending updates
-
-- Cost Management export modules for subscriptions and resource groups.
+-->
 
 <br><a name="latest"></a>
 
+## v15
+
+_Released October 2026_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v15
+
+- **Added**
+  - Added a [FinOps toolkit ecosystem page](https://microsoft.github.io/finops-toolkit/ecosystem) listing independent tools and organizations that build on or support the FinOps toolkit.
+- **Changed**
+  - Updated guidance to use current FinOps Framework capability names, like Usage optimization and Governance, policy, and risk.
+    - Capability names and links were aligned across the guidance.
+- **Fixed**
+  - Fixed outdated descriptions of several cost and billing columns in the [data dictionary](help/data-dictionary.md) to match FOCUS 1.2.
+    - Affected columns are `BilledCost`, `EffectiveCost`, `BillingCurrency`, `BillingProfileId`, `BillingProfileName`, `CommitmentDiscountQuantity`, `ListUnitPrice`, `PricingQuantity`, `PricingUnitDescription`, and `TotalSavingsRunningTotal`.
+
+### [FinOps toolkit agent plugins](agent-plugin/finops-toolkit-agent-plugin-overview.md) v15
+
+- **Added**
+  - Added a FinOps Toolkit plugin for Claude Code and GitHub Copilot CLI.
+    - Includes 5 agents: CFO, FinOps practitioner, database query, hubs agent, and Azure capacity manager.
+    - Includes 4 commands: `/ftk/hubs-connect`, `/ftk/hubs-health-check`, `/ftk/mom-report`, and `/ftk/ytd-report`.
+    - Includes a FinOps hubs KQL skill and a read-only Azure MCP server.
+  - Added marketplace entries so the plugin installs with `copilot plugin install microsoft/finops-toolkit`.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v15
+
+- **Added**
+  - Added a [Run hubs locally](hubs/run-hubs-locally.md) guide for running a FinOps hub in a local Kusto emulator container.
+    - Ingests cost data with the same KQL, transforms, and open data as a deployed hub.
+  - Added a `finops-hub-local-opendata.kql` release artifact that loads open data tables into a local hub.
+    - Generated at build time from the open data CSV files, so the local hub stays in sync with published open data.
+  - Added VNet and private network modes, including opt-in NAT Gateway support for private mode ([#2161](https://github.com/microsoft/finops-toolkit/issues/2161)).
+    - NAT Gateway adds cost when enabled.
+- **Changed**
+  - Updated the hub database guide to explain how columns are organized and corrected the `Costs()` column reference to match the deployed schema ([#2325](https://github.com/microsoft/finops-toolkit/issues/2325), [#2329](https://github.com/microsoft/finops-toolkit/issues/2329)).
+    - Documents the organization chain and the two parallel service chains.
+    - Added 27 missing columns and corrected three columns still listed under names that hubs v12 renamed.
+    - Fixed one column typed as `long` instead of `int`.
+  - Documented that the `config_RunBackfillJob` backfill option isn't supported on Microsoft Customer Agreement (MCA) billing accounts or profiles ([#2113](https://github.com/microsoft/finops-toolkit/issues/2113)).
+  - Updated the [backfill instructions](hubs/configure-scopes.md) to use `config_StartBackfillProcess` for the months covered by the ingestion retention setting.
+    - Clarified that `config_RunBackfillJob` requires `StartDate` and `EndDate` in the same calendar month.
+  - Clarified that the FinOps toolkit manages the hub virtual network, and that customer-managed private endpoints are the preferred private-access option ([#2156](https://github.com/microsoft/finops-toolkit/issues/2156)).
+    - Virtual network peering is documented as a secondary option.
+  - Changed hub queries to use case-insensitive comparisons that run faster on large datasets ([#2213](https://github.com/microsoft/finops-toolkit/issues/2213)).
+    - Replaced redundant `tolower()` comparisons with `has`, `=~`, and `!~` so queries use the term index instead of scanning every row.
+    - Replaced whole-term `contains` matches with `has` in hub queries and the query catalog, including resource ID paths, licensing phrases, and SKU description terms.
+    - Added a regression harness that checks each replaced operator returns the same rows, with unit test coverage.
+  - Changed dimension lookups during ingestion to a faster operator and prevented duplicate cost rows from service mappings.
+    - Applies to the `PricingUnits`, `Regions`, `ResourceTypes`, and `Services` lookups in the FOCUS 1.0 and 1.2 ingestion transforms.
+  - Updated the hubs data model and upgrade documentation for upgrading across multiple FOCUS versions.
+- **Fixed**
+  - Fixed FOCUS 1.0 cost data being labeled as FOCUS 1.2 in `x_SourceVersion`.
+    - The cost transform backfilled `PricingCurrency` from `x_PricingCurrency` before detecting the FOCUS version, so every 1.0 row looked like 1.2.
+    - FOCUS 1.0 rows also skipped 1.0-specific fixes, like the savings plan purchase `ChargeFrequency` correction.
+    - Version detection now runs before provider columns are backfilled, so it only sees the columns the export delivered.
+  - Fixed dashboard links for "Governance, policy, and risk" and "FinOps tools and services" that landed on a 404 page ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
+    - Links now go directly to the Microsoft Learn pages.
+  - Fixed Data Factory trigger deployment failures in regions without a time zone mapping, like Sweden Central ([#2157](https://github.com/microsoft/finops-toolkit/issues/2157)).
+    - Deployments failed with `InvalidWorkflowTriggerRecurrence`.
+    - The trigger `startTime` was missing the required `Z` suffix for the `UTC` fallback time zone.
+  - Fixed Data Factory memory pressure during ingestion.
+    - Affected the step that filters out empty files.
+  - Fixed a `PathNotFound` error on the first ingestion for a scope, dataset, and month, most often hit by reservation recommendation exports ([#2088](https://github.com/microsoft/finops-toolkit/issues/2088)).
+    - Affected the `msexports_ETL_ingestion` and analytics ingestion pipelines.
+  - Fixed managed export trigger validation failing for Japan.
+    - The region now maps to `Tokyo Standard Time` instead of `Japan Standard Time`.
+  - Fixed commitment purchases inflating savings and effective savings rate (ESR) in the dashboard ([#2315](https://github.com/microsoft/finops-toolkit/issues/2315)).
+    - Summary and Rate optimization tiles now exclude purchase rows consistently.
+  - Fixed understated commitment discount savings when duplicate reservation price rows exist ([#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
+    - The reservation price backfill now uses the highest on-demand price when duplicate price rows exist.
+  - Fixed unnecessary `ContractedCost` rewrites that cluttered the `x_SourceValues` audit trail ([#2216](https://github.com/microsoft/finops-toolkit/issues/2216)).
+    - Removed millions of no-op rewrites caused by exact floating-point comparisons.
+    - Still backfills null costs, and no longer overwrites an existing cost when the unit price is missing.
+  - Fixed the SQL VMs without Azure Hybrid Benefit recommendation skipping VMs with uppercase names.
+    - The query matched on the case-sensitive VM name instead of joining on the SQL VM `virtualMachineResourceId`, which also dropped VMs with duplicate names.
+    - Made all Azure Resource Graph join kinds explicit so no query relies on the `innerunique` default.
+  - Fixed managed exports failing with an `Unauthorized` error because a required role wasn't assigned to Data Factory ([#2253](https://github.com/microsoft/finops-toolkit/issues/2253)).
+    - The Role Based Access Control Administrator role is now assigned to the Data Factory identity.
+    - Roles requested by a hub app are now assigned on the publisher storage account even when the app doesn't create it.
+  - Fixed private-network deployments blocked by Azure Policy when default outbound access wasn't disabled ([#2258](https://github.com/microsoft/finops-toolkit/issues/2258)).
+    - Private mode subnets now set `defaultOutboundAccess` to `false`.
+    - An Azure Files private endpoint now supports deployment script storage, and the NAT Gateway provides the required container egress.
+  - Fixed `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility` carrying each other's values in price data ([#2279](https://github.com/microsoft/finops-toolkit/issues/2279)).
+    - The spend column now reports savings plan pricing and the usage column reports reservation pricing, matching FOCUS `CommitmentDiscountCategory`.
+    - Applies to the FOCUS 1.0 and 1.2 price transforms.
+    - Prices ingested after upgrading carry the corrected values.
+    - Previously ingested rows keep the old values until they're reingested.
+  - Fixed the Reservations tab in the Rate optimization report showing no data for MCA accounts ([#1769](https://github.com/microsoft/finops-toolkit/issues/1769), [#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
+  - Fixed hub redeploys and upgrades resetting data retention and purging historical data ([#2206](https://github.com/microsoft/finops-toolkit/issues/2206), [#2348](https://github.com/microsoft/finops-toolkit/issues/2348)).
+    - Retention now stays as configured unless you specify a new value.
+  - Fixed private network deployments with Data Explorer failing with a `ServiceIsInMaintenance` error when approving the Data Explorer private endpoint connections.
+
+### [Power BI reports](power-bi/reports.md) v15
+
+- **Changed**
+  - Updated report labels and documentation to use current FinOps Framework capability names, like Usage optimization and Governance, policy, and risk.
+  - Changed the instance size flexibility data to use the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file instead of a retired external file ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+    - Applies to the `InstanceSizeFlexibility` table in the storage and KQL shared datasets.
+    - Replaces the retired `AutofitComboMeterData.csv` file and joins to reservation recommendations on the unique ARM SKU name.
+  - Changed Azure Resource Graph queries to run per subscription batch to avoid [payload size limit](help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) errors ([#1768](https://github.com/microsoft/finops-toolkit/issues/1768)).
+    - Applies to the [Governance](power-bi/governance.md) and [Workload optimization](power-bi/workload-optimization.md) reports.
+    - A payload size error still appears, instead of silently truncated results, if a single batch of subscriptions exceeds the limit.
+    - If errors persist, [reduce the batch size](help/errors.md#option-1-reduce-the-batch-size).
+  - Changed the default **Number of Months** in storage reports from 1 to 3 to show more cost history.
+- **Fixed**
+  - Fixed report templates opening with a preconfigured demo data source.
+    - Storage and cluster settings are now empty when you open a template.
+  - Fixed storage reports showing no data when they read Cost Management exports that use gzip-compressed CSV (`.csv.gz`).
+  - Fixed storage report refresh errors for exports that use earlier FOCUS versions.
+    - Those exports lack the `CapacityReservationId` and `CapacityReservationStatus` columns, which are now added as empty columns like `AvailabilityZone`.
+  - Fixed the managed disks table on the **Virtual machines** page of the [Governance](power-bi/governance.md) report showing an error.
+    - The report template didn't include the disks data.
+  - Fixed storage report refresh failures for Cost Management exports that use the FOCUS 1.2 schema ([#2332](https://github.com/microsoft/finops-toolkit/issues/2332)).
+    - The refresh looked for a `SkuMeterName` column instead of `SkuMeter`.
+    - It also assumed FOCUS 1.0 columns (`x_InvoiceId`, `x_PricingCurrency`, and `x_SkuMeterName`) were always present, which failed for storage containers that hold only FOCUS 1.2 exports.
+    - Added a lint rule that fails the build when a Power Query column name doesn't exist.
+  - Fixed storage report refresh errors caused by ISO 8601 `x_SkuTerm` values like `P3Y` and empty strings in cost exports ([#2174](https://github.com/microsoft/finops-toolkit/issues/2174)).
+  - Fixed advisor recommendation tables dropping rows beyond the payload limit instead of returning complete results.
+    - Applies to the `AdvisorRecommendations` and `AdvisorReservationRecommendations` tables.
+    - Both tables now return complete results per subscription batch, like every other batched table.
+  - Fixed duplicate `Region` and `region` columns in the `AdvisorReservationRecommendations` table ([#2347](https://github.com/microsoft/finops-toolkit/issues/2347)).
+    - Power BI treats the two names as the same column.
+  - Fixed the [Governance](power-bi/governance.md) report template missing the policy definitions query.
+  - Fixed report templates showing unused tables in the model diagram.
+  - Fixed the rate optimization report data quality link landing on a Bing search page ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
+
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v15
+
+- **Changed**
+  - Updated workbook labels and documentation to use current FinOps Framework capability names, like Usage optimization and Governance, policy, and risk.
+- **Fixed**
+  - Fixed the savings plan workbook dropping recommendations when a subscription is missing or when several exist per subscription.
+    - Recommendations now show even when the subscription is missing from `resourcecontainers`.
+    - The summary and details queries no longer drop all but one recommendation per subscription, which an implicit `innerunique` join caused.
+  - Fixed the AHB workbook "VM Latest Change Last 7 days" tile always returning no rows, and SQL VM queries missing VMs with uppercase names.
+    - The tile joined the `resourcechanges` record ID against the resource ID.
+
+### [FinOps alerts](alerts/finops-alerts-overview.md) v15
+
+- **Fixed**
+  - Fixed idle application gateway and idle public IP queries so they no longer silently drop results.
+    - Made the join kinds explicit so the queries no longer rely on the `innerunique` default.
+
+### [Optimization engine](optimization-engine/overview.md) v15
+
+- **Added**
+  - Added an [Azure Optimization Engine reference](optimization-engine/reference.md) for runbooks, schedules, variables, and tables ([#1271](https://github.com/microsoft/finops-toolkit/issues/1271)).
+    - Covers Log Analytics tables and SQL Database tables.
+- **Changed**
+  - Changed Log Analytics ingestion from the Data Collection API (deprecated September 2026) to a Data Collection Rule and Ingestion API.
+  - Changed the reservations and benefits workbooks to use the FinOps toolkit [Instance size flexibility](open-data.md#instance-size-flexibility) open data file instead of a retired external file ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+    - Replaces the retired `isfratioblob.csv` file.
+- **Fixed**
+  - Fixed reservations disappearing from the reservation workbooks when their SKU is no longer sold ([#2300](https://github.com/microsoft/finops-toolkit/issues/2300)).
+    - Unmatched SKUs now use their own name as the flexibility group with a ratio of 1.
+    - Applies to virtual machines, Redis Cache, and dedicated hosts.
+  - Fixed Azure RBAC assignment exports calling the Azure Classic administrators endpoint, which was deprecated May 1, 2026 ([#2142](https://github.com/microsoft/finops-toolkit/issues/2142)).
+  - Fixed a schema regression that broke the Reservations Usage workbook ([#2301](https://github.com/microsoft/finops-toolkit/issues/2301)).
+    - The regression affected the `AzureOptimizationConsumptionV1_CL` table.
+
+### [PowerShell module](powershell/powershell-commands.md) v15
+
+- **Added**
+  - Added [Initialize-FinOpsHubLocal](powershell/hubs/initialize-finopshublocal.md) to set up a local FinOps hub in a running Kusto emulator with one command.
+  - Added [Get-FinOpsCommitmentDiscountEligibility](powershell/data/get-finopscommitmentdiscounteligibility.md) and [Get-FinOpsInstanceSizeFlexibility](powershell/data/get-finopsinstancesizeflexibility.md) to generate open data files.
+    - Generates the commitment discount eligibility and instance size flexibility datasets.
+- **Changed**
+  - Updated tests for Pester 6 compatibility.
+- **Fixed**
+  - Fixed [Deploy-FinOpsHub](powershell/hubs/deploy-finopshub.md) failing with certain `-Version` values and concurrent deployments ([#2293](https://github.com/microsoft/finops-toolkit/issues/2293)).
+    - Failed when deploying hubs 12 or later with `-Version`, and when more than one hub was deployed at the same time.
+    - Failed for single-part tags like `13` and `v`-prefixed tags like `v14`.
+  - Fixed [Get-FinOpsCostExport](powershell/cost/get-finopscostexport.md) `-RunHistory` not returning the complete run history ([#2063](https://github.com/microsoft/finops-toolkit/issues/2063)).
+  - Fixed a missing `Get-AzAccessToken` parameter error by raising the minimum `Az.Accounts` version to 2.17.0 ([#2185](https://github.com/microsoft/finops-toolkit/issues/2185)).
+    - Dependency resolution could previously land on a version missing the `-AsSecureString` parameter.
+  - Fixed [Start-FinOpsCostExport](powershell/cost/start-finopscostexport.md) exporting the wrong period in positive UTC offsets ([#2255](https://github.com/microsoft/finops-toolkit/issues/2255)).
+    - `-StartDate` and `-EndDate` are now treated as UTC calendar dates instead of being converted to local time.
+    - Local midnight used to convert to the previous UTC day, which moved the period back a day and made `-Backfill` run one extra month.
+
+### [Open data](open-data.md) v15
+
+- **Added**
+  - Added an [Instance size flexibility](open-data.md#instance-size-flexibility) dataset mapping each ARM SKU to its flexibility group and ratio, replacing the deprecated external ISF files ([#2090](https://github.com/microsoft/finops-toolkit/issues/2090)).
+    - Sourced from the Azure Reservations Catalogs API, covers every physical Azure region instead of a fixed region list, and refreshes weekly.
+    - Newly released SKUs appear and retired SKUs age out without republishing the file.
+    - Uses the same ratio scale as the retired external files, matching the retired file for 1,223 of the 1,291 rows the two share.
+- **Fixed**
+  - Fixed the [commitment discount eligibility](open-data.md#commitment-discount-eligibility) refresh so retired meters age out and previously missed meters are included.
+    - The refresh is now reproducible and complete.
+  - Fixed the weekly commitment discount eligibility refresh timing out, which left the dataset unchanged since v14.
+    - The refresh now walks each price type directly instead of sharding by service family.
+    - It verifies completeness by comparing two independent traversals before publishing.
+  - Fixed [instance size flexibility](open-data.md#instance-size-flexibility) ratio scale and region coverage; the dataset grew from 1,353 to 1,363 SKUs ([#2309](https://github.com/microsoft/finops-toolkit/issues/2309)).
+    - Regenerating the dataset now produces the same output on any host.
+  - Fixed `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility` carrying each other's values since v14 ([#2279](https://github.com/microsoft/finops-toolkit/issues/2279)).
+    - FOCUS classifies reservations as usage commitments and savings plans as spend commitments.
+    - The spend column now reports savings plan pricing and the usage column reports reservation pricing.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v15)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v14...v15)
+<!-- prettier-ignore-end -->
+
+<br>
+
+## v14
+
+_Released April 2026_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v14
+
+- **Added**
+  - Added EA enrollment 403 troubleshooting steps to the [common errors](help/errors.md#403) page ([#1754](https://github.com/microsoft/finops-toolkit/issues/1754)).
+- **Changed**
+  - Updated FinOps Foundation video on the overview page to use the latest public video ([#2026](https://github.com/microsoft/finops-toolkit/issues/2026)).
+- **Removed**
+  - Removed all references to the FinOps e-book (`aka.ms/finops/ebook`) as the e-book is no longer available ([#1813](https://github.com/microsoft/finops-toolkit/issues/1813)).
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v14
+
+- **Added**
+  - Added [Microsoft Sovereign Cloud](/azure/azure-sovereign-clouds/microsoft-sovereign-cloud) support with environment-aware DNS suffix handling for Azure Government, Azure China, and other sovereign environments ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
+  - Added ability to ingest recommendations from Azure Advisor and custom Azure Resource Graph queries ([#2011](https://github.com/microsoft/finops-toolkit/issues/2011)).
+    - Custom recommendations include stopped VMs, unattached disks, underutilized resources, and more.
+  - Added [Copilot Studio agent template](hubs/configure-ai-copilot-studio.md) with instructions, schema reference, query catalog, and weekly report guide for creating a FinOps Hub Agent in Microsoft Copilot Studio using the Kusto Query MCP Server.
+  - Added typed metadata contracts between hub apps to formalize dependency management and enable compile-time verification of inter-app interfaces.
+- **Changed**
+  - Improved deployment UI to consolidate hub mode selection into a single radio button group with four mutually exclusive options: None (storage only for Power BI reports), Azure Data Explorer, Microsoft Fabric, or Remote Hub ([#1929](https://github.com/microsoft/finops-toolkit/issues/1929)).
+    - Remote Hub configuration (storage URI, storage key, and purge protection) is now displayed in the Basics tab when Remote Hub mode is selected, making the mutual exclusivity clear.
+    - Data Explorer SKU and retention settings are now only visible when Azure Data Explorer mode is selected.
+  - Documented the `<ingestionId>__<originalFileName>.parquet` filename convention, full-folder replacement requirement, and manifest content rules for ingesting custom FOCUS datasets to prevent silent data loss ([#2096](https://github.com/microsoft/finops-toolkit/issues/2096)).
+- **Fixed**
+  - Fixed hardcoded Kusto DNS suffix to use an environment-aware lookup map with correct values for all supported clouds ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
+  - Fixed incorrect Azure China ADX DNS suffix (`kusto.chinacloudapi.cn` → `kusto.windows.cn`) ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
+  - Fixed `createUiDefinition.json` storage URL validation to accept sovereign cloud storage suffixes ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
+  - Fixed `gitapp.hub.com` typo in ADF linked service URL ([#2081](https://github.com/microsoft/finops-toolkit/pull/2081)).
+  - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
+  - Fixed `msexports_ExecuteETL` pipeline failing on empty export files by adding a row count check ([#1535](https://github.com/microsoft/finops-toolkit/issues/1535)).
+  - Fixed Data Explorer dashboard cost and savings KPIs producing invalid sums in multi-billing-currency tenants by adding a Currency parameter that scopes tile queries to a single currency ([#2093](https://github.com/microsoft/finops-toolkit/issues/2093)).
+  - Fixed hub deployment failure in US Government cloud regions caused by missing region-to-time-zone mappings and an invalid default value for Data Factory schedule triggers ([#2087](https://github.com/microsoft/finops-toolkit/issues/2087)).
+
+### [Power BI reports](power-bi/reports.md) v14
+
+- **Fixed**
+  - Fixed Power BI storage report refresh errors caused by unrecognized `Term` values like `P10Y` (10-year reservations) in pricesheet exports ([#2106](https://github.com/microsoft/finops-toolkit/issues/2106)).
+
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v14
+
+- **Fixed**
+  - Fixed broken feedback link in the Optimization workbook that was returning a 404 error ([#1673](https://github.com/microsoft/finops-toolkit/issues/1673)).
+    - Removed the Office Forms feedback link and consolidated feedback to use the GitHub issues link.
+  - Excluded dev/test subscriptions from Azure Hybrid Benefit reports to align with licensing requirements ([#1819](https://github.com/microsoft/finops-toolkit/issues/1819)).
+    - Azure Hybrid Benefit doesn't apply to Dev/Test resources as Windows licenses are already covered by Visual Studio subscriptions.
+  - Fixed Azure Hybrid Benefit reports to include Windows VMs from all publishers, not just Microsoft-published images ([#1793](https://github.com/microsoft/finops-toolkit/issues/1793)).
+
+### [Optimization engine](optimization-engine/overview.md) v14
+
+- **Changed**
+  - Upgraded the Azure EA/MCA Pricesheet download API version used by the pricesheet export runbook (previously used version is being deprecated June 1, 2026).
+  - Improved retail prices export runbook resilience with API request retry logic, streaming each response page directly to CSV to reduce memory usage, and periodic progress logging during long exports ([#2102](https://github.com/microsoft/finops-toolkit/pull/2102)).
+  - Streaming each retail prices API response page directly to CSV instead of collecting the full dataset in memory, reducing memory usage during long exports.
+  - Added periodic progress logging during long retail prices exports, configurable via the `AzureOptimization_RetailPricesProgressEveryPages` automation variable (default: 25 pages).
+
+### [PowerShell module](powershell/powershell-commands.md) v14
+
+- **Added**
+  - Added `-WhatIf` support for resource provider registration in [New-FinOpsCostExport](powershell/cost/new-finopscostexport.md).
+- **Fixed**
+  - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost/start-finopscostexport.md) that showed blank dates when a date range was specified.
+
+### [Open data](open-data.md) v14
+
+**[Commitment discount eligibility](open-data.md#commitment-discount-eligibility)**
+
+- **Added**
+  - Added a new [Commitment discount eligibility](open-data.md#commitment-discount-eligibility) dataset with pre-computed reservation and savings plan eligibility per meter, sourced from the Azure Retail Prices API.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v14)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v13...v14)
+<!-- prettier-ignore-end -->
+
+<br>
+
+## v13 Update 1
+
+_Released February 11, 2026_
+
+This release is a minor patch to fix a bug in FinOps hub managed exports and the PowerShell Deploy-FinOpsHub command. If you are experiencing issues with managed exports in FinOps hubs v13, update to the latest v13 release. We are documenting this as a new patch release for transparency. If you downloaded **finops-hub.bicep** before February 11, 2026, update to the latest version.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v13 Update 1
+
+- **Fixed**
+  - Fixed incorrect PriceSheet export dataset version in managed exports to 2023-05-01.
+
+### [PowerShell module](powershell/powershell-commands.md) v13 Update 1
+
+- **Added**
+  - Added [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) parameters for all remaining Bicep template options: `-EnablePurgeProtection`, `-EnableManagedExports`, `-FabricQueryUri`, `-FabricCapacityUnits`, `-TagsByResource`, `-ScopesToMonitor`, `-ExportRetentionInDays`, and `-IngestionRetentionInMonths`.
+- **Fixed**
+  - Fixed [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) failing in Cloud Shell and Linux environments due to missing TEMP environment variable (required by Bicep CLI) and cleanup errors masking the real problem ([#665](https://github.com/microsoft/finops-toolkit/issues/665)).
+
+<br>
+
+## v13
+
+_Released January 31, 2026_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v13
+
+- **Added**
+  - Added [Data Lake Storage connectivity options](data-lake-storage-connectivity.md) documentation covering tools and services beyond Power BI.
+  - Added troubleshooting guidance for [Data Explorer ingestion errors](help/errors.md#dataexploreringestionfailed), including the SEM0080 "Ingestion Failed" semantic error.
+- **Changed**
+  - Updated FOCUS converter documentation for newly added fields in the FOCUS 1.2-preview specification, including ServiceSubcategory, InvoiceId, PricingCurrency, and SkuMeter.
+  - Removed Azure TCO calculator references for tool retirement on August 31, 2025.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v13
+
+- **Added**
+  - Added optional `enablePurgeProtection` parameter (default: `false`) to enable Key Vault purge protection for compliance with Azure Landing Zone policies ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+  - Added documentation for [how to remove private networking](hubs/private-networking.md#removing-private-networking) and switch back to public access to reduce costs ([#1342](https://github.com/microsoft/finops-toolkit/issues/1342)).
+  - Added troubleshooting guidance for [ErrorCodeNotString](help/errors.md#errorcodenotstring), [DataExplorerPostIngestionDropFailed](help/errors.md#dataexplorerpostingestiondropfailed), and [DataExplorerPreIngestionDropFailed](help/errors.md#dataexplorerpreingestiondropfailed) errors.
+- **Changed**
+  - Reorganized Bicep modules into separate apps.
+  - Changed the User Access Administrator role to RBAC Administrator and moved it to the Managed Exports app ([#1946](https://github.com/microsoft/finops-toolkit/issues/1946)).
+  - Updated [Configure scopes documentation](hubs/configure-scopes.md) to clarify support for multiple Azure scopes and cross-cloud data ingestion.
+  - Optimized trigger management script with retry logic and improved logging.
+- **Fixed**
+  - Fixed ADF triggers not starting after deployment.
+  - Fixed ADF pipeline dependency logic to properly handle both array and non-array scope configurations.
+  - Fixed `config_InitializeHub` pipeline failures caused by GitHub URL redirects and version format mismatches ([#1885](https://github.com/microsoft/finops-toolkit/issues/1885), [#1886](https://github.com/microsoft/finops-toolkit/issues/1886)).
+  - Fixed scope generation logic and datatype mismatch (`x_PricingBlockSize`) in InitializeHub pipeline.
+  - Fixed Azure Data Explorer dashboard queries by converting `todecimal(0)` to `toreal(0)` for KQL compatibility ([#1893](https://github.com/microsoft/finops-toolkit/issues/1893)).
+  - Fixed `Costs_v1_2` function producing duplicate records when Services table contains multiple entries for the same resource type.
+  - Fixed backward compatibility in `Costs_transform_v1_2()` to support Cost Management exports that predate FOCUS 1.2.
+  - Fixed broken link for GitHub Copilot instructions download in [Configure AI documentation](hubs/configure-ai.md) ([#1803](https://github.com/microsoft/finops-toolkit/issues/1803)).
+
+### [Power BI reports](power-bi/reports.md) v13
+
+- **Added**
+  - Added export requirements sections to all Power BI report documentation pages to clarify which Cost Management exports are needed for each report.
+  - Added Azure Resource Graph as an explicit requirement for governance and workload optimization reports.
+  - Added `CapacityReservationId` and `CapacityReservationStatus` columns in storage-based Power BI reports ([#1836](https://github.com/microsoft/finops-toolkit/issues/1836)).
+- **Fixed**
+  - Fixed tag expansion when tag names contain special characters like colons.
+  - Fixed unattached disks count in the workload optimization report to show only truly unattached disks ([#1896](https://github.com/microsoft/finops-toolkit/issues/1896)).
+  - Fixed "Number of Months" parameter calculation that was excluding the first 5 days of data ([#1833](https://github.com/microsoft/finops-toolkit/issues/1833)).
+  - Fixed EA department scope failing on price sheet export by skipping unsupported scopes ([#1870](https://github.com/microsoft/finops-toolkit/issues/1870)).
+
+### [Optimization engine](optimization-engine/overview.md) v13
+
+- **Changed**
+  - Changed default SQL database backup redundancy to LRS for improved cost efficiency and compatibility with non-paired Azure regions.
+- **Fixed**
+  - Fixed reservations-related workbooks by replacing Instance Size Flexibility ratios CSV vanity URL ([#1810](https://github.com/microsoft/finops-toolkit/issues/1810)).
+  - Fixed underutilized disks recommendations not being generated for Premium SSD V2 disks ([#1831](https://github.com/microsoft/finops-toolkit/issues/1831)).
+  - Fixed retail prices export runbook to fail explicitly when the API returns no records for the configured filter, avoiding silent no-op runs.
+  - Small documentation improvements and fixes to broken links.
+- **Changed**
+  - Improved retail prices export runbook resilience by adding API request retry logic and streaming each response page directly to CSV to reduce memory usage. Added periodic progress logging during long exports.
+
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v13
+
+#### [Optimization workbook](workbooks/optimization.md) v13
+
+- **Fixed**
+  - Fixed SQL Managed Instance vCores displaying incorrect values in the AHB workbook by changing vCores from string to integer type ([#1877](https://github.com/microsoft/finops-toolkit/issues/1877)).
+
+### [PowerShell module](powershell/powershell-commands.md) v13
+
+- **Added**
+  - Added `-Format` and `-CompressionMode` parameters to [New-FinOpsCostExport](powershell/cost/New-FinOpsCostExport.md) to support Parquet format and gzip/snappy compression ([#1074](https://github.com/microsoft/finops-toolkit/issues/1074)).
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v12...v13)
+<!-- prettier-ignore-end -->
+
+<br>
+
+## v12
+
+_Released July 16, 2025_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v12
+
+- **Added**
+  - Created a script to generate a template FOCUS conformance document.
+- **Changed**
+  - Updated FOCUS documentation to align to the 1.2-preview dataset from Cost Management.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v12
+
+- **Added**
+  - Added full support for FOCUS 1.2 in Azure Data Explorer and Microsoft Fabric across [all managed datasets](hubs/data-model.md#managed-datasets-in-finops-hubs).
+    - This adds support for ingesting the Cost Management 1.2-preview FOCUS dataset version.
+    - When FOCUS 1.0 or 1.0-preview data is ingested, it will be converted to FOCUS 1.2. Historical data will remain in the `*_final_v1_0` tables.
+    - All unversioned Hub database functions, like `Costs()`, will include added and removed columns.
+    - New versioned Hub database functions, like `Costs_v1_2()`, were added based on the FOCUS 1.2 schema changes.
+    - Make sure you use the 1.0 functions, like `Costs_v1_0()`, to avoid breaking changes between FOCUS versions.
+    - This is **not** a breaking change if you are following the prescribed guidance of using versioned functions.
+    - This change does not include Power BI and Data Explorer dashboard updates. Those are still using the `*_v1_0` functions.
+  - Added new columns to the [Costs managed dataset](hubs/data-model.md#costs-managed-dataset):
+    - Alibaba FOCUS extended columns: `x_BillingItemCode`, `x_BillingItemName`, `x_CommodityCode`, `x_CommodityName`, `x_InstanceID`.
+    - Tencent FOCUS extended columns: `x_ComponentName`, `x_ComponentType`, `x_ExportTime`, `x_OwnerAccountID`, `x_SubproductName`.
+    - Discount percentage columns: `x_NegotiatedDiscountPercent`, `x_CommitmentDiscountPercent`, `x_TotalDiscountPercent`.
+    - Savings columns: `x_NegotiatedDiscountSavings`, `x_CommitmentDiscountSavings`, `x_TotalSavings`.
+    - Commitment discount utilization columns: `x_CommitmentDiscountUtilizationAmount`, `x_CommitmentDiscountUtilizationPotential`.
+    - Azure Hybrid Benefit columns: `x_SkuLicenseQuantity`, `x_SkuLicenseStatus`, `x_SkuLicenseType`, `x_SkuLicenseUnit`.
+    - SKU property columns: `x_SkuCoreCount`, `x_SkuInstanceType`, `x_SkuOperatingSystem`.
+    - `x_ConsumedCoreHours` to track total core hours for the charge by multiplying `ConsumedQuantity` by `x_SkuCoreCount`.
+    - `x_SourceValues` to track data changes during FinOps toolkit data ingestion.
+    - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).
+  - Changed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
+  - Added new properties to the [Recommendations managed dataset](hubs/data-model.md#recommendations-managed-dataset) to support custom recommendations.
+  - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).
+  - Added a new **enableManagedExports** parameter to support disabling managed exports and not requiring the ability to assign the User Access Administrator role to a hub identity ([#1600](https://github.com/microsoft/finops-toolkit/issues/1600)).
+  - Document [how savings are calculated](hubs/savings-calculations.md) and how to troubleshoot negative savings.
+- **Changed**
+  - Changed all `decimal` columns to use `real` in raw and v1_2 tables and functions for improved performance.
+  - Updated the Data Explorer dashboard to use the v1_2 schema.
+
+### [Power BI reports](power-bi/reports.md) v12
+
+- **Added**
+  - Added a new exec summary page to the [Cost Summary report](power-bi/cost-summary.md) that shows top subscriptions, services, and resource groups for exec level view.
+- **Changed**
+  - Added an invoice ID filter to the [Microsoft Customer Agreement (MCA) invoice recon page](power-bi/invoicing.md#invoice-recon-mca) in the Invoicing and chargeback report.
+  - Renamed the Summary page to Running total in the [Cost Summary report](power-bi/cost-summary.md).
+  - Updated the KQL reports to use the FinOps hubs v1_2 schema.
+- **Fixed**
+  - Correctly detect the hub version in the [Data ingestion report](power-bi/data-ingestion.md).
+
+### [Optimization engine](optimization-engine/overview.md) v12
+
+- **Fixed**
+  - Link to recommendations Power BI report in MS Learn documentation ([#1614](https://github.com/microsoft/finops-toolkit/issues/1730)).
+  - Aka.ms links to point to the latest version of documentation articles in MS Learn.
+
+### [PowerShell module](powershell/powershell-commands.md) v12
+
+- **Changed**
+  - Updated the latest API version to 2025-03-01 in all Cost Management export commands.
+  - Updated the default FOCUS export version to "1.2-preview" in the [New-FinOpsCostExport command](powershell/cost/new-finopscostexport.md).
+
+### [Open data](open-data.md) v12
+
+**[Resource types](open-data.md#resource-types)**
+
+- **Added**
+  - Added 9 new Microsoft.Discovery resource types.
+  - Added the following resource types:
+    - microsoft.azurestackhci/clusters/updates/updateruns
+    - microsoft.azurestackhci/clusters/updatesummaries
+    - microsoft.hybridcompute/arcgatewayassociatedresources
+    - microsoft.insights/datacollectionrulesresources
+    - microsoft.loadtestservice/playwrightworkspaces
+    - microsoft.logic/templates
+    - microsoft.machinelearningservices/aistudiocreate
+    - microsoft.machinelearningservices/workspacescreate
+    - microsoft.maintenance/maintenanceconfigurationsaumbladeresource
+    - microsoft.updatemanager/updaterules
+    - microsoft.workloads/workloadinstance
+- **Changed**
+  - Updated the following resource types:
+    - microsoft.azurestackhci/devicepools
+    - microsoft.discovery/storages
+    - microsoft.discovery/supercomputers
+    - microsoft.discovery/workspaces
+    - microsoft.elastic/monitors
+    - microsoft.network/loadbalancers
+    - microsoft.weightsandbiases/instances
+
+**[Services](open-data.md#services)**
+
+- **Added**
+  - Mapped the following resource types to their respective services:
+    - microsoft.durabletask/schedulers
+    - microsoft.edge/contexts
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v12)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.11...v12)
+<!-- prettier-ignore-end -->
+
+<br>
+
+## v0.11
+
+_Released June 2, 2025_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.11
+
+- **Added**
+  - Documented a new FOCUS 1.0 conformance gap where **ServiceName** may be empty for some purchases and adjustments.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.11
+
+- **Added**
+  - Added instructions to tune GitHub Copilot Agent mode for FinOps hubs.
+  - Top 10 request: Added architecture diagram to documentation ([#401](https://github.com/microsoft/finops-toolkit/issues/401)).
+  - Added support for ingesting actual/amortized cost from the Microsoft internal C360 tool.
+    - This does not support Cost Management actual/amortized data, but that can be added. Please submit a [feature request](https://aka.ms/ftk/ideas), if desired.
+  - Added support for backporting FOCUS 1.2 into the existing FOCUS 1.0 schema.
+    - This is a short-term solution to avoid errors if FOCUS 1.2 exports are created.
+    - This has not been fully tested as FOCUS 1.2 exports are not available yet.
+- **Changed**
+  - Merged vnet and core-network modules into infrastructure.bicep (no functional changes).
+  - Moved telemetry setting into internal config settings object.
+  - Redesigned the [FinOps hubs upgrade guide](hubs/upgrade.md) to be easier to follow.
+  - Updated the [compatibility guide](hubs/compatibility.md) for 0.9-11.
+- **Fixed**
+  - Address new data quality issues with data ingested into Data Explorer:
+    - Fix BillingPeriodStart and BillingPeriodEnd to always be at the start of the month.
+
+### [Power BI reports](power-bi/reports.md) v0.11
+
+- **Added**
+  - Added a new [Invoicing and chargeback report](power-bi/invoicing.md) that shows billed cost breakdowns, chargeback, and invoice recon pages.
+  - Added a new [Usage analysis page](power-bi/cost-summary.md#usage-analysis) that shows usage over time compared to cost for a specific unit.
+  - Added a new [Commitment discount utilization page](power-bi/rate-optimization.md#commitment-discount-utilization) that shows commitment discount utilization over time.
+  - Added a new [Commitment discount resources page](power-bi/rate-optimization.md#commitment-discount-resources) that shows the resources that were covered by a specific commitment discount.
+- **Fixed**
+  - Fixed inconsistent numbers in the running total chart caused by date handling issues ([#1614](https://github.com/microsoft/finops-toolkit/issues/1614))
+
+### [FinOps alerts](alerts/finops-alerts-overview.md) v0.11
+
+- **Added**
+  - Added telemetry to the FinOps alerts template to track usage and bugs.
+    - Telemetry is not personally identifiable and only used to improve the template.
+    - Disable telemetry by setting the **enableDefaultTelemetry** parameter to **false**.
+
+### [Optimization engine](optimization-engine/overview.md) v0.11
+
+- **Changed**
+  - Upgraded Azure Resource Manager SQL Server name availability API version, used by the engine deployment script, due to upcoming deprecation of 2014-04-01 version.
+
+### [PowerShell module](powershell/powershell-commands.md) v0.11
+
+- **Fixed**
+  - Fixed an error in the [Start-FinOpsCostExport command](powershell/cost/start-finopscostexport.md) ([#884](https://github.com/microsoft/finops-toolkit/issues/884), [#988](https://github.com/microsoft/finops-toolkit/issues/988))
+  - Suppressed upcoming breaking changes warning for the Get-AzAccessToken cmdlet ([#987](https://github.com/microsoft/finops-toolkit/issues/987)).
+
+### [Open data](open-data.md) v0.11
+
+**[Pricing units](open-data.md#pricing-units)**
+
+- **Added**
+  - Added the "10 Seconds" unit of measure.
+
+**[Resource types](open-data.md#resource-types)**
+
+- **Added**
+  - Added 4 new Microsoft.AszLabHardware resource types.
+  - Added 3 new Microsoft.AzureCloudMetadata resource types.
+  - Added 3 new Microsoft.Discovery resource types.
+  - Added 2 new Microsoft.DocumentDB resource types.
+  - Added 3 new Microsoft.Premonition resource types.
+  - Added 2 new Microsoft.StorageHub resource types.
+  - Added the following resource types:
+    - microsoft.app/agents
+    - microsoft.cognitiveservices/accounts/projects
+    - microsoft.containerservice/managedclusters/managednamespaces
+    - microsoft.management/servicegroups
+    - microsoft.network/privatednszones/virtualnetworklinks
+    - microsoft.web/logicappstemplate
+    - oracle.database/basedb
+- **Changed**
+  - Updated the following resource types:
+    - microsoft.azurestackhci/networksecuritygroups
+    - microsoft.cache/redisenterprise
+    - microsoft.cognitiveservices/accounts
+    - microsoft.dashboard/dashboards
+    - microsoft.datareplication/replicationvaults
+    - microsoft.deviceregistry/schemaregistries
+    - microsoft.devtestlab/labs/virtualmachines
+    - microsoft.documentdb/fleets
+    - microsoft.fileshares/fileshares
+    - microsoft.healthdataaiservices/deidservices
+    - microsoft.machinelearningservices/aistudio
+    - microsoft.mission/approvals
+    - microsoft.mission/virtualenclaves/enclaveendpoints
+    - microsoft.mission/virtualenclaves/workloads
+    - microsoft.monitor/pipelinegroups
+    - microsoft.sovereign/landingzoneaccounts
+    - microsoft.storagediscovery/storagediscoveryworkspaces
+    - oracle.database/networkanchors
+    - oracle.database/resourceanchors
+
+**[Services](open-data.md#services)**
+
+- **Added**
+  - Added a service mapping for microsoft.premonition/libraries.
+  - Add service mappings to separate App Service and Functions.
+  - Mapped the following resource types to their respective services:
+    - microsoft.batch/batchaccounts/pools
+    - microsoft.compute/galleries/images/versions
+    - microsoft.compute/virtualmachinescalesets/virtualmachines
+    - microsoft.compute/virtualmachinescalesets/virtualmachines/networkinterfaces/ipconfigurations/publicipaddresses
+    - microsoft.datafactory/factories/pipelines
+    - microsoft.datafactory/factories/triggers
+    - microsoft.netapp/netappaccounts/capacitypools
+    - microsoft.network/dnsresolvers/outboundendpoints
+    - microsoft.network/networkwatchers/connectionmonitors
+    - microsoft.network/networkwatchers/flowlogs
+    - microsoft.network/networkwatchers/networkwatcher_canadacentral
+    - microsoft.search/searchservices/sharedprivatelinkresources
+    - microsoft.sql/longtermretentionservers/longtermretentiondatabases
+    - microsoft.storage/storageaccounts/blobservices
+    - microsoft.storage/storageaccounts/fileservices
+    - microsoft.storage/storageaccounts/queueservices
+    - microsoft.storage/storageaccounts/tableservices
+    - microsoft.synapse/workspaces/bigdatapools
+    - microsoft.synapse/workspaces/kustopools
+    - microsoft.synapse/workspaces/sqlpools
+    - microsoft.web/sites/slots
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.11)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.10...v0.11)
+<!-- prettier-ignore-end -->
+
+<br>
+
+## v0.10
+
+_Released May 4, 2025_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.10
+
+- **Changed**
+  - Updated FinOps Framework domains, principles, capabilities, and scopes to reflect the 2025 updates.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.10
+
+- **Added**
+  - Top 10 request: Added support for connecting FinOps hubs to Microsoft Fabric Real-Time Intelligence.
+  - Added support for Azure Gov and Azure operated by 21Vianet.
+  - Expand deployment steps into a dedicated [Create and update FinOps hubs tutorial](hubs/deploy.md).
+  - Created new bicep modules to support extensibility:
+    - The **hub-app** module creates resources and tracks telemetry when an app is deployed.
+    - The **hub-storage** module creates containers in the hub storage account.
+    - The **hub-event-trigger** module creates a trigger in the hub Data Factory instance.
+    - The **hub-database** module runs KQL scripts in the Data Explorer database.
+    - The **hub-vault** module adds secrets to the hub vault.
+  - Workaround subnets reordering and bicep limitation.
+- **Fixed**
+  - Address new data quality issues with data ingested into Data Explorer:
+    - Fix x_EffectiveUnitPrice when it's calculated and there is a rounding error compared to x_BilledUnitPrice or ContractedUnitPrice.
+    - Calculate PricingQuantity and ConsumedQuantity when there is cost but no quantity.
+    - Set ListCost based on ContractedCost or ListUnitPrice when not specified.
+    - Replaced "-2" and "Unassigned" values in the x_InvoiceSectionId and x_InvoiceSectionName columns.
+    - Add new x_SourceChanges checks for "MissingConsumedQuantity", "MissingPricingQuantity", and "XEffectiveUnitPriceRoundingError".
+
+### [Power BI reports](power-bi/reports.md) v0.10
+
+- **Added**
+  - Added support for Azure Gov and Azure operated by 21Vianet.
+  - Documented that SAS tokens may require configuration at the storage account (and not a container) level ([#1418](https://github.com/microsoft/finops-toolkit/issues/1418#issuecomment-2834146702)).
+  - Documented additional errors and mitigation steps.
+- **Changed**
+  - Updated documentation to clarify the ADLS storage requirement.
+- **Fixed**
+  - Reduced data amount in the NetworkSecurityGroups query to avoid size limits ([#1540](https://github.com/microsoft/finops-toolkit/issues/1540)).
+  - Disabled the PolicyDefinitions query due to size limits ([#1539](https://github.com/microsoft/finops-toolkit/issues/1539)).
+  - Removed the Virtual machines page in the Workload optimization report ([#1519](https://github.com/microsoft/finops-toolkit/issues/1519)).
+  - Updated Resource Graph queries to handle no results ([#1550](https://github.com/microsoft/finops-toolkit/issues/1550)).
+  - Fixed reservation recommendation query for raw MCA exports ([#1530](https://github.com/microsoft/finops-toolkit/issues/1530)).
+  - Fixed a parsing issue with the HubScopes query ([#1521](https://github.com/microsoft/finops-toolkit/issues/1521)).
+  - Added a "Remove Duplicate Resource IDs" parameter to work around a bug in Azure Resource Graph ([#1541](https://github.com/microsoft/finops-toolkit/issues/1541)).
+    - This parameter is not recommended as it may return incorrect or incomplete data.
+    - If you receive this error, please file a support request against the Azure Resource Graph team to resolve the bug creating duplicate rows.
+
+### [FinOps alerts](alerts/finops-alerts-overview.md) v0.10
+
+- **Fixed**
+  - Update the `id` property for the managedApi to a valid scope.
+    - This caused a deployment error because the path could not be deserialized.
+
+### [Optimization engine](optimization-engine/overview.md) v0.10
+
+- **Fixed**
+  - Fixed issue with `Remediate-LongDeallocatedVMsFiltered` runbook that was skipping the remediation of eligible VMs due to `Az.Compute` module breaking changes ([#1456](https://github.com/microsoft/finops-toolkit/issues/1456)).
+  - Fixed issue with the Reservations Usage workbook that was listing multiple display names for the same reservation in case its name changed over the course of the lookback period ([#1455](https://github.com/microsoft/finops-toolkit/issues/1455)).
+  - Fixed issue with the `Recommend-AdvisorCostAugmentedToBlobStorage` runbook that was failing when Azure Advisor recommends virtual machine right-sizing for SKUs with large disk throughput capabilities ([#1526](https://github.com/microsoft/finops-toolkit/issues/1526)).
+  - Fixed issue with deployment script that was using a retired and no longer needed Log Analytics workspace naming validation endpoint ([#1529](https://github.com/microsoft/finops-toolkit/issues/1529)).
+
+### [PowerShell module](powershell/powershell-commands.md) v0.10
+
+- **Added**
+  - Documented the [Add-FinOpsServicePrincipal PowerShell command](powershell/cost/Add-FinOpsServicePrincipal.md).
+- **Changed**
+  - Updated the [Start-FinOpsCostExport](powershell/cost/Start-FinOpsCostExport.md) examples to include the `-Scope` parameter ([#1495](https://github.com/microsoft/finops-toolkit/issues/1495)).
+
+### [Open data](open-data.md) v0.10
+
+**[Pricing units](open-data.md#pricing-units)**
+
+- **Added**
+  - Added the "100000000 /Day" unit of measure.
+
+**[Regions](open-data.md#regions)**
+
+- **Added**
+  - Added the "ussgovarizona" region.
+
+**[Resource types](open-data.md#resource-types)**
+
+- **Added**
+  - Added 7 Microsoft.ApplicationMigration resource types.
+  - Added 20 Microsoft.Migrate resource types.
+  - Added the following resource types:
+    - microsoft.azurecis/azcopies
+    - microsoft.billingbenefits/credits
+    - microsoft.billingbenefits/discounts
+    - microsoft.containerservice/managedclusters/namespaces
+    - microsoft.netapp/netappaccounts/backuppolicies
+    - microsoft.quantum/provideraccounts
+    - microsoft.relationships/servicegrouprelationships
+    - microsoft.resources/virtualsubscriptionsforresourcepicker
+    - microsoft.saashub/saasresources
+    - microsoft.sentinelplatformservices/sentinelplatformservices
+    - oracle.database/networkanchors
+    - oracle.database/resourceanchors
+- **Changed**
+  - Updated the following resource types:
+    - dell.storage/filesystems
+    - lambdatest.hyperexecute/organizations
+    - microsoft.billingbenefits/maccs
+    - microsoft.cache/redisenterprise
+    - microsoft.codesigning/codesigningaccounts
+    - microsoft.fileshares/fileshares
+    - microsoft.hardwaresecuritymodules/cloudhsmclusters
+    - microsoft.kubernetes/connectedclusters
+    - microsoft.liftrpilot/organizations
+    - mongodb.atlas/organizations
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.9...v0.10)
+<!-- prettier-ignore-end -->
+
+<br>
+
+## v0.9 Update 1
+
+_Released April 7, 2025_
+
+This release is a minor patch to fix the FinOps hub deployment and the Power BI Rate optimization reports for storage. These files were updated in the existing 0.9 release. We are documenting this as a new patch release for transparency. If you downloaded **finops-hub.bicep**, **PowerBI-storage.zip**, or **PowerBI-demo.zip** between April 4-7, 2025, please update to the latest version.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9 Update 1
+
+- **Fixed**
+  - Removed a reference to old columns that are no longer applicable.
+    - This may have caused new deployments to fail on April 4. Upgrades were not affected.
+
+### [Power BI reports](power-bi/reports.md) v0.9 Update 1
+
+- **Fixed**
+  - Fixed the column type for the x_BreakEvenDate column in Power BI reports.
+
+<br>
+
 ## v0.9
 
-_Released March 2025_
-
-### [Power BI reports](power-bi/reports.md) v0.8 Update 1
-
-**General**
-
-- **Fixed**
-  - Fixed the "The import Storage URL matches no exports" error ([#1344](https://github.com/microsoft/finops-toolkit/issues/1344)).
-
-**[Rate optimization](power-bi/rate-optimization.md)**
-
-- **Fixed**
-  - Fixed core count double-counting on the Hybrid Benefit page.
-  - Fixed savings to include negotiated discounts on the Total savings page.
+_Released April 4, 2025_
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9
 
 - **Added**
+  - Added support for MCA reservation recommendation exports.
+  - Added support for multiple reservation recommendation exports to support shared and single recommendations for all services and lookback periods.
+  - Managed exports now create price, reservation detail, reservation transaction, and VM reservation recommendation exports.
+  - Address new data quality issues with data ingested into Data Explorer:
+    - Change `BillingAccountId` to be lowercase in both the cost and price datasets.
+    - Change `CommitmentDiscountId` to be lowercase in the cost dataset.
+    - Handle `x_BillingProfileId` case-sensitivity for the cost/price join (without changing data).
+    - Set `ContractedCost` to `EffectiveCost` when `ContractedCost` is 0 or empty and both unit prices match to avoid rounding errors when calculating cost.
+    - Set `ContractedCost` to `EffectiveCost` when `ContractedCost` and `ContractedUnitPrice` are both 0 or empty.
+    - Set `ListCost` to `ContractedCost` when `ListCost` is 0 or empty and both unit prices match to avoid rounding errors when calculating cost.
+    - Set `ListCost` to `ContractedCost` when `ListCost` and `ListUnitPrice` are both 0 or empty.
   - Documented the roles that will be assigned as part of the deployment in the [template details](./hubs/template.md).
+- **Changed**
+  - Changed the deployment template to only deploy Key Vault when configured as a remote hub.
+    - This will not remove existing Key Vault instances. Please delete them manually if not using this instance as a remote (secondary) hub.
+  - Added a new Data ingestion > Data quality section into the Data Explorer dashboard with a summary of missing and incorrect costs.
 - **Fixed**
+  - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330)).
   - Updated the deployment script to set the settings.json scopes property to an array ([#1237](https://github.com/microsoft/finops-toolkit/issues/1237)).
+  - Fixed an issue where the Data Explorer cluster could not update when re-deployed ([#1350](https://github.com/microsoft/finops-toolkit/issues/1350)).
+  - Removed spaces from the MCA reservation recommendations export column names ([#1317](https://github.com/microsoft/finops-toolkit/issues/1317)).
+  - Changed how reservations are summarized to ensure the latest version of each recommendation is displayed. ([#1408](https://github.com/microsoft/finops-toolkit/issues/1408)).
+  - Improved how recommendation dates are calculated ([#1388](https://github.com/microsoft/finops-toolkit/issues/1388)).
+  - Fixed an issue where reservation recommendations were being duplicated for the Canada Central region.
+  - Fixed an issue where Recommendations.x_IngestionTime is not being populated in Data Explorer.
 - **Removed**
   - Removed the Managed Identity Contributor permission assigned to managed identities used during the deployment ([#1248](https://github.com/microsoft/finops-toolkit/issues/1248)).
     - The deployment cannot remove role assignments. You can safely remove role assignments from the managed identities to limit access.
     - Please do not delete the managed identities. Deleting managed identities can result in errors during upgrades.
+  - Removed the trusted external tenants setting due to an error causing redeployments to fail. Please enable this after deploying FinOps hubs the first time.
 
+### [Power BI reports](power-bi/reports.md) v0.9
+
+**General**
+
+- **Added**
+  - Top 10 request: Added support for promoted tags with spaces in the tag key.
+- **Changed**
+  - Updated the savings columns to exclude rows where costs are missing or incorrect.
+  - Disabled the **Deprecated: Perform Extra Query Optimizations** parameter by default ([#1380](https://github.com/microsoft/finops-toolkit/issues/1380)).
+    - This parameter will be removed on or after July 1, 2025.
+    - If you rely on this setting, please [create an issue in GitHub](https://aka.ms/ftk/ideas) and let us know what you need.
+  - Improved readability and performance of the Disks query.
+- **Fixed**
+  - Fixed the "The import Storage URL matches no exports" error ([#1344](https://github.com/microsoft/finops-toolkit/issues/1344)).
+  - Updated all Resource Graph queries to address the 'properties...' column not found error ([#1357](https://github.com/microsoft/finops-toolkit/issues/1357)).
+
+**[Rate optimization](power-bi/rate-optimization.md)**
+
+- **Added**
+  - Added support for MCA reservation recommendation exports.
+  - Top 10 request: Show break-even point calculation for reservation recommendations. ([#406](https://github.com/microsoft/finops-toolkit/issues/406)).
+- **Fixed**
+  - Fixed core count double-counting on the Hybrid Benefit page.
+  - Fixed savings to include negotiated discounts on the Total savings page.
+
+### [FinOps alerts](alerts/finops-alerts-overview.md) v0.9
+
+- **Added**
+  - Overview documentation on how the FinOps alert tool works in the [FinOps alerts overview](./alerts/finops-alerts-overview.md).
+  - Configuration steps in the [Configure FinOps alerts](./alerts/configure-finops-alerts.md).
+  - FinOps alerts deployment template.
+
+### [Optimization engine](optimization-engine/overview.md) v0.9
+
+- **Fixed**
+  - Fixed issue with breaking storage account recommendations when resource tags are duplicated after tag inheritance ([#1430](https://github.com/microsoft/finops-toolkit/issues/1430)).
+
+### [Open data](open-data.md) v0.9
+
+**[Pricing units](open-data.md#pricing-units)**
+
+- **Added**
+  - Added the "1K/Day" unit of measure.
+
+**[Regions](open-data.md#regions)**
+
+- **Added**
+  - Added the "southcentralus2" region.
+- **Fixed**
+  - Changed a **Central Canada** reference to **Canada Central**.
+    - This may have caused issues or duplication when joined with other datasets.
+    - Please check your data for duplicate references to **Central Canada** and **Canada Central**.
+
+**[Resource types](open-data.md#resource-types)**
+
+- **Added**
+  - Added 11 Microsoft.IoTOperationsMQ resource types.
+  - Added 3 Microsoft.AzureStackHCI resource types.
+  - Added 3 microsoft.CleanRoom resource types.
+  - Added 3 microsoft.DataReplication resource types.
+  - Added 6 Microsoft.DeviceRegistry resource types.
+  - Added 14 Microsoft.Media resource types.
+  - Added 4 Microsoft.Workloads resource types.
+  - Added the following resource types:
+    - microsoft.advisor/assessments
+    - microsoft.advisor/resiliencyreviews
+    - microsoft.appcomplianceautomation/reports/snapshots/controls
+    - microsoft.appsecurity/appprotectmanagedrulesetmanifests
+    - microsoft.azurearcdata/mysqlserver
+    - microsoft.azurearcdata/postgressqlserver
+    - microsoft.azurecis/sharedconfigvalues
+    - microsoft.billing/billingaccounts/migrations
+    - microsoft.dashboard/dashboards
+    - microsoft.devhub/templates
+    - microsoft.devhub/templates/versions
+    - microsoft.documentdb/fleets
+    - microsoft.edge/disconnectedoperations
+    - microsoft.graph/azureadapplicationprototype
+    - microsoft.hdinsight/clusterpools/clusters/instanceviews
+    - microsoft.healthplatform/accounts
+    - microsoft.logic/integrationserviceenvironments/health
+    - microsoft.maintenance/maintenanceconfigurationsbladeresource
+    - microsoft.networkcloud/kubernetesclusters/features
+    - microsoft.onlineexperimentation/workspaces
+    - microsoft.saashub/cloudservices
+    - microsoft.secretmanagementsampleprovider/forecasts
+    - microsoft.storagediscovery/storagediscoveryworkspaces
+    - microsoft.toolchainorchestrator/diagnostics
+- **Changed**
+  - Updated the following resource types:
+    - microsoft.aad/domainservices
+    - microsoft.agricultureplatform/agriservices
+    - microsoft.compute/virtualmachines/providers/guestconfigurationassignments
+    - microsoft.computeschedule/autoactions
+    - microsoft.connectedcache/cachenodes
+    - microsoft.connectedcache/enterprisecustomers
+    - microsoft.edgeorder/bootstrapconfigurations
+    - microsoft.edgeorder/virtual_orderitems
+    - microsoft.iotfirmwaredefense/workspaces
+    - microsoft.manufacturingplatform/manufacturingdataservices
+    - microsoft.network/networksecurityperimeters/profiles
+    - microsoft.network/p2svpngateways
+    - microsoft.network/trafficmanagerprofiles
+    - microsoft.network/vpngateways
+    - microsoft.operationalinsights/clusters
+    - microsoft.sustainabilityservices/calculations
+    - microsoft.zerotrustsegmentation/segmentationmanagers
+    - mongodb.atlas/organizations
+    - oracle.database/exadbvmclusters
+    - oracle.database/exascaledbstoragevaults
+
+**[Services](open-data.md#services)**
+
+- **Added**
+  - Mapped the "microsoft.cognitiveservices/commitmentplans" resource type to Azure AI Services service.
+  - Mapped the "microsoft.deviceregistry/billingcontainers" resource type to Azure IoT Hub service.
+
+**[Dataset examples](open-data.md#dataset-examples)**
+
+- **Added**
+  - Added sample data for MCA reservation exports.
+
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
 > [!div class="nextstepaction"]
 > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.8...v0.9)
+<!-- prettier-ignore-end -->
 
 <br>
 
 ## v0.8 Update 1
 
-_Released February 16, 2024_
+_Released February 16, 2025_
 
 This release is a minor patch to fix Power BI reports. These files were updated in the existing 0.8 release. We are documenting this as a new patch release for transparency. If you downloaded **PowerBI-KQL.zip** or **PowerBI-storage.zip** between February 12-15, 2025, please update to the latest version.
 
@@ -120,6 +1029,7 @@ _Released February 12, 2025_
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.8
 
 <!-- cSpell:ignore daterange, datestring, monthsago, monthstring, numberstring, resourceid, startofmonth, virtualmachines -->
+
 - **Added**
   - Added Data Explorer dashboard template.
   - Added new KQL functions in Data Explorer:
@@ -142,7 +1052,7 @@ _Released February 12, 2025_
   - Deprecated the `monthsago()` KQL function. Please use `startofmonth(datetime, [offset])` instead.
 - **Fixed**
   - Improved performance and memory consumption in the `parse_resourceid()` function to address out of memory errors during cost data ingestion ([#1188](https://github.com/microsoft/finops-toolkit/issues/1188)).
-  - Fixed timezones for Data Factory triggers to resolve issue where triggers would not start due to unrecognized timezone.
+  - Fixed time zones for Data Factory triggers to resolve issue where triggers wouldn't start due to unrecognized time zone.
   - Fixed an issue where `x_ResourceType` is using the wrong value.
     - This fix resolves the issue for all newly ingested data.
     - To fix historical data, reingest data using the `ingestion_ExecuteETL` Data Factory pipeline.
@@ -153,10 +1063,10 @@ _Released February 12, 2025_
 #### [Optimization workbook](workbooks/optimization.md) v0.8
 
 - **Added**
-  - Azure Arc Windows license management under the **Commitment Discounts** tab.  
+  - Azure Arc Windows license management under the **Commitment Discounts** tab.
 - **Fixed**
   - Enabled "Export to CSV" option on the **Idle backups** query.
-  - Corrected VM processor details on the **Compute** tab query.  
+  - Corrected VM processor details on the **Compute** tab query.
 
 ### [Optimization engine](optimization-engine/overview.md) v0.8
 
@@ -272,10 +1182,12 @@ _Released February 12, 2025_
     - microsoft.iotoperations/instances
     - microsoft.networkcloud/baremetalmachines <!-- cSpell:enable -->
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.8)
 > [!div class="nextstepaction"]
 > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.7...v0.8)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -328,7 +1240,7 @@ _Released December 1, 2024_
   - Updated supported spend estimates in the Power BI documentation.
 - **Fixed**
   - Fixed EffectiveCost for savings plan purchases to work around a bug in exported data.
-  
+
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.7
 
 _**Breaking change**_
@@ -348,7 +1260,7 @@ _**Breaking change**_
     - Added param to disable external access to Azure Data Lake and Azure Data Explorer.
     - Added param to specify subnet range of virtual network - minimum size = /26
   - Support for storage account infrastructure encryption.
-  - Published a [schema file](https://aka.ms/finops/hubs/settings-schema) for the hub settings.json file.
+  - Published a schema file for the hub settings.json file in this release.
 - **Changed**
   - Changed dataset names in the ingestion container to facilitate Azure Data Explorer ingestion.
     > [!IMPORTANT]
@@ -430,10 +1342,12 @@ _**Breaking change**_
     - microsoft.healthdataaiservices/deidservices
     - microsoft.insights/datacollectionrules <!-- cSpell:enable -->
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.7)
 > [!div class="nextstepaction"]
 > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.6...v0.7)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -538,7 +1452,7 @@ _Released October 2, 2024_
 - Deprecated
   - With the deprecation of the legacy Log Analytics agent in August 31, the `Setup-LogAnalyticsWorkspaces` script is no longer being maintained and will be removed in a future update.
     - The script was used to set up performance counters collection for machines connected to Log Analytics workspaces with the legacy agent.
-    - We recommend migrating to the [Azure Monitor Agent](/azure/azure-monitor/agents/azure-monitor-agent-migration) and use the `Setup-DataCollectionRules` script to [setup performance counters collection with Data Collection Rules](optimization-engine/configure-workspaces.md).
+    - We recommend migrating to the [Azure Monitor Agent](/azure/azure-monitor/agents/azure-monitor-agent-migration) and use the `Setup-DataCollectionRules` script to [set up performance counters collection with Data Collection Rules](optimization-engine/configure-workspaces.md).
 
 ### [PowerShell module](powershell/powershell-commands.md) v0.6
 
@@ -583,10 +1497,12 @@ _Released October 2, 2024_
     - microsoft.sql/longtermretentionservers
     - microsoft.verifiedid/authorities <!-- cSpell:enable -->
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download v0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6)
 > [!div class="nextstepaction"]
 > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.5...v0.6)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -818,7 +1734,7 @@ _Released September 1, 2024_
   - Updated multiple resource types for the following resource providers: **microsoft.awsconnector**. <!-- cSpell:disable-line -->
   - Changed the following resource providers to be GA: **microsoft.modsimworkbench**. <!-- cSpell:disable-line -->
 - **Removed**
-  - Removed internal "microsoft.cognitiveservices/browse*" resource types. <!-- cSpell:disable-line -->
+  - Removed internal "microsoft.cognitiveservices/browse\*" resource types. <!-- cSpell:disable-line -->
 
 #### [Services v0.5](open-data.md#services)
 
@@ -855,10 +1771,12 @@ _Released September 1, 2024_
   - Move Microsoft Defender for Endpoint from the **Multicloud** service category to **Security**.
   - Move StorSimple from the **Multicloud** service category to **Storage**.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download v0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5)
 > [!div class="nextstepaction"]
 > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.4...v0.5)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -980,10 +1898,12 @@ _Released July 12, 2024_
   - Changed the primary columns in the [Regions](open-data.md#regions) and [Services](open-data.md#services) open data files to be lowercase.
   - Updated all [sample exports](open-data.md#dataset-examples) to use the same date range as the FOCUS 1.0 dataset.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download v0.4](https://github.com/microsoft/finops-toolkit/releases/tag/v0.4)
 > [!div class="nextstepaction"]
 > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.3...v0.4)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -1071,10 +1991,12 @@ _Released March 28, 2024_
   - Added ServiceModel and Environment columns to the [services](open-data.md#services) data ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
   - New and updated [resource types](open-data.md#resource-types) and icons.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download v0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3)
 > [!div class="nextstepaction"]
 > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.3)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -1163,10 +2085,12 @@ _**Breaking change**_
 - **Added**
   - [FinOps Open Cost and Usage Specification (FOCUS) details](../focus/what-is-focus.md).
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download v0.2](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2)
 > [!div class="nextstepaction"]
 > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.1.1...v0.2)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -1201,10 +2125,12 @@ _Released October 26, 2023_
     - [Register-FinOpsHubProviders](powershell/hubs/Register-FinOpsHubProviders.md)
     - [Remove-FinOpsHub](powershell/hubs/Remove-FinOpsHub.md)
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download v0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1)
 > [!div class="nextstepaction"]
 > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.1...v0.1.1)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -1252,10 +2178,12 @@ _Released October 22, 2023_
   - [Regions](open-data.md#regions) to map historical resource location values in Microsoft Cost Management to standard Azure regions.
   - [Services](open-data.md#services) to map all resource types to FOCUS service names and categories.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download v0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1)
 > [!div class="nextstepaction"]
 > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.0.1...v0.1)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -1280,10 +2208,12 @@ _Released May 27, 2023_
 - **Added**
   - [Cost optimization workbook](workbooks/optimization.md) to centralize cost optimization.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download v0.0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.0.1)
 > [!div class="nextstepaction"]
 > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/878e4864ca785db4fc13bdd2ec3a6a00058688c3...v0.0.1)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -1291,12 +2221,16 @@ _Released May 27, 2023_
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Changelog)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Toolkit/featureName/Changelog)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>

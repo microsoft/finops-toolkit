@@ -12,7 +12,7 @@
 
     Returns the string '123456hyfpqje'.
 #>
-function Get-HubIdentifier 
+function Get-HubIdentifier
 {
     param (
         [Parameter(Mandatory = $true)]

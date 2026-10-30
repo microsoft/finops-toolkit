@@ -21,13 +21,13 @@ The name of the Resource Group where the Automation Account is located.
 https://aka.ms/AzureOptimizationEngine/customize
 #>
 param(
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [String] $AzureEnvironment = "AzureCloud",
 
-    [Parameter(Mandatory = $true)] 
+    [Parameter(Mandatory = $true)]
     [String] $AutomationAccountName,
 
-    [Parameter(Mandatory = $true)] 
+    [Parameter(Mandatory = $true)]
     [String] $ResourceGroupName
 )
 
@@ -50,7 +50,7 @@ try {
     $scheduledRunbooks = Get-AzAutomationScheduledRunbook -AutomationAccountName $AutomationAccountName -ResourceGroupName $ResourceGroupName
 }
 catch {
-    throw "$AutomationAccountName Automation Account not found in Resource Group $ResourceGroupName in Subscription $($ctx.Subscription.Name). If we are not in the right subscription, use Set-AzContext to switch to the correct one."    
+    throw "$AutomationAccountName Automation Account not found in Resource Group $ResourceGroupName in Subscription $($ctx.Subscription.Name). If we are not in the right subscription, use Set-AzContext to switch to the correct one."
 }
 
 if (-not($scheduledRunbooks)) {
@@ -77,21 +77,26 @@ else {
 $newBaseTimeStr = Read-Host "Please, enter a new base time for the *weekly* schedules in UTC (YYYY-MM-dd HH:mm:ss). If you want to keep the current one, just press ENTER"
 if (-not($newBaseTimeStr)) {
     $newBaseTimeStr = $baseTimeStr
+    $baseTimeOffset = [DateTimeOffset]::Parse($newBaseTimeStr)
 }
 else {
+    $minAllowedTime = [DateTimeOffset]::UtcNow.AddHours(1)
+
     try {
-        $newBaseTimeStr += "Z"
-        $newBaseTime = [DateTime]::Parse($newBaseTimeStr)
+        $baseTimeOffset = [DateTimeOffset]::Parse($newBaseTimeStr + "Z")
     }
     catch {
         throw "$newBaseTimeStr is an invalid base time. Use the following format: YYYY-MM-dd HH:mm:ss. For example: 1977-09-08 06:14:15"
     }
-    if ($newBaseTime -lt (Get-Date).ToUniversalTime().AddHours(-1)) {
-        throw "$newBaseTimeStr is an invalid base time. It can't be sooner than $((Get-Date).ToUniversalTime().AddHours(-1).ToString('u'))"
+
+    if ($baseTimeOffset -lt $minAllowedTime) {
+        throw "$($baseTimeOffset.ToString('u')) is an invalid base time. It must be at least 1 hour in the future (after $($minAllowedTime.ToString('u')))"
     }
+
+    $newBaseTimeStr = $baseTimeOffset.ToString("yyyy-MM-dd HH:mm:ss") + "Z"
 }
 
-$baseTimeUtc = [DateTime]::Parse($newBaseTimeStr).ToUniversalTime()
+$baseTimeUtc = $baseTimeOffset.UtcDateTime
 
 if ($newBaseTimeStr -ne $baseTimeStr) {
     Write-Host "Updating current base schedule to every $($baseTimeUtc.DayOfWeek) at $($baseTimeUtc.TimeOfDay.ToString()) UTC..." -ForegroundColor Green
@@ -115,7 +120,7 @@ if ($newBaseTimeStr -ne $baseTimeStr) {
                     {
                         $newStartTime = $newStartTime.AddDays(1)
                     }
-                    $newStartTime = $newStartTime.Add([System.Xml.XmlConvert]::ToTimeSpan($manifestSchedule.offset))                
+                    $newStartTime = $newStartTime.Add([System.Xml.XmlConvert]::ToTimeSpan($manifestSchedule.offset))
                 }
                 $expiryTime = $schedule.ExpiryTime.ToString("yyyy-MM-ddTHH:mm:ssZ")
                 $startTime = $newStartTime.ToString("yyyy-MM-ddTHH:mm:ssZ")
@@ -131,7 +136,7 @@ if ($newBaseTimeStr -ne $baseTimeStr) {
                   `"advancedSchedule`": {}
                 }
               }"
-                Invoke-AzRestMethod -Path $automationPath -Method PUT -Payload $body | Out-Null    
+                Invoke-AzRestMethod -Path $automationPath -Method PUT -Payload $body | Out-Null
                 Write-Host "Re-scheduled $($schedule.Name)." -ForegroundColor Blue
             }
             else {
@@ -141,7 +146,7 @@ if ($newBaseTimeStr -ne $baseTimeStr) {
     }
     else
     {
-        throw "Interrupting schedules reset due to user input."   
+        throw "Interrupting schedules reset due to user input."
     }
 }
 else {
@@ -170,10 +175,10 @@ if ($newHybridWorker)
     $hybridWorker = Get-AzAutomationHybridWorkerGroup -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName -Name $newHybridWorker -ErrorAction SilentlyContinue
     if (-not($hybridWorker))
     {
-        throw "Hybrid Worker $newHybridWorker was not found in Automation Account $automationAccountName."   
+        throw "Hybrid Worker $newHybridWorker was not found in Automation Account $automationAccountName."
     }
 
-    Write-Host "Updating Hybrid Worker Group in every runbook schedule to $newHybridWorker..."    
+    Write-Host "Updating Hybrid Worker Group in every runbook schedule to $newHybridWorker..."
     $continueInput = Read-Host "Continue (Y/N)?"
 
     if ("Y", "y" -contains $continueInput)
@@ -188,16 +193,16 @@ if ($newHybridWorker)
                 $params = @{}
                 $jobSchedule.properties.parameters.PSObject.Properties | ForEach-Object {
                     $params[$_.Name] = $_.Value
-                }                                                
+                }
                 Register-AzAutomationScheduledRunbook -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName `
                     -RunbookName $jobSchedule.properties.runbook.name -ScheduleName $jobSchedule.properties.schedule.name -RunOn $newHybridWorker -Parameters $params | Out-Null
                 Write-Host "Re-registered $($jobSchedule.properties.runbook.name) for schedule $($jobSchedule.properties.schedule.name)." -ForegroundColor Blue
             }
-        }        
+        }
     }
     else
     {
-        throw "Interrupting schedules reset due to user input."   
+        throw "Interrupting schedules reset due to user input."
     }
 }
 else

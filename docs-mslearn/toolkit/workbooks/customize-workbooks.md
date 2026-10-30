@@ -1,9 +1,9 @@
 ---
 title: Use and customize FinOps workbooks
 description: Learn how to install and customize FinOps workbooks to achieve FinOps goals, including cost recommendations, idle resource identification, and more.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 08/12/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -11,7 +11,6 @@ ms.reviewer: arclares
 #customer intent: As a FinOps user, I want to learn how to install and customize FinOps workbooks to achieve cost optimization and other FinOps goals.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Use and customize FinOps workbooks
 
 This article explains how to install and edit FinOps workbooks. FinOps workbooks are a central access point for common tools that can help achieve FinOps goals. Each workbook offers a range of insights aligned to FinOps capabilities, including:
@@ -45,14 +44,19 @@ If you want to make modifications to the Cost optimization workbook or use other
 
 First, confirm you have the following least-privileged roles to deploy and use the workbook.
 
-- [Workbook Contributor](/azure/role-based-access-control/built-in-roles#workbook-contributor) - allows you to import, save, and deploy the workbook.
-- [Reader](/azure/role-based-access-control/built-in-roles#reader) allows you to view all the workbook tabs without saving.
+- **Contributor** or a role with both `Microsoft.Resources/deployments/validate/action` and `Microsoft.Resources/deployments/write` permissions is required for ARM template deployments.
+- [Workbook Contributor](/azure/role-based-access-control/built-in-roles#workbook-contributor) on the target resource group allows you to edit and save the workbook after deployment.
+- [Reader](/azure/role-based-access-control/built-in-roles#reader) is required on all subscriptions you will monitor to access resource information.
+
+> [!NOTE]
+> If you only have Reader, you can create a new workbook and upload the `workbook.json` file to view and edit it, but you won't be able to save it. You still need Reader access to all subscriptions that you want to monitor. FinOps workbooks use multiple `workbook.json` files, which you can find in the `workbooks` folder of the FinOps workbooks download for the [latest release](https://aka.ms/ftk/latest).
 
 Deploy the FinOps workbooks template with one of the following options:
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json"><img alt="Deploy To Azure" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true" /></a>
 &nbsp;
 <a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json"><img alt="Deploy To Azure Gov" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true" /></a>
+
 <!--
 &nbsp;
 <a href="https://portal.azure.cn/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json"><img alt="Deploy To Azure China" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazurechina.svg?sanitize=true" /></a>
@@ -96,7 +100,7 @@ In the first section, the following code identifies and groups your own subscrip
 ```kusto
 ResourceContainers
 | where type =~ 'Microsoft.Resources/subscriptions'
-| where tostring(properties.subscriptionPolicies.quotaId) !has "MSDNDevTest_2014-09-01" 
+| where tostring(properties.subscriptionPolicies.quotaId) !has "MSDNDevTest_2014-09-01"
 | extend SubscriptionName = name
 ```
 
@@ -105,7 +109,7 @@ It queries the `ResourceContainers` table and removes the ones that are Dev/Test
 In the second section, the query finds and assesses your Stack HCI resources.
 
 ```kusto
-resources 
+resources
 | where resourceGroup in ({ResourceGroup})
 | where type == 'microsoft.azurestackhci/clusters'
 | extend AHBStatus = tostring(properties.softwareAssuranceProperties.softwareAssuranceIntent)
@@ -118,10 +122,10 @@ In the last section, the query joins the `ResourceContainerstable` with the `res
 
 ```kusto
 ResourceContainers | "Insert first code section go here"
-| join (
+| join kind=inner (
     resources  "Insert second code section here"
-) on subscriptionId 
-| order by type asc 
+) on subscriptionId
+| order by type asc
 | project HCIClusterId,ClusterName,Status,AHBStatus
 ```
 
@@ -132,16 +136,16 @@ In the end, you view the most relevant columns. Because the workbook has a `Reso
 Here's the full code example that you use to insert into the workbook.
 
 ```kusto
-ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has "MSDNDevTest_2014-09-01"  | extend SubscriptionName=name 
-| join (
-  resources 
+ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has "MSDNDevTest_2014-09-01"  | extend SubscriptionName=name
+| join kind=inner (
+  resources
   | where resourceGroup in ({ResourceGroup})
   | where type == 'microsoft.azurestackhci/clusters'
   | extend AHBStatus = tostring(properties.softwareAssuranceProperties.softwareAssuranceIntent)
   | where AHBStatus == "Disable"
   | extend HCIClusterId=properties.clusterId, ClusterName=properties.clusterName, Status=properties.status, AHBStatus=tostring(properties.softwareAssuranceProperties.softwareAssuranceIntent)
-) on subscriptionId 
-| order by type asc 
+) on subscriptionId
+| order by type asc
 | project HCIClusterId,ClusterName,Status,AHBStatus
 ```
 
@@ -157,13 +161,17 @@ For more information about Azure Monitor workbooks, see the [Visualize data comb
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20workbooks%3F/cvaQuestion/How%20valuable%20are%20FinOps%20workbooks%3F/surveyId/FTK0.8/bladeName/Workbooks/featureName/Customize)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20workbooks%3F/cvaQuestion/How%20valuable%20are%20FinOps%20workbooks%3F/surveyId/FTK/bladeName/Workbooks/featureName/Customize)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20Workbooks%22%20sort%3A"reactions-%2B1-desc")
+<!-- prettier-ignore-end -->
 
 <br>
 

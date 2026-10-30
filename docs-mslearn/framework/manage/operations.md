@@ -1,9 +1,9 @@
 ---
 title: FinOps practice operations
 description: This article helps you understand the FinOps practice operations capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 05/19/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -11,7 +11,6 @@ ms.reviewer: micflan
 # customer intent: As a FinOps practitioner, I want to understand the FinOps practice operations capability so that I can implement it in the Microsoft Cloud.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # FinOps practice operations
 
 This article helps you understand the FinOps Practice Operations capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
@@ -53,7 +52,7 @@ Most organizations find it's important to establish a FinOps team as they near $
   - Document the FinOps strategy, including staffing and funding requirements and how the team will support others.
   - Leverage the [FinOps assessment capability](./assessment.md) to build a complete plan.
   - Utilize [FinOps Foundation resources](https://www.finops.org/resources) to build your pitch, strategy, and more.
-  - Use the [FinOps community](https://www.finops.org/community/getting-started/) to share their knowledge and experience. They've been where you are.
+  - Use the [FinOps community](https://www.finops.org/community/) to share their knowledge and experience. They've been where you are.
 - Dual-track your FinOps efforts: Drive lightweight FinOps initiatives with large returns while you cultivate your community. Nothing is better proof than data.
   - Promote and celebrate your wins with early adopters.
 - Integrate with existing data sources, teams, and processes to minimize startup time.
@@ -68,7 +67,7 @@ At this point, you have a regular cadence of meetings with a steering committee 
 
 - Leverage the [FinOps assessment capability](./assessment.md) to build a flesh out a complete plan, incorporating knowledge sharing, automated metrics and processes, and organizational adoption.
   - Utilize [FinOps Foundation resources](https://www.finops.org/resources) to build your pitch, strategy, and more.
-  - Use the [FinOps community](https://www.finops.org/community/getting-started/) to share their knowledge and experience. They've been where you are.
+  - Use the [FinOps community](https://www.finops.org/community/) to share their knowledge and experience. They've been where you are.
 - Review the Cloud Adoption Framework guidance for tips on how to [drive organizational alignment](/azure/cloud-adoption-framework/organize) on a larger scale. You might find opportunities to align with other governance initiatives.
 - Define and document your operating model and evolve your strategy as a collaborative community.
 - Brainstorm metrics and tactics that can demonstrate value and inspire different stakeholders through effective communication.
@@ -92,13 +91,17 @@ This capability is part of the FinOps Framework by the FinOps Foundation, a non-
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Guide.Framework/featureName/Capabilities.Manage.Operations)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK15.0/bladeName/Guide.Framework/featureName/Capabilities.Manage.Operations)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

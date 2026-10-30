@@ -63,7 +63,7 @@ function Get-OpenDataPricingUnit
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Hourly Unit'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Units/Hour'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Hourly Units'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Units/Hour'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Hours'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Hours'; }
-        ,[PSCustomObject]@{ UnitOfMeasure = '1 IOPS/Month'; AccountTypes = 'MCA'; PricingBlockSize = 1; DistinctUnits = 'IOPS/Month'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = '1 IOPS/Month'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'IOPS/Month'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Key'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Keys'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Key Use'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Keys'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 MB'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'MB'; }
@@ -154,6 +154,7 @@ function Get-OpenDataPricingUnit
         ,[PSCustomObject]@{ UnitOfMeasure = '10 PiB/Hour'; AccountTypes = 'EA'; PricingBlockSize = 10; DistinctUnits = 'PiB/Hour'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '10 Pipelines'; AccountTypes = 'EA'; PricingBlockSize = 10; DistinctUnits = 'Pipelines'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '10 Rotations'; AccountTypes = 'EA'; PricingBlockSize = 10; DistinctUnits = 'Rotations'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = '10 Seconds'; AccountTypes = 'EA'; PricingBlockSize = 10; DistinctUnits = 'Seconds'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '10 Service Endpoints'; AccountTypes = 'EA'; PricingBlockSize = 10; DistinctUnits = 'Endpoints'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '10 TB'; AccountTypes = 'EA'; PricingBlockSize = 10; DistinctUnits = 'TB'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '10 TB Hours'; AccountTypes = 'EA'; PricingBlockSize = 10; DistinctUnits = 'TB Hours'; }
@@ -196,7 +197,7 @@ function Get-OpenDataPricingUnit
         ,[PSCustomObject]@{ UnitOfMeasure = '100 Mbps'; AccountTypes = 'EA'; PricingBlockSize = 100; DistinctUnits = 'Mbps'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100 Minutes'; AccountTypes = 'EA'; PricingBlockSize = 100; DistinctUnits = 'Minutes'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100 Months'; AccountTypes = 'EA'; PricingBlockSize = 100; DistinctUnits = 'Months'; }
-        ,[PSCustomObject]@{ UnitOfMeasure = '100 Seconds'; AccountTypes = 'MCA'; PricingBlockSize = 100; DistinctUnits = 'Seconds'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = '100 Seconds'; AccountTypes = 'MCA, EA'; PricingBlockSize = 100; DistinctUnits = 'Seconds'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100 TB'; AccountTypes = 'EA'; PricingBlockSize = 100; DistinctUnits = 'TB'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100 TB/Hour'; AccountTypes = 'EA'; PricingBlockSize = 100; DistinctUnits = 'TB/Hour'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100 TB/Month'; AccountTypes = 'EA'; PricingBlockSize = 100; DistinctUnits = 'TB/Month'; }
@@ -294,6 +295,7 @@ function Get-OpenDataPricingUnit
         ,[PSCustomObject]@{ UnitOfMeasure = '10000000 Transactions'; AccountTypes = 'EA'; PricingBlockSize = 10000000; DistinctUnits = 'Transactions'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100000000'; AccountTypes = 'EA'; PricingBlockSize = 100000000; DistinctUnits = 'Units'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100000000 '; AccountTypes = 'EA'; PricingBlockSize = 100000000; DistinctUnits = 'Units'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = '100000000 /Day'; AccountTypes = 'EA'; PricingBlockSize = 100000000; DistinctUnits = 'Units/Day'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100000000 /Month'; AccountTypes = 'EA'; PricingBlockSize = 100000000; DistinctUnits = 'Units/Month'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100000000 Events'; AccountTypes = 'EA'; PricingBlockSize = 100000000; DistinctUnits = 'Events'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100000000 Operation Units'; AccountTypes = 'EA'; PricingBlockSize = 100000000; DistinctUnits = 'Units'; }
@@ -319,6 +321,7 @@ function Get-OpenDataPricingUnit
         ,[PSCustomObject]@{ UnitOfMeasure = '150 Hours'; AccountTypes = 'EA'; PricingBlockSize = 150; DistinctUnits = 'Hours'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1B'; AccountTypes = 'MCA'; PricingBlockSize = 1000000000; DistinctUnits = 'Units'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1K'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1000; DistinctUnits = 'Units'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = '1K/Day'; AccountTypes = 'MCA'; PricingBlockSize = 1000; DistinctUnits = 'Units/Day'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1K/Hour'; AccountTypes = 'MCA'; PricingBlockSize = 1000; DistinctUnits = 'Units/Hour'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1K/Month'; AccountTypes = 'MCA'; PricingBlockSize = 1000; DistinctUnits = 'Units/Month'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1M'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1000000; DistinctUnits = 'Units'; }

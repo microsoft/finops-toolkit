@@ -1,17 +1,16 @@
 ---
 title: Deploy FinOps workbooks
 description: FinOps workbooks are Azure Monitor workbooks that help you implement FinOps capabilities, including optimization and governance, to achieve your FinOps goals.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 06/21/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
-ms.reviewer: micflan
+ms.reviewer: arclares
 #customer intent: As a FinOps user, I want to understand what FinOps workbooks are and how they can help me accomplish my goals.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # FinOps workbooks
 
 FinOps workbooks are Azure Monitor workbooks that provide a series of tools to help engineers perform targeted FinOps capabilities, modeled after the Well-Architected Framework guidance.
@@ -27,13 +26,16 @@ This template includes the following workbooks:
 
 1. To deploy and use the workbook, confirm you have the following least-privileged roles:
 
-   - **Workbook Contributor** allows you to deploy the workbook.
-   - **Reader** view all of the workbook tabs.
+   - **Contributor** or a role with both `Microsoft.Resources/deployments/validate/action` and `Microsoft.Resources/deployments/write` permissions is required for ARM template deployments.
+   - [Workbook Contributor](/azure/role-based-access-control/built-in-roles#workbook-contributor) on the target resource group allows you to edit and save the workbook after deployment.
+   - [Reader](/azure/role-based-access-control/built-in-roles#reader) is required on all subscriptions you will monitor to access resource information.
 
    > [!NOTE]
-   > If you only have read access, you can still import your workbook directly into Azure Monitor. You will not be able to save it, but you can view all tabs.
+   > If you only have read access, you can still import your workbook directly into Azure Monitor. You will not be able to save it, but you can view all tabs. You can download the workbook JSON files from the FinOps workbooks download in the [latest release](https://aka.ms/ftk/latest).
 
-2. Deploy the **finops-workbooks** template.
+2. Deploy the **finops-workbooks** template using one of the following methods:
+
+   **Option 1:** Deploy using ARM template (requires Microsoft.Resources/deployments permissions, Workbook Contributor, and Reader)
 
    <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json"><img alt="Deploy To Azure" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true" /></a>
    &nbsp;
@@ -43,19 +45,32 @@ This template includes the following workbooks:
    <a href="https://portal.azure.cn/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json"><img alt="Deploy To Azure China" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazurechina.svg?sanitize=true" /></a>
    -->
 
+   **Option 2:** Import JSON files directly (works with Reader access)
+
+   1. Download FinOps workbooks from the [latest release](https://aka.ms/ftk/latest).
+   2. Navigate to [Azure Monitor Workbooks](https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/~/workbooks) in the Azure portal
+   3. Click on **+ New** and select **Advanced editor**
+   4. Copy the text from the desired workbook.json from the downloaded ZIP file, paste it into the editor, and select **Apply**.
+   5. Select **Done editing** to view the workbook.
+   6. Repeat steps 3-5 for each workbook.
+
 <br>
 
 ## Give feedback
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20workbooks%3F/cvaQuestion/How%20valuable%20are%20FinOps%20workbooks%3F/surveyId/FTK0.8/bladeName/Workbooks/featureName/Overview)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20workbooks%3F/cvaQuestion/How%20valuable%20are%20FinOps%20workbooks%3F/surveyId/FTK/bladeName/Workbooks/featureName/Overview)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20Workbooks%22%20sort%3A"reactions-%2B1-desc")
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -64,8 +79,8 @@ If you're looking for something specific, vote for an existing or create a new i
 Related FinOps capabilities:
 
 - [Rate optimization](../../framework/optimize/rates.md)
-- [Workload optimization](../../framework/optimize/workloads.md)
-- [Cloud policy and governance](../../framework/manage/governance.md)
+- [Usage optimization](../../framework/optimize/workloads.md)
+- [Governance, policy, and risk](../../framework/manage/governance.md)
 
 Related products:
 

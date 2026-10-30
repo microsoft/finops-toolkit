@@ -20,12 +20,13 @@ Automate and scale your FinOps efforts with PowerShell commands that streamline 
 The FinOps toolkit PowerShell module helps you automate and scale common Cost Management and FinOps toolkit management operations and work with FinOps toolkit open data.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in February 2025<span class="ftk-version">v0.8</span></h3>
+    <h3>What's new in October 2026<span class="ftk-version">v15</span></h3>
     <p>
-        February introduced new options in the New-FinOpsCostExport command and fixed support or price and reservation exports, cleaned up the Get-FinOpsCostExport command output, and added a delete confirmation for Remove-FinOpsHub.
+        In October, the PowerShell module added Initialize-FinOpsHubLocal for setting up a local FinOps hub with one command, plus commands to generate the commitment discount eligibility and instance size flexibility open data, updated test compatibility with Pester 6, and fixed Deploy-FinOpsHub version handling, Get-FinOpsCostExport -RunHistory, and Start-FinOpsCostExport date handling for UTC offsets.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
+
 <a name="features"></a>
 
 ## Explore the commands
@@ -74,10 +75,10 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
         <div class="language-powershell highlighter-rouge">
             <div class="highlight">
                 <pre class="highlight"><code><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">Az.Accounts</span><span class="w">
-                </span><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">Az.Resources</span><span class="w">
-                </span><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">FinOpsToolkit</span><span class="w">
-                </span><span class="n">Connect-AzAccount</span><span class="w">
-                </span></code></pre>
+</span><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">Az.Resources</span><span class="w">
+</span><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">FinOpsToolkit</span><span class="w">
+</span><span class="n">Connect-AzAccount</span><span class="w">
+</span></code></pre>
             </div>
             <button type="button" aria-label="Copy code to clipboard"><svg viewBox="0 0 24 24" class="copy-icon"><use xlink:href="#svg-copy"></use></svg></button>
         </div>

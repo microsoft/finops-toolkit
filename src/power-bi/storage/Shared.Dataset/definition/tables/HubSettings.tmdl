@@ -55,7 +55,7 @@ table HubSettings
 		queryGroup: Storage
 		source =
 				let
-					ADLS = if #"Storage URL" = "" or #"Storage URL" = null then null else AzureStorage.DataLake(#"Storage URL" & "/../config"),
+					ADLS = if #"Storage URL" = "" or #"Storage URL" = null or Text.EndsWith(#"Storage URL", "/ingestion") = false then null else AzureStorage.DataLake(#"Storage URL" & "/../config"),
 				
 					Settings = if ADLS = null then null else Json.Document(ADLS{[Name="settings.json"]}[Content], 1252),
 					ToTable = if ADLS = null then null else Table.FromRecords({Settings}),

@@ -1,9 +1,9 @@
 ---
 title: Common terms
 description: This article defines common terms used in the FinOps toolkit to help users understand the data and insights provided.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/01/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -11,7 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand common terms used in the FinOps toolkit.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Common terms
 
 This article describes common terms and definitions used throughout the FinOps toolkit. These terms are used to help you understand the data and insights provided by the toolkit.
@@ -58,13 +57,21 @@ See [Commitment discounts](#commitment-discounts).
 
 <br>
 
+## ESR or Effective Savings Rate
+
+"Effective Savings Rate" (ESR) is a metric that measures the percentage of cost savings achieved through rate optimization efforts. ESR helps organizations understand how much they're saving compared to what they would have paid with list unit prices that don't include discounts.
+
+In its simplest form, ESR is calculated as `(EffectiveCost - ListCost) / ListCost`. However, this must also exclude any purchases that are amortized over the same period (e.g., commitment discount purchases). Amortized purchases have 0 EffectiveCost and a non-zero ListCost, which can skew numbers.
+
+<br>
+
 ## List cost
 
-"List cost" is the cost of a product or service if it were billed at its [list price](#list-price).
+"List cost" is the cost of a product or service if it were billed at its [list unit price](#list-unit-price).
 
-## List price
+## List unit price
 
-"List price" (also called "market price") is the publicly available price for a product or service. It's the price you would pay if you purchased the product or service without any discounts.
+"List unit price" (also called "market price") is the publicly available price for a product or service. It's the price you would pay if you purchased the product or service without any discounts.
 
 <br>
 
@@ -100,13 +107,17 @@ See also: [Microsoft Partner Agreement](#microsoft-partner-agreement-mpa)
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Help.CommonTerms)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Toolkit/featureName/Help.CommonTerms)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

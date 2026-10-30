@@ -10,7 +10,7 @@
 
     .PARAMETER Json
     Indicates that JSON files should be generated. Only applies to resource types. Default = false, if -PowerShell is not specified.
-    
+
     .PARAMETER Csv
     Indicates that CSV files should be generated from JSON files. Only applies to resource types. Default = false, if -PowerShell is not specified.
 
@@ -46,7 +46,7 @@
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-build-opendata
 #>
-Param(
+param(
     [Parameter(Position = 0)]
     [string]
     $Name = "*",
@@ -139,7 +139,7 @@ function Write-KqlSplitFunction($Function, $Rows, $Columns)
     Write-Output "with (docstring = 'Return details about the specified ID.', folder = 'OpenData/Internal')"
     Write-Output "$Function(id: string) {"
     Write-Output "    dynamic({"
-    
+
     $firstRow = $true
     $Rows | ForEach-Object {
         $row = $_
@@ -158,7 +158,7 @@ function Write-KqlSplitFunction($Function, $Rows, $Columns)
         Write-Output "        $(if (-not $firstRow) { ',' })$($props[0]): { $(($props | Select-Object -Skip 1) -join ', ') }"
         $firstRow = $false
     }
-    
+
     Write-Output "    })[tolower(id)]"
     Write-Output "}"
 }
@@ -173,7 +173,7 @@ function Write-KqlWrapperFunction($Function, $Parts)
     Write-Output "}"
 }
 
-$hubsDir = "$PSScriptRoot/../templates/finops-hub/modules/scripts"
+$hubsDir = "$PSScriptRoot/../templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts"
 $psDir = "$PSScriptRoot/../powershell"
 $srcDir = "$PSScriptRoot/../open-data"
 $svgDir = "$PSScriptRoot/../../docs/svg"
@@ -310,8 +310,8 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Json)
                 if ($localInternalIconPath.EndsWith('.svg'))
                 {
                     if (Get-Item $localInternalIconPath)
-                    { 
-                        $internalIcon = Get-Content $localInternalIconPath -Raw 
+                    {
+                        $internalIcon = Get-Content $localInternalIconPath -Raw
                     }
                     else
                     {
@@ -341,6 +341,10 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Json)
 
                 # Remove unnecessary properties/tags and switch opacity to fill-opacity (ffimg bug)
                 $icon = ($icon.Replace(" opacity=", " fill-opacity=") -replace ' xmlns:svg=', ' xmlns=' -replace " (focusable|role|xmlns:[^=]+)='[^']+'", "") -replace "<title>[^<]*</title>", ""
+                if ($icon -notmatch ' xmlns=')
+                {
+                    $icon = $icon -replace '<svg ', '<svg xmlns=''http://www.w3.org/2000/svg'' '
+                }
 
                 # Replace clip paths that change often
                 $icon = $icon -replace ' clip-path=''url\(#([^\)]+)', " clip-path='url(#$resourceType"
@@ -381,8 +385,10 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Json)
             logOverrides $override.originalPlural        $override.plural        $asset.pluralDisplayName        'plural display name'
             logOverrides $override.originalLowerSingular $override.lowerSingular $asset.lowerSingularDisplayName 'lower singular display name'
             logOverrides $override.originalLowerPlural   $override.lowerPlural   $asset.lowerPluralDisplayName   'lower plural display name'
-            
-            [array]$links = $asset.links | Select-Object -Property title, @{Name = 'uri'; Expression = { $_.uri.Replace('/en-us/', '/') } }
+
+            [array]$links = $asset.links `
+            | Where-Object { @('https://aka.ms/portalfx/designpatterns', 'https://aka.ms/portalfx/browse') -notcontains $_.uri } `
+            | Select-Object -Property title, @{Name = 'uri'; Expression = { $_.uri.Replace('/en-us/', '/') } }
             $typeInfo = [PSCustomObject]@{
                 resourceType             = $resourceType
                 singularDisplayName      = noPreview ($override.singular ?? $asset.singularDisplayName)
@@ -417,9 +423,12 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Json)
                 return processResourceType $_.type @{} $_
             }
         }
-        elseif ($asset.resourceType.resourceTypeName.ToLower().StartsWith('private.') `
+        elseif ($asset.resourceType.resourceTypeName.ToLower().StartsWith('microsoft.contoso/') `
+                -or $asset.resourceType.resourceTypeName.ToLower().StartsWith('private.') `
                 -or $asset.resourceType.resourceTypeName.ToLower().StartsWith('providers.test') `
-                -or $asset.resourceType.resourceTypeName.ToLower() -contains '/browse')
+                -or $asset.resourceType.resourceTypeName.ToLower().Contains('.samplepartner/') `
+                -or $asset.resourceType.resourceTypeName.ToLower().Contains('.samplerp/') `
+                -or $asset.resourceType.resourceTypeName.ToLower().Contains('/browse'))
         {
             # Skip private and test resource types
             Write-Warning "Skipping $($asset.resourceType.resourceTypeName)..."
@@ -467,19 +476,19 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Json)
     }
     Write-Host "Adding $($missingTypes.Count) missing resource types..."
     $resourceTypes += $missingTypes
-    
+
     # Sort resource types
     $resourceTypes = $resourceTypes | Sort-Object -Property resourceType
 
     # Save files
-    $resourceTypes | ConvertTo-Json -Depth 10 | Out-File "$srcDir/ResourceTypes.json" -Encoding utf8    
+    $resourceTypes | ConvertTo-Json -Depth 10 | Out-File "$srcDir/ResourceTypes.json" -Encoding utf8
 }
 
 if ($Csv)
 {
     # PowerShell isn't respecting wrapping the value in @(), so forcing it with string manipulation
     function forceArray($val) { if ($val -and $val.Length -gt 0 -and $val[0] -ne '[') { return "[$val]" } else { return $val } }
-    
+
     Get-Content "$srcDir/ResourceTypes.json" -Raw | ConvertFrom-Json -Depth 5 `
     | ForEach-Object {
         return [ordered]@{
@@ -507,7 +516,7 @@ if ($PowerShell)
         $file = $_
         $dataType = $file.BaseName
         $command = "Get-OpenData$($dataType.TrimEnd('s'))"
-    
+
         Write-Verbose "Generating $command from $dataType.csv..."
         Write-Command -Command $command -File $file      | Out-File "$psDir/Private/$command.ps1"          -Encoding ascii -Append:$false
         Write-Test -DataType $dataType -Command $command | Out-File "$psDir/Tests/Unit/$command.Tests.ps1" -Encoding ascii -Append:$false
@@ -538,7 +547,7 @@ if ($Hubs)
         'ResourceType',
         'SingularDisplayName'
     )
-    
+
     # Loop thru all datasets
     Get-ChildItem "$srcDir/*.csv" `
     | Where-Object { $_.Name -like "$Name.csv" -and $filesToUse -contains $_.BaseName }
@@ -546,12 +555,12 @@ if ($Hubs)
         $file = $_
         $dataType = $file.BaseName
         $function = ($dataType -creplace '([a-z])([A-Z])', '$1_$2').ToLower().TrimEnd('s')
-    
+
         Write-Verbose "Reading $dataType.csv..."
         $columns = (Get-Content $File -TotalCount 1).Split(",") | ForEach-Object { $_.Trim('"') } `
         | Where-Object { $ColumnsToKeep -contains $_ }
         $rows = Import-Csv $File
-        
+
         # Split the array into groups
         $parts = @()
         for ($i = 0; $i -lt $rows.Count; $i += $rowsPerFile)
@@ -579,33 +588,74 @@ if ($Hubs)
     }
 }
 
-<# TODO: Integrate the following script to revert SVG files with nonfunctional changes
+# Load the generic cube SVG for comparison (normalize whitespace)
+$genericCubeSvg = (Get-Content "$svgDir/microsoft.resources/resources.svg" -Raw).Trim()
+
 (git diff --name-only) `
 | Where-Object { $_ -match '^docs/svg/([^/]+/)+[^\.]+\.svg$' } `
 | ForEach-Object {
-    $file = $_
-    $diff = git diff -- $file
-    $changes = $diff -split "`n" `
-    | Where-Object { $_ -match '^\+|^\-' } ` # Remove lines that are not changes
-    | Where-Object { $_ -notmatch '^\+\+\+|^\-\-\-' } # Remove the diff metadata lines
-    # Check if all changes are GUID changes
-    $hasFunctionalChanges = $true
-    foreach ($line in $changes)
+    $file = "$PSScriptRoot/../../$_"
+    $shouldRevert = $false
+    $revertReason = ""
+
+    # Check if changed TO the generic cube (regression from unique icon)
+    $newContent = (Get-Content $file -Raw -ErrorAction SilentlyContinue)?.Trim()
+    $oldContent = (git show HEAD:$_ 2>$null)?.Trim()
+    if ($newContent -eq $genericCubeSvg -and $oldContent -and $oldContent -ne $genericCubeSvg)
     {
-        if (
-            $line -notmatch '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' `
-            -and $line -notmatch '^\+\s*$' `
-            -and $line -notmatch '^\-\s*$' `
-        )
+        $shouldRevert = $true
+        $revertReason = "regression to generic cube"
+    }
+
+    # Check if only non-visual changes (GUIDs, formatting, attribute order, minor precision)
+    if (-not $shouldRevert -and $oldContent -and $newContent)
+    {
+        # Normalize SVG for comparison (remove non-visual differences)
+        # Note: This catches common reformatting but not all SVG optimizations (path simplification, etc.)
+        function Get-NormalizedSvg($svg) {
+            $n = $svg
+            # Normalize generated IDs (GUIDs and short hashes like 'p8eaoyhoh__b')
+            $n = $n -replace '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}', '__ID__'
+            $n = $n -replace "id='[a-z0-9_]+__[a-z]'", "id='__ID__'"
+            $n = $n -replace "url\(#[a-z0-9_]+__[a-z]\)", "url(#__ID__)"
+            $n = $n -replace "url\(#__ID__\)", "url(#__ID__)"
+            # Remove non-visual attributes
+            $n = $n -replace " class='[^']*'", ''
+            $n = $n -replace ' class="[^"]*"', ''
+            $n = $n -replace " fill='none'", ''
+            $n = $n -replace ' fill="none"', ''
+            # Normalize hex colors (#ffffff -> #fff, etc.)
+            $n = $n -replace '#([0-9a-fA-F])\1([0-9a-fA-F])\2([0-9a-fA-F])\3', '#$1$2$3'
+            # Remove <g> wrappers (they don't affect rendering)
+            $n = $n -replace '<g>', ''
+            $n = $n -replace '</g>', ''
+            # Normalize decimal precision - truncate to 1 decimal place
+            $n = $n -replace '(\d+\.\d)\d+', '$1'
+            # Extract and sort attributes within each tag to handle reordering
+            $n = [regex]::Replace($n, '<(\w+)\s+([^>]+)(/?)>', {
+                param($match)
+                $tagName = $match.Groups[1].Value
+                $attrs = $match.Groups[2].Value
+                $selfClose = $match.Groups[3].Value
+                # Parse attributes and sort them
+                $attrList = [regex]::Matches($attrs, "(\w+[-\w]*)='[^']*'") | ForEach-Object { $_.Value } | Sort-Object
+                return "<$tagName $($attrList -join ' ')$selfClose>"
+            })
+            return $n
+        }
+
+        $oldNormalized = Get-NormalizedSvg $oldContent
+        $newNormalized = Get-NormalizedSvg $newContent
+        if ($oldNormalized -eq $newNormalized)
         {
-            $hasFunctionalChanges = $true
-            break
+            $shouldRevert = $true
+            $revertReason = "only non-visual changes"
         }
     }
-    if (-not $hasFunctionalChanges)
+
+    if ($shouldRevert)
     {
-        Write-Host "Reverting $file"
+        Write-Host "Reverting $file ($revertReason)"
         git checkout -- $file
     }
 }
-#>

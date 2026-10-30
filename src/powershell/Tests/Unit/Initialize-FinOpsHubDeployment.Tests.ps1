@@ -9,17 +9,17 @@ InModuleScope FinOpsToolkit {
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
             $requiredRPs = @( 'Microsoft.CostManagementExports', 'Microsoft.EventGrid' )
         }
-    
+
         Context "Register" {
             It 'Should call Register once' {
                 # Arrange
                 Mock -CommandName 'Register-FinOpsHubProviders'
-                    
+
                 # Act
                 Initialize-FinOpsHubDeployment
-    
+
                 # Assert
-                Assert-MockCalled -CommandName 'Register-FinOpsHubProviders' -Times 1
+                Should -Invoke -CommandName 'Register-FinOpsHubProviders' -Times 1
             }
         }
     }

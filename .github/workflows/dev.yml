@@ -4,18 +4,30 @@ on:
   pull_request:
     paths:
       - 'src/powershell/**'
+      # KQL sources are covered by unit tests (HubsKqlOperators.Tests.ps1)
+      - 'src/templates/finops-hub/**/*.kql'
+      - 'src/queries/**/*.kql'
+      # ADF trigger time zone mappings are covered by unit tests (HubsAdfTriggerTimeZones.Tests.ps1)
+      - 'src/templates/finops-hub/**/timeZones.bicep'
+      - 'docs/deploy/finops-hub-latest.json'
+      - 'docs/deploy/finops-hub-preview.json'
+      # Power BI report definitions and build scripts are covered by PowerBIReports.Tests.ps1 and Build-PowerBI.Tests.ps1
+      - 'src/power-bi/kql/**'
+      - 'src/power-bi/storage/**'
+      - 'src/power-bi/reports.json'
+      - 'src/scripts/Build-PowerBI.ps1'
+      - 'src/scripts/Package-PowerBI.ps1'
 jobs:
-    run_pester_tests:
-        name: Pester
-        runs-on: Windows-latest
-        steps:
-        - name: Install and cache PowerShell modules
-          uses: potatoqualitee/psmodulecache@v5.2
-          with:
-            modules-to-cache: InvokeBuild, PSScriptAnalyzer, Pester, Az.Accounts, Az.Resources
-            shell: pwsh
-        - uses: actions/checkout@v3
-        - name: Run Tests
+  run_pester_tests:
+    name: Pester
+    runs-on: Windows-latest
+    steps:
+      - name: Install and cache PowerShell modules
+        uses: potatoqualitee/psmodulecache@9e4b63833c22c1768d648e115a9c849afdda22a5 # v6.3
+        with:
+          modules-to-cache: InvokeBuild, PSScriptAnalyzer, Pester:6.0.0, Az.Accounts, Az.Resources
           shell: pwsh
-          run: .build/start.ps1 -Task Test.PowerShell.All
-            
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Run Tests
+        shell: pwsh
+        run: .build/start.ps1 -Task Test.PowerShell.All

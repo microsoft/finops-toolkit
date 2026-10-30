@@ -32,7 +32,7 @@
 #>
 function Get-FinOpsPricingUnit()
 {
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $true)]
         [Alias("PricingUnit")]
         [string]
@@ -48,18 +48,22 @@ function Get-FinOpsPricingUnit()
         [double]
         $BlockSize
     )
-    return Get-OpenDataPricingUnit `
-    | Where-Object {
-        $_.UnitOfMeasure -like $UnitOfMeasure `
-            -and $_.DistinctUnits -like $DistinctUnits `
-            -and ($null -eq $BlockSize -or $BlockSize -le 0 -or $_.PricingBlockSize -eq $BlockSize)
-    } `
-    | ForEach-Object {
-        [PSCustomObject]@{
-            DistinctUnits    = $_.DistinctUnits
-            PricingBlockSize = $_.PricingBlockSize
-            PricingUnit      = $_.UnitOfMeasure
-        }
-    } `
-    | Select-Object -Property * -Unique
+
+    process
+    {
+        return Get-OpenDataPricingUnit `
+        | Where-Object {
+            $_.UnitOfMeasure -like $UnitOfMeasure `
+                -and $_.DistinctUnits -like $DistinctUnits `
+                -and ($null -eq $BlockSize -or $BlockSize -le 0 -or $_.PricingBlockSize -eq $BlockSize)
+        } `
+        | ForEach-Object {
+            [PSCustomObject]@{
+                DistinctUnits    = $_.DistinctUnits
+                PricingBlockSize = $_.PricingBlockSize
+                PricingUnit      = $_.UnitOfMeasure
+            }
+        } `
+        | Select-Object -Property * -Unique
+    }
 }

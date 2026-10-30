@@ -18,10 +18,10 @@
     Optional. Indicates whether to copy templates and open data files. Default = false.
 
     .PARAMETER OpenPBI
-    Optional. Indicates that Power BI projects should be opened as part of the packaging process. Default = false.
+    Optional. Opens the generated Power BI projects so they can be saved as *.storage.pbix files. Equivalent to Package-PowerBI -Open. Default = false.
 
     .PARAMETER ZipPBI
-    Optional. Indicates that prepared PBIX files should be packaged into release files. Default = false.
+    Optional. Validates the saved PBIX files and packages them into PowerBI-demo.zip. Equivalent to Package-PowerBI. Default = false.
 
     .PARAMETER Preview
     Optional. Indicates that the template(s) should be saved as a preview only. Does not package other files. Default = false.
@@ -39,9 +39,14 @@
     .EXAMPLE
     ./Package-Toolkit -CopyFiles -Build -OpenPBI
 
-    Builds the latest code, generates ZIP files for each template, and opens Power BI projects to be saved as PBIX files.
+    Builds the latest code, generates ZIP files for each template, and opens Power BI projects to be saved as demo PBIX files.
+
+    .EXAMPLE
+    ./Package-Toolkit -ZipPBI
+
+    Validates the saved PBIX files and generates the PowerBI-demo.zip file. Must be run after -OpenPBI.
 #>
-Param(
+param(
     [Parameter(Position = 0)][string]$Template = "*",
     [switch]$Build,
     [switch]$CopyFiles,
@@ -58,11 +63,12 @@ if ($Build)
 {
     Write-Verbose "Building $(if ($Template -eq "*") { "all templates" } else { "the $Template template" })..."
     & "$PSScriptRoot/Build-Toolkit" $Template
-    
+
     if (@("*", "pbi", "pbit") -contains $Template)
     {
         Write-Verbose "Building Power BI templates..."
-        & "$PSScriptRoot/Build-PowerBI"
+        # Templates only. Demo projects read open data from main, so Package-PowerBI builds them after the merge to main.
+        & "$PSScriptRoot/Build-PowerBI" -NoPbip
     }
 }
 
@@ -78,19 +84,48 @@ if ($Template -ne "*" -and -not (Test-Path $relDir))
 
 function Copy-TemplateFiles()
 {
-    Write-Host "Packaging $(if ($Template) { "$Template v$version template" } else { "v$version templates" })..."
+    Write-Host "Packaging $(if ($Template -ne "*") { "$Template $version template" } else { "$version templates" })..."
 
-    Write-Verbose "Removing existing ZIP files..."
-    Remove-Item "$relDir/*.zip" -Force
+    if ($Template -eq "*")
+    {
+        Write-Verbose "Removing existing ZIP files..."
+        # Power BI ZIP files are managed by Build-PowerBI and Package-PowerBI. Deleting them here
+        # would throw away the templates that -Build just generated.
+        Remove-Item "$relDir/*.zip" -Force -Exclude 'PowerBI-*.zip'
+    }
 
     return Get-ChildItem "$relDir/$Template*" -Directory `
-    | Where-Object { $_.Name -ne 'pbix' } `
+    | Where-Object { @('pbit', 'pbix', 'FinOpsToolkit') -notcontains $_.Name } `
     | ForEach-Object {
-        Write-Verbose ("Packaging $_" -replace (Get-Item $relDir).FullName, '.')
+        Write-Verbose ("Packaging $_" -replace [regex]::Escape((Get-Item $relDir).FullName), '.')
         $srcPath = $_
         $templateName = $srcPath.Name
         $versionSubFolder = (Join-Path $srcPath $version)
-        $zip = Join-Path (Get-Item $relDir) "$templateName-v$version.zip"
+
+        # Check if template should use an unversioned ZIP filename
+        $buildConfigPath = Join-Path $PSScriptRoot ".." "templates" $templateName ".build.config"
+        $unversionedZip = $false
+        if (Test-Path $buildConfigPath)
+        {
+            try
+            {
+                $buildConfig = Get-Content $buildConfigPath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+                $unversionedZip = $buildConfig.unversionedZip -eq $true
+            }
+            catch
+            {
+                Write-Warning "Failed to read .build.config for $templateName : $_"
+            }
+        }
+
+        $zip = if ($unversionedZip)
+        {
+            Join-Path (Get-Item $relDir) "$templateName.zip"
+        }
+        else
+        {
+            Join-Path (Get-Item $relDir) "$templateName-$tag.zip"
+        }
 
         Write-Verbose "Checking for a nested version folder: $versionSubFolder"
         if ((Test-Path -Path $versionSubFolder -PathType Container) -eq $true)
@@ -115,6 +150,16 @@ function Copy-TemplateFiles()
 
         function Copy-DeploymentFiles($suffix)
         {
+            function Copy-FlatDeploymentFiles()
+            {
+                if (Test-Path "$srcPath/azuredeploy.json")
+                {
+                    # Copy azuredeploy.json to docs/deploy folder
+                    Copy-Item "$srcPath/azuredeploy.json" "$deployDir/$templateName-$suffix.json"
+                    Copy-Item "$srcPath/createUiDefinition.json" "$deployDir/$templateName-$suffix.ui.json"
+                }
+            }
+
             $packageManifestPath = "$srcPath/package-manifest.json"
             if (Test-Path $packageManifestPath)
             {
@@ -124,19 +169,53 @@ function Copy-TemplateFiles()
                 # Create release directory
                 $targetDir = "$deployDir/$templateName/$suffix"
                 & "$PSScriptRoot/New-Directory" $targetDir
-                
+
                 # Copy files and directories
-                $packageManifest.deployment.Files | ForEach-Object { Copy-Item "$srcPath/$($_.source)" "$targetDir/$($_.destination)" -Force }
-                $packageManifest.deployment.Directories | ForEach-Object {
-                    & "$PSScriptRoot/New-Directory" "$targetDir/$($_.destination)"
-                    Get-ChildItem "$srcPath/$($_.source)" | Copy-Item -Destination "$targetDir/$($_.destination)" -Recurse -Force
+                $packageManifest.deployment.Files | ForEach-Object {
+                    $destPath = $_.destination
+                    $srcFolder = "$($srcPath.FullName)/$($_.sourceFolder)/".Replace("//", "/")
+                    if (-not (Test-Path $srcFolder))
+                    {
+                        throw "Package manifest references source folder '$($_.sourceFolder)' that does not exist: $srcFolder"
+                    }
+                    $filesToCopy = @(Get-ChildItem "$srcFolder/*" -Include $_.source -Recurse:$_.recurse)
+                    Write-Debug "Found $($filesToCopy.Count) files matching '$($_.source)' in $srcFolder"
+                    $filesToCopy | ForEach-Object {
+                        Write-Debug "Copying file: $($_.Name)"
+                        if ($destPath -eq '*')
+                        {
+                            $normalizedSrc = $srcFolder.Replace('\', '/')
+                            $normalizedFull = $_.FullName.Replace('\', '/')
+                            $relativeDest = "$targetDir/$($normalizedFull.Replace($normalizedSrc, ''))"
+                            $destDir = Split-Path $relativeDest -Parent
+                            if ($destDir) { & "$PSScriptRoot/New-Directory" $destDir }
+                            Copy-Item $_ $relativeDest -Force
+                        }
+                        else
+                        {
+                            Copy-Item $_ "$targetDir/$destPath" -Force
+                        }
+                    }
                 }
+                if ($packageManifest.deployment.Directories)
+                {
+                    Write-Debug "Processing $($packageManifest.deployment.Directories.Count) directory entries"
+                    $packageManifest.deployment.Directories | ForEach-Object {
+                        Write-Debug "Copying directory: $($_.source) -> $($_.destination)"
+                        & "$PSScriptRoot/New-Directory" "$targetDir/$($_.destination)"
+                        Get-ChildItem "$srcPath/$($_.source)" | Copy-Item -Destination "$targetDir/$($_.destination)" -Recurse -Force
+                    }
+                }
+                else
+                {
+                    Write-Debug "No directory entries in manifest"
+                }
+
+                Copy-FlatDeploymentFiles
             }
             else
             {
-                # Copy azuredeploy.json to docs/deploy folder
-                Copy-Item "$srcPath/azuredeploy.json" "$deployDir/$templateName-$suffix.json"
-                Copy-Item "$srcPath/createUiDefinition.json" "$deployDir/$templateName-$suffix.ui.json"
+                Copy-FlatDeploymentFiles
             }
         }
 
@@ -150,8 +229,9 @@ function Copy-TemplateFiles()
             Copy-DeploymentFiles "latest"
         }
 
-        Write-Verbose ("Compressing $srcPath to $zip" -replace (Get-Item $relDir).FullName, '.')
-        Compress-Archive -Path "$srcPath/*" -DestinationPath $zip
+        Write-Verbose ("Compressing $srcPath to $zip" -replace [regex]::Escape((Get-Item $relDir).FullName), '.')
+        Remove-Item $zip -Force -ErrorAction SilentlyContinue
+        Get-ChildItem $srcPath -Force | Compress-Archive -DestinationPath $zip
         return $zip
     }
 }
@@ -160,7 +240,10 @@ function Copy-OpenDataFiles()
 {
     Write-Verbose "Copying open data files..."
     Copy-Item "$PSScriptRoot/../open-data/*.csv" $relDir
-    Copy-Item "$PSScriptRoot/../open-data/*.json" $relDir
+    # Exclude *.familycounts.json: these are internal operational baselines for the
+    # eligibility completeness guard (not reference data), so they must not ship in
+    # the public release package alongside legitimate open data.
+    Copy-Item "$PSScriptRoot/../open-data/*.json" $relDir -Exclude '*.familycounts.json'
 }
 
 function Copy-OpenDataFolders()
@@ -175,6 +258,7 @@ function Copy-OpenDataFolders()
 }
 
 $version = & "$PSScriptRoot/Get-Version"
+$tag = & "$PSScriptRoot/Get-Version" -AsTag
 
 if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
 {
@@ -189,14 +273,19 @@ if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
         # Copy open data files
         Copy-OpenDataFiles
         Write-Host "✅ $((@(Get-ChildItem "$relDir/*.csv") + @(Get-ChildItem "$relDir/*.json")).Count) open data files"
-    
+
         # Package sample data files together
         Copy-OpenDataFolders
-    
+
         # Copy PBIX files
         Write-Verbose "Copying PBIX files..."
         Copy-Item "$PSScriptRoot/../power-bi/cm-connector/*.pbix" "$relDir" -Force
         Write-Host "✅ $((Get-ChildItem "$PSScriptRoot/../power-bi/cm-connector/*.pbix").Count) PBIX files"
+
+        # Copy calendar files
+        Write-Verbose "Copying calendar files..."
+        Copy-Item "$PSScriptRoot/../../docs/*.ics" "$relDir" -Force
+        Write-Host "✅ $((Get-ChildItem "$PSScriptRoot/../../docs/*.ics").Count) calendar files"
 
         # Update version in docs
         $docVersionPath = "$PSScriptRoot/../../docs/_includes/ftkver.txt"
@@ -214,77 +303,21 @@ if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
     }
 }
 
-$pbip = Get-ChildItem -Path "$PSScriptRoot/../power-bi/storage" -Include "*.pbip" -Recurse
-if (-not ($OpenPBI -or $ZipPBI))
+# Power BI files are packaged by Package-PowerBI, which reports what's left to do
+if ($OpenPBI)
 {
-    Write-Host "⚠️ $($pbip.Count) Power BI projects must be converted manually!"
-    Write-Host '     To open them, run: ' -NoNewline
-    Write-Host './Package-Toolkit -OpenPBI' -ForegroundColor Cyan
-}
-elseif ($OpenPBI)
-{
-    # Create temp pbix folder and remove existing storage/demo reports
-    & "$PSScriptRoot/New-Directory" "$relDir/pbix"
-    Remove-Item -Path "$relDir/pbix/*.storage.pbix" -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -Path "$relDir/pbix/*.demo.pbix" -Recurse -Force -ErrorAction SilentlyContinue
-
-    # Open Power BI projects
-    Write-Host "ℹ️ $($pbip.Count) Power BI projects must be saved as PBIX first... Opening..."
-    $pbip | Invoke-Item
-    Write-Host '     Save as PBIX then run: ' -NoNewline
-    Write-Host './Package-Toolkit -ZipPBI' -ForegroundColor Cyan
+    & "$PSScriptRoot/Package-PowerBI.ps1" -Open
 }
 elseif ($ZipPBI)
 {
-    $pbixFiles = Get-ChildItem -Path "$relDir/pbix/*.storage.pbix"
-
-    # TODO: Confirm all files are ready
-    if ($pbip.Count -ne $pbixFiles.Count)
-    {
-        Write-Host "⚠️ Found $($pbip.Count) Power BI projects but $($pbixFiles.Count) PBIX files. Please confirm all projects are saved as PBIX files first."
-        return
-    }
-
-    # Clean PBIX files
-    Write-Verbose "Processing $($pbixFiles.Count) files..."
-    $pbixFiles | ForEach-Object {
-        # Expand PBIX files for cleanup
-        $pbix = $_
-        $pbixDir = $pbix.FullName.Replace('.storage.pbix', '.demo')
-        Write-Verbose "Expanding $pbixDir..."
-        Remove-Item -Path $pbixDir -Recurse -Force -ErrorAction SilentlyContinue
-        Expand-Archive -Path $pbix -DestinationPath $pbixDir
-        
-        # Remove _rels, docProps
-        Remove-Item -Path "$pbixDir/_rels" -Recurse -Force -ErrorAction SilentlyContinue
-        Remove-Item -Path "$pbixDir/docProps" -Recurse -Force -ErrorAction SilentlyContinue
-        
-        # Remove docProps from Content_Types
-        $contentTypes = [xml](Get-Content "$pbixDir/?Content_Types?.xml" -Raw)
-        $contentTypes.Types.RemoveChild(($contentTypes.Types.Override | Where-Object { $_.PartName -eq '/docProps/custom.xml' })) | Out-Null
-        $contentTypes.Save("$pbixDir/[Content_Types].xml") | Out-Null
-        
-        # Remove unneeded tables
-        # $diagramLayout = Get-Content "$pbixDir/DiagramLayout" -Raw | ConvertFrom-Json -Depth 100
-        # $diagramLayout.diagrams.nodes | Where-Object { $metadata.Tables -contains $_.nodeIndex }
-        # TODO: Save as UTF-16LE -- $diagramLayout | ConvertTo-Json -Depth 100
-
-        # TODO: Remove tables from data model
-        # pbi-tools extract $pbix
-        # TODO: Remove tables
-        # pbi-tools compile $pbixDir $pbix
-        
-        # Zip as PBIX for demo
-        Write-Verbose "Saving demo $pbixDir.pbix..."
-        Remove-Item -Path "$pbixDir.pbix" -Recurse -Force -ErrorAction SilentlyContinue
-        Compress-Archive -Path $pbixDir -DestinationPath "$pbixDir.pbix"
-    }
-
-    # Zip release files
-    # Compress-Archive -Path "$relDir/pbix/*.storage.pbit" -DestinationPath "$relDir/PowerBI-storage.zip"
-    # Compress-Archive -Path "$relDir/pbix/*.kql.pbix" -DestinationPath "$relDir/PowerBI-demo.zip"
-    # Compress-Archive -Path "$relDir/pbix/*.kql.pbit" -DestinationPath "$relDir/PowerBI-kql.zip"
-}    
+    & "$PSScriptRoot/Package-PowerBI.ps1"
+}
+elseif (-not $Preview)
+{
+    & "$PSScriptRoot/Package-PowerBI.ps1" -Status
+    Write-Host '     To finish on Windows, run: ' -NoNewline
+    Write-Host './Package-PowerBI -Unattended' -ForegroundColor Cyan
+}
 
 Write-Host '...done!'
 Write-Host ''

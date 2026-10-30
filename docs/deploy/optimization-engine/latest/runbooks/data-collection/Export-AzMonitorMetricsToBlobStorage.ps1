@@ -58,7 +58,7 @@ $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSi
 $storageAccountSinkEnv = Get-AutomationVariable -Name "AzureOptimization_StorageSinkEnvironment" -ErrorAction SilentlyContinue
 if (-not($storageAccountSinkEnv))
 {
-    $storageAccountSinkEnv = $cloudEnvironment    
+    $storageAccountSinkEnv = $cloudEnvironment
 }
 $storageAccountSinkKeyCred = Get-AutomationPSCredential -Name "AzureOptimization_StorageSinkKey" -ErrorAction SilentlyContinue
 $storageAccountSinkKey = $null
@@ -84,12 +84,12 @@ $ARGPageSize = 1000
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -97,7 +97,7 @@ switch ($authenticationOption) {
 if (-not($storageAccountSinkKey))
 {
     Write-Output "Getting Storage Account context with login"
-    
+
     $saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 }
 else
@@ -111,9 +111,9 @@ $cloudSuffix = ""
 if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 {
     "Logging in to Azure with $externalCredentialName external credential..."
-    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential 
+    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential
     $cloudSuffix = $externalCloudEnvironment.ToLower() + "-"
-    $cloudEnvironment = $externalCloudEnvironment   
+    $cloudEnvironment = $externalCloudEnvironment
 }
 
 $tenantId = (Get-AzContext).Tenant.Id
@@ -144,9 +144,9 @@ if (-not([string]::IsNullOrEmpty($ARGFilter)))
 }
 
 $argQuery = @"
-resources 
+resources
 | where type =~ '$ResourceType'$argWhere
-| project id, name, subscriptionId, resourceGroup, tenantId 
+| project id, name, subscriptionId, resourceGroup, tenantId
 | order by id asc
 "@
 
@@ -202,12 +202,12 @@ foreach ($resource in $allResources) {
                         $valuesAggregation += $metricValues.Data."$AggregationType"
                     }
                 }
-            }    
+            }
         }
-        
+
         if (-not($metricValues.Id))
         {
-            $foundResource = $false    
+            $foundResource = $false
         }
     }
 
@@ -235,7 +235,7 @@ foreach ($resource in $allResources) {
                 }
             }
         }
-        
+
         $customMetric = New-Object PSObject -Property @{
             Timestamp         = $utcNow
             Cloud             = $cloudEnvironment
@@ -251,7 +251,7 @@ foreach ($resource in $allResources) {
             TimeGrain         = $TimeGrain
             TimeSpan          = $TimeSpan
         }
-    
+
         $customMetrics += $customMetric
     }
 }
@@ -273,7 +273,7 @@ $csvExportPath = "$metricMoment-metrics-$ResourceTypeName-$MetricName-$Aggregati
 $ci = [CultureInfo]::new([System.Threading.Thread]::CurrentThread.CurrentCulture.Name)
 if ($ci.NumberFormat.NumberDecimalSeparator -ne '.')
 {
-    Write-Output "Current culture ($($ci.Name)) does not use . as decimal separator"    
+    Write-Output "Current culture ($($ci.Name)) does not use . as decimal separator"
     $ci.NumberFormat.NumberDecimalSeparator = '.'
     [System.Threading.Thread]::CurrentThread.CurrentCulture = $ci
 }

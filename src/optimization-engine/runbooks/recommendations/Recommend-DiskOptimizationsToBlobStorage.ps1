@@ -41,7 +41,7 @@ $workspaceTenantId = Get-AutomationVariable -Name  "AzureOptimization_LogAnalyti
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
 
 
-$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue 
+$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "recommendationsexports"
 }
@@ -95,12 +95,12 @@ $LogAnalyticsIngestControlTable = "LogAnalyticsIngestControl"
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -116,25 +116,25 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$LogAnalyticsIngestControlTable] WHERE CollectedType IN ('ARGManagedDisk','MonitorMetrics','ARGResourceContainers','AzureConsumption','Pricesheet')"
-    
+
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $controlRows = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($controlRows) | Out-Null            
+        $sqlAdapter.Fill($controlRows) | Out-Null
         $connectionSuccess = $true
     }
     catch {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -151,8 +151,8 @@ $pricesheetTableName = $lognamePrefix + ($controlRows | Where-Object { $_.Collec
 
 Write-Output "Will run query against tables $disksTableName, $metricsTableName, $subscriptionsTableName, $pricesheetTableName and $consumptionTableName"
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 $recommendationSearchTimeSpan = 30 + $consumptionOffsetDaysStart
 
@@ -177,7 +177,7 @@ if ($cloudEnvironment -eq "AzureCloud")
     $pricesheetRegion = "EU West"
 }
 
-try 
+try
 {
     $pricesheetEntries = @()
 
@@ -186,17 +186,17 @@ try
     | where TimeGenerated > ago(14d)
     | where MeterCategory_s == 'Storage' and MeterSubCategory_s contains "Managed Disk" and (MeterName_s endswith "Disk" or MeterName_s endswith "Disks") and MeterName_s !has 'Special' and MeterRegion_s == '$pricesheetRegion' and PriceType_s == 'Consumption'
     | distinct MeterName_s, MeterSubCategory_s, MeterCategory_s, MeterRegion_s, UnitPrice_s, UnitOfMeasure_s
-"@    
+"@
 
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days 14) -Wait 600 -IncludeStatistics
     $pricesheetEntries = [System.Linq.Enumerable]::ToArray($queryResults.Results)
-    
-    Write-Output "Query finished with $($pricesheetEntries.Count) results."   
-    Write-Output "Query statistics: $($queryResults.Statistics.query)"    
+
+    Write-Output "Query finished with $($pricesheetEntries.Count) results."
+    Write-Output "Query statistics: $($queryResults.Statistics.query)"
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     Write-Output "Consumption pricesheet not available, will estimate savings based in price difference ratio..."
 }
@@ -207,9 +207,9 @@ Write-Output "Looking for underutilized Disks, with less than $iopsPercentageThr
 
 $baseQuery = @"
     let billingInterval = 30d;
-    let perfInterval = $($perfDaysBackwards)d; 
-    let etime = todatetime(toscalar($consumptionTableName | where todatetime(Date_s) < now() and todatetime(Date_s) > ago(billingInterval) | summarize max(todatetime(Date_s)))); 
-    let stime = etime-billingInterval; 
+    let perfInterval = $($perfDaysBackwards)d;
+    let etime = todatetime(toscalar($consumptionTableName | where todatetime(Date_s) < now() and todatetime(Date_s) > ago(billingInterval) | summarize max(todatetime(Date_s))));
+    let stime = etime-billingInterval;
 
     let BilledDisks = $consumptionTableName
     | where todatetime(Date_s) between (stime..etime) and ResourceId contains '/disks/' and MeterCategory_s == 'Storage' and MeterSubCategory_s has 'Premium' and MeterName_s has 'Disk'
@@ -222,9 +222,9 @@ $baseQuery = @"
     $metricsTableName
     | where MetricNames_s == 'Composite Disk Read Operations/sec,Composite Disk Write Operations/sec' and TimeGenerated > ago(perfInterval) and isnotempty(MetricValue_s)
     | summarize MaxIOPSMetric = max(todouble(MetricValue_s)) by ResourceId
-    | join kind=inner ( 
+    | join kind=inner (
         $disksTableName
-        | where TimeGenerated > ago(1d) and DiskState_s =~ 'Attached' and SKU_s startswith 'Premium'
+        | where TimeGenerated > ago(1d) and DiskState_s =~ 'Attached' and SKU_s startswith 'Premium' and SKU_s !contains "V2"
         | extend DiskTier_s = strcat(DiskTier_s, ' ', tostring(split(SKU_s, '_')[1]))
         | project ResourceId=InstanceId_s, DiskName_s, ResourceGroup = ResourceGroupName_s, SubscriptionId = SubscriptionGuid_g, Cloud_s, TenantGuid_g, Tags_s, MaxIOPSDisk=toint(DiskIOPS_s), DiskSizeGB_s, SKU_s, DiskTier_s, DiskType_s
     ) on ResourceId
@@ -235,9 +235,9 @@ $baseQuery = @"
         $metricsTableName
         | where MetricNames_s == 'Composite Disk Read Bytes/sec,Composite Disk Write Bytes/sec' and TimeGenerated > ago(perfInterval) and isnotempty(MetricValue_s)
         | summarize MaxMBsMetric = max(todouble(MetricValue_s)/1024/1024) by ResourceId
-        | join kind=inner ( 
+        | join kind=inner (
             $disksTableName
-            | where TimeGenerated > ago(1d) and DiskState_s =~ 'Attached' and SKU_s startswith 'Premium'
+            | where TimeGenerated > ago(1d) and DiskState_s =~ 'Attached' and SKU_s startswith 'Premium' and SKU_s !contains "V2"
             | extend DiskTier_s = strcat(DiskTier_s, ' ', tostring(split(SKU_s, '_')[1]))
             | project ResourceId=InstanceId_s, DiskName_s, ResourceGroup = ResourceGroupName_s, SubscriptionId = SubscriptionGuid_g, Cloud_s, TenantGuid_g, Tags_s, MaxMBsDisk=toint(DiskThroughput_s), DiskSizeGB_s, SKU_s, DiskTier_s, DiskType_s
         ) on ResourceId
@@ -246,11 +246,11 @@ $baseQuery = @"
         | where MBsPercentage < $mbsPercentageThreshold
     ) on ResourceId
     | join kind=inner ( BilledDisks ) on ResourceId
-    | join kind=leftouter ( 
+    | join kind=leftouter (
         $subscriptionsTableName
         | where TimeGenerated > ago(1d)
-        | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-        | project SubscriptionId = SubscriptionGuid_g, SubscriptionName = ContainerName_s 
+        | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+        | project SubscriptionId = SubscriptionGuid_g, SubscriptionName = ContainerName_s
     ) on SubscriptionId
 "@
 
@@ -259,12 +259,12 @@ try
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
     {
-        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)        
+        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)
     }
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     throw "Execution aborted"
 }
@@ -303,13 +303,13 @@ foreach ($result in $results)
                 {
                     $skuPricesFound[$sku.Size] = Find-DiskMonthlyPrice -DiskSizeTier $skuSize -SKUPriceSheet $pricesheetEntries
                 }
-    
+
                 $currentSkuCandidate = New-Object PSObject -Property @{
                     Name = $skuSize
                     MaxSizeGB = $skuMaxSizeGB
-                }    
+                }
 
-                $currentSkuCandidates += $currentSkuCandidate    
+                $currentSkuCandidates += $currentSkuCandidate
             }
         }
         $currentDiskTier = ($currentSkuCandidates | Sort-Object -Property MaxSizeGB | Select-Object -First 1).Name
@@ -355,7 +355,7 @@ foreach ($result in $results)
                     MaxMBps = $skuMaxBandwidthMBps
                 }
 
-                $targetSkuCandidates += $targetSkuCandidate    
+                $targetSkuCandidates += $targetSkuCandidate
             }
         }
     }
@@ -366,10 +366,10 @@ foreach ($result in $results)
     {
         $queryInstanceId = $result.ResourceId
         $queryText = @"
-        let billingInterval = 30d; 
+        let billingInterval = 30d;
         let armId = `'$queryInstanceId`';
         let gInt = $perfTimeGrain;
-        let ThroughputMBsPerf = $metricsTableName 
+        let ThroughputMBsPerf = $metricsTableName
         | where TimeGenerated > ago(billingInterval)
         | extend CollectedDate = todatetime(strcat(format_datetime(TimeGenerated, 'yyyy-MM-dd'),'T',format_datetime(TimeGenerated, 'HH'),':00:00Z'))
         | where ResourceId == armId
@@ -377,25 +377,25 @@ foreach ($result in $results)
         | extend ThroughputMBs = todouble(MetricValue_s)/1024/1024
         | project CollectedDate, ThroughputMBs, InstanceId_s=ResourceId
         | join kind=inner (
-            $disksTableName 
+            $disksTableName
             | where TimeGenerated > ago(1d)
             | distinct InstanceId_s, DiskThroughput_s
         ) on InstanceId_s
-        | extend MBsPercentage = ThroughputMBs / todouble(DiskThroughput_s) * 100 
+        | extend MBsPercentage = ThroughputMBs / todouble(DiskThroughput_s) * 100
         | summarize max(MBsPercentage) by bin(CollectedDate, gInt);
-        let IOPSPerf = $metricsTableName  
-        | where TimeGenerated > ago(billingInterval) 
+        let IOPSPerf = $metricsTableName
+        | where TimeGenerated > ago(billingInterval)
         | extend CollectedDate = todatetime(strcat(format_datetime(TimeGenerated, 'yyyy-MM-dd'),'T',format_datetime(TimeGenerated, 'HH'),':00:00Z'))
         | where ResourceId == armId
         | where MetricNames_s == 'Composite Disk Read Operations/sec,Composite Disk Write Operations/sec' and AggregationType_s == 'Average' and AggregationOfType_s == 'Maximum'
         | extend IOPS = todouble(MetricValue_s)
         | project CollectedDate, IOPS, InstanceId_s=ResourceId
         | join kind=inner (
-            $disksTableName  
+            $disksTableName
             | where TimeGenerated > ago(1d)
             | distinct InstanceId_s, DiskIOPS_s
         ) on InstanceId_s
-        | extend IOPSPercentage = IOPS / todouble(DiskIOPS_s) * 100 
+        | extend IOPSPercentage = IOPS / todouble(DiskIOPS_s) * 100
         | summarize max(IOPSPercentage) by bin(CollectedDate, gInt);
         ThroughputMBsPerf
         | join kind=inner (IOPSPerf) on CollectedDate
@@ -414,29 +414,29 @@ foreach ($result in $results)
         $detailsQueryStart = $datetime.AddDays(-30).ToString("yyyy-MM-dd")
         $detailsQueryEnd = $datetime.AddDays(8).ToString("yyyy-MM-dd")
         $detailsURL = "https://portal.azure.$azureTld#@$workspaceTenantId/blade/Microsoft_Azure_Monitoring_Logs/LogsBlade/resourceId/%2Fsubscriptions%2F$workspaceSubscriptionId%2Fresourcegroups%2F$workspaceRG%2Fproviders%2Fmicrosoft.operationalinsights%2Fworkspaces%2F$workspaceName/source/LogsBlade.AnalyticsShareLinkToQuery/query/$encodedQuery/timespan/$($detailsQueryStart)T00%3A00%3A00.000Z%2F$($detailsQueryEnd)T00%3A00%3A00.000Z"
-    
+
         $additionalInfoDictionary = @{}
-    
+
         $additionalInfoDictionary["DiskType"] = "Managed"
         $additionalInfoDictionary["currentSku"] = $result.SKU_s
         $additionalInfoDictionary["targetSku"] = $targetSkuPerfTier
-        $additionalInfoDictionary["DiskSizeGB"] = [int] $result.DiskSizeGB_s 
-        $additionalInfoDictionary["currentTier"] = $currentDiskTier 
-        $additionalInfoDictionary["targetTier"] = $targetSku.Name 
+        $additionalInfoDictionary["DiskSizeGB"] = [int] $result.DiskSizeGB_s
+        $additionalInfoDictionary["currentTier"] = $currentDiskTier
+        $additionalInfoDictionary["targetTier"] = $targetSku.Name
         $additionalInfoDictionary["MaxIOPSMetric"] = [double] $($result.MaxIOPSMetric)
         $additionalInfoDictionary["MaxMBpsMetric"] = [double] $($result.MaxMBsMetric)
         $additionalInfoDictionary["MetricIOPSPercentage"] = [double] $($result.IOPSPercentage)
         $additionalInfoDictionary["MetricMBpsPercentage"] = [double] $($result.MBsPercentage)
-        $additionalInfoDictionary["targetMaxSizeGB"] = [int] $targetSku.MaxSizeGB 
-        $additionalInfoDictionary["targetMaxIOPS"] = [int] $targetSku.MaxIOPS 
-        $additionalInfoDictionary["targetMaxMBps"] =[int] $targetSku.MaxMBps 
-    
+        $additionalInfoDictionary["targetMaxSizeGB"] = [int] $targetSku.MaxSizeGB
+        $additionalInfoDictionary["targetMaxIOPS"] = [int] $targetSku.MaxIOPS
+        $additionalInfoDictionary["targetMaxMBps"] =[int] $targetSku.MaxMBps
+
         $fitScore = 4 # needs Maximum of Maximum for metrics to have higher fit score
         if ([int] $result.DiskSizeGB_s -gt 512)
         {
             $fitScore = 3.5 #disk will not support credit-based bursting, therefore the recommendation risk increases a bit
         }
-        
+
         $fitScore = [Math]::max(0.0, $fitScore)
 
         $savingCoefficient = 2 # Standard SSD is generally close to half the price of Premium SSD
@@ -447,16 +447,16 @@ foreach ($result in $results)
 
         if ($targetSku -and $skuPricesFound[$targetSku.Name] -lt [double]::MaxValue)
         {
-            $targetSkuPrice = $skuPricesFound[$targetSku.Name]    
+            $targetSkuPrice = $skuPricesFound[$targetSku.Name]
 
             if ($skuPricesFound[$currentDiskTier] -lt [double]::MaxValue)
             {
-                $currentSkuPrice = $skuPricesFound[$currentDiskTier]    
-                $tentativeTargetSkuSavingsMonthly = ($currentSkuPrice * [double] $result.Last30DaysQuantity) - ($targetSkuPrice * [double] $result.Last30DaysQuantity)    
+                $currentSkuPrice = $skuPricesFound[$currentDiskTier]
+                $tentativeTargetSkuSavingsMonthly = ($currentSkuPrice * [double] $result.Last30DaysQuantity) - ($targetSkuPrice * [double] $result.Last30DaysQuantity)
             }
             else
             {
-                $tentativeTargetSkuSavingsMonthly = $result.Last30DaysCost - ($targetSkuPrice * [double] $result.Last30DaysQuantity)    
+                $tentativeTargetSkuSavingsMonthly = $result.Last30DaysCost - ($targetSkuPrice * [double] $result.Last30DaysQuantity)
             }
         }
 
@@ -477,19 +477,19 @@ foreach ($result in $results)
                 {
                     $tagName = $tagPair[0].Trim()
                     $tagValue = $tagPair[1].Trim()
-                    $tags[$tagName] = $tagValue    
+                    $tags[$tagName] = $tagValue
                 }
             }
-        }            
-    
+        }
+
         if ($targetSkuSavingsMonthly -eq [double]::PositiveInfinity)
         {
             $targetSkuSavingsMonthly = [double] $result.Last30DaysCost / 2
         }
 
-        $additionalInfoDictionary["savingsAmount"] = [double] $targetSkuSavingsMonthly     
-        $additionalInfoDictionary["CostsAmount"] = [double] $result.Last30DaysCost 
-    
+        $additionalInfoDictionary["savingsAmount"] = [double] $targetSkuSavingsMonthly
+        $additionalInfoDictionary["CostsAmount"] = [double] $result.Last30DaysCost
+
         $recommendation = New-Object PSObject -Property @{
             Timestamp                   = $timestamp
             Cloud                       = $result.Cloud_s
@@ -512,8 +512,8 @@ foreach ($result in $results)
             Tags                        = $tags
             DetailsURL                  = $detailsURL
         }
-    
-        $recommendations += $recommendation        
+
+        $recommendations += $recommendation
     }
 }
 

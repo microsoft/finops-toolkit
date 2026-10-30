@@ -10,14 +10,27 @@ where:
 configuration:
   resourceManagementConfiguration:
     eventResponderTasks:
-      - description: When a PR is opened, add reviewers and labels based on file paths
+      # features/wacoascripts branch -- Arthur (or Brett and Michael if Arthur is the author)
+      - description: When a PR is opened against features/wacoascripts, assign reviewers
         if:
           - payloadType: Pull_Request
-          - not:
-              targetsBranch:
-                branch: main
+          - targetsBranch:
+              branch: features/wacoascripts
         then:
-          # all paths -- Arthur
+          # If Arthur, assign Brett and Michael
+          - if:
+              - isActivitySender:
+                  user: arthurclares
+            then:
+              - requestReview:
+                  reviewer: msbrett
+              - requestReview:
+                  reviewer: flanakin
+              - assignTo:
+                  user: msbrett
+              - assignTo:
+                  user: flanakin
+          # Otherwise, assign Arthur
           - if:
               - not:
                   isActivitySender:
@@ -27,6 +40,28 @@ configuration:
                   reviewer: arthurclares
               - assignTo:
                   user: arthurclares
+
+      # All other branches (excluding main and features/wacoascripts)
+      - description: When a PR is opened, add reviewers and labels based on file paths
+        if:
+          - payloadType: Pull_Request
+          - not:
+              targetsBranch:
+                branch: main
+          - not:
+              targetsBranch:
+                branch: features/wacoascripts
+        then:
+          # all paths -- Brett
+          - if:
+              - not:
+                  isActivitySender:
+                    user: msbrett
+            then:
+              - requestReview:
+                  reviewer: msbrett
+              - assignTo:
+                  user: msbrett
           # all paths -- Michael
           - if:
               - not:
@@ -177,16 +212,6 @@ configuration:
                       reviewer: helderpinto
                   - assignTo:
                       user: helderpinto
-              # Robel
-              - if:
-                  - not:
-                      isActivitySender:
-                        user: ro100e
-                then:
-                  - requestReview:
-                      reviewer: ro100e
-                  - assignTo:
-                      user: ro100e
               # Roland
               - if:
                   - not:
@@ -263,16 +288,6 @@ configuration:
                       reviewer: aromano2
                   - assignTo:
                       user: aromano2
-              # Divyadeep
-              - if:
-                  - not:
-                      isActivitySender:
-                        user: didayal-msft
-                then:
-                  - requestReview:
-                      reviewer: didayal-msft
-                  - assignTo:
-                      user: didayal-msft
               # Helder
               - if:
                   - not:
@@ -283,16 +298,6 @@ configuration:
                       reviewer: helderpinto
                   - assignTo:
                       user: helderpinto
-              # Sacha
-              - if:
-                  - not:
-                      isActivitySender:
-                        user: springstone
-                then:
-                  - requestReview:
-                      reviewer: springstone
-                  - assignTo:
-                      user: springstone
           # optimization engine
           - if:
               - filesMatchPattern:
@@ -317,26 +322,6 @@ configuration:
             then:
               - addLabel:
                   label: 'Skill: Deployment'
-              # Divyadeep
-              - if:
-                  - not:
-                      isActivitySender:
-                        user: didayal-msft
-                then:
-                  - requestReview:
-                      reviewer: didayal-msft
-                  - assignTo:
-                      user: didayal-msft
-              # Sacha
-              - if:
-                  - not:
-                      isActivitySender:
-                        user: springstone
-                then:
-                  - requestReview:
-                      reviewer: springstone
-                  - assignTo:
-                      user: springstone
           # web
           - if:
               - or:
@@ -345,16 +330,6 @@ configuration:
             then:
               - addLabel:
                   label: 'Tool: Web app'
-              # Ivan
-              - if:
-                  - not:
-                      isActivitySender:
-                        user: ivanmtta
-                then:
-                  - requestReview:
-                      reviewer: ivanmtta
-                  - assignTo:
-                      user: ivanmtta
               # Jamel
               - if:
                   - not:
@@ -418,7 +393,7 @@ configuration:
                       reviewer: nteyan
                   - assignTo:
                       user: nteyan
-              # Seif
+              # Arthur
               - if:
                   - or:
                       - filesMatchPattern:
@@ -429,11 +404,11 @@ configuration:
                           pattern: ^src\/workbooks\/(\.scaffold|optimization)\/.*
                   - not:
                       isActivitySender:
-                        user: sebassem
+                        user: arthurclares
                 then:
                   - requestReview:
-                      reviewer: sebassem
+                      reviewer: arthurclares
                   - assignTo:
-                      user: sebassem
+                      user: arthurclares
 onFailure:
 onSuccess:

@@ -1,0 +1,466 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+& "$PSScriptRoot/../Initialize-Tests.ps1"
+
+InModuleScope 'FinOpsToolkit' {
+    Describe 'Get-FinOpsCostExport' {
+        BeforeAll {
+            Mock -CommandName 'Get-AzContext' {
+                @{
+                    Subscription = @{ Id = '00000000-0000-0000-0000-000000000000' }
+                }
+            }
+
+            [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
+            $scope = "/subscriptions/00000000-0000-0000-0000-000000000000"
+        }
+
+        Context 'RunHistory' {
+            It 'Should return the full run history from the individual GET endpoint when -RunHistory is specified' {
+                # Arrange
+                # The list endpoint truncates runHistory (returns only run1 here), while the
+                # individual GET endpoint returns the full history (run1 + run2). The cmdlet
+                # must use the individual GET results. Regression test for issue #2063.
+                Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -ParameterFilter { $Uri -match 'exports\?' } {
+                    @{
+                        Success = $true
+                        Content = @{
+                            Value = @(
+                                @{
+                                    name  = 'test-export'
+                                    id    = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/test-export'
+                                    type  = 'Microsoft.CostManagement/exports'
+                                    eTag  = 'etag123'
+                                    properties = @{
+                                        exportDescription = 'Test export'
+                                        definition = @{
+                                            type      = 'FocusCost'
+                                            timeframe = 'MonthToDate'
+                                            dataSet   = @{
+                                                granularity   = 'Daily'
+                                                configuration = @{
+                                                    dataVersion = '1.0'
+                                                    filter      = $null
+                                                }
+                                            }
+                                            timePeriod = @{ from = $null; to = $null }
+                                        }
+                                        schedule = @{
+                                            status           = 'Active'
+                                            recurrence       = 'Daily'
+                                            recurrencePeriod = @{ from = '2024-01-01'; to = '2025-01-01' }
+                                        }
+                                        nextRunTimeEstimate = '2024-06-01T00:00:00Z'
+                                        format              = 'Csv'
+                                        deliveryInfo = @{
+                                            destination = @{
+                                                resourceId     = '/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa'
+                                                container      = 'exports'
+                                                rootFolderPath = 'path'
+                                            }
+                                        }
+                                        dataOverwriteBehavior = 'OverwritePreviousReport'
+                                        partitionData         = $false
+                                        compressionMode       = 'None'
+                                        runHistory = @{
+                                            value = @(
+                                                @{
+                                                    id   = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/test-export/runs/run1'
+                                                    name = 'run1'
+                                                    properties = @{ executionType = 'OnDemand'; status = 'Completed' }
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -ParameterFilter { $Uri -match 'exports/test-export\?' } {
+                    @{
+                        Success = $true
+                        Content = @{
+                            name  = 'test-export'
+                            id    = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/test-export'
+                            properties = @{
+                                runHistory = @{
+                                    value = @(
+                                        @{
+                                            id   = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/test-export/runs/run1'
+                                            name = 'run1'
+                                            properties = @{
+                                                executionType       = 'OnDemand'
+                                                status              = 'Completed'
+                                                submittedBy         = 'user@example.com'
+                                                submittedTime       = '2024-05-01T10:00:00Z'
+                                                processingStartTime = '2024-05-01T10:01:00Z'
+                                                processingEndTime   = '2024-05-01T10:05:00Z'
+                                                fileName            = 'export.csv'
+                                                startDate           = '2024-04-01'
+                                                endDate             = '2024-04-30'
+                                                error               = @{ code = $null; message = $null }
+                                            }
+                                        },
+                                        @{
+                                            id   = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/test-export/runs/run2'
+                                            name = 'run2'
+                                            properties = @{
+                                                executionType       = 'Scheduled'
+                                                status              = 'Failed'
+                                                submittedBy         = 'system'
+                                                submittedTime       = '2024-05-02T00:00:00Z'
+                                                processingStartTime = '2024-05-02T00:01:00Z'
+                                                processingEndTime   = '2024-05-02T00:02:00Z'
+                                                fileName            = $null
+                                                startDate           = '2024-05-01'
+                                                endDate             = '2024-05-01'
+                                                error               = @{ code = 'BillingError'; message = 'Billing account not found' }
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                # Act
+                $result = Get-FinOpsCostExport -Scope $scope -RunHistory
+
+                # Assert
+                $result | Should -Not -BeNullOrEmpty
+                $result | Should -HaveCount 1
+
+                # The individual GET endpoint was queried for the export's full run history
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Uri -match 'exports/test-export\?' -and $Uri -match '\$expand=runHistory'
+                }
+
+                # Validate the full run history (2 runs) is returned, not the truncated list (1 run)
+                $result.RunHistory | Should -Not -BeNullOrEmpty
+                $result.RunHistory | Should -HaveCount 2
+
+                # Validate first run
+                $result.RunHistory[0].RunId | Should -Be 'run1'
+                $result.RunHistory[0].ExecutionType | Should -Be 'OnDemand'
+                $result.RunHistory[0].Status | Should -Be 'Completed'
+                $result.RunHistory[0].SubmittedBy | Should -Be 'user@example.com'
+                $result.RunHistory[0].SubmittedTime | Should -Be '2024-05-01T10:00:00Z'
+                $result.RunHistory[0].RunStartTime | Should -Be '2024-05-01T10:01:00Z'
+                $result.RunHistory[0].RunEndTime | Should -Be '2024-05-01T10:05:00Z'
+                $result.RunHistory[0].FileName | Should -Be 'export.csv'
+                $result.RunHistory[0].QueryStartDate | Should -Be '2024-04-01'
+                $result.RunHistory[0].QueryEndDate | Should -Be '2024-04-30'
+
+                # Validate second run (failed)
+                $result.RunHistory[1].RunId | Should -Be 'run2'
+                $result.RunHistory[1].Status | Should -Be 'Failed'
+                $result.RunHistory[1].ErrorCode | Should -Be 'BillingError'
+                $result.RunHistory[1].ErrorMessage | Should -Be 'Billing account not found'
+            }
+
+            It 'Should pass RunHistory expand parameter to API' {
+                # Arrange
+                Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' {
+                    @{
+                        Success = $true
+                        Content = @{ Value = @() }
+                    }
+                }
+
+                # Act
+                Get-FinOpsCostExport -Scope $scope -RunHistory
+
+                # Assert
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Uri -match '\$expand=runHistory'
+                }
+            }
+
+            It 'Should not expand RunHistory or make per-export calls when switch is not specified' {
+                # Arrange
+                Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' {
+                    @{
+                        Success = $true
+                        Content = @{
+                            Value = @(
+                                @{
+                                    name  = 'test-export'
+                                    id    = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/test-export'
+                                    type  = 'Microsoft.CostManagement/exports'
+                                    properties = @{
+                                        definition   = @{ type = 'FocusCost' }
+                                        schedule     = @{ recurrencePeriod = @{} }
+                                        deliveryInfo = @{ destination = @{} }
+                                        runHistory   = @{ value = @() }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                # Act
+                Get-FinOpsCostExport -Scope $scope
+
+                # Assert
+                # Only the list call should be made (no $expand, no per-export GET)
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -Exactly
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Uri -notmatch '\$expand=runHistory'
+                }
+            }
+
+            It 'Should fall back to list run history when the individual GET fails' {
+                # Arrange
+                Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -ParameterFilter { $Uri -match 'exports\?' } {
+                    @{
+                        Success = $true
+                        Content = @{
+                            Value = @(
+                                @{
+                                    name  = 'test-export'
+                                    id    = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/test-export'
+                                    type  = 'Microsoft.CostManagement/exports'
+                                    properties = @{
+                                        definition   = @{ type = 'FocusCost' }
+                                        schedule     = @{ recurrencePeriod = @{} }
+                                        deliveryInfo = @{ destination = @{} }
+                                        runHistory   = @{
+                                            value = @(
+                                                @{
+                                                    id   = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/test-export/runs/run1'
+                                                    name = 'run1'
+                                                    properties = @{ status = 'Completed' }
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -ParameterFilter { $Uri -match 'exports/test-export\?' } {
+                    @{
+                        Success = $false
+                        Content = @{}
+                    }
+                }
+
+                # Act
+                $result = Get-FinOpsCostExport -Scope $scope -RunHistory
+
+                # Assert
+                # The per-export individual GET must be attempted before falling back
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Uri -match 'exports/test-export\?' -and $Uri -match '\$expand=runHistory'
+                }
+                $result | Should -Not -BeNullOrEmpty
+                $result.RunHistory | Should -HaveCount 1
+                $result.RunHistory[0].RunId | Should -Be 'run1'
+            }
+
+            It 'Should fall back to list run history when the individual GET throws' {
+                # Arrange
+                # Invoke-Rest throws (instead of returning Success=$false) when an error
+                # response has no structured error body (network failures, non-JSON 5xx,
+                # token errors). The thrown error on a single export must not abort the
+                # whole cmdlet -- it should fall back to the list run history.
+                Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -ParameterFilter { $Uri -match 'exports\?' } {
+                    @{
+                        Success = $true
+                        Content = @{
+                            Value = @(
+                                @{
+                                    name  = 'test-export'
+                                    id    = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/test-export'
+                                    type  = 'Microsoft.CostManagement/exports'
+                                    properties = @{
+                                        definition   = @{ type = 'FocusCost' }
+                                        schedule     = @{ recurrencePeriod = @{} }
+                                        deliveryInfo = @{ destination = @{} }
+                                        runHistory   = @{
+                                            value = @(
+                                                @{
+                                                    id   = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/test-export/runs/run1'
+                                                    name = 'run1'
+                                                    properties = @{ status = 'Completed' }
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -ParameterFilter { $Uri -match 'exports/test-export\?' } {
+                    throw 'Simulated network failure (no structured error body)'
+                }
+
+                # Act
+                $result = Get-FinOpsCostExport -Scope $scope -RunHistory
+
+                # Assert
+                # The cmdlet must still return data (the thrown error is caught and the
+                # list run history is used).
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Uri -match 'exports/test-export\?' -and $Uri -match '\$expand=runHistory'
+                }
+                $result | Should -Not -BeNullOrEmpty
+                $result.RunHistory | Should -HaveCount 1
+                $result.RunHistory[0].RunId | Should -Be 'run1'
+            }
+
+            It 'Should retry on throttling and then use the full run history' {
+                # Arrange
+                # The first individual GET is throttled (429); after a wait the retry
+                # succeeds and returns the full run history. Start-Sleep is mocked so the
+                # test does not actually wait.
+                Mock -ModuleName FinOpsToolkit -CommandName 'Start-Sleep' { }
+
+                Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -ParameterFilter { $Uri -match 'exports\?' } {
+                    @{
+                        Success = $true
+                        Content = @{
+                            Value = @(
+                                @{
+                                    name  = 'test-export'
+                                    id    = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/test-export'
+                                    type  = 'Microsoft.CostManagement/exports'
+                                    properties = @{
+                                        definition   = @{ type = 'FocusCost' }
+                                        schedule     = @{ recurrencePeriod = @{} }
+                                        deliveryInfo = @{ destination = @{} }
+                                        runHistory   = @{
+                                            value = @(
+                                                @{
+                                                    id   = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/test-export/runs/run1'
+                                                    name = 'run1'
+                                                    properties = @{ status = 'Completed' }
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                $script:throttleAttempts = 0
+                Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -ParameterFilter { $Uri -match 'exports/test-export\?' } {
+                    $script:throttleAttempts++
+                    if ($script:throttleAttempts -lt 2)
+                    {
+                        @{ Success = $false; Throttled = $true; Content = @{} }
+                    }
+                    else
+                    {
+                        @{
+                            Success   = $true
+                            Throttled = $false
+                            Content   = @{
+                                properties = @{
+                                    runHistory = @{
+                                        value = @(
+                                            @{
+                                                id   = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/test-export/runs/run1'
+                                                name = 'run1'
+                                                properties = @{ status = 'Completed' }
+                                            },
+                                            @{
+                                                id   = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/test-export/runs/run2'
+                                                name = 'run2'
+                                                properties = @{ status = 'Failed' }
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                # Act
+                $result = Get-FinOpsCostExport -Scope $scope -RunHistory
+
+                # Assert
+                # The throttled GET was retried (2 calls), waited once, and the full
+                # history (2 runs) -- not the truncated list (1 run) -- was returned.
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 2 -Exactly -ParameterFilter {
+                    $Uri -match 'exports/test-export\?'
+                }
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Start-Sleep' -Times 1 -Exactly
+                $result.RunHistory | Should -HaveCount 2
+                $result.RunHistory[1].RunId | Should -Be 'run2'
+            }
+
+            It 'Should handle empty run history' {
+                # Arrange
+                Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -ParameterFilter { $Uri -match 'exports\?' } {
+                    @{
+                        Success = $true
+                        Content = @{
+                            Value = @(
+                                @{
+                                    name  = 'no-history-export'
+                                    id    = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/no-history-export'
+                                    type  = 'Microsoft.CostManagement/exports'
+                                    eTag  = 'etag456'
+                                    properties = @{
+                                        definition = @{
+                                            type      = 'FocusCost'
+                                            timeframe = 'MonthToDate'
+                                            dataSet   = @{
+                                                granularity   = 'Daily'
+                                                configuration = @{ dataVersion = '1.0' }
+                                            }
+                                        }
+                                        schedule = @{
+                                            status           = 'Active'
+                                            recurrence       = 'Daily'
+                                            recurrencePeriod = @{}
+                                        }
+                                        deliveryInfo = @{
+                                            destination = @{
+                                                resourceId     = '/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa'
+                                                container      = 'exports'
+                                                rootFolderPath = 'path'
+                                            }
+                                        }
+                                        runHistory = @{ value = @() }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -ParameterFilter { $Uri -match 'exports/no-history-export\?' } {
+                    @{
+                        Success = $true
+                        Content = @{
+                            name       = 'no-history-export'
+                            id         = '/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.CostManagement/exports/no-history-export'
+                            properties = @{ runHistory = @{ value = @() } }
+                        }
+                    }
+                }
+
+                # Act
+                $result = Get-FinOpsCostExport -Scope $scope -RunHistory
+
+                # Assert
+                $result | Should -Not -BeNullOrEmpty
+                $result.RunHistory | Should -HaveCount 0
+            }
+        }
+    }
+}

@@ -1,0 +1,145 @@
+name: Update ms.date in docs-mslearn
+
+on:
+  pull_request:
+    paths:
+      - 'docs-mslearn/**/*.md'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-dates:
+    name: Update ms.date in changed markdown files
+    runs-on: ubuntu-latest
+    # Only run on PRs from the same repo (not forks) to allow pushing
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get changed markdown files
+        id: changed-files
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
+        with:
+          files: 'docs-mslearn/**/*.md'
+
+      - name: Update ms.date in changed files
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          # Get current date in MM/DD/YYYY format
+          CURRENT_DATE=$(date +'%m/%d/%Y')
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          echo "Updating ms.date to: $CURRENT_DATE"
+          echo "Comparing article body changes against: $BASE_SHA"
+
+          # Strip YAML frontmatter and normalize tooling-only whitespace so they
+          # are not counted as article body changes. Keep these rules aligned
+          # with Get-DocsArticleBody in src/scripts/Publish-Toolkit.ps1:
+          #   1. Strip a trailing CR for CRLF tolerance.
+          #   2. Whitespace-tolerant --- fence detection. If line 1 trims to
+          #      ---, drop everything through the next line that trims to ---.
+          #      If no closing fence is found, treat the entire file as body
+          #      (errs safe for malformed frontmatter).
+          #   3. Drop markdownlint-disable-next-line MD025 and prettier-ignore
+          #      directive lines (whitespace-tolerant trim equality).
+          #   4. Strip leading and trailing blank lines from the body.
+          #
+          # Whitespace preservation: Trailing whitespace, blank line runs, and all
+          # content inside fenced/indented code blocks are preserved exactly. This
+          # ensures real content changes (e.g., hard line breaks, code block
+          # formatting) are not misclassified as metadata-only.
+          strip_frontmatter() {
+            awk '
+              { sub(/\r$/, ""); raw[NR] = $0 }
+              END {
+                start = 1
+                total = NR
+                if (total >= 1) {
+                  t = raw[1]
+                  gsub(/^[[:space:]]+|[[:space:]]+$/, "", t)
+                  if (t == "---") {
+                    for (i = 2; i <= total; i++) {
+                      t2 = raw[i]
+                      gsub(/^[[:space:]]+|[[:space:]]+$/, "", t2)
+                      if (t2 == "---") { start = i + 1; break }
+                    }
+                  }
+                }
+
+                n = 0
+                for (i = start; i <= total; i++) {
+                  line = raw[i]
+                  t = line
+                  gsub(/^[[:space:]]+|[[:space:]]+$/, "", t)
+                  if (t == "<!-- markdownlint-disable-next-line MD025 -->" ||
+                      t == "<!-- prettier-ignore-start -->" ||
+                      t == "<!-- prettier-ignore-end -->") continue
+                  body[++n] = line
+                }
+
+                s = 1
+                while (s <= n && body[s] == "") { s++ }
+                e = n
+                while (e >= s && body[e] == "") { e-- }
+                for (i = s; i <= e; i++) print body[i]
+              }
+            '
+          }
+
+          has_content_changes() {
+            local file="$1"
+
+            if ! git cat-file -e "$BASE_SHA:$file" 2>/dev/null; then
+              return 0
+            fi
+
+            ! cmp -s <(git show "$BASE_SHA:$file" | strip_frontmatter) <(strip_frontmatter < "$file")
+          }
+
+          # Process each changed markdown file
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "Processing: $file"
+
+            if [ ! -f "$file" ]; then
+              echo "  File no longer exists, skipping"
+              continue
+            fi
+
+            if ! has_content_changes "$file"; then
+              echo "  No article body changes found, skipping"
+              continue
+            fi
+
+            # Check if file has ms.date in frontmatter and update it
+            if grep -q "^ms\.date:" "$file"; then
+              # Use sed to replace the ms.date line
+              sed -i "s|^ms\.date:.*$|ms.date: $CURRENT_DATE|" "$file"
+              echo "  Updated ms.date in $file"
+            else
+              echo "  No ms.date found in $file, skipping"
+            fi
+          done
+
+      - name: Check for changes
+        id: check-changes
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -u docs-mslearn/
+          git commit -m "chore: Update ms.date in docs-mslearn files"
+          git push

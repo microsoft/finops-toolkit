@@ -13,12 +13,12 @@ InModuleScope 'FinOpsToolkit' {
                     [Parameter(Mandatory = $true)]
                     [hashtable[]]
                     $Releases,
-    
+
                     [Parameter()]
                     [switch]
                     $GitHub
                 )
-    
+
                 $output = @()
                 foreach ($hashtable in $Releases)
                 {
@@ -26,15 +26,15 @@ InModuleScope 'FinOpsToolkit' {
                     $hashtable['assets'] = $hashtable.Files
                     $output += New-Object -TypeName 'psobject' -Property $hashtable
                 }
-    
+
                 if ($GitHub)
                 {
                     $output = ConvertTo-Json -InputObject $output -Depth 10
                 }
-    
+
                 return $output
             }
-    
+
             function New-MockRelease
             {
                 [OutputType([hashtable])]
@@ -44,19 +44,19 @@ InModuleScope 'FinOpsToolkit' {
                     [Parameter(Mandatory = $true)]
                     [string]
                     $Name,
-    
+
                     [Parameter(Mandatory = $true)]
                     [string]
                     $Version,
-    
+
                     [Parameter()]
                     [bool]
                     $PreRelease = $false,
-    
+
                     [Parameter()]
                     $Assets = @()
                 )
-    
+
                 return @{
                     Name       = $Name
                     Version    = $Version
@@ -65,7 +65,7 @@ InModuleScope 'FinOpsToolkit' {
                     Files      = @($Assets)
                 }
             }
-    
+
             function New-MockAsset
             {
                 [OutputType([hashtable])]
@@ -75,23 +75,23 @@ InModuleScope 'FinOpsToolkit' {
                     [Parameter(Mandatory = $true)]
                     [string]
                     $Name,
-    
+
                     [Parameter(Mandatory = $true)]
                     [string]
                     $Url
                 )
-    
+
                 return @{
                     Name                 = $Name
                     Url                  = $Url
                     browser_download_url = $Url  # For mocking GitHub requests
                 }
             }
-    
+
             $previewVersion = '1.0.0-alpha.01'
             $releaseVersion = '1.0.0'
         }
-    
+
         Context 'Parameter [Latest]' {
             BeforeAll {
                 $release1 = New-MockRelease -Name 'fake' -Version $releaseVersion
@@ -103,13 +103,13 @@ InModuleScope 'FinOpsToolkit' {
             It 'Should return 1 result when [Latest] is used' {
                 $result = Get-FinOpsToolkitVersion -Latest
                 $result.Count | Should -Be 1
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 1
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 1
             }
 
             It 'Should return all versions if [Latest] not used' {
                 $result = Get-FinOpsToolkitVersion
                 $result.Count | Should -Be 2
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 1
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 1
             }
         }
 
@@ -142,8 +142,8 @@ InModuleScope 'FinOpsToolkit' {
 
             It 'Should throw if the Uri is unreachable' {
                 { Get-FinOpsToolkitVersion } | Should -Throw
-                Assert-MockCalled -CommandName 'Invoke-WebRequest'
-                Assert-MockCalled -CommandName 'New-Object' -Times 0
+                Should -Invoke -CommandName 'Invoke-WebRequest'
+                Should -Invoke -CommandName 'New-Object' -Times 0
             }
         }
 
@@ -158,13 +158,13 @@ InModuleScope 'FinOpsToolkit' {
             It 'Should include prereleases when [Preview] is used' {
                 $result = Get-FinOpsToolkitVersion -Preview
                 $result.Count | Should -Be 2
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 1
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 1
             }
 
             It 'Should not include prereleases when [Preview] is not used' {
                 $result = Get-FinOpsToolkitVersion
                 $result.Count | Should -Be 1
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 1
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 1
             }
         }
 
@@ -180,7 +180,7 @@ InModuleScope 'FinOpsToolkit' {
                 $result = Get-FinOpsToolkitVersion -Latest -Preview
                 $result.Count | Should -Be 1
                 $result.Version | Should -Be $previewVersion
-                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 1
+                Should -Invoke -CommandName 'Invoke-WebRequest' -Times 1
             }
         }
     }

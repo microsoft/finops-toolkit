@@ -6,8 +6,16 @@
 Describe 'Get-FinOpsToolkitVersion' {
     It 'Should return all known releases' {
         # Arrange
-        $plannedRelease = '0.9'
-        $expected = @('0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
+        $plannedRelease = '15'
+        $expected = @('14', '13', '12', '0.11', '0.10', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
+
+        # Helper function to normalize version strings for [version] parsing
+        # Single-part versions like "12" need to become "12.0" for [version] to parse them
+        function NormalizeVersion($ver)
+        {
+            if ($ver -notmatch '\.') { return "$ver.0" }
+            return $ver
+        }
 
         # Act
         $result = Get-FinOpsToolkitVersion
@@ -18,7 +26,7 @@ Describe 'Get-FinOpsToolkitVersion' {
             $result.Count | Should -BeLessOrEqual ($expected.Count + 1)
             $result | ForEach-Object {
                 $verStr = $_.Version
-                $verObj = [version]$verStr
+                $verObj = [version](NormalizeVersion $verStr)
                 $fileCount = 0
 
                 function CheckFile($file, $minVer, $maxVer)
@@ -35,14 +43,21 @@ Describe 'Get-FinOpsToolkitVersion' {
                 $verStr | Should -BeIn (@($plannedRelease) + $expected) -Because "version '$verStr' should be added to the verification test"
 
                 # Templates
-                CheckFile "finops-hub-dashboard.json"           '0.8' $null
-                CheckFile "finops-hub-v$verStr.zip"             $null $null
-                CheckFile "finops-workbooks-v$verStr.zip"       '0.6' $null
-                CheckFile "governance-workbook-v$verStr.zip"    '0.1' '0.5'
-                CheckFile "optimization-engine-v$verStr.zip"    '0.4' $null
-                CheckFile "optimization-workbook-v$verStr.zip"  $null '0.5'
-            
+                CheckFile "finops-alerts-v$verStr.zip"            '0.9'  $null
+                CheckFile "finops-hub-copilot-studio.zip"         '14.0' $null
+                CheckFile "finops-hub-copilot.zip"                '0.11' $null
+                CheckFile "finops-hub-dashboard.json"             '0.8'  $null
+                CheckFile "finops-hub-fabric-setup-Hub.kql"       '0.10' $null
+                CheckFile "finops-hub-fabric-setup-Ingestion.kql" '0.10' $null
+                CheckFile "finops-hub-local-opendata.kql"         '15.0' $null
+                CheckFile "finops-hub-v$verStr.zip"               $null  $null
+                CheckFile "finops-workbooks-v$verStr.zip"         '0.6'  $null
+                CheckFile "governance-workbook-v$verStr.zip"      '0.1'  '0.5'
+                CheckFile "optimization-engine-v$verStr.zip"      '0.4'  $null
+                CheckFile "optimization-workbook-v$verStr.zip"    $null  '0.5'
+
                 # Power BI
+                CheckFile "FinOpsToolkitData.pbix"              '12.0' '12.0' # Accidentally added in v12
                 CheckFile "PowerBI-demo.zip"                    '0.7' $null
                 CheckFile "PowerBI-kql.zip"                     '0.7' $null
                 CheckFile "PowerBI-storage.zip"                 '0.7' $null
@@ -58,7 +73,7 @@ Describe 'Get-FinOpsToolkitVersion' {
                 CheckFile "RateOptimization.pbix"               '0.4' '0.6'
                 CheckFile "WorkloadOptimization.pbit"           '0.6' '0.6'
                 CheckFile "WorkloadOptimization.pbix"           '0.6' '0.6'
-            
+
                 # Open data
                 CheckFile "dataset-examples.zip"                '0.4' $null
                 CheckFile "dataset-metadata.zip"                '0.4' $null
@@ -66,7 +81,12 @@ Describe 'Get-FinOpsToolkitVersion' {
                 CheckFile "Regions.csv"                         '0.1' $null
                 CheckFile "ResourceTypes.csv"                   '0.2' $null
                 CheckFile "ResourceTypes.json"                  '0.2' $null
+                CheckFile "CommitmentDiscountEligibility.csv"   '14.0' $null
                 CheckFile "Services.csv"                        '0.1' $null
+
+                # Meeting invites
+                CheckFile "contributor-sync.ics"                '13.0' $null
+                CheckFile "office-hours.ics"                    '13.0' $null
 
                 # Deprecated / renamed
                 CheckFile "CommitmentDiscounts.pbit"            '0.2' '0.3'
@@ -76,7 +96,7 @@ Describe 'Get-FinOpsToolkitVersion' {
                 CheckFile "sample-exports.zip"                  '0.2' '0.2'
 
                 $_.Files.Count | Should -Be $fileCount
-                Report "$($_.Version) checks passed – $fileCount files"
+                Report "$($_.Version) checks passed - $fileCount files"
             }
         }
     }

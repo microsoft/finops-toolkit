@@ -266,7 +266,7 @@ table StorageData
 					end   = if RangeEnd <> null then Date.From(RangeEnd, Culture.Current) else null,
 					start = 
 						if RangeStart <> null then Date.From(RangeStart, Culture.Current)
-						else if #"Number of Months" <> null and #"Number of Months" > 0 then Date.AddMonths(if end <> null then end else Date.StartOfMonth(Date.From(DateTime.LocalNow())), -(#"Number of Months"+1))
+						else if #"Number of Months" <> null and #"Number of Months" > 0 then Date.AddMonths(if end <> null then end else Date.StartOfMonth(Date.From(DateTime.LocalNow())), -#"Number of Months")
 						else null,
 					FilterFilesByDate =
 						if start = null and end = null then InitialDetails
@@ -330,7 +330,7 @@ table StorageData
 						//     else PreCheck,
 						"Error",
 							each try if [StorageContainer] = "config" and [Name] = "settings.json" then (
-								try  if (Text.StartsWith([HubVersion], "0.0") or Text.StartsWith([HubVersion], "0.1")) then "InvalidHubVersion"
+								try  if (Text.StartsWith([HubVersion], "0.0") or [HubVersion] = "0.1" or Text.StartsWith([HubVersion], "0.1.") or Text.StartsWith([HubVersion], "0.1-")) then "InvalidHubVersion"
 								else if [HubVersion] = "0.2"                                                           then "BadHubVersion"
 								else null
 								otherwise "UnknownHubVersion"
@@ -384,7 +384,7 @@ table StorageData
 					Finalize
 				```
 
-	annotation PBI_ResultType = Table
+	annotation PBI_ResultType = Exception
 
 	annotation PBI_NavigationStepName = Navigation
 

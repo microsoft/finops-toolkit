@@ -1,0 +1,187 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+//======================================================================================================================
+// String operator equivalence regression harness
+//
+// Verifies, per row, that the case-insensitive operator replacements shipped for #2213 / PR #2220 behave identically
+// to the expressions they replaced ("old" = pre-PR expression, "new" = current expression), and makes the known
+// whole-term vs. substring boundaries of `has` explicit via expectedDivergent rows.
+//
+// How to run: paste into any Kusto database (ADX or Fabric eventhouse; no table access required).
+//   - PASS = the query returns 0 rows.
+//   - Any returned row is either a behavioral regression (old != new where equivalence is expected) or a change in
+//     engine semantics (old == new where divergence is expected).
+//
+// expectedDivergent = true rows document where `has` (whole-term matching) intentionally differs from `contains`
+// (arbitrary substring matching): needles fused into a larger token. The operator swaps are safe because the swapped
+// columns are curated catalog values (meter names, SKU descriptions, image types, ARM resource IDs) where needles
+// always appear as whole terms — verified with per-row divergence counts (countif(old != new) == 0) on a production
+// hub across 36.5M rows. If a fixture here starts failing, do NOT silently update it; the corresponding KQL in
+// src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts needs to be re-reviewed.
+//
+// Companion unit test: src/powershell/Tests/Unit/HubsKqlOperators.Tests.ps1 keeps this harness in sync with the
+// operator usage in the hub KQL scripts.
+//======================================================================================================================
+
+// #1: x_AmortizationClass — tolower(ResourceId) contains '<path>' -> ResourceId has '<path>'
+let amortizationClass = datatable(label:string, v:string, expectedDivergent:bool) [
+    'RI canonical',           '/providers/microsoft.capacity/reservationorders/00000000-aaaa/reservations/1111', false,
+    'RI UPPERCASE',           '/PROVIDERS/MICROSOFT.CAPACITY/RESERVATIONORDERS/00000000-AAAA',                   false,
+    'RI MixedCase',           '/providers/Microsoft.Capacity/ReservationOrders/00000000-aaaa',                   false,
+    'RI no trailing slash',   '/providers/microsoft.capacity/reservationorders',                                 false,
+    'RI dot for slash',       '/providers/microsoft.capacity.reservationorders/xxx',                             false,
+    'RI slash for dot',       '/providers/microsoft/capacity/reservationorders/xxx',                             false,
+    'RI embedded term',       '/providers/microsoft.capacity/xreservationordersx/xxx',                           false,
+    'RI term split',          '/providers/microsoft.capacity/reservation/orders/xxx',                            false,
+    'RI padded term',         '/providers/microsoft.capacity/reservationorders123/xxx',                          false,
+    'SP canonical',           '/providers/microsoft.billingbenefits/savingsplanorders/2222/savingsplans/3333',   false,
+    'SP UPPERCASE',           '/PROVIDERS/MICROSOFT.BILLINGBENEFITS/SAVINGSPLANORDERS/2222',                     false,
+    'SP no trailing slash',   '/providers/microsoft.billingbenefits/savingsplanorders',                          false,
+    'SP wrong provider',      '/providers/microsoft.capacity/savingsplanorders/2222',                            false,
+    'ordinary VM resource',   '/subscriptions/s1/resourcegroups/rg/providers/microsoft.compute/virtualmachines/vm1', false,
+    'empty',                  '',                                                                                false,
+]
+| extend old_result = tolower(v) contains '/microsoft.capacity/reservationorders/' or tolower(v) contains '/microsoft.billingbenefits/savingsplanorders/'
+| extend new_result = v has '/microsoft.capacity/reservationorders/' or v has '/microsoft.billingbenefits/savingsplanorders/'
+| extend check = '01 x_AmortizationClass reservation/savings plan order paths';
+//
+// #2: parse_resourceid — ResourceId !contains '/providers/' -> !has  (fixtures assert the positive form)
+let providersGuard = datatable(label:string, v:string, expectedDivergent:bool) [
+    'canonical ARM id',       '/subscriptions/s1/resourcegroups/rg/providers/microsoft.compute/disks/d1',  false,
+    'UPPERCASE',              '/SUBSCRIPTIONS/S1/PROVIDERS/MICROSOFT.COMPUTE/DISKS/D1',                    false,
+    'tenant resource',        '/providers/microsoft.management/managementgroups/mg1',                      false,
+    'subscription only',      '/subscriptions/s1/resourcegroups/rg1',                                      false,
+    'embedded term',          '/subscriptions/s1/xprovidersx/foo',                                         false,
+    'no trailing slash',      '/subscriptions/s1/providers',                                               false,
+    'dot separators',         '/subscriptions/a.providers.b/foo',                                          false,
+    'empty',                  '',                                                                          false,
+]
+| extend old_result = v contains '/providers/'
+| extend new_result = v has '/providers/'
+| extend check = '02 parse_resourceid providers guard';
+//
+// #3: license type — ImageType contains 'Windows Server BYOL' -> has
+let byolPhrase = datatable(label:string, v:string, expectedDivergent:bool) [
+    'exact',                  'Windows Server BYOL',      false,
+    'lowercase',              'windows server byol',      false,
+    'UPPERCASE',              'WINDOWS SERVER BYOL',      false,
+    'different edition',      'Windows Client BYOL',      false,
+    'phrase prefix only',     'Windows Server',           false,
+    'empty',                  '',                         false,
+    'fused prefix',           'XWindows Server BYOL',     true,
+    'fused suffix',           'Windows Server BYOLX',     true,
+]
+| extend old_result = v contains 'Windows Server BYOL'
+| extend new_result = v has 'Windows Server BYOL'
+| extend check = '03 license type Windows Server BYOL phrase';
+//
+// #4: license status — x_SkuMeterSubcategory contains 'Azure Hybrid Benefit' -> has
+let ahbPhrase = datatable(label:string, v:string, expectedDivergent:bool) [
+    'canonical meter',        'SQL Server Azure Hybrid Benefit',  false,
+    'case variant',           'sql server azure hybrid benefit',  false,
+    'partial phrase',         'Azure Hybrid',                     false,
+    'unrelated',              'D Series Windows',                 false,
+    'empty',                  '',                                 false,
+    'fused prefix',           'SQLAzure Hybrid Benefit',          true,
+]
+| extend old_result = v contains 'Azure Hybrid Benefit'
+| extend new_result = v has 'Azure Hybrid Benefit'
+| extend check = '04 license status Azure Hybrid Benefit phrase';
+//
+// #5: license status — x_SkuMeterSubcategory contains 'Windows' -> has
+let windowsTerm = datatable(label:string, v:string, expectedDivergent:bool) [
+    'word at end',            'D Series Windows',    false,
+    'word at start',          'Windows Server',      false,
+    'lowercase',              'windows',             false,
+    'unrelated',              'Linux',               false,
+    'empty',                  '',                    false,
+    'fused',                  'WindowsServer',       true,
+]
+| extend old_result = v contains 'Windows'
+| extend new_result = v has 'Windows'
+| extend check = '05 license status Windows term';
+//
+// #6: x_FreeReason — x_SkuDescription contains 'Trial' / 'Preview' -> has
+let freeReason = datatable(label:string, v:string, expectedDivergent:bool) [
+    'trial word',             'Free Trial',          false,
+    'preview word',           'Preview',             false,
+    'preview lowercase',      'standard preview',    false,
+    'unrelated',              'Standard',            false,
+    'empty',                  '',                    false,
+    'trailing s (Trials)',    'Free Trials',         true,
+    'fused (Previews)',       'Previews',            true,
+]
+| extend old_result = v contains 'Trial' or v contains 'Preview'
+| extend new_result = v has 'Trial' or v has 'Preview'
+| extend check = '06 x_FreeReason Trial/Preview terms';
+//
+// #7: AI token direction — Model contains 'Input' / 'Output' -> has
+let tokenDirection = datatable(label:string, v:string, expectedDivergent:bool) [
+    'input meter',            'gpt 4o 0513 Input regional Tokens',  false,
+    'output meter',           'gpt 4o 0513 Output regional Tokens', false,
+    'lowercase',              'o3 input tokens',                    false,
+    'unrelated',              'gpt 4o cached tokens',               false,
+    'empty',                  '',                                   false,
+    'fused',                  'InputTokens',                        true,
+]
+| extend old_result = v contains 'Input' or v contains 'Output'
+| extend new_result = v has 'Input' or v has 'Output'
+| extend check = '07 AI token usage Input/Output terms';
+//
+// #8: ResourceType display-name guard — tolower(a) != tolower(b) and a !contains '/' -> a !~ b and a !has '/'
+let resourceTypeGuard = datatable(label:string, rt:string, xrt:string, expectedDivergent:bool) [
+    'display name vs internal id', 'Virtual machine',                   'microsoft.compute/virtualmachines', false,
+    'internal id, case diff',      'MICROSOFT.COMPUTE/VIRTUALMACHINES', 'microsoft.compute/virtualmachines', false,
+    'internal id, identical',      'microsoft.compute/virtualmachines', 'microsoft.compute/virtualmachines', false,
+    'display name, case diff',     'Virtual Machine',                   'virtual machine',                   false,
+    'display name with slash',     'Disk / Snapshot',                   'microsoft.compute/snapshots',       false,
+    'empty ResourceType',          '',                                  'microsoft.compute/virtualmachines', false,
+    'empty x_ResourceType',        'Virtual machine',                   '',                                  false,
+]
+| extend old_result = isnotempty(rt) and tolower(rt) != tolower(xrt) and rt !contains '/'
+| extend new_result = isnotempty(rt) and rt !~ xrt and rt !has '/'
+| extend check = '08 ResourceType display-name guard';
+//
+// #9: CapacityReservationStatus — tolower(x_ResourceType) == '<type>' -> =~
+let capacityReservation = datatable(label:string, v:string, expectedDivergent:bool) [
+    'exact lowercase',  'microsoft.compute/capacityreservationgroups/capacityreservations',  false,
+    'MixedCase',        'Microsoft.Compute/CapacityReservationGroups/CapacityReservations',  false,
+    'UPPERCASE',        'MICROSOFT.COMPUTE/CAPACITYRESERVATIONGROUPS/CAPACITYRESERVATIONS',  false,
+    'different type',   'microsoft.compute/virtualmachines',                                 false,
+    'prefix only',      'microsoft.compute/capacityreservationgroups',                       false,
+    'empty',            '',                                                                  false,
+]
+| extend old_result = tolower(v) == 'microsoft.compute/capacityreservationgroups/capacityreservations'
+| extend new_result = v =~ 'microsoft.compute/capacityreservationgroups/capacityreservations'
+| extend check = '09 CapacityReservationStatus type equality';
+//
+// #10: SQL AHB flag — tolower(x_SkuDetails.AHB) == 'true' -> x_SkuDetails.AHB =~ 'true' (dynamic operand, no tostring)
+let sqlAhbFlag = datatable(label:string, sku:dynamic, expectedDivergent:bool) [
+    'bool true',    dynamic({"AHB": true}),     false,
+    'bool false',   dynamic({"AHB": false}),    false,
+    'string true',  dynamic({"AHB": "true"}),   false,
+    'string True',  dynamic({"AHB": "True"}),   false,
+    'string TRUE',  dynamic({"AHB": "TRUE"}),   false,
+    'string false', dynamic({"AHB": "false"}),  false,
+    'number 1',     dynamic({"AHB": 1}),        false,
+    'missing key',  dynamic({"other": 1}),      false,
+    'null details', dynamic(null),              false,
+]
+| extend old_result = tolower(sku.AHB) == 'true'
+| extend new_result = sku.AHB =~ 'true'
+| extend check = '10 SQL AHB dynamic flag equality';
+//
+union
+    (amortizationClass   | project check, label, old_result, new_result, expectedDivergent),
+    (providersGuard      | project check, label, old_result, new_result, expectedDivergent),
+    (byolPhrase          | project check, label, old_result, new_result, expectedDivergent),
+    (ahbPhrase           | project check, label, old_result, new_result, expectedDivergent),
+    (windowsTerm         | project check, label, old_result, new_result, expectedDivergent),
+    (freeReason          | project check, label, old_result, new_result, expectedDivergent),
+    (tokenDirection      | project check, label, old_result, new_result, expectedDivergent),
+    (resourceTypeGuard   | project check, label, old_result, new_result, expectedDivergent),
+    (capacityReservation | project check, label, old_result, new_result, expectedDivergent),
+    (sqlAhbFlag          | project check, label, old_result, new_result, expectedDivergent)
+| where (old_result != new_result) != expectedDivergent
+| order by check asc, label asc

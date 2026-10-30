@@ -1,9 +1,9 @@
 ---
 title: FinOps hubs data processing
 description: Learn how FinOps hubs process data, including scope setup, data normalization, and optimization, to enhance cost management and analysis.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 10/28/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -11,7 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand how data is processed in FinOps hubs so that I can better understand how to use the tool.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # How data is processed in FinOps hubs
 
 FinOps hubs perform many data processing activities to clean up, normalize, and optimize data. The following sections show how data flows from Cost Management into a hub instance.
@@ -47,6 +46,7 @@ The following diagram depicts the end-to-end data ingestion process within FinOp
 5. (Optional) If using Azure Data Explorer:
    1. The **ingestion_ExecuteETL** pipeline queues the Data Explorer ingestion pipeline when **manifest.json** files are added to the **ingestion** container.
       - If ingesting custom datasets outside of Cost Management exports, create an empty **manifest.json** file in the target ingestion folder after all other files are ready (don't add this file when files are still uploading). The **manifest.json** file isn't parsed and can be empty. The sole purpose is to indicate that all files for this ingestion job are added.
+      - If the cluster is not running, the pipeline will start it. Azure Data Explorer can take 15 minutes or more to start.
    2. The **ingestion_ETL_dataExplorer** pipeline ingests data into the `{dataset}_raw` table in the Data Explorer.
       - The dataset name is the first folder in the **ingestion** container.
       - All raw tables are in the **Ingestion** database in Data Explorer.
@@ -54,7 +54,9 @@ The following diagram depicts the end-to-end data ingestion process within FinOp
    4. After ingestion, the **ingestion_ETL_dataExplorer** pipeline performs some cleanup, including purging data in the final table that is past the data retention period.
       - As of 0.7, Data Explorer applies data retention in raw tables while data retention in final tables is applied by the ingestion pipeline. If data ingestion stops, historical data isn't purged.
       - Data retention can be configured during the template deployment or manually in the **config/settings.json** file in storage.
-6. Reports and other tools like Power BI read data from Data Explorer or the **ingestion** container.
+      - When you redeploy or upgrade a hub, retention parameters you don't specify keep their current values in **config/settings.json**. New hubs use the default values. In the Azure portal, values left at the default keep the current settings. To set a value back to the default on an existing hub, edit **config/settings.json** or specify the value with [Deploy-FinOpsHub](../powershell/hubs/deploy-finopshub.md). Data Explorer raw table retention from **config/settings.json** is applied on the next deployment.
+6. (Optional) The **queries_DailySchedule** trigger runs the **queries_ExecuteETL** pipeline once per day to query Azure Resource Graph for additional recommendations and saves results to the **ingestion/Recommendations** folder. [Learn more](#azure-resource-graph-recommendations).
+7. Reports and other tools like Power BI read data from Data Explorer or the **ingestion** container.
    - Data in Data Explorer can be read from the **Hub** database.
      - Use the `{dataset}()` function to use the latest schema.
        - This function is useful for quick exploration, but may introduce breaking changes as the FinOps hub instance is updated.
@@ -68,6 +70,35 @@ The following diagram depicts the end-to-end data ingestion process within FinOp
 
 <br>
 
+## Azure Resource Graph recommendations
+
+When FinOps hubs are deployed with Azure Data Explorer or Microsoft Fabric, an additional pipeline runs daily to query Azure Resource Graph for cost optimization recommendations. This includes Azure Advisor cost recommendations and custom queries for common cost optimization scenarios.
+
+The following diagram depicts the HubsRecommendations data flow:
+
+1. The **queries_DailySchedule** trigger runs once per day.
+2. The **queries_ExecuteETL** pipeline iterates through all query files in the **config/queries** storage folder.
+3. The **queries_ETL_ingestion** pipeline executes each query against Azure Resource Graph, deduplicates results, and saves data as parquet in the **ingestion/Recommendations** folder.
+4. (If using Azure Data Explorer) Data is ingested into the `Recommendations_raw` table and transformed using the `Recommendations_transform_v1_2()` function.
+
+HubsRecommendations includes the following query types:
+
+- **Azure Advisor cost recommendations** - Cost optimization recommendations from Azure Advisor.
+- **Backendless Application Gateways** - Application Gateways without backend pools.
+- **Backendless Load Balancers** - Load Balancers without backend pools.
+- **Empty SQL Elastic Pools** - SQL Elastic Pools with no associated databases.
+- **Non-Spot AKS Clusters** - AKS clusters with autoscaling but not using Spot VMs.
+- **SQL VMs without Azure Hybrid Benefit** - SQL virtual machines not leveraging Azure Hybrid Benefit.
+- **Stopped VMs** - Virtual machines that are stopped but not deallocated.
+- **Unattached Disks** - Unattached (orphaned) managed disks.
+- **Unattached Public IPs** - Unattached static public IP addresses.
+- **VMs without Azure Hybrid Benefit** - Windows VMs not leveraging Azure Hybrid Benefit.
+
+> [!NOTE]
+> The Data Factory managed identity requires **Reader** role on management groups or subscriptions to execute Resource Graph queries. This permission must be configured separately from the FinOps hub deployment.
+
+<br>
+
 ## About Data Explorer ingestion
 
 When data is ingested into Data Explorer, the `{dataset}_transform_v1_0()` functions apply transform rules in the **Ingestion** database. Each dataset has a different set of transform rules covered in the following sections.
@@ -78,30 +109,86 @@ For a list of requested changes, ideas under consideration, and open questions a
 
 Supported datasets:
 
-- Microsoft FocusCost: `1.0r2`, `1.0`, `1.0-preview(v1)`
+- Microsoft FocusCost: `1.2-preview`, `1.0r2`, `1.0`, `1.0-preview(v1)`
 
 The following datasets were accounted for in the design, but are not natively supported. To ingest these datasets, create a data pipeline (or external process) that pushes parquet files into the `ingestion/Costs/yyyy/mm/{scope-path}` folder in storage. The `{scope-path}` can be any unique path, like `aws/123` or `gcp/projects/foo`. The only requirement is to ensure each scope is in a separate folder. After copying external content, also create a **manifest.json** file to trigger Data Explorer ingestion.
 
+- Alibaba Cloud FOCUS 1.0
 - Amazon Web Services (AWS) FOCUS 1.0
 - Google Cloud Platform (GCP) FOCUS 1.0
 - Oracle Cloud Infrastructure (OCI) FOCUS 1.0
+- Tencent Cloud FOCUS 1.0
 
 Transforms:
 
 - v0.7+:
-  - Align column names to FOCUS 1.0.
+  - Align FOCUS 1.0-preview column names to FOCUS 1.0.
     - Includes converting FOCUS 1.0 preview to 1.0.
   - Add `x_IngestionTime` to indicate when the row was last updated.
   - Add `x_SourceChanges` to identify when data in a row is changed by hubs.
   - Update `ProviderName` and `PublisherName` when not specified.
   - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
   - Populate missing `ListCost`, `ListUnitPrice`, `ContractedCost`, and `ContractedUnitPrice` values based on the price sheet.
-    - This process requires prices to be exported before the cost. Prices being missing for the first day of the month if costs are ingested before pries are available for the month.
+    - This process requires prices to be exported before the cost. Prices being missing for the first day of the month if costs are ingested before prices are available for the month.
   - Fix `ContractedCost` when set incorrectly due to a bug in Cost Management.
   - Lowercase `ResourceName` and `x_ResourceGroupName` to address casing consistency issues that break grouping and filtering.
   - Add `x_BillingAccountAgreement` based on the account type.
 - v0.8+:
   - Fix any `ResourceType` values that use internal resource type IDs (for example, microsoft.compute/virtualmachines).
+- v0.9+:
+  - Lowercase `BillingAccountId` to ensure the price join matches all rows.
+  - Lowercase `CommitmentDiscountId` to avoid duplicate rows when aggregating data.
+  - Add new `x_SourceChanges` checks for `ListCostLessThanContractedCost` and `ContractedCostLessThanEffectiveCost`.
+- v0.10+:
+  - Fix `x_EffectiveUnitPrice` when it's calculated and there is a rounding error compared to `x_BilledUnitPrice` or `ContractedUnitPrice`.
+  - Calculate PricingQuantity and ConsumedQuantity when there is cost but no quantity.
+  - Set `ContractedCost` to `EffectiveCost` when it's not set.
+  - Set `ListCost` to `ContractedCost` when it's not set.
+  - Remove "-2" in the `x_InvoiceSectionId` column.
+  - Remove "Unassigned" in the `x_InvoiceSectionName` column.
+  - Corrected `x_EffectiveUnitPrice` when it's calculated and has a rounding error.
+  - Add new `x_SourceChanges` checks for `MissingConsumedQuantity`, `MissingPricingQuantity`, and `XEffectiveUnitPriceRoundingError`.
+- v0.11+:
+  - Change `BillingPeriodStart` and `BillingPeriodEnd` to be the first of the month.
+- v12+:
+  - Convert FOCUS 1.0-preview and 1.0 data to FOCUS 1.2.
+    - Renamed `x_InvoiceId` to `InvoiceId`.
+    - Renamed `x_PricingCurrency` to `PricingCurrency`.
+    - Renamed `x_SkuMeterName` to `SkuMeter`.
+    - Transformed `x_SkuDetails` into `SkuPriceDetails`:
+      - Added `CoreCount` key for the number of cores for the SKU based on `x_SkuDetails.VCPUs`, `x_SkuDetails.VCores`, and `x_SkuDetails.vCores`.
+      - Added `InstanceType` key for the SKU size based on `x_SkuDetails.ServiceType` and `x_SkuDetails.ServerSku`.
+      - Added `OperatingSystem` key for the VM operating system based on `x_SkuDetails.ImageType`.
+      - Prefixed all other keys with `x_`.
+  - Implemented the following columns when not set by Cost Management:
+    - `CapacityReservationId`
+    - `CapacityReservationStatus`
+    - `CommitmentDiscountQuantity`
+    - `CommitmentDiscountUnit`
+    - `x_CommitmentDiscountNormalizedRatio`
+  - Added `x_AmortizationClass` to filter out amortized purchases and avoid double-counting `ListCost` and `ContractedCost` for savings calculations.
+  - Added `x_CommitmentDiscountUtilizationPotential` and `x_CommitmentDiscountUtilizationAmount` for calculating commitment discount utilization.
+  - Added `x_SkuCoreCount` and `x_ConsumedCoreHours` for the number of cores and core hours for the SKU based on `x_SkuDetails.VCPUs`, `x_SkuDetails.VCores`, and `x_SkuDetails.vCores`.
+  - Added `x_SkuInstanceType` for the SKU size based on `x_SkuDetails.ServiceType` and `x_SkuDetails.ServerSku`.
+  - Added `x_SkuOperatingSystem` for the VM operating system based on `x_SkuDetails.ImageType`.
+  - Added Azure Hybrid Benefit columns:
+    - `x_SkuLicenseQuantity`
+    - `x_SkuLicenseStatus`
+    - `x_SkuLicenseType`
+    - `x_SkuLicenseUnit`
+  - Added discount and savings columns:
+    - `x_NegotiatedDiscountSavings`
+    - `x_CommitmentDiscountSavings`
+    - `x_TotalSavings`
+    - `x_NegotiatedDiscountPercent`
+    - `x_CommitmentDiscountPercent`
+    - `x_TotalDiscountPercent`
+  - Added `x_SourceValues` to track data changes during ingestion.
+- v15+:
+  - Select the highest on-demand price when duplicate price rows collapse under a single reservation price lookup key, so commitment discount savings aren't understated.
+  - Only recompute `ContractedCost` when it differs beyond a null-safe tolerance, avoiding no-op rewrites that polluted the `x_SourceValues` audit trail.
+  - Enrich dimensions (`PricingUnits`, `Regions`, `ResourceTypes`, `Services`) with `lookup` instead of `join`.
+  - Deduplicate the `Services` mapping per resource type to prevent cost row fan-out.
 
 ### Price data transforms
 
@@ -111,35 +198,49 @@ Supported datasets:
 
 Transforms:
 
-1. Align column names to FOCUS 1.0.
-   - Includes enforcing EA and MCA column name consistency.
-   - Doesn't change the underlying values, which may differ across EA and MCA.
-2. Convert `x_SkuTerm` ISO duration to the specific number of months to match cost details.
-   - We're waiting for FOCUS to make a determination for how to define durations before changing this value to ISO or another format.
-3. Replace `ContractedUnitPrice` for savings plan usage with the on-demand equivalent.
-4. Set `ListUnitPrice` for savings plan usage set to the on-demand equivalent.
-5. Add `SkuPriceIdv2` as a more accurate `SkuPriceId` value than what is currently in cost details.
-6. Add `x_IngestionTime` to indicate when the row was last updated.
-7. Add `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility`.
-8. Expand `x_PricingUnitDescription` into `PricingUnit` and `x_PricingBlockSize`.
-9. Add `x_BillingAccountAgreement` based on the account type.
-10. Change `x_EffectivePeriodEnd` to be an exclusive end date.
-11. Add `x_EffectiveUnitPriceDiscount`, `x_ContractedUnitPriceDiscount`, and `x_TotalUnitPriceDiscount` to summarize available discounts per SKU.
-12. Add `x_EffectiveUnitPriceDiscountPercent`, `x_ContractedUnitPriceDiscountPercent`, and `x_TotalUnitPriceDiscountPercent` to summarize the percentage of the discount per SKU.
-13. Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+- v0.7+
+  - Align column names to FOCUS 1.0.
+    - Includes enforcing EA and MCA column name consistency.
+    - Doesn't change the underlying values, which may differ across EA and MCA.
+  - Convert `x_SkuTerm` ISO duration to the specific number of months to match cost details.
+    - We're waiting for FOCUS to make a determination for how to define durations before changing this value to ISO or another format.
+  - Replace `ContractedUnitPrice` for savings plan usage with the on-demand equivalent.
+  - Set `ListUnitPrice` for savings plan usage set to the on-demand equivalent.
+  - Add `SkuPriceIdv2` as a more accurate `SkuPriceId` value than what is currently in cost details.
+  - Add `x_IngestionTime` to indicate when the row was last updated.
+  - Add `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility`.
+  - Expand `x_PricingUnitDescription` into `PricingUnit` and `x_PricingBlockSize`.
+  - Add `x_BillingAccountAgreement` based on the account type.
+  - Change `x_EffectivePeriodEnd` to be an exclusive end date.
+  - Add `x_EffectiveUnitPriceDiscount`, `x_ContractedUnitPriceDiscount`, and `x_TotalUnitPriceDiscount` to summarize available discounts per SKU.
+  - Add `x_EffectiveUnitPriceDiscountPercent`, `x_ContractedUnitPriceDiscountPercent`, and `x_TotalUnitPriceDiscountPercent` to summarize the percentage of the discount per SKU.
+  - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+- v0.9+:
+  - Lowercase `BillingAccountId` to ensure the cost join matches all rows.
+- v12+:
+  - Align column names to FOCUS 1.2:
+    - Renamed `x_PricingCurrency` to `PricingCurrency`.
+    - Renamed `x_SkuMeterName` to `SkuMeter`.
+  - Implemented the following columns when not set by Cost Management:
+    - `CommitmentDiscountUnit`
+- v15+:
+  - Fix `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility` values. Prices ingested before upgrading keep the old values until they're re-ingested.
 
 ### Recommendation data transforms
 
 Supported datasets:
 
 - Microsoft ReservationRecommendations: `2023-05-01` (EA and MCA)
+- HubsRecommendations: `1.0` (Azure Advisor and Azure Resource Graph)
 
 Transforms:
 
-1. Align column names to FOCUS 1.0.
-   - Includes enforcing EA and MCA column name consistency.
-   - Doesn't change the underlying values, which may differ across EA and MCA.
-2. Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+- v0.7+:
+  - Align column names to FOCUS 1.0.
+    - Includes enforcing EA and MCA column name consistency.
+    - Doesn't change the underlying values, which may differ across EA and MCA.
+  - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+  - Preserve incoming `x_RecommendationDetails` from HubsRecommendations queries (contains recommendation metadata like provider, solution, type ID, and resource type).
 
 ### Transaction data transforms
 
@@ -149,10 +250,14 @@ Supported datasets:
 
 Transforms:
 
-1. Align column names to FOCUS 1.0.
-   - Includes enforcing EA and MCA column name consistency.
-   - Doesn't change the underlying values, which may differ across EA and MCA.
-2. Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+- v0.7+:
+  - Align column names to FOCUS 1.0.
+    - Includes enforcing EA and MCA column name consistency.
+    - Doesn't change the underlying values, which may differ across EA and MCA.
+  - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+- v12+:
+  - Align column names to FOCUS 1.2:
+    - Renamed `x_InvoiceId` to `InvoiceId`.
 
 ### Commitment discount usage data transforms
 
@@ -181,7 +286,7 @@ ingestion/{dataset}/{date-folder-path}/{scope-id-path}/{ingestion-id}__{original
 ```
 
 - `ingestion` is the container where the data pipeline saves data.
-- `{dataset}` is the exported dataset type. If ingesting into Azure Data Explorer, the **Ingestion** database must have a matching, case-sensitive "_raw" table (for example, "Costs_raw"). FinOps hubs support the following datasets in this release:
+- `{dataset}` is the exported dataset type. If ingesting into Azure Data Explorer, the **Ingestion** database must have a matching, case-sensitive "\_raw" table (for example, "Costs_raw"). FinOps hubs support the following datasets in this release:
   - **CommitmentDiscountUsage** - Cost Management reservation details export.
   - **Costs** - FOCUS cost and usage data.
   - **Prices** - Cost Management price sheet export.
@@ -213,57 +318,47 @@ FinOps hubs leverage Cost Management exports to obtain cost data. Cost Managemen
 
 FinOps hubs utilize the manifest file to identify the scope, dataset, month, etc. The only important part of the path for hubs is the container, which must be **msexports**.
 
-> [!WARNING]
-> Don't export data to the **ingestion** container. Exported CSVs **must** be published to the **msexports** container to be processed by the hubs engine.
->
-> To ingest custom data, save FOCUS-aligned parquet files in the **ingestion** container for the FinOps toolkit Power BI reports to work as expected.
+Don't export data to the **ingestion** container. Exported CSVs _must_ be published to the **msexports** container to be processed by the hubs engine.
 
-Export manifests can change with API versions. Here's an example with API version `2023-07-01-preview`:
+To ingest custom data, save parquet files in the **ingestion** container for the FinOps toolkit Power BI reports to work as expected. After all parquet files are added, add an empty **manifest.json** file to trigger ingestion.
+
+To ingest CSV file from Cost Management exports, save files in a specific folder in the **msexports** container. After all files are added, add a **manifest.json** file based on the below template. Make the following changes to ensure successful ingestion:
+
+1. Change `<export-name>` to a unique value within the scope for the dataset you're ingesting.
+   - This is only used for recommendations to differentiate the many different types of recommendations getting ingested which aren't identifiable from the export manifest alone. For reservation recommendations, ideally include the service, scope (single/shared), and lookback period.
+2. Change `<dataset>` and `<version>` to the Cost Management export type and version. See the list below for supported datasets.
+3. Change `<scope>` to the Azure resource ID for the scope the data came from.
+4. Change `<guid>` to a unique GUID.
+5. Change `<yyyy-MM>` to the year and month of the dataset.
+6. Change `<path-to-file>` to the full folder path under the container (do not include "msexports").
+7. Change `<file-name>` to the name of the first file uploaded to storage.
+8. If you have more than one CSV file, copy the blob object for each file you uploaded and update the file name.
 
 ```json
 {
+  "blobCount": 1,
+  "dataRowCount": 1,
   "exportConfig": {
     "exportName": "<export-name>",
-    "resourceId": "/<scope>/providers/Microsoft.CostManagement/exports/<export-name>",
-    "dataVersion": "<dataset-version>",
-    "apiVersion": "<api-version>",
-    "type": "<dataset-type>",
-    "timeFrame": "OneTime|TheLastMonth|MonthToDate",
-    "granularity": "Daily"
-  },
-  "deliveryConfig": {
-    "partitionData": true,
-    "dataOverwriteBehavior": "CreateNewReport|OverwritePreviousReport",
-    "fileFormat": "Csv",
-    "containerUri": "<storage-resource-id>",
-    "rootFolderPath": "<path>"
+    "type": "<dataset>",
+    "dataVersion": "<version>",
+    "resourceId": "<scope>/providers/Microsoft.CostManagement/exports/export-name"
   },
   "runInfo": {
-    "executionType": "Scheduled",
-    "submittedTime": "2024-02-03T18:33:03.1032074Z",
-    "runId": "af754a8e-30fc-4ef3-bfc6-71bd1efb8598",
-    "startDate": "2024-01-01T00:00:00",
-    "endDate": "2024-01-31T00:00:00"
+    "runId": "<guid>",
+    "startDate": "<yyyy-MM>-01T00:00:00"
   },
   "blobs": [
     {
-      "blobName": "<path>/<export-name>/<date-range>/<export-time>/<guid>/<file-name>.csv",
-      "byteCount": ###
+      "blobName": "<path-to-file>/<file-name>.csv"
     }
   ]
 }
 ```
 
-FinOps hubs leverage the following properties:
-
-- `eportConfig.resourceId` to identify the scope.
-- `eportConfig.type` to identify the dataset type.
-- `eportConfig.dataVersion` to identify the dataset version.
-- `runInfo.startDate` to identify the exported month.
-
 <a name="datasets"></a>FinOps hubs support the following dataset types, versions, and API versions:
 
-- FocusCost: `1.0r2`, `1.0`, `1.0-preview(v1)`
+- FocusCost: `1.2-preview`, `1.0r2`, `1.0`, `1.0-preview(v1)`
 - PriceSheet: `2023-05-01`
 - ReservationDetails: `2023-03-01`
 - ReservationRecommendations: `2023-05-01`
@@ -279,6 +374,7 @@ The following sections explain data process in FinOps hubs 0.6.
 ### Scope setup in v0.6
 
 The following steps happen when a new, managed scope is added to a hub instance. Unmanaged scopes (where Cost Management exports are manually configured) don't require any setup in hubs.
+
 <!--
 ```mermaid
 sequenceDiagram
@@ -372,10 +468,12 @@ FinOps hubs use Cost Management exports to obtain cost data. Cost Management con
 
 As of 0.4, FinOps hubs don't rely on file paths. Hubs utilize the manifest file to identify the scope, dataset, month, etc. The only important part of the path for hubs is the container, which must be **msexports**.
 
+<!-- markdownlint-disable blanks-around-lists -->
+<!-- prettier-ignore-start -->
 > [!WARNING]
-  > - Don't export data to the **ingestion** container. Exported CSVs **must** be published to the **msexports** container to be processed by the hubs engine.
-  > - To ingest custom data, save FOCUS-aligned parquet files in the **ingestion** container for the FinOps toolkit Power BI reports to work as expected.
-
+> - Don't export data to the **ingestion** container. Exported CSVs **must** be published to the **msexports** container to be processed by the hubs engine.
+> - To ingest custom data, save FOCUS-aligned parquet files in the **ingestion** container for the FinOps toolkit Power BI reports to work as expected.
+<!-- prettier-ignore-end -->
 
 Export manifests can change with API versions. Here's an example with API version `2023-07-01-preview`:
 
@@ -564,7 +662,6 @@ msexports/{scope-id}/{export-name}/{date-range}/{export-time}/{guid}/{file}
   > | Resource group  | `/subscriptions/###/resourceGroups/###`                                |
   > | Billing account | `/providers/Microsoft.Billing/billingAccounts/###`                     |
   > | Billing profile | `/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###` |
-  >
 - `{export-name}` is the name of the export.
   > Hubs ignore this folder.
 - `{date-range}` is the date range data being exported.
@@ -592,13 +689,17 @@ The following steps outline the process for exporting and processing cost data u
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.8/bladeName/Hubs/featureName/DataProcessing)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK/bladeName/Hubs/featureName/DataProcessing)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20hubs%22%20sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

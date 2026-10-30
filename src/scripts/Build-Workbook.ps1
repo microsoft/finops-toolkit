@@ -5,15 +5,13 @@
     .SYNOPSIS
     Builds all workbook templates for publishing to Azure Quickstart Templates.
 
+    .PARAMETER Workbook
+    Optional. Name of the workbook folder to build.
+
     .EXAMPLE
     ./Build-Workbook workbook-name
-    Generates a template the specified workbook.
 
-    .PARAMETER Workbook
-    Name of the workbook folder.
-
-    .PARAMETER Debug
-    Optional. Renders main module and test bicep code to the console instead of generating files. Line numbers map to original file.
+    Generates a template for the specified workbook.
 #>
 Param (
   [Parameter(Position = 0)][string] $Workbook

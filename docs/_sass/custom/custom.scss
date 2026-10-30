@@ -62,7 +62,8 @@ a[target='_blank']:hover::after {
   text-decoration: none;
 }
 
-.ftk-btnlink {
+.ftk-btnlink,
+.dark-mode .ftk-btnlink {
   font-weight: normal;
 
   &,

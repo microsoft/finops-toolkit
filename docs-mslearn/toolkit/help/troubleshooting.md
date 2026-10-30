@@ -1,9 +1,9 @@
 ---
 title: Troubleshooting FinOps toolkit issues
 description: This article describes how to validate that FinOps toolkit solutions are deployed and configured correctly, including troubleshooting common errors.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/01/2026
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -11,7 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to validate FinOps toolkit solutions are deployed and configured correctly.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # FinOps toolkit troubleshooting guide
 
 This article describes how to validate FinOps toolkit solutions were deployed and configured correctly. If you have a specific error code, review [common errors](errors.md) for details and mitigation steps. If you need a more thorough walkthrough to validate your configuration, use the following steps that apply to you.
@@ -31,6 +30,7 @@ If you have a specific error code, we recommend starting with [common errors](er
 ## Validate your FinOps hub deployment
 
 Use the following steps to validate your FinOps hub deployment:
+
 <!--
 1. [Cost Export](#cost-export)
 2. [Azure Data Factory](#data-factory)
@@ -166,6 +166,48 @@ Decide whether want to connect to storage using a user or service principal acco
 
 <br>
 
+## Debug Power BI query failures
+
+If Power BI returns an unknown error, use the following steps to identify the problem.
+
+### Identify the failing query
+
+1. Open the report.
+2. In the ribbon, select **Transform data** > **Transform data**.
+3. From the **Power Query Editor** window, find the query that is failing in the list of queries on the left.
+4. Jump to the troubleshooting section based on the folder.
+
+### Troubleshoot storage query errors
+
+1. From the **Power Query Editor** window, select the query that is failing in the list of queries on the left.
+2. In the **Applied Steps** section on the right, select the **RawData** step.
+3. If that step errors, skip down to [Troubleshoot ftk_Storage errors](#troubleshoot-ftk_storage-errors).
+4. If that step works, select the next step below it, skipping anything that starts with a lowercase or underscore.
+5. Repeat step 4 until you find the first step that errors.
+6. Share the name of the first step that is failing in any issue or support request to help troubleshoot further.
+
+### Troubleshoot ftk_Storage errors
+
+1. From the **Power Query Editor** window, right-click the **ftk_Storage** function on the left and select **Duplicate**.
+2. Right-click **ftk_Storage (2)** and select **Advanced Editor**.
+3. Remove the first line and replace the `data = if datasetType...` line with `data = "focuscost",`.
+4. Select **Done** at the bottom-right of the dialog.
+5. Select **ftk_Storage (2)** on the left and then click **Refresh Preview** in the ribbon at the top.
+6. In the **Applied Steps** on the right, select the last step.
+7. If that step errors, select the one before it (skip anything with an underscore or lowercase first character).
+8. Repeat 7 until you find one that works.
+9. Share the name of the first step that is failing in any issue or support request to help troubleshoot further.
+
+### Troubleshoot Hub\* and Storage\* query errors
+
+1. From the **Power Query Editor** window, select the failing query on the left and then click **Refresh Preview** in the ribbon at the top.
+2. In the **Applied Steps** on the right, select the last step.
+3. If that step errors, select the one before it (skip anything with an underscore or lowercase first character).
+4. Repeat 3 until you find one that works.
+5. Share the name of the first step that is failing in any issue or support request to help troubleshoot further.
+
+<br>
+
 <!--
 ## Create a support request
 
@@ -174,17 +216,27 @@ If you're facing an error not listed above or need more help, file a [support re
 <br>
 -->
 
+## Still need help?
+
+If you've followed the troubleshooting steps and still need assistance, join our [biweekly office hours](https://aka.ms/ftk/office-hours) to get live help from the team. If you need more hands-on support, you can request a paid, community-driven advisory session or consulting delivery during the office hours call.
+
+<br>
+
 ## Give feedback
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Help.Troubleshooting)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Toolkit/featureName/Help.Troubleshooting)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

@@ -289,8 +289,17 @@ table ReservationTransactions
 				            each [BillingFrequency], each if [BillingFrequency] = "OneTime" then "One-Time" else [BillingFrequency], Replacer.ReplaceValue, {"BillingFrequency"}),
 				            // Use fully-qulified resrvation ID
 				            each [BillingMonth], each DateTime.From(Text.Range([BillingMonth], 0, 4) & "-" & Text.Range([BillingMonth], 4, 2) & "-" & Text.Range([BillingMonth], 6, 2)), Replacer.ReplaceValue, {"BillingMonth"}),
-				            // Fix inconsistent Microsoft term values
-				            each [Term], each if [Term] = "P1M" then 1 else if [Term] = "P1Y" then 12 else if [Term] = "P3Y" then 36 else if [Term] = "P5Y" then 60 else Number.FromText([Term]), Replacer.ReplaceValue, {"Term"}),
+				            // Fix inconsistent Microsoft term values. Known mappings + ISO-8601 PnY/PnM fallback for future values (e.g. P10Y).
+				            each [Term], each
+				                if [Term] = "P1M" then 1
+				                else if [Term] = "P1Y" then 12
+				                else if [Term] = "P3Y" then 36
+				                else if [Term] = "P5Y" then 60
+				                else if [Term] = "P10Y" then 120
+				                else if [Term] <> null and Text.StartsWith([Term], "P") and Text.EndsWith([Term], "Y") then try Number.FromText(Text.Range([Term], 1, Text.Length([Term]) - 2)) * 12 otherwise null
+				                else if [Term] <> null and Text.StartsWith([Term], "P") and Text.EndsWith([Term], "M") then try Number.FromText(Text.Range([Term], 1, Text.Length([Term]) - 2)) otherwise null
+				                else null,
+				            Replacer.ReplaceValue, {"Term"}),
 				        {
 				            // Dates
 				            {"BillingMonth",         type datetime},

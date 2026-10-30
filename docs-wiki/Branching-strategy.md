@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD041 -->
 
-- [main](https://github.com/microsoft/finops-toolkit/tree/main) includes the latest stable release.
-- [dev](https://github.com/microsoft/finops-toolkit/tree/dev) includes the latest changes that will go into the next release.
+- [main](../tree/main) includes the latest stable release.
+- [dev](../tree/dev) includes the latest changes that will go into the next release.
 - Feature branches (`features/<feature-name>`) are used for any in-progress features that are not yet ready for release.
 - Personal branches (`<your-github-account>/<feature-name>`) are intended for a single developer and typically not shared. Use these for small changes that can easily be integrated into the next release.
 
@@ -35,7 +35,7 @@ On this page:
 - `dev` is for the next release. All PRs to this branch must meet the following requirements:
   - Changes must be complete and validated. No partial commits.
   - Applicable documentation in [docs](../tree/dev/docs) must be updated.
-  - External-facing changes must be covered in the [changelog](../tree/dev/docs/changelog.md).
+  - External-facing changes must be covered in the [changelog](../tree/dev/docs-mslearn/toolkit/changelog.md).
 - `features/workbookv2` is for the Cost optimization workbook's next release. Target version: `0.1` (TBD).
 - `features/governance` is for a new Governance workbook. Target version: `0.1` (TBD).
 - `features/powershell` is for PowerShell automation. Target version: `0.1.*`.
@@ -53,7 +53,7 @@ If contributing to an in-progress feature, switch to the feature branch and subm
 
 If contributing a new feature, switch to the `dev` branch and submit a PR back to the main repo's `dev` branch. You are free to invite others to contribute within your fork as needed.
 
-If you run into any issues, please reach out to us on [Discussions](https://github.com/microsoft/finops-toolkit/discussions). We're happy to help!
+If you run into any issues, please reach out to us on [Discussions](../discussions). We're happy to help!
 
 <br>
 
