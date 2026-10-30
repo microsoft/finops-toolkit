@@ -30,15 +30,16 @@ on:
         required: false
         type: string
 
-permissions:
-  contents: write
-  pull-requests: write
+# Each job asks for only what it needs
+permissions: {}
 
 jobs:
   credit-pr:
     name: Credit pull request contributors
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: write
     # Same-repo pull requests only (forks have a read-only token). Skip the weekly PR, which is already the credit.
     if: >-
       github.event_name == 'pull_request'
@@ -56,6 +57,12 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      # all-contributors-cli needs Node 22.22 or later
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22.22'
+
       - name: Install all-contributors-cli
         run: npm ci --ignore-scripts
 
@@ -66,6 +73,8 @@ jobs:
         run: ./src/scripts/Update-Contributors.ps1 -PullRequest ([int]$env:PR_NUMBER) -Apply
 
       - name: Commit and push changes
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           if git diff --quiet -- .all-contributorsrc README.md docs/README.md; then
             echo "No missing credits."
@@ -75,12 +84,24 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add .all-contributorsrc README.md docs/README.md
           git commit -m "docs: Credit contributors"
-          git push
+
+          # Other workflows (like ms.date) push to the same branch on the same event, so rebase onto theirs and retry
+          for attempt in 1 2 3 4; do
+            if git push; then exit 0; fi
+            echo "Push failed (attempt $attempt). Rebasing onto the remote branch and retrying."
+            sleep $((attempt * 5))
+            git pull --rebase origin "$HEAD_REF"
+          done
+          echo "::error::Could not push the contributor credits after 4 attempts."
+          exit 1
 
   update:
     name: Credit new contributors
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
     concurrency:
       group: update-contributors
       cancel-in-progress: false
@@ -95,6 +116,12 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # The repo's own devDependency (all-contributors-cli). Scripts are not run during install.
+      # all-contributors-cli needs Node 22.22 or later
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22.22'
+
       - name: Install all-contributors-cli
         run: npm ci --ignore-scripts
 

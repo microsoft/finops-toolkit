@@ -174,9 +174,15 @@ function Get-FileContributionType
     param (
         [AllowNull()][AllowEmptyCollection()]
         [string[]]
-        $Path
+        $Path,
+
+        # Files the contributor CLI rewrites (the "files" in .all-contributorsrc), which are bookkeeping too
+        [AllowNull()][AllowEmptyCollection()]
+        [string[]]
+        $IgnorePath = @()
     )
 
+    $ignored = @($IgnorePath | ForEach-Object { ("$_" -replace '\\', '/').TrimStart('/') } | Where-Object { $_ })
     $code = $false
     $doc = $false
     foreach ($file in $Path)
@@ -184,8 +190,9 @@ function Get-FileContributionType
         $file = ($file -replace '\\', '/').TrimStart('/')
         if (-not $file) { continue }
 
-        # The contributor list is bookkeeping, and every code PR adds a changelog entry, so neither earns credit
-        if ($file -ieq '.all-contributorsrc' -or $file -match '(^|/)changelog\.md$') { continue }
+        # The contributor list and the files generated from it are bookkeeping, and every code PR adds a changelog
+        # entry, so none of them earn credit
+        if ($file -ieq '.all-contributorsrc' -or $ignored -contains $file -or $file -match '(^|/)changelog\.md$') { continue }
 
         if ($file -match '^(docs-mslearn|docs-wiki|docs)/' -or $file -match '\.(md|mdx)$') { $doc = $true }
         else { $code = $true }
@@ -739,7 +746,7 @@ if ($prs.Count -gt 0)
         $authorLogin = $author.login -replace '^app/', ''
         if (-not (Test-BotLogin -Login $author.login -IsBot ([bool]$author.is_bot)))
         {
-            $types = Get-FileContributionType -Path $detail.Files
+            $types = Get-FileContributionType -Path $detail.Files -IgnorePath $config.files
             if ($types) { Add-ContributionNeed -Needs $needs -Login $authorLogin -Type $types -Evidence "PR #$($detail.Number)" }
         }
 
@@ -774,8 +781,6 @@ $manual = @(
     $unclassified.Keys | Sort-Object | Where-Object { $listed -notcontains $_ }
     | ForEach-Object { [pscustomobject]@{ Login = $unclassified[$_].Login; Evidence = @($unclassified[$_].Evidence['unknown']) } }
 )
-
-$summary = Format-MissingContributionMarkdown -Missing $missing -Repository $Repository -NeedsHuman $manual
 
 Write-Host ''
 if ($manual.Count -gt 0)
@@ -816,6 +821,7 @@ if ($missing.Count -gt 0 -and $Apply)
         foreach ($t in $targets) { if (Test-Path $t) { $snapshots[$t] = [System.IO.File]::ReadAllText($t) } }
 
         # The CLI looks up each profile on GitHub; a token avoids the low anonymous rate limit
+        $previousToken = $env:PRIVATE_TOKEN
         if (-not $env:PRIVATE_TOKEN) { $env:PRIVATE_TOKEN = $env:GH_TOKEN ?? $env:GITHUB_TOKEN ?? (& $script:GhPath auth token 2>$null) }
 
         Push-Location $repoRoot
@@ -835,6 +841,7 @@ if ($missing.Count -gt 0 -and $Apply)
         finally
         {
             Pop-Location
+            $env:PRIVATE_TOKEN = $previousToken
         }
 
         # The CLI writes LF and collapses arrays. Match the original line endings and trailing blank lines, then
@@ -869,6 +876,9 @@ elseif ($missing.Count -gt 0)
 
 if ($SummaryPath)
 {
+    # Built after -Apply so logins that failed aren't listed as added
+    $added = @($missing | Where-Object { $failed -notcontains $_.Login })
+    $summary = Format-MissingContributionMarkdown -Missing $added -Repository $Repository -NeedsHuman $manual
     [System.IO.File]::WriteAllText($SummaryPath, $summary + "`n")
 }
 

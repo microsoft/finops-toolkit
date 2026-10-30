@@ -80,7 +80,7 @@ We recognize every kind of contribution equally with the [all-contributors](http
 | `promotion` | 📣 | Promoting the toolkit in blogs, talks, and events |
 | `leader` | 🌟 | Serving on the governing board |
 
-The `code`, `doc`, `review`, `bug`, and `ideas` credits are found automatically. The [update-contributors](.github/workflows/update-contributors.yml) workflow adds a commit crediting the author and reviewers to every pull request from this repo, and a weekly run opens a pull request with whatever else is missing (fork pull requests, bugs, and feature requests), and you can check any time with `./src/scripts/Update-Contributors.ps1 -Since 2026-01-01` (add `-Apply` to update the list). Other types are added by hand: comment `@allcontributors please add @username for question, design` on any issue or pull request in this repo, or run `npm ci --ignore-scripts` once and then `npm run contrib -- username question design`.
+The `code`, `doc`, `review`, `bug`, and `ideas` credits are found automatically. The [update-contributors](.github/workflows/update-contributors.yml) workflow adds a commit crediting the author and reviewers to every pull request from this repo, and a weekly run opens a pull request with whatever else is missing (fork pull requests, bugs, and feature requests), and you can check any time with `./src/scripts/Update-Contributors.ps1 -Since 2026-01-01` (add `-Apply` to update the list). Other types are added by hand: comment `@allcontributors please add @username for question, design` on any issue or pull request in this repo, or run `npm ci --ignore-scripts` once and then `npm run contrib -- username question,design`.
 
 <br>
 

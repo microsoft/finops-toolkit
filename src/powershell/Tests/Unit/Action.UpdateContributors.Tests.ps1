@@ -33,8 +33,19 @@ Describe 'update-contributors GitHub Action' {
         $workflowContent | Should -Match 'PR_NUMBER:\s*\$\{\{\s*github\.event\.pull_request\.number\s*\}\}'
     }
 
-    It 'Should use only the minimal permissions' {
-        $workflowContent | Should -Match 'permissions:\s*\r?\n\s+contents:\s*write\s*\r?\n\s+pull-requests:\s*write\s*\r?\n\r?\n'
+    It 'Should grant no permissions by default and only what each job needs' {
+        $workflowContent | Should -Match '(?m)^permissions:\s*\{\}'
+        # credit-pr only pushes a commit; update also opens the pull request
+        $workflowContent | Should -Match 'credit-pr:[\s\S]*?permissions:\s*\r?\n\s+contents:\s*write\s*\r?\n\s+# '
+        $workflowContent | Should -Match 'update:[\s\S]*?permissions:\s*\r?\n\s+contents:\s*write\s*\r?\n\s+pull-requests:\s*write'
+    }
+
+    It 'Should set up Node.js 22.22 or later before installing the CLI' {
+        $workflowContent | Should -Match "node-version:\s*'22\.22'"
+    }
+
+    It 'Should retry the push after rebasing onto the PR branch' {
+        $workflowContent | Should -Match 'git pull --rebase origin'
     }
 
     It 'Should only run the weekly job in the upstream repo, from dev' {
@@ -57,7 +68,11 @@ Describe 'update-contributors GitHub Action' {
 
     It 'Should not put workflow inputs directly in a script' {
         # Inputs reach scripts through env vars so they can't inject commands
-        $workflowContent | Should -Not -Match 'run:[^\n]*\$\{\{\s*(inputs|github\.event)\.'
+        # (single-line values and | or > blocks)
+        $runs = [regex]::Matches($workflowContent, '(?m)^( *)(?:- )?run:[ \t]*(?:[|>][-+]?[ \t]*\r?\n((?:\1 +.*\r?\n|[ \t]*\r?\n)+)|(.*))') |
+            ForEach-Object { $_.Groups[2].Value + $_.Groups[3].Value }
+        $runs | Should -Not -BeNullOrEmpty
+        foreach ($run in $runs) { $run | Should -Not -Match '\$\{\{' }
         $workflowContent | Should -Match 'SINCE_INPUT:\s*\$\{\{\s*inputs\.since\s*\}\}'
     }
 

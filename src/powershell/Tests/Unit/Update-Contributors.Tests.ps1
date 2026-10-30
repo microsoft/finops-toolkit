@@ -88,6 +88,12 @@ Describe 'Update-Contributors' {
             Get-FileContributionType -Path 'docs-mslearn/toolkit/changelog.md' | Should -BeNullOrEmpty
         }
 
+        It 'Ignores the files the contributor CLI rewrites' {
+            Get-FileContributionType -Path 'README.md', 'docs/README.md' -IgnorePath 'README.md', 'docs/README.md' | Should -BeNullOrEmpty
+            Get-FileContributionType -Path 'README.md', 'src/templates/finops-hub/main.bicep' -IgnorePath 'README.md' | Should -Be @('code')
+            Get-FileContributionType -Path 'src/templates/finops-hub/README.md' -IgnorePath 'README.md' | Should -Be @('doc')
+        }
+
         It 'Ignores the contributor list itself' {
             Get-FileContributionType -Path '.all-contributorsrc' | Should -BeNullOrEmpty
         }
