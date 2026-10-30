@@ -1,14 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-# SECURITY PRECONDITION: The 'ftk-pr' GitHub environment MUST have required
-# reviewers configured. The deploy jobs below run azure/login with Contributor +
-# User Access Administrator on the subscription and build+deploy the PR's own
-# code. For fork PRs (pull_request_target + 'Needs: Deployment' label) that code
-# is untrusted, so the environment reviewer gate is the only control preventing a
-# labeled fork from deploying malicious templates with CI credentials. This is
-# configured by Initialize-CI.ps1; verify reviewers are set before enabling fork
-# deployments. See src/scripts/README.md (Initialize-CI).
+# Deployment executes code with Azure credentials. Fork commits must be reviewed
+# and promoted to a same-repository branch before deployment. Never add a
+# privileged trigger that checks out fork code. See src/scripts/README.md.
 
 name: 'PR Deploy'
 
@@ -21,27 +16,18 @@ on:
       - '!src/templates/**/docs/**'
       - '!src/templates/**/test/**'
 
-  pull_request_target:
-    types: [labeled]
-
 env:
   AZ_ACCOUNTS_VERSION: '2.19.0'
   AZ_RESOURCES_VERSION: '6.16.2'
   AZ_STORAGE_VERSION: '6.2.0'
 
 # Deploy runs for the same PR share one group so a new push cancels the
-# in-flight deployment. Label events that are NOT 'Needs: Deployment' are no-ops
-# (see the check-options condition below), so they get a unique, throwaway group
-# — otherwise an unrelated bot label would cancel a running deployment and leave
-# only skipped jobs behind, which reads as "deployment not requested".
+# in-flight deployment.
 concurrency:
-  group: "ftk-pr-${{ github.event.pull_request.number }}${{ (github.event_name == 'pull_request_target' && github.event.label.name != 'Needs: Deployment') && format('-noop-{0}', github.run_id) || '' }}"
+  group: "ftk-pr-${{ github.event.pull_request.number }}"
   cancel-in-progress: true
 
-permissions:
-  id-token: write
-  contents: read
-  pull-requests: write
+permissions: {}
 
 jobs:
   #----------------------------------------------------------------------------
@@ -50,10 +36,9 @@ jobs:
   check-options:
     name: Check deployment options
     runs-on: ubuntu-latest
-    # Skip fork PRs unless they have the deployment label
-    if: >
-      (github.event_name == 'pull_request_target' && github.event.label.name == 'Needs: Deployment')
-      || github.event_name == 'pull_request'
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      pull-requests: read
     outputs:
       deploy-adx: ${{ steps.parse.outputs.deploy-adx }}
       deploy-fabric: ${{ steps.parse.outputs.deploy-fabric }}
@@ -70,28 +55,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # For 'edited' events, paths filter doesn't apply — verify manually
-          changed=$(gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --name-only \
-            | grep -E '^src/templates/' \
-            | grep -v -E '(README\.md|/docs/|/test/)' \
-            | head -1)
+          files=$(gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --name-only)
+          changed=$(awk '/^src\/templates\// && !/(README\.md|\/docs\/|\/test\/)/ { print; exit }' <<< "$files")
           if [ -n "$changed" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Verify fork PR safety
-        if: github.event.pull_request.head.repo.full_name != github.repository
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # Block fork PRs that modify workflow or script files
-          modified=$(gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --name-only \
-            | grep -E '^(\.github/|src/scripts/)' \
-            | head -1)
-          if [ -n "$modified" ]; then
-            echo "::error::Fork PRs that modify .github/ or src/scripts/ files cannot use deployment CI."
-            exit 1
           fi
 
       - name: Parse deployment checkboxes
@@ -126,22 +95,25 @@ jobs:
   #----------------------------------------------------------------------------
   # Hub deployments
   #----------------------------------------------------------------------------
-  # All deploy jobs use the ftk-pr environment, which MUST have required reviewers
-  # configured — see the SECURITY PRECONDITION note at the top of this file.
+  # Only same-repository PRs can use the privileged deployment environment.
   deploy-adx:
     name: 'Hubs + ADX (managed)'
     needs: check-options
-    if: needs.check-options.outputs.deploy-adx == 'true' && needs.check-options.outputs.templates-changed == 'true'
+    if: github.event.pull_request.head.repo.full_name == github.repository && needs.check-options.outputs.deploy-adx == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    environment: ${{ github.event.pull_request.head.repo.full_name != github.repository && 'ftk-fork' || 'ftk-pr' }}
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    environment: ftk-pr
     steps:
       - name: Restore Az modules
         id: az-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: /home/runner/.local/share/powershell/Modules
-          key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
+          key: az-modules-reviewed-pr-v1-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
 
       - name: Install Az modules
         if: steps.az-cache.outputs.cache-hit != 'true'
@@ -155,6 +127,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Azure login
         uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
@@ -187,10 +160,14 @@ jobs:
   deploy-fabric:
     name: 'Hubs + Fabric (manual)'
     needs: check-options
-    if: needs.check-options.outputs.deploy-fabric == 'true' && needs.check-options.outputs.templates-changed == 'true'
+    if: github.event.pull_request.head.repo.full_name == github.repository && needs.check-options.outputs.deploy-fabric == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    environment: ${{ github.event.pull_request.head.repo.full_name != github.repository && 'ftk-fork' || 'ftk-pr' }}
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    environment: ftk-pr
     steps:
       - name: Validate Fabric URI
         env:
@@ -206,7 +183,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: /home/runner/.local/share/powershell/Modules
-          key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
+          key: az-modules-reviewed-pr-v1-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
 
       - name: Install Az modules
         if: steps.az-cache.outputs.cache-hit != 'true'
@@ -220,6 +197,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Azure login
         uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
@@ -255,17 +233,21 @@ jobs:
   deploy-manual:
     name: 'Hubs (manual)'
     needs: check-options
-    if: needs.check-options.outputs.deploy-manual == 'true' && needs.check-options.outputs.templates-changed == 'true'
+    if: github.event.pull_request.head.repo.full_name == github.repository && needs.check-options.outputs.deploy-manual == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    environment: ${{ github.event.pull_request.head.repo.full_name != github.repository && 'ftk-fork' || 'ftk-pr' }}
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    environment: ftk-pr
     steps:
       - name: Restore Az modules
         id: az-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: /home/runner/.local/share/powershell/Modules
-          key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
+          key: az-modules-reviewed-pr-v1-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
 
       - name: Install Az modules
         if: steps.az-cache.outputs.cache-hit != 'true'
@@ -279,6 +261,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Azure login
         uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
@@ -311,17 +294,21 @@ jobs:
   deploy-nodata:
     name: Hubs (no data)
     needs: check-options
-    if: needs.check-options.outputs.deploy-nodata == 'true' && needs.check-options.outputs.templates-changed == 'true'
+    if: github.event.pull_request.head.repo.full_name == github.repository && needs.check-options.outputs.deploy-nodata == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    environment: ${{ github.event.pull_request.head.repo.full_name != github.repository && 'ftk-fork' || 'ftk-pr' }}
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    environment: ftk-pr
     steps:
       - name: Restore Az modules
         id: az-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: /home/runner/.local/share/powershell/Modules
-          key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
+          key: az-modules-reviewed-pr-v1-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
 
       - name: Install Az modules
         if: steps.az-cache.outputs.cache-hit != 'true'
@@ -335,6 +322,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Azure login
         uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
@@ -370,17 +358,21 @@ jobs:
   deploy-workbooks:
     name: Workbooks
     needs: check-options
-    if: needs.check-options.outputs.deploy-workbooks == 'true' && needs.check-options.outputs.templates-changed == 'true'
+    if: github.event.pull_request.head.repo.full_name == github.repository && needs.check-options.outputs.deploy-workbooks == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    environment: ${{ github.event.pull_request.head.repo.full_name != github.repository && 'ftk-fork' || 'ftk-pr' }}
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    environment: ftk-pr
     steps:
       - name: Restore Az modules
         id: az-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: /home/runner/.local/share/powershell/Modules
-          key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
+          key: az-modules-reviewed-pr-v1-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
 
       - name: Install Az modules
         if: steps.az-cache.outputs.cache-hit != 'true'
@@ -394,6 +386,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Azure login
         uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
@@ -426,17 +419,21 @@ jobs:
   deploy-alerts:
     name: Alerts
     needs: check-options
-    if: needs.check-options.outputs.deploy-alerts == 'true' && needs.check-options.outputs.templates-changed == 'true'
+    if: github.event.pull_request.head.repo.full_name == github.repository && needs.check-options.outputs.deploy-alerts == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    environment: ${{ github.event.pull_request.head.repo.full_name != github.repository && 'ftk-fork' || 'ftk-pr' }}
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    environment: ftk-pr
     steps:
       - name: Restore Az modules
         id: az-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: /home/runner/.local/share/powershell/Modules
-          key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
+          key: az-modules-reviewed-pr-v1-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
 
       - name: Install Az modules
         if: steps.az-cache.outputs.cache-hit != 'true'
@@ -450,6 +447,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Azure login
         uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
