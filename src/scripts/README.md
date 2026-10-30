@@ -23,6 +23,7 @@ On this page:
 - [📁 New-Directory](#-new-directory)
 - [🌿 New-FeatureBranch](#-new-featurebranch)
 - [🔀 Merge-DevBranch](#-merge-devbranch)
+- [🏅 Update-Contributors](#-update-contributors)
 
 ---
 
@@ -754,5 +755,42 @@ Examples:
   ```powershell
   ./Merge-DevBranch *
   ```
+
+<br>
+
+## 🏅 Update-Contributors
+
+[Update-Contributors.ps1](./Update-Contributors.ps1) finds contributors who are missing from the [all-contributors](../../.all-contributorsrc) list and adds them. It uses the `gh` CLI to read merged PRs, reviews, and issues, then credits `code`, `doc`, `review`, `bug`, and `ideas`. Other types are added by hand. The default is a dry run. Running it twice changes nothing the second time.
+
+| Parameter      | Description                                                                                                                              |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `‑Since`       | Optional. Credit PRs merged and issues created or closed on or after this date. Either `‑Since`, `‑Milestone`, or `‑PullRequest` is required. |
+| `‑Milestone`   | Optional. Credit PRs and issues in this milestone, for example `v15`.                                                                    |
+| `‑PullRequest` | Optional. Credit only this pull request's author and reviewers, merged or not. Use alone.                                              |
+| `‑Apply`       | Optional. Adds the missing credits to `.all-contributorsrc`, `README.md`, and `docs/README.md`. Requires `npm ci --ignore-scripts` once. |
+| `‑Exclude`     | Optional. Logins to never credit.                                                                                                        |
+| `‑SummaryPath` | Optional. Writes a markdown summary to this file.                                                                                        |
+
+Examples:
+
+- Show who is missing for the v15 release.
+
+  ```powershell
+  ./Update-Contributors -Milestone v15
+  ```
+
+- Add everyone who is missing credits for work since April 29.
+
+  ```powershell
+  ./Update-Contributors -Since 2026-04-29 -Apply
+  ```
+
+- Credit the author and reviewers of one pull request.
+
+  ```powershell
+  ./Update-Contributors -PullRequest 2395 -Apply
+  ```
+
+The [update-contributors](../../.github/workflows/update-contributors.yml) workflow runs this on every pull request from this repo, adding a commit with the author's and reviewers' credits to the PR branch. It also runs weekly and opens a pull request with everything else, including fork PRs, bugs, and feature requests.
 
 <br>
