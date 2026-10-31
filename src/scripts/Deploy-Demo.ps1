@@ -266,7 +266,12 @@ function Get-DemoScope([string] $StorageName, [string] $ResourceGroupName)
         $settings = Get-Content $file -Raw | ConvertFrom-Json
         return @($settings.scopes | ForEach-Object { $_.scope } | Where-Object { $_ })
     }
-    catch { return @() }
+    catch
+    {
+        # Only a missing settings.json means no scopes yet. Anything else needs to surface so it can be retried.
+        if ($_.Exception.Message -match 'NotFound|does not exist|Can not find|could not be found') { return @() }
+        throw
+    }
     finally { Remove-Item $file -Force -WhatIf:$false -ErrorAction SilentlyContinue }
 }
 
@@ -574,14 +579,21 @@ if (-not $WhatIfPreference)
     # The data they already delivered stays and has to be removed separately.
     foreach ($old in @($previousScope | Where-Object { $_ -and $Scope -notcontains $_ } | Sort-Object -Unique))
     {
-        $stale = @(((Invoke-DemoRetry { Invoke-AzRestMethod -Method GET -Path "$old/providers/Microsoft.CostManagement/exports?api-version=2023-07-01-preview" }).Content | ConvertFrom-Json).value |
+        $list = Invoke-DemoRetry { Invoke-AzRestMethod -Method GET -Path "$old/providers/Microsoft.CostManagement/exports?api-version=2023-07-01-preview" }
+        if ($list.StatusCode -ne 200)
+        {
+            Write-Warning "Could not list the exports on $old ($($list.StatusCode)), so any left from $name were not removed."
+            continue
+        }
+        $stale = @(($list.Content | ConvertFrom-Json).value |
             Where-Object { $_.name -like "$name-*" -and ($isVersioned -or $_.name -notmatch "^$name-v\d") })
         foreach ($export in $stale)
         {
             if ($PSCmdlet.ShouldProcess($old, "Delete the $($export.name) export"))
             {
-                $null = Invoke-DemoRetry { Invoke-AzRestMethod -Method DELETE -Path "$old/providers/Microsoft.CostManagement/exports/$($export.name)?api-version=2023-07-01-preview" }
-                Write-Host "Removed $($export.name) from $old, which is no longer exported. Data it already delivered is still in the hub."
+                $delete = Invoke-DemoRetry { Invoke-AzRestMethod -Method DELETE -Path "$old/providers/Microsoft.CostManagement/exports/$($export.name)?api-version=2023-07-01-preview" }
+                if ($delete.StatusCode -in 200, 204) { Write-Host "Removed $($export.name) from $old, which is no longer exported. Data it already delivered is still in the hub." }
+                else { Write-Warning "Could not remove the $($export.name) export from $old ($($delete.StatusCode)). It keeps delivering data that duplicates the new scope, so delete it in Cost Management." }
             }
         }
     }

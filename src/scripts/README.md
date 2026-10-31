@@ -481,7 +481,7 @@ To get the demo hub ready for a release, sign in with `Connect-AzAccount` using 
 | `‑Subscription`  | Optional. Name or ID of the subscription to deploy to. Default = "FTK Prod".                       |
 | `‑ResourceGroup` | Optional. Name of the resource group. Default = the instance name.                                 |
 | `‑Location`      | Optional. Azure region. Default = "westus".                                                        |
-| `‑Scope`         | Optional. Resource IDs to export cost data for. Default = the demo billing account for the current demo hub and the version being built, or the subscription for older releases. Don't list a billing account and a subscription it contains, because costs are duplicated. Exports left on scopes you no longer list are removed. |
+| `‑Scope`         | Optional. Resource IDs to export cost data for. Default = the demo billing account for the current demo hub and the version being built, or the subscription for older releases. Don't list a billing account and a subscription it contains, because costs are duplicated. Exports left on scopes you no longer list are removed, but the data they already delivered stays (see below). |
 | `‑Retention`     | Optional. Months of data the hub keeps. Default = 36 for the current demo hub and the version being built, 3 for the previous 3 releases, or 1 for older releases. |
 | `‑DataExplorerSku` | Optional. Data Explorer SKU. Use a dev/test SKU. Default = "Dev(No SLA)_Standard_D11_v2". |
 | `‑Backfill`      | Optional. Months of history to load. Default = the retention, loaded once: it is skipped when the history export already exists. Use 0 to skip. |
@@ -507,6 +507,7 @@ Examples:
   ```powershell
   ./Deploy-Demo -Version v15 -Backfill 1
   ```
+Switching an existing instance to a different scope (for example, `ftk-demo` moving from the subscription to the billing account) leaves the old scope's data in the hub, so reports count those costs twice where the new scope overlaps it. The script removes the old exports but not the data. To clear it, delete the instance's resource group and run `./Deploy-Demo` again, which reloads the history from the new scope. Alternatively, purge the old scope's rows from the Data Explorer `Ingestion` database tables (`.purge`) and delete its folders from the storage account's `ingestion` container.
 <br>
 
 ## 📊 Build-PowerBI
