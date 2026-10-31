@@ -26,8 +26,8 @@
     nobody is using costs almost nothing to keep around.
 
     One call does everything an instance needs: it deploys the hub, gives it access to the scopes,
-    sets up the exports, loads history for a new instance, turns on auto-stop, and waits until
-    current data has been ingested. It is safe to run again, which updates the instance.
+    sets up the exports, loads history for a new instance, turns on auto-stop, lets everyone read
+    the Hub and Ingestion databases, and waits until current data has been ingested. It is safe to run again, which updates the instance.
 
     .PARAMETER Version
     Optional. Deploys the versioned instance for a release (for example, "v15", "v07", or "v0.7") instead of the current demo hub.
@@ -612,6 +612,31 @@ elseif ($PSCmdlet.ShouldProcess($cluster.Name, 'Turn on auto-stop'))
 }
 
 #endregion AutoStop
+
+#region Viewers
+
+# Demo hubs are open for anyone to read. Everyone (work or school accounts and Microsoft accounts) is made a viewer
+# of both databases. ARM role assignments can't express "everyone", so this uses the database management command.
+# Adding an existing viewer is a no-op, so reruns are safe.
+if ($cluster -and $PSCmdlet.ShouldProcess($cluster.Name, 'Allow everyone to read the Hub and Ingestion databases'))
+{
+    $token = (Invoke-DemoRetry { Get-AzAccessToken -ResourceUrl $cluster.Uri -ErrorAction Stop }).Token
+    if ($token -is [securestring]) { $token = $token | ConvertFrom-SecureString -AsPlainText }
+    foreach ($database in 'Hub', 'Ingestion')
+    {
+        $body = @{ db = $database; csl = ".add database $database viewers ('aaduser=#everyone#;*', 'msauser=#everyone#')" } | ConvertTo-Json
+        try
+        {
+            $null = Invoke-DemoRetry { Invoke-RestMethod -Method Post -Uri "$($cluster.Uri)/v1/rest/mgmt" -Headers @{ Authorization = "Bearer $token" } -ContentType 'application/json' -Body $body -ErrorAction Stop }
+        }
+        catch
+        {
+            Write-Warning "Could not make everyone a viewer of the $database database on $($cluster.Name): $($_.Exception.Message) Run '.add database $database viewers (''aaduser=#everyone#;*'', ''msauser=#everyone#'')' in Data Explorer."
+        }
+    }
+}
+
+#endregion Viewers
 
 #region Backfill
 

@@ -471,7 +471,7 @@ Two kinds of instances:
 
 Every instance uses a dev/test Data Explorer SKU and stops itself when idle, so an instance nobody is using costs almost nothing to keep. The script also gives the hub access to the scopes it exports (Cost Management Contributor on subscriptions, and the Enterprise Administrator (read only) billing role on the EA billing account, which needs an enrollment administrator) and starts the export setup, because managed exports don't run without that access.
 
-One call does everything an instance needs. It deploys the hub, gives it access to the scopes it exports, sets up the exports, loads history for a new instance, turns on auto-stop, and waits until current data is ingested. It's safe to run again, which updates the instance. Run it once per version, and it ends by reporting whether the instance is ready.
+One call does everything an instance needs. It deploys the hub, gives it access to the scopes it exports, sets up the exports, loads history for a new instance, turns on auto-stop, lets everyone read the Hub and Ingestion databases, and waits until current data is ingested. It's safe to run again, which updates the instance. Run it once per version, and it ends by reporting whether the instance is ready.
 
 To get the demo hub ready for a release, sign in with `Connect-AzAccount` using an account that can create resources and assign roles in the FTK Prod subscription, then run `./Deploy-Demo`. To open reports from an older release, run it with that version, like `./Deploy-Demo -Version v14`.
 
