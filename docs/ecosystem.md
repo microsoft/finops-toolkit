@@ -35,6 +35,11 @@ The FinOps toolkit is free and open source, built and supported by an amazing co
         <a target="_blank" href="https://finopshubs.com">Learn more</a>
     </div>
     <div class="ftk-tile">
+        <div>💰 Finozio</div>
+        <div>Azure cost savings with FOCUS exports on toolkit open data.</div>
+        <a target="_blank" href="https://finozio.com/en">Learn more</a>
+    </div>
+    <div class="ftk-tile">
         <div>🤖 TheCoded</div>
         <div>Implement AI with FinOps toolkit cost governance.</div>
         <a target="_blank" href="https://thecoded.io">Learn more</a>
