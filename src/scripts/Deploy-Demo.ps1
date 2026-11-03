@@ -17,16 +17,17 @@
       Azure and "ftk-demo" is taken.
     - "ftk-demo-v{NN}" (for example, ftk-demo-v07 or ftk-demo-v14) is a versioned instance kept for
       opening reports from that release. The resource group, hub, and Data Explorer cluster all use
-      the same name. The version being built is deployed from source; older releases use the released
-      template through the FinOps toolkit module. Recent releases keep 3 months of data and older ones
-      keep 1 month.
+      the same name. The version being built is deployed from source and, like the current demo hub,
+      keeps 36 months of data from the billing account. Older releases use the released template through
+      the FinOps toolkit module and export the subscription. The previous 3 releases keep 3 months of
+      data and older ones keep 1 month.
 
     Every instance uses a dev/test Data Explorer SKU and stops itself when idle, so an instance
     nobody is using costs almost nothing to keep around.
 
     One call does everything an instance needs: it deploys the hub, gives it access to the scopes,
-    sets up the exports, loads history for a new instance, turns on auto-stop, and waits until
-    current data has been ingested. It is safe to run again, which updates the instance.
+    sets up the exports, loads history for a new instance, turns on auto-stop, lets everyone read
+    the Hub and Ingestion databases, and waits until current data has been ingested. It is safe to run again, which updates the instance.
 
     .PARAMETER Version
     Optional. Deploys the versioned instance for a release (for example, "v15", "v07", or "v0.7") instead of the current demo hub.
@@ -41,10 +42,10 @@
     Optional. Azure region to deploy to. Default = "westus".
 
     .PARAMETER Scope
-    Optional. Resource IDs of the scopes to export cost data for. Default = the subscription being deployed to.
+    Optional. Resource IDs of the scopes to export cost data for. Default = the demo billing account for the current demo hub and the version being built, and the subscription being deployed to for older releases. Don't combine a billing account with a subscription it contains, because cost data is duplicated. Exports left on scopes that are no longer listed are removed; the data they already exported is not.
 
     .PARAMETER Retention
-    Optional. Number of months of data the hub keeps. Default = 36 for the current demo hub, 3 for the current and previous 3 releases, 1 for older releases.
+    Optional. Number of months of data the hub keeps. Default = 36 for the current demo hub and the version being built, 3 for the previous 3 releases, 1 for older releases.
 
     .PARAMETER DataExplorerSku
     Optional. Data Explorer SKU. Must be a dev/test SKU ("Dev(No SLA)_..."), because production SKUs cost too much for demo instances. Default = "Dev(No SLA)_Standard_D11_v2".
@@ -139,8 +140,14 @@ if (-not $ResourceGroup) { $ResourceGroup = $name }
 # cluster is ftk-demo-hub. Versioned instances use the instance name.
 $clusterName = if ($isVersioned) { $name } else { "$name-hub" }
 
-# The current demo hub keeps three years. Recent releases keep 3 months and older ones 1 month, to limit cost.
-if (-not $Retention) { $Retention = if (-not $isVersioned) { 36 } elseif ($number -ge $currentMajor - 3) { 3 } else { 1 } }
+# The current demo hub and the version being built keep three years. The previous 3 releases keep 3 months and
+# older ones 1 month, to limit cost.
+$isLatest = -not $isVersioned -or $number -ge $currentMajor
+if (-not $Retention) { $Retention = if ($isLatest) { 36 } elseif ($number -ge $currentMajor - 3) { 3 } else { 1 } }
+
+# The demo data comes from this EA billing account. It contains the FTK Prod subscription, so exporting both would
+# duplicate that subscription's costs.
+$demoBillingAccount = '/providers/Microsoft.Billing/billingAccounts/8611537'
 
 # Dev/test SKUs only. Production SKUs cost too much for instances nobody is using.
 if (-not $DataExplorerSku) { $DataExplorerSku = 'Dev(No SLA)_Standard_D11_v2' }
@@ -243,6 +250,29 @@ function Get-DemoState([string] $HubName, [string] $ResourceGroupName)
     $state.Months = @($months | Sort-Object)
 
     return $state
+}
+
+<#
+    .SYNOPSIS
+    Returns the scopes an instance exports, from its settings.json. Empty when it has none yet.
+#>
+function Get-DemoScope([string] $StorageName, [string] $ResourceGroupName)
+{
+    $storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroupName -Name $StorageName
+    $file = New-TemporaryFile -WhatIf:$false
+    try
+    {
+        Get-AzStorageBlobContent -Container 'config' -Blob 'settings.json' -Destination $file -Context $storageAccount.Context -Force -WhatIf:$false -ErrorAction Stop | Out-Null
+        $settings = Get-Content $file -Raw | ConvertFrom-Json
+        return @($settings.scopes | ForEach-Object { $_.scope } | Where-Object { $_ })
+    }
+    catch
+    {
+        # Only a missing settings.json means no scopes yet. Anything else needs to surface so it can be retried.
+        if ($_.Exception.Message -match 'NotFound|does not exist|Can not find|could not be found') { return @() }
+        throw
+    }
+    finally { Remove-Item $file -Force -WhatIf:$false -ErrorAction SilentlyContinue }
 }
 
 <#
@@ -368,7 +398,10 @@ Write-Host ''
 
 #region Deploy
 
-if (-not $Scope) { $Scope = @("/subscriptions/$($context.Subscription.Id)") }
+if (-not $Scope) { $Scope = if ($isLatest) { @($demoBillingAccount) } else { @("/subscriptions/$($context.Subscription.Id)") } }
+
+# Scopes the hub exported before this run, so exports on scopes that were dropped can be removed after deploying
+$previousScope = @(if ($state.Deployed -and $state.Storage) { Invoke-DemoRetry { Get-DemoScope $state.Storage $ResourceGroup } })
 
 Write-Host "Deploying $name ($(if ($useLocalBuild) { "version $toolkitVersion, built from source" } else { "released version $releaseVersion" })) keeping $Retention month$(if ($Retention -ne 1) { 's' }) of data for $($Scope -join ', ')..."
 
@@ -465,6 +498,29 @@ if (-not $canAssign -and $PSCmdlet.ShouldProcess($storageAccount.StorageAccountN
 
 foreach ($target in $Scope)
 {
+    # EA billing accounts aren't Azure RBAC scopes. The hub's identity needs the Enterprise Administrator (read only)
+    # billing role, which only an enrollment administrator can grant.
+    if ($target -match '^/providers/Microsoft\.Billing/billingAccounts/(?<enrollment>\d+)$')
+    {
+        $enrollment = $Matches.enrollment
+        $assignments = Invoke-DemoRetry { Invoke-AzRestMethod -Method GET -Path "$target/billingRoleAssignments?api-version=2019-10-01-preview" }
+        if ($assignments.StatusCode -ne 200)
+        {
+            Write-Warning "Can't read the billing roles for $target ($($assignments.StatusCode)). Sign in as an enrollment administrator, or give $($factory.Name) (object ID $principalId) the Enterprise Administrator (read only) role, or nothing is exported for that scope."
+            continue
+        }
+
+        if (@(($assignments.Content | ConvertFrom-Json).value | Where-Object { $_.properties.principalId -eq $principalId }).Count) { continue }
+
+        if ($PSCmdlet.ShouldProcess($target, "Grant Enterprise Administrator (read only) to $($factory.Name)"))
+        {
+            if (-not (Get-Command Add-FinOpsServicePrincipal -ErrorAction SilentlyContinue)) { Import-Module "$PSScriptRoot/../powershell/FinOpsToolkit.psm1" -Force }
+            Invoke-DemoRetry { Add-FinOpsServicePrincipal -ObjectId $principalId -TenantId $context.Tenant.Id -BillingAccountId $enrollment | Out-Null }
+            $granted = $true
+        }
+        continue
+    }
+
     if ($target -notmatch '^/subscriptions/|^/providers/Microsoft\.Management/managementGroups/')
     {
         Write-Warning "Can't grant access to $target from here. Give $($factory.Name) the Cost Management Contributor role on it, or nothing is exported for that scope."
@@ -518,6 +574,29 @@ if (-not $WhatIfPreference)
     $exports = @($exports | Where-Object { $_.name -like "$name-*" -and ($isVersioned -or $_.name -notmatch "^$name-v\d") })
     if ($exports.Count -eq 0) { Write-Warning "No exports were created for $name. Nothing will be ingested until they exist." }
     else { Write-Host "✅ $($exports.Count) export$(if ($exports.Count -ne 1) { 's' }): $(($exports.name | Sort-Object) -join ', ')" -ForegroundColor Green }
+
+    # Exports on scopes the hub no longer exports keep delivering data that duplicates the scopes that replaced them.
+    # The data they already delivered stays and has to be removed separately.
+    foreach ($old in @($previousScope | Where-Object { $_ -and $Scope -notcontains $_ } | Sort-Object -Unique))
+    {
+        $list = Invoke-DemoRetry { Invoke-AzRestMethod -Method GET -Path "$old/providers/Microsoft.CostManagement/exports?api-version=2023-07-01-preview" }
+        if ($list.StatusCode -ne 200)
+        {
+            Write-Warning "Could not list the exports on $old ($($list.StatusCode)), so any left from $name were not removed."
+            continue
+        }
+        $stale = @(($list.Content | ConvertFrom-Json).value |
+            Where-Object { $_.name -like "$name-*" -and ($isVersioned -or $_.name -notmatch "^$name-v\d") })
+        foreach ($export in $stale)
+        {
+            if ($PSCmdlet.ShouldProcess($old, "Delete the $($export.name) export"))
+            {
+                $delete = Invoke-DemoRetry { Invoke-AzRestMethod -Method DELETE -Path "$old/providers/Microsoft.CostManagement/exports/$($export.name)?api-version=2023-07-01-preview" }
+                if ($delete.StatusCode -in 200, 204) { Write-Host "Removed $($export.name) from $old, which is no longer exported. Data it already delivered is still in the hub." }
+                else { Write-Warning "Could not remove the $($export.name) export from $old ($($delete.StatusCode)). It keeps delivering data that duplicates the new scope, so delete it in Cost Management." }
+            }
+        }
+    }
 }
 
 #endregion Exports
@@ -545,6 +624,31 @@ elseif ($PSCmdlet.ShouldProcess($cluster.Name, 'Turn on auto-stop'))
 }
 
 #endregion AutoStop
+
+#region Viewers
+
+# Demo hubs are open for anyone to read. Everyone (work or school accounts and Microsoft accounts) is made a viewer
+# of both databases. ARM role assignments can't express "everyone", so this uses the database management command.
+# Adding an existing viewer is a no-op, so reruns are safe.
+if ($cluster -and $PSCmdlet.ShouldProcess($cluster.Name, 'Allow everyone to read the Hub and Ingestion databases'))
+{
+    $token = (Invoke-DemoRetry { Get-AzAccessToken -ResourceUrl $cluster.Uri -ErrorAction Stop }).Token
+    if ($token -is [securestring]) { $token = $token | ConvertFrom-SecureString -AsPlainText }
+    foreach ($database in 'Hub', 'Ingestion')
+    {
+        $body = @{ db = $database; csl = ".add database $database viewers ('aaduser=#everyone#;*', 'msauser=#everyone#')" } | ConvertTo-Json
+        try
+        {
+            $null = Invoke-DemoRetry { Invoke-RestMethod -Method Post -Uri "$($cluster.Uri)/v1/rest/mgmt" -Headers @{ Authorization = "Bearer $token" } -ContentType 'application/json' -Body $body -ErrorAction Stop }
+        }
+        catch
+        {
+            Write-Warning "Could not make everyone a viewer of the $database database on $($cluster.Name): $($_.Exception.Message) Run '.add database $database viewers (''aaduser=#everyone#;*'', ''msauser=#everyone#'')' in Data Explorer."
+        }
+    }
+}
+
+#endregion Viewers
 
 #region Backfill
 
