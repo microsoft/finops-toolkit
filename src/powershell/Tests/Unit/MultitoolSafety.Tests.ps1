@@ -583,6 +583,20 @@ Describe 'FinOps Multitool safety' {
     }
 
     Context 'Resource-backed usage allocation' {
+        BeforeAll {
+            # CI doesn't install Az.OperationalInsights, and Pester can only mock a command that exists.
+            $script:StubbedOperationalInsightsQuery = -not (Get-Command Invoke-AzOperationalInsightsQuery -ErrorAction SilentlyContinue)
+            if ($script:StubbedOperationalInsightsQuery) {
+                function global:Invoke-AzOperationalInsightsQuery { param($WorkspaceId, $Query) }
+            }
+        }
+
+        AfterAll {
+            if ($script:StubbedOperationalInsightsQuery) {
+                Remove-Item -Path Function:\Invoke-AzOperationalInsightsQuery -ErrorAction SilentlyContinue
+            }
+        }
+
         It 'Refuses unbound automatic allocation for <Selector>' -ForEach @(
             @{ Selector = 'resource IDs'; Scope = @{ SharedResourceIds = @('pool') } }
             @{ Selector = 'resource group'; Scope = @{ SharedResourceGroup = 'pool' } }

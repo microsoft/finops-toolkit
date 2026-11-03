@@ -62,6 +62,26 @@ Want to stay connected with the team? Join our [weekly contributor sync](https:/
 For details about contributing code changes and submitting pull requests, see [How to contribute](../../wiki/How-to-contribute).
 -->
 
+## 🏅 Recognizing contributors
+
+We recognize every kind of contribution equally with the [all-contributors](https://allcontributors.org) list in the [README](./README.md). Anyone who contributes in any of the ways below should be listed. If we missed you, let us know.
+
+| Type | Emoji | Credit for |
+| ---- | ----- | ---------- |
+| `code` | 💻 | Code changes in a merged pull request |
+| `doc` | 📖 | Documentation changes in a merged pull request |
+| `bug` | 🐛 | Reporting a bug that was confirmed or fixed |
+| `ideas` | 🤔 | Suggesting a feature or idea that shaped the product |
+| `review` | 👀 | Reviewing pull requests |
+| `question` | 💬 | Answering questions in issues and discussions |
+| `design` | 🎨 | Design work, like report layouts and visuals |
+| `security` | 🛡️ | Finding or fixing security issues |
+| `mentoring` | 🧑‍🏫 | Mentoring other contributors |
+| `promotion` | 📣 | Promoting the toolkit in blogs, talks, and events |
+| `leader` | 🌟 | Serving on the governing board |
+
+To add someone, comment `@allcontributors please add @username for code, doc` on any issue or pull request in this repo, or run `npm ci --ignore-scripts` once and then `npm run contrib -- username code,doc`.
+
 <br>
 
 # 🙏 Thank you! <!-- markdownlint-disable-line single-h1 -->
