@@ -31,12 +31,12 @@ The FinOps toolkit is free and open source, built and supported by an amazing co
     </div>
     <div class="ftk-tile">
         <div>🏦 FinOpsHubs.com</div>
-        <div>Web portal that extends your FinOps hubs instance.</div>
+        <div>Web portal for your FinOps hubs instance.</div>
         <a target="_blank" href="https://finopshubs.com">Learn more</a>
     </div>
     <div class="ftk-tile">
         <div>💰 Finozio</div>
-        <div>Azure cost savings with FOCUS exports on toolkit open data.</div>
+        <div>Azure savings with FOCUS exports on FinOps toolkit open data.</div>
         <a target="_blank" href="https://finozio.com/en">Learn more</a>
     </div>
     <div class="ftk-tile">
