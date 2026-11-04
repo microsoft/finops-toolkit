@@ -1,7 +1,7 @@
 ---
 description: Review a PR for quality, correctness, and project alignment
 argument-hint: [pr-number] [--auto]
-allowed-tools: Read, Write, Glob, Grep, Bash(gh safe *), Bash(git status:*), Bash(git branch:*), Bash(bicep build:*), Bash(pwsh:*)
+allowed-tools: Read, Write, Glob, Grep, AskUserQuestion, Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh pr checkout:*), Bash(gh api:*), Bash(git status:*), Bash(git branch:*), Bash(bicep build:*), Bash(pwsh:*)
 ---
 
 # Review pull request
@@ -11,7 +11,7 @@ Reviews a PR for quality, correctness, and fit with project goals, then posts on
 **Input:** `$PR_NUMBER` (e.g., `123`); optional `--auto`.
 
 - Default: present findings to the user, post what they approve.
-- `--auto`: no user step. Post findings that are valid and match the PR's stated intent. Return the rest as an escalation list (never post them).
+- `--auto`: no user step. On your own PR (author = `gh api user --jq .login`), post findings that are valid and match the PR's stated intent and return the rest as an escalation list. On any other author's PR, post nothing: return all findings for the caller to hand to a maintainer.
 
 `{ai-platform}` = the AI platform name (e.g., `Claude`). Every posted comment starts with `🤖 [AI][{ai-platform}]`.
 
@@ -22,20 +22,20 @@ Reviews a PR for quality, correctness, and fit with project goals, then posts on
 1. Verify the PR (also read prior discussion once; don't re-fetch):
 
    ```bash
-   gh safe pr-view $PR_NUMBER --json number,title,body,state,baseRefName,headRefName,url,author,labels,reviews,comments
+   gh pr view $PR_NUMBER --json number,title,body,state,baseRefName,headRefName,url,author,labels,reviews,comments
    ```
 
    Stop if the PR is closed or merged.
 
 2. Read `CLAUDE.md` and `docs-wiki/Coding-guidelines.md`, plus READMEs in touched directories.
-3. Check out the branch: `gh safe pr-checkout $PR_NUMBER`. Uncommitted changes: stop (ask the user; in `--auto`, return "blocked: dirty tree"). Use absolute paths afterward.
-4. Pending review: if you already have a pending (draft) review on this PR, `pr-review-submit` will conflict. Stop and ask (in `--auto`, return as blocked).
+3. Check out the branch: `gh pr checkout $PR_NUMBER`. Uncommitted changes: stop (ask the user; in `--auto`, return "blocked: dirty tree"). Use absolute paths afterward.
+4. Pending review: if you already have a pending (draft) review on this PR, submitting will conflict. Stop and ask (in `--auto`, return as blocked).
 
 ### 2. Gather
 
 ```bash
-gh safe pr-diff $PR_NUMBER
-gh safe pr-diff $PR_NUMBER --name-only
+gh pr diff $PR_NUMBER
+gh pr diff $PR_NUMBER --name-only
 ```
 
 Read every changed file in full from the working tree, not just the diff. For large PRs (>50 files), start with the highest-impact files and say in the review body what wasn't deeply reviewed.
@@ -63,7 +63,7 @@ Add a confidence tag to each: **sure** (verified in code or by running something
 
 **Default mode:** consult the user with AskUserQuestion, one question per severity group that has items (plain text, ≤100 words, numbered short items). Options: "Post all (Recommended)", "Review individually", "Skip all". With 5+ items in a group, summarize by theme and offer "Review by category". Individual review options: "Post as-is (Recommended)", "Edit wording", "Downgrade severity", "Skip".
 
-**`--auto`:** no questions. Post a finding only if it is **sure**, valid on the current code, and consistent with the PR's intent. Everything **unsure**, or that would change the PR's direction or scope, goes to the escalation list with one line on why. Never post a guess.
+**`--auto`:** no questions. On another author's PR, post nothing; return every finding in the report. On your own PR, post a finding only if it is **sure**, valid on the current code, and consistent with the PR's intent. Everything **unsure**, or that would change the PR's direction or scope, goes to the escalation list with one line on why. Never post a guess.
 
 ### 6. Post
 
@@ -72,7 +72,7 @@ Add a confidence tag to each: **sure** (verified in code or by running something
 3. Submit one review (always `COMMENT`, never `APPROVE`/`REQUEST_CHANGES`):
 
    ```bash
-   gh safe pr-review-submit $PR_NUMBER review.json
+   gh api repos/{owner}/{repo}/pulls/$PR_NUMBER/reviews --method POST --input review.json
    ```
 
    ```json
@@ -104,21 +104,19 @@ If you hit real friction, propose one concrete edit to this file via AskUserQues
 
 ## CLI reference
 
-Use `gh safe` where it applies; other tools only when it doesn't.
-
 | Command                                     | Purpose                                  |
 | ------------------------------------------- | ---------------------------------------- |
-| `gh safe pr-view {pr} --json ...`           | PR details, reviews, comments            |
-| `gh safe pr-checkout {pr}`                  | Check out the PR branch                  |
-| `gh safe pr-diff {pr} [--name-only]`        | Diff or changed files                    |
-| `gh safe pr-threads {pr}`                   | Review threads (only to dedupe a finding) |
-| `gh safe pr-review-submit {pr} review.json` | Submit a review with line comments       |
+| `gh pr view {pr} --json ...`                | PR details, reviews, comments            |
+| `gh pr checkout {pr}`                       | Check out the PR branch                  |
+| `gh pr diff {pr} [--name-only]`        | Diff or changed files                    |
+| `gh api graphql` (`reviewThreads`)          | Review threads (only to dedupe a finding) |
+| `gh api repos/{owner}/{repo}/pulls/{pr}/reviews --method POST --input review.json` | Submit a review with line comments       |
 
 ## Done when
 
 - [ ] Branch checked out; every changed file read in full
 - [ ] Findings classified (severity, material/polish, confidence)
-- [ ] Default: user approved posts. `--auto`: only sure, intent-aligned findings posted; the rest escalated
+- [ ] Default: user approved posts. `--auto`: nothing posted on others' PRs; on your own, only sure, intent-aligned findings posted and the rest escalated
 - [ ] Suggestion blocks execution-verified
-- [ ] One review posted, `COMMENT` only, every body prefixed `🤖 [AI][{ai-platform}]`
+- [ ] At most one review posted, `COMMENT` only, every body prefixed `🤖 [AI][{ai-platform}]`
 - [ ] No code changes, commits, or pushes

@@ -1,19 +1,19 @@
 ---
 description: Loop review then update on one PR until diminishing returns (max 3 rounds)
 argument-hint: [pr-number] [max-rounds]
-allowed-tools: Read, Edit, Write, Glob, Grep, Agent, Bash(gh safe *), Bash(git status:*), Bash(git branch:*), Bash(git diff:*), Bash(git fetch:*), Bash(bicep build:*), Bash(pwsh:*), Bash(npm run:*)
+allowed-tools: Read, Edit, Write, Glob, Grep, Agent, Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh pr checkout:*), Bash(gh pr comment:*), Bash(gh pr edit:*), Bash(gh api:*), Bash(git status:*), Bash(git branch:*), Bash(git diff:*), Bash(git fetch:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(bicep build:*), Bash(pwsh:*), Bash(npm run:*)
 ---
 
 # Loop pull request
 
-Runs `/pr-review --auto` then `/pr-update --auto` on ONE PR until returns diminish. Unsupervised: it never merges, and anything unsure is escalated, not applied.
+Runs `/pr-review --auto` then `/pr-update --auto` on ONE PR until returns diminish. Unsupervised: it never merges, asks for approval before any commit or push (per `AGENTS.md`), and anything unsure is escalated, not applied.
 
 **Input:** `$PR_NUMBER`; optional `max-rounds` (default 3, never more).
 
 ## Process
 
 1. **Setup.** Verify the PR is open. Check out its branch (stop if the tree is dirty). Create a round ledger: findings, changes, tests, escalations per round.
-2. **Title gate.** PR title must be conventional (`type(scope): summary`). Fix it now if not (`gh safe pr-edit` if available; else escalate).
+2. **Title gate.** PR title must be conventional (`type(scope): summary`). Fix it now if not (`gh pr edit $PR_NUMBER --title`).
 3. **Round (repeat):**
    - **A. Review:** run `/pr-review $PR_NUMBER --auto` in a fresh subagent so it judges the PR as it stands. If you can't spawn subagents (you are one), run it inline and re-read the code, not your earlier reasoning.
    - **B. Update:** run `/pr-update $PR_NUMBER --auto` in the primary agent. Skip if A reported no blockers and no material should-fix.

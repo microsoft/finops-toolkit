@@ -1,7 +1,7 @@
 ---
 description: Run pr-loop over all open PRs in a milestone (own PRs updated, others review-only)
 argument-hint: [milestone]
-allowed-tools: Read, Glob, Grep, Agent, Bash(gh safe *), Bash(gh pr list:*), Bash(gh api user:*), Bash(git status:*), Bash(git branch:*), Bash(git worktree:*)
+allowed-tools: Read, Glob, Grep, Agent, Bash(gh pr list:*), Bash(gh api user:*), Bash(git status:*), Bash(git branch:*), Bash(git worktree:*)
 ---
 
 # Sweep milestone PRs
@@ -22,7 +22,7 @@ Runs `/pr-loop` autonomously across every open PR in a milestone. Never merges.
 
 2. **Dispatch** one subagent per PR (review-only up to 4 at a time; own PRs one at a time). Subagents can't spawn subagents, so each runs the loop inline. If you have no Agent tool, return the briefs for the main session; never fake delegation.
    - **Own PR** (author = current user): run `/pr-loop {n}` in the main checkout, one at a time. Worktree isolation fails because `pr-checkout` refuses a branch already checked out elsewhere, and the main checkout is often on it.
-   - **Other author's PR:** review-only. Create a throwaway worktree per PR (`git worktree add --detach ../pr-{n}-review origin/dev`) so parallel reviews never share a checkout; remove it afterward. Run `/pr-review {n} --auto`; no commits, no pushes, no update. Their findings are for the author.
+   - **Other author's PR:** review-only. Create a throwaway worktree per PR (`git worktree add --detach ../pr-{n}-review origin/dev`) so parallel reviews never share a checkout; remove it afterward. Run `/pr-review {n} --auto`; no commits, no pushes, no update. Nothing is posted; return findings for a maintainer to relay.
    - Brief format per `ftk-agents-shared.md`. Don't merge, push to `dev`, force-push, or rebase.
 3. **Collect** each subagent's one-line result and escalations. A failed subagent is `🚧 blocked` with its error.
 4. **Report** (and nothing else):
