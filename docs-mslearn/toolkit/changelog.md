@@ -33,6 +33,13 @@ The following section lists features and enhancements that are currently in deve
 
 _Released November 2026_
 
+### [FinOps hubs](hubs/finops-hubs-overview.md) v16
+
+- **Fixed**
+  - Fixed reservation details exports being skipped with no error when the export manifest has a null `dataRowCount`.
+    - Runs of `msexports_ExecuteETL` reported success while `CommitmentDiscountUsage` stopped updating. Exports with a `dataRowCount` of 0 are still skipped.
+  - Fixed reservation recommendations missing `x_RecommendationDate` and `x_RecommendationDetails` after ingestion.
+
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v16)
