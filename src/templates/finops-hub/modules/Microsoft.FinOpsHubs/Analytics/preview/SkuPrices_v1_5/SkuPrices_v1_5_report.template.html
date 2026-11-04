@@ -93,6 +93,16 @@ pre { margin: 0; background: var(--code-bg); border: 1px solid var(--line); bord
 .copy:hover, .copy:focus-visible { border-color: var(--accent); outline: none; }
 footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
 @media (prefers-reduced-motion: no-preference) { .btn, .copy { transition: border-color .15s; } }
+.wins { display: grid; gap: 10px; }
+.wrow { display: grid; grid-template-columns: 110px 1fr 90px; gap: 10px; align-items: center; font-size: 13px; }
+.wbar { display: flex; gap: 2px; height: 22px; min-width: 0; }
+.wseg { border-radius: 4px; min-width: 0; color: var(--surface); font: 600 11.5px/22px var(--mono); text-align: center; overflow: hidden; }
+.wseg.Rows { background: var(--rows); } .wseg.Columns { background: var(--cols); } .wseg.Monthly { background: var(--mon); } .wseg.Tie { background: var(--line); color: var(--muted); }
+.wtot { font: 500 12px var(--mono); color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.key { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.key.Rows { background: var(--rows); } .key.Columns { background: var(--cols); } .key.Monthly { background: var(--mon); } .key.Tie { background: var(--line); }
+#scoreboard td.c.Rows { background: var(--rows-soft); } #scoreboard td.c.Columns { background: var(--cols-soft); } #scoreboard td.c.Monthly { background: var(--mon-soft); }
+@media (max-width: 520px) { .wrow { grid-template-columns: 80px 1fr; } .wtot { grid-column: 2; text-align: left; } }
 </style>
 
 <div class="wrap">
@@ -107,8 +117,16 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
     <div class="tables">__TABLES__</div>
   </section>
 
-  <section aria-label="Scoreboard">
-    <h2>Scoreboard</h2>
+  <section aria-label="Wins by measure">
+    <h2>Wins by measure</h2>
+    <div class="panel">
+      <p class="muted" id="wins-sum"></p>
+      <div class="wins" id="wins" role="img" aria-label="Scenarios won by each layout for each measure"></div>
+      <div class="legend"><span><i class="key Rows"></i>Rows</span><span><i class="key Columns"></i>Columns</span><span><i class="key Monthly"></i>Monthly (today)</span><span><i class="key Tie"></i>Tie</span></div>
+    </div>
+  </section>
+
+  <section aria-label="Scoreboard">    <h2>Scoreboard</h2>
     <div class="panel">
       <div class="tbl"><table id="scoreboard">
         <thead><tr><th>Scenario</th><th class="c">Simpler</th><th class="c">Faster</th><th class="c">CPU</th><th class="c">Memory</th><th class="c">Rows scanned</th><th class="c">FOCUS-only</th><th class="c">Correct</th></tr></thead>
@@ -134,6 +152,7 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
     <p><strong>History.</strong> Both SKU Price tables hold all 14 months: one row per run of months with an unchanged price. Rows start a new row when that price type changes; Columns start a new row when any price on the row changes. Current prices have no effective end.</p>
     <p><strong>Cost and Usage join.</strong> Costs <code>SkuPriceId</code> doesn't match the price sheet, so cost scenarios use <code>CostsWithSkuPriceIdv2</code>: a copy of Costs with <code>SkuPriceIdv2</code> looked up by price type, meter, offer, and term. Effective-dated prices are spread over the months they were in effect so each charge matches its month exactly, with no range join and no duplicated cost rows. Today's monthly table needs no spreading.</p>
     <p><strong>Units.</strong> <code>PricingUnit</code> is empty on ftk-dev (no PricingUnits open data), so price sheet prices are per block (e.g., per 100 hours). Cost scenarios divide by the block size and use a price only when its unit matches the charge's <code>PricingUnit</code>.</p>
+    <p><strong>Data drift.</strong> Price sheets were reloaded on ftk-dev after the SKU Price tables were built, so S14 on today's monthly table differs slightly. Rebuild with <code>Build-SkuPrices.ps1</code> to realign.</p>
     <p>Not testable with this data: the 4 PR 2595 queries on announced price changes and quantity tiers, negotiated savings plan discount (savings plan list price is dropped on ingestion), multiple currencies, consumption currency.</p>
     <p>Source: draft PR microsoft/finops-toolkit#2339 (<code>Analytics/preview/SkuPrices_v1_5</code>). Generated __GENERATED__.</p>
   </footer>
@@ -161,7 +180,7 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
   const cx = s => s.Operators + 2 * s.Joins + s.Lets;
   const pill = w => '<span class="w ' + esc(w === 'n/a' ? 'na' : w) + '">' + esc(w) + '</span>';
   const subs = (s, f) => (s.Sides || ['Rows', 'Columns']).map(k => f(s[k])).join(' · ');
-  function cell(s, key, f) { return '<td class="c">' + pill((s.Score || {})[key]) + (f ? '<span class="sub">' + esc(subs(s, f)) + '</span>' : '') + '</td>'; }
+  function cell(s, key, f) { const w = (s.Score || {})[key]; return '<td class="c ' + esc(w) + '">' + pill((s.Score || {})[key]) + (f ? '<span class="sub">' + esc(subs(s, f)) + '</span>' : '') + '</td>'; }
 
   // One table when every layout returns the same answer; one row is shown as label/value pairs
   function resultHtml(s) {
@@ -213,6 +232,16 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
   });
   const per = k => { const t = { Rows: 0, Columns: 0, Monthly: 0 }; data.forEach(s => { const w = (s.Score || {})[k]; if (t[w] !== undefined) t[w]++; }); return t.Rows + ' · ' + t.Columns + (t.Monthly ? ' · ' + t.Monthly : ''); };
   foot.innerHTML = '<tr><td>Wins (Rows · Columns · Monthly)</td>' + keys.map(k => '<td class="c num">' + per(k) + '</td>').join('') + '</tr>';
+  const NAMES = { Simpler: 'Simpler', Faster: 'Faster', Cpu: 'CPU', Memory: 'Memory', Scanned: 'Rows scanned', Portable: 'FOCUS-only', Correct: 'Correct' };
+  const totals = { Rows: 0, Columns: 0, Monthly: 0 };
+  document.getElementById('wins').innerHTML = keys.map(k => {
+    const t = { Rows: 0, Columns: 0, Monthly: 0, Tie: 0 };
+    data.forEach(s => { const w = (s.Score || {})[k]; if (t[w] !== undefined) t[w]++; });
+    ['Rows', 'Columns', 'Monthly'].forEach(x => totals[x] += t[x]);
+    const segs = ['Columns', 'Rows', 'Monthly', 'Tie'].filter(x => t[x]).map(x => '<div class="wseg ' + x + '" style="flex:' + t[x] + '" title="' + NAMES[k] + ': ' + x + ' ' + t[x] + ' of ' + data.length + '">' + t[x] + '</div>').join('');
+    return '<div class="wrow"><span>' + NAMES[k] + '</span><div class="wbar">' + segs + '</div><span class="wtot">' + t.Rows + ' · ' + t.Columns + ' · ' + t.Monthly + '</span></div>';
+  }).join('');
+  document.getElementById('wins-sum').textContent = 'Total wins across ' + data.length + ' scenarios × ' + keys.length + ' measures: Columns ' + totals.Columns + ', Rows ' + totals.Rows + ', Monthly ' + totals.Monthly + '. The rest are ties. Right column: Rows · Columns · Monthly.';
   document.getElementById('expand').addEventListener('click', () => document.querySelectorAll('details.scenario').forEach(d => d.open = true));
   document.getElementById('collapse').addEventListener('click', () => document.querySelectorAll('details.scenario').forEach(d => d.open = false));
   // Opening a scenario from the scoreboard expands it

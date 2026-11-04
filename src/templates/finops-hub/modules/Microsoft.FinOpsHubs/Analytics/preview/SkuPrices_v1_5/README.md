@@ -32,8 +32,8 @@ All three hold the same 14 months of prices.
 | Prices | Columns | `UnitPrice` + `x_UnitPriceType` (List, Base, Contracted, Effective) | `ListUnitPrice`, `ContractedUnitPrice`, `x_BaseUnitPrice`, `x_EffectiveUnitPrice` |
 | Dates | Month | Effective start/end per price type | One start/end per row (new row when any price changes) |
 | List price scope | n/a | Public: no contract, global eligibility | Scoped to the contract with the rest of the row |
-| Rows | 18.78M | 4.17M (3.89M current) | 1.79M (1.63M current) |
-| Extent | 2.34 GB | 0.64 GB | 0.33 GB |
+| Rows | 19.40M | 4.17M (3.89M current) | 1.79M (1.63M current) |
+| Extent | 2.42 GB | 0.64 GB | 0.33 GB |
 
 Rows by type (all / current): List 1,348,812 / 1,236,379; Contracted 1,326,353 / 1,236,379 (98% = List); Base 1,056,500 / 1,023,491 (94% = List); Effective 438,723 / 388,900.
 
@@ -68,20 +68,20 @@ Effective-dated prices have no range lookup in KQL. Scenarios spread each price 
 | S01 | List price on a date | Tie | Tie | Tie | Tie | Columns | Columns | Tie |
 | S02 | Negotiated discount by service | Columns | Columns | Columns | Columns | Columns | Columns | Tie |
 | S03 | Base price drift from list | Columns | Columns | Columns | Columns | Columns | Tie | Tie |
-| S04 | Reservation price vs. on-demand | Tie | Columns | Columns | Tie | Columns | Columns | Tie |
-| S05 | Savings plan rate vs. on-demand | Tie | Tie | Columns | Tie | Columns | Tie | Tie |
-| S06 | Price changes since July | Rows | Tie | Tie | Rows | Columns | Rows | Tie |
+| S04 | Reservation price vs. on-demand | Tie | Tie | Columns | Tie | Columns | Columns | Tie |
+| S05 | Savings plan rate vs. on-demand | Tie | Columns | Tie | Tie | Columns | Tie | Tie |
+| S06 | Price changes since July | Rows | Rows | Tie | Rows | Columns | Rows | Tie |
 | S07 | Cheapest region for a VM size | Tie | Tie | Tie | Tie | Columns | Columns | Tie |
 | S08 | Verify billed unit prices (+Monthly) | Tie | Tie | Tie | Tie | Columns | Columns | Tie |
 | S09 | Savings plan what-if for on-demand usage (+Monthly) | Tie | Monthly | Monthly | Tie | Columns | Tie | Tie |
 | S10 | All prices for one SKU | Tie | Tie | Tie | Tie | Columns | Rows | Tie |
-| S11 | Estimate a planned workload | Tie | Tie | Tie | Tie | Columns | Columns | Tie |
+| S11 | Estimate a planned workload | Tie | Tie | Tie | Columns | Columns | Columns | Tie |
 | S12 | Public prices visible to each account | Tie | Rows | Rows | Tie | Columns | Columns | Rows |
 | S13 | Usage rates vs. purchase fees | Rows | Tie | Tie | Tie | Columns | Rows | Tie |
-| S14 | Backfill missing prices on cost data (+Monthly) | Monthly | Tie | Tie | Tie | Columns | Columns | Tie |
-| | **Wins (Rows / Columns / Monthly)** | 2 / 2 / 1 | 1 / 3 / 1 | 1 / 4 / 1 | 1 / 2 / 0 | 0 / 14 / 0 | 3 / 8 / 0 | 1 / 0 / 0 |
+| S14 | Backfill missing prices on cost data (+Monthly) | Monthly | Tie | Tie | Tie | Columns | Columns | n/a |
+| | **Wins (Rows / Columns / Monthly)** | 2 / 2 / 1 | 2 / 3 / 1 | 1 / 3 / 1 | 1 / 3 / 0 | 0 / 14 / 0 | 3 / 8 / 0 | 1 / 0 / 0 |
 
-Scores: winner per measure, or Tie within 15% of the runner-up. Simpler = operators + 2x joins + lets; Faster/CPU/Memory/Rows scanned = median of 3 server-measured runs; FOCUS-only = fewer distinct x_ columns referenced; Correct = which layout returns the right answer when they differ (S12: columns hide the public list price from accounts outside the agreement).
+Scores: winner per measure, or Tie within 15% of the runner-up. Simpler = operators + 2x joins + lets; Faster/CPU/Memory/Rows scanned = median of 3 server-measured runs; FOCUS-only = fewer distinct x_ columns referenced; Correct = which layout returns the right answer when they differ (S12: columns hide the public list price from accounts outside the agreement); S14 n/a: price sheets were reloaded after the SKU Price build, so the monthly table differs until rebuilt.
 
 Covers 9 of 13 FOCUS PR 2595 queries plus 5 more (S03, S05, S06, S10, S14). Not testable with this data: announced price changes, public vs. negotiated at a quantity, tier resolution, next tier (no future prices or tiers in EA price sheets), negotiated savings plan discount, multiple currencies, consumption currency. Cost scenarios use a price only when its block unit matches the charge's `PricingUnit`.
 
