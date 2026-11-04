@@ -1,7 +1,7 @@
 ---
 description: Run pr-loop over all open PRs in a milestone (own PRs updated, others review-only)
 argument-hint: [milestone]
-allowed-tools: Read, Glob, Grep, Agent, Bash(gh safe *), Bash(gh pr list:*), Bash(gh api user:*), Bash(git status:*), Bash(git branch:*)
+allowed-tools: Read, Glob, Grep, Agent, Bash(gh safe *), Bash(gh pr list:*), Bash(gh api user:*), Bash(git status:*), Bash(git branch:*), Bash(git worktree:*)
 ---
 
 # Sweep milestone PRs
@@ -20,9 +20,9 @@ Runs `/pr-loop` autonomously across every open PR in a milestone. Never merges.
 
    Skip drafts (list them as `skipped: draft`). Zero PRs: report that and exit.
 
-2. **Dispatch** one subagent per PR (up to 4 at a time). Subagents can't spawn subagents, so each runs the loop inline. If you have no Agent tool, return the briefs for the main session; never fake delegation.
-   - **Own PR** (author = current user): `isolation: "worktree"`; run `/pr-loop {n}` (review, update, push, reply).
-   - **Other author's PR:** review-only. Run `/pr-review {n} --auto` in a clean checkout/worktree; no commits, no pushes, no update. Their findings are for the author.
+2. **Dispatch** one subagent per PR (review-only up to 4 at a time; own PRs one at a time). Subagents can't spawn subagents, so each runs the loop inline. If you have no Agent tool, return the briefs for the main session; never fake delegation.
+   - **Own PR** (author = current user): run `/pr-loop {n}` in the main checkout, one at a time. Worktree isolation fails because `pr-checkout` refuses a branch already checked out elsewhere, and the main checkout is often on it.
+   - **Other author's PR:** review-only. Create a throwaway worktree per PR (`git worktree add --detach ../pr-{n}-review origin/dev`) so parallel reviews never share a checkout; remove it afterward. Run `/pr-review {n} --auto`; no commits, no pushes, no update. Their findings are for the author.
    - Brief format per `ftk-agents-shared.md`. Don't merge, push to `dev`, force-push, or rebase.
 3. **Collect** each subagent's one-line result and escalations. A failed subagent is `🚧 blocked` with its error.
 4. **Report** (and nothing else):

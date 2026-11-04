@@ -1,7 +1,7 @@
 ---
 description: Analyze PR feedback, implement agreed changes, and post responses
 argument-hint: [pr-number] [--auto]
-allowed-tools: Read, Edit, Write, Glob, Grep, Bash(gh safe *), Bash(git status:*), Bash(git branch:*), Bash(git diff:*), Bash(git fetch:*), Bash(git merge:*), Bash(bicep build:*), Bash(pwsh:*), Bash(npm run:*)
+allowed-tools: Read, Edit, Write, Glob, Grep, Bash(gh safe *), Bash(git status:*), Bash(git branch:*), Bash(git diff:*), Bash(git fetch:*), Bash(bicep build:*), Bash(pwsh:*), Bash(npm run:*)
 ---
 
 # Update pull request
@@ -13,7 +13,7 @@ Works through PR feedback: replies to every thread, implements agreed changes, p
 - Default: the user approves the plan and the commit.
 - `--auto`: no user steps. Implement what is clearly right, push, reply. Unsure items are escalated (returned as a list), never guessed.
 
-`{ai-platform}` = the AI platform name (e.g., `Claude`). Every reply starts with `🤖 [AI][{ai-platform}]`. Follow the git policy in `AGENTS.md`: merge `origin/dev` for conflicts or sync; never rebase or force-push.
+`{ai-platform}` = the AI platform name (e.g., `Claude`). Every reply starts with `🤖 [AI][{ai-platform}]`. Follow the git policy in `AGENTS.md` (Conflict resolution) for syncing with `dev`. In `--auto`, never merge, rebase, or force-push: if a sync is needed, stop as blocked.
 
 ## Process
 
@@ -22,7 +22,7 @@ Works through PR feedback: replies to every thread, implements agreed changes, p
 1. Verify the PR: `gh safe pr-view $PR_NUMBER --json number,title,body,state,baseRefName,headRefName,url,author,reviews,comments`. Stop if closed or merged.
 2. `gh safe pr-checkout $PR_NUMBER`, then confirm `git branch --show-current` equals `headRefName`. If not, stop.
 3. Uncommitted changes: stop. Ask the user (in `--auto`, return "blocked: dirty tree"). Never stash or discard.
-4. If the branch is behind `origin/dev` and conflicts, `git fetch origin dev` then `git merge origin/dev`. Resolve per the `AGENTS.md` conflict patterns. If a resolution isn't obvious: default mode asks; `--auto` stops as blocked.
+4. If the branch conflicts with `origin/dev`: default mode follows `AGENTS.md` (Conflict resolution) after the user approves; `--auto` stops as "blocked: needs sync with dev".
 
 ### 2. Research
 
@@ -59,7 +59,7 @@ Also tag each: **agree** (feedback is valid, fix is clear), **disagree** (push b
 
 1. Make approved changes per `CLAUDE.md`; track the files changed.
 2. Run tests relevant to the change (Pester, `bicep build`, lint; see `CLAUDE.md`). Fix failures before continuing. Unfixable failure: default mode asks; `--auto` stops as blocked, no push.
-3. Bug fixes need a test that fails without the fix and passes with it. If none can be written, say why in the reply.
+3. Bug fixes need a test that fails without the fix and passes with it. If none can be written, do not make the fix: ask the user (default) or escalate it (`--auto`).
 4. If the PR title isn't conventional (`type(scope): summary`), propose a fix (default) or correct it (`--auto`) via `gh safe pr-edit` if available; otherwise list it as an escalation.
 
 ### 6. Reply
@@ -87,15 +87,13 @@ Delete `replies.json` afterward. If posting fails because of a pending review (`
 Only if files changed.
 
 1. Default mode: summarize the changes and get approval first. `--auto`: proceed.
-2. Stage only the files you changed. Commit message in conventional format with a `Co-Authored-By: {reviewer} <{reviewer}@users.noreply.github.com>` trailer for every reviewer whose feedback you addressed, plus the AI attribution trailer.
+2. Stage only the files you changed. Commit message in conventional format, plus the AI attribution trailer.
 3. Use `gh safe pr-finalize` to stage, commit, push, and post the summary:
 
    ```bash
    gh safe pr-finalize $PR_NUMBER -Files "a.ps1","b.md" -Message "fix(scope): address PR feedback
 
-   - {changes}
-
-   Co-Authored-By: {reviewer} <{reviewer}@users.noreply.github.com>" -Summary "🤖 [AI][{ai-platform}] **PR Update Summary**
+   - {changes}" -Summary "🤖 [AI][{ai-platform}] **PR Update Summary**
 
    Addressed {n} thread(s): ✅ {n} implemented · 🤔 {n} discussion · ❓ {n} questions"
    ```
@@ -132,6 +130,6 @@ If you hit real friction, propose one concrete edit to this file via AskUserQues
 - [ ] Every thread needing a response has a `🤖 [AI][{ai-platform}]` reply (or is escalated in `--auto`)
 - [ ] Default: user approved the plan and the commit. `--auto`: only clear, in-scope items implemented
 - [ ] Relevant tests pass; bug fixes have a fail-before/pass-after test
-- [ ] Only changed files committed; reviewer `Co-Authored-By` trailers present
-- [ ] Pushed to the PR branch (never `dev`); no rebase, no force-push, PR not merged
+- [ ] Only changed files committed
+- [ ] Pushed to the PR branch (never `dev`); in `--auto` no merge, rebase, or force-push; PR not merged
 - [ ] Summary comment posted

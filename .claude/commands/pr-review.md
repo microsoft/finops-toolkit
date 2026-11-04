@@ -1,7 +1,7 @@
 ---
 description: Review a PR for quality, correctness, and project alignment
 argument-hint: [pr-number] [--auto]
-allowed-tools: Read, Glob, Grep, Bash(gh safe *), Bash(git status:*), Bash(git branch:*), Bash(bicep build:*), Bash(pwsh:*)
+allowed-tools: Read, Write, Glob, Grep, Bash(gh safe *), Bash(git status:*), Bash(git branch:*), Bash(bicep build:*), Bash(pwsh:*)
 ---
 
 # Review pull request

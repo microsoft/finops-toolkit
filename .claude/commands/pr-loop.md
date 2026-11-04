@@ -1,18 +1,18 @@
 ---
 description: Loop review then update on one PR until diminishing returns (max 3 rounds)
 argument-hint: [pr-number] [max-rounds]
-allowed-tools: Read, Edit, Write, Glob, Grep, Agent, Bash(gh safe *), Bash(git status:*), Bash(git branch:*), Bash(git diff:*), Bash(git fetch:*), Bash(git merge:*), Bash(bicep build:*), Bash(pwsh:*), Bash(npm run:*)
+allowed-tools: Read, Edit, Write, Glob, Grep, Agent, Bash(gh safe *), Bash(git status:*), Bash(git branch:*), Bash(git diff:*), Bash(git fetch:*), Bash(bicep build:*), Bash(pwsh:*), Bash(npm run:*)
 ---
 
 # Loop pull request
 
-Repo-scoped version of the `catalyst:pr-loop` skill (same round/exit model; if it's available, its summary format applies). Runs `/pr-review --auto` then `/pr-update --auto` on ONE PR until returns diminish. Unsupervised: it never merges, and anything unsure is escalated, not applied.
+Runs `/pr-review --auto` then `/pr-update --auto` on ONE PR until returns diminish. Unsupervised: it never merges, and anything unsure is escalated, not applied.
 
 **Input:** `$PR_NUMBER`; optional `max-rounds` (default 3, never more).
 
 ## Process
 
-1. **Setup.** Verify the PR is open. Check out its branch (stop if the tree is dirty; follow `AGENTS.md` git policy). Create a round ledger: findings, changes, tests, escalations per round.
+1. **Setup.** Verify the PR is open. Check out its branch (stop if the tree is dirty). Create a round ledger: findings, changes, tests, escalations per round.
 2. **Title gate.** PR title must be conventional (`type(scope): summary`). Fix it now if not (`gh safe pr-edit` if available; else escalate).
 3. **Round (repeat):**
    - **A. Review:** run `/pr-review $PR_NUMBER --auto` in a fresh subagent so it judges the PR as it stands. If you can't spawn subagents (you are one), run it inline and re-read the code, not your earlier reasoning.
