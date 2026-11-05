@@ -3,7 +3,7 @@ title: Configure FinOps hubs recommendations
 description: Learn about the recommendations available in FinOps hubs and how to add custom recommendations.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 11/05/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -148,6 +148,9 @@ Each query file is a JSON file with the following properties:
 | `source`      | Descriptive name for the recommendation source (for example, `"Azure Advisor"` or `"FinOps hubs"`).                                                                                                                                                |
 | `type`        | Programmatic identifier for this recommendation type. Use a `{provider}-{name}` format with alphanumeric characters and hyphens only (for example, `"Contoso-IdleCosmosDB"`). This value is used as part of the output file name.                  |
 | `version`     | Schema version. Use `"1.0"`.                                                                                                                                                                                                                       |
+
+> [!TIP]
+> Don't use `take`, `limit`, or `sample` in your query. Resource Graph stops returning a continuation token when you do, and hubs only ingest the first page of results.
 
 ### Required output columns
 
