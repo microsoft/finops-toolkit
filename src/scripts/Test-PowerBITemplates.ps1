@@ -192,8 +192,11 @@ function Get-WindowTitle([IntPtr] $Handle)
     prompt, and Power BI Desktop's own errors) or ordinary Windows dialogs. UI Automation lists
     neither kind, so they're found from Windows' own list of the process's windows.
 #>
-function Get-DesktopDialog([int] $ProcessId)
+function Get-DesktopDialog([System.Diagnostics.Process] $Process)
 {
+    $ProcessId = $Process.Id
+    $Process.Refresh()
+    $main = $Process.MainWindowHandle
     $dialogs = foreach ($handle in @($win32::GetTopLevelWindows($ProcessId)))
     {
         $title = Get-WindowTitle $handle
@@ -202,7 +205,7 @@ function Get-DesktopDialog([int] $ProcessId)
         $browser = @($win32::GetDescendants($handle) | Where-Object { (Get-WindowClass $_) -eq 'Internet Explorer_Server' }) | Select-Object -First 1
 
         # A dialog that hosts a web page is never the main window, even when its title ends the same way
-        if (-not $browser -and $title -match 'Power BI Desktop$') { continue }
+        if ($handle -eq $main -or (-not $browser -and $title -match ' - Power BI Desktop$')) { continue }
 
         [PSCustomObject]@{ Handle = $handle; Title = $title; Browser = $browser }
     }
@@ -418,6 +421,7 @@ function Test-Template([System.IO.FileInfo] $Template)
         $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
         $pressed = @{}
         $fieldCount = 0
+        $stable = 0
         $unexpected = New-Object System.Collections.Generic.List[string]
         $prompt = $null
 
@@ -429,7 +433,7 @@ function Test-Template([System.IO.FileInfo] $Template)
                 break
             }
 
-            foreach ($dialog in (Get-DesktopDialog $desktop.Id))
+            foreach ($dialog in (Get-DesktopDialog $desktop))
             {
                 $page = Read-DialogPage $dialog
                 $title = if ($dialog.Title) { $dialog.Title } elseif ($page) { $page.Title } else { $null }
@@ -452,7 +456,8 @@ function Test-Template([System.IO.FileInfo] $Template)
                     # Accept it once the field count holds across two reads, so a half-drawn prompt isn't read
                     if ($page -and $page.Parameters.Count -gt 0)
                     {
-                        if ($page.Parameters.Count -eq $fieldCount) { $prompt = $page; if (-not $prompt.Title) { $prompt.Title = $title } } else { $fieldCount = $page.Parameters.Count }
+                        if ($page.Parameters.Count -ne $fieldCount) { $fieldCount = $page.Parameters.Count; $stable = 0 } else { $stable++ }
+                        if ($page.Parameters.Count -ge $expected.Count -or $stable -ge 4) { $prompt = $page; if (-not $prompt.Title) { $prompt.Title = $title } }
                     }
                 }
                 elseif ($title -or ($page -and $page.Text -match '(?i)\b(error|failed|couldn.t|could not|unable)\b'))
@@ -472,12 +477,13 @@ function Test-Template([System.IO.FileInfo] $Template)
         {
             # Give an error that follows the prompt a moment to show, then read what's there
             Start-Sleep -Seconds 3
-            $dialogs = Get-DesktopDialog $desktop.Id
+            $dialogs = Get-DesktopDialog $desktop
             foreach ($dialog in $dialogs)
             {
                 $page = Read-DialogPage $dialog
                 $title = if ($dialog.Title) { $dialog.Title } elseif ($page) { $page.Title } else { $null }
-                if ($title -and $title -ne $label -and $title -ne 'Potential security risk')
+                $isError = $page -and -not $title -and $page.Text -match '(?i)\b(error|failed|couldn.t|could not|unable)\b'
+                if (($title -and $title -ne $label -and $title -ne 'Potential security risk') -or $isError)
                 {
                     $unexpected.Add("'$title' dialog$(if ($page) { ": $($page.Text.Substring(0, [Math]::Min(300, $page.Text.Length)))" })")
                 }
@@ -522,7 +528,7 @@ function Test-Template([System.IO.FileInfo] $Template)
         {
             $want = $expected | Where-Object { $_.Name -eq $parameter.Name } | Select-Object -First 1
             $isSource = $parameter.Name.EndsWith(' URL') -or $parameter.Name -in 'RangeStart', 'RangeEnd'
-            if ($want -and -not $isSource -and $parameter.Value -ne $want.Value)
+            if ($want -and -not $isSource -and "$($parameter.Value)" -ne "$($want.Value)")
             {
                 $failures.Add("'$($parameter.Name)' shows '$($parameter.Value)', expected '$($want.Value)'.")
             }
