@@ -199,9 +199,11 @@ function Get-DesktopDialog([int] $ProcessId)
         $title = Get-WindowTitle $handle
 
         # The main window is titled after the open file, like "Untitled - Power BI Desktop"
-        if ($title -match 'Power BI Desktop$') { continue }
-
         $browser = @($win32::GetDescendants($handle) | Where-Object { (Get-WindowClass $_) -eq 'Internet Explorer_Server' }) | Select-Object -First 1
+
+        # A dialog that hosts a web page is never the main window, even when its title ends the same way
+        if (-not $browser -and $title -match 'Power BI Desktop$') { continue }
+
         [PSCustomObject]@{ Handle = $handle; Title = $title; Browser = $browser }
     }
     return , @($dialogs | Where-Object { $_ })
@@ -228,9 +230,9 @@ function Read-DialogPage($Dialog)
         $elements = @($document.getElementsByTagName('div'))
         $title = $elements | Where-Object { $_.id -eq 'dialogTitle' } | Select-Object -First 1
         $body = @($document.getElementsByTagName('body')) | Select-Object -First 1
-        $parameters = foreach ($field in @($elements | Where-Object { $_.className -eq 'o-group-fieldTemplate' }))
+        $parameters = foreach ($field in @($elements | Where-Object { $_.className -match '\bo-group-fieldTemplate\b' }))
         {
-            $label = @($field.getElementsByTagName('*') | Where-Object { $_.className -eq 'o-content-label' }) | Select-Object -First 1
+            $label = @($field.getElementsByTagName('*') | Where-Object { $_.className -match '\bo-content-label\b' }) | Select-Object -First 1
             $box = @($field.getElementsByTagName('input')) | Select-Object -First 1
             if ($label) { [PSCustomObject]@{ Name = Get-HtmlText $label; Value = if ($box) { "$($box.value)" } else { $null } } }
         }
@@ -322,6 +324,7 @@ function Read-PbitText([string] $File, [string] $Part)
     }
     finally { $archive.Dispose() }
 
+    if ($bytes.Length -ge 2 -and $bytes[0] -eq 0xFE -and $bytes[1] -eq 0xFF) { return [System.Text.Encoding]::BigEndianUnicode.GetString($bytes, 2, $bytes.Length - 2) }
     if ($bytes.Length -ge 2 -and $bytes[0] -eq 0xFF -and $bytes[1] -eq 0xFE) { return [System.Text.Encoding]::Unicode.GetString($bytes, 2, $bytes.Length - 2) }
     if ($bytes.Length -ge 4 -and $bytes[1] -eq 0 -and $bytes[3] -eq 0) { return [System.Text.Encoding]::Unicode.GetString($bytes) }
     return [System.Text.Encoding]::UTF8.GetString($bytes).TrimStart([char]0xFEFF)
@@ -396,13 +399,14 @@ function Test-Template([System.IO.FileInfo] $Template)
         $expected = Get-ExpectedPrompt $Template.FullName
 
         $existing = @(Get-Process PBIDesktop -ErrorAction SilentlyContinue | ForEach-Object { $_.Id })
+        $launched = (Get-Date).AddSeconds(-1)
         Start-Process -FilePath $Template.FullName
 
         # Power BI Desktop is found by being new, so only a process this script started is ever ended
         $limit = (Get-Date).AddSeconds(120)
         while (-not $desktop -and (Get-Date) -lt $limit)
         {
-            $desktop = Get-Process PBIDesktop -ErrorAction SilentlyContinue | Where-Object { $existing -notcontains $_.Id } | Select-Object -First 1
+            $desktop = Get-Process PBIDesktop -ErrorAction SilentlyContinue | Where-Object { $existing -notcontains $_.Id -and $_.StartTime -ge $launched } | Sort-Object StartTime | Select-Object -First 1
             if (-not $desktop) { Start-Sleep -Milliseconds 500 }
         }
         if (-not $desktop)
@@ -413,6 +417,7 @@ function Test-Template([System.IO.FileInfo] $Template)
 
         $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
         $pressed = @{}
+        $fieldCount = 0
         $unexpected = New-Object System.Collections.Generic.List[string]
         $prompt = $null
 
@@ -444,7 +449,11 @@ function Test-Template([System.IO.FileInfo] $Template)
                 elseif ($title -eq $label)
                 {
                     # The prompt appears before its fields are drawn
-                    if ($page -and $page.Parameters.Count -gt 0) { $prompt = $page }
+                    # Accept it once the field count holds across two reads, so a half-drawn prompt isn't read
+                    if ($page -and $page.Parameters.Count -gt 0)
+                    {
+                        if ($page.Parameters.Count -eq $fieldCount) { $prompt = $page; if (-not $prompt.Title) { $prompt.Title = $title } } else { $fieldCount = $page.Parameters.Count }
+                    }
                 }
                 elseif ($title -or ($page -and $page.Text -match '(?i)\b(error|failed|couldn.t|could not|unable)\b'))
                 {
@@ -472,7 +481,7 @@ function Test-Template([System.IO.FileInfo] $Template)
                 {
                     $unexpected.Add("'$title' dialog$(if ($page) { ": $($page.Text.Substring(0, [Math]::Min(300, $page.Text.Length)))" })")
                 }
-                if ($title -eq $label -and $page -and $page.Parameters.Count -gt 0) { $prompt = $page }
+                if ($title -eq $label -and $page -and $page.Parameters.Count -gt 0) { $prompt = $page; if (-not $prompt.Title) { $prompt.Title = $title } }
             }
 
             $result.Screenshot = Save-Screenshot (Join-Path $ScreenshotPath "$label.png")
