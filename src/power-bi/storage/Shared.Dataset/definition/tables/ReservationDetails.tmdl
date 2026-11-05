@@ -85,7 +85,8 @@ table ReservationDetails
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column x_IncrementalRefreshDate
-		dataType: string
+		dataType: dateTime
+		formatString: General Date
 		lineageTag: 7631c2d6-b330-42de-8588-967752ced645
 		summarizeBy: none
 		sourceColumn: x_IncrementalRefreshDate

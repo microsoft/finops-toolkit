@@ -108,7 +108,8 @@ table Prices
 		annotation SummarizationSetBy = Automatic
 
 	column x_IncrementalRefreshDate
-		dataType: string
+		dataType: dateTime
+		formatString: General Date
 		lineageTag: 55e08448-a8ac-4f16-98f3-915f443d4117
 		summarizeBy: none
 		sourceColumn: x_IncrementalRefreshDate
