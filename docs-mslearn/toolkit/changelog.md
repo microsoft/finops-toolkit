@@ -47,6 +47,12 @@ _Released November 2026_
 - **Added**
   - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
 
+### [Power BI reports](power-bi/reports.md) v16
+
+- **Fixed**
+  - Fixed the storage-based Costs query failing to refresh with `Type mismatch (DISP_E_TYPEMISMATCH 0x80020005)` when a row SKU details did not carry a clean numeric VCPUs/vCores value ([#2297](https://github.com/microsoft/finops-toolkit/issues/2297)).
+    - The value is now coerced to null instead of throwing.
+
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
 - **Added**

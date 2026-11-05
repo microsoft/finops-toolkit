@@ -257,7 +257,7 @@ let
         {"UsageType",      "ImageType",      "ServiceType", "VMName",     "VMProperties",      "VCPUs",       "ReservationOrderId",         "ReservationId",         "VMCapacityReservationId", "AHB",        "vCores"},
         {"x_SkuUsageType", "x_SkuImageType", "x_SkuType",   "tmp_VMName", "x_SkuVMProperties", "tmp_VMvCPUs", "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "x_CapacityCommitmentId",  "tmp_SQLAHB", "tmp_SQLvCores"}
     ),
-    SkuDetailsDict_types       = Table.TransformColumnTypes(SkuDetailsDict_expand, {{"tmp_VMvCPUs", Int64.Type}, {"tmp_SQLvCores", Int64.Type}}),
+    SkuDetailsDict_types       = Table.TransformColumns(SkuDetailsDict_expand, {{"tmp_VMvCPUs", each try Int64.From(_) otherwise null, Int64.Type}, {"tmp_SQLvCores", each try Int64.From(_) otherwise null, Int64.Type}}),
 
     // Columns from AddlInfo -- Must be after ResourceName cleanup
     ResourceMachineName = _swapCol(SkuDetailsDict_types,       "tmp_VMName",         "x_ResourceMachineName", each if _isNotBlank([tmp_VMName]) then [tmp_VMName] else null),
