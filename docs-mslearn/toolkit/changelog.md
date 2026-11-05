@@ -124,6 +124,7 @@ _Released October 28, 2026_
     - Summary and Rate optimization tiles now exclude purchase rows consistently.
   - Fixed understated commitment discount savings when duplicate reservation price rows exist ([#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
     - The reservation price backfill now uses the highest on-demand price when duplicate price rows exist.
+  - Fixed reservation prices not backfilling when Actual and Amortized costs carried the full billing profile path instead of the short ID ([#2356](https://github.com/microsoft/finops-toolkit/issues/2356)).
   - Fixed unnecessary `ContractedCost` rewrites that cluttered the `x_SourceValues` audit trail ([#2216](https://github.com/microsoft/finops-toolkit/issues/2216)).
     - Removed millions of no-op rewrites caused by exact floating-point comparisons.
     - Still backfills null costs, and no longer overwrites an existing cost when the unit price is missing.
