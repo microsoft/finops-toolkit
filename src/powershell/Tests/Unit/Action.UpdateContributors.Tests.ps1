@@ -17,35 +17,18 @@ Describe 'update-contributors GitHub Action' {
         $workflowContent | Should -Match 'workflow_dispatch:\s*\r?\n\s+inputs:\s*\r?\n\s+since:'
     }
 
-    It 'Should run on pull requests but never on push or pull_request_target' {
+    It 'Should never run on push, pull_request, or pull_request_target' {
         # pull_request_target would give fork PRs a write token
-        $workflowContent | Should -Match 'on:\s*\r?\n\s+pull_request:\s*\r?\n\s+types:\s*\[opened, synchronize, reopened\]'
-        $workflowContent | Should -Not -Match '\n\s+(push|pull_request_target):'
-    }
-
-    It 'Should only credit same-repo pull requests and skip its own automation branch' {
-        $workflowContent | Should -Match 'github\.event\.pull_request\.head\.repo\.full_name == github\.repository'
-        $workflowContent | Should -Match "github\.head_ref != 'automation/update-contributors'"
-    }
-
-    It 'Should credit the pull request with -PullRequest' {
-        $workflowContent | Should -Match 'Update-Contributors\.ps1 -PullRequest \(\[int\]\$env:PR_NUMBER\) -Apply'
-        $workflowContent | Should -Match 'PR_NUMBER:\s*\$\{\{\s*github\.event\.pull_request\.number\s*\}\}'
+        $workflowContent | Should -Not -Match '\n\s+(push|pull_request|pull_request_target):'
     }
 
     It 'Should grant no permissions by default and only what each job needs' {
         $workflowContent | Should -Match '(?m)^permissions:\s*\{\}'
-        # credit-pr only pushes a commit; update also opens the pull request
-        $workflowContent | Should -Match 'credit-pr:[\s\S]*?permissions:\s*\r?\n\s+contents:\s*write\s*\r?\n\s+# '
         $workflowContent | Should -Match 'update:[\s\S]*?permissions:\s*\r?\n\s+contents:\s*write\s*\r?\n\s+pull-requests:\s*write'
     }
 
     It 'Should set up Node.js 22.22 or later before installing the CLI' {
         $workflowContent | Should -Match "node-version:\s*'22\.22'"
-    }
-
-    It 'Should retry the push after rebasing onto the PR branch' {
-        $workflowContent | Should -Match 'git pull --rebase origin'
     }
 
     It 'Should only run the weekly job in the upstream repo, from dev' {
