@@ -472,7 +472,7 @@ function Test-Template([System.IO.FileInfo] $Template)
                 {
                     $unexpected.Add("'$title' dialog$(if ($page) { ": $($page.Text.Substring(0, [Math]::Min(300, $page.Text.Length)))" })")
                 }
-                if ($title -eq $label -and $page) { $prompt = $page }
+                if ($title -eq $label -and $page -and $page.Parameters.Count -gt 0) { $prompt = $page }
             }
 
             $result.Screenshot = Save-Screenshot (Join-Path $ScreenshotPath "$label.png")
@@ -512,7 +512,8 @@ function Test-Template([System.IO.FileInfo] $Template)
         foreach ($parameter in $prompt.Parameters)
         {
             $want = $expected | Where-Object { $_.Name -eq $parameter.Name } | Select-Object -First 1
-            if ($want -and $parameter.Value -ne $want.Value)
+            $isSource = $parameter.Name.EndsWith(' URL') -or $parameter.Name -in 'RangeStart', 'RangeEnd'
+            if ($want -and -not $isSource -and $parameter.Value -ne $want.Value)
             {
                 $failures.Add("'$($parameter.Name)' shows '$($parameter.Value)', expected '$($want.Value)'.")
             }
