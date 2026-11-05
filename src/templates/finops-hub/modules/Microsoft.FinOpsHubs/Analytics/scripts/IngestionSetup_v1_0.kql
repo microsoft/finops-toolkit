@@ -853,6 +853,9 @@ ActualCosts_transform_v1_0()
     // TODO: Add the following in 1.2: ServiceSubcategory, PublisherName, x_PublisherCategory, x_Environment, x_ServiceModel
     | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) | summarize take_any(ServiceName), take_any(ServiceCategory) by x_ResourceType) on x_ResourceType
     | lookup kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory) by ConsumedService = x_ConsumedService) on ConsumedService
+    // Recovery Services vaults host both Azure Backup and Azure Site Recovery; split by meter category (#1751)
+    | extend ServiceName = iff(x_ResourceType =~ 'microsoft.recoveryservices/vaults' and MeterCategory =~ 'Backup', 'Azure Backup', ServiceName)
+    | extend ServiceCategory = iff(x_ResourceType =~ 'microsoft.recoveryservices/vaults' and MeterCategory =~ 'Backup', 'Storage', ServiceCategory)
     | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
     | project
         AvailabilityZone = AvailabilityZone,
@@ -1075,6 +1078,9 @@ AmortizedCosts_transform_v1_0()
     // TODO: Add the following in 1.2: ServiceSubcategory, PublisherName, x_PublisherCategory, x_Environment, x_ServiceModel
     | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) | summarize take_any(ServiceName), take_any(ServiceCategory) by x_ResourceType) on x_ResourceType
     | lookup kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory) by ConsumedService = x_ConsumedService) on ConsumedService
+    // Recovery Services vaults host both Azure Backup and Azure Site Recovery; split by meter category (#1751)
+    | extend ServiceName = iff(x_ResourceType =~ 'microsoft.recoveryservices/vaults' and MeterCategory =~ 'Backup', 'Azure Backup', ServiceName)
+    | extend ServiceCategory = iff(x_ResourceType =~ 'microsoft.recoveryservices/vaults' and MeterCategory =~ 'Backup', 'Storage', ServiceCategory)
     | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
     | project
         AvailabilityZone = AvailabilityZone,

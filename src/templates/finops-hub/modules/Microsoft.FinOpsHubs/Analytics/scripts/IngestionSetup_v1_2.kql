@@ -1132,6 +1132,10 @@ ActualCosts_transform_v1_2()
     // TODO: Add the following in 1.2: PublisherName, x_PublisherCategory, x_Environment
     | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) | summarize take_any(ServiceName), take_any(ServiceCategory), take_any(ServiceSubcategory), take_any(x_ServiceModel) by x_ResourceType) on x_ResourceType
     | lookup kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory), take_any(ServiceSubcategory), take_any(x_ServiceModel) by ConsumedService = x_ConsumedService) on ConsumedService
+    // Recovery Services vaults host both Azure Backup and Azure Site Recovery; split by meter category (#1751)
+    | extend ServiceName = iff(x_ResourceType =~ 'microsoft.recoveryservices/vaults' and MeterCategory =~ 'Backup', 'Azure Backup', ServiceName)
+    | extend ServiceCategory = iff(x_ResourceType =~ 'microsoft.recoveryservices/vaults' and MeterCategory =~ 'Backup', 'Storage', ServiceCategory)
+    | extend ServiceSubcategory = iff(x_ResourceType =~ 'microsoft.recoveryservices/vaults' and MeterCategory =~ 'Backup', 'Backup Storage', ServiceSubcategory)
     | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
     | project
         AvailabilityZone = AvailabilityZone,
@@ -1353,6 +1357,10 @@ AmortizedCosts_transform_v1_2()
     // TODO: Add the following in 1.2: PublisherName, x_PublisherCategory, x_Environment
     | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) | summarize take_any(ServiceName), take_any(ServiceCategory), take_any(ServiceSubcategory), take_any(x_ServiceModel) by x_ResourceType) on x_ResourceType
     | lookup kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory), take_any(ServiceSubcategory), take_any(x_ServiceModel) by ConsumedService = x_ConsumedService) on ConsumedService
+    // Recovery Services vaults host both Azure Backup and Azure Site Recovery; split by meter category (#1751)
+    | extend ServiceName = iff(x_ResourceType =~ 'microsoft.recoveryservices/vaults' and MeterCategory =~ 'Backup', 'Azure Backup', ServiceName)
+    | extend ServiceCategory = iff(x_ResourceType =~ 'microsoft.recoveryservices/vaults' and MeterCategory =~ 'Backup', 'Storage', ServiceCategory)
+    | extend ServiceSubcategory = iff(x_ResourceType =~ 'microsoft.recoveryservices/vaults' and MeterCategory =~ 'Backup', 'Backup Storage', ServiceSubcategory)
     | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
     | project
         AvailabilityZone = AvailabilityZone,
