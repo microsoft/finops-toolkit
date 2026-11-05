@@ -1,6 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+#Requires -Version 7.0
+
 <#
     .SYNOPSIS
     Opens each Power BI template (PBIT) in Power BI Desktop and checks what a person sees.
@@ -102,8 +104,8 @@ $ScreenshotPath = [System.IO.Path]::GetFullPath($ScreenshotPath, $PWD.Path)
 if (-not $KQL -and -not $Storage) { $KQL = $Storage = $true }
 
 $templates = @(
-    if (Test-Path $Path -PathType Leaf) { Get-Item $Path }
-    elseif (Test-Path $Path -PathType Container) { Get-ChildItem $Path -Filter '*.pbit' }
+    if (Test-Path -LiteralPath $Path -PathType Leaf) { Get-Item -LiteralPath $Path }
+    elseif (Test-Path -LiteralPath $Path -PathType Container) { Get-ChildItem -LiteralPath $Path -Filter '*.pbit' }
 ) | Where-Object {
     $report, $type = $_.BaseName -split '\.'
     $report -like $Name -and (($type -eq 'kql' -and $KQL) -or ($type -eq 'storage' -and $Storage))
@@ -291,8 +293,8 @@ function Stop-Desktop([System.Diagnostics.Process] $Process)
 {
     if (-not $Process -or $Process.HasExited) { return }
 
-    Get-CimInstance Win32_Process -Filter "ParentProcessId = $($Process.Id)" -ErrorAction SilentlyContinue `
-    | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+    # taskkill /T ends the whole process tree, including the engine and browser processes it started
+    $null = & taskkill.exe /PID $Process.Id /T /F 2>&1
     Stop-Process -Id $Process.Id -Force -ErrorAction SilentlyContinue
     try { [void]$Process.WaitForExit(10000) } catch { Write-Verbose "Could not wait for Power BI Desktop to exit: $($_.Exception.Message)" }
 }
@@ -349,12 +351,12 @@ function Get-ExpectedPrompt([string] $File)
         if ($text -notmatch '(?s)^\s*(?<value>.+?)\s+meta\s*\[(?<meta>[^\]]*IsParameterQuery\s*=\s*true[^\]]*)\]\s*$') { continue }
 
         $value = $Matches.value
-        if ($Matches.meta -match 'DefaultValue\s*=\s*(?<default>"[^"]*"|[^,\]\s]+)') { $value = $Matches.default }
+        if ($Matches.meta -match 'DefaultValue\s*=\s*(?<default>"(?:[^"]|"")*"|[^,\]\s]+)') { $value = $Matches.default }
 
         $shown = switch -Regex ($value)
         {
             '^null$' { '' }
-            '^"(?<text>.*)"$' { $Matches.text }
+            '^"(?<text>.*)"$' { $Matches.text -replace '""', '"' }
             '^(true|false)$' { $value.ToUpperInvariant() }
             default { $value }
         }
@@ -362,7 +364,7 @@ function Get-ExpectedPrompt([string] $File)
         $parameters.Add([PSCustomObject]@{ Name = $expression.name; Value = $shown; Order = if ($index -ge 0) { $index } else { [int]::MaxValue } })
     }
 
-    return @($parameters | Sort-Object Order)
+    return @($parameters | Sort-Object Order -Stable)
 }
 
 #endregion Helpers
@@ -482,7 +484,7 @@ function Test-Template([System.IO.FileInfo] $Template)
         if (-not $prompt)
         {
             $result.Screenshot = Save-Screenshot (Join-Path $ScreenshotPath "$label.png")
-            if ($unexpected.Count -eq 0) { $failures.Add("The parameter prompt did not appear within $TimeoutSeconds seconds.") }
+            if ($unexpected.Count -eq 0 -and $failures.Count -eq 0) { $failures.Add("The parameter prompt did not appear within $TimeoutSeconds seconds.") }
             return $result
         }
 
