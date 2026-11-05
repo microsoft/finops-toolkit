@@ -28,7 +28,7 @@ The following section lists features and enhancements that are currently in deve
 ### [FinOps hubs](hubs/finops-hubs-overview.md)
 
 - **Added**
-  - Added optional guidance to scope FinOps hub data by subscription with Azure Data Explorer row-level security, so each team sees only its own subscriptions in KQL, dashboards, and AI agents ([#2372](https://github.com/microsoft/finops-toolkit/issues/2372)).
+  - Added optional guidance to scope FinOps hub data by team with row-level security, so each team sees only its own scopes in KQL queries, dashboards, and AI agents ([#2374](https://github.com/microsoft/finops-toolkit/pull/2374)).
 
 -->
 

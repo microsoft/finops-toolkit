@@ -1,9 +1,9 @@
 ---
 title: Configure row-level security for FinOps hubs
-description: Optionally limit which subscriptions each team can see in a FinOps hub by using row-level security in Azure Data Explorer, so KQL queries, dashboards, and AI agents only return the rows a user is allowed to see.
+description: Scope FinOps hub data by team with row-level security in Azure Data Explorer, so KQL queries, dashboards, and AI agents return only the rows a user may see.
 author: keerthimath
-ms.author: keerthimath
-ms.date: 10/26/2026
+ms.author: micflan
+ms.date: 11/05/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -14,24 +14,27 @@ ms.reviewer: micflan
 <!-- markdownlint-disable MD024 -->
 # Configure row-level security for FinOps hubs
 
-Row-level security for FinOps hubs is an optional, opt-in pattern for hubs that use Azure Data Explorer. Nothing in the FinOps hub template changes: you add it to an existing hub, and you can remove it at any time. By default, anyone with the Viewer role on the hub databases can see all cost data in the hub. When several teams share one hub, you might want each team to see only the cost of the subscriptions they own.
+Row-level security for FinOps hubs is an optional, opt-in pattern for hubs that use Azure Data Explorer or Microsoft Fabric. Nothing in the FinOps hub template changes: you add it to an existing hub, and you can remove it at any time. By default, anyone with the Viewer role on the hub databases can see all cost data in the hub. When several teams share one hub, you might want each team to see only the cost of the scopes they own.
 
-Azure Data Explorer [row-level security](/kusto/management/row-level-security-policy) (RLS) filters the rows of a table for every query, based on who runs it. Because it runs in the database, it applies everywhere users query the hub with their own identity: KQL in the Data Explorer web UI, Data Explorer dashboards, and AI agents that query the hub as the signed-in user.
+Azure Data Explorer [row-level security](/kusto/management/row-level-security-policy) filters the rows of a table for every query, based on who runs it. Because it runs in the database, it applies everywhere users query the hub with their own identity: Kusto Query Language (KQL) queries in the Data Explorer web UI, Data Explorer dashboards, and AI agents that query the hub as the signed-in user.
 
 This article walks you through scoping FinOps hub data by subscription with row-level security.
+
+> [!IMPORTANT]
+> Row-level security is a customization you add on top of a deployed FinOps hub, not a feature of the hub. The hub template doesn't deploy, upgrade, or remove the functions and policies described here. You own them: keep your own copy of the function, recheck the policies after every hub upgrade, and expect to maintain them as table versions change.
 
 <br>
 
 ## Limitations
 
-Review these limitations before you start:
+Review these limitations, and the [row-level security policy limitations](/kusto/management/row-level-security-policy#limitations) in the Kusto docs, before you start:
 
-- **Azure Data Explorer only**: This article covers hubs that use Azure Data Explorer. Microsoft Fabric eventhouses are out of scope.
+- **Microsoft Fabric**: This procedure was validated on hubs that use Azure Data Explorer. Fabric eventhouses support the same row-level security and restricted view access policies, but the steps haven't been tested there.
 - **Raw tables**: Row-level security can't be enabled on the raw tables in the **Ingestion** database, like `Costs_raw`, because they feed update policies. This guide requires the hub's raw retention (`dataExplorerRawRetentionInDays`) to be `0`, the default, and the raw tables to be empty, so they hold no rows to expose. Hubs that retain raw data are out of scope: the [restricted view access policy](/kusto/management/restricted-view-access-policy) isn't an alternative, because the hub's update policies read the raw tables, and [update policies can't read tables that have restricted view access enabled](/kusto/management/update-policy#query-limitations).
-- **Service identities**: Row-level security applies to every principal. Every service identity that queries the hub, like the Data Factory managed identity used for ingestion and any identity that refreshes reports or runs alerts, must be in the allow-all list, or it silently sees no rows.
+- **Service identities**: Row-level security applies to every principal that queries the hub. Every service identity that reads hub data, like a service principal that refreshes a Power BI semantic model or an identity that runs alert queries, must be in the allow-all list, or it silently sees no rows. Hub ingestion doesn't need to be: the Azure Data Factory managed identity only runs management commands, like ingesting into the raw tables and dropping extents, and the update policies move the data into the final tables.
 - **Rows without a subscription**: Rows with an empty `SubAccountId`, like billing account level purchases and shared reservations, match no team. Only principals in the allow-all list see them.
-- **Hub upgrades**: Row-level security is bound to table names. A hub upgrade can add or change tables, for example a new table version, which then has no policy. Re-check row-level security after every hub upgrade.
-- **Shared identities**: Reports and dashboards that query the hub with a shared identity, like a Power BI dataset that refreshes with a service account, see what that identity sees, not what each viewer may see.
+- **Hub upgrades**: Row-level security is bound to table names. A hub upgrade can add or change tables, for example a new table version, which then has no policy. Recheck row-level security after every hub upgrade.
+- **Power BI and shared identities**: In the toolkit's KQL reports, the tables that read the cluster are DirectQuery. With **Use SSO via Microsoft Entra ID for DirectQuery queries** enabled on the semantic model's data source, each viewer's own identity runs the queries, so row-level security applies per viewer. Without single sign-on, and for any Import table, including summary tables built at refresh, the stored or refresh identity decides what every viewer sees, like a Power BI semantic model that refreshes with a service account. The same applies to any other report or dashboard that queries the hub with a shared identity.
 - **Rows only**: Row-level security filters rows, not metadata. Users with Viewer access can still list the database's principals and see table and function definitions, and can query every table you don't protect, so keep the hub databases limited to FinOps data.
 
 <br>
@@ -48,7 +51,7 @@ Review these limitations before you start:
 
 ## How it works
 
-The functions in the **Hub** database, like `Costs()`, read the final tables in the **Ingestion** database. Each final table has a `v1_0` and a `v1_2` version, and the functions read both. To scope the hub by subscription, protect each final table that has a `SubAccountId` column with its own row-level security function:
+The functions in the **Hub** database, like `Costs()`, read the final tables in the **Ingestion** database. Each final table has a `v1_0` and a `v1_2` version, and the functions read both. To scope the hub by subscription, attach a row-level security policy to each final table that has a `SubAccountId` column:
 
 | Table                           | Versions         |
 | ------------------------------- | ---------------- |
@@ -57,7 +60,7 @@ The functions in the **Hub** database, like `Costs()`, read the final tables in 
 | `Recommendations_final`         | `_v1_0`, `_v1_2` |
 | `Transactions_final`            | `_v1_0`, `_v1_2` |
 
-Each function returns all rows for an allow-all list of admins and service identities, and for everyone else only the rows of the subscriptions mapped to the Entra groups they belong to. A user in several teams sees the subscriptions of all of their teams. Price tables aren't subscription specific and aren't filtered.
+All eight policies use one function that takes the table name as a parameter. It returns all rows for an allow-all list of admins and service identities, and for everyone else only the rows of the subscriptions mapped to the Microsoft Entra groups they belong to. A user in several teams sees the subscriptions of all of their teams. Price tables aren't subscription specific and aren't filtered.
 
 <br>
 
@@ -105,36 +108,35 @@ Costs_final_v1_2
 | summarize by SubAccountId
 ```
 
-### Step 2: Create the row-level security functions
+### Step 2: Create the row-level security function
 
-Create one function per table in the **Ingestion** database. This example scopes `Costs_final_v1_2` for two teams. Replace the principals, tenant ID, and subscriptions with your own. Use `aadgroup=<object-id>;<tenant-id>` for groups, `aaduser=<object-id>;<tenant-id>` for users, and `aadapp=<application-id>;<tenant-id>` for applications and managed identities.
+Create one function in the **Ingestion** database. It takes the table name as a parameter and reads that table with `table()`, following the Kusto docs' pattern for [applying the same function to multiple tables](/kusto/management/row-level-security-policy#apply-the-same-rls-function-on-multiple-tables). This example maps two teams. Replace the principals, tenant ID, and subscriptions with your own. Use `aadgroup=<object-id>;<tenant-id>` for groups, `aaduser=<object-id>;<tenant-id>` for users, and `aadapp=<application-id>;<tenant-id>` for applications and managed identities.
 
 ```kusto
-.create-or-alter function with (folder="security", docstring="Subscription scoping for FinOps hubs") FinOpsRls_Costs_v1_2() {
+.create-or-alter function with (folder="security", docstring="Scope filter for FinOps hubs") FinOpsRls(TableName: string) {
     let allow_all = current_principal_is_member_of(
-        'aadgroup=<finops-admins-group-id>;<tenant-id>',
-        'aadapp=<data-factory-identity-id>;<tenant-id>');
+        'aadgroup=<finops-admins-group-id>;<tenant-id>');
     let team_a = iff(current_principal_is_member_of('aadgroup=<team-a-group-id>;<tenant-id>'),
         dynamic(['/subscriptions/<team-a-subscription-id>']), dynamic([]));
     let team_b = iff(current_principal_is_member_of('aadgroup=<team-b-group-id>;<tenant-id>'),
         dynamic(['/subscriptions/<team-b-subscription-id-1>', '/subscriptions/<team-b-subscription-id-2>']), dynamic([]));
     let allowed = array_concat(team_a, team_b);
-    Costs_final_v1_2
+    table(TableName)
     | where allow_all or set_has_element(allowed, tolower(SubAccountId))
 }
 ```
 
-Write the subscription IDs in lowercase, because the function compares them with the lowercased `SubAccountId`. Repeat for the other seven tables with the same principals and teams. Keep the lists identical in every function, or a team sees different data in different functions.
+Write the subscription IDs in lowercase, because the function compares them with the lowercased `SubAccountId`. The group mapping has to stay as string literals, because `current_principal_is_member_of()` doesn't accept non-literal values. To change teams without editing the function, use a mapping table keyed on the user instead, as shown in the Kusto docs.
 
 ### Step 3: Test before you enable
 
-Creating the function doesn't change anything yet. Attach it to the table as a **disabled** policy. A disabled policy doesn't affect anyone, but it lets you apply it to your own queries:
+Creating the function doesn't change anything yet. Attach it to each final table as a **disabled** policy, passing the table's name. A disabled policy doesn't affect anyone, but it lets you apply it to your own queries:
 
 ```kusto
-.alter table Costs_final_v1_2 policy row_level_security disable "FinOpsRls_Costs_v1_2()"
+.alter table Costs_final_v1_2 policy row_level_security disable "FinOpsRls('Costs_final_v1_2')"
 ```
 
-Then check that you keep seeing all rows when the policy is applied to you. `set query_force_row_level_security` applies the table's policy to your query even while it's disabled. Both counts must match:
+Repeat for the other seven tables. Then check, for each table, that you keep seeing all rows when the policy is applied to you. `set query_force_row_level_security` applies the table's policy to your query even while it's disabled. Both counts must match:
 
 ```kusto
 Costs_final_v1_2
@@ -154,7 +156,7 @@ If the second count is lower, your identity isn't in the allow-all list. Fix the
 Enable the policy on each table in the **Ingestion** database:
 
 ```kusto
-.alter table Costs_final_v1_2 policy row_level_security enable "FinOpsRls_Costs_v1_2()"
+.alter table Costs_final_v1_2 policy row_level_security enable "FinOpsRls('Costs_final_v1_2')"
 ```
 
 Run the row count again right away. If it dropped, [roll back](#roll-back) and check the allow-all list.
@@ -207,10 +209,10 @@ Every `Costs`, `CommitmentDiscountUsage`, `Recommendations`, and `Transactions` 
 To turn off scoping for a table, disable its policy. The function stays and can be enabled again later:
 
 ```kusto
-.alter table Costs_final_v1_2 policy row_level_security disable "FinOpsRls_Costs_v1_2()"
+.alter table Costs_final_v1_2 policy row_level_security disable "FinOpsRls('Costs_final_v1_2')"
 ```
 
-To add a team or change its subscriptions, update all eight functions with the same lists. Removing a team from the functions doesn't remove its Viewer access; remove that separately with `.drop database ['Hub'] viewers (...)` and the same command for **Ingestion**.
+To add a team or change its subscriptions, edit the one function; all eight policies use it. Removing a team from the functions doesn't remove its Viewer access; remove that separately with `.drop database ['Hub'] viewers (...)` and the same command for **Ingestion**.
 
 <br>
 
