@@ -304,9 +304,9 @@ InModuleScope 'FinOpsToolkit' {
             }
 
             It 'Should pass enableKeyVaultRbacAuthorization when the switch is set on version <Version>' -TestCases @(
-                @{ Version = '15.0' }
-                @{ Version = '15' }
-                @{ Version = 'v15' }
+                @{ Version = '16.0' }
+                @{ Version = '16' }
+                @{ Version = 'v16' }
             ) {
                 param($Version)
                 { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -EnableKeyVaultRbacAuthorization -Version $Version } | Should -Not -Throw
@@ -316,11 +316,11 @@ InModuleScope 'FinOpsToolkit' {
             }
 
             It 'Should throw a friendly error when -EnableKeyVaultRbacAuthorization targets version <Version>' -TestCases @(
-                @{ Version = '14.0' }
+                @{ Version = '15.0' }
                 @{ Version = '14' }
             ) {
                 param($Version)
-                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -EnableKeyVaultRbacAuthorization -Version $Version } | Should -Throw -ExpectedMessage '*15*'
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -EnableKeyVaultRbacAuthorization -Version $Version } | Should -Throw -ExpectedMessage '*16*'
                 Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -Times 0
             }
 

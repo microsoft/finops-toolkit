@@ -281,10 +281,10 @@ function Deploy-FinOpsHub
             throw "NAT Gateway / private network mode requires hub template version 15.0 or later. Current version: $Version"
         }
 
-        # Key Vault RBAC authorization requires hub template version 15.0 or later
-        if ($EnableKeyVaultRbacAuthorization -and $Version -ne 'latest' -and $templateVersion -lt '15.0')
+        # Key Vault RBAC authorization requires hub template version 16.0 or later
+        if ($EnableKeyVaultRbacAuthorization -and $Version -ne 'latest' -and $templateVersion -lt '16.0')
         {
-            throw "-EnableKeyVaultRbacAuthorization requires hub template version 15.0 or later. Current version: $Version"
+            throw "-EnableKeyVaultRbacAuthorization requires hub template version 16.0 or later. Current version: $Version"
         }
 
         # Download template
@@ -356,7 +356,7 @@ function Deploy-FinOpsHub
                 $parameterSplat.TemplateParameterObject.Add('enablePurgeProtection', $EnablePurgeProtection.IsPresent)
             }
 
-            if ($EnableKeyVaultRbacAuthorization -and ($Version -eq 'latest' -or $templateVersion -ge '15.0'))
+            if ($EnableKeyVaultRbacAuthorization -and ($Version -eq 'latest' -or $templateVersion -ge '16.0'))
             {
                 $parameterSplat.TemplateParameterObject.Add('enableKeyVaultRbacAuthorization', $true)
             }

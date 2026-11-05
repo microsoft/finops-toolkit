@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/28/2026
+ms.date: 11/04/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -42,6 +42,18 @@ _Released November 2026_
 
 <br>
 
+### [FinOps hubs](hubs/finops-hubs-overview.md) v16
+
+- **Added**
+  - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+
+### [PowerShell module](powershell/powershell-commands.md) v16
+
+- **Added**
+  - Added a `-EnableKeyVaultRbacAuthorization` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that moves the hub Key Vault from access policies to Azure RBAC. Requires hub template version 16.0 or later ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+
+<br>
+
 ## v15
 
 _Released October 28, 2026_
@@ -75,7 +87,6 @@ _Released October 28, 2026_
     - Generated at build time from the open data CSV files, so the local hub stays in sync with published open data.
   - Added VNet and private network modes, including opt-in NAT Gateway support for private mode ([#2161](https://github.com/microsoft/finops-toolkit/issues/2161)).
     - NAT Gateway adds cost when enabled.
-  - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
 - **Changed**
   - Updated the hub database guide to explain how columns are organized and corrected the `Costs()` column reference to match the deployed schema ([#2325](https://github.com/microsoft/finops-toolkit/issues/2325), [#2329](https://github.com/microsoft/finops-toolkit/issues/2329)).
     - Documents the organization chain and the two parallel service chains.
@@ -209,7 +220,6 @@ _Released October 28, 2026_
   - Added [Initialize-FinOpsHubLocal](powershell/hubs/initialize-finopshublocal.md) to set up a local FinOps hub in a running Kusto emulator with one command.
   - Added [Get-FinOpsCommitmentDiscountEligibility](powershell/data/get-finopscommitmentdiscounteligibility.md) and [Get-FinOpsInstanceSizeFlexibility](powershell/data/get-finopsinstancesizeflexibility.md) to generate open data files.
     - Generates the commitment discount eligibility and instance size flexibility datasets.
-  - Added a `-EnableKeyVaultRbacAuthorization` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that moves the hub Key Vault from access policies to Azure RBAC. Requires hub template version 15.0 or later ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
 - **Changed**
   - Updated tests for Pester 6 compatibility.
 - **Fixed**
