@@ -52,8 +52,7 @@
 
     .PARAMETER PullRequest
     Optional. Credit only this pull request: its author (code, doc) and its reviewers (review), whether or not it is
-    merged. Issues are not checked. Use alone; it replaces -Since and -Milestone. The workflow uses this to credit
-    a pull request's author on the pull request itself.
+    merged. Issues are not checked. Use alone; it replaces -Since and -Milestone.
 
     .PARAMETER Repository
     Optional. Repository to read from, as owner/name. Default = microsoft/finops-toolkit.
