@@ -51,6 +51,12 @@ param enableSpotRecommendations bool = false
 @description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).')
 param dataExplorerName string = ''
 
+@description('Optional. Enable disk encryption on the Azure Data Explorer cluster. Default: false.')
+param enableDataExplorerDiskEncryption bool = false
+
+@description('Optional. Enable double encryption on the Azure Data Explorer cluster. Can only be enabled during cluster creation. Default: false.')
+param enableDataExplorerDoubleEncryption bool = false
+
 // https://learn.microsoft.com/azure/templates/microsoft.kusto/clusters?pivots=deployment-language-bicep#azuresku
 @description('Optional. Name of the Azure Data Explorer SKU. Default: "Dev(No SLA)_Standard_D11_v2".')
 @allowed([
@@ -184,6 +190,8 @@ module hub 'modules/hub.bicep' = {
     enableAHBRecommendations: enableAHBRecommendations
     enableSpotRecommendations: enableSpotRecommendations
     dataExplorerName: dataExplorerName
+    enableDataExplorerDiskEncryption: enableDataExplorerDiskEncryption
+    enableDataExplorerDoubleEncryption: enableDataExplorerDoubleEncryption
     dataExplorerSku: dataExplorerSku
     dataExplorerCapacity: dataExplorerCapacity
     fabricQueryUri: fabricQueryUri
