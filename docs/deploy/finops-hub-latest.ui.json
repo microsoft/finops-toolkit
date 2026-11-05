@@ -293,21 +293,21 @@
                 "name": "dataExplorerSku",
                 "type": "Microsoft.Common.DropDown",
                 "label": "Data Explorer SKU",
-                "defaultValue": "Dev/test: D11_v2 (no SLA) - Extra small, 78GB cache (~$121/mo)",
+                "defaultValue": "Dev/test: D11_v2 (no SLA) - Extra small, 78GB cache (~$135/mo)",
                 "toolTip": "Select an Azure Data Explorer SKU based on your needs. Consider how many accounts and datasets that are required for your needs. We recommend starting small and scaling up based on performance. [Learn more](https://learn.microsoft.com/azure/data-explorer/manage-cluster-choose-sku)",
                 "constraints": {
                   "required": false,
                   "allowedValues": [
                     {
-                      "label": "Dev/test: E2a_v4 (no SLA) - Extra small, 24GB cache (~$110/mo)",
+                      "label": "Dev/test: E2a_v4 (no SLA) - Extra small, 24GB cache (~$115/mo)",
                       "value": "Dev(No SLA)_Standard_E2a_v4"
                     },
                     {
-                      "label": "Dev/test: D11_v2 (no SLA) - Extra small, 78GB cache (~$121/mo)",
+                      "label": "Dev/test: D11_v2 (no SLA) - Extra small, 78GB cache (~$135/mo)",
                       "value": "Dev(No SLA)_Standard_D11_v2"
                     },
                     {
-                      "label": "D11_v2 - Extra small, 78GB cache (~$245/mo)",
+                      "label": "D11_v2 - Extra small, 78GB cache (~$295/mo)",
                       "value": "Standard_D11_v2"
                     },
                     {
@@ -351,7 +351,7 @@
                       "value": "Standard_DS14_v2+4TB_PS"
                     },
                     {
-                      "label": "E2a_v4 - Extra small, 30GB cache (~$220/mo)",
+                      "label": "E2a_v4 - Extra small, 30GB cache (~$275/mo)",
                       "value": "Standard_E2a_v4"
                     },
                     {
