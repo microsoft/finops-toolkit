@@ -1708,7 +1708,7 @@ Recommendations_transform_v1_2()
     | lookup kind=leftouter (Regions | summarize RegionName = make_set(RegionName)[0] by Location = RegionId) on Location
     | extend x_RecommendationDetails = case(
         // Use incoming x_RecommendationDetails first
-        isnotempty(x_RecommendationDetails), x_RecommendationDetails,
+        array_length(bag_keys(x_RecommendationDetails)) > 0, x_RecommendationDetails,
         // Create one for reservation recommendations if needed
         x_SourceType == 'ReservationRecommendations', bag_pack(
             'CommitmentDiscountNormalizedGroup', InstanceFlexibilityGroup,
