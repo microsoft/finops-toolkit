@@ -101,6 +101,8 @@ Examples:
   ./Initialize-CI -SubscriptionId "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e" -WhatIf
   ```
 
+For PR deployment, fork review, and cleanup policy instructions, see [Build and test](../../docs-wiki/Build-and-test.md#pr-deployment-and-cleanup).
+
 <br>
 
 ## 🌐 Build-OpenData
