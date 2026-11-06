@@ -223,6 +223,36 @@ InModuleScope 'FinOpsToolkit' {
             }
         }
 
+        Context 'Open data table verification' {
+            It 'Should not query InstanceSizeFlexibility when a pinned release does not load it' {
+                # Act -- the default mock load script represents a release without the table, such as v15.
+                Initialize-FinOpsHubLocal -ClusterUri $clusterUri -Destination $destination
+
+                # Assert
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 0 -ParameterFilter {
+                    $Endpoint -eq 'query' -and $Command -like 'InstanceSizeFlexibility*'
+                }
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter {
+                    $Endpoint -eq 'query' -and $Command -like 'Services*'
+                }
+            }
+
+            It 'Should verify InstanceSizeFlexibility when the release loads it' {
+                # Arrange
+                Mock -CommandName 'Get-Content' -ParameterFilter { $Path -like '*opendata*' } -MockWith {
+                    return '.set-or-replace InstanceSizeFlexibility <| externaldata(Ratio: real)[@"$$openDataPath$$/InstanceSizeFlexibility.csv"]'
+                }
+
+                # Act
+                Initialize-FinOpsHubLocal -ClusterUri $clusterUri -Destination $destination
+
+                # Assert
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter {
+                    $Endpoint -eq 'query' -and $Command -like 'InstanceSizeFlexibility*'
+                }
+            }
+        }
+
         Context 'ShouldProcess (-WhatIf)' {
             It 'Should not create databases, apply setup scripts, or load open data' {
                 # Act

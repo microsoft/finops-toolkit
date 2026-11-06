@@ -51,11 +51,6 @@ Describe 'HubsInstanceSizeFlexibilityLoad' {
         $localOpenData | Should -Match '\$\$openDataPath\$\$/InstanceSizeFlexibility\.csv'
     }
 
-    It 'Should verify the table filled when initializing a local hub' {
-        $initializeScript = Get-Content -Path (Join-Path $repoRoot 'src/powershell/Public/Initialize-FinOpsHubLocal.ps1') -Raw
-        $initializeScript | Should -Match '\$openDataTables = @\([^)]*''InstanceSizeFlexibility''[^)]*\)'
-    }
-
     It 'Should stage the CSV in each local hub download step' {
         $guide = Get-Content -Path (Join-Path $repoRoot 'docs-mslearn/toolkit/hubs/run-hubs-locally.md')
         $downloadLines = @($guide | Where-Object { $_ -match "foreach \(\`$f in 'PricingUnits'" })
