@@ -9,12 +9,9 @@
     unchanged: for MCA it is blank on both sides (a no-op suffix), and for EA it keeps differentiating rows
     (e.g. Production vs Dev/Test offers) exactly as before.
 
-    NOTE: a separate, unconfirmed hypothesis -- that x_BillingProfileId also needs normalizing to match between
-    the Costs and Prices transforms, because MCA cost rows may carry a full ARM billing-profile path where the
-    Prices transform normalizes to a bare ID -- is intentionally NOT included here. It wasn't raised or needed
-    in the reporter-confirmed #2176 investigation, and normalizing away the ARM path may not be the desired
-    fix (Prices' bare-ID form could itself be a Price Sheet export limitation rather than the canonical shape).
-    Needs review before changing.
+    x_BillingProfileId format (#2356): the Actual and Amortized transforms now reduce an MCA ARM billing-profile path
+    to its short ID, matching the FOCUS and Prices transforms, so the lookup key agrees on both sides. Covered by a
+    content assertion below.
 
     Per-row behavioral coverage lives in the executable harness
     Tests/assets/ReservationPriceBackfillKey.kql (PASS = 0 returned rows on any Kusto database).
@@ -55,6 +52,15 @@ Describe 'HubsReservationPriceBackfill' {
         It 'Should leave x_SkuOfferId in the reservation price lookup key: <Name>' -ForEach $ingestionFiles {
             $content = Get-Content -Path $FullName -Raw
             $content.Contains('x_SkuMeterId, x_SkuOfferId))') | Should -BeTrue -Because 'the key is unchanged by this fix: for MCA x_SkuOfferId is blank on both sides (a no-op suffix), and for EA it keeps differentiating rows (e.g. Production vs Dev/Test offers) as before'
+        }
+    }
+
+    Context 'Billing profile ID normalization (#2356)' {
+
+        It 'Should normalize x_BillingProfileId to the short ID on the Actual and Amortized paths: <Name>' -ForEach $ingestionFiles {
+            $content = Get-Content -Path $FullName -Raw
+            $content.Contains('x_BillingProfileId = BillingProfileId,') | Should -BeFalse -Because 'a raw pass-through leaves the MCA ARM path in x_BillingProfileId, so the reservation price lookup key never matches the Prices side, which uses the short ID (#2356)'
+            ([regex]::Matches($content, "x_BillingProfileId = iff\(BillingProfileId startswith '/', tostring\(split\(BillingProfileId, '/'\)\[-1\]\), BillingProfileId\),")).Count | Should -Be 2 -Because 'both the Actual and Amortized transforms must reduce an ARM path to its last segment'
         }
     }
 
