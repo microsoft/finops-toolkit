@@ -47,6 +47,15 @@ _Released November 2026_
 - **Added**
   - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
 
+### [Power BI reports](power-bi/reports.md) v16
+
+_**Breaking change**_
+
+- **Added**
+  - Added support for incremental refresh on the **Costs** table in storage reports. Power BI can now detect the **RangeStart**/**RangeEnd** filter on the `x_IncrementalRefreshDate` column. To learn more, see [Configure incremental refresh](power-bi/setup.md#configure-incremental-refresh) ([#2314](https://github.com/microsoft/finops-toolkit/issues/2314)).
+- **Changed**
+  - Changed the `x_IncrementalRefreshDate` column in storage reports from text to Date/Time. Update any custom filters, measures, or visuals that treat it as text or a number ([#2314](https://github.com/microsoft/finops-toolkit/issues/2314)).
+
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
 - **Added**

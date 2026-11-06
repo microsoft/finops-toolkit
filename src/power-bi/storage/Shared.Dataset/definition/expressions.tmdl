@@ -298,7 +298,7 @@ expression ftk_Storage = ```
 				let
 					segments = if d = null then null else Text.SplitAny(Text.From(d), "/- T"),
 					output =
-						try Number.From(Date.From(
+						try DateTime.From(Date.From(
 							if Text.Length(segments{0}) = 4 then segments{0} & "-" & Text.PadStart(segments{1}, 2, "0") & "-" & Text.PadStart(segments{2}, 2, "0")
 							else if Text.Length(segments{2}) = 4 then segments{2} & "-" & Text.PadStart(segments{0}, 2, "0") & "-" & Text.PadStart(segments{1}, 2, "0")
 							else d,
@@ -314,11 +314,11 @@ expression ftk_Storage = ```
 						else if data = "reservationdetails"      then [UsageDate]
 						else if data = "reservationtransactions" then [EventDate]
 						else null // Will not support incremental refresh
-					)
+					), type datetime
 				),
 			FilterRowsByDate = if (start = null and end = null) then RefreshDate else Table.SelectRows(RefreshDate, each
-				(start = null or [x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] >= Number.From(DateTime.From(start)))
-				and (end = null or [x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] < Number.From(DateTime.From(end)))
+				(start = null or [x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] >= Date.StartOfDay(DateTime.From(start)))
+				and (end = null or [x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] < Date.StartOfDay(DateTime.From(end)))
 			),
 		
 			// TODO: Try using "_" instead of "FilterRowsByDate"
