@@ -146,7 +146,7 @@ _Released October 28, 2026_
     - Retention now stays as configured unless you specify a new value.
   - Fixed private network deployments with Data Explorer failing with a `ServiceIsInMaintenance` error when approving the Data Explorer private endpoint connections.
 - **Known issues**
-  - Two exports of the same dataset and scope replace each other's data with no error, even with different storage paths or FOCUS versions. This behavior isn't new in v15. For guidance, see [Use one export per dataset and scope](hubs/configure-scopes.md#use-one-export-per-dataset-and-scope) ([#2383](https://github.com/microsoft/finops-toolkit/issues/2383)).
+  - Two exports of the same dataset and scope that cover the same month replace each other's data with no error, even with different storage paths or FOCUS versions. This behavior isn't new in v15. For guidance, see [Use one export per dataset, scope, and month](hubs/configure-scopes.md#use-one-export-per-dataset-scope-and-month) ([#2383](https://github.com/microsoft/finops-toolkit/issues/2383)).
 
 ### [Power BI reports](power-bi/reports.md) v15
 
