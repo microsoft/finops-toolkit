@@ -88,6 +88,13 @@ HubScopes()
     x_ServiceModel:           string
 )
 
+// InstanceSizeFlexibility
+.create-merge table InstanceSizeFlexibility(
+    InstanceSizeFlexibilityGroup: string,
+    ArmSkuName:                   string,
+    Ratio:                        real
+)
+
 //----------------------------------------------------------------------------------------------------------------------
 
 // parse_resourceid

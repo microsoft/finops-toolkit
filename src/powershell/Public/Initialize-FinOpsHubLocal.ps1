@@ -182,7 +182,7 @@ function Initialize-FinOpsHubLocal
 
                 # The emulator's first external data read after setup can return no rows without
                 # raising an error. Load, verify the tables filled, and retry before giving up.
-                $openDataTables = @('PricingUnits', 'Regions', 'ResourceTypes', 'Services')
+                $openDataTables = @('PricingUnits', 'Regions', 'ResourceTypes', 'Services', 'InstanceSizeFlexibility')
                 $maxAttempts = 5
                 for ($attempt = 1; $attempt -le $maxAttempts; $attempt++)
                 {
