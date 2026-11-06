@@ -29,7 +29,7 @@ Describe 'PR workflow permissions and scripts' -Tag 'Actions' {
             $start.ArgumentList.Add('-o')
             $start.ArgumentList.Add('pipefail')
             $start.ArgumentList.Add('-c')
-            $start.ArgumentList.Add($Script)
+            $start.ArgumentList.Add($Script.Replace("`r`n", "`n"))
             $start.RedirectStandardOutput = $true
             $start.RedirectStandardError = $true
             $start.UseShellExecute = $false

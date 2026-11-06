@@ -3,7 +3,8 @@
 
 # Deployment executes code with Azure credentials. Fork commits must be reviewed
 # and promoted to a same-repository branch before deployment. Never add a
-# privileged trigger that checks out fork code. See src/scripts/README.md.
+# privileged trigger that checks out fork code. See docs-wiki/Build-and-test.md.
+# Initialize-CI creates ftk-pr without required reviewers. Review code before promotion.
 
 name: 'PR Deploy'
 
