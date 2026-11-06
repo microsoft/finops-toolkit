@@ -78,6 +78,7 @@ type HubRoutingProperties = {
     natGateway: 'Indicates whether a NAT Gateway should be deployed for controlled outbound internet access. When enabled, the script and Data Explorer subnets route outbound traffic through the NAT Gateway.'
     privateRouting: 'Indicates whether private network routing is enabled.'
     publisherIsolation: 'Indicates whether FinOps hub resources should be separated by publisher for advanced security.'
+    disableStorageSharedKeyAccess: 'Indicates whether Shared Key (storage account key) authentication is disabled on hub storage accounts. When enabled, only Microsoft Entra ID and managed identity authentication are allowed. This does not affect Data Factory, which already authenticates via managed identity and RBAC. Does not apply to the private-mode deployment script storage account, which requires Shared Key access.'
     storageInfrastructureEncryption: 'Indicates whether infrastructure encryption is enabled for the storage account.'
     storageSku: 'Storage account SKU. Allowed values: "Premium_LRS", "Premium_ZRS".'
   }
@@ -104,6 +105,7 @@ type HubProperties = {
     natGateway: bool
     privateRouting: bool
     publisherIsolation: bool
+    disableStorageSharedKeyAccess: bool
     storageInfrastructureEncryption: bool
     storageSku: string
   }
@@ -198,6 +200,7 @@ func newHubInternal(
   keyVaultEnablePurgeProtection bool,
   keyVaultEnableRbacAuthorization bool,
   enableInfrastructureEncryption bool,
+  disableStorageSharedKeyAccess bool,
   enablePublicAccess bool,
   enableNatGateway bool,
   networkName string,
@@ -223,6 +226,7 @@ func newHubInternal(
     natGateway: !enablePublicAccess && enableNatGateway
     privateRouting: !enablePublicAccess
     publisherIsolation: false  // TODO: Expose publisher isolation option
+    disableStorageSharedKeyAccess: disableStorageSharedKeyAccess
     storageInfrastructureEncryption: enableInfrastructureEncryption
     storageSku: storageSku
   }
@@ -262,6 +266,7 @@ func newHub(
   keyVaultEnablePurgeProtection bool,
   keyVaultEnableRbacAuthorization bool,
   enableInfrastructureEncryption bool,
+  disableStorageSharedKeyAccess bool,
   enablePublicAccess bool,
   enableNatGateway bool,
   networkAddressPrefix string,
@@ -278,6 +283,7 @@ func newHub(
   keyVaultEnablePurgeProtection,
   keyVaultEnableRbacAuthorization,
   enableInfrastructureEncryption,
+  disableStorageSharedKeyAccess,
   enablePublicAccess,
   enableNatGateway,
   '${safeStorageName(name)}-vnet-${location}',    // networkName, cSpell:ignore vnet
