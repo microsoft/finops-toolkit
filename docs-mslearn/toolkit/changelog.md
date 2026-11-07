@@ -46,6 +46,7 @@ _Released November 2026_
 
 - **Added**
   - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+  - Added optional guidance to scope FinOps hub data by team with row-level security, so each team sees only its own scopes in KQL queries, dashboards, and AI agents ([#2374](https://github.com/microsoft/finops-toolkit/pull/2374)).
 
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
