@@ -3,7 +3,7 @@ title: Configure row-level security for FinOps hubs
 description: Scope FinOps hub data by team with row-level security in Azure Data Explorer, so KQL queries, dashboards, and AI agents return only the rows a user may see.
 author: keerthimath
 ms.author: micflan
-ms.date: 11/05/2026
+ms.date: 11/06/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -41,7 +41,7 @@ Review these limitations, and the [row-level security policy limitations](/kusto
 
 ## Prerequisites
 
-- [Deployed a FinOps hub instance](finops-hubs-overview.md#create-a-new-hub) with Azure Data Explorer, version 12 or later.
+- [Deployed a FinOps hub instance](finops-hubs-overview.md#create-a-new-hub) with Azure Data Explorer or Microsoft Fabric, version 12 or later. This procedure was validated on version 14 with Azure Data Explorer.
 - **Database Admin** on the **Ingestion** database, to create functions and enable policies, and on the **Hub** database, to grant access.
 - A Microsoft Entra group for each team, and the subscriptions each team owns.
 - The object IDs of the principals that must keep seeing all data: FinOps admins, the identity you use for this setup, and the service identities listed in [Limitations](#limitations).
@@ -200,19 +200,19 @@ After every hub upgrade, run this in the **Ingestion** database. It lists every 
 | order by TableName asc
 ```
 
-Every `Costs`, `CommitmentDiscountUsage`, `Recommendations`, and `Transactions` final table must show `true`. A table that shows `missing` or `false`, such as a new table version added by the upgrade, isn't protected: create its function and enable its policy as described in [Configure row-level security](#configure-row-level-security). `Prices` tables aren't filtered and show `missing`.
+Every `Costs`, `CommitmentDiscountUsage`, `Recommendations`, and `Transactions` final table must show `true`. A table that shows `missing` or `false`, such as a new table version added by the upgrade, isn't protected: attach the function and enable the policy as described in [Configure row-level security](#configure-row-level-security). `Prices` tables aren't filtered and show `missing`.
 
 <br>
 
 ## Roll back
 
-To turn off scoping for a table, disable its policy. The function stays and can be enabled again later:
+To turn off scoping for a table, disable its policy. The function stays, and you can enable the policy again later:
 
 ```kusto
 .alter table Costs_final_v1_2 policy row_level_security disable "FinOpsRls('Costs_final_v1_2')"
 ```
 
-To add a team or change its subscriptions, edit the one function; all eight policies use it. Removing a team from the functions doesn't remove its Viewer access; remove that separately with `.drop database ['Hub'] viewers (...)` and the same command for **Ingestion**.
+To add a team or change its subscriptions, edit the one function; all eight policies use it. Removing a team from the function doesn't remove its Viewer access; remove that separately with `.drop database ['Hub'] viewers (...)` and the same command for **Ingestion**.
 
 <br>
 
