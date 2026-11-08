@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/05/2026
+ms.date: 11/08/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -51,6 +51,8 @@ _Released November 2026_
 
 - **Added**
   - Added a `-EnableKeyVaultRbacAuthorization` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that moves the hub Key Vault from access policies to Azure RBAC. Requires hub template version 16.0 or later ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+- **Fixed**
+  - Fixed Fabric eventhouse deployments leaving the Data Factory identity without access to the Ingestion and Hub databases. [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) `-FabricQueryUri` now grants the admin role automatically, and warns that Fabric ingestion cannot pass the storage firewall in VNet or private modes. Approach informed by [Zahir Hussain Shah](https://github.com/zhshah/Azure-FinOps-Automation-Deployment-Utility) (MIT) ([#2061](https://github.com/microsoft/finops-toolkit/issues/2061)).
 
 <br>
 
