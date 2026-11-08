@@ -18,9 +18,9 @@
     - "ftk-demo-v{NN}" (for example, ftk-demo-v07 or ftk-demo-v14) is a versioned instance kept for
       opening reports from that release. The resource group, hub, and Data Explorer cluster all use
       the same name. The version being built is deployed from source and, like the current demo hub,
-      keeps 36 months of data from the billing account. Older releases use the released template through
-      the FinOps toolkit module and export the subscription. The previous 3 releases keep 3 months of
-      data and older ones keep 1 month.
+      exports the billing account. Older releases use the released template through the FinOps toolkit
+      module and export the subscription. The version being built and the previous 3 releases keep 3
+      months of data and older ones keep 1 month.
 
     Every instance uses a dev/test Data Explorer SKU and stops itself when idle, so an instance
     nobody is using costs almost nothing to keep around.
@@ -45,7 +45,7 @@
     Optional. Resource IDs of the scopes to export cost data for. Default = the demo billing account for the current demo hub and the version being built, and the subscription being deployed to for older releases. Don't combine a billing account with a subscription it contains, because cost data is duplicated. Exports left on scopes that are no longer listed are removed; the data they already exported is not.
 
     .PARAMETER Retention
-    Optional. Number of months of data the hub keeps. Default = 36 for the current demo hub and the version being built, 3 for the previous 3 releases, 1 for older releases.
+    Optional. Number of months of data the hub keeps. Default = 36 for the current demo hub, 3 for the version being built and the previous 3 releases, 1 for older releases.
 
     .PARAMETER DataExplorerSku
     Optional. Data Explorer SKU. Must be a dev/test SKU ("Dev(No SLA)_..."), because production SKUs cost too much for demo instances. Default = "Dev(No SLA)_Standard_D11_v2".
@@ -140,10 +140,10 @@ if (-not $ResourceGroup) { $ResourceGroup = $name }
 # cluster is ftk-demo-hub. Versioned instances use the instance name.
 $clusterName = if ($isVersioned) { $name } else { "$name-hub" }
 
-# The current demo hub and the version being built keep three years. The previous 3 releases keep 3 months and
+# Only the current demo hub keeps three years. The version being built and the previous 3 releases keep 3 months and
 # older ones 1 month, to limit cost.
 $isLatest = -not $isVersioned -or $number -ge $currentMajor
-if (-not $Retention) { $Retention = if ($isLatest) { 36 } elseif ($number -ge $currentMajor - 3) { 3 } else { 1 } }
+if (-not $Retention) { $Retention = if (-not $isVersioned) { 36 } elseif ($number -ge $currentMajor - 3) { 3 } else { 1 } }
 
 # The demo data comes from this EA billing account. It contains the FTK Prod subscription, so exporting both would
 # duplicate that subscription's costs.

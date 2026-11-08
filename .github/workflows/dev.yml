@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'src/powershell/**'
+      - '.github/workflows/ftk-pr-deploy.yml'
+      - '.github/workflows/ftk-pr-cleanup.yml'
       # KQL sources are covered by unit tests (HubsKqlOperators.Tests.ps1)
       - 'src/templates/finops-hub/**/*.kql'
       - 'src/queries/**/*.kql'
