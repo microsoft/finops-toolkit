@@ -23,9 +23,9 @@ Runs `/pr-review --auto` then `/pr-update --auto` on ONE PR until returns dimini
    - ✅ **Resolved:** review found no blockers or material should-fix.
    - 📉 **Diminishing returns:** only polish left, or two rounds in a row produced only newly invented should-fix items.
    - 🔁 **No progress:** round changed nothing and resolved nothing.
-   - 🚧 **Blocked:** conflict not trivially resolvable, unfixable test failure, or dirty tree. Never force-push or rebase.
+   - 🚧 **Blocked:** branch needs a sync with `dev`, unfixable test failure, or dirty tree. Never force-push or rebase.
    - ⏱️ **Round limit:** `max-rounds` reached.
-   Polish, suggestions, and escalations never extend the loop.
+     Polish, suggestions, and escalations never extend the loop.
 5. **Re-check the title** (conventional) before finishing.
 
 ## Report

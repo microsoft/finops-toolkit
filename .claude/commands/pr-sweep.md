@@ -1,14 +1,14 @@
 ---
 description: Review other authors' PRs and update your own PRs in a milestone
 argument-hint: [milestone]
-allowed-tools: Read, Glob, Grep, Agent, Bash(gh pr list:*), Bash(gh api user:*), Bash(git status:*), Bash(git branch:*), Bash(git worktree:*)
+allowed-tools: Read, Glob, Grep, Agent, AskUserQuestion, Bash(gh pr list:*), Bash(gh api user:*), Bash(git fetch:*), Bash(git show:*), Bash(git status:*), Bash(git branch:*), Bash(git worktree:*)
 ---
 
 # Sweep milestone PRs
 
-Runs one pass over every open, non-draft PR in a milestone: `/pr-review --auto` on other authors' PRs and `/pr-update --auto` on your own. No loop. Never merges.
+Runs one pass over every open, non-draft PR in a milestone: `/pr-review --auto` on other authors' PRs and `/pr-update --auto` on your own. Each PR gets exactly one review or one update. No loop: never re-review after an update, never run `/pr-loop`. Never merges.
 
-**Input:** `$MILESTONE` (title, e.g., `v16`). If omitted, use the current milestone: the `vN` milestone whose number matches the major version in `package.json` (for example, `16.0.0-dev.0` is `v16`). Ask only if that can't be determined.
+**Input:** `$MILESTONE` (title, e.g., `v16`). If omitted, use the current milestone: run `git fetch origin dev`, then read the version with `git show origin/dev:package.json` (not the working tree, which depends on the checked-out branch). The `vN` milestone matches its major version (for example, `16.0.0-dev.0` is `v16`). Ask only if that can't be determined.
 
 ## Process
 
@@ -20,12 +20,13 @@ Runs one pass over every open, non-draft PR in a milestone: `/pr-review --auto` 
 
    Skip drafts (list them as `skipped: draft`). Zero PRs: report that and exit.
 
-2. **Dispatch** one subagent per PR (review up to 4 at a time; updates one at a time). Subagents can't spawn subagents. If you have no Agent tool, return the briefs for the main session; never fake delegation.
-   - **Other author's PR:** `/pr-review {n} --auto`. Create a throwaway worktree per PR (`git worktree add --detach ../pr-{n}-review origin/dev`) so parallel reviews never share a checkout; remove it afterward. No commits, no pushes. Nothing is posted; return findings for a maintainer to relay.
-   - **Your PR** (author = current user): `/pr-update {n} --auto` in the main checkout, one at a time. Worktree isolation fails because `pr-checkout` refuses a branch already checked out elsewhere, and the main checkout is often on it.
-   - Brief format per `ftk-agents-shared.md`. Don't merge, push to `dev`, force-push, or rebase.
-3. **Collect** each subagent's one-line result and escalations. A failed subagent is `🚧 blocked` with its error.
-4. **Report** (and nothing else):
+2. **Review other authors' PRs** in subagents, up to 4 at a time. If you have no Agent tool, return the briefs for the main session; never fake delegation.
+   - One throwaway worktree per PR (`git worktree add --detach ../pr-{n}-review origin/dev`) so parallel reviews never share a checkout; remove it afterward.
+   - Brief: `/pr-review {n} --auto` inside that worktree. `/pr-review` checks out with `--detach`, so a branch open in another worktree doesn't block it. No commits, no pushes. Nothing is posted; return findings for a maintainer to relay.
+3. **Update your own PRs** (author = current user) in the main session, one at a time, in the main checkout: `/pr-update {n} --auto`. Not in a subagent: `/pr-update` needs approval before it commits and pushes, and only the main session can ask for it. Worktree isolation also fails here because `gh pr checkout` refuses a branch already checked out elsewhere.
+4. Don't merge, push to `dev`, force-push, or rebase. Brief format per `ftk-agents-shared.md`.
+5. **Collect** each PR's one-line result and escalations. A failed review subagent or a blocked update is `🚧 blocked` with its reason.
+6. **Report** (and nothing else):
 
 ```
 | PR | Title | Mode | Result | Posted | Pushed |
@@ -41,5 +42,5 @@ End with "awaiting your call on escalations" or "no escalations".
 ## Done when
 
 - [ ] Every open, non-draft PR in the milestone has a result row
-- [ ] Other authors' PRs reviewed; your own PRs updated; no loop
+- [ ] Other authors' PRs reviewed once; your own PRs updated once in the main session; no loop
 - [ ] Nothing merged; escalations listed once
