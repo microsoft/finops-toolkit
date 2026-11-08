@@ -9,7 +9,7 @@
     unchanged: for MCA it is blank on both sides (a no-op suffix), and for EA it keeps differentiating rows
     (e.g. Production vs Dev/Test offers) exactly as before.
 
-    x_BillingProfileId format (#2356): the Actual and Amortized transforms now reduce an MCA ARM billing-profile path
+    BillingProfileId format (#2356): the Actual and Amortized transforms now reduce an MCA ARM billing-profile path once, up front,
     to its short ID, matching the FOCUS and Prices transforms, so the lookup key agrees on both sides. Covered by a
     content assertion below.
 
@@ -57,10 +57,12 @@ Describe 'HubsReservationPriceBackfill' {
 
     Context 'Billing profile ID normalization (#2356)' {
 
-        It 'Should normalize x_BillingProfileId to the short ID on the Actual and Amortized paths: <Name>' -ForEach $ingestionFiles {
+        It 'Should normalize BillingProfileId once, before any column uses it, on the Actual and Amortized paths: <Name>' -ForEach $ingestionFiles {
             $content = Get-Content -Path $FullName -Raw
-            $content.Contains('x_BillingProfileId = BillingProfileId,') | Should -BeFalse -Because 'a raw pass-through leaves the MCA ARM path in x_BillingProfileId, so the reservation price lookup key never matches the Prices side, which uses the short ID (#2356)'
-            ([regex]::Matches($content, "x_BillingProfileId = iff\(BillingProfileId startswith '/', tostring\(split\(BillingProfileId, '/'\)\[-1\]\), BillingProfileId\),")).Count | Should -Be 2 -Because 'both the Actual and Amortized transforms must reduce an ARM path to its last segment'
+            $normalize = [regex]::Escape("| extend BillingProfileId = iff(BillingProfileId startswith '/', tostring(split(BillingProfileId, '/')[-1]), BillingProfileId)") + '\r?\n\s*\| extend x_AmortizationClass'
+            ([regex]::Matches($content, $normalize)).Count | Should -Be 2 -Because 'both the Actual and Amortized transforms must reduce an MCA ARM path to its short ID before BillingAccountId, BillingAccountType, PricingCurrency, and x_BillingProfileId read it, so the reservation price lookup key matches the Prices side (#2356)'
+            ([regex]::Matches($content, 'x_BillingProfileId = BillingProfileId,')).Count | Should -Be 2 -Because 'x_BillingProfileId reads the already-normalized value'
+            $content.Contains("x_BillingProfileId = iff(BillingProfileId startswith '/', tostring(") | Should -BeFalse -Because 'a second, column-local normalization would let other columns drift from x_BillingProfileId'
         }
     }
 

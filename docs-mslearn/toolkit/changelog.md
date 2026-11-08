@@ -46,6 +46,9 @@ _Released November 2026_
 
 - **Added**
   - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+- **Fixed**
+  - Fixed reservation prices not backfilling when Actual and Amortized costs carried the full billing profile path instead of the short ID ([#2356](https://github.com/microsoft/finops-toolkit/issues/2356)).
+    - Billing account ID, billing account type, and pricing currency now use the short billing profile ID too.
 
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
@@ -124,7 +127,6 @@ _Released October 28, 2026_
     - Summary and Rate optimization tiles now exclude purchase rows consistently.
   - Fixed understated commitment discount savings when duplicate reservation price rows exist ([#2176](https://github.com/microsoft/finops-toolkit/issues/2176)).
     - The reservation price backfill now uses the highest on-demand price when duplicate price rows exist.
-  - Fixed reservation prices not backfilling when Actual and Amortized costs carried the full billing profile path instead of the short ID ([#2356](https://github.com/microsoft/finops-toolkit/issues/2356)).
   - Fixed unnecessary `ContractedCost` rewrites that cluttered the `x_SourceValues` audit trail ([#2216](https://github.com/microsoft/finops-toolkit/issues/2216)).
     - Removed millions of no-op rewrites caused by exact floating-point comparisons.
     - Still backfills null costs, and no longer overwrites an existing cost when the unit price is missing.
