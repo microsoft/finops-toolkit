@@ -1,9 +1,9 @@
 ---
 title: FOCUS query library
-description: Collection of SQL and KQL queries that leverage the FinOps Open Cost and Usage Specification (FOCUS).
+description: Collection of KQL queries that leverage the FinOps Open Cost and Usage Specification (FOCUS), aligned to the FinOps Foundation FOCUS use case library.
 author: flanakin
 ms.author: micflan
-ms.date: 10/30/2026
+ms.date: 11/08/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -14,7 +14,9 @@ ms.reviewer: micflan
 <!-- markdownlint-disable-next-line MD025 -->
 # FOCUS query library
 
-This article outlines a collection of SQL and KQL queries that can be used with a data store that hosts FinOps Open Cost and Usage Specification (FOCUS) data. Use the queries here to explore your data in [Microsoft Fabric](../fabric/create-fabric-workspace-finops.md) or [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) with Data Explorer.
+This article outlines a collection of KQL queries that can be used with a data store that hosts FinOps Open Cost and Usage Specification (FOCUS) data. Use the queries here to explore your data in [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) with Data Explorer or a [Microsoft Fabric](../fabric/create-fabric-workspace-finops.md) eventhouse.
+
+For SQL queries, see the [FOCUS use case library](https://focus.finops.org/docs/use-cases/) from the FinOps Foundation. Each section in this article is named after the matching FOCUS use case and links to it.
 
 <br>
 
@@ -22,14 +24,14 @@ This article outlines a collection of SQL and KQL queries that can be used with 
 
 Before you can execute these queries, you must have:
 
-- A KQL or SQL database, like Azure Data Explorer or a Microsoft Fabric lakehouse or eventhouse.
+- A KQL database, like Azure Data Explorer or a Microsoft Fabric eventhouse.
 - Create a table named "Costs" that uses a FOCUS 1.0 schema.
 - Ingest cost from Microsoft and optionally other cloud or SaaS providers based on your needs.
 
 If you do not have a database, consider one of the following options:
 
 - [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) with Data Explorer
-- [Microsoft Fabric lakehouse](../fabric/create-fabric-workspace-finops.md)
+- [Microsoft Fabric eventhouse](../fabric/create-fabric-workspace-finops.md)
 
 <br>
 
@@ -39,9 +41,9 @@ Different providers have different account constructs that FinOps practitioners 
 
 A billing account is the account where invoices are generated. Each billing account can have one or more sub accounts, which can be used for deploying and managing resources and services. Billing and sub accounts are often used to facilitate allocation strategies and FinOps practitioners must be able to break costs down by billing and sub account to facilitate FinOps scenarios like chargeback and budgeting.
 
-### Example: Cost breakdown by account
+### Understand the billing account or sub account entity
 
-**KQL**
+Breaks down last month's billed cost by billing account and sub account. For the SQL version, see [Understand the billing account or sub account entity](https://focus.finops.org/docs/use-cases/v1-4/understand-the-billing-account-or-sub-account-entity-2/).
 
 ```kusto
 Costs
@@ -56,30 +58,6 @@ Costs
     SubAccountId,
     SubAccountName,
     SubAccountType
-```
-
-**SQL**
-
-```sql
-SELECT
-  BillingCurrency,
-  BillingAccountId,
-  BillingAccountName,
-  BillingAccountType,
-  SubAccountId,
-  SubAccountName,
-  SubAccountType,
-  SUM(BilledCost) AS BilledCost
-FROM Costs
-WHERE BillingPeriodStart = DATEADD(month, -1, DATEADD(month, DATEDIFF(month, 0, GETDATE()), 0))
-GROUP BY
-  BillingCurrency,
-  BillingAccountId,
-  BillingAccountName,
-  BillingAccountType,
-  SubAccountId,
-  SubAccountName,
-  SubAccountType
 ```
 
 <br>
