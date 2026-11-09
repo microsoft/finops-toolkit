@@ -26,6 +26,12 @@
     .PARAMETER Branch
     Optional. Indicates whether the changes should be committed to a new branch in the Git repo. Alias: Commit. Default = false.
 
+    .PARAMETER CorrelationId
+    Optional. Azure Quickstart Templates only. Correlation ID (GUID) of a successful Azure deployment of the published main.bicep. Written to testResult in metadata.json. Requires -DeploymentName.
+
+    .PARAMETER DeploymentName
+    Optional. Azure Quickstart Templates only. Name of the successful Azure deployment of the published main.bicep. Written to testResult in metadata.json. Requires -CorrelationId.
+
     .EXAMPLE
     ./Publish-Toolkit "finops-hub"
 
@@ -50,7 +56,9 @@ Param(
     [string]$AppInsightsRepo = "Application-Insights-Workbooks",
     [string]$DocsRepo = "partner-center-pr",
     [switch]$Build,
-    [Alias("Commit")][switch]$Branch
+    [Alias("Commit")][switch]$Branch,
+    [ValidatePattern('^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$')][string]$CorrelationId,
+    [string]$DeploymentName
 )
 
 # Use the debug flag from common parameters to determine whether to run in debug mode
@@ -60,10 +68,14 @@ $Debug = $DebugPreference -eq "Continue"
 $repoConfig = @{
     aqt         = @{
         org           = 'Azure'
+        isAqt         = $true
         mainBranch    = 'master'
         possibleNames = @($QuickstartRepo, 'azure-quickstart-templates', 'aqt')
         relativePath  = "quickstarts/microsoft.costmanagement"
         requiredFiles = @("main.bicep", "metadata.json", "README.md", "azuredeploy.parameters.json")
+        # Toolkit-only files that AQT does not accept. AQT compiles main.bicep to azuredeploy.json itself (during /validate and on merge) and
+        # a committed copy skips that step, so it can go stale. See https://github.com/Azure/azure-quickstart-templates/tree/master/1-CONTRIBUTION-GUIDE#bicep-support
+        excludedFiles = @("azuredeploy.json", "package-manifest.json")
     }
     brm         = @{
         org           = 'Azure'
@@ -131,26 +143,15 @@ function New-RepoBranch($repo, [string]$branchPrefix)
         return
     }
 
-    # Switch to main branch
-    if ((git rev-parse --abbrev-ref HEAD) -ne $repo.mainBranch)
-    {
-        Write-Host "  Switching to $($repo.mainBranch) branch..."
-        git checkout $repo.mainBranch --quiet
-    }
+    # Base the new branch on the latest upstream main branch. Fall back to origin when there is no upstream remote (i.e., origin is not a fork).
+    $baseRemote = if (git remote | Select-String -Pattern '^upstream$' -Quiet) { 'upstream' } else { 'origin' }
+    Write-Host "  Fetching latest $($repo.mainBranch) from $baseRemote..."
+    git fetch $baseRemote $repo.mainBranch --quiet
 
-    # Pull latest changes
-    if (-not (git status | Select-String 'Your branch is behind'))
-    {
-        Write-Host '  Pulling latest changes...'
-        git pull --rebase --quiet
-    }
-
-    # Create new branch
+    # Create new branch (never rebase; the repo policy only allows merges)
     $branchName = "$($branchPrefix)-$($ver)_$(Get-Date -Format yyMMdd)"
-    Write-Host "  Creating new $branchName branch..."
-    git checkout -b $branchName --quiet
-    git branch --set-upstream-to="origin/$($repo.mainBranch)" --quiet
-    git pull --rebase --quiet
+    Write-Host "  Creating new $branchName branch from $baseRemote/$($repo.mainBranch)..."
+    git checkout -b $branchName "$baseRemote/$($repo.mainBranch)" --no-track --quiet
 
     Pop-Location
 }
@@ -166,6 +167,12 @@ function Set-RepoContent($repo, [string]$branchPrefix, [string]$sourceDir)
 
     # Copy files
     Write-Host '  Copying release files...'
+    $previousTestResult = $null
+    if ($repo.isAqt -and (Test-Path "$($repo.path)/metadata.json"))
+    {
+        # Remember testResult so re-publishing after a test deployment does not wipe it
+        $previousTestResult = (Get-Content "$($repo.path)/metadata.json" -Raw | ConvertFrom-Json).PSObject.Properties['testResult'].Value
+    }
     if (Test-Path $repo.path)
     {
         Remove-Item $repo.path -Recurse -Force
@@ -175,6 +182,21 @@ function Set-RepoContent($repo, [string]$branchPrefix, [string]$sourceDir)
     if ($Template -eq "docs")
     {
         Remove-DocsMetadataOnlyChanges $repo.path
+    }
+    elseif ($repo.excludedFiles -and (Test-Path "$($repo.path)/main.bicep"))
+    {
+        # Remove files the destination repo generates itself or does not accept
+        $repo.excludedFiles | ForEach-Object {
+            if (Test-Path "$($repo.path)/$_")
+            {
+                Write-Host "  Excluding $_..."
+                Remove-Item "$($repo.path)/$_" -Force
+            }
+        }
+    }
+    if ($repo.isAqt)
+    {
+        Update-AqtMetadata "$($repo.path)/metadata.json" $previousTestResult
     }
 
     # Commit changes
@@ -207,6 +229,46 @@ function Set-RepoContent($repo, [string]$branchPrefix, [string]$sourceDir)
 
     Write-Host '  Done!'
     Write-Host ''
+}
+
+# Refresh metadata.json for Azure Quickstart Templates: dateUpdated and testResult
+function Update-AqtMetadata([string]$metadataPath, $previousTestResult)
+{
+    $metadata = Get-Content $metadataPath -Raw | ConvertFrom-Json
+
+    # AQT requires dateUpdated to be set to the date of the change
+    $metadata | Add-Member -NotePropertyName dateUpdated -NotePropertyValue (Get-Date -Format 'yyyy-MM-dd') -Force
+
+    if ($CorrelationId -or $DeploymentName)
+    {
+        if (-not ($CorrelationId -and $DeploymentName))
+        {
+            Write-Error '-CorrelationId and -DeploymentName must be specified together.'
+            return
+        }
+
+        $metadata | Add-Member -NotePropertyName testResult -Force -NotePropertyValue ([ordered]@{
+                deployments = [ordered]@{
+                    templateFileName = 'main.bicep'
+                    correlationId    = $CorrelationId
+                    deploymentName   = $DeploymentName
+                }
+            })
+        Write-Host "  Updated metadata.json testResult (deployment $DeploymentName)."
+    }
+    elseif ($previousTestResult)
+    {
+        # Preserve the testResult already in the destination repo. It must come from a deployment of this exact main.bicep;
+        # AQT checks the template hash on /validate, so a stale value fails there.
+        $metadata | Add-Member -NotePropertyName testResult -NotePropertyValue $previousTestResult -Force
+        Write-Warning "Preserved existing testResult in metadata.json. Make sure it comes from a deployment of this version, or pass -CorrelationId and -DeploymentName."
+    }
+    else
+    {
+        Write-Warning "metadata.json has no testResult. AQT requires it. Deploy main.bicep to Azure and re-run with -CorrelationId and -DeploymentName."
+    }
+
+    $metadata | ConvertTo-Json -Depth 10 | Out-File $metadataPath -Encoding utf8
 }
 
 function Get-DocsArticleBody([string]$content)
