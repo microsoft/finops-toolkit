@@ -1,7 +1,7 @@
 ---
 description: Review other authors' PRs and update your own PRs in a milestone
 argument-hint: [milestone]
-allowed-tools: Read, Glob, Grep, Agent, AskUserQuestion, Bash(gh pr list:*), Bash(gh api user:*), Bash(git fetch:*), Bash(git show:*), Bash(git status:*), Bash(git branch:*), Bash(git worktree:*)
+allowed-tools: Read, Edit, Write, Glob, Grep, Agent, Skill, AskUserQuestion, Bash(gh pr list:*), Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh pr checkout:*), Bash(gh pr comment:*), Bash(gh pr edit:*), Bash(gh api:*), Bash(git fetch:*), Bash(git show:*), Bash(git status:*), Bash(git branch:*), Bash(git worktree:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(bicep build:*), Bash(pwsh:*), Bash(npm run:*)
 ---
 
 # Sweep milestone PRs
