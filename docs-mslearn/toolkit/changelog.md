@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 10/29/2026
+ms.date: 11/09/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -18,23 +18,47 @@ ms.reviewer: brettwil
 
 This article summarizes the features and enhancements in each release of the FinOps toolkit.
 
+<!--
 <br>
 
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
 
-### [FinOps hubs](hubs/finops-hubs-overview.md)
-
-- **Changed**
-  - Corrected the Azure Data Explorer SKU price estimates in the FinOps hub deployment UI dropdown (dev/test and production tiers for E2a_v4 and D11_v2) to reflect current Azure pricing; the broader hub cost estimate baseline is still under discussion ([#2229](https://github.com/microsoft/finops-toolkit/issues/2229)).
-
+-->
 
 <br><a name="latest"></a>
 
+## v16
+
+_Released November 2026_
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v16)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v15...v16)
+<!-- prettier-ignore-end -->
+
+<br>
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v16
+
+- **Added**
+  - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+- **Changed**
+  - Corrected the Azure Data Explorer SKU price estimates in the FinOps hub deployment UI dropdown (dev/test and production tiers for E2a_v4 and D11_v2) to reflect current Azure pricing; the broader hub cost estimate baseline is still under discussion ([#2229](https://github.com/microsoft/finops-toolkit/issues/2229)).
+
+### [PowerShell module](powershell/powershell-commands.md) v16
+
+- **Added**
+  - Added a `-EnableKeyVaultRbacAuthorization` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that moves the hub Key Vault from access policies to Azure RBAC. Requires hub template version 16.0 or later ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+
+<br>
+
 ## v15
 
-_Released October 2026_
+_Released October 28, 2026_
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v15
 
