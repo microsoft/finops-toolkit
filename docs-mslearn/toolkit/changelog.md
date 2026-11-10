@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/05/2026
+ms.date: 11/10/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -46,6 +46,7 @@ _Released November 2026_
 
 - **Added**
   - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+  - Added a draft FOCUS 1.5 SKU Price preview (`SkuPrices_v1_5` and `SkuPricesWide_v1_5`) with validation and scenario scripts under `Analytics/preview/SkuPrices_v1_5`. The preview is not deployed with FinOps hubs; run it manually against a hub ([#2339](https://github.com/microsoft/finops-toolkit/pull/2339)).
 
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
