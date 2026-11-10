@@ -170,7 +170,7 @@ Team members only need the [Viewer role](/kusto/management/manage-database-secur
 .add database ['Ingestion'] viewers ('aadgroup=<team-a-group-id>;<tenant-id>') 'Team A'
 ```
 
-Don't grant team members a higher role. Database admins and users can change or bypass the policy.
+Don't grant team members a higher role. Database admins can change or remove the policy, and database users can create their own tables and functions in the database.
 
 <br>
 
