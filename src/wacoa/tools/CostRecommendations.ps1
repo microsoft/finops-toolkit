@@ -366,7 +366,7 @@ function Manual-Validations {
         Write-Host "Unique resource types in YAML files: $($uniqueResourceTypes -join ', ')" -ForegroundColor Cyan
         Write-Log -Message "Unique resource types in YAML files: $($uniqueResourceTypes -join ', ')" -Level "INFO"
 
-        $resourceTypeConditions = $uniqueResourceTypes | ForEach-Object { "type == '$_'" }
+        $resourceTypeConditions = $uniqueResourceTypes | ForEach-Object { "type =~ '$_'" }
         $resourceTypeFilter = $resourceTypeConditions -join ' or '
 
         $query = "resources | where $resourceTypeFilter"
@@ -486,6 +486,152 @@ function Manual-Validations {
     }
 }
 
+function Get-ReservationScenario {
+    # Asks for the primary reservation/savings plan scenario used in the 'Recommendations' tab.
+    # All other scenarios are kept in the 'Reservation Scenarios' tab.
+    Write-Host "`nPrimary reservation/savings plan scenario (other scenarios go to the 'Reservation Scenarios' tab):" -ForegroundColor Cyan
+
+    $termMap = @{ '1' = 'P1Y'; '3' = 'P3Y' }
+    do {
+        $termChoice = Read-Host "Term: [1]-year or [3]-year? (Enter 1 or 3, default 1)"
+        if ([string]::IsNullOrWhiteSpace($termChoice)) { $termChoice = '1' }
+    } until ($termMap.ContainsKey($termChoice.Trim()))
+
+    do {
+        $lookbackChoice = Read-Host "Look-back period: [7], [30] or [60] days? (default 60)"
+        if ([string]::IsNullOrWhiteSpace($lookbackChoice)) { $lookbackChoice = '60' }
+    } until (@('7', '30', '60') -contains $lookbackChoice.Trim())
+
+    $scenario = @{ Term = $termMap[$termChoice.Trim()]; Lookback = $lookbackChoice.Trim() }
+    Write-Log -Message "Primary reservation scenario: Term=$($scenario.Term), Lookback=$($scenario.Lookback) days." -Level "INFO"
+    return $scenario
+}
+
+function Split-ReservationScenarios {
+    # Advisor returns each reservation/savings plan recommendation once per term (P1Y/P3Y) and
+    # look-back period (7/30/60 days). These are alternative scenarios and must not be summed.
+    # Keeps only the primary scenario in the main result set and returns every scenario separately.
+    param (
+        [array]$AllResources,
+        [hashtable]$PrimaryScenario
+    )
+
+    $mainResults = [System.Collections.Generic.List[object]]::new()
+    $scenarioRows = [System.Collections.Generic.List[object]]::new()
+
+    foreach ($rec in $AllResources) {
+        $details = $null
+        if ($rec.x_RecommendationProvider -eq 'Azure.Advisor' -and $rec.x_RecommendationDetails -like '*"term"*') {
+            try { $details = $rec.x_RecommendationDetails | ConvertFrom-Json -ErrorAction Stop } catch { $details = $null }
+        }
+
+        # Not a term/look-back based recommendation: keep it unchanged.
+        if (-not $details -or -not $details.term -or -not $details.lookbackPeriod) {
+            $mainResults.Add($rec)
+            continue
+        }
+
+        $isSavingsPlan = ($details.recommendationSubCategory -eq 'SavingsPlan' -or $rec.x_RecommendationDescription -like '*savings plan*')
+        # Advisor savings plan recommendations only use a 30-day look-back (Microsoft Learn: "Azure savings plan recommendations"),
+        # so savings plans follow the selected term with a fixed 30-day look-back.
+        $primaryLookback = if ($isSavingsPlan) { '30' } else { $PrimaryScenario.Lookback }
+        $isPrimary = ($details.term -eq $PrimaryScenario.Term -and "$($details.lookbackPeriod)" -eq $primaryLookback)
+        if ($isPrimary) { $mainResults.Add($rec) }
+
+        $annualSavings = 0
+        [void][double]::TryParse("$($details.annualSavingsAmount)", [System.Globalization.NumberStyles]::Any, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$annualSavings)
+
+        $scenarioRows.Add([PSCustomObject]@{
+            Term                = if ($details.term -eq 'P3Y') { '3 years' } else { '1 year' }
+            LookbackDays        = [int]$details.lookbackPeriod
+            CommitmentType      = if ($isSavingsPlan) { 'Savings plan' } else { 'Reservation' }
+            IsPrimaryScenario   = $isPrimary
+            SubAccountName      = $rec.SubAccountName
+            Description         = $rec.x_RecommendationDescription
+            ReservedResourceType = $details.reservedResourceType
+            SKU                 = if ($details.displaySKU) { $details.displaySKU } else { $details.sku }
+            Quantity            = if ($details.displayQty) { $details.displayQty } else { $details.qty }
+            Region              = if ($details.region) { $details.region } else { $details.location }
+            HourlyCommitment    = $details.commitment
+            AnnualSavings       = $annualSavings
+            Currency            = $details.savingsCurrency
+            Scope               = $details.scope
+            x_RecommendationId  = $rec.x_RecommendationId
+        })
+    }
+
+    Write-Log -Message "Reservation scenarios: $($scenarioRows.Count) scenario rows found; $(@($scenarioRows | Where-Object IsPrimaryScenario).Count) kept in the primary scenario." -Level "INFO"
+    return @{ Main = $mainResults.ToArray(); Scenarios = $scenarioRows.ToArray() }
+}
+
+function Remove-DuplicateRecommendations {
+    # The FinOps Toolkit queries and Azure Advisor report some of the same issues for the same resource.
+    # Keeps the FinOps Toolkit row (richer details), drops the Advisor row only when the SAME resource is
+    # flagged by the mapped equivalent recommendation, and records the Advisor confirmation in x_AlsoReportedBy.
+    # Resources found by only one source are always kept.
+    param ([array]$AllResources)
+
+    # Advisor recommendationTypeId -> equivalent FinOps Toolkit recommendation type id
+    $equivalentRecommendations = @{
+        '48eda464-1485-4dcf-a674-d0905df5054a' = 'e0c02939-ce02-4f9d-881f-8067ae7ec90f'  # Unattached managed disks
+        'd8e33400-499d-427c-bb7e-db2c45c8461c' = 'ab2ff882-e927-4093-9d11-631be0219975'  # VM stopped but not deallocated
+    }
+
+    $toolkitKeys = @{}
+    foreach ($rec in $AllResources) {
+        if ($rec.x_RecommendationProvider -eq 'Microsoft.FinOpsToolkit' -and $equivalentRecommendations.Values -contains $rec.x_RecommendationTypeId) {
+            $toolkitKeys["$($rec.x_RecommendationTypeId)|$("$($rec.ResourceId)".ToLower())"] = $rec
+        }
+    }
+
+    $keptResults = [System.Collections.Generic.List[object]]::new()
+    $removedCount = 0
+    foreach ($rec in $AllResources) {
+        if ($rec.x_RecommendationProvider -eq 'Azure.Advisor' -and $equivalentRecommendations.ContainsKey("$($rec.x_RecommendationTypeId)")) {
+            $key = "$($equivalentRecommendations[$rec.x_RecommendationTypeId])|$("$($rec.ResourceId)".ToLower())"
+            if ($toolkitKeys.ContainsKey($key)) {
+                $toolkitKeys[$key] | Add-Member -NotePropertyName 'x_AlsoReportedBy' -NotePropertyValue 'Azure.Advisor' -Force
+                $removedCount++
+                continue
+            }
+        }
+        $keptResults.Add($rec)
+    }
+
+    Write-Log -Message "Deduplication: removed $removedCount Advisor rows already reported by the equivalent FinOps Toolkit recommendation for the same resource." -Level "INFO"
+    return $keptResults.ToArray()
+}
+
+function Export-ReservationScenarios {
+    param (
+        [array]$Scenarios,
+        [string]$ExcelFilePath
+    )
+
+    if (-not $Scenarios -or $Scenarios.Count -eq 0) { return }
+
+    $summary = $Scenarios | Group-Object -Property CommitmentType, Term, LookbackDays | ForEach-Object {
+        $first = $_.Group[0]
+        # A scenario group is primary when its rows are the ones kept in the 'Recommendations' tab.
+        [PSCustomObject]@{
+            CommitmentType    = $first.CommitmentType
+            Term              = $first.Term
+            LookbackDays      = $first.LookbackDays
+            PrimaryScenario   = $first.IsPrimaryScenario
+            Recommendations   = $_.Count
+            AnnualSavings     = [math]::Round(($_.Group | Measure-Object -Property AnnualSavings -Sum).Sum, 0)
+            Currency          = $first.Currency
+        }
+    } | Sort-Object CommitmentType, Term, LookbackDays
+
+    $summary | Export-Excel -Path $ExcelFilePath -WorksheetName 'Reservation Scenarios' -AutoSize -TableName 'ScenarioSummary' -TableStyle $script:settings.defaultSettings.excelTableStyle -StartRow 1 `
+        -Title 'Alternative scenarios: compare rows, do not sum them. Reservations and savings plans can be combined, but their estimates may cover the same usage.' -TitleBold
+    $Scenarios | Sort-Object CommitmentType, Term, LookbackDays, SubAccountName, Description |
+        Export-Excel -Path $ExcelFilePath -WorksheetName 'Reservation Scenarios' -AutoSize -TableName 'ScenarioDetails' -TableStyle $script:settings.defaultSettings.excelTableStyle -StartRow (@($summary).Count + 5)
+
+    Write-Log -Message "Exported $($Scenarios.Count) reservation scenario rows to the 'Reservation Scenarios' tab." -Level "INFO"
+}
+
 function Export-ResultsToExcel {
     param (
         [array]$AllResources,
@@ -513,6 +659,7 @@ function Export-ResultsToExcel {
             x_RecommendationSolution    = $_.x_RecommendationSolution
             x_RecommendationDetails     = $_.x_RecommendationDetails
             x_RecommendationDate        = $_.x_RecommendationDate
+            x_AlsoReportedBy            = $_.x_AlsoReportedBy
         }
     }
     
@@ -521,9 +668,41 @@ function Export-ResultsToExcel {
 
     if ($AssessmentFilePath) {
         try {
-            $assessmentData = Get-Content -Path $AssessmentFilePath | Select-Object -Skip 11 | ConvertFrom-Csv -ErrorAction Stop
+            # The export layout varies with the number of pillars evaluated, so locate the table headers
+            # instead of skipping a fixed number of lines, and keep only the Cost Optimization pillar.
+            $lines = @(Get-Content -Path $AssessmentFilePath)
+            $recHeader = -1; $recEnd = $lines.Count; $answerHeader = -1
+            for ($i = 0; $i -lt $lines.Count; $i++) {
+                if ($recHeader -lt 0 -and $lines[$i] -like 'Category,Link-Text*') { $recHeader = $i; continue }
+                if ($recHeader -ge 0 -and $recEnd -eq $lines.Count -and $lines[$i] -like '-----*') { $recEnd = $i; continue }
+                if ($lines[$i] -like 'Category,Question*') { $answerHeader = $i; break }
+            }
+            if ($recHeader -lt 0) { throw "Recommendations header ('Category,Link-Text') not found in the assessment file." }
+
+            $assessmentData = ($lines[$recHeader..($recEnd - 1)] -join "`n") | ConvertFrom-Csv -ErrorAction Stop |
+                Where-Object { $_.Category -eq 'Cost Optimization' }
             $assessmentData | Export-Excel -Path $ExcelFilePath -WorksheetName 'Well-Architected Assessment' -AutoSize -TableName 'WAF Assessment' -TableStyle $script:settings.defaultSettings.excelTableStyle
-            Write-Log -Message "Added Well-Architected Cost Optimization assessment as a new tab in the Excel file." -Level "INFO"
+            Write-Log -Message "Added $(@($assessmentData).Count) Well-Architected Cost Optimization recommendations as a new tab in the Excel file." -Level "INFO"
+
+            # Add the customer's answers (one row per question) below the recommendations table.
+            if ($answerHeader -ge 0) {
+                $answers = ($lines[$answerHeader..($lines.Count - 1)] -join "`n") | ConvertFrom-Csv -ErrorAction Stop |
+                    Where-Object { $_.Category -eq 'Cost Optimization' } |
+                    Group-Object -Property Question | ForEach-Object {
+                        $selected = @($_.Group | Where-Object { -not [string]::IsNullOrWhiteSpace($_.'Selected Answer') } | ForEach-Object { $_.'Selected Answer' })
+                        [PSCustomObject]@{
+                            Question        = $_.Name
+                            SelectedAnswers = if ($selected.Count -gt 0) { $selected -join "`n" } else { '(not answered)' }
+                            AnswersSelected = $selected.Count
+                            OptionsAvailable = $_.Count
+                            Note            = (@($_.Group | Where-Object { $_.Note } | ForEach-Object { $_.Note }) -join "`n")
+                        }
+                    }
+                if ($answers) {
+                    $answers | Export-Excel -Path $ExcelFilePath -WorksheetName 'Well-Architected Assessment' -TableName 'WAFCostAnswers' -TableStyle $script:settings.defaultSettings.excelTableStyle -StartRow (@($assessmentData).Count + 5)
+                    Write-Log -Message "Added $(@($answers).Count) Well-Architected Cost Optimization answers to the assessment tab." -Level "INFO"
+                }
+            }
         }
         catch {
             Write-Log -Message "Failed to import or add the Well-Architected Cost Optimization assessment: $_" -Level "ERROR"
@@ -642,11 +821,16 @@ function Start-CostRecommendations {
             Write-Log -Message "Skipping manual checks as per user request." -Level "INFO"
         }
         
+        $reservationScenario = Get-ReservationScenario
+
         $results = Process-KQLFiles -BasePath $tempDir -ScopeObject $scope
+
+        $scenarioSplit = Split-ReservationScenarios -AllResources $results.AllResources -PrimaryScenario $reservationScenario
+        $results.AllResources = Remove-DuplicateRecommendations -AllResources $scenarioSplit.Main
         
         $summary = $results.AllResources | Group-Object -Property @{
             Expression = {
-                "$($_.x_RecommendationPriority) | $($_.x_ResourceType)"
+                "$($_.x_RecommendationImpact) | $($_.x_ResourceType)"
             }
         } | ForEach-Object {
             $groupParts = $_.Name -split ' \| '
@@ -673,6 +857,7 @@ function Start-CostRecommendations {
         
         if ($results.AllResources.Count -gt 0) {
             Export-ResultsToExcel -AllResources $results.AllResources -AssessmentFilePath $assessmentFilePath -ExcelFilePath $ExcelFilePath
+            Export-ReservationScenarios -Scenarios $scenarioSplit.Scenarios -ExcelFilePath $ExcelFilePath
         }
         else {
             Write-Log -Message "No KQL resources found to export." -Level "WARNING"
