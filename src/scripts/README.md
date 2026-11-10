@@ -18,11 +18,13 @@ On this page:
 - [📊 Build-PowerBI](#-build-powerbi)
 - [📊 Package-PowerBI](#-package-powerbi)
 - [📊 Save-PowerBIProject](#-save-powerbiproject)
+- [📊 Test-PowerBITemplates](#-test-powerbitemplates)
 - [📦 Package-Toolkit](#-package-toolkit)
 - [©️ Add-CopyrightHeader](#️-add-copyrightheader)
 - [📁 New-Directory](#-new-directory)
 - [🌿 New-FeatureBranch](#-new-featurebranch)
 - [🔀 Merge-DevBranch](#-merge-devbranch)
+- [🏅 Update-Contributors](#-update-contributors)
 
 ---
 
@@ -98,6 +100,8 @@ Examples:
   ```powershell
   ./Initialize-CI -SubscriptionId "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e" -WhatIf
   ```
+
+For PR deployment, fork review, and cleanup policy instructions, see [Build and test](../../docs-wiki/Build-and-test.md#pr-deployment-and-cleanup).
 
 <br>
 
@@ -467,7 +471,7 @@ Demo reports in `PowerBI-demo.zip` are saved with data from a demo hub, so that 
 Two kinds of instances:
 
 - `ftk-demo` is the current demo hub, with 36 months of data. Demo reports are built from it. Its Data Explorer cluster is `ftk-demo-hub`, because cluster names are unique across Azure and `ftk-demo` is taken.
-- `ftk-demo-v{NN}` (for example, `ftk-demo-v07` or `ftk-demo-v14`) is for opening reports from that release. The resource group, hub, and Data Explorer cluster share the name. The version being built deploys from source and, like the current demo hub, keeps 36 months of data from the demo billing account. Older releases use the released template through the FinOps toolkit module and export the subscription. The previous 3 releases keep 3 months of data, and older ones keep 1 month.
+- `ftk-demo-v{NN}` (for example, `ftk-demo-v07` or `ftk-demo-v14`) is for opening reports from that release. The resource group, hub, and Data Explorer cluster share the name. The version being built deploys from source and, like the current demo hub, exports the demo billing account. Older releases use the released template through the FinOps toolkit module and export the subscription. The version being built and the previous 3 releases keep 3 months of data, and older ones keep 1 month.
 
 Every instance uses a dev/test Data Explorer SKU and stops itself when idle, so an instance nobody is using costs almost nothing to keep. The script also gives the hub access to the scopes it exports (Cost Management Contributor on subscriptions, and the Enterprise Administrator (read only) billing role on the EA billing account, which needs an enrollment administrator) and starts the export setup, because managed exports don't run without that access.
 
@@ -482,7 +486,7 @@ To get the demo hub ready for a release, sign in with `Connect-AzAccount` using 
 | `‑ResourceGroup` | Optional. Name of the resource group. Default = the instance name.                                 |
 | `‑Location`      | Optional. Azure region. Default = "westus".                                                        |
 | `‑Scope`         | Optional. Resource IDs to export cost data for. Default = the demo billing account for the current demo hub and the version being built, or the subscription for older releases. Don't list a billing account and a subscription it contains, because costs are duplicated. Exports left on scopes you no longer list are removed, but the data they already delivered stays (see below). |
-| `‑Retention`     | Optional. Months of data the hub keeps. Default = 36 for the current demo hub and the version being built, 3 for the previous 3 releases, or 1 for older releases. |
+| `‑Retention`     | Optional. Months of data the hub keeps. Default = 36 for the current demo hub, 3 for the version being built and the previous 3 releases, or 1 for older releases. |
 | `‑DataExplorerSku` | Optional. Data Explorer SKU. Use a dev/test SKU. Default = "Dev(No SLA)_Standard_D11_v2". |
 | `‑Backfill`      | Optional. Months of history to load. Default = the retention, loaded once: it is skipped when the history export already exists. Use 0 to skip. |
 | `‑WaitMinutes`   | Optional. Minutes to wait for data to be ingested before finishing. Default = 30. Use 0 to not wait. |
@@ -577,6 +581,7 @@ Saved PBIX files are checked for the mistakes that are easy to make by hand — 
 | `‑Open`             | Optional. Opens the projects that still need to be saved as PBIX files. Default = false.                                           |
 | `‑Build`            | Optional. Rebuilds the templates and projects even if they already exist. Default = false.                                         |
 | `‑Status`           | Optional. Reports what's done and what's left without changing anything. Exits with 1 while anything is pending. Default = false.                  |
+| `‑ValidateTemplates` | Optional. Opens each template in Power BI Desktop with [Test-PowerBITemplates](#-test-powerbitemplates) before packaging. Windows only. Default = false. |
 | `‑SensitivityLabel` | Optional. Sensitivity label demo reports must have, if they have one. Default = "Public".                                          |
 | `‑OpenDataUrl`      | Optional. Base URL demo reports read open data from when they are rebuilt. Default = the `main` branch. |
 | `‑TestOpenDataUrl`  | Optional. Allows `‑OpenDataUrl` to point at a branch. Reports built that way are not packaged. Default = false. |
@@ -632,6 +637,44 @@ Example:
 
   ```powershell
   ./Save-PowerBIProject ../../release/pbix/CostSummary.storage.pbip
+  ```
+
+<br>
+
+## 📊 Test-PowerBITemplates
+
+[Test-PowerBITemplates.ps1](./Test-PowerBITemplates.ps1) opens each PBIT template in Power BI Desktop and checks what a person sees: no error dialog, and a parameter prompt titled after the template that lists the expected parameters, with the Storage URL, Cluster URL, RangeStart, and RangeEnd fields empty. KQL templates show a "Potential security risk" dialog first, which the script answers with OK. It saves a screenshot of each prompt to `release/pbit-test` and ends only the Power BI Desktop processes it started. Run it after [Build-PowerBI](#-build-powerbi), or add `‑ValidateTemplates` to [Package-PowerBI](#-package-powerbi).
+
+Power BI Desktop shows these dialogs in an embedded browser control that Windows UI Automation can't see into, so the script finds them from the process's window list and reads the prompt through the control's page, the way screen readers do. Nothing is typed and the mouse isn't used, but dialogs open and take focus while it runs, so expect about 30 seconds per template and avoid working in Power BI Desktop meanwhile.
+
+It doesn't check anything past the prompt. Power BI Desktop doesn't expose report page tabs to automation, and loading the report needs a data source. To check the contents of the templates without Power BI Desktop (on any platform), run the `PowerBITemplates` unit tests with [Test-PowerShell](#-test-powershell).
+
+Requirements:
+
+- Windows with Power BI Desktop installed and associated with `.pbit` files.
+- Built templates. Run `./Build-PowerBI -NoPbip` first.
+
+| Parameter          | Description                                                                                                            |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `‑Name`            | Optional. Name of the report to check. Wildcards supported. Default = \* (all).                                        |
+| `‑Path`            | Optional. Folder with the PBIT files, or the path to one PBIT file. Default = release/pbit.                            |
+| `‑KQL`             | Optional. Checks the KQL templates. Default = false (checks all if no types are selected).                             |
+| `‑Storage`         | Optional. Checks the storage templates. Default = false (checks all if no types are selected).                         |
+| `‑TimeoutSeconds`  | Optional. Maximum number of seconds to wait for the parameter prompt for each template. Default = 180.                 |
+| `‑ScreenshotPath`  | Optional. Folder to save one screenshot per template to. Default = release/pbit-test.                                  |
+
+Examples:
+
+- Check the Cost summary storage template.
+
+  ```powershell
+  ./Test-PowerBITemplates CostSummary -Storage
+  ```
+
+- Check all 12 templates.
+
+  ```powershell
+  ./Test-PowerBITemplates
   ```
 
 <br>
@@ -755,5 +798,42 @@ Examples:
   ```powershell
   ./Merge-DevBranch *
   ```
+
+<br>
+
+## 🏅 Update-Contributors
+
+[Update-Contributors.ps1](./Update-Contributors.ps1) finds contributors who are missing from the [all-contributors](../../.all-contributorsrc) list and adds them. It uses the `gh` CLI to read merged PRs, reviews, and issues, then credits `code`, `doc`, `review`, `bug`, and `ideas`. Other types are added by hand. The default is a dry run. Running it twice changes nothing the second time.
+
+| Parameter      | Description                                                                                                                              |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `‑Since`       | Optional. Credit PRs merged and issues created or closed on or after this date. Either `‑Since`, `‑Milestone`, or `‑PullRequest` is required. |
+| `‑Milestone`   | Optional. Credit PRs and issues in this milestone, for example `v15`.                                                                    |
+| `‑PullRequest` | Optional. Credit only this pull request's author and reviewers, merged or not. Use alone.                                              |
+| `‑Apply`       | Optional. Adds the missing credits to `.all-contributorsrc`, `README.md`, and `docs/README.md`. Requires `npm ci --ignore-scripts` once. |
+| `‑Exclude`     | Optional. Logins to never credit.                                                                                                        |
+| `‑SummaryPath` | Optional. Writes a markdown summary to this file.                                                                                        |
+
+Examples:
+
+- Show who is missing for the v15 release.
+
+  ```powershell
+  ./Update-Contributors -Milestone v15
+  ```
+
+- Add everyone who is missing credits for work since April 29.
+
+  ```powershell
+  ./Update-Contributors -Since 2026-04-29 -Apply
+  ```
+
+- Credit the author and reviewers of one pull request.
+
+  ```powershell
+  ./Update-Contributors -PullRequest 2395 -Apply
+  ```
+
+The [update-contributors](../../.github/workflows/update-contributors.yml) workflow runs this on every pull request from this repo, adding a commit with the author's and reviewers' credits to the PR branch. It also runs weekly and opens a pull request with everything else, including fork PRs, bugs, and feature requests.
 
 <br>

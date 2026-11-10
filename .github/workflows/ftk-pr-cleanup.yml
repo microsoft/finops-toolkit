@@ -3,21 +3,28 @@
 
 name: 'PR Cleanup'
 
+# Requires an event policy that allows this workflow file before December 2, 2026.
+# Keep this privileged workflow checkout-free, including for closed fork PRs.
 on:
   pull_request_target:
     types: [closed]
 
-permissions:
-  id-token: write
-  contents: read
-  pull-requests: write
-  issues: write
+permissions: {}
 
 jobs:
   cleanup:
     name: Clean up PR resources
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      pull-requests: write
+      issues: write
     environment: ${{ github.event.pull_request.head.repo.full_name != github.repository && 'ftk-fork' || 'ftk-pr' }}
+    env:
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+      GH_REPO: ${{ github.repository }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - name: Install Az modules
         shell: pwsh
@@ -38,7 +45,7 @@ jobs:
         id: delete
         shell: pwsh
         run: |
-          $prNumber = "${{ github.event.pull_request.number }}"
+          $prNumber = [int]$env:PR_NUMBER
           $pattern = "pr-$prNumber-*"
           $groups = Get-AzResourceGroup | Where-Object { $_.ResourceGroupName -like $pattern }
 
@@ -75,25 +82,24 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr comment "${{ github.event.pull_request.number }}" \
-            --repo "${{ github.repository }}" \
+          gh pr comment "$PR_NUMBER" \
+            --repo "$GH_REPO" \
             --body "Test environments cleaned up."
 
       - name: Create issue for failed cleanups
         if: steps.delete.outputs.failed != ''
         env:
           GH_TOKEN: ${{ github.token }}
+          FAILED_GROUPS: ${{ steps.delete.outputs.failed }}
         run: |
-          failed="${{ steps.delete.outputs.failed }}"
-          pr=${{ github.event.pull_request.number }}
-          author=${{ github.event.pull_request.user.login }}
           issue_url=$(gh issue create \
-            --repo "${{ github.repository }}" \
-            --title "Cleanup failed for PR #$pr" \
-            --body "The following resource groups could not be deleted: $failed. Please delete them manually. See #$pr.")
-          # Try to assign the PR author; ignore failure for external contributors
+            --repo "$GH_REPO" \
+            --title "Cleanup failed for PR #$PR_NUMBER" \
+            --body "The following resource groups could not be deleted: $FAILED_GROUPS. Please delete them manually. See #$PR_NUMBER.")
           issue_number=$(echo "$issue_url" | grep -oE '[0-9]+$')
-          gh issue edit "$issue_number" --repo "${{ github.repository }}" --add-assignee "$author" || true
+          if ! gh issue edit "$issue_number" --repo "$GH_REPO" --add-assignee "$PR_AUTHOR"; then
+            echo "::warning::Could not assign the cleanup issue to the PR author."
+          fi
 
       - name: Create issue if cleanup job failed
         # Catches hard failures (login, Get-AzResourceGroup) that abort before
@@ -103,11 +109,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          pr=${{ github.event.pull_request.number }}
-          author=${{ github.event.pull_request.user.login }}
           issue_url=$(gh issue create \
-            --repo "${{ github.repository }}" \
-            --title "Cleanup failed for PR #$pr" \
-            --body "Automated cleanup for PR #$pr failed before it could delete resource groups. Check for lingering \`pr-$pr-*\` resource groups and delete them manually. [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).")
+            --repo "$GH_REPO" \
+            --title "Cleanup failed for PR #$PR_NUMBER" \
+            --body "Automated cleanup for PR #$PR_NUMBER failed before it could delete resource groups. Check for lingering \`pr-$PR_NUMBER-*\` resource groups and delete them manually. [View logs]($RUN_URL).")
           issue_number=$(echo "$issue_url" | grep -oE '[0-9]+$')
-          gh issue edit "$issue_number" --repo "${{ github.repository }}" --add-assignee "$author" || true
+          if ! gh issue edit "$issue_number" --repo "$GH_REPO" --add-assignee "$PR_AUTHOR"; then
+            echo "::warning::Could not assign the cleanup issue to the PR author."
+          fi
