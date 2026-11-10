@@ -25,7 +25,7 @@
     Optional. GitHub repo in "owner/repo" format. Default: "microsoft/finops-toolkit".
 
     .PARAMETER ReviewerId
-    Optional. GitHub user IDs to set as required reviewers on the "ftk-fork" environment (fork PRs only; internal PRs use the ungated "ftk-pr" environment). This gate is the only control preventing a labeled fork PR from deploying untrusted templates with CI credentials. Strongly recommended before enabling fork deployments.
+    Optional. GitHub user IDs to set as required reviewers on the "ftk-fork" environment. Cleanup uses this environment for closed fork PRs, including earlier test resources. Fork PRs cannot deploy directly. Deployment uses "ftk-pr", which this script creates without required reviewers.
 
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md
@@ -37,9 +37,7 @@ param(
 
     [string]$Repository = "microsoft/finops-toolkit",
 
-    # GitHub user IDs to set as required reviewers on the 'ftk-fork' environment
-    # (fork PRs only). This gate is the only control preventing a labeled fork PR
-    # from deploying untrusted templates with CI credentials -- strongly recommended.
+    # Required reviewers for cleanup of closed fork PRs, not for fork deployment.
     [int[]]$ReviewerId
 )
 
@@ -47,9 +45,8 @@ $ErrorActionPreference = "Stop"
 
 $appName = "FinOps toolkit CI ($Repository)"
 
-# Two environments: 'ftk-pr' for trusted internal PRs (no approval gate) and
-# 'ftk-fork' for fork PRs (required reviewers). The deploy workflow picks the
-# environment per PR based on whether the head repo is a fork.
+# Deployment uses 'ftk-pr' without required reviewers. Cleanup selects 'ftk-pr'
+# or 'ftk-fork' from the closed PR's source repository.
 $internalEnvironment = "ftk-pr"
 $forkEnvironment = "ftk-fork"
 $environments = @($internalEnvironment, $forkEnvironment)
@@ -210,8 +207,7 @@ if ($PSCmdlet.ShouldProcess("$($environments -join ', ') in $Repository", 'Creat
 
     foreach ($env in $environments)
     {
-        # Only the fork environment is gated by required reviewers; internal PRs
-        # (trusted code) deploy through the ungated environment without approval.
+        # Fork cleanup can require approval. Deployment uses only 'ftk-pr'.
         if ($env -eq $forkEnvironment)
         {
             if ($ReviewerId)
@@ -222,7 +218,7 @@ if ($PSCmdlet.ShouldProcess("$($environments -join ', ') in $Repository", 'Creat
             }
             else
             {
-                Write-Warning "No -ReviewerId supplied: the '$env' environment will have NO required reviewers. Fork PRs with the 'Needs: Deployment' label could deploy untrusted templates using CI credentials. Configure reviewers before enabling fork deployments."
+                Write-Warning "No -ReviewerId supplied: '$env' will have no required reviewers. Cleanup for closed fork PRs can delete test resource groups without environment approval. This does not enable fork deployment."
                 gh api "repos/$Repository/environments/$env" -X PUT --silent
             }
         }
