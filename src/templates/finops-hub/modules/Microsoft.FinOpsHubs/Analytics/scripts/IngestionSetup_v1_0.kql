@@ -836,6 +836,8 @@ ActualCosts_transform_v1_0()
     // !!! The rest of the query is reused for both the ActualCosts and AmortizedCosts queries -- Copy all changes in both transform functions !!!
     //
     //
+    // MCA exports may carry the full ARM billing profile path; normalize to the short ID once so every column below agrees (#2356)
+    | extend BillingProfileId = iff(BillingProfileId startswith '/', tostring(split(BillingProfileId, '/')[-1]), BillingProfileId)
     | extend x_AmortizationClass = case(
         ChargeType in ('Purchase', 'Refund') and (ResourceId has '/microsoft.capacity/reservationorders/' or ResourceId has '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
         ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', 'Amortized Charge',
@@ -1058,6 +1060,8 @@ AmortizedCosts_transform_v1_0()
     // !!! The rest of the query is reused for both the ActualCosts and AmortizedCosts queries -- Copy all changes in both transform functions !!!
     //
     //
+    // MCA exports may carry the full ARM billing profile path; normalize to the short ID once so every column below agrees (#2356)
+    | extend BillingProfileId = iff(BillingProfileId startswith '/', tostring(split(BillingProfileId, '/')[-1]), BillingProfileId)
     | extend x_AmortizationClass = case(
         ChargeType in ('Purchase', 'Refund') and (ResourceId has '/microsoft.capacity/reservationorders/' or ResourceId has '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
         ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', 'Amortized Charge',

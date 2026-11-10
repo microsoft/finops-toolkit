@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/08/2026
+ms.date: 11/10/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -50,6 +50,8 @@ _Released November 2026_
   - Fixed Azure Backup charges on Recovery Services vaults being labeled as Azure Site Recovery ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
     - Backup charges now map to `ServiceName` "Azure Backup" with `ServiceCategory` "Storage" and `ServiceSubcategory` "Backup Storage" for FOCUS, actual, and amortized cost exports.
     - Already-ingested rows keep the old label until they're reingested.
+  - Fixed reservation prices not backfilling when Actual and Amortized costs carried the full billing profile path instead of the short ID ([#2356](https://github.com/microsoft/finops-toolkit/issues/2356)).
+    - Billing account ID, billing account type, and pricing currency now use the short billing profile ID too.
 
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
