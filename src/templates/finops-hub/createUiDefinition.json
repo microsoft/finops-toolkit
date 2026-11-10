@@ -203,7 +203,14 @@
             "name": "enablePurgeProtection",
             "type": "Microsoft.Common.CheckBox",
             "label": "Enable Key Vault purge protection",
-            "toolTip": "Enables purge protection for the Key Vault used to store the remote hub storage key. Purge protection prevents permanent deletion of the Key Vault for 90 days after deletion. Note: If the key is lost, you can regenerate it from the remote hub's storage account.",
+            "toolTip": "Enables purge protection for the Key Vault used to store the remote hub storage key. Purge protection prevents permanent deletion of the Key Vault for 90 days after deletion. Note: If the key is lost, you can regenerate it from the remote hub's storage account. This cannot be disabled once enabled.",
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]"
+          },
+          {
+            "name": "enableKeyVaultRbacAuthorization",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Key Vault RBAC authorization",
+            "toolTip": "Enables Azure RBAC instead of access policies to authorize access to the Key Vault used to store the remote hub storage key. Required by some organizations for policy compliance (e.g., Cloud Adoption Framework guardrails). Enable this if you are deploying to a subscription that enforces this requirement. Switching an existing vault to RBAC removes all access policies immediately; any access granted outside this template must be recreated as role assignments.",
             "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]"
           }
         ],
@@ -668,7 +675,7 @@
                 "type": "Microsoft.Common.TextBlock",
                 "visible": true,
                 "options": {
-                  "text": "Configure data retention settings for Azure Data Explorer."
+                  "text": "Configure data retention settings for Azure Data Explorer. When you redeploy or upgrade a hub, values left at the default keep the current retention settings and changed values are applied. To set a value back to the default, edit config/settings.json in the hub storage account or deploy with PowerShell."
                 }
               },
               {
@@ -1006,13 +1013,14 @@
       "enableNatGateway": "[steps('advanced').networking.enableNatGateway]",
       "virtualNetworkAddressPrefix": "[steps('advanced').networking.virtualNetworkAddressPrefix]",
       "dataExplorerSku": "[steps('pricing').dataExplorer.dataExplorerSku]",
-      "exportRetentionInDays": "[steps('retention').storage.msexportsDays]",
-      "ingestionRetentionInMonths": "[steps('retention').storage.ingestionMonths]",
-      "dataExplorerRawRetentionInDays": "[steps('retention').dataExplorer.rawDays]",
-      "dataExplorerFinalRetentionInMonths": "[steps('retention').dataExplorer.finalMonths]",
+      "exportRetentionInDays": "[if(or(equals(steps('retention').storage.msexportsDays, ''), equals(steps('retention').storage.msexportsDays, '0')), parse('null'), steps('retention').storage.msexportsDays)]",
+      "ingestionRetentionInMonths": "[if(or(equals(steps('retention').storage.ingestionMonths, ''), equals(steps('retention').storage.ingestionMonths, '13')), parse('null'), steps('retention').storage.ingestionMonths)]",
+      "dataExplorerRawRetentionInDays": "[if(or(equals(steps('retention').dataExplorer.rawDays, ''), equals(steps('retention').dataExplorer.rawDays, '0')), parse('null'), steps('retention').dataExplorer.rawDays)]",
+      "dataExplorerFinalRetentionInMonths": "[if(or(equals(steps('retention').dataExplorer.finalMonths, ''), equals(steps('retention').dataExplorer.finalMonths, '13')), parse('null'), steps('retention').dataExplorer.finalMonths)]",
       "remoteHubStorageUri": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), basics('analyticsBackend').remoteHubStorageUri, '')]",
       "remoteHubStorageKey": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), basics('analyticsBackend').remoteHubStorageKey, '')]",
       "enablePurgeProtection": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), coalesce(basics('analyticsBackend').enablePurgeProtection, false), false)]",
+      "enableKeyVaultRbacAuthorization": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), coalesce(basics('analyticsBackend').enableKeyVaultRbacAuthorization, false), false)]",
       "tagsByResource": "[steps('tags').tagsByResource]"
     }
   }

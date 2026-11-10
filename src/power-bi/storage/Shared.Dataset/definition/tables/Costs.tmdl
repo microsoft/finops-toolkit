@@ -1426,12 +1426,12 @@ table Costs
 					_stringValue = (val) => if _isBlank(val) then null else val,
 					_swapCol    = (tbl, oldCol, newCol, newVal, optional newType) => let add = Table.AddColumn(tbl, newCol, newVal, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,
 					_resetCol   = (tbl, col, newVal, optional newType) => let tmpCol = Text.Combine({"tmp_", col}), tmp = _swapCol(tbl, col, tmpCol, newVal, newType), ren = Table.RenameColumns(tmp, {{tmpCol, col}}) in ren,
+					_ensureCol  = (tbl, col) => if Table.HasColumns(tbl, {col}) then tbl else Table.AddColumn(tbl, col, each null),
 					
 					// Update previous FOCUS versions
 					PerformDeprecatedOptimizations = #"Deprecated: Perform Extra Query Optimizations",
 					HasPreview = Table.HasColumns(RawData, {"ChargeSubcategory"}),
 					Has10      = Table.HasColumns(RawData, {"ChargeClass"}),
-					Has12      = Table.HasColumns(RawData, {"InvoiceId"}),
 					HandlePeview = if HasPreview = false then RawData
 						else if PerformDeprecatedOptimizations = false then error "LegacyFocusVersion: Please enable the 'Perform Extra Query Optimizations' parameter"
 						else (
@@ -1462,17 +1462,19 @@ table Costs
 								RemovePreviewCols
 						),
 					// Handle columns renamed in FOCUS 1.2 gracefully -- Copy values to/from 1.0 and 1.2 columns
-					InvoiceId       = if Has12
-						then Table.ReplaceValue(HandlePeview, null,        each [x_InvoiceId], Replacer.ReplaceValue, {"InvoiceId"})
-						else Table.AddColumn(   HandlePeview, "InvoiceId", each [x_InvoiceId]),
-					PricingCurrency = if Has12
-						then Table.ReplaceValue(InvoiceId, null,              each [x_PricingCurrency], Replacer.ReplaceValue, {"PricingCurrency"})
-						else Table.AddColumn(   InvoiceId, "PricingCurrency", each [x_PricingCurrency]),
-					SkuMeter        = if Has12
-						then Table.ReplaceValue(PricingCurrency, null,       each [x_SkuMeterName], Replacer.ReplaceValue, {"SkuMeterName"})
-						else Table.AddColumn(   PricingCurrency, "SkuMeter", each [x_SkuMeterName]),
-					// Copy 1.2 values to 1.0 columns
-					Align12 = Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(SkuMeter,
+					// FOCUS 1.2 promotes x_InvoiceId/x_PricingCurrency to InvoiceId/PricingCurrency and renames
+					// x_SkuMeterName to SkuMeter. ftk_Storage does not backfill focuscost columns, so a container
+					// holding only 1.2 exports has none of the 1.0 columns (and a 1.0-only container none of the
+					// 1.2 ones). Add whichever side is missing as null first, then copy values in both directions.
+					EnsureRenamedCols = List.Accumulate(
+						{"x_InvoiceId", "x_PricingCurrency", "x_SkuMeterName", "InvoiceId", "PricingCurrency", "SkuMeter"},
+						HandlePeview,
+						(tbl, col) => _ensureCol(tbl, col)),
+					// Copy 1.0 values to the 1.2 columns, then 1.2 values back to the 1.0 columns
+					Align12 = Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(EnsureRenamedCols,
+						null, each [x_InvoiceId],       Replacer.ReplaceValue, {"InvoiceId"}),
+						null, each [x_PricingCurrency], Replacer.ReplaceValue, {"PricingCurrency"}),
+						null, each [x_SkuMeterName],    Replacer.ReplaceValue, {"SkuMeter"}),
 						null, each [InvoiceId],         Replacer.ReplaceValue, {"x_InvoiceId"}),
 						null, each [PricingCurrency],   Replacer.ReplaceValue, {"x_PricingCurrency"}),
 						null, each [SkuMeter],          Replacer.ReplaceValue, {"x_SkuMeterName"}),
@@ -1480,8 +1482,8 @@ table Costs
 					// Fix known bugs and set data types
 					Fixes = Table.TransformColumnTypes(
 						Table.ReplaceValue(Table.ReplaceValue(
-							// Create AvailabilityZone column if missing to support non-Microsoft clouds
-							if Table.HasColumns(Align12, {"AvailabilityZone"}) then Align12 else Table.AddColumn(Align12, "AvailabilityZone", each null),
+							// Create columns the report needs that older FOCUS versions and non-Microsoft clouds don't have
+							List.Accumulate({"AvailabilityZone", "CapacityReservationId", "CapacityReservationStatus"}, Align12, (tbl, col) => if Table.HasColumns(tbl, {col}) then tbl else Table.AddColumn(tbl, col, each null)),
 							// Fix savings plan purchases -- Cost Management fix pending as of Dec 8, 2024
 							each [EffectiveCost], each if [ChargeCategory] = "Purchase" and [CommitmentDiscountId] <> "" and [CommitmentDiscountId] <> null then 0.0 else [EffectiveCost], Replacer.ReplaceValue, {"EffectiveCost"}),
 							// Fix PricingCategory values -- Remove after Oct 1, 2025

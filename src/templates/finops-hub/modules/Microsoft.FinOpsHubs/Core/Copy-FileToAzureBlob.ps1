@@ -114,45 +114,29 @@ if (!($json.retention))
     $json | Add-Member -Name retention -Value (ConvertFrom-Json $retention) -MemberType NoteProperty
 }
 
-# Set or update msexports retention
-if (!($json.retention.msexports))
+# Set retention
+# NOTE: The template only passes retention values the deployment specifies. When a value isn't passed, keep the stored
+# value (or the default for new hubs) so a redeploy or upgrade never resets retention (#2206, #2348).
+function Set-Retention([string] $Name, [string] $Unit, [int] $Default, [string] $Requested)
 {
-    $json.retention | Add-Member -Name msexports -Value (ConvertFrom-Json "{""days"":$($env:msexportRetentionInDays)}") -MemberType NoteProperty
+    if (!($json.retention.$Name))
+    {
+        $json.retention | Add-Member -Name $Name -Value ([PSCustomObject]@{ $Unit = $Default }) -MemberType NoteProperty -Force
+    }
+    if (-not [string]::IsNullOrWhiteSpace($Requested))
+    {
+        Write-Output "  Setting $Name retention to $Requested $Unit..."
+        $json.retention.$Name.$Unit = [Int32]::Parse($Requested)
+    }
+    else
+    {
+        Write-Output "  Keeping $Name retention at $($json.retention.$Name.$Unit) $Unit..."
+    }
 }
-else
-{
-    $json.retention.msexports.days = [Int32]::Parse($env:msexportRetentionInDays)
-}
-
-# Set or update ingestion retention
-if (!($json.retention.ingestion))
-{
-    $json.retention | Add-Member -Name ingestion -Value (ConvertFrom-Json "{""months"":$($env:ingestionRetentionInMonths)}") -MemberType NoteProperty
-}
-else
-{
-    $json.retention.ingestion.months = [Int32]::Parse($env:ingestionRetentionInMonths)
-}
-
-# Set or update raw retention
-if (!($json.retention.raw))
-{
-    $json.retention | Add-Member -Name raw -Value (ConvertFrom-Json "{""days"":$($env:rawRetentionInDays)}") -MemberType NoteProperty
-}
-else
-{
-    $json.retention.raw.days = [Int32]::Parse($env:rawRetentionInDays)
-}
-
-# Set or update final retention
-if (!($json.retention.final))
-{
-    $json.retention | Add-Member -Name final -Value (ConvertFrom-Json "{""months"":$($env:finalRetentionInMonths)}") -MemberType NoteProperty
-}
-else
-{
-    $json.retention.final.months = [Int32]::Parse($env:finalRetentionInMonths)
-}
+Set-Retention -Name msexports -Unit days   -Default 0  -Requested $env:msexportRetentionInDays
+Set-Retention -Name ingestion -Unit months -Default 13 -Requested $env:ingestionRetentionInMonths
+Set-Retention -Name raw       -Unit days   -Default 0  -Requested $env:rawRetentionInDays
+Set-Retention -Name final     -Unit months -Default 13 -Requested $env:finalRetentionInMonths
 
 # Updating settings
 Write-Output "Updating version to $env:ftkVersion..."
@@ -168,3 +152,8 @@ $text | Out-File $filePath
 # Upload new/updated settings
 Write-Output "Uploading settings.json file..."
 Set-AzStorageBlobContent @storageContext -File $filePath -Force | Out-Null
+
+# Return the effective raw retention so the Data Explorer setup applies the stored value
+$DeploymentScriptOutputs = @{
+    rawRetentionInDays = [Int32]$json.retention.raw.days
+}

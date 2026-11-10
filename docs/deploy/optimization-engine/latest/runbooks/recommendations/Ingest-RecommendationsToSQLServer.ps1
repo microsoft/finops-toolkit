@@ -32,7 +32,8 @@ $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSi
 
 
 $storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue
-if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
+if ([string]::IsNullOrEmpty($storageAccountSinkContainer))
+{
     $storageAccountSinkContainer = "recommendationsexports"
 }
 $StorageBlobsPageSize = [int] (Get-AutomationVariable -Name  "AzureOptimization_StorageBlobsPageSize" -ErrorAction SilentlyContinue)
@@ -41,14 +42,54 @@ if (-not($StorageBlobsPageSize -gt 0))
     $StorageBlobsPageSize = 1000
 }
 
+function Close-SqlConnection()
+{
+    if ($null -ne $script:SqlConnection)
+    {
+        if ($script:SqlConnection.State -ne [System.Data.ConnectionState]::Closed)
+        {
+            $script:SqlConnection.Close()
+        }
+        $script:SqlConnection.Dispose()
+        $script:SqlConnection = $null
+        $script:SqlTokenExpiresOn = $null
+    }
+}
+
+function Get-SqlConnection()
+{
+    $refreshWindow = (Get-Date).ToUniversalTime().AddMinutes(5)
+    if ($null -ne $script:SqlConnection -and
+        $script:SqlConnection.State -eq [System.Data.ConnectionState]::Open -and
+        $script:SqlTokenExpiresOn -gt $refreshWindow)
+    {
+        return $script:SqlConnection
+    }
+
+    Close-SqlConnection
+
+    $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+    $script:SqlTokenExpiresOn = $dbToken.ExpiresOn.UtcDateTime
+    $script:SqlConnection = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;Pooling=False")
+    $script:SqlConnection.AccessToken = $dbToken.Token
+    $script:SqlConnection.Open()
+
+    return $script:SqlConnection
+}
+
+
 "Logging in to Azure with $authenticationOption..."
 
-switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" {
+switch ($authenticationOption)
+{
+    "UserAssignedManagedIdentity"
+    {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
-    Default { #ManagedIdentity
+    Default
+    {
+        #ManagedIdentity
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
@@ -71,7 +112,7 @@ do
     $blobs = Get-AzStorageBlob -Container $storageAccountSinkContainer -MaxCount $StorageBlobsPageSize -ContinuationToken $continuationToken -Context $saCtx | Sort-Object -Property LastModified
     if ($blobs.Count -le 0) { break }
     $allblobs += $blobs
-    $continuationToken = $blobs[$blobs.Count -1].ContinuationToken;
+    $continuationToken = $blobs[$blobs.Count - 1].ContinuationToken
 }
 While ($null -ne $continuationToken)
 
@@ -81,14 +122,13 @@ $recommendationsTable = "Recommendations"
 $tries = 0
 $connectionSuccess = $false
 
-do {
+do
+{
     $tries++
-    try {
-        $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
-        $Conn.AccessToken = $dbToken.Token
-        $Conn.Open()
-        $Cmd=new-object system.Data.SqlClient.SqlCommand
+    try
+    {
+        $Conn = Get-SqlConnection
+        $Cmd = New-Object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$SqlServerIngestControlTable] WHERE StorageContainerName = '$storageAccountSinkContainer' and SqlTableName = '$recommendationsTable'"
@@ -99,12 +139,16 @@ do {
         $sqlAdapter.Fill($controlRows) | Out-Null
         $connectionSuccess = $true
     }
-    catch {
+    catch
+    {
+        Close-SqlConnection
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
     }
 } while (-not($connectionSuccess) -and $tries -lt 3)
+
+Close-SqlConnection
 
 if (-not($connectionSuccess))
 {
@@ -120,8 +164,6 @@ $controlRow = $controlRows[0]
 $lastProcessedLine = $controlRow.LastProcessedLine
 $lastProcessedDateTime = $controlRow.LastProcessedDateTime.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
 
-$Conn.Close()
-$Conn.Dispose()
 
 Write-Output "Processing blobs modified after $lastProcessedDateTime (line $lastProcessedLine) and ingesting them into the Recommendations SQL table..."
 
@@ -129,10 +171,12 @@ $newProcessedTime = $null
 
 $unprocessedBlobs = @()
 
-foreach ($blob in $allblobs) {
+foreach ($blob in $allblobs)
+{
     $blobLastModified = $blob.LastModified.UtcDateTime.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
     if ($lastProcessedDateTime -lt $blobLastModified -or `
-        ($lastProcessedDateTime -eq $blobLastModified -and $lastProcessedLine -gt 0)) {
+        ($lastProcessedDateTime -eq $blobLastModified -and $lastProcessedLine -gt 0))
+    {
         Write-Output "$($blob.Name) found (modified on $blobLastModified)"
         $unprocessedBlobs += $blob
     }
@@ -142,7 +186,8 @@ $unprocessedBlobs = $unprocessedBlobs | Sort-Object -Property LastModified
 
 Write-Output "Found $($unprocessedBlobs.Count) new blobs to process..."
 
-foreach ($blob in $unprocessedBlobs) {
+foreach ($blob in $unprocessedBlobs)
+{
     $newProcessedTime = $blob.LastModified.UtcDateTime.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
     Write-Output "About to process $($blob.Name)..."
     Get-AzStorageBlobContent -CloudBlob $blob.ICloudBlob -Context $saCtx -Force
@@ -167,8 +212,9 @@ foreach ($blob in $unprocessedBlobs) {
 
     if ($recCount -gt 1)
     {
-        for ($i = 0; $i -lt $recCount; $i += $ChunkSize) {
-            $jsonObjectSplitted += , @($jsonObject[$i..($i + ($ChunkSize - 1))]);
+        for ($i = 0; $i -lt $recCount; $i += $ChunkSize)
+        {
+            $jsonObjectSplitted += , @($jsonObject[$i..($i + ($ChunkSize - 1))])
         }
     }
     else
@@ -223,60 +269,58 @@ foreach ($blob in $unprocessedBlobs) {
                     $sqlStatement += ", '$($jsonObjectSplitted[$j][$i].InstanceId)', '$($jsonObjectSplitted[$j][$i].InstanceName)', '$additionalInfoString'"
                     $sqlStatement += ", $resourceGroup, $subscriptionGuid, $subscriptionName, '$($jsonObjectSplitted[$j][$i].TenantGuid)'"
                     $sqlStatement += ", $($jsonObjectSplitted[$j][$i].FitScore), '$tagsString', '$($jsonObjectSplitted[$j][$i].DetailsURL)')"
-                    if ($i -ne ($jsonObjectSplitted[$j].Count-1))
+                    if ($i -ne ($jsonObjectSplitted[$j].Count - 1))
                     {
                         $sqlStatement += ","
                     }
                 }
 
-                $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-                $Conn2 = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
-                $Conn2.AccessToken = $dbToken.Token
-                $Conn2.Open()
-
-                $Cmd=new-object system.Data.SqlClient.SqlCommand
-                $Cmd.Connection = $Conn2
+                $Conn = Get-SqlConnection
+                $Cmd = New-Object system.Data.SqlClient.SqlCommand
+                $Cmd.Connection = $Conn
                 $Cmd.CommandText = $sqlStatement
                 $Cmd.CommandTimeout = $SqlTimeout
                 try
                 {
-                    $Cmd.ExecuteReader()
+                    $Cmd.ExecuteNonQuery() | Out-Null
                 }
                 catch
                 {
                     Write-Output "Failed statement: $sqlStatement"
                     throw
                 }
-
-                $Conn2.Close()
+                finally
+                {
+                    $Cmd.Dispose()
+                }
 
                 $linesProcessed += $currentObjectLines
                 Write-Output "Processed $linesProcessed lines..."
-                if ($j -eq ($jsonObjectSplitted.Count - 1)) {
+                if ($j -eq ($jsonObjectSplitted.Count - 1))
+                {
                     $lastProcessedLine = -1
                 }
-                else {
+                else
+                {
                     $lastProcessedLine = $linesProcessed - 1
                 }
 
                 $updatedLastProcessedLine = $lastProcessedLine
                 $updatedLastProcessedDateTime = $lastProcessedDateTime
-                if ($j -eq ($jsonObjectSplitted.Count - 1)) {
+                if ($j -eq ($jsonObjectSplitted.Count - 1))
+                {
                     $updatedLastProcessedDateTime = $newProcessedTime
                 }
                 $lastProcessedDateTime = $updatedLastProcessedDateTime
                 Write-Output "Updating last processed time / line to $($updatedLastProcessedDateTime) / $updatedLastProcessedLine"
                 $sqlStatement = "UPDATE [$SqlServerIngestControlTable] SET LastProcessedLine = $updatedLastProcessedLine, LastProcessedDateTime = '$updatedLastProcessedDateTime' WHERE StorageContainerName = '$storageAccountSinkContainer'"
-                $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-                $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
-                $Conn.AccessToken = $dbToken.Token
-                $Conn.Open()
-                $Cmd=new-object system.Data.SqlClient.SqlCommand
+                $Conn = Get-SqlConnection
+                $Cmd = New-Object system.Data.SqlClient.SqlCommand
                 $Cmd.Connection = $Conn
                 $Cmd.CommandText = $sqlStatement
                 $Cmd.CommandTimeout = $SqlTimeout
-                $Cmd.ExecuteReader()
-                $Conn.Close()
+                $Cmd.ExecuteNonQuery() | Out-Null
+                $Cmd.Dispose()
             }
             else
             {
@@ -287,5 +331,7 @@ foreach ($blob in $unprocessedBlobs) {
 
     Remove-Item -Path $blob.Name -Force
 }
+
+Close-SqlConnection
 
 Write-Output "DONE"

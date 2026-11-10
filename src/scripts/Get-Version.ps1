@@ -16,6 +16,9 @@
     .PARAMETER AsTag
     Optional. Returns the version as a git tag (e.g., "v13" instead of "13.0"). Default = false.
 
+    .PARAMETER AsSemVer
+    Optional. Returns a full three-part semantic version (e.g., "13.0.0" instead of "13.0") for files that require it, like marketplace.json. Default = false.
+
     .PARAMETER AsDotNetVersion
     Optional. Indicates that the returned version should be in the format "x.x.x.x". Otherwise, semantic versioning is used. Default = false.
 
@@ -34,6 +37,9 @@ param(
     $AsTag,
 
     [switch]
+    $AsSemVer,
+
+    [switch]
     $AsDotNetVersion
 )
 
@@ -46,6 +52,14 @@ $ver = (Get-Content (Join-Path $PSScriptRoot ../../package.json) | ConvertFrom-J
 if ($AsTag)
 {
     return 'v' + (($ver -replace '-.*$', '') -replace '\.0$', '')
+}
+
+if ($AsSemVer)
+{
+    # Pad major.minor to major.minor.patch and keep any prerelease label
+    $base = ($ver -replace '-.*$', '') -split '\.'
+    while ($base.Count -lt 3) { $base += '0' }
+    return ($base[0..2] -join '.') + ($ver -replace '^[^-]*', '')
 }
 
 if ($AsDotNetVersion -and $ver.Contains('-'))

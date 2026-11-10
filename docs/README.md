@@ -18,9 +18,9 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 ---
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in April 2026<span class="ftk-version">v14</span></h3>
+    <h3>What's new in October 2026<span class="ftk-version">v15</span></h3>
     <p>
-        April adds recommendations ingestion and a Copilot Studio agent template for FinOps hubs, a new commitment discount eligibility open dataset, simplified hub deployment UI, Azure Optimization Engine pricesheet API upgrade, and minor improvements in Power BI, FinOps workbooks, and the PowerShell module.
+        October adds a shared FinOps Toolkit plugin for Claude Code and GitHub Copilot CLI, private networking support for FinOps hubs, a new Instance size flexibility open dataset, several KQL performance and correctness fixes across hubs, workbooks, and alerts, and minor improvements in Power BI, the Optimization Engine, and the PowerShell module.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -61,9 +61,9 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
         <a href="./optimization-engine">Learn more</a>
     </div>
     <div class="ftk-tile">
-        <div>🌐 Open data</div>
-        <div>Useful data for anyone to access, use, and share.</div>
-        <a href="./open-data">Learn more</a>
+        <div>🤖 Agent plugin</div>
+        <div>AI-powered cloud financial management for Claude Code and GitHub Copilot CLI.</div>
+        <a href="./agent-plugin">Learn more</a>
     </div>
     <div class="ftk-tile">
         <div>🖥️ PowerShell</div>
@@ -74,6 +74,11 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
         <div>🦾 Bicep Registry</div>
         <div>Official repository for Bicep modules.</div>
         <a href="./bicep">Learn more</a>
+    </div>
+    <div class="ftk-tile">
+        <div>🌐 Open data</div>
+        <div>Useful data for anyone to access, use, and share.</div>
+        <a href="./open-data">Learn more</a>
     </div>
 </div>
 
@@ -216,7 +221,7 @@ Whether you're looking for a little assistance or are interested in contributing
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/NicholasBrand"><img src="https://avatars.githubusercontent.com/u/92826586?v=4?s=100" width="100px;" alt="NicholasBrand"/><br /><sub><b>NicholasBrand</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=NicholasBrand" title="Code">💻</a> <a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3ANicholasBrand" title="Bug reports">🐛</a></td>
     </tr>
     <tr>
-      <td align="center" valign="top" width="16.66%"><a href="https://github.com/JacobStruiksma"><img src="https://avatars.githubusercontent.com/u/9788612?v=4?s=100" width="100px;" alt="Jacob Struiksma"/><br /><sub><b>Jacob Struiksma</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=JacobStruiksma" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/JacobStruiksma"><img src="https://avatars.githubusercontent.com/u/9788612?v=4?s=100" width="100px;" alt="Jacob Struiksma"/><br /><sub><b>Jacob Struiksma</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=JacobStruiksma" title="Code">💻</a> <a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3AJacobStruiksma" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/adeelaz"><img src="https://avatars.githubusercontent.com/u/63263829?v=4?s=100" width="100px;" alt="Adeel Aziz"/><br /><sub><b>Adeel Aziz</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=adeelaz" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/shasulin"><img src="https://avatars.githubusercontent.com/u/45314814?v=4?s=100" width="100px;" alt="shasulin"/><br /><sub><b>shasulin</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Ashasulin" title="Reviewed Pull Requests">👀</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/kasimrehman"><img src="https://avatars.githubusercontent.com/u/57490380?v=4?s=100" width="100px;" alt="Kasim Rehman"/><br /><sub><b>Kasim Rehman</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=kasimrehman" title="Code">💻</a></td>
@@ -241,6 +246,16 @@ Whether you're looking for a little assistance or are interested in contributing
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/TakumiSeo"><img src="https://avatars.githubusercontent.com/u/49015441?v=4?s=100" width="100px;" alt="TakuSe"/><br /><sub><b>TakuSe</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=TakumiSeo" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/sandhyakumili"><img src="https://avatars.githubusercontent.com/u/173696668?v=4?s=100" width="100px;" alt="sandhyakumili"/><br /><sub><b>sandhyakumili</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Asandhyakumili" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/Christopherloof"><img src="https://avatars.githubusercontent.com/u/119003550?v=4?s=100" width="100px;" alt="Christopherloof"/><br /><sub><b>Christopherloof</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3AChristopherloof" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://linktr.ee/haflidif"><img src="https://avatars.githubusercontent.com/u/26624010?v=4?s=100" width="100px;" alt="Haflidi Fridthjofsson"/><br /><sub><b>Haflidi Fridthjofsson</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Ahaflidif" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/josesarsa"><img src="https://avatars.githubusercontent.com/u/89536192?v=4?s=100" width="100px;" alt="josearsa"/><br /><sub><b>josearsa</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Ajosesarsa" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/sharmilamusunuru"><img src="https://avatars.githubusercontent.com/u/70754330?v=4?s=100" width="100px;" alt="sharmilamusunuru"/><br /><sub><b>sharmilamusunuru</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Asharmilamusunuru" title="Bug reports">🐛</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/xan-archera"><img src="https://avatars.githubusercontent.com/u/248541667?v=4?s=100" width="100px;" alt="xan-archera"/><br /><sub><b>xan-archera</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Axan-archera" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/bpurchell"><img src="https://avatars.githubusercontent.com/u/40211715?v=4?s=100" width="100px;" alt="Brian Purchell"/><br /><sub><b>Brian Purchell</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=bpurchell" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/danfiedler-msft"><img src="https://avatars.githubusercontent.com/u/151573964?v=4?s=100" width="100px;" alt="Dan Fiedler"/><br /><sub><b>Dan Fiedler</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=danfiedler-msft" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'src/powershell/**'
+      - '.github/workflows/ftk-pr-deploy.yml'
+      - '.github/workflows/ftk-pr-cleanup.yml'
       # KQL sources are covered by unit tests (HubsKqlOperators.Tests.ps1)
       - 'src/templates/finops-hub/**/*.kql'
       - 'src/queries/**/*.kql'
@@ -11,6 +13,12 @@ on:
       - 'src/templates/finops-hub/**/timeZones.bicep'
       - 'docs/deploy/finops-hub-latest.json'
       - 'docs/deploy/finops-hub-preview.json'
+      # Power BI report definitions and build scripts are covered by PowerBIReports.Tests.ps1 and Build-PowerBI.Tests.ps1
+      - 'src/power-bi/kql/**'
+      - 'src/power-bi/storage/**'
+      - 'src/power-bi/reports.json'
+      - 'src/scripts/Build-PowerBI.ps1'
+      - 'src/scripts/Package-PowerBI.ps1'
 jobs:
   run_pester_tests:
     name: Pester
