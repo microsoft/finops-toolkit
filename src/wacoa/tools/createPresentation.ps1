@@ -182,6 +182,12 @@ try {
     $MsoTrue = 1  # msoTrue value
     $MsoFalse = 0 # msoFalse value
 
+    # PowerPoint COM resolves relative paths against its own working directory, not the PowerShell location,
+    # so relative paths fail with 0x80070002 (file not found). Resolve all paths to absolute paths first.
+    $InputPath = (Resolve-Path -Path $InputPath -ErrorAction Stop).Path
+    $PowerPointPath = (Resolve-Path -Path $PowerPointPath -ErrorAction Stop).Path
+    if ($OutputPath) { $OutputPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutputPath) }
+
     # Initialize PowerPoint application 
     Write-Progress-Message "Initializing PowerPoint application..."
     $PowerPoint = New-Object -ComObject PowerPoint.Application
@@ -331,7 +337,9 @@ try {
             }
         }
 
-        return $uniqueRecs
+        # Hashtable order is arbitrary and the slide tables only hold 13 rows: show automatic recommendations
+        # first, ordered by number of impacted resources, then manual recommendations.
+        return $uniqueRecs | Sort-Object @{ Expression = { $_.Source -eq 'Manual' } }, @{ Expression = 'ResourceCount'; Descending = $true }, Description
     }
 
     # Group recommendations to avoid duplication  
