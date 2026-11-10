@@ -3,7 +3,7 @@ title: FinOps toolkit PowerShell module
 description: Automate and scale your FinOps efforts using the FinOps toolkit PowerShell module, which includes commands to manage FinOps solutions.
 author: flanakin
 ms.author: micflan
-ms.date: 10/12/2026
+ms.date: 10/29/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -58,6 +58,11 @@ The FinOps toolkit PowerShell module includes commands to manage FinOps solution
 - [New-FinOpsCostExport](cost/New-FinOpsCostExport.md) – Create a new Cost Management export.
 - [Remove-FinOpsCostExport](cost/Remove-FinOpsCostExport.md) – Delete a Cost Management export and optionally data associated with the export.
 - [Start-FinOpsCostExport](cost/Start-FinOpsCostExport.md) – Initiates a Cost Management export run for the most recent period.
+
+### FinOps Explorer TUI commands
+
+- [Start-FinOpsExplorer](multitool/Start-FinOpsMultitool.md) – Launch the FinOps Explorer terminal UI.
+- [Start-FinOpsMultitool](multitool/Start-FinOpsMultitool.md) – Backward-compatible wrapper with the same parameters and behavior.
 
 ### FinOps hubs commands
 

@@ -20,8 +20,8 @@ function Build-PsModule
     $moduleName = 'FinOpsToolkit'
     $moduleFullName = "$moduleName.psm1"
     $modulePath = Join-Path -Path $rootPath -ChildPath "src/powershell/$moduleFullName"
-    $privatePath = Join-Path -Path $rootPath -ChildPath "src/powershell/private"
-    $publicPath = Join-Path -Path $rootPath -ChildPath "src/powershell/public"
+    $privatePath = Join-Path -Path $rootPath -ChildPath "src/powershell/Private"
+    $publicPath = Join-Path -Path $rootPath -ChildPath "src/powershell/Public"
     $stringsPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/en-US'
     $releasePath = Join-Path -Path $rootPath -ChildPath "release/$moduleName/$baseVersion"
     $manifestPath = Join-Path -Path $releasePath -ChildPath "$moduleName.psd1"
