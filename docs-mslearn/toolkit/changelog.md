@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/10/2026
+ms.date: 11/11/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -49,6 +49,11 @@ _Released November 2026_
 - **Fixed**
   - Fixed reservation prices not backfilling when Actual and Amortized costs carried the full billing profile path instead of the short ID ([#2356](https://github.com/microsoft/finops-toolkit/issues/2356)).
     - Billing account ID, billing account type, and pricing currency now use the short billing profile ID too.
+
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v16
+
+- **Added**
+  - Added Export to Excel to the storage queries in the optimization workbook.
 
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
