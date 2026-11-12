@@ -315,7 +315,8 @@ resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-0
                     ]
                   }
                   {
-                    name: 'Increment Page Number'
+                    name: 'Compute Next Page Number'
+                    description: 'Data Factory does not let a Set Variable activity reference the variable it sets, so the next page number goes through a temporary variable.'
                     type: 'SetVariable'
                     dependsOn: [
                       {
@@ -329,9 +330,31 @@ resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-0
                     }
                     userProperties: []
                     typeProperties: {
-                      variableName: 'pageNumber'
+                      variableName: 'nextPageNumber'
                       value: {
                         value: '@string(add(int(variables(\'pageNumber\')), 1))'
+                        type: 'Expression'
+                      }
+                    }
+                  }
+                  {
+                    name: 'Increment Page Number'
+                    type: 'SetVariable'
+                    dependsOn: [
+                      {
+                        activity: 'Compute Next Page Number'
+                        dependencyConditions: ['Succeeded']
+                      }
+                    ]
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'pageNumber'
+                      value: {
+                        value: '@variables(\'nextPageNumber\')'
                         type: 'Expression'
                       }
                     }
@@ -373,14 +396,18 @@ resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-0
         defaultValue: ''
       }
       hasMorePages: {
-        type: 'Bool'
+        type: 'Boolean'
         defaultValue: true
       }
       hasResults: {
-        type: 'Bool'
+        type: 'Boolean'
         defaultValue: false
       }
       pageNumber: {
+        type: 'String'
+        defaultValue: '1'
+      }
+      nextPageNumber: {
         type: 'String'
         defaultValue: '1'
       }

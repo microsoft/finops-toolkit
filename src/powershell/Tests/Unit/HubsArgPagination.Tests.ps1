@@ -25,4 +25,18 @@ Describe 'HubsArgPagination' {
     It 'writes each page to its own file' {
         $script:bicep | Should -Match "concat\(\\'_\\', variables\(\\'pageNumber\\'\)"
     }
+
+    It 'uses Data Factory variable types' {
+        # ADF rejects pipeline runs with "Invalid value for property 'type'" when a variable uses 'Bool' (parameters use 'Bool', variables use 'Boolean')
+        $variables = [regex]::Match($script:bicep, "(?s)resource pipeline_ExecuteQuery.*?variables: \{(.*?)\n    \}").Groups[1].Value
+        $variables | Should -Not -BeNullOrEmpty
+        [regex]::Matches($variables, "type: '(\w+)'").ForEach({ $_.Groups[1].Value }) | Should -BeIn @('String', 'Boolean', 'Array', 'Integer')
+    }
+
+    It 'never sets a variable from itself' {
+        # ADF fails the run with "Self reference is not supported when updating the value of variable"
+        $selfRefs = [regex]::Matches($script:bicep, "(?s)variableName: '(\w+)'\s*value: \{\s*value: '([^\n]*)'") |
+            Where-Object { $_.Groups[2].Value -match ("variables\(\\'{0}\\'\)" -f $_.Groups[1].Value) }
+        $selfRefs | Should -BeNullOrEmpty
+    }
 }
