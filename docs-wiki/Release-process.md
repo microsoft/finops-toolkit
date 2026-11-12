@@ -176,7 +176,7 @@ Once the above requirements have been met, the feature branch can be merged into
          - Carefully review the list to ensure everyone is covered since feature branch PRs get merged, which can hide contributors.
          - If they made a code change, add them to the contributor list.
          - If they filed an issue, reviewed a PR, or participated in on- or offline discussions, add them to the list of supporters.
-      10. Update the discussion and changelog links in the footer. Comment out the AQT link if not ready.
+      10. Update the discussion and changelog links in the footer. Comment out the AQT link if not ready. Keep the blog and download links commented out. After the announcement is published on the FinOps blog, set the blog link to the URL of the post and uncomment it. The download link stays commented out because it only points at the release page.
       11. Upload all files from the release folder:
           - ZIP files for templates like hubs and workbooks.
           - Power BI PBIX and PBIT files.
