@@ -218,7 +218,7 @@ Status icons:
     - Carefully review the list to ensure everyone is covered since feature branch PRs get merged, which can hide contributors.
     - If they made a code change, add them to the contributor list.
     - If they filed an issue, reviewed a PR, or participated in on- or offline discussions, add them to the list of supporters.
-  - [ ] Update the discussion and changelog links in the footer. Comment out the AQT link if not ready.
+  - [ ] Update the discussion and changelog links in the footer. Comment out the AQT link if not ready. Keep the blog and download links commented out.
   - [ ] Upload all files from the release folder:
     - ZIP files for templates like hubs and workbooks.
     - Power BI PBIX and PBIT files.
@@ -233,6 +233,7 @@ Status icons:
 ## 🔜 Announcements
 
 - [ ] Publish release announcement on the [FinOps blog](https://aka.ms/finops/blog)
+  - [ ] Set the blog link in the release footer to the URL of the post and uncomment it. Keep the download link commented out because it only points at the release page.
 - [ ] Share on LinkedIn
 - [ ] Share on Twitter/X
 - [ ] Share on Azure Updates (TBD)
