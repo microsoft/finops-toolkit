@@ -85,7 +85,8 @@ HubScopes()
     PublisherName:            string,
     x_PublisherCategory:      string,
     x_Environment:            string,
-    x_ServiceModel:           string
+    x_ServiceModel:           string,
+    x_SkuMeterCategory:       string
 )
 
 //----------------------------------------------------------------------------------------------------------------------
