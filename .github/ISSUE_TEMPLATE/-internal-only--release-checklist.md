@@ -249,7 +249,7 @@ Status icons:
 - [ ] Share on Twitter/X
 - [ ] Share on Azure Updates (TBD)
 - [ ] Share on Engage (Azure Connection Program)
-- [ ] Share on F2 Slack
+- [ ] Share on F2 Slack in the `#microsoft-cloud` channel. Link the blog post and list the top changes from its introduction.
 
 ---
 
