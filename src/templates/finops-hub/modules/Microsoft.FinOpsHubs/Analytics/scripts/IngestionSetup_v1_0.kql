@@ -529,6 +529,12 @@ Costs_transform_v1_0()
         isnotempty(x_ResourceType), coalesce(resource_type(x_ResourceType).SingularDisplayName, ResourceType, x_ResourceType),
         ResourceType)
     //
+    // Split resource types shared by multiple services (e.g., Azure Backup and Azure Site Recovery on Recovery Services vaults) using meter category-specific Services rows (#1751)
+    | extend tmp_ServiceKey = strcat(tolower(x_ResourceType), '|', tolower(x_SkuMeterCategory))
+    | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) and isnotempty(x_SkuMeterCategory) | summarize take_any(ServiceName, ServiceCategory) by tmp_ServiceKey = strcat(tolower(x_ResourceType), '|', tolower(x_SkuMeterCategory)) | project tmp_ServiceKey, tmp_ServiceName = ServiceName, tmp_ServiceCategory = ServiceCategory) on tmp_ServiceKey
+    | extend ServiceName = coalesce(tmp_ServiceName, ServiceName)
+    | extend ServiceCategory = coalesce(tmp_ServiceCategory, ServiceCategory)
+    //
     // Sort columns and apply final transforms
     | project
         AvailabilityZone,
@@ -853,8 +859,8 @@ ActualCosts_transform_v1_0()
     | lookup kind=leftouter (Regions) on ResourceLocation
     | lookup kind=leftouter (ResourceTypes | project x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
     // TODO: Add the following in 1.2: ServiceSubcategory, PublisherName, x_PublisherCategory, x_Environment, x_ServiceModel
-    | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) | summarize take_any(ServiceName), take_any(ServiceCategory) by x_ResourceType) on x_ResourceType
-    | lookup kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory) by ConsumedService = x_ConsumedService) on ConsumedService
+    | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) and isempty(x_SkuMeterCategory) | summarize take_any(ServiceName), take_any(ServiceCategory) by x_ResourceType) on x_ResourceType
+    | lookup kind=leftouter (Services | where isnotempty(x_ConsumedService) and isempty(x_SkuMeterCategory) | summarize take_any(ServiceName), take_any(ServiceCategory) by ConsumedService = x_ConsumedService) on ConsumedService
     | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
     | project
         AvailabilityZone = AvailabilityZone,
@@ -1077,8 +1083,8 @@ AmortizedCosts_transform_v1_0()
     | lookup kind=leftouter (Regions) on ResourceLocation
     | lookup kind=leftouter (ResourceTypes | project x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
     // TODO: Add the following in 1.2: ServiceSubcategory, PublisherName, x_PublisherCategory, x_Environment, x_ServiceModel
-    | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) | summarize take_any(ServiceName), take_any(ServiceCategory) by x_ResourceType) on x_ResourceType
-    | lookup kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory) by ConsumedService = x_ConsumedService) on ConsumedService
+    | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) and isempty(x_SkuMeterCategory) | summarize take_any(ServiceName), take_any(ServiceCategory) by x_ResourceType) on x_ResourceType
+    | lookup kind=leftouter (Services | where isnotempty(x_ConsumedService) and isempty(x_SkuMeterCategory) | summarize take_any(ServiceName), take_any(ServiceCategory) by ConsumedService = x_ConsumedService) on ConsumedService
     | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
     | project
         AvailabilityZone = AvailabilityZone,
@@ -1293,7 +1299,7 @@ CommitmentDiscountUsage_transform_v1_0()
     | extend x_ResourceGroupName = tostring(tmp_ResourceDetails.x_ResourceGroupName)
     | extend x_ResourceType      = tostring(tmp_ResourceDetails.x_ResourceType)
     | lookup kind=leftouter (ResourceTypes | distinct x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
-    | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) | summarize take_any(ServiceName), take_any(ServiceCategory), take_any(x_ServiceModel) by x_ResourceType) on x_ResourceType
+    | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) and isempty(x_SkuMeterCategory) | summarize take_any(ServiceName), take_any(ServiceCategory), take_any(x_ServiceModel) by x_ResourceType) on x_ResourceType
     //
     // Sort columns and apply final transforms
     | project
