@@ -53,7 +53,7 @@ Once the above requirements have been met, the feature branch can be merged into
 
 4. Publish each template to the target repo.
 
-   > _Bicep modules are published to the Bicep Registry, PowerShell in the PowerShell Gallery, and everything else in the Azure Quickstart Templates. Note that PowerShell is published separately and not included here._
+   > _Bicep modules are published to the Bicep Registry, PowerShell in the PowerShell Gallery, and everything else in the Azure Quickstart Templates. Note that PowerShell is published separately and not included here. The optimization workbook is also published to the Application Insights Workbooks repo, which holds the copy that Azure Advisor shows in the Azure portal._
 
    1. Update your fork and local clone of the target repo (for example, Bicep Registry or Azure Quickstart Templates).
       > _Make sure you're in the main/master branch of the target repo when publishing a new template. If in another folder, the script will assume you're updating that branch and not create a new one._
@@ -63,6 +63,17 @@ Once the above requirements have been met, the feature branch can be merged into
       cd <root>/src/scripts
       ./Publish-Toolkit "finops-hub|governance-workbook|optimization-workbook" -Commit
       ```
+
+      > _Azure Quickstart Templates rejects a changed template unless `metadata.json` names a successful deployment of it. Deploy `<root>/release/<template>/azuredeploy.json` to a test resource group first, then add `-DeploymentName <deployment> -CorrelationId <id>` to the command. Get the correlation ID with `az deployment group show --resource-group <rg> --name <deployment> --query properties.correlationId --output tsv`._
+
+      For the Azure Advisor copy of the optimization workbook, check the [history of the Cost Optimization folder](https://github.com/microsoft/Application-Insights-Workbooks/commits/master/Workbooks/Azure%20Advisor/Cost%20Optimization) for changes made only in that repo and port them to `<root>/src/workbooks/optimization` first, because publishing overwrites them. Then run:
+
+      ```powershell
+      cd <root>/src/scripts
+      ./Publish-Toolkit "advisor-workbook" -Commit
+      ```
+
+      > _The command only replaces workbooks that the repo already has. If it reports a skipped file, add that file by hand only if it's a new workbook._
 
    3. Open the PR URL from the console and complete the PR template requirements.
       > _If a name hasn't been set, use `New FinOps toolkit template – <template-name>`._
@@ -176,7 +187,7 @@ Once the above requirements have been met, the feature branch can be merged into
          - Carefully review the list to ensure everyone is covered since feature branch PRs get merged, which can hide contributors.
          - If they made a code change, add them to the contributor list.
          - If they filed an issue, reviewed a PR, or participated in on- or offline discussions, add them to the list of supporters.
-      10. Update the discussion and changelog links in the footer. Comment out the AQT link if not ready. Keep the blog and download links commented out. After the announcement is published on the FinOps blog, set the blog link to the URL of the post and uncomment it. The download link stays commented out because it only points at the release page.
+      10. Update the discussion and changelog links in the footer. Keep the blog and download links commented out. After the announcement is published on the FinOps blog, set the blog link to the URL of the post and uncomment it. The download link stays commented out because it only points at the release page.
       11. Upload all files from the release folder:
           - ZIP files for templates like hubs and workbooks.
           - Power BI PBIX and PBIT files.
