@@ -77,6 +77,7 @@ Describe 'Get-FinOpsToolkitVersion' {
                 # Open data
                 CheckFile "dataset-examples.zip"                '0.4' $null
                 CheckFile "dataset-metadata.zip"                '0.4' $null
+                CheckFile "AiMeters.csv"                        '16.0' $null
                 CheckFile "InstanceSizeFlexibility.csv"         '15.0' $null
                 CheckFile "PricingUnits.csv"                    '0.1' $null
                 CheckFile "Regions.csv"                         '0.1' $null
