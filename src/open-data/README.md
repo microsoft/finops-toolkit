@@ -30,14 +30,14 @@ The [AiMeters.csv](./AiMeters.csv) file classifies Azure AI meters, such as toke
 - **Tokens:** the token type (input, output, embedding, and so on), whether the meter is cached or batch, and the context type and location.
 - **Model metadata:** the model version and model creator, derived from the meter name.
 - **Copilot:** whether the meter is a Copilot meter, who provides it, and its Copilot type.
-- **Commitment:** whether the meter is a Copilot credit reservation or pre-purchase plan.
+- **Commitment:** whether the meter is a Copilot meter in a Copilot credit reservation or Copilot credit pre-purchase plan, or belongs to the Microsoft agent pre-purchase plan or a GitHub pre-purchase plan.
 - **Consumption:** whether the meter bills consumption units or Copilot credits.
 - **Agents:** whether the meter is an agent meter and its agent type.
 
 The columns fall into four groups:
 
 - **Key:** `x_SkuMeterCategory`, `x_SkuMeterSubcategory`, and `SkuMeter` identify a meter. Together they are the key. Values are written exactly as they appear in the price sheet.
-- **Rule inputs:** The classification is computed from `x_SkuMeterSubcategory`, `SkuMeter`, `x_SkuServiceFamily`, and `MeterIdKind`. `MeterIdKind` is `Guid`, `ClaudeConsumptionUnits`, or `Other`. The file never contains the meter ID itself.
+- **Rule inputs:** The classification is computed from the three key columns plus `x_SkuServiceFamily` and `MeterIdKind`. The category takes part too, for example in the rule for the GitHub `AI Credit GAC` meter. `MeterIdKind` is `Guid`, `ClaudeConsumptionUnits`, or `Other`. The file never contains the meter ID itself.
 - **Fallback marker:** `IsDefault` is `true` on exactly one row for each meter category and meter name. Use that row when a subcategory is empty or doesn't match any row. The script picks the row whose subcategory equals the category, otherwise the first row by subcategory.
 - **Classification:** `Provider`, `IsTokenMeter`, `TokenType`, `IsCachedToken`, `IsBatchToken`, `TokenContextType`, `TokenLocation`, `IsCopilotMeter`, `CopilotProvider`, `IsCommitmentMeter`, `IsConsumptionMeter`, `CopilotType`, `IsAgentMeter`, `AgentType`, `ModelVersion`, and `ModelCreator`.
 
@@ -59,6 +59,9 @@ To update the file, pass the path of the zip file. If you update from more than 
 ```powershell
 ./src/scripts/Update-AiMeters.ps1 -PricesheetPath <path-to-zip>
 ```
+
+> [!CAUTION]
+> A price sheet can list Azure Marketplace private offers whose meter names include organization names. Before you commit, review the new rows in the diff for such names.
 
 <br>
 
