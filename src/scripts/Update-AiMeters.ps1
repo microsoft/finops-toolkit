@@ -360,3 +360,133 @@ function Get-AiModelCreator
     }
     return 'Other'
 }
+
+function Get-AiMeterClassification
+{
+    <#
+        .SYNOPSIS
+        Classifies one AI meter into the 16 derived columns, or returns null when the meter is not an AI meter.
+
+        .DESCRIPTION
+        Composes the token, model, Copilot, commitment, consumption, and agent rules. Throws when a
+        Copilot meter has the Anthropic provider, because the ruleset doesn't define that case.
+
+        .PARAMETER Category
+        The meter category.
+
+        .PARAMETER Subcategory
+        The meter subcategory.
+
+        .PARAMETER Name
+        The meter name.
+
+        .PARAMETER ServiceFamily
+        The service family of the meter.
+
+        .PARAMETER MeterIdKind
+        The meter ID kind from Get-AiMeterIdKind.
+    #>
+    [CmdletBinding()]
+    [OutputType([System.Collections.Specialized.OrderedDictionary])]
+    param(
+        [AllowEmptyString()][AllowNull()][string]$Category,
+        [AllowEmptyString()][AllowNull()][string]$Subcategory,
+        [AllowEmptyString()][AllowNull()][string]$Name,
+        [AllowEmptyString()][AllowNull()][string]$ServiceFamily,
+        [AllowEmptyString()][AllowNull()][string]$MeterIdKind
+    )
+
+    if (-not (Test-AiMeterIncluded $Category $Subcategory $Name $MeterIdKind)) { return $null }
+
+    $provider = Get-AiMeterProvider $Subcategory $Name $MeterIdKind
+    $isToken = ($Name -match 'tokens') -or $MeterIdKind -eq 'ClaudeConsumptionUnits'
+
+    $githubPlans = @('GitHub Pre-Purchase Plan', 'GitHub AI Credits Pre-Purchase Plan')
+    $isCopilot = ($Name -match 'copilot') -or
+        ($Category -eq 'GitHub' -and $Name -eq 'AI Credit GAC') -or
+        ($githubPlans -contains $Subcategory)
+
+    $copilotProvider = 'N/A'
+    if ($isCopilot)
+    {
+        if ($provider -eq 'Anthropic')
+        {
+            throw "Copilot meter has the Anthropic provider, which the ruleset doesn't define: category '$Category', subcategory '$Subcategory', meter name '$Name'."
+        }
+        $copilotProvider = $provider
+    }
+
+    $commitmentPlans = @('Microsoft Agent Pre-Purchase Plan') + $githubPlans
+    $isCommitment = ($isCopilot -and @('Copilot Credit Reservation', 'Copilot Credit Pre-Purchase Plan') -contains $Subcategory) -or
+        ($commitmentPlans -contains $Subcategory)
+
+    $copilotType = 'N/A'
+    if ($isCopilot)
+    {
+        if ($Subcategory -eq 'Microsoft Dragon Copilot') { $copilotType = 'Dragon' }
+        elseif ($githubPlans -contains $Subcategory) { $copilotType = 'GitHub' }
+        else
+        {
+            $copilotType = switch ($ServiceFamily)
+            {
+                'Microsoft 365 Copilot' { 'M365' }
+                'Security' { 'Security' }
+                'Developer Tools' { 'GitHub' }
+                'Data' { 'Fabric' }
+                default { 'other' }
+            }
+        }
+    }
+
+    $isAgent = $true
+    switch ($Subcategory)
+    {
+        'Azure Agent Unit' { $agentType = 'Azure SRE Agent' }
+        'Azure Monitor Observability Agent' { $agentType = 'Azure Monitor Observability Agent' }
+        'Microsoft 365 Agent' { $agentType = 'Agent 365' }
+        'Microsoft Agent Pre-Purchase Plan' { $agentType = 'Generic' }
+        'GitHub Pre-Purchase Plan' { $agentType = 'Generic' }
+        'GitHub AI Credits Pre-Purchase Plan' { $agentType = 'Generic' }
+        default
+        {
+            if ($isCopilot) { $agentType = "Copilot - $copilotType" }
+            else
+            {
+                $isAgent = $false
+                $agentType = 'N/A'
+            }
+        }
+    }
+
+    $classification = [ordered]@{
+        Provider           = $provider
+        IsTokenMeter       = [bool]$isToken
+        TokenType          = 'N/A'
+        IsCachedToken      = $false
+        IsBatchToken       = $false
+        TokenContextType   = 'N/A'
+        TokenLocation      = 'N/A'
+        IsCopilotMeter     = [bool]$isCopilot
+        CopilotProvider    = $copilotProvider
+        IsCommitmentMeter  = [bool]$isCommitment
+        IsConsumptionMeter = [bool]($MeterIdKind -eq 'ClaudeConsumptionUnits' -or $isCopilot)
+        CopilotType        = $copilotType
+        IsAgentMeter       = $isAgent
+        AgentType          = $agentType
+        ModelVersion       = 'N/A'
+        ModelCreator       = 'N/A'
+    }
+
+    if ($isToken)
+    {
+        $classification.TokenType = Get-AiTokenType $Name $MeterIdKind
+        $classification.IsCachedToken = [bool](Test-AiCachedToken $Name)
+        $classification.IsBatchToken = [bool](Test-AiBatchToken $Name)
+        $classification.TokenContextType = Get-AiTokenContextType $Name
+        $classification.TokenLocation = Get-AiTokenLocation $Name
+        $classification.ModelVersion = Get-AiModelVersion $Name
+        $classification.ModelCreator = Get-AiModelCreator $Subcategory
+    }
+
+    return $classification
+}

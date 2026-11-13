@@ -21,6 +21,7 @@ Describe 'Update-AiMeters' {
             'Get-AiTokenLocation'
             'Get-AiModelVersion'
             'Get-AiModelCreator'
+            'Get-AiMeterClassification'
         )
         foreach ($name in $functionNames)
         {
@@ -180,5 +181,58 @@ Describe 'Update-AiMeters' {
             @{ Sub = 'Something else'; Creator = 'Other' }
             @{ Sub = ''; Creator = 'Other' }
         ) { Get-AiModelCreator $Sub | Should -Be $Creator }
+    }
+
+    Context 'Get-AiMeterClassification' {
+        It 'returns null for a meter that is not included' {
+            Get-AiMeterClassification 'Virtual Machines' 'Dv5 Series' 'D2 v5' 'Compute' 'Guid' | Should -BeNullOrEmpty
+        }
+
+        It 'classifies a token meter' {
+            $c = Get-AiMeterClassification 'Foundry Models' 'Azure OpenAI GPT5' '5.4 opt Dz 1M Tokens' 'AI + Machine Learning' 'Guid'
+            @($c.Keys) | Should -Be @('Provider','IsTokenMeter','TokenType','IsCachedToken','IsBatchToken','TokenContextType','TokenLocation','IsCopilotMeter','CopilotProvider','IsCommitmentMeter','IsConsumptionMeter','CopilotType','IsAgentMeter','AgentType','ModelVersion','ModelCreator')
+            $c.Provider | Should -Be 'Microsoft';  $c.IsTokenMeter | Should -BeTrue;  $c.TokenType | Should -Be 'Output'
+            $c.TokenLocation | Should -Be 'DataZone';  $c.ModelVersion | Should -Be '5.4';  $c.ModelCreator | Should -Be 'OpenAi'
+            $c.IsCopilotMeter | Should -BeFalse;  $c.CopilotProvider | Should -Be 'N/A';  $c.CopilotType | Should -Be 'N/A'
+            $c.IsAgentMeter | Should -BeFalse;  $c.AgentType | Should -Be 'N/A';  $c.IsConsumptionMeter | Should -BeFalse
+        }
+
+        It 'classifies Copilot row <Sub> / <Family>' -ForEach @(
+            @{ Cat = 'Microsoft Copilot Studio'; Sub = 'Microsoft Copilot Studio'; Name = 'Pay As You Go Copilot Credit'; Family = 'Microsoft 365 Copilot'; Kind = 'Guid'; Type = 'M365'; Agent = 'Copilot - M365'; Commit = $false; CopilotProvider = 'Microsoft' }
+            @{ Cat = 'Microsoft Copilot Studio'; Sub = 'Microsoft 365 Agent'; Name = 'Pay As You Go Copilot Credit'; Family = 'Microsoft 365 Copilot'; Kind = 'Guid'; Type = 'M365'; Agent = 'Agent 365'; Commit = $false; CopilotProvider = 'Microsoft' }
+            @{ Cat = 'X'; Sub = 'Microsoft Dragon Copilot'; Name = 'Dragon Copilot Unit'; Family = 'Security'; Kind = 'Guid'; Type = 'Dragon'; Agent = 'Copilot - Dragon'; Commit = $false; CopilotProvider = 'Microsoft' }
+            @{ Cat = 'GitHub'; Sub = 'GitHub Copilot'; Name = 'AI Credit GAC'; Family = 'Developer Tools'; Kind = 'Other'; Type = 'GitHub'; Agent = 'Copilot - GitHub'; Commit = $false; CopilotProvider = 'Vendor' }
+            @{ Cat = 'Microsoft Fabric'; Sub = 'Fabric Capacity'; Name = 'Copilot and AI Capacity Usage CU'; Family = 'Data'; Kind = 'Guid'; Type = 'Fabric'; Agent = 'Copilot - Fabric'; Commit = $false; CopilotProvider = 'Microsoft' }
+            @{ Cat = 'X'; Sub = 'Y'; Name = 'Security Copilot Unit'; Family = 'Security'; Kind = 'Guid'; Type = 'Security'; Agent = 'Copilot - Security'; Commit = $false; CopilotProvider = 'Microsoft' }
+            @{ Cat = 'X'; Sub = 'Y'; Name = 'Some Copilot Unit'; Family = 'Compute'; Kind = 'Guid'; Type = 'other'; Agent = 'Copilot - other'; Commit = $false; CopilotProvider = 'Microsoft' }
+            @{ Cat = 'X'; Sub = 'Copilot Credit Pre-Purchase Plan'; Name = 'Copilot Credit Commit Unit'; Family = 'Microsoft 365 Copilot'; Kind = 'Guid'; Type = 'M365'; Agent = 'Copilot - M365'; Commit = $true; CopilotProvider = 'Microsoft' }
+            @{ Cat = 'GitHub'; Sub = 'GitHub AI Credits Pre-Purchase Plan'; Name = '100,000 GHAICCUs GitHub AI Credit Commit Unit'; Family = 'Developer Tools'; Kind = 'Guid'; Type = 'GitHub'; Agent = 'Generic'; Commit = $true; CopilotProvider = 'Microsoft' }
+        ) {
+            $c = Get-AiMeterClassification $Cat $Sub $Name $Family $Kind
+            $c.IsCopilotMeter | Should -BeTrue;  $c.IsConsumptionMeter | Should -BeTrue;  $c.IsAgentMeter | Should -BeTrue
+            $c.CopilotType | Should -Be $Type;  $c.AgentType | Should -Be $Agent
+            $c.IsCommitmentMeter | Should -Be $Commit;  $c.CopilotProvider | Should -Be $CopilotProvider
+        }
+
+        It 'classifies agent row <Sub> as <Agent>' -ForEach @(
+            @{ Sub = 'Azure Agent Unit'; Agent = 'Azure SRE Agent'; Commit = $false }
+            @{ Sub = 'Azure Monitor Observability Agent'; Agent = 'Azure Monitor Observability Agent'; Commit = $false }
+            @{ Sub = 'Microsoft 365 Agent'; Agent = 'Agent 365'; Commit = $false }
+            @{ Sub = 'Microsoft Agent Pre-Purchase Plan'; Agent = 'Generic'; Commit = $true }
+        ) {
+            $c = Get-AiMeterClassification 'X' $Sub 'Unit' 'AI + Machine Learning' 'Guid'
+            $c.IsAgentMeter | Should -BeTrue;  $c.AgentType | Should -Be $Agent;  $c.IsCommitmentMeter | Should -Be $Commit
+            $c.IsCopilotMeter | Should -BeFalse;  $c.IsTokenMeter | Should -BeFalse;  $c.TokenType | Should -Be 'N/A'
+        }
+
+        It 'classifies the Claude consumption unit meter' {
+            $c = Get-AiMeterClassification 'X' 'Claude Models' 'Consumption Unit' '' 'ClaudeConsumptionUnits'
+            $c.Provider | Should -Be 'Anthropic';  $c.IsTokenMeter | Should -BeTrue
+            $c.TokenType | Should -Be 'ConsumptionUnit';  $c.IsConsumptionMeter | Should -BeTrue
+        }
+
+        It 'stops on a Copilot meter from Anthropic' {
+            { Get-AiMeterClassification 'X' 'Claude Models' 'Claude Copilot Unit' '' 'Other' } | Should -Throw '*Claude Copilot Unit*'
+        }
     }
 }
