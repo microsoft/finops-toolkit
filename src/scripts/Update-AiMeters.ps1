@@ -650,3 +650,207 @@ function Read-AiMeterPricesheet
 
     return $meters
 }
+
+function Import-AiMeterInput
+{
+    <#
+        .SYNOPSIS
+        Reads the rule inputs of an existing AiMeters.csv.
+
+        .DESCRIPTION
+        Reads the five rule-input columns and ignores the classification columns, so the rules can
+        derive them again. A missing file gives an empty hashtable.
+
+        .PARAMETER Path
+        Path to the CSV file.
+
+        .OUTPUTS
+        A hashtable keyed by Get-AiMeterKey, in the same shape as Read-AiMeterPricesheet.
+    #>
+    [CmdletBinding()]
+    [OutputType([hashtable])]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Path
+    )
+
+    $meters = @{}
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $meters }
+
+    foreach ($row in (Import-Csv -LiteralPath $Path -Encoding utf8))
+    {
+        $category = "$($row.x_SkuMeterCategory)"
+        $subcategory = "$($row.x_SkuMeterSubcategory)"
+        $name = "$($row.SkuMeter)"
+        $meters[(Get-AiMeterKey $category $subcategory $name)] = [pscustomobject]@{
+            Category      = $category
+            Subcategory   = $subcategory
+            Name          = $name
+            ServiceFamily = "$($row.x_SkuServiceFamily)"
+            MeterIdKind   = "$($row.MeterIdKind)"
+        }
+    }
+
+    return $meters
+}
+
+function Merge-AiMeterInput
+{
+    <#
+        .SYNOPSIS
+        Merges the rule inputs of the existing file with those of the price sheet.
+
+        .DESCRIPTION
+        Returns the union by key. Where both have a key, the price sheet's entry wins. Neither
+        argument is changed.
+
+        .PARAMETER Existing
+        Rule inputs read from the existing file.
+
+        .PARAMETER Sheet
+        Rule inputs read from the price sheet.
+    #>
+    [CmdletBinding()]
+    [OutputType([hashtable])]
+    param(
+        [Parameter(Mandatory)]
+        [hashtable]$Existing,
+
+        [Parameter(Mandatory)]
+        [hashtable]$Sheet
+    )
+
+    $merged = @{}
+    foreach ($key in $Existing.Keys) { $merged[$key] = $Existing[$key] }
+    foreach ($key in $Sheet.Keys) { $merged[$key] = $Sheet[$key] }
+    return $merged
+}
+
+function ConvertTo-AiMeterRow
+{
+    <#
+        .SYNOPSIS
+        Converts rule inputs to sorted output rows with the 22 CSV columns.
+
+        .DESCRIPTION
+        Classifies every input and drops those that are not AI meters. Marks one default row per
+        lowercased category and meter name: the row whose subcategory equals the category, otherwise
+        the first row by lowercased subcategory (ordinal). Sorts the rows by Get-AiMeterKey with an
+        ordinal comparison. Booleans become the strings true and false.
+
+        .PARAMETER Inputs
+        Rule inputs keyed by Get-AiMeterKey.
+    #>
+    [CmdletBinding()]
+    [OutputType([object[]])]
+    param(
+        [Parameter(Mandatory)]
+        [hashtable]$Inputs
+    )
+
+    $entries = [System.Collections.Generic.List[object]]::new()
+    foreach ($item in $Inputs.Values)
+    {
+        $classification = Get-AiMeterClassification $item.Category $item.Subcategory $item.Name $item.ServiceFamily $item.MeterIdKind
+        if ($null -eq $classification) { continue }
+        $entries.Add([pscustomobject]@{
+                Item           = $item
+                Classification = $classification
+                SortKey        = Get-AiMeterKey $item.Category $item.Subcategory $item.Name
+                PairKey        = (@($item.Category, $item.Name) | ForEach-Object { "$_".ToLowerInvariant() }) -join [char]31
+            })
+    }
+
+    # Choose one default per (category, meter name) pair.
+    $defaults = @{}
+    foreach ($entry in $entries)
+    {
+        $subcategory = "$($entry.Item.Subcategory)".ToLowerInvariant()
+        $isOwnCategory = $subcategory -ceq "$($entry.Item.Category)".ToLowerInvariant()
+        $current = $defaults[$entry.PairKey]
+        if ($null -ne $current -and ($current.IsOwnCategory -or (-not $isOwnCategory -and [string]::CompareOrdinal($subcategory, $current.Subcategory) -ge 0)))
+        {
+            continue
+        }
+        $defaults[$entry.PairKey] = [pscustomobject]@{ SortKey = $entry.SortKey; Subcategory = $subcategory; IsOwnCategory = $isOwnCategory }
+    }
+
+    $entries.Sort([System.Comparison[object]] { param($a, $b) [string]::CompareOrdinal($a.SortKey, $b.SortKey) })
+
+    $rows = [object[]]::new($entries.Count)
+    for ($i = 0; $i -lt $entries.Count; $i++)
+    {
+        $entry = $entries[$i]
+        $row = [ordered]@{
+            x_SkuMeterCategory    = [string]$entry.Item.Category
+            x_SkuMeterSubcategory = [string]$entry.Item.Subcategory
+            SkuMeter              = [string]$entry.Item.Name
+            x_SkuServiceFamily    = [string]$entry.Item.ServiceFamily
+            MeterIdKind           = [string]$entry.Item.MeterIdKind
+            IsDefault             = $defaults[$entry.PairKey].SortKey -ceq $entry.SortKey
+        }
+        foreach ($column in $entry.Classification.Keys) { $row[$column] = $entry.Classification[$column] }
+        foreach ($column in @($row.Keys))
+        {
+            if ($row[$column] -is [bool]) { $row[$column] = if ($row[$column]) { 'true' } else { 'false' } }
+        }
+        $rows[$i] = [pscustomobject]$row
+    }
+
+    return $rows
+}
+
+$ErrorActionPreference = 'Stop'
+
+$sheet = Read-AiMeterPricesheet $PricesheetPath
+$existing = Import-AiMeterInput $OutputPath
+$rows = @(ConvertTo-AiMeterRow (Merge-AiMeterInput $existing $sheet))
+
+# Classification stored in the current file, to count changes.
+$classificationColumns = @('Provider', 'IsTokenMeter', 'TokenType', 'IsCachedToken', 'IsBatchToken', 'TokenContextType', 'TokenLocation', 'IsCopilotMeter', 'CopilotProvider', 'IsCommitmentMeter', 'IsConsumptionMeter', 'CopilotType', 'IsAgentMeter', 'AgentType', 'ModelVersion', 'ModelCreator')
+$stored = @{}
+if (Test-Path -LiteralPath $OutputPath -PathType Leaf)
+{
+    foreach ($old in (Import-Csv -LiteralPath $OutputPath -Encoding utf8))
+    {
+        $stored[(Get-AiMeterKey $old.x_SkuMeterCategory $old.x_SkuMeterSubcategory $old.SkuMeter)] = ($classificationColumns | ForEach-Object { "$($old.$_)" }) -join [char]31
+    }
+}
+
+$new = 0
+$changed = 0
+$kept = 0
+foreach ($row in $rows)
+{
+    $key = Get-AiMeterKey $row.x_SkuMeterCategory $row.x_SkuMeterSubcategory $row.SkuMeter
+    if (-not $existing.ContainsKey($key)) { $new++ }
+    if (-not $sheet.ContainsKey($key)) { $kept++ }
+    if ($stored.ContainsKey($key) -and $stored[$key] -cne (($classificationColumns | ForEach-Object { "$($row.$_)" }) -join [char]31)) { $changed++ }
+}
+
+# Write with a fixed encoding (UTF-8 without BOM), newline (LF), and quoting, to a temporary file
+# next to the target, then move it over the target.
+$columns = @('x_SkuMeterCategory', 'x_SkuMeterSubcategory', 'SkuMeter', 'x_SkuServiceFamily', 'MeterIdKind', 'IsDefault') + $classificationColumns
+$lines = if ($rows.Count -gt 0) { @($rows | ConvertTo-Csv -UseQuotes Always -NoTypeInformation) }
+else { , (($columns | ForEach-Object { '"' + $_ + '"' }) -join ',') }
+$target = [System.IO.Path]::GetFullPath($OutputPath, (Get-Location).ProviderPath)
+$temp = "$target.$([guid]::NewGuid().ToString('N')).tmp"
+try
+{
+    [System.IO.File]::WriteAllText($temp, (($lines -join "`n") + "`n"), [System.Text.UTF8Encoding]::new($false))
+    Move-Item -LiteralPath $temp -Destination $target -Force
+}
+finally
+{
+    if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp -Force }
+}
+
+Write-Host "Rows written: $($rows.Count)"
+Write-Host "Rows new: $new"
+Write-Host "Rows whose classification changed: $changed"
+Write-Host "Rows kept that aren't in the price sheet: $kept"
+foreach ($column in $classificationColumns)
+{
+    $counts = $rows | Group-Object -Property $column -NoElement | Sort-Object Name | ForEach-Object { "$($_.Name)=$($_.Count)" }
+    Write-Host "${column}: $($counts -join ', ')"
+}
