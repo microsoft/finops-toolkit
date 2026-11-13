@@ -19,6 +19,8 @@ Describe 'Update-AiMeters' {
             'Test-AiBatchToken'
             'Get-AiTokenContextType'
             'Get-AiTokenLocation'
+            'Get-AiModelVersion'
+            'Get-AiModelCreator'
         )
         foreach ($name in $functionNames)
         {
@@ -137,5 +139,46 @@ Describe 'Update-AiMeters' {
             @{ Name = 'Model Gl Dz Tokens'; Location = 'Ambiguous' }
             @{ Name = 'English Single Input Tokens'; Location = 'N/A' }
         ) { Get-AiTokenLocation $Name | Should -Be $Location }
+    }
+
+    Context 'Get-AiModelVersion' {
+        It 'model version of <Name> is <Version>' -ForEach @(
+            @{ Name = 'AI21-Jamba 1.5-Out-FT Tokens';              Version = '1.5' }
+            @{ Name = 'AI21-Jamba-1.5L-Out Tokens';                Version = '1.5' }
+            @{ Name = 'Mistral Small 3.1 (25.03) Input Tokens';    Version = '3.1' }
+            @{ Name = 'Llama-3-70B Input Tokens';                  Version = '3' }
+            @{ Name = 'FW Kimi K3 Inp DZ Tokens';                  Version = '3' }
+            @{ Name = 'Grok4 Fast Inp DZone Tokens';               Version = '4' }
+            @{ Name = 'Az-GPT35-Turbo-16K-0125 Input Tokens';      Version = '3.5' }
+            @{ Name = 'Model 1.5B Input Tokens';                   Version = 'N/A' }
+            @{ Name = 'Llama-3 1.5B Input Tokens';                 Version = '3' }
+            @{ Name = 'Model 2024-08-01 GPT-5 Input Tokens';       Version = '5' }
+            @{ Name = 'Model K3 R1 Input Tokens';                  Version = 'N/A' }
+            @{ Name = 'GPT35 Turbo 2.0 Input Tokens';              Version = '2.0' }
+            @{ Name = 'GPT4omini Input Tokens';                    Version = '4' }
+            @{ Name = 'GPT 4o Input Tokens';                       Version = '4' }
+            @{ Name = '5.4 opt Dz 1M Tokens';                      Version = '5.4' }
+            @{ Name = '6-astra ShortCo Cd Inp Std Gl 1M Tokens';   Version = '6' }
+            @{ Name = 'G42 Model Input Tokens';                    Version = 'N/A' }
+            @{ Name = 'Model 2407 Input Tokens';                   Version = 'N/A' }
+            @{ Name = '';                                          Version = 'N/A' }
+        ) { Get-AiModelVersion $Name | Should -Be $Version }
+    }
+
+    Context 'Get-AiModelCreator' {
+        It 'model creator of <Sub> is <Creator>' -ForEach @(
+            @{ Sub = 'Claude Models'; Creator = 'Anthropic' }
+            @{ Sub = 'Azure Llama Models'; Creator = 'Meta' }
+            @{ Sub = 'Codestral'; Creator = 'Mistral' }
+            @{ Sub = 'Azure OpenAI GPT5'; Creator = 'OpenAi' }
+            @{ Sub = 'Azure Phi Models'; Creator = 'Microsoft' }
+            @{ Sub = 'Grok Kimi'; Creator = 'SpaceX' }
+            @{ Sub = 'FW Kimi'; Creator = 'Moonshot' }
+            @{ Sub = 'Azure AI Search Cohere'; Creator = 'Microsoft' }
+            @{ Sub = 'Deepseek Models'; Creator = 'Deepseek' }
+            @{ Sub = 'Cohere Models'; Creator = 'Cohere' }
+            @{ Sub = 'Something else'; Creator = 'Other' }
+            @{ Sub = ''; Creator = 'Other' }
+        ) { Get-AiModelCreator $Sub | Should -Be $Creator }
     }
 }

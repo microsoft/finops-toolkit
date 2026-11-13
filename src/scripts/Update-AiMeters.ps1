@@ -263,3 +263,100 @@ function Get-AiTokenLocation
     if ($found.Count -eq 1) { return $found[0] }
     return 'Ambiguous'
 }
+
+function Get-AiModelVersion
+{
+    <#
+        .SYNOPSIS
+        Extracts the model version from a meter name, or N/A when none is present.
+
+        .DESCRIPTION
+        Blanks out dates, sizes, precision markers, and four-digit stamps, then returns the first
+        decimal number. Without one, returns the first standalone integer, v-number, GPT or Grok
+        number, Kimi K-number, or Deepseek R-number, whichever comes first in the name.
+
+        .PARAMETER Name
+        The meter name.
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param(
+        [AllowEmptyString()][AllowNull()][string]$Name
+    )
+
+    if ([string]::IsNullOrEmpty($Name)) { return 'N/A' }
+
+    $blank = @(
+        '(?<![a-z0-9])(?:19|20)\d{2}[-/.](?:0?[1-9]|1[0-2])(?:[-/.](?:0?[1-9]|[12]\d|3[01]))?(?![a-z0-9])'
+        '(?<![a-z0-9])\d{1,2}[-/.]\d{1,2}[-/.](?:19|20)\d{2}(?![a-z0-9])'
+        '(?<![a-z0-9])(?:0?[1-9]|1[0-2])[-/](?:19|20)\d{2}(?![a-z0-9])'
+        '(?<![a-z0-9.])\d+(?:\.\d+)?(?:kb|mb|gb|tb|bits?|[bkmte])(?![a-z0-9])'
+        '(?<![a-z0-9])(?:fp|bf|u?int)\d+(?![a-z0-9])'
+        '(?<![a-z0-9.])\d{4}(?![a-z0-9.])'
+    )
+    $rest = $Name
+    foreach ($pattern in $blank)
+    {
+        $rest = [regex]::Replace($rest, $pattern, ' ', 'IgnoreCase')
+    }
+
+    $decimal = [regex]::Match($rest, '\d+\.\d+')
+    if ($decimal.Success) { return $decimal.Value }
+
+    $candidates = @(
+        @{ Pattern = '(?<![a-z0-9.])(\d+)(?![a-z0-9.])'; Gpt = $false }
+        @{ Pattern = '(?<![a-z0-9])v(\d+)(?![a-z0-9])'; Gpt = $false }
+        @{ Pattern = '(?<![a-z0-9])(?:gpt|grok)[-\s]?(\d+)'; Gpt = $true }
+    )
+    if ($rest -match '(?<![a-z0-9])kimi(?![a-z0-9])') { $candidates += @{ Pattern = '(?<![a-z0-9])k(\d+)(?![a-z0-9])'; Gpt = $false } }
+    if ($rest -match '(?<![a-z0-9])deepseek(?![a-z0-9])') { $candidates += @{ Pattern = '(?<![a-z0-9])r(\d+)(?![a-z0-9])'; Gpt = $false } }
+
+    $best = $null
+    foreach ($candidate in $candidates)
+    {
+        $match = [regex]::Match($rest, $candidate.Pattern, 'IgnoreCase')
+        if ($match.Success -and ($null -eq $best -or $match.Index -lt $best.Match.Index))
+        {
+            $best = @{ Match = $match; Gpt = $candidate.Gpt }
+        }
+    }
+    if ($null -eq $best) { return 'N/A' }
+
+    $number = $best.Match.Groups[1].Value
+    if ($best.Gpt -and $number -eq '35' -and $best.Match.Value -match '^gpt') { return '3.5' }
+    return $number
+}
+
+function Get-AiModelCreator
+{
+    <#
+        .SYNOPSIS
+        Maps a meter subcategory to the model creator. The first matching rule wins.
+
+        .PARAMETER Subcategory
+        The meter subcategory.
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param(
+        [AllowEmptyString()][AllowNull()][string]$Subcategory
+    )
+
+    $rules = @(
+        @{ Creator = 'Anthropic'; Pattern = 'claude|anthropic' }
+        @{ Creator = 'Meta'; Pattern = '^(?:meta|llama|azure llama)' }
+        @{ Creator = 'Mistral'; Pattern = '^(?:mistral|ministral|codestral|azure mistral)' }
+        @{ Creator = 'OpenAi'; Pattern = 'openai' }
+        @{ Creator = 'Microsoft'; Pattern = '^(?:mai|phi|azure phi)' }
+        @{ Creator = 'SpaceX'; Pattern = 'grok' }
+        @{ Creator = 'Moonshot'; Pattern = 'kimi' }
+        @{ Creator = 'Microsoft'; Pattern = 'azure ai search|azure speech' }
+        @{ Creator = 'Deepseek'; Pattern = 'deepseek' }
+        @{ Creator = 'Cohere'; Pattern = 'cohere' }
+    )
+    foreach ($rule in $rules)
+    {
+        if ($Subcategory -match $rule.Pattern) { return $rule.Creator }
+    }
+    return 'Other'
+}
