@@ -636,6 +636,12 @@ Costs_transform_v1_2()
         ResourceType
     )
     //
+    // Recovery Services vaults host both Azure Backup and Azure Site Recovery; Cost Management labels both as Site Recovery, so split by meter category (#1751)
+    | extend tmp_IsVaultBackup = x_ResourceType =~ 'microsoft.recoveryservices/vaults' and x_SkuMeterCategory =~ 'Backup'
+    | extend old_ServiceName = ServiceName, ServiceName = iff(tmp_IsVaultBackup, 'Azure Backup', ServiceName)
+    | extend old_ServiceCategory = ServiceCategory, ServiceCategory = iff(tmp_IsVaultBackup, 'Storage', ServiceCategory)
+    | extend old_ServiceSubcategory = ServiceSubcategory, ServiceSubcategory = iff(tmp_IsVaultBackup, 'Backup Storage', ServiceSubcategory)
+    //
     // Handle missing values
     | extend old_PublisherName = PublisherName, PublisherName = case(PublisherName == 'Microsoft Corporation', 'Microsoft', isnotempty(PublisherName), PublisherName, x_PublisherCategory == 'Cloud Provider', ProviderName, '')
     //
@@ -908,6 +914,9 @@ Costs_transform_v1_2()
             checkString('ResourceId',                 old_ResourceId,                 ResourceId),
             checkString('ResourceName',               old_ResourceName,               ResourceName),
             checkString('ResourceType',               old_ResourceType,               ResourceType),
+            checkString('ServiceCategory',            old_ServiceCategory,            ServiceCategory),
+            checkString('ServiceName',                old_ServiceName,                ServiceName),
+            checkString('ServiceSubcategory',         old_ServiceSubcategory,         ServiceSubcategory),
             checkString('x_AmortizationClass',        old_x_AmortizationClass,        x_AmortizationClass),
             checkReal('x_EffectiveCostInUsd',         old_x_EffectiveCostInUsd,       x_EffectiveCostInUsd),
             checkReal('x_EffectiveUnitPrice',         old_x_EffectiveUnitPrice,       x_EffectiveUnitPrice),
@@ -1303,17 +1312,6 @@ ActualCosts_transform_v1_2()
         x_UsageType = ''
 }
 
-// Update policy for ActualCosts_raw -> Costs_raw table
-.alter table Costs_raw policy update
-``` 
-[{
-    "IsEnabled": true,
-    "Source": "ActualCosts_raw",
-    "Query": "ActualCosts_transform_v1_2()",
-    "IsTransactional": true,
-    "PropagateIngestionProperties": true
-}]
-```
 
 
 //===| Amortized costs |================================================================================================
@@ -1526,10 +1524,17 @@ AmortizedCosts_transform_v1_2()
         x_UsageType = ''
 }
 
-// Update policy for AmortizedCosts_raw -> Costs_raw table
+// Update policy for ActualCosts_raw and AmortizedCosts_raw -> Costs_raw table
+// .alter replaces the whole policy, so this is the only place the Costs_raw policy is defined and it must list every source (#2177)
 .alter table Costs_raw policy update
 ``` 
 [{
+    "IsEnabled": true,
+    "Source": "ActualCosts_raw",
+    "Query": "ActualCosts_transform_v1_2()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+},{
     "IsEnabled": true,
     "Source": "AmortizedCosts_raw",
     "Query": "AmortizedCosts_transform_v1_2()",
