@@ -55,6 +55,15 @@ _Released November 2026_
 - **Added**
   - Added Export to Excel to the storage queries in the optimization workbook.
 
+### [Power BI reports](power-bi/reports.md) v16
+
+_**Breaking change**_
+
+- **Added**
+  - Added support for incremental refresh on the **Costs** table in storage reports. Power BI can now detect the **RangeStart**/**RangeEnd** filter on the `x_IncrementalRefreshDate` column. To learn more, see [Configure incremental refresh](power-bi/setup.md#configure-incremental-refresh) ([#2314](https://github.com/microsoft/finops-toolkit/issues/2314)).
+- **Changed**
+  - Changed the `x_IncrementalRefreshDate` column in storage reports from text to Date/Time. Update any custom filters, measures, or visuals that treat it as text or a number ([#2314](https://github.com/microsoft/finops-toolkit/issues/2314)).
+
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
 - **Added**
