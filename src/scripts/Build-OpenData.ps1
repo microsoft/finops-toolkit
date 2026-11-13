@@ -509,13 +509,16 @@ if ($Csv)
 # Generate PowerShell functions from data files
 if ($PowerShell)
 {
+    # Datasets that are hub-only: the generated function would be ASCII and would turn 2.0 into a number
+    $skipPowerShell = @('AiMeters')
+
     # Loop thru all datasets
     Get-ChildItem "$srcDir/*.csv" `
-    | Where-Object { $_.Name -like "$Name.csv" }
+    | Where-Object { $_.Name -like "$Name.csv" -and $_.BaseName -notin $skipPowerShell }
     | ForEach-Object {
         $file = $_
         $dataType = $file.BaseName
-        $command = "Get-OpenData$($dataType.TrimEnd('s'))"
+        $command ="Get-OpenData$($dataType.TrimEnd('s'))"
 
         Write-Verbose "Generating $command from $dataType.csv..."
         Write-Command -Command $command -File $file      | Out-File "$psDir/Private/$command.ps1"          -Encoding ascii -Append:$false
