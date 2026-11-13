@@ -31,6 +31,8 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' existing = {
   resource database 'databases' existing = {
     name: databaseName
 
+    // Run one at a time so later versions (v1_2) always write after earlier ones (v1_0); parallel runs could overwrite shared policies
+    @batchSize(1)
     resource script 'scripts' = [for scr in items(scripts) : {
       name: scr.key
       properties: {

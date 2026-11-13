@@ -1312,17 +1312,6 @@ ActualCosts_transform_v1_2()
         x_UsageType = ''
 }
 
-// Update policy for ActualCosts_raw -> Costs_raw table
-.alter table Costs_raw policy update
-``` 
-[{
-    "IsEnabled": true,
-    "Source": "ActualCosts_raw",
-    "Query": "ActualCosts_transform_v1_2()",
-    "IsTransactional": true,
-    "PropagateIngestionProperties": true
-}]
-```
 
 
 //===| Amortized costs |================================================================================================
@@ -1536,7 +1525,7 @@ AmortizedCosts_transform_v1_2()
 }
 
 // Update policy for ActualCosts_raw and AmortizedCosts_raw -> Costs_raw table
-// .alter replaces the whole policy, so this must list both sources or the ActualCosts_raw policy above is dropped (#2177)
+// .alter replaces the whole policy, so this is the only place the Costs_raw policy is defined and it must list every source (#2177)
 .alter table Costs_raw policy update
 ``` 
 [{

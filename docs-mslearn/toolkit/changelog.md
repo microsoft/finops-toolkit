@@ -50,7 +50,8 @@ _Released November 2026_
   - Fixed Azure Backup charges on Recovery Services vaults being labeled as Azure Site Recovery ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
     - Backup charges now map to `ServiceName` "Azure Backup" with `ServiceCategory` "Storage" and `ServiceSubcategory` "Backup Storage" for FOCUS, actual, and amortized cost exports.
     - Already-ingested rows keep the old label until they're reingested.
-  - Fixed actual cost exports not reaching Data Explorer because the amortized cost update policy replaced the actual cost one ([#2177](https://github.com/microsoft/finops-toolkit/issues/2177)).
+  - Fixed non-FOCUS actual cost exports failing to ingest into Data Explorer because the amortized cost update policy replaced the actual cost one ([#2177](https://github.com/microsoft/finops-toolkit/issues/2177)).
+    - Reingest actual cost months that were exported before upgrading.
   - Fixed reservation prices not backfilling when Actual and Amortized costs carried the full billing profile path instead of the short ID ([#2356](https://github.com/microsoft/finops-toolkit/issues/2356)).
     - Billing account ID, billing account type, and pricing currency now use the short billing profile ID too.
 
