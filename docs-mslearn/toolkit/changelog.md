@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/11/2026
+ms.date: 11/13/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -47,6 +47,10 @@ _Released November 2026_
 - **Added**
   - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
 - **Fixed**
+  - Fixed services that share a resource type showing as one service ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
+    - Backup charges on Recovery Services vaults now show as Azure Backup instead of Azure Site Recovery.
+    - Functions and Logic Apps Standard charges on App Service sites now show as Functions and Logic Apps instead of Azure App Service.
+    - Uses the new `x_SkuMeterCategory` column in [Services](open-data.md#services) open data. Already-ingested rows keep the old label until they're reingested.
   - Fixed reservation prices not backfilling when Actual and Amortized costs carried the full billing profile path instead of the short ID ([#2356](https://github.com/microsoft/finops-toolkit/issues/2356)).
     - Billing account ID, billing account type, and pricing currency now use the short billing profile ID too.
 
@@ -58,7 +62,15 @@ _Released November 2026_
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
 - **Added**
+  - Added a `-MeterCategory` parameter to [Get-FinOpsService](powershell/data/get-finopsservice.md) to split resource types shared by multiple services, like Azure Backup and Azure Site Recovery ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
   - Added a `-EnableKeyVaultRbacAuthorization` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that moves the hub Key Vault from access policies to Azure RBAC. Requires hub template version 16.0 or later ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+
+### [Open data](open-data.md) v16
+
+- **Added**
+  - Added an optional `x_SkuMeterCategory` column to [Services](open-data.md#services) to split resource types shared by multiple services ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
+    - Empty means the row applies to all meter categories for that resource type.
+    - Added Azure Backup on Recovery Services vaults, and Functions and Logic Apps on App Service sites.
 
 <br>
 

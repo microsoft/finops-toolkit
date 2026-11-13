@@ -4,7 +4,7 @@ description: Use open data to normalize and enhance your FinOps reporting, ensur
 ms.topic: concept-article
 author: flanakin
 ms.author: micflan
-ms.date: 10/12/2026
+ms.date: 11/13/2026
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
@@ -120,29 +120,39 @@ Convert resource type values to lowercase before mapping. This helps reduce dupl
 
 ## Services
 
-In Microsoft Cost Management, `ConsumedService` represents the primary service or resource provider of the resource you used. It's roughly the same as `ServiceName` in [FOCUS](../focus/what-is-focus.md). In some cases, multiple services share the same resource provider, so we're using the `ConsumedService` and `ResourceType` columns to map to `ServiceName` and `ServiceCategory` values for use within FOCUS.
+In Microsoft Cost Management, `ConsumedService` represents the primary service or resource provider of the resource you used. It's roughly the same as `ServiceName` in [FOCUS](../focus/what-is-focus.md). In some cases, multiple services share the same resource provider, so we're using the `ConsumedService`, `ResourceType`, and `x_SkuMeterCategory` columns to map to `ServiceName` and `ServiceCategory` values for use within FOCUS.
 
 Sample data:
 
 <!-- cSpell:disable -->
 
-| ConsumedService      | ResourceType                          | ServiceName         | ServiceCategory | ServiceSubcategory        | PublisherName | PublisherType  | Environment | ServiceModel |
-| -------------------- | ------------------------------------- | ------------------- | --------------- | ------------------------- | ------------- | -------------- | ----------- | ------------ |
-| microsoft.compute    | microsoft.compute/virtualmachines     | Virtual Machines    | Compute         | Virtual Machines          | Microsoft     | Cloud Provider | Cloud       | IaaS         |
-| microsoft.documentdb | microsoft.documentdb/databaseaccounts | Cosmos DB           | Databases       | NoSQL Databases           | Microsoft     | Cloud Provider | Cloud       | PaaS         |
-| microsoft.kusto      | microsoft.kusto/clusters              | Azure Data Explorer | Analytics       | Analytics Platforms       | Microsoft     | Cloud Provider | Cloud       | PaaS         |
-| microsoft.network    | microsoft.network/virtualnetworks     | Virtual Network     | Networking      | Networking Infrastructure | Microsoft     | Cloud Provider | Cloud       | IaaS         |
-| microsoft.storage    | microsoft.storage/storageaccounts     | Storage Accounts    | Storage         | Storage Platforms         | Microsoft     | Cloud Provider | Cloud       | IaaS         |
+| ConsumedService            | ResourceType                          | ServiceName         | ServiceCategory           | ServiceSubcategory        | PublisherName | PublisherType  | Environment | ServiceModel | x_SkuMeterCategory |
+| -------------------------- | ------------------------------------- | ------------------- | ------------------------- | ------------------------- | ------------- | -------------- | ----------- | ------------ | ------------------ |
+| microsoft.compute          | microsoft.compute/virtualmachines     | Virtual Machines    | Compute                   | Virtual Machines          | Microsoft     | Cloud Provider | Cloud       | IaaS         |                    |
+| microsoft.documentdb       | microsoft.documentdb/databaseaccounts | Cosmos DB           | Databases                 | NoSQL Databases           | Microsoft     | Cloud Provider | Cloud       | PaaS         |                    |
+| microsoft.kusto            | microsoft.kusto/clusters              | Azure Data Explorer | Analytics                 | Analytics Platforms       | Microsoft     | Cloud Provider | Cloud       | PaaS         |                    |
+| microsoft.network          | microsoft.network/virtualnetworks     | Virtual Network     | Networking                | Networking Infrastructure | Microsoft     | Cloud Provider | Cloud       | IaaS         |                    |
+| microsoft.recoveryservices | microsoft.recoveryservices/vaults     | Azure Site Recovery | Management and Governance | Disaster Recovery         | Microsoft     | Cloud Provider | Cloud       | SaaS         |                    |
+| microsoft.recoveryservices | microsoft.recoveryservices/vaults     | Azure Backup        | Storage                   | Backup Storage            | Microsoft     | Cloud Provider | Cloud       | SaaS         | Backup             |
+| microsoft.storage          | microsoft.storage/storageaccounts     | Storage Accounts    | Storage                   | Storage Platforms         | Microsoft     | Cloud Provider | Cloud       | IaaS         |                    |
 
 <!-- cSpell:enable -->
 
 A few important notes about the data:
 
 - `ConsumedService` and `ResourceType` values are all lowercased to avoid case sensitivity issues.
-- `ServiceName` values should match the product marketing name for the closest possible service. Some services reuse resource types and can't be distinguished from the resource type alone (for example, Azure functions show as App Service).
+- `ServiceName` values should match the product marketing name for the closest possible service. Some services reuse resource types and can't be distinguished from the resource type alone (for example, Azure Functions and Logic Apps Standard use App Service sites). Use `x_SkuMeterCategory` to tell them apart.
 - `ServiceCategory` values are aligned with the allowed values in FOCUS.
+- `x_SkuMeterCategory` is optional. When empty, the row applies to all meter categories for that resource type. When set, the row only applies to charges with that meter category (`x_SkuMeterCategory` in FOCUS or `MeterCategory` in actual and amortized cost data) and takes precedence over the empty row for the same resource type.
 
 Most mappings can rely on resource type alone. In a future update, we will merge this list with [Resource types](#resource-types) to provide only a single dataset. Currently, the only known case where resource type is shared that ConsumedService can help identify is for Microsoft Defender for Cloud. To simplify your mapping, you can only map those 5 rows and rely on a resource type mapping for everything else.
+
+Resource types shared by services that use different meter categories have extra rows with `x_SkuMeterCategory` set:
+
+- Recovery Services vaults: Azure Backup (`Backup`); everything else is Azure Site Recovery.
+- App Service sites: Functions (`Functions`) and Logic Apps (`Logic Apps`); everything else is Azure App Service.
+
+To map a charge, look for a row matching both the resource type and meter category first, then fall back to the row with an empty `x_SkuMeterCategory`.
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
