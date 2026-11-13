@@ -24,6 +24,9 @@ Describe 'Update-AiMeters' {
             'Get-AiMeterClassification'
             'Get-AiMeterKey'
             'Read-AiMeterPricesheet'
+            'Import-AiMeterInput'
+            'Merge-AiMeterInput'
+            'ConvertTo-AiMeterRow'
         )
         foreach ($name in $functionNames)
         {
@@ -63,6 +66,21 @@ Describe 'Update-AiMeters' {
             }
             finally { $zip.Dispose() }
             return $Path
+        }
+
+        # Builds one rule-input object in the shape Read-AiMeterPricesheet returns.
+        function New-MeterInput
+        {
+            param([string]$Category, [string]$Subcategory, [string]$Name, [string]$Family = 'AI + Machine Learning', [string]$IdKind = 'Guid')
+            return [pscustomobject]@{ Category = $Category; Subcategory = $Subcategory; Name = $Name; ServiceFamily = $Family; MeterIdKind = $IdKind }
+        }
+
+        # Runs the script in a child process and returns its exit code. Host output is discarded.
+        function Invoke-AiMetersScript
+        {
+            param([string]$Pricesheet, [string]$Output)
+            $null = & pwsh -NoProfile -File $scriptPath -PricesheetPath $Pricesheet -OutputPath $Output *>&1
+            return $LASTEXITCODE
         }
 
         function New-IncludedRow
@@ -404,6 +422,197 @@ Describe 'Update-AiMeters' {
             $zip = New-TestPricesheet "$TestDrive/x.zip" @(New-IncludedRow 'Input Tokens')
             $text = @((Read-AiMeterPricesheet $zip).Values) | ConvertTo-Json -Compress
             $text | Should -Not -Match 'secret|1\.23'
+        }
+    }
+
+    Context 'Import-AiMeterInput' {
+        It 'returns an empty hashtable for a missing file' {
+            $r = Import-AiMeterInput "$TestDrive/missing.csv"
+            $r | Should -BeOfType [hashtable]
+            $r.Count | Should -Be 0
+        }
+
+        It 'reads the five rule inputs exactly as written and ignores classification columns' {
+            $path = "$TestDrive/in.csv"
+            $rows = @(
+                [pscustomobject]@{ x_SkuMeterCategory = ''; x_SkuMeterSubcategory = 'Sub, "q"'; SkuMeter = 'Modèle ß  Input Tokens'; x_SkuServiceFamily = 'F'; MeterIdKind = 'Other'; Provider = 'Zzz' }
+                [pscustomobject]@{ x_SkuMeterCategory = 'C'; x_SkuMeterSubcategory = 'S'; SkuMeter = 'N Tokens'; x_SkuServiceFamily = ''; MeterIdKind = 'Guid'; Provider = 'Zzz' }
+            )
+            $rows | Export-Csv -Path $path -UseQuotes Always -NoTypeInformation -Encoding utf8
+            $r = Import-AiMeterInput $path
+            $r.Count | Should -Be 2
+            $a = $r[(Get-AiMeterKey '' 'Sub, "q"' 'Modèle ß  Input Tokens')]
+            $a.Category | Should -BeExactly ''
+            $a.Subcategory | Should -BeExactly 'Sub, "q"'
+            $a.Name | Should -BeExactly 'Modèle ß  Input Tokens'
+            $a.MeterIdKind | Should -BeExactly 'Other'
+            $a.PSObject.Properties.Name | Should -Be @('Category', 'Subcategory', 'Name', 'ServiceFamily', 'MeterIdKind')
+            $r[(Get-AiMeterKey 'C' 'S' 'N Tokens')].ServiceFamily | Should -BeExactly ''
+        }
+    }
+
+    Context 'Merge-AiMeterInput' {
+        It 'lets the price sheet win and keeps rows that left the price sheet' {
+            $old = @{ k1 = [pscustomobject]@{ Name = 'old casing' }; k2 = [pscustomobject]@{ Name = 'retired' } }
+            $new = @{ k1 = [pscustomobject]@{ Name = 'Old Casing' }; k3 = [pscustomobject]@{ Name = 'added' } }
+            $m = Merge-AiMeterInput $old $new
+            $m.Count | Should -Be 3
+            $m.k1.Name | Should -BeExactly 'Old Casing'
+            $m.k2.Name | Should -Be 'retired'
+            $m.k3.Name | Should -Be 'added'
+        }
+
+        It 'does not change its arguments' {
+            $old = @{ k1 = [pscustomobject]@{ Name = 'a' } }
+            $new = @{ k2 = [pscustomobject]@{ Name = 'b' } }
+            $null = Merge-AiMeterInput $old $new
+            $old.Count | Should -Be 1
+            $new.Count | Should -Be 1
+        }
+    }
+
+    Context 'ConvertTo-AiMeterRow' {
+        It 'marks the row whose subcategory equals the category as default' {
+            $in = @{}
+            foreach ($sub in 'Microsoft 365 Agent', 'Microsoft Copilot Studio', 'Microsoft Contact Center Intelligence')
+            {
+                $in[(Get-AiMeterKey 'Microsoft Copilot Studio' $sub 'Pay As You Go Copilot Credit')] = New-MeterInput 'Microsoft Copilot Studio' $sub 'Pay As You Go Copilot Credit' 'Microsoft 365 Copilot'
+            }
+            $rows = ConvertTo-AiMeterRow $in
+            @($rows | Where-Object IsDefault -eq 'true').x_SkuMeterSubcategory | Should -Be 'Microsoft Copilot Studio'
+            @($rows | Where-Object IsDefault -eq 'false').Count | Should -Be 2
+        }
+
+        It 'falls back to the first subcategory when none equals the category' {
+            $in = @{}
+            foreach ($sub in 'b sub', 'A sub')
+            {
+                $in[(Get-AiMeterKey 'Cat' $sub 'Input Tokens')] = New-MeterInput 'Cat' $sub 'Input Tokens'
+            }
+            $rows = ConvertTo-AiMeterRow $in
+            @($rows | Where-Object IsDefault -eq 'true').x_SkuMeterSubcategory | Should -Be 'A sub'
+            @($rows | Where-Object IsDefault -eq 'true').Count | Should -Be 1
+        }
+
+        It 'picks one default per category and meter name pair' {
+            $in = @{}
+            foreach ($n in 'One Tokens', 'Two Tokens')
+            {
+                foreach ($sub in 'S1', 'S2')
+                {
+                    $in[(Get-AiMeterKey 'Cat' $sub $n)] = New-MeterInput 'Cat' $sub $n
+                }
+            }
+            $rows = ConvertTo-AiMeterRow $in
+            $rows.Count | Should -Be 4
+            @($rows | Where-Object IsDefault -eq 'true').Count | Should -Be 2
+        }
+
+        It 'writes the 22 columns in order, with lowercase booleans' {
+            $in = @{ (Get-AiMeterKey 'Cat' 'Sub' 'GPT-4o Input Tokens') = New-MeterInput 'Cat' 'Sub' 'GPT-4o Input Tokens' }
+            $rows = @(ConvertTo-AiMeterRow $in)
+            $rows[0].PSObject.Properties.Name | Should -Be @(
+                'x_SkuMeterCategory', 'x_SkuMeterSubcategory', 'SkuMeter', 'x_SkuServiceFamily', 'MeterIdKind', 'IsDefault',
+                'Provider', 'IsTokenMeter', 'TokenType', 'IsCachedToken', 'IsBatchToken', 'TokenContextType', 'TokenLocation',
+                'IsCopilotMeter', 'CopilotProvider', 'IsCommitmentMeter', 'IsConsumptionMeter', 'CopilotType', 'IsAgentMeter',
+                'AgentType', 'ModelVersion', 'ModelCreator')
+            $rows[0].IsTokenMeter | Should -BeExactly 'true'
+            $rows[0].IsCopilotMeter | Should -BeExactly 'false'
+            $rows[0].IsDefault | Should -BeExactly 'true'
+            $rows[0].x_SkuMeterCategory | Should -BeExactly 'Cat'
+            $rows[0].SkuMeter | Should -BeExactly 'GPT-4o Input Tokens'
+        }
+
+        It 'sorts with an ordinal comparison of lowercased keys' {
+            $in = @{}
+            foreach ($n in 'b Tokens', 'A Tokens', 'a2 Tokens')
+            {
+                $in[(Get-AiMeterKey 'Cat' 'Sub' $n)] = New-MeterInput 'Cat' 'Sub' $n
+            }
+            @(ConvertTo-AiMeterRow $in).SkuMeter | Should -Be @('A Tokens', 'a2 Tokens', 'b Tokens')
+        }
+
+        It 'drops rows the inclusion rule no longer includes' {
+            $in = @{ (Get-AiMeterKey 'Virtual Machines' 'Dv5 Series' 'D2 v5') = New-MeterInput 'Virtual Machines' 'Dv5 Series' 'D2 v5' 'Compute' }
+            @(ConvertTo-AiMeterRow $in).Count | Should -Be 0
+        }
+
+        It 'does not write to the host' {
+            $in = @{ (Get-AiMeterKey 'Cat' 'Sub' 'Input Tokens') = New-MeterInput 'Cat' 'Sub' 'Input Tokens' }
+            $out = ConvertTo-AiMeterRow $in 6>&1 5>&1 4>&1 3>&1
+            @($out | Where-Object { $_ -isnot [pscustomobject] }).Count | Should -Be 0
+        }
+    }
+
+    Context 'Script run end to end' {
+        It 'is idempotent: a second run gives a byte-identical file' {
+            $zip = New-TestPricesheet "$TestDrive/idem.zip" @((New-IncludedRow 'Input Tokens'), (New-IncludedRow 'Output Tokens'))
+            $out = "$TestDrive/idem.csv"
+            Invoke-AiMetersScript $zip $out | Should -Be 0
+            $first = (Get-FileHash $out).Hash
+            Invoke-AiMetersScript $zip $out | Should -Be 0
+            (Get-FileHash $out).Hash | Should -Be $first
+            @(Import-Csv $out).Count | Should -Be 2
+        }
+
+        It 'keeps a retired meter and reclassifies it from its stored inputs' {
+            $out = "$TestDrive/retired.csv"
+            $zip1 = New-TestPricesheet "$TestDrive/r1.zip" @((New-IncludedRow 'Alpha Input Tokens'), (New-IncludedRow 'Beta Output Tokens'))
+            Invoke-AiMetersScript $zip1 $out | Should -Be 0
+            $before = @(Import-Csv $out)
+            $zip2 = New-TestPricesheet "$TestDrive/r2.zip" @((New-IncludedRow 'Alpha Input Tokens'))
+            Invoke-AiMetersScript $zip2 $out | Should -Be 0
+            $after = @(Import-Csv $out)
+            $after.Count | Should -Be 2
+            $b = $after | Where-Object SkuMeter -eq 'Beta Output Tokens'
+            $b | Should -Not -BeNullOrEmpty
+            $b.TokenType | Should -Be (($before | Where-Object SkuMeter -eq 'Beta Output Tokens').TokenType)
+            $b.IsTokenMeter | Should -BeExactly 'true'
+        }
+
+        It 'round-trips keys with commas, quotes, non-ASCII characters, and repeated spaces' {
+            $names = @('Input, "Pro"  Tokens', 'Modèle ß Input Tokens')
+            $zip = New-TestPricesheet "$TestDrive/rt.zip" @($names | ForEach-Object { New-IncludedRow $_ })
+            $out = "$TestDrive/rt.csv"
+            Invoke-AiMetersScript $zip $out | Should -Be 0
+            $first = (Get-FileHash $out).Hash
+            Invoke-AiMetersScript $zip $out | Should -Be 0
+            (Get-FileHash $out).Hash | Should -Be $first
+            $read = @(Import-Csv $out -Encoding utf8).SkuMeter
+            foreach ($n in $names) { $read | Should -Contain $n }
+            foreach ($n in $names) { ($read | Where-Object { $_ -ceq $n }).Count | Should -Be 1 }
+        }
+
+        It 'never writes prices, billing IDs, or meter IDs' {
+            $zip = New-TestPricesheet "$TestDrive/np.zip" @(New-IncludedRow 'Input Tokens')
+            $out = "$TestDrive/np.csv"
+            Invoke-AiMetersScript $zip $out | Should -Be 0
+            Get-Content -Raw $out | Should -Not -Match 'secret|1\.23|0000b7f7'
+        }
+
+        It 'leaves the existing file untouched when the price sheet has a conflict' {
+            $out = "$TestDrive/conf.csv"
+            Invoke-AiMetersScript (New-TestPricesheet "$TestDrive/c1.zip" @(New-IncludedRow 'Input Tokens')) $out | Should -Be 0
+            $hash = (Get-FileHash $out).Hash
+            $bad = New-TestPricesheet "$TestDrive/c2.zip" @((New-IncludedRow 'Input Tokens' -Family 'A'), (New-IncludedRow 'Input Tokens' -Family 'B'))
+            Invoke-AiMetersScript $bad $out | Should -Not -Be 0
+            (Get-FileHash $out).Hash | Should -Be $hash
+        }
+
+        It 'leaves the existing file untouched when the price sheet has no price rows' {
+            $out = "$TestDrive/nop.csv"
+            Invoke-AiMetersScript (New-TestPricesheet "$TestDrive/n1.zip" @(New-IncludedRow 'Input Tokens')) $out | Should -Be 0
+            $hash = (Get-FileHash $out).Hash
+            $empty = New-TestPricesheet "$TestDrive/n2.zip" @(New-IncludedRow 'Input Tokens') -EntryName 'readme.txt'
+            Invoke-AiMetersScript $empty $out | Should -Not -Be 0
+            (Get-FileHash $out).Hash | Should -Be $hash
+        }
+
+        It 'leaves no temporary file behind' {
+            $out = "$TestDrive/tmp/clean.csv"
+            New-Item -ItemType Directory -Path "$TestDrive/tmp" | Out-Null
+            Invoke-AiMetersScript (New-TestPricesheet "$TestDrive/t1.zip" @(New-IncludedRow 'Input Tokens')) $out | Should -Be 0
+            @(Get-ChildItem "$TestDrive/tmp").Name | Should -Be @('clean.csv')
         }
     }
 }
