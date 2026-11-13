@@ -55,6 +55,12 @@ _Released November 2026_
 - **Added**
   - Added Export to Excel to the storage queries in the optimization workbook.
 
+### [Power BI reports](power-bi/reports.md) v16
+
+- **Fixed**
+  - Fixed the storage-based Costs query failing to refresh with `Type mismatch (DISP_E_TYPEMISMATCH 0x80020005)` when a row SKU details did not carry a clean numeric VCPUs/vCores value ([#2297](https://github.com/microsoft/finops-toolkit/issues/2297)).
+    - The value is now coerced to null instead of throwing.
+
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
 - **Added**
