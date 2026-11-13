@@ -5,13 +5,43 @@
 # reads a price sheet, so rather than dot-source it we extract just the named function
 # definitions via the AST and evaluate those in isolation.
 
+BeforeDiscovery {
+    # Build one pre-filter case per inclusion literal from Get-AiMeterRuleLiteral itself, so a
+    # literal added there is covered without a test change.
+    $discoveryScript = Join-Path (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName 'src/scripts/Update-AiMeters.ps1'
+    $discoveryAst = [System.Management.Automation.Language.Parser]::ParseFile($discoveryScript, [ref]$null, [ref]$null)
+    $literalFunction = $discoveryAst.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'Get-AiMeterRuleLiteral' }, $true) | Select-Object -First 1
+    . ([scriptblock]::Create($literalFunction.Extent.Text))
+    $ruleLiterals = Get-AiMeterRuleLiteral
+
+    # Returns the text in another letter case: uppercase, or lowercase when it's already uppercase.
+    $otherCase = { param([string]$Text) if ($Text -cne $Text.ToUpperInvariant()) { $Text.ToUpperInvariant() } else { $Text.ToLowerInvariant() } }
+    $guid = '0000b7f7-3b31-5534-9c09-4b23944d397c'
+
+    $literalCases = @(
+        foreach ($sub in @($ruleLiterals.AgentSubcategories.Keys) + $ruleLiterals.PrePurchasePlanSubcategories)
+        {
+            @{ Branch = 'subcategory'; Category = 'X'; Subcategory = (& $otherCase $sub); Name = 'Unit'; MeterId = $guid }
+        }
+        @{ Branch = 'meter ID'; Category = 'X'; Subcategory = 'Y'; Name = 'Unit'; MeterId = (& $otherCase $ruleLiterals.ConsumptionUnitsMeterId) }
+        @{ Branch = 'GitHub credit'; Category = $ruleLiterals.GitHubCreditCategory; Subcategory = 'Y'; Name = (& $otherCase $ruleLiterals.GitHubCreditMeterName); MeterId = $guid }
+        @{ Branch = 'token name'; Category = 'X'; Subcategory = 'Y'; Name = "Model $(& $otherCase $ruleLiterals.TokenNameKeyword)"; MeterId = $guid }
+        @{ Branch = 'Copilot name'; Category = 'X'; Subcategory = 'Y'; Name = "Model $(& $otherCase $ruleLiterals.CopilotNameKeyword) Unit"; MeterId = $guid }
+    )
+}
+
 Describe 'Update-AiMeters' {
     BeforeAll {
         $scriptPath = Join-Path (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName 'src/scripts/Update-AiMeters.ps1'
         $ast = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$null, [ref]$null)
         # Add each new function name to this list as later tasks introduce it.
         $functionNames = @(
+            'Get-AiMeterRuleLiteral'
+            'Get-AiMeterColumn'
+            'Get-AiTokenDirectionAlias'
             'Get-AiMeterIdKind'
+            'Test-AiTokenMeter'
+            'Test-AiCopilotMeter'
             'Test-AiMeterIncluded'
             'Get-AiMeterProvider'
             'Get-AiTokenType'
@@ -27,6 +57,7 @@ Describe 'Update-AiMeters' {
             'Import-AiMeterInput'
             'Merge-AiMeterInput'
             'ConvertTo-AiMeterRow'
+            'Get-AiMeterSummary'
         )
         foreach ($name in $functionNames)
         {
@@ -160,6 +191,15 @@ Describe 'Update-AiMeters' {
             @{ Name = '6-astra ShortCo Cd Inp Std Gl 1M Tokens'; Kind = 'Guid'; Type = 'Input' }
         ) { Get-AiTokenType $Name $Kind | Should -Be $Type }
 
+        It 'token type of a null or empty name is N/A' {
+            Get-AiTokenType $null 'Guid' | Should -Be 'N/A'
+            Get-AiTokenType '' 'Guid' | Should -Be 'N/A'
+        }
+
+        It 'token type of the consumption units meter wins over a direction hint' {
+            Get-AiTokenType 'Claude Input Tokens' 'ClaudeConsumptionUnits' | Should -Be 'ConsumptionUnit'
+        }
+
         It 'cached flag of <Name> is <Cached>' -ForEach @(
             @{ Name = 'CD-Output Tokens'; Cached = $true }
             @{ Name = 'cd_embedding Tokens'; Cached = $true }
@@ -223,6 +263,10 @@ Describe 'Update-AiMeters' {
             @{ Name = 'Model 2407 Input Tokens';                   Version = 'N/A' }
             @{ Name = '';                                          Version = 'N/A' }
         ) { Get-AiModelVersion $Name | Should -Be $Version }
+
+        It 'converts 35 to 3.5 for GPT only, not for Grok' {
+            Get-AiModelVersion 'Grok35 Input Tokens' | Should -Be '35'
+        }
     }
 
     Context 'Get-AiModelCreator' {
@@ -254,6 +298,20 @@ Describe 'Update-AiMeters' {
             $c.TokenLocation | Should -Be 'DataZone';  $c.ModelVersion | Should -Be '5.4';  $c.ModelCreator | Should -Be 'OpenAi'
             $c.IsCopilotMeter | Should -BeFalse;  $c.CopilotProvider | Should -Be 'N/A';  $c.CopilotType | Should -Be 'N/A'
             $c.IsAgentMeter | Should -BeFalse;  $c.AgentType | Should -Be 'N/A';  $c.IsConsumptionMeter | Should -BeFalse
+            $c.IsCachedToken | Should -BeFalse;  $c.IsBatchToken | Should -BeFalse;  $c.TokenContextType | Should -Be 'N/A'
+        }
+
+        It 'classifies a meter that is both a token meter and a Copilot meter' {
+            $c = Get-AiMeterClassification 'X' 'Y' 'Copilot Input Tokens' 'Microsoft 365 Copilot' 'Guid'
+            $c.IsTokenMeter | Should -BeTrue;  $c.TokenType | Should -Be 'Input';  $c.Provider | Should -Be 'Microsoft'
+            $c.IsCopilotMeter | Should -BeTrue;  $c.CopilotProvider | Should -Be 'Microsoft';  $c.CopilotType | Should -Be 'M365'
+            $c.IsConsumptionMeter | Should -BeTrue;  $c.IsAgentMeter | Should -BeTrue;  $c.AgentType | Should -Be 'Copilot - M365'
+            $c.IsCommitmentMeter | Should -BeFalse
+        }
+
+        It 'classifies a Copilot credit reservation as a commitment' {
+            $c = Get-AiMeterClassification 'X' 'Copilot Credit Reservation' 'Copilot Credit Unit' 'Microsoft 365 Copilot' 'Guid'
+            $c.IsCopilotMeter | Should -BeTrue;  $c.IsCommitmentMeter | Should -BeTrue;  $c.CopilotType | Should -Be 'M365'
         }
 
         It 'classifies Copilot row <Sub> / <Family>' -ForEach @(
@@ -418,6 +476,34 @@ Describe 'Update-AiMeters' {
             @((Read-AiMeterPricesheet $zip).Values)[0].Name | Should -BeExactly 'Input Tokens'
         }
 
+        It 'pre-filter passes the <Branch> literal in another letter case: <Category> / <Subcategory> / <Name> / <MeterId>' -ForEach $literalCases {
+            $zip = New-TestPricesheet "$TestDrive/lit.zip" @(
+                @{ MeterCategory = $Category; MeterSubCategory = $Subcategory; MeterName = $Name; MeterId = $MeterId; ServiceFamily = 'F' }
+            )
+            try { (Read-AiMeterPricesheet $zip).Count | Should -Be 1 }
+            finally { Remove-Item -LiteralPath $zip }
+        }
+
+        It 'names the entry and line number of a malformed JSON line, without its content' {
+            $zip = "$TestDrive/bad.zip"
+            $archive = [System.IO.Compression.ZipFile]::Open($zip, 'Create')
+            try
+            {
+                $writer = [System.IO.StreamWriter]::new($archive.CreateEntry('part-7.json').Open())
+                try
+                {
+                    $writer.WriteLine('{"MeterCategory":"Virtual Machines","MeterName":"D2 v5","UnitPrice":1.0}')
+                    $writer.WriteLine('{"MeterName":"Input Tokens","UnitPrice":9.87,"Note":"SECRETVALUE"')
+                }
+                finally { $writer.Dispose() }
+            }
+            finally { $archive.Dispose() }
+            $err = { Read-AiMeterPricesheet $zip } | Should -Throw -PassThru
+            $err.Exception.Message | Should -BeLike '*part-7.json*'
+            $err.Exception.Message | Should -BeLike '*Line 2 *'
+            $err.Exception.Message | Should -Not -Match 'SECRETVALUE|9\.87|Input Tokens'
+        }
+
         It 'keeps no field beyond the five tuple fields' {
             $zip = New-TestPricesheet "$TestDrive/x.zip" @(New-IncludedRow 'Input Tokens')
             $text = @((Read-AiMeterPricesheet $zip).Values) | ConvertTo-Json -Compress
@@ -448,6 +534,26 @@ Describe 'Update-AiMeters' {
             $a.MeterIdKind | Should -BeExactly 'Other'
             $a.PSObject.Properties.Name | Should -Be @('Category', 'Subcategory', 'Name', 'ServiceFamily', 'MeterIdKind')
             $r[(Get-AiMeterKey 'C' 'S' 'N Tokens')].ServiceFamily | Should -BeExactly ''
+        }
+
+        It 'returns an empty hashtable for a file with only the header' {
+            $path = "$TestDrive/header.csv"
+            Set-Content -LiteralPath $path -Value '"x_SkuMeterCategory","x_SkuMeterSubcategory","SkuMeter","x_SkuServiceFamily","MeterIdKind","IsDefault"' -Encoding utf8
+            (Import-AiMeterInput $path).Count | Should -Be 0
+        }
+
+        It 'stops on a CSV without the rule-input columns and names the file and the missing columns' {
+            $path = "$TestDrive/other.csv"
+            @([pscustomobject]@{ x_SkuMeterCategory = 'C'; SkuMeter = 'N'; ServiceName = 'S' }) | Export-Csv -Path $path -UseQuotes Always -NoTypeInformation -Encoding utf8
+            $err = { Import-AiMeterInput $path } | Should -Throw -PassThru
+            $err.Exception.Message | Should -BeLike '*other.csv*'
+            $err.Exception.Message | Should -BeLike '*x_SkuMeterSubcategory, x_SkuServiceFamily, MeterIdKind*'
+        }
+
+        It 'stops on an empty file' {
+            $path = "$TestDrive/empty.csv"
+            Set-Content -LiteralPath $path -Value '' -NoNewline
+            { Import-AiMeterInput $path } | Should -Throw '*x_SkuMeterCategory*'
         }
     }
 
@@ -544,6 +650,53 @@ Describe 'Update-AiMeters' {
         }
     }
 
+    Context 'Get-AiMeterSummary' {
+        BeforeAll {
+            # Builds one CSV row with the key, the given token type, and fixed values elsewhere.
+            function New-SummaryRow
+            {
+                param([string]$Name, [string]$TokenType = 'Input')
+                $row = [ordered]@{ x_SkuMeterCategory = 'Cat'; x_SkuMeterSubcategory = 'Sub'; SkuMeter = $Name }
+                foreach ($column in (Get-AiMeterColumn).Classification) { $row[$column] = 'N/A' }
+                $row.TokenType = $TokenType
+                return [pscustomobject]$row
+            }
+        }
+
+        It 'counts new, changed, kept, and dropped rows' {
+            $old = @((New-SummaryRow 'Same Tokens'), (New-SummaryRow 'Changed Tokens' 'Input'), (New-SummaryRow 'Dropped Tokens'))
+            $new = @((New-SummaryRow 'same tokens'), (New-SummaryRow 'Changed Tokens' 'Output'), (New-SummaryRow 'Added Tokens'))
+            $sheetKeys = @((Get-AiMeterKey 'Cat' 'Sub' 'Same Tokens'), (Get-AiMeterKey 'Cat' 'Sub' 'Added Tokens'))
+            $s = Get-AiMeterSummary -OldRows $old -NewRows $new -SheetKeys $sheetKeys
+            $s.Written | Should -Be 3
+            $s.New | Should -Be 1
+            $s.Changed | Should -Be 1
+            $s.Kept | Should -Be 1
+            $s.Dropped | Should -Be 1
+        }
+
+        It 'counts the values of every classification column, sorted by value' {
+            $new = @((New-SummaryRow 'A Tokens' 'Output'), (New-SummaryRow 'B Tokens' 'Input'), (New-SummaryRow 'C Tokens' 'Output'))
+            $s = Get-AiMeterSummary -OldRows @() -NewRows $new -SheetKeys @()
+            @($s.ValueCounts.Keys) | Should -Be (Get-AiMeterColumn).Classification
+            $s.ValueCounts.TokenType | Should -Be @('Input=1', 'Output=2')
+            $s.ValueCounts.Provider | Should -Be @('N/A=3')
+        }
+
+        It 'counts every row as new when there is no existing file' {
+            $s = Get-AiMeterSummary -OldRows @() -NewRows @((New-SummaryRow 'A Tokens')) -SheetKeys @((Get-AiMeterKey 'Cat' 'Sub' 'A Tokens'))
+            $s.New | Should -Be 1
+            $s.Changed | Should -Be 0
+            $s.Kept | Should -Be 0
+            $s.Dropped | Should -Be 0
+        }
+
+        It 'does not write to the host' {
+            $out = Get-AiMeterSummary -OldRows @() -NewRows @((New-SummaryRow 'A Tokens')) -SheetKeys @() 6>&1 5>&1 4>&1 3>&1
+            @($out).Count | Should -Be 1
+        }
+    }
+
     Context 'Script run end to end' {
         It 'is idempotent: a second run gives a byte-identical file' {
             $zip = New-TestPricesheet "$TestDrive/idem.zip" @((New-IncludedRow 'Input Tokens'), (New-IncludedRow 'Output Tokens'))
@@ -581,6 +734,43 @@ Describe 'Update-AiMeters' {
             $read = @(Import-Csv $out -Encoding utf8).SkuMeter
             foreach ($n in $names) { $read | Should -Contain $n }
             foreach ($n in $names) { ($read | Where-Object { $_ -ceq $n }).Count | Should -Be 1 }
+        }
+
+        It 'round-trips keys with a leading and a trailing space' {
+            $names = @(' Leading Input Tokens', 'Trailing Input Tokens ')
+            $zip = New-TestPricesheet "$TestDrive/sp.zip" @($names | ForEach-Object { New-IncludedRow $_ })
+            $out = "$TestDrive/sp.csv"
+            Invoke-AiMetersScript $zip $out | Should -Be 0
+            $first = (Get-FileHash $out).Hash
+            Invoke-AiMetersScript $zip $out | Should -Be 0
+            (Get-FileHash $out).Hash | Should -Be $first
+            $read = @(Import-Csv $out -Encoding utf8).SkuMeter
+            $read.Count | Should -Be 2
+            foreach ($n in $names) { ($read | Where-Object { $_ -ceq $n }).Count | Should -Be 1 }
+        }
+
+        It 'leaves a file that is not an AI meters file untouched' {
+            $out = "$TestDrive/other.csv"
+            @([pscustomobject]@{ ServiceName = 'S'; ServiceCategory = 'C' }) | Export-Csv -Path $out -UseQuotes Always -NoTypeInformation -Encoding utf8
+            $hash = (Get-FileHash $out).Hash
+            Invoke-AiMetersScript (New-TestPricesheet "$TestDrive/o1.zip" @(New-IncludedRow 'Input Tokens')) $out | Should -Not -Be 0
+            (Get-FileHash $out).Hash | Should -Be $hash
+        }
+
+        It 'stops on a price sheet without AI meters and leaves an existing file untouched' {
+            $out = "$TestDrive/noai.csv"
+            Invoke-AiMetersScript (New-TestPricesheet "$TestDrive/a1.zip" @(New-IncludedRow 'Input Tokens')) $out | Should -Be 0
+            $hash = (Get-FileHash $out).Hash
+            $noAi = New-TestPricesheet "$TestDrive/a2.zip" @(@{ MeterCategory = 'Virtual Machines'; MeterSubCategory = 'Dv5 Series'; MeterName = 'D2 v5'; MeterId = '0000b7f7-3b31-5534-9c09-4b23944d397c'; ServiceFamily = 'Compute' })
+            Invoke-AiMetersScript $noAi $out | Should -Not -Be 0
+            (Get-FileHash $out).Hash | Should -Be $hash
+        }
+
+        It 'stops on a price sheet without AI meters and creates no file' {
+            $out = "$TestDrive/noai-new.csv"
+            $noAi = New-TestPricesheet "$TestDrive/a3.zip" @(@{ MeterCategory = 'Virtual Machines'; MeterSubCategory = 'Dv5 Series'; MeterName = 'D2 v5'; MeterId = '0000b7f7-3b31-5534-9c09-4b23944d397c'; ServiceFamily = 'Compute' })
+            Invoke-AiMetersScript $noAi $out | Should -Not -Be 0
+            Test-Path -LiteralPath $out | Should -BeFalse
         }
 
         It 'never writes prices, billing IDs, or meter IDs' {
