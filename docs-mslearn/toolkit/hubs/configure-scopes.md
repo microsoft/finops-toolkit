@@ -3,7 +3,7 @@ title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: flanakin
 ms.author: micflan
-ms.date: 10/28/2026
+ms.date: 11/10/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -28,7 +28,7 @@ FinOps hubs are designed to handle multiple scopes and even data from multiple c
 - **Extensible platform**: The open architecture allows you to extend FinOps hubs to ingest custom data sources beyond standard cloud billing data.
 
 > [!TIP]
-> When configuring multiple scopes, ensure each scope has a unique directory path in your exports to avoid data conflicts. See the [Settings.json scope examples](#settingsjson-scope-examples) section for detailed configuration guidance.
+> When configuring multiple scopes, ensure each scope has a unique directory path in your exports to avoid data conflicts. See the [Settings.json scope examples](#settingsjson-scope-examples) section for detailed configuration guidance. A unique path doesn't separate two exports of the same dataset and scope for the same month. For details, see [Use one export per dataset, scope, and month](#use-one-export-per-dataset-scope-and-month).
 
 > [!WARNING]
 > Avoid configuring overlapping export scopes as this leads to duplicate cost data. For example, if you configure both a billing account-level export and a subscription-level export for the same subscription, costs for that subscription will be duplicated in your hub. Always ensure your export scopes are mutually exclusive.
@@ -123,6 +123,17 @@ FinOps hubs support the following dataset types, versions, and API versions:
 - API versions: 2023-07-01-preview
 
 For the most seamless experience, we recommend [allowing FinOps hubs to manage exports](#configure-managed-exports) for you. This option requires the least effort to maintain over time. Please note that Cost Management does not support managed exports for Microsoft Customer Agreement billing accounts or billing profiles.
+
+### Use one export per dataset, scope, and month
+
+A FinOps hub keeps data from one export per dataset, scope, and month. The ingestion folder is based on those three values and doesn't include the export name or export path. Each ingestion replaces any other data in that folder, which is how a new export run replaces earlier data for the same month.
+
+> [!WARNING]
+> Two exports of the same dataset and scope that cover the same month replace each other's data, even when they use different storage paths or FOCUS versions. Both exports succeed and no error is reported, but only the data from the export processed last stays in your hub. Reservation recommendations are the exception because their ingestion folder also includes the export name.
+
+The daily month-to-date and monthly last-month exports recommended in [Configure exports manually](#configure-exports-manually) work together because they cover different months. When the monthly export runs, it replaces the data for last month, as intended.
+
+To change the FOCUS version of an export, stop the old export and then re-export the history with the new one. Don't run both side by side.
 
 <br>
 

@@ -46,6 +46,8 @@ _Released November 2026_
 
 - **Added**
   - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+- **Changed**
+  - Documented that two exports of the same dataset and scope that cover the same month replace each other's data with no error. For guidance, see [Use one export per dataset, scope, and month](hubs/configure-scopes.md#use-one-export-per-dataset-scope-and-month) ([#2383](https://github.com/microsoft/finops-toolkit/issues/2383)).
 - **Fixed**
   - Fixed reservation prices not backfilling when Actual and Amortized costs carried the full billing profile path instead of the short ID ([#2356](https://github.com/microsoft/finops-toolkit/issues/2356)).
     - Billing account ID, billing account type, and pricing currency now use the short billing profile ID too.
