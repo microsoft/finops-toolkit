@@ -22,12 +22,53 @@ Describe 'Update-AiMeters' {
             'Get-AiModelVersion'
             'Get-AiModelCreator'
             'Get-AiMeterClassification'
+            'Get-AiMeterKey'
+            'Read-AiMeterPricesheet'
         )
         foreach ($name in $functionNames)
         {
             $fn = $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name }, $true) | Select-Object -First 1
             if (-not $fn) { throw "Function $name not found in $scriptPath" }
             . ([scriptblock]::Create($fn.Extent.Text))
+        }
+
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+        # Writes rows as JSON Lines into one entry of a new zip. Every row also gets a price and a
+        # billing account ID, so later tests can prove those never reach the output.
+        function New-TestPricesheet
+        {
+            param(
+                [string]$Path,
+                [hashtable[]]$Rows,
+                [string]$EntryName = 'part-0.json'
+            )
+
+            $zip = [System.IO.Compression.ZipFile]::Open($Path, 'Create')
+            try
+            {
+                $entry = $zip.CreateEntry($EntryName)
+                $writer = [System.IO.StreamWriter]::new($entry.Open(), [System.Text.UTF8Encoding]::new($false))
+                try
+                {
+                    foreach ($row in $Rows)
+                    {
+                        $copy = $row.Clone()
+                        $copy.UnitPrice = 1.23
+                        $copy.BillingAccountId = 'secret'
+                        $writer.WriteLine(($copy | ConvertTo-Json -Compress))
+                    }
+                }
+                finally { $writer.Dispose() }
+            }
+            finally { $zip.Dispose() }
+            return $Path
+        }
+
+        function New-IncludedRow
+        {
+            param([string]$Name, [string]$Id = '0000b7f7-3b31-5534-9c09-4b23944d397c', [string]$Family = 'AI + Machine Learning')
+            return @{ MeterCategory = 'X'; MeterSubCategory = 'Y'; MeterName = $Name; MeterId = $Id; ServiceFamily = $Family }
         }
     }
 
@@ -233,6 +274,136 @@ Describe 'Update-AiMeters' {
 
         It 'stops on a Copilot meter from Anthropic' {
             { Get-AiMeterClassification 'X' 'Claude Models' 'Claude Copilot Unit' '' 'Other' } | Should -Throw '*Claude Copilot Unit*'
+        }
+    }
+
+    Context 'Read-AiMeterPricesheet' {
+        It 'builds a lowercase key joined by the unit separator' {
+            Get-AiMeterKey 'A' 'B' 'C' | Should -BeExactly "a$([char]31)b$([char]31)c"
+            Get-AiMeterKey $null 'B' '' | Should -BeExactly "$([char]31)b$([char]31)"
+        }
+
+        It 'keeps included tuples only, one per key' {
+            $zip = New-TestPricesheet "$TestDrive/a.zip" @(
+                @{ MeterCategory = 'Foundry Models'; MeterSubCategory = 'Azure OpenAI GPT5'; MeterName = '5.4 opt Dz 1M Tokens'; MeterId = '0000b7f7-3b31-5534-9c09-4b23944d397c'; ServiceFamily = 'AI + Machine Learning' }
+                @{ MeterCategory = 'Foundry Models'; MeterSubCategory = 'Azure OpenAI GPT5'; MeterName = '5.4 opt Dz 1M Tokens'; MeterId = '11111111-3b31-5534-9c09-4b23944d397c'; ServiceFamily = 'AI + Machine Learning' }
+                @{ MeterCategory = 'Virtual Machines'; MeterSubCategory = 'Dv5 Series'; MeterName = 'D2 v5'; MeterId = '22222222-3b31-5534-9c09-4b23944d397c'; ServiceFamily = 'Compute' }
+            )
+            $r = Read-AiMeterPricesheet $zip
+            $r.Count | Should -Be 1
+            $row = $r[(Get-AiMeterKey 'foundry models' 'AZURE OPENAI GPT5' '5.4 OPT DZ 1M TOKENS')]
+            $row.Name | Should -BeExactly '5.4 opt Dz 1M Tokens'
+            $row.MeterIdKind | Should -Be 'Guid'
+            $row.PSObject.Properties.Name | Should -Be @('Category','Subcategory','Name','ServiceFamily','MeterIdKind')
+        }
+
+        It 'reads every json entry in the zip' {
+            $zip = New-TestPricesheet "$TestDrive/two.zip" @(New-IncludedRow 'First Input Tokens')
+            $archive = [System.IO.Compression.ZipFile]::Open($zip, 'Update')
+            try
+            {
+                $writer = [System.IO.StreamWriter]::new($archive.CreateEntry('part-1.json').Open())
+                try { $writer.WriteLine((New-IncludedRow 'Second Input Tokens' | ConvertTo-Json -Compress)) }
+                finally { $writer.Dispose() }
+            }
+            finally { $archive.Dispose() }
+            $r = Read-AiMeterPricesheet $zip
+            $r.Count | Should -Be 2
+            @($r.Values.Name | Sort-Object) | Should -Be @('First Input Tokens', 'Second Input Tokens')
+        }
+
+        It 'treats null and missing fields as empty strings' {
+            $zip = New-TestPricesheet "$TestDrive/n.zip" @(
+                @{ MeterCategory = 'X'; MeterSubCategory = $null; MeterName = 'Input Tokens'; MeterId = 'vendor-1' }
+            )
+            $row = @((Read-AiMeterPricesheet $zip).Values)[0]
+            $row.Subcategory | Should -BeExactly ''
+            $row.ServiceFamily | Should -BeExactly ''
+            $row.MeterIdKind | Should -Be 'Other'
+        }
+
+        It 'stops when one tuple has two service families' {
+            $zip = New-TestPricesheet "$TestDrive/f.zip" @(
+                (New-IncludedRow 'Input Tokens' -Family 'A')
+                (New-IncludedRow 'Input Tokens' -Family 'B')
+            )
+            { Read-AiMeterPricesheet $zip } | Should -Throw '*service famil*'
+        }
+
+        It 'stops when one tuple mixes meter ID kinds' {
+            $zip = New-TestPricesheet "$TestDrive/k.zip" @(
+                (New-IncludedRow 'Input Tokens' -Id '0000b7f7-3b31-5534-9c09-4b23944d397c')
+                (New-IncludedRow 'Input Tokens' -Id 'vendor-1')
+            )
+            { Read-AiMeterPricesheet $zip } | Should -Throw '*meter ID kind*'
+        }
+
+        It 'stops when two tuples differ only in case' {
+            $zip = New-TestPricesheet "$TestDrive/c.zip" @(
+                (New-IncludedRow 'Input Tokens')
+                (New-IncludedRow 'INPUT TOKENS')
+            )
+            { Read-AiMeterPricesheet $zip } | Should -Throw '*differ only in letter case*'
+        }
+
+        It 'stops when the zip has no json entry' {
+            $zip = New-TestPricesheet "$TestDrive/t.zip" @(New-IncludedRow 'Input Tokens') -EntryName 'readme.txt'
+            { Read-AiMeterPricesheet $zip } | Should -Throw '*no .json entry*'
+        }
+
+        It 'stops when no row has a meter name field' {
+            $zip = New-TestPricesheet "$TestDrive/s.zip" @(@{ Foo = 1 }, @{ Bar = 2 })
+            { Read-AiMeterPricesheet $zip } | Should -Throw '*price sheet*'
+        }
+
+        It 'reads field names in any letter case' {
+            $zip = New-TestPricesheet "$TestDrive/l.zip" @(
+                @{ meterCategory = 'X'; meterSubCategory = 'Y'; meterName = 'Input Tokens'; meterId = 'claude-consumption-units'; serviceFamily = 'Fam' }
+            )
+            $r = Read-AiMeterPricesheet $zip
+            $r.Count | Should -Be 1
+            $row = @($r.Values)[0]
+            $row.Category | Should -BeExactly 'X'
+            $row.Subcategory | Should -BeExactly 'Y'
+            $row.ServiceFamily | Should -BeExactly 'Fam'
+            $row.MeterIdKind | Should -Be 'ClaudeConsumptionUnits'
+        }
+
+        It 'finds a meter whatever the letter case of the inclusion word' {
+            $zip = New-TestPricesheet "$TestDrive/u.zip" @(
+                (New-IncludedRow 'INPUT TOKENS')
+                (New-IncludedRow 'Pay As You Go COPILOT Credit')
+            )
+            (Read-AiMeterPricesheet $zip).Count | Should -Be 2
+        }
+
+        It 'finds a meter included only through its subcategory, meter ID, or GitHub rule' {
+            $zip = New-TestPricesheet "$TestDrive/p.zip" @(
+                @{ MeterCategory = 'X'; MeterSubCategory = 'AZURE AGENT UNIT'; MeterName = 'SRE Unit'; MeterId = '0000b7f7-3b31-5534-9c09-4b23944d397c'; ServiceFamily = 'F' }
+                @{ MeterCategory = 'X'; MeterSubCategory = 'GitHub AI Credits Pre-Purchase Plan'; MeterName = 'Commit Unit'; MeterId = '0000b7f7-3b31-5534-9c09-4b23944d397d'; ServiceFamily = 'F' }
+                @{ MeterCategory = 'X'; MeterSubCategory = 'Y'; MeterName = 'Consumption Unit'; MeterId = 'Claude-Consumption-Units'; ServiceFamily = 'F' }
+                @{ MeterCategory = 'github'; MeterSubCategory = 'Y'; MeterName = 'ai credit gac'; MeterId = '0000b7f7-3b31-5534-9c09-4b23944d397e'; ServiceFamily = 'F' }
+            )
+            (Read-AiMeterPricesheet $zip).Count | Should -Be 4
+        }
+
+        It 'finds a meter whose name is written with JSON escapes' {
+            $zip = "$TestDrive/e.zip"
+            $archive = [System.IO.Compression.ZipFile]::Open($zip, 'Create')
+            try
+            {
+                $writer = [System.IO.StreamWriter]::new($archive.CreateEntry('part-0.json').Open())
+                try { $writer.WriteLine('{"MeterCategory":"X","MeterSubCategory":"Y","MeterName":"Input Tokens","MeterId":"v","ServiceFamily":"F"}') }
+                finally { $writer.Dispose() }
+            }
+            finally { $archive.Dispose() }
+            @((Read-AiMeterPricesheet $zip).Values)[0].Name | Should -BeExactly 'Input Tokens'
+        }
+
+        It 'keeps no field beyond the five tuple fields' {
+            $zip = New-TestPricesheet "$TestDrive/x.zip" @(New-IncludedRow 'Input Tokens')
+            $text = @((Read-AiMeterPricesheet $zip).Values) | ConvertTo-Json -Compress
+            $text | Should -Not -Match 'secret|1\.23'
         }
     }
 }

@@ -490,3 +490,163 @@ function Get-AiMeterClassification
 
     return $classification
 }
+
+function Get-AiMeterKey
+{
+    <#
+        .SYNOPSIS
+        Builds the case-insensitive key of a meter name tuple.
+
+        .DESCRIPTION
+        Lowercases the three parts with the invariant culture and joins them with the unit
+        separator character (char 31). The parts are not trimmed.
+
+        .PARAMETER Category
+        The meter category.
+
+        .PARAMETER Subcategory
+        The meter subcategory.
+
+        .PARAMETER Name
+        The meter name.
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param(
+        [AllowEmptyString()][AllowNull()][string]$Category,
+        [AllowEmptyString()][AllowNull()][string]$Subcategory,
+        [AllowEmptyString()][AllowNull()][string]$Name
+    )
+
+    return (@($Category, $Subcategory, $Name) | ForEach-Object { "$_".ToLowerInvariant() }) -join [char]31
+}
+
+function Read-AiMeterPricesheet
+{
+    <#
+        .SYNOPSIS
+        Reads a price sheet zip and returns the distinct AI meter name tuples.
+
+        .DESCRIPTION
+        Streams every .json entry of the zip line by line (JSON Lines) without extracting it
+        or loading it into memory. A cheap text test skips lines that cannot be AI meters before
+        any JSON is parsed; it only skips lines that Test-AiMeterIncluded would reject. Keeps one
+        entry per case-insensitive tuple. Only the five tuple fields are stored.
+
+        Throws when the zip has no .json entry, when no line has a meter name field, when two
+        different tuples share a key, or when one key has more than one service family or meter
+        ID kind.
+
+        .PARAMETER Path
+        Path to the price sheet zip.
+
+        .OUTPUTS
+        A hashtable keyed by Get-AiMeterKey. Each value has Category, Subcategory, Name,
+        ServiceFamily, and MeterIdKind.
+    #>
+    [CmdletBinding()]
+    [OutputType([hashtable])]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Path
+    )
+
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+    # Every literal that makes Test-AiMeterIncluded return true, plus a backslash so that a
+    # value written with JSON escapes is always parsed.
+    $candidate = [regex]::new(
+        'tokens|copilot|claude-consumption-units|AI Credit GAC|Azure Agent Unit|Azure Monitor Observability Agent|Microsoft 365 Agent|Microsoft Agent Pre-Purchase Plan|GitHub Pre-Purchase Plan|GitHub AI Credits Pre-Purchase Plan|\\',
+        [System.Text.RegularExpressions.RegexOptions]::IgnoreCase -bor [System.Text.RegularExpressions.RegexOptions]::Compiled)
+
+    $meters = @{}
+    $conflicts = [System.Collections.Generic.List[string]]::new()
+    $conflictKinds = [System.Collections.Generic.HashSet[string]]::new()
+    $sawName = $false
+    $sawJson = $false
+
+    $archive = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path -LiteralPath $Path).ProviderPath)
+    try
+    {
+        foreach ($entry in $archive.Entries)
+        {
+            if (-not $entry.Name.EndsWith('.json', [System.StringComparison]::OrdinalIgnoreCase)) { continue }
+            $sawJson = $true
+
+            $reader = [System.IO.StreamReader]::new($entry.Open(), [System.Text.Encoding]::UTF8)
+            try
+            {
+                while ($null -ne ($line = $reader.ReadLine()))
+                {
+                    if (-not $sawName -and $line.IndexOf('metername', [System.StringComparison]::OrdinalIgnoreCase) -ge 0) { $sawName = $true }
+                    if (-not $candidate.IsMatch($line)) { continue }
+
+                    $fields = @{ metercategory = ''; metersubcategory = ''; metername = ''; meterid = ''; servicefamily = '' }
+                    $document = [System.Text.Json.JsonDocument]::Parse($line)
+                    try
+                    {
+                        foreach ($property in $document.RootElement.EnumerateObject())
+                        {
+                            $field = $property.Name.ToLowerInvariant()
+                            if (-not $fields.ContainsKey($field)) { continue }
+                            $kind = $property.Value.ValueKind
+                            $fields[$field] = if ($kind -eq 'String') { $property.Value.GetString() }
+                            elseif ($kind -eq 'Null' -or $kind -eq 'Undefined') { '' }
+                            else { $property.Value.GetRawText() }
+                            if ($field -eq 'metername') { $sawName = $true }
+                        }
+                    }
+                    finally { $document.Dispose() }
+
+                    $category = $fields.metercategory
+                    $subcategory = $fields.metersubcategory
+                    $name = $fields.metername
+                    $idKind = Get-AiMeterIdKind $fields.meterid
+                    if (-not (Test-AiMeterIncluded $category $subcategory $name $idKind)) { continue }
+
+                    $key = Get-AiMeterKey $category $subcategory $name
+                    $known = $meters[$key]
+                    if ($null -eq $known)
+                    {
+                        $meters[$key] = [pscustomobject]@{
+                            Category      = $category
+                            Subcategory   = $subcategory
+                            Name          = $name
+                            ServiceFamily = $fields.servicefamily
+                            MeterIdKind   = $idKind
+                        }
+                        continue
+                    }
+
+                    $problem = $null
+                    if ($known.Category -cne $category -or $known.Subcategory -cne $subcategory -or $known.Name -cne $name)
+                    {
+                        $problem = 'differ only in letter case'
+                    }
+                    elseif ($known.ServiceFamily -cne $fields.servicefamily) { $problem = 'service families' }
+                    elseif ($known.MeterIdKind -ne $idKind) { $problem = 'meter ID kinds' }
+                    if ($problem)
+                    {
+                        $conflictKinds.Add($problem) | Out-Null
+                        if ($conflicts.Count -lt 5)
+                        {
+                            $conflicts.Add("'$($known.Category)' / '$($known.Subcategory)' / '$($known.Name)' ($problem)")
+                        }
+                    }
+                }
+            }
+            finally { $reader.Dispose() }
+        }
+    }
+    finally { $archive.Dispose() }
+
+    if (-not $sawJson) { throw "The zip has no .json entry, so '$Path' doesn't look like an MCA price sheet." }
+    if (-not $sawName) { throw "No row has a meter name field, so '$Path' doesn't look like an MCA price sheet." }
+    if ($conflicts.Count -gt 0)
+    {
+        $kinds = $conflictKinds -join '; '
+        throw "The price sheet has conflicting AI meter tuples ($kinds). Up to five examples: $($conflicts -join '; ')."
+    }
+
+    return $meters
+}
