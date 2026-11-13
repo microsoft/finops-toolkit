@@ -227,7 +227,7 @@ A few important notes about the data:
 
 - Match meters by `x_SkuMeterCategory`, `x_SkuMeterSubcategory`, and `SkuMeter`. Matching is case-insensitive.
 - `IsDefault` marks the row to use when the subcategory is unknown.
-- The file is refreshed with each release.
+- The file is updated periodically from a current price sheet.
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
