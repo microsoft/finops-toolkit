@@ -14,9 +14,6 @@
     .PARAMETER ResourceType
     Optional. The Azure resource type for the resource you want to find the service for. Default = null (all).
 
-    .PARAMETER MeterCategory
-    Optional. The meter category (x_SkuMeterCategory) of the charge. Use to split resource types shared by multiple services, like Azure Backup and Azure Site Recovery on Recovery Services vaults. When specified, services mapped to a matching meter category are returned instead of the general mapping for the same resource type. Default = null (all).
-
     .PARAMETER ServiceName
     Optional. The service name to find. Default = null (all).
 
@@ -48,11 +45,6 @@
 
     Returns all services with a resource provider that starts with "Microsoft.C".
 
-    .EXAMPLE
-    Get-FinOpsService -ResourceType "Microsoft.RecoveryServices/vaults" -MeterCategory "Backup"
-
-    Returns Azure Backup instead of Azure Site Recovery for backup charges on a Recovery Services vault.
-
     .LINK
     https://aka.ms/ftk/Get-FinOpsService
 #>
@@ -73,10 +65,6 @@ function Get-FinOpsService()
         [Parameter(Position = 2)]
         [string]
         $ResourceType = "*",
-
-        [Alias("x_SkuMeterCategory")]
-        [string]
-        $MeterCategory,
 
         [string]
         $ServiceName = "*",
@@ -112,7 +100,7 @@ function Get-FinOpsService()
         $type = $ResourceType
     }
 
-    $services = Get-OpenDataService `
+    return Get-OpenDataService `
     | Where-Object {
         $_.ConsumedService -like $ConsumedService `
             -and $_.ResourceType -like $type `
@@ -123,17 +111,7 @@ function Get-FinOpsService()
             -and $_.Environment -like $Environment `
             -and $_.PublisherName -like $PublisherName `
             -and $_.PublisherType -like $PublisherCategory
-    }
-
-    # Prefer meter category-specific mappings over the general mapping for the same resource type
-    if ($MeterCategory)
-    {
-        $specific = @($services | Where-Object { $_.x_SkuMeterCategory -and $_.x_SkuMeterCategory -like $MeterCategory })
-        $specificTypes = @($specific | ForEach-Object { $_.ResourceType })
-        $services = @($specific) + @($services | Where-Object { -not $_.x_SkuMeterCategory -and $specificTypes -notcontains $_.ResourceType })
-    }
-
-    return $services `
+    } `
     | ForEach-Object {
         [PSCustomObject]@{
             Environment        = $_.Environment

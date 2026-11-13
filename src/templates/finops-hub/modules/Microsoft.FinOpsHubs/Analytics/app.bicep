@@ -1088,7 +1088,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                     }
                     userProperties: []
                     typeProperties: {
-                      command: '.set-or-replace Services <| externaldata(x_ConsumedService: string, x_ResourceType: string, ServiceName: string, ServiceCategory: string, ServiceSubcategory: string, PublisherName: string, x_PublisherCategory: string, x_Environment: string, x_ServiceModel: string, x_SkuMeterCategory: string)[@"${ftkReleaseUri}/Services.csv"] with (format="csv", ignoreFirstRecord=true)'
+                      command: '.set-or-replace Services <| externaldata(x_ConsumedService: string, x_ResourceType: string, ServiceName: string, ServiceCategory: string, ServiceSubcategory: string, PublisherName: string, x_PublisherCategory: string, x_Environment: string, x_ServiceModel: string)[@"${ftkReleaseUri}/Services.csv"] with (format="csv", ignoreFirstRecord=true)'
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
