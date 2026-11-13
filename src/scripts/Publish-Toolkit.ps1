@@ -73,7 +73,7 @@ $repoConfig = @{
         requiredFiles = @("main.bicep", "main.json", "metadata.json", "README.md", "version.json")
     }
     appInsights = @{
-        org           = 'Azure'
+        org           = 'microsoft'
         mainBranch    = 'master'
         possibleNames = @($AppInsightsRepo, 'Application-Insights-Workbooks')
         relativePath  = "Workbooks/Azure Advisor/Cost Optimization"
