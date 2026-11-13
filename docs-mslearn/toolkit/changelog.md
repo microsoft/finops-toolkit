@@ -66,6 +66,13 @@ _Released November 2026_
 - **Added**
   - Added a `-EnableKeyVaultRbacAuthorization` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that moves the hub Key Vault from access policies to Azure RBAC. Requires hub template version 16.0 or later ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
 
+### [Open data](open-data.md) v16
+
+- **Added**
+  - Added an [AI meters](open-data.md#ai-meters) dataset that classifies Azure AI meters by provider, token type, model, Copilot, commitment, and agent usage.
+    - Generated from a Microsoft Customer Agreement price sheet. The file has no prices or IDs.
+    - The classification rules come from Dirk Brinkmann's AI meter ruleset.
+
 <br>
 
 ## v15

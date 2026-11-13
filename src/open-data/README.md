@@ -4,6 +4,7 @@ Our open data solutions are pretty straightforward. Nothing to deploy. Just use 
 
 On this page:
 
+- [🤖 AI meters](#-ai-meters)
 - [💰 Commitment discount eligibility](#-commitment-discount-eligibility)
 - [📐 Instance size flexibility](#-instance-size-flexibility)
 - [📏 Pricing units](#-pricing-units)
@@ -12,6 +13,54 @@ On this page:
 - [🎛️ Services](#️-services)
 
 ---
+
+## 🤖 AI meters
+
+<sup>
+    📅 Updated: Nov 13, 2026<br>
+    ➡️ Source: Microsoft Customer Agreement price sheet<br>
+</sup>
+
+<br>
+
+The [AiMeters.csv](./AiMeters.csv) file classifies Azure AI meters, such as token, Copilot, and agent meters. The classification rules come from Dirk Brinkmann's AI meter ruleset. In short, the rules cover:
+
+- **Inclusion:** which meters count as AI meters, based on the meter name (for example, `tokens` or `copilot`) and a list of known agent and pre-purchase plan subcategories.
+- **Provider:** whether the meter is from Anthropic, Microsoft, or another vendor.
+- **Tokens:** the token type (input, output, embedding, and so on), whether the meter is cached or batch, and the context type and location.
+- **Model metadata:** the model version and model creator, derived from the meter name.
+- **Copilot:** whether the meter is a Copilot meter, who provides it, and its Copilot type.
+- **Commitment:** whether the meter is a Copilot credit reservation or pre-purchase plan.
+- **Consumption:** whether the meter bills consumption units or Copilot credits.
+- **Agents:** whether the meter is an agent meter and its agent type.
+
+The columns fall into four groups:
+
+- **Key:** `x_SkuMeterCategory`, `x_SkuMeterSubcategory`, and `SkuMeter` identify a meter. Together they are the key. Values are written exactly as they appear in the price sheet.
+- **Rule inputs:** The classification is computed from `x_SkuMeterSubcategory`, `SkuMeter`, `x_SkuServiceFamily`, and `MeterIdKind`. `MeterIdKind` is `Guid`, `ClaudeConsumptionUnits`, or `Other`. The file never contains the meter ID itself.
+- **Fallback marker:** `IsDefault` is `true` on exactly one row for each meter category and meter name. Use that row when a subcategory is empty or doesn't match any row. The script picks the row whose subcategory equals the category, otherwise the first row by subcategory.
+- **Classification:** `Provider`, `IsTokenMeter`, `TokenType`, `IsCachedToken`, `IsBatchToken`, `TokenContextType`, `TokenLocation`, `IsCopilotMeter`, `CopilotProvider`, `IsCommitmentMeter`, `IsConsumptionMeter`, `CopilotType`, `IsAgentMeter`, `AgentType`, `ModelVersion`, and `ModelCreator`.
+
+The script recomputes the classification from the rule inputs on every run. Rows for meters that are no longer in the price sheet are kept.
+
+The file has no prices, billing IDs, meter IDs, product IDs, or SKU IDs.
+
+> [!WARNING]
+> A price sheet contains negotiated prices and billing IDs. Keep it outside the repository and never commit it.
+
+To get a price sheet, use the Cost Management price sheet download for a Microsoft Customer Agreement (MCA) billing profile. Start the download, then download the zip file from the URL the response returns:
+
+```http
+POST https://management.azure.com/providers/Microsoft.Billing/billingAccounts/<billing-account-id>/billingProfiles/<billing-profile-id>/providers/Microsoft.CostManagement/pricesheets/default/download?api-version=2023-11-01
+```
+
+To update the file, pass the path of the zip file. If you update from more than one price sheet, run the older ones before the newer ones, because a newer price sheet wins where two have the same meter:
+
+```powershell
+./src/scripts/Update-AiMeters.ps1 -PricesheetPath <path-to-zip>
+```
+
+<br>
 
 ## 💰 Commitment discount eligibility
 
