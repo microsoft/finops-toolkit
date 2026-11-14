@@ -502,15 +502,24 @@ function Get-AiModelCreator
 {
     <#
         .SYNOPSIS
-        Maps a meter subcategory to the model creator. The first matching rule wins.
+        Maps a meter subcategory, and when that doesn't tell, the meter name, to the model creator.
+
+        .DESCRIPTION
+        The subcategory rules run first and the first matching rule wins. Hosting subcategories such as
+        Managed Model Hosting Service name the host, not the model creator, so those rules return
+        Other. Only then are the meter name rules tried, in order. No match returns Other.
 
         .PARAMETER Subcategory
         The meter subcategory.
+
+        .PARAMETER Name
+        The meter name. Used only when the subcategory rules return Other.
     #>
     [CmdletBinding()]
     [OutputType([string])]
     param(
-        [AllowEmptyString()][AllowNull()][string]$Subcategory
+        [AllowEmptyString()][AllowNull()][string]$Subcategory,
+        [AllowEmptyString()][AllowNull()][string]$Name = ''
     )
 
     $rules = @(
@@ -529,6 +538,33 @@ function Get-AiModelCreator
     {
         if ($Subcategory -match $rule.Pattern) { return $rule.Creator }
     }
+
+    # Ordered name rules. (?<![a-z0-9]) starts a word and (?![a-z0-9]) ends one; both together make a bounded match.
+    $nameRules = @(
+        @{ Creator = 'Deepseek'; Pattern = 'deepseek|(?<![a-z0-9])ds(?![a-z0-9])' }
+        @{ Creator = 'Meta'; Pattern = 'llama|^ME-' }
+        @{ Creator = 'Mistral'; Pattern = 'mistral|ministral|codestral|(?<![a-z0-9])mist(?![a-z0-9])' }
+        @{ Creator = 'Cohere'; Pattern = 'cohere|(?<![a-z0-9])coh(?![a-z0-9])' }
+        @{ Creator = 'Moonshot'; Pattern = '(?<![a-z0-9])kimi(?![a-z0-9])' }
+        @{ Creator = 'OpenAi'; Pattern = '(?<![a-z0-9])gpt(?![a-z0-9])' }
+        @{ Creator = 'Zhipu'; Pattern = '(?<![a-z0-9])glm' }
+        @{ Creator = 'MiniMax'; Pattern = 'minimax' }
+        @{ Creator = 'NVIDIA'; Pattern = 'nvidia|nemotron' }
+        @{ Creator = 'Alibaba'; Pattern = '(?<![a-z0-9])qwen' }
+        @{ Creator = 'AI21'; Pattern = '(?<![a-z0-9])ai21' }
+        @{ Creator = 'NTT'; Pattern = '(?<![a-z0-9])ntt(?![a-z0-9])' }
+        @{ Creator = 'G42'; Pattern = '(?<![a-z0-9])g42(?![a-z0-9])' }
+        @{ Creator = 'Bria'; Pattern = '(?<![a-z0-9])bria(?![a-z0-9])' }
+        @{ Creator = 'Gretel'; Pattern = '(?<![a-z0-9])gretel(?![a-z0-9])' }
+        @{ Creator = 'Inflection'; Pattern = '(?<![a-z0-9])inflection(?![a-z0-9])' }
+        @{ Creator = 'Leonardo'; Pattern = '(?<![a-z0-9])leonardo(?![a-z0-9])' }
+        @{ Creator = 'Reka'; Pattern = '(?<![a-z0-9])reka(?![a-z0-9])' }
+        @{ Creator = 'Nixtla'; Pattern = 'nixtla|timegen|timegpt|(?<![a-z0-9])nix(?![a-z0-9])' }
+    )
+    foreach ($rule in $nameRules)
+    {
+        if ($Name -match $rule.Pattern) { return $rule.Creator }
+    }
     return 'Other'
 }
 
@@ -539,7 +575,8 @@ function Get-AiMeterClassification
         Classifies one AI meter into the 16 derived columns, or returns null when the meter is not an AI meter.
 
         .DESCRIPTION
-        Composes the token, model, Copilot, commitment, consumption, and agent rules. Throws when a
+        Composes the token, model, Copilot, commitment, consumption, and agent rules. The model creator comes
+        from the subcategory, and from the meter name when the subcategory names a host. Throws when a
         Copilot meter has the Anthropic provider, because the ruleset doesn't define that case.
 
         .PARAMETER Category
@@ -644,7 +681,7 @@ function Get-AiMeterClassification
         $values.TokenContextType = Get-AiTokenContextType $Name
         $values.TokenLocation = Get-AiTokenLocation $Name
         $values.ModelVersion = Get-AiModelVersion $Name $Subcategory
-        $values.ModelCreator = Get-AiModelCreator $Subcategory
+        $values.ModelCreator = Get-AiModelCreator $Subcategory $Name
     }
 
     $classification = [ordered]@{}
