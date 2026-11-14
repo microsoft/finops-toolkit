@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/13/2026
+ms.date: 11/14/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -65,6 +65,13 @@ _Released November 2026_
 
 - **Added**
   - Added a `-EnableKeyVaultRbacAuthorization` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that moves the hub Key Vault from access policies to Azure RBAC. Requires hub template version 16.0 or later ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+
+### [Open data](open-data.md) v16
+
+- **Added**
+  - Added an [AI meters](open-data.md#ai-meters) dataset that classifies Azure AI meters by provider, token type, model, Copilot, commitment, and agent usage.
+    - Generated from a Microsoft Customer Agreement price sheet. The file has no prices or IDs.
+    - The classification rules are based on Dirk Brinkmann's AI meter ruleset.
 
 <br>
 

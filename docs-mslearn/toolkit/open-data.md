@@ -4,7 +4,7 @@ description: Use open data to normalize and enhance your FinOps reporting, ensur
 ms.topic: concept-article
 author: flanakin
 ms.author: micflan
-ms.date: 10/12/2026
+ms.date: 11/14/2026
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
@@ -205,6 +205,33 @@ A few important notes about the data:
 > [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/InstanceSizeFlexibility.csv)
 > [!div class="nextstepaction"]
 > [See PowerShell](powershell/data/get-finopsinstancesizeflexibility.md)
+<!-- prettier-ignore-end -->
+
+<br>
+
+## AI meters
+
+Azure price sheets mix AI meters, such as tokens, Copilot, and agents, with every other meter, and the meter names don't say which model or kind of usage a meter covers. The AI meters file classifies these meters by provider, token type, model version, model creator, Copilot, commitment, and agent usage. The classification rules are based on Dirk Brinkmann's AI meter ruleset, and the file is generated from a Microsoft Customer Agreement price sheet. It doesn't contain prices or IDs.
+
+Sample data:
+
+| x_SkuMeterCategory       | x_SkuMeterSubcategory    | SkuMeter                     | Provider  | TokenType | IsCachedToken | ModelVersion | ModelCreator |
+| ------------------------ | ------------------------ | ---------------------------- | --------- | --------- | ------------- | ------------ | ------------ |
+| Foundry Models           | Azure OpenAI GPT5        | 5 pp cd inp Gl 1M Tokens     | Microsoft | Input     | true          | 5            | OpenAI       |
+| Foundry Models           | Azure OpenAI GPT5        | 5 pp inp Gl 1M Tokens        | Microsoft | Input     | false         | 5            | OpenAI       |
+| Foundry Models           | Azure OpenAI GPT5        | 5 pp opt Gl 1M Tokens        | Microsoft | Output    | false         | 5            | OpenAI       |
+| Foundry Models           | Azure OpenAI GPT5        | 5.1 codex inp Gl 1M Tokens   | Microsoft | Input     | false         | 5.1          | OpenAI       |
+| Microsoft Copilot Studio | Microsoft Copilot Studio | Pay As You Go Copilot Credit | Microsoft | N/A       | false         | N/A          | N/A          |
+
+A few important notes about the data:
+
+- Match meters by `x_SkuMeterCategory`, `x_SkuMeterSubcategory`, and `SkuMeter`. Matching is case-insensitive.
+- `IsDefault` marks the row to use when the subcategory is unknown.
+- The file is updated periodically from a current price sheet.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/AiMeters.csv)
 <!-- prettier-ignore-end -->
 
 <br>

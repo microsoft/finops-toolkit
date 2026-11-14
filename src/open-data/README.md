@@ -4,6 +4,7 @@ Our open data solutions are pretty straightforward. Nothing to deploy. Just use 
 
 On this page:
 
+- [🤖 AI meters](#-ai-meters)
 - [💰 Commitment discount eligibility](#-commitment-discount-eligibility)
 - [📐 Instance size flexibility](#-instance-size-flexibility)
 - [📏 Pricing units](#-pricing-units)
@@ -12,6 +13,74 @@ On this page:
 - [🎛️ Services](#️-services)
 
 ---
+
+## 🤖 AI meters
+
+<sup>
+    📅 Updated: Nov 14, 2026<br>
+    ➡️ Source: Microsoft Customer Agreement price sheet<br>
+</sup>
+
+<br>
+
+The [AiMeters.csv](./AiMeters.csv) file classifies Azure AI meters, such as token, Copilot, and agent meters. The classification rules are based on Dirk Brinkmann's AI meter ruleset. In short, the rules cover:
+
+- **Inclusion:** which meters count as AI meters, based on the meter name (for example, `tokens` or `copilot`) and a list of known agent and pre-purchase plan subcategories.
+- **Provider:** whether the meter is from Anthropic, Microsoft, or another vendor.
+- **Tokens:** the token type (input, output, write, reasoning, training, embedding, and so on), whether the meter is cached or batch, and the context type and location.
+- **Model metadata:** the model version and model creator, derived from the meter name and subcategory.
+- **Copilot:** whether the meter is a Copilot meter, who provides it, and its Copilot type.
+- **Commitment:** whether the meter is a Copilot meter in a Copilot credit reservation or Copilot credit pre-purchase plan, or belongs to the Microsoft agent pre-purchase plan or a GitHub pre-purchase plan.
+- **Consumption:** whether the meter bills consumption units or Copilot credits.
+- **Agents:** whether the meter is an agent meter and its agent type.
+
+**Differences from the ruleset:** the generator differs from the ruleset in these ways, because real meter names need it:
+
+- **`cchd`:** marks a cached token meter.
+- **`rgnl`:** marks a regional token meter.
+- **`prompt` and `completion`:** mark input and output token meters.
+- **Cached without a direction:** a cached token meter with no input or output hint is an input meter, because cache reads are input tokens.
+- **Direction before reasoning:** a direction hint wins over `reasoning`, so `Phi-4-reasoning-Input Tokens` is an input meter.
+- **Training:** a bounded `training` or `trng`, with no direction or write hint, gives the token type `Training`.
+- **camelCase words:** `Inp`, `Inpt`, `Input`, `Outp`, `Outpt`, and `Output` count as direction hints after a lowercase letter, and `Batch` followed by an uppercase letter marks a batch meter, as in `BatchOutp`.
+- **Model version:** a dotless version such as `54` becomes `5.4` when the subcategory is `GPT5`, and eight-digit date stamps are not versions.
+- **Cached write:** a bounded `cd` followed by `wr` or `write` is a write meter.
+- **Model creator from the meter name:** when the subcategory names a host, such as `Managed Model Hosting Service` or `Azure Fireworks Models`, and so doesn't name the model creator, the creator comes from the meter name. For example, `FW Kimi K3 Inp DZ Tokens` has the creator `Moonshot`. Creators found this way include `Zhipu`, `MiniMax`, `NVIDIA`, `Alibaba`, `AI21`, `NTT`, `G42`, `Bria`, `Gretel`, `Inflection`, `Leonardo`, `Reka`, and `Nixtla`, in addition to the creators the subcategory rules return. A meter that matches no rule has the creator `Other`. `Other` means that neither the subcategory nor the meter name says whose model it is, which is the case for price sheet placeholders and for Marketplace offers.
+- **Third-party Copilot products:** a meter with `copilot` in its name is a Copilot meter only when its meter ID is a GUID or its subcategory starts with `DAX Copilot`. Other Azure Marketplace products with `copilot` in an offer or plan name aren't Microsoft Copilot and are left out of the file, even when the name also contains `tokens`. DAX Copilot is Microsoft's clinical AI sold through Marketplace, so it has the Copilot type `Dragon` and the Copilot provider `Vendor`.
+- **Value spelling:** the creators are written `OpenAI` and `DeepSeek`, and the Copilot type of a Copilot meter that has no other type is `Other`, so its agent type is `Copilot - Other`.
+- **Microsoft service meters:** the subcategories `Microsoft Decision Models`, `Microsoft Defender for AI Services`, `Microsoft Defender for Cloud`, `Azure Content Understanding`, `Machine Learning service`, `Model Tools`, and `Observability` have the creator `Microsoft`.
+- **Marketplace model version:** a Marketplace meter name is the offer, the plan, and the meter, separated by hyphens. When the meter ID isn't a GUID, the model version comes from the offer name (the subcategory), because plan and meter names carry plan and pack numbers. A bounded `365`, as in `Office 365`, is never a version.
+
+The columns fall into four groups:
+
+- **Key:** `x_SkuMeterCategory`, `x_SkuMeterSubcategory`, and `SkuMeter` identify a meter. Together they are the key. Values are written exactly as they appear in the price sheet.
+- **Rule inputs:** The classification is computed from the three key columns plus `x_SkuServiceFamily` and `MeterIdKind`. The category takes part too, for example in the rule for the GitHub `AI Credit GAC` meter. `MeterIdKind` is `Guid`, `ClaudeConsumptionUnits`, or `Other`. The file never contains the meter ID itself.
+- **Fallback marker:** `IsDefault` is `true` on exactly one row for each meter category and meter name. Use that row when a subcategory is empty or doesn't match any row. The script picks the row whose subcategory equals the category, otherwise the first row by subcategory.
+- **Classification:** `Provider`, `IsTokenMeter`, `TokenType`, `IsCachedToken`, `IsBatchToken`, `TokenContextType`, `TokenLocation`, `IsCopilotMeter`, `CopilotProvider`, `IsCommitmentMeter`, `IsConsumptionMeter`, `CopilotType`, `IsAgentMeter`, `AgentType`, `ModelVersion`, and `ModelCreator`.
+
+The script recomputes the classification from the rule inputs on every run. Rows for meters that are no longer in the price sheet are kept.
+
+The file has no prices, billing IDs, meter IDs, product IDs, or SKU IDs.
+
+> [!WARNING]
+> A price sheet contains negotiated prices and billing IDs. Keep it outside the repository and never commit it.
+
+To get a price sheet, use the Cost Management price sheet download for a Microsoft Customer Agreement (MCA) billing profile. Start the download, then download the zip file from the URL the response returns:
+
+```http
+POST https://management.azure.com/providers/Microsoft.Billing/billingAccounts/<billing-account-id>/billingProfiles/<billing-profile-id>/providers/Microsoft.CostManagement/pricesheets/default/download?api-version=2023-11-01
+```
+
+To update the file, pass the path of the zip file. If you update from more than one price sheet, run the older ones before the newer ones, because a newer price sheet wins where two have the same meter:
+
+```powershell
+./src/scripts/Update-AiMeters.ps1 -PricesheetPath <path-to-zip>
+```
+
+> [!NOTE]
+> The file includes Azure Marketplace meters as the price sheet lists them. Marketplace meter names contain the offer and plan name, and some plan names include organization names.
+
+<br>
 
 ## 💰 Commitment discount eligibility
 

@@ -18,6 +18,13 @@ Status icons:
 ## 🔄️ Monthly updates
 
 - ❌ Update open data files ([learn more](https://github.com/microsoft/finops-toolkit/tree/dev/src/open-data)).
+  - ❌ AI meters
+    1. Download the current Microsoft Customer Agreement price sheet to a folder outside the repo.
+    2. Run `<root>/src/scripts/Update-AiMeters.ps1 -PricesheetPath <zip>`
+    3. Review the summary and the diff.
+    4. Run `AiMetersData.Tests.ps1`
+    5. Document the added meters in the changelog.
+    6. Publish a PR for updates
   - ❌ Pricing units
     1. Run the extraction query.
     2. Replace the contents of the corresponding [open data](https://github.com/microsoft/finops-toolkit/tree/dev/src/open-data) files.

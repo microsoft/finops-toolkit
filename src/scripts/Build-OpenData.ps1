@@ -509,9 +509,12 @@ if ($Csv)
 # Generate PowerShell functions from data files
 if ($PowerShell)
 {
+    # Datasets that aren't exposed as a PowerShell function: the generated copy would be ASCII and would turn 2.0 into a number
+    $skipPowerShell = @('AiMeters')
+
     # Loop thru all datasets
     Get-ChildItem "$srcDir/*.csv" `
-    | Where-Object { $_.Name -like "$Name.csv" }
+    | Where-Object { $_.Name -like "$Name.csv" -and $_.BaseName -notin $skipPowerShell }
     | ForEach-Object {
         $file = $_
         $dataType = $file.BaseName
