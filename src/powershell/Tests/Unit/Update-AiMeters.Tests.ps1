@@ -144,6 +144,12 @@ Describe 'Update-AiMeters' {
             @{ Cat = 'X'; Sub = 'GitHub Pre-Purchase Plan'; Name = 'n'; Kind = 'Guid'; Expected = $true }
             @{ Cat = 'X'; Sub = 'GitHub AI Credits Pre-Purchase Plan'; Name = 'n'; Kind = 'Guid'; Expected = $true }
             @{ Cat = 'Virtual Machines'; Sub = 'Dv5 Series'; Name = 'D2 v5'; Kind = 'Guid'; Expected = $false }
+            @{ Cat = 'SaaS'; Sub = 'Agroz Copilot'; Name = 'Agroz Copilot - Basic - Seat'; Kind = 'Other'; Expected = $false }
+            @{ Cat = 'SaaS'; Sub = 'R2 Copilot: Private AI for Word'; Name = 'R2 Copilot: Private AI for Word - Business - ForceTokens'; Kind = 'Other'; Expected = $false }
+            @{ Cat = 'Virtual Machine Licenses'; Sub = 'Some Controller'; Name = 'Some Controller - Copilot Plan - 1 vCPU VM License'; Kind = 'Other'; Expected = $false }
+            @{ Cat = 'SaaS'; Sub = 'DAX Copilot (US)'; Name = 'DAX Copilot (US) - Example Plan - DAX Copilot Pricing'; Kind = 'Other'; Expected = $true }
+            @{ Cat = 'Microsoft Copilot Studio'; Sub = 'Microsoft Copilot Studio'; Name = 'Pay As You Go Copilot Credit'; Kind = 'Guid'; Expected = $true }
+            @{ Cat = 'SaaS'; Sub = 'Claude Sonnet 5.5'; Name = 'Claude Sonnet 5.5 - plan - paygo-inference-input-tokens'; Kind = 'Other'; Expected = $true }
         ) { Test-AiMeterIncluded $Cat $Sub $Name $Kind | Should -Be $Expected }
     }
 
@@ -307,6 +313,9 @@ Describe 'Update-AiMeters' {
             @{ Name = '5.4 opt Dz 1M Tokens'; Sub = 'Azure OpenAI GPT5'; Version = '5.4' }
             @{ Name = 'chat-latest 05052026 cd inp Gl 1M Tokens'; Sub = 'Azure OpenAI GPT5'; Version = 'N/A' }
             @{ Name = 'Model 20261107 Input Tokens'; Sub = ''; Version = 'N/A' }
+            @{ Name = 'ISO Manager 365'; Sub = ''; Version = 'N/A' }
+            @{ Name = 'R2 Copilot: Private AI for Office 365'; Sub = ''; Version = 'N/A' }
+            @{ Name = 'Model 365 4.5 Input Tokens'; Sub = ''; Version = '4.5' }
         ) { Get-AiModelVersion $Name $Sub | Should -Be $Version }
 
         It 'converts 35 to 3.5 for GPT only, not for Grok' {
@@ -319,24 +328,29 @@ Describe 'Update-AiMeters' {
             @{ Sub = 'Claude Models'; Creator = 'Anthropic' }
             @{ Sub = 'Azure Llama Models'; Creator = 'Meta' }
             @{ Sub = 'Codestral'; Creator = 'Mistral' }
-            @{ Sub = 'Azure OpenAI GPT5'; Creator = 'OpenAi' }
+            @{ Sub = 'Azure OpenAI GPT5'; Creator = 'OpenAI' }
             @{ Sub = 'Azure Phi Models'; Creator = 'Microsoft' }
             @{ Sub = 'Grok Kimi'; Creator = 'SpaceX' }
             @{ Sub = 'FW Kimi'; Creator = 'Moonshot' }
             @{ Sub = 'Azure AI Search Cohere'; Creator = 'Microsoft' }
-            @{ Sub = 'Deepseek Models'; Creator = 'Deepseek' }
+            @{ Sub = 'Deepseek Models'; Creator = 'DeepSeek' }
             @{ Sub = 'Cohere Models'; Creator = 'Cohere' }
             @{ Sub = 'Something else'; Creator = 'Other' }
             @{ Sub = ''; Creator = 'Other' }
+            @{ Sub = 'Azure Content Understanding'; Creator = 'Microsoft' }
+            @{ Sub = 'Microsoft Decision Models'; Creator = 'Microsoft' }
+            @{ Sub = 'Observability'; Creator = 'Microsoft' }
+            @{ Sub = 'Managed Model Hosting Service'; Creator = 'Other' }
+            @{ Sub = 'Azure Deepseek Models'; Creator = 'DeepSeek' }
         ) { Get-AiModelCreator $Sub | Should -Be $Creator }
 
         It 'model creator of <Name> in <Sub> is <Creator>' -ForEach @(
             @{ Sub = 'Azure Fireworks Models'; Name = 'FW Kimi K2.5 Cache Inp DZ Tokens'; Creator = 'Moonshot' }
             @{ Sub = 'Azure Fireworks Models'; Name = 'FW GLM 5 Cache Inp DZ Tokens'; Creator = 'Zhipu' }
             @{ Sub = 'Azure Baseten Models'; Name = 'GLM5.2 cd Inp DZ 1M Tokens'; Creator = 'Zhipu' }
-            @{ Sub = 'Azure Fireworks Models'; Name = 'FW DS V4.1 Flash Cd Inp - US DZ 1M Tokens'; Creator = 'Deepseek' }
-            @{ Sub = 'Azure Fireworks Models'; Name = 'FW DeepSeekV3.2 Cache Inp DZ Tokens'; Creator = 'Deepseek' }
-            @{ Sub = 'Azure Fireworks Models'; Name = 'FW GPT OSS 120B Cache Inp DZ Tokens'; Creator = 'OpenAi' }
+            @{ Sub = 'Azure Fireworks Models'; Name = 'FW DS V4.1 Flash Cd Inp - US DZ 1M Tokens'; Creator = 'DeepSeek' }
+            @{ Sub = 'Azure Fireworks Models'; Name = 'FW DeepSeekV3.2 Cache Inp DZ Tokens'; Creator = 'DeepSeek' }
+            @{ Sub = 'Azure Fireworks Models'; Name = 'FW GPT OSS 120B Cache Inp DZ Tokens'; Creator = 'OpenAI' }
             @{ Sub = 'Azure Fireworks Models'; Name = 'FW MiniMax 3 Cache Inp DZ Tokens'; Creator = 'MiniMax' }
             @{ Sub = 'Azure Fireworks Models'; Name = 'FW NVIDIA Nemotron 3.5 LN Cd In DZ Tokens'; Creator = 'NVIDIA' }
             @{ Sub = 'Azure Baseten Models'; Name = 'NemotronUltra cd Inp DZ 1M Tokens'; Creator = 'NVIDIA' }
@@ -352,7 +366,7 @@ Describe 'Update-AiMeters' {
             @{ Sub = 'Managed Model Hosting Service'; Name = 'G42-Jais-Input Tokens'; Creator = 'G42' }
             @{ Sub = 'Managed Model Hosting Service'; Name = 'Nix-TGPT-IN Tokens'; Creator = 'Nixtla' }
             @{ Sub = 'Managed Model Hosting Service'; Name = 'Reka-Input Tokens'; Creator = 'Reka' }
-            @{ Sub = 'Some Marketplace Offer'; Name = 'SambaNova Cloud - DeepSeek-R1-Distill-Llama-70B - Output Price'; Creator = 'Deepseek' }
+            @{ Sub = 'Some Marketplace Offer'; Name = 'SambaNova Cloud - DeepSeek-R1-Distill-Llama-70B - Output Price'; Creator = 'DeepSeek' }
             @{ Sub = 'Managed Model Hosting Service'; Name = 'Provider1-Model1-TBD1-FT Tokens'; Creator = 'Other' }
             @{ Sub = 'Managed Model Hosting Service'; Name = 'Model 24-FT Tokens'; Creator = 'Other' }
             @{ Sub = 'Managed Model Hosting Service'; Name = 'G-J30-IN Tokens'; Creator = 'Other' }
@@ -360,7 +374,7 @@ Describe 'Update-AiMeters' {
             @{ Sub = 'Some Offer'; Name = 'Home for me Input Tokens'; Creator = 'Other' }
             # the subcategory still wins over the name
             @{ Sub = 'Azure Mistral Models'; Name = 'FW Kimi K3 Inp DZ Tokens'; Creator = 'Mistral' }
-            @{ Sub = 'Azure Deepseek Models'; Name = 'MAI-DS-R1 Inp Dzone Tokens'; Creator = 'Deepseek' }
+            @{ Sub = 'Azure Deepseek Models'; Name = 'MAI-DS-R1 Inp Dzone Tokens'; Creator = 'DeepSeek' }
             @{ Sub = 'Azure Fireworks Models'; Name = ''; Creator = 'Other' }
         ) { Get-AiModelCreator $Sub $Name | Should -Be $Creator }
     }
@@ -374,7 +388,7 @@ Describe 'Update-AiMeters' {
             $c = Get-AiMeterClassification 'Foundry Models' 'Azure OpenAI GPT5' '5.4 opt Dz 1M Tokens' 'AI + Machine Learning' 'Guid'
             @($c.Keys) | Should -Be @('Provider','IsTokenMeter','TokenType','IsCachedToken','IsBatchToken','TokenContextType','TokenLocation','IsCopilotMeter','CopilotProvider','IsCommitmentMeter','IsConsumptionMeter','CopilotType','IsAgentMeter','AgentType','ModelVersion','ModelCreator')
             $c.Provider | Should -Be 'Microsoft';  $c.IsTokenMeter | Should -BeTrue;  $c.TokenType | Should -Be 'Output'
-            $c.TokenLocation | Should -Be 'DataZone';  $c.ModelVersion | Should -Be '5.4';  $c.ModelCreator | Should -Be 'OpenAi'
+            $c.TokenLocation | Should -Be 'DataZone';  $c.ModelVersion | Should -Be '5.4';  $c.ModelCreator | Should -Be 'OpenAI'
             $c.IsCopilotMeter | Should -BeFalse;  $c.CopilotProvider | Should -Be 'N/A';  $c.CopilotType | Should -Be 'N/A'
             $c.IsAgentMeter | Should -BeFalse;  $c.AgentType | Should -Be 'N/A';  $c.IsConsumptionMeter | Should -BeFalse
             $c.IsCachedToken | Should -BeFalse;  $c.IsBatchToken | Should -BeFalse;  $c.TokenContextType | Should -Be 'N/A'
@@ -410,7 +424,7 @@ Describe 'Update-AiMeters' {
             @{ Cat = 'GitHub'; Sub = 'GitHub Copilot'; Name = 'AI Credit GAC'; Family = 'Developer Tools'; Kind = 'Other'; Type = 'GitHub'; Agent = 'Copilot - GitHub'; Commit = $false; CopilotProvider = 'Vendor' }
             @{ Cat = 'Microsoft Fabric'; Sub = 'Fabric Capacity'; Name = 'Copilot and AI Capacity Usage CU'; Family = 'Data'; Kind = 'Guid'; Type = 'Fabric'; Agent = 'Copilot - Fabric'; Commit = $false; CopilotProvider = 'Microsoft' }
             @{ Cat = 'X'; Sub = 'Y'; Name = 'Security Copilot Unit'; Family = 'Security'; Kind = 'Guid'; Type = 'Security'; Agent = 'Copilot - Security'; Commit = $false; CopilotProvider = 'Microsoft' }
-            @{ Cat = 'X'; Sub = 'Y'; Name = 'Some Copilot Unit'; Family = 'Compute'; Kind = 'Guid'; Type = 'other'; Agent = 'Copilot - other'; Commit = $false; CopilotProvider = 'Microsoft' }
+            @{ Cat = 'X'; Sub = 'Y'; Name = 'Some Copilot Unit'; Family = 'Compute'; Kind = 'Guid'; Type = 'Other'; Agent = 'Copilot - Other'; Commit = $false; CopilotProvider = 'Microsoft' }
             @{ Cat = 'X'; Sub = 'Copilot Credit Pre-Purchase Plan'; Name = 'Copilot Credit Commit Unit'; Family = 'Microsoft 365 Copilot'; Kind = 'Guid'; Type = 'M365'; Agent = 'Copilot - M365'; Commit = $true; CopilotProvider = 'Microsoft' }
             @{ Cat = 'GitHub'; Sub = 'GitHub AI Credits Pre-Purchase Plan'; Name = '100,000 GHAICCUs GitHub AI Credit Commit Unit'; Family = 'Developer Tools'; Kind = 'Guid'; Type = 'GitHub'; Agent = 'Generic'; Commit = $true; CopilotProvider = 'Microsoft' }
         ) {
@@ -418,6 +432,35 @@ Describe 'Update-AiMeters' {
             $c.IsCopilotMeter | Should -BeTrue;  $c.IsConsumptionMeter | Should -BeTrue;  $c.IsAgentMeter | Should -BeTrue
             $c.CopilotType | Should -Be $Type;  $c.AgentType | Should -Be $Agent
             $c.IsCommitmentMeter | Should -Be $Commit;  $c.CopilotProvider | Should -Be $CopilotProvider
+        }
+
+        It 'classifies DAX Copilot as a Dragon Copilot from a vendor' {
+            $c = Get-AiMeterClassification 'SaaS' 'DAX Copilot (US)' 'DAX Copilot (US) - Example Plan - DAX Copilot Pricing' 'SaaS' 'Other'
+            $c.IsCopilotMeter | Should -BeTrue;  $c.CopilotType | Should -Be 'Dragon'
+            $c.AgentType | Should -Be 'Copilot - Dragon';  $c.CopilotProvider | Should -Be 'Vendor'
+        }
+
+        It 'leaves out a third-party Copilot product' {
+            Get-AiMeterClassification 'SaaS' 'Agroz Copilot' 'Agroz Copilot - Basic - Seat' 'SaaS' 'Other' | Should -BeNullOrEmpty
+        }
+
+        It 'classifies a first-party Copilot meter of another type' {
+            $c = Get-AiMeterClassification 'Foundry Tools' 'Foundry Agents' 'Copilot Agent Unit' 'AI + Machine Learning' 'Guid'
+            $c.IsCopilotMeter | Should -BeTrue;  $c.CopilotType | Should -Be 'Other';  $c.AgentType | Should -Be 'Copilot - Other'
+        }
+
+        It 'takes the model version of a Marketplace meter from the offer name: <Sub>' -ForEach @(
+            @{ Sub = 'Mistral Large 2411'; Name = 'Mistral Large 2411 - mistral-large-2411-plan-prod-v2 - PayGo Finetuned Inference Input Tokens'; Version = 'N/A'; Creator = 'Mistral' }
+            @{ Sub = 'Meta Llama-2-70B'; Name = 'Meta Llama-2-70B - Meta Llama 2 70B - paygo-finetuned-model-inference-input-tokens'; Version = '2'; Creator = 'Meta' }
+            @{ Sub = 'Claude Sonnet 5.5'; Name = 'Claude Sonnet 5.5 - anthropic-claude-sonnet-5-5-plan - paygo-inf-longctx-cache-hit-tokens'; Version = '5.5'; Creator = 'Anthropic' }
+        ) {
+            $c = Get-AiMeterClassification 'SaaS' $Sub $Name 'SaaS' 'Other'
+            $c.ModelVersion | Should -Be $Version;  $c.ModelCreator | Should -Be $Creator
+        }
+
+        It 'classifies a cached Marketplace token meter with the version from the offer' {
+            $c = Get-AiMeterClassification 'SaaS' 'Claude Sonnet 5.5' 'Claude Sonnet 5.5 - anthropic-claude-sonnet-5-5-plan - paygo-inf-longctx-cache-hit-tokens' 'SaaS' 'Other'
+            $c.TokenType | Should -Be 'Input';  $c.IsCachedToken | Should -BeTrue
         }
 
         It 'classifies agent row <Sub> as <Agent>' -ForEach @(
@@ -438,7 +481,7 @@ Describe 'Update-AiMeters' {
         }
 
         It 'stops on a Copilot meter from Anthropic' {
-            { Get-AiMeterClassification 'X' 'Claude Models' 'Claude Copilot Unit' '' 'Other' } | Should -Throw '*Claude Copilot Unit*'
+            { Get-AiMeterClassification 'X' 'Claude Models' 'Claude Copilot Unit' '' 'Guid' } | Should -Throw '*Claude Copilot Unit*'
         }
     }
 
