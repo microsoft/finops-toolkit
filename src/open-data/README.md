@@ -23,22 +23,28 @@ On this page:
 
 <br>
 
-The [AiMeters.csv](./AiMeters.csv) file classifies Azure AI meters, such as token, Copilot, and agent meters. The classification rules come from Dirk Brinkmann's AI meter ruleset. In short, the rules cover:
+The [AiMeters.csv](./AiMeters.csv) file classifies Azure AI meters, such as token, Copilot, and agent meters. The classification rules are based on Dirk Brinkmann's AI meter ruleset. In short, the rules cover:
 
 - **Inclusion:** which meters count as AI meters, based on the meter name (for example, `tokens` or `copilot`) and a list of known agent and pre-purchase plan subcategories.
 - **Provider:** whether the meter is from Anthropic, Microsoft, or another vendor.
-- **Tokens:** the token type (input, output, embedding, and so on), whether the meter is cached or batch, and the context type and location.
+- **Tokens:** the token type (input, output, write, reasoning, training, embedding, and so on), whether the meter is cached or batch, and the context type and location.
 - **Model metadata:** the model version and model creator, derived from the meter name.
 - **Copilot:** whether the meter is a Copilot meter, who provides it, and its Copilot type.
 - **Commitment:** whether the meter is a Copilot meter in a Copilot credit reservation or Copilot credit pre-purchase plan, or belongs to the Microsoft agent pre-purchase plan or a GitHub pre-purchase plan.
 - **Consumption:** whether the meter bills consumption units or Copilot credits.
 - **Agents:** whether the meter is an agent meter and its agent type.
 
-**Additions to the ruleset:** the generator adds three hints that the ruleset doesn't list, because real meter names use them:
+**Differences from the ruleset:** the generator differs from the ruleset in these ways, because real meter names need it:
 
 - **`cchd`:** marks a cached token meter.
 - **`rgnl`:** marks a regional token meter.
 - **`prompt` and `completion`:** mark input and output token meters.
+- **Cached without a direction:** a cached token meter with no input or output hint is an input meter, because cache reads are input tokens.
+- **Direction before reasoning:** a direction hint wins over `reasoning`, so `Phi-4-reasoning-Input Tokens` is an input meter.
+- **Training:** a bounded `training` or `trng`, with no direction or write hint, gives the token type `Training`.
+- **camelCase words:** `Inp`, `Inpt`, `Input`, `Outp`, `Outpt`, and `Output` count as direction hints after a lowercase letter, and `Batch` followed by an uppercase letter marks a batch meter, as in `BatchOutp`.
+- **Model version:** a dotless version such as `54` becomes `5.4` when the subcategory is `GPT5`, and eight-digit date stamps are not versions.
+- **Cached write:** a bounded `cd` followed by `wr` or `write` is a write meter.
 
 The columns fall into four groups:
 
