@@ -40,7 +40,9 @@ function Get-AiMeterRuleLiteral
         .OUTPUTS
         An ordered hashtable with these entries:
         - TokenNameKeyword: a meter name containing it is a token meter.
-        - CopilotNameKeyword: a meter name containing it is a Copilot meter.
+        - CopilotNameKeyword: a meter name containing it is a Copilot meter, when the meter ID is a GUID or
+          the subcategory starts with DaxCopilotSubcategoryPrefix. Otherwise it's a third-party Copilot
+          product, which isn't an AI meter.
         - ConsumptionUnitsMeterId: the meter ID of the Claude consumption units meter.
         - GitHubCreditCategory and GitHubCreditMeterName: the category and meter name of the GitHub AI credit meter.
         - AgentSubcategories: agent subcategories mapped to their agent type.
@@ -48,6 +50,8 @@ function Get-AiMeterRuleLiteral
         - PrePurchasePlanSubcategories: all agent and GitHub pre-purchase plan subcategories.
         - CopilotCommitmentSubcategories: subcategories that make a Copilot meter a commitment.
         - DragonCopilotSubcategory: the subcategory of the Dragon Copilot type.
+        - DaxCopilotSubcategoryPrefix: subcategories that start with it are Microsoft's DAX Copilot, a Dragon Copilot
+          that is sold through the Azure Marketplace.
     #>
     [CmdletBinding()]
     [OutputType([System.Collections.Specialized.OrderedDictionary])]
@@ -69,6 +73,7 @@ function Get-AiMeterRuleLiteral
         PrePurchasePlanSubcategories   = @('Microsoft Agent Pre-Purchase Plan') + $githubPlans
         CopilotCommitmentSubcategories = @('Copilot Credit Reservation', 'Copilot Credit Pre-Purchase Plan')
         DragonCopilotSubcategory       = 'Microsoft Dragon Copilot'
+        DaxCopilotSubcategoryPrefix    = 'DAX Copilot'
     }
 }
 
@@ -169,37 +174,13 @@ function Test-AiCopilotMeter
 {
     <#
         .SYNOPSIS
-        Returns true when a meter is a Copilot meter: its name contains copilot, it's the GitHub AI
-        credit meter, or its subcategory is a GitHub pre-purchase plan.
+        Returns true when a meter is a Copilot meter: its name contains copilot and it's not a
+        third-party product, it's the GitHub AI credit meter, or its subcategory is a GitHub
+        pre-purchase plan.
 
-        .PARAMETER Category
-        The meter category.
-
-        .PARAMETER Subcategory
-        The meter subcategory.
-
-        .PARAMETER Name
-        The meter name.
-    #>
-    [CmdletBinding()]
-    [OutputType([bool])]
-    param(
-        [AllowEmptyString()][AllowNull()][string]$Category,
-        [AllowEmptyString()][AllowNull()][string]$Subcategory,
-        [AllowEmptyString()][AllowNull()][string]$Name
-    )
-
-    $literals = Get-AiMeterRuleLiteral
-    return [bool](($Name -match [regex]::Escape($literals.CopilotNameKeyword)) -or
-        ($Category -eq $literals.GitHubCreditCategory -and $Name -eq $literals.GitHubCreditMeterName) -or
-        ($literals.GitHubPlanSubcategories -contains $Subcategory))
-}
-
-function Test-AiMeterIncluded
-{
-    <#
-        .SYNOPSIS
-        Returns true when a meter is an AI meter (inclusion rule).
+        .DESCRIPTION
+        The copilot name keyword counts only when the meter ID kind is Guid or the subcategory starts
+        with DAX Copilot. Other meters with copilot in the name are third-party Marketplace products.
 
         .PARAMETER Category
         The meter category.
@@ -222,10 +203,52 @@ function Test-AiMeterIncluded
         [AllowEmptyString()][AllowNull()][string]$MeterIdKind
     )
 
-    if (Test-AiTokenMeter $Name $MeterIdKind) { return $true }
-    if (Test-AiCopilotMeter $Category $Subcategory $Name) { return $true }
+    $literals = Get-AiMeterRuleLiteral
+    $isFirstParty = $MeterIdKind -eq 'Guid' -or "$Subcategory".StartsWith($literals.DaxCopilotSubcategoryPrefix, [System.StringComparison]::OrdinalIgnoreCase)
+    return [bool](($isFirstParty -and $Name -match [regex]::Escape($literals.CopilotNameKeyword)) -or
+        ($Category -eq $literals.GitHubCreditCategory -and $Name -eq $literals.GitHubCreditMeterName) -or
+        ($literals.GitHubPlanSubcategories -contains $Subcategory))
+}
+
+function Test-AiMeterIncluded
+{
+    <#
+        .SYNOPSIS
+        Returns true when a meter is an AI meter (inclusion rule).
+
+        .DESCRIPTION
+        A third-party Copilot product is never included: its name contains copilot, its meter ID kind
+        isn't Guid, and its subcategory doesn't start with DAX Copilot. This holds even when another
+        branch, such as a name with tokens, matches.
+
+        .PARAMETER Category
+        The meter category.
+
+        .PARAMETER Subcategory
+        The meter subcategory.
+
+        .PARAMETER Name
+        The meter name.
+
+        .PARAMETER MeterIdKind
+        The meter ID kind from Get-AiMeterIdKind.
+    #>
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param(
+        [AllowEmptyString()][AllowNull()][string]$Category,
+        [AllowEmptyString()][AllowNull()][string]$Subcategory,
+        [AllowEmptyString()][AllowNull()][string]$Name,
+        [AllowEmptyString()][AllowNull()][string]$MeterIdKind
+    )
 
     $literals = Get-AiMeterRuleLiteral
+    $isFirstParty = $MeterIdKind -eq 'Guid' -or "$Subcategory".StartsWith($literals.DaxCopilotSubcategoryPrefix, [System.StringComparison]::OrdinalIgnoreCase)
+    if (-not $isFirstParty -and $Name -match [regex]::Escape($literals.CopilotNameKeyword)) { return $false }
+
+    if (Test-AiTokenMeter $Name $MeterIdKind) { return $true }
+    if (Test-AiCopilotMeter $Category $Subcategory $Name $MeterIdKind) { return $true }
+
     $subcategories = @($literals.AgentSubcategories.Keys) + $literals.PrePurchasePlanSubcategories
     return $subcategories -contains $Subcategory
 }
@@ -432,7 +455,7 @@ function Get-AiModelVersion
 
         Then blanks out dates (including eight-digit MMDDYYYY and YYYYMMDD stamps), sizes, precision
         markers, and four-digit stamps, then returns the first
-        decimal number. Without one, returns the first standalone integer, v-number, GPT or Grok
+        decimal number. A bounded 365 (Office 365) is never a version and is blanked too. Without one, returns the first standalone integer, v-number, GPT or Grok
         number, Kimi K-number, or Deepseek R-number, whichever comes first in the name.
 
         .PARAMETER Name
@@ -465,6 +488,7 @@ function Get-AiModelVersion
         '(?<![a-z0-9.])\d+(?:\.\d+)?(?:kb|mb|gb|tb|bits?|[bkmte])(?![a-z0-9])'
         '(?<![a-z0-9])(?:fp|bf|u?int)\d+(?![a-z0-9])'
         '(?<![a-z0-9.])\d{4}(?![a-z0-9.])'
+        '(?<![a-z0-9])365(?![a-z0-9])'
     )
     $rest = $Name
     foreach ($pattern in $blank)
@@ -508,7 +532,7 @@ function Get-AiModelCreator
         .DESCRIPTION
         The subcategory rules run first and the first matching rule wins. Hosting subcategories such as
         Managed Model Hosting Service name the host, not the model creator, so those rules return
-        Other. Only then are the meter name rules tried, in order. No match returns Other.
+        Other. Subcategories that are Microsoft services, such as Observability, return Microsoft. Only then are the meter name rules tried, in order. No match returns Other.
 
         .PARAMETER Subcategory
         The meter subcategory.
@@ -527,13 +551,14 @@ function Get-AiModelCreator
         @{ Creator = 'Anthropic'; Pattern = 'claude|anthropic' }
         @{ Creator = 'Meta'; Pattern = '^(?:meta|llama|azure llama)' }
         @{ Creator = 'Mistral'; Pattern = '^(?:mistral|ministral|codestral|azure mistral)' }
-        @{ Creator = 'OpenAi'; Pattern = 'openai' }
+        @{ Creator = 'OpenAI'; Pattern = 'openai' }
         @{ Creator = 'Microsoft'; Pattern = '^(?:mai|phi|azure phi)' }
         @{ Creator = 'SpaceX'; Pattern = 'grok' }
         @{ Creator = 'Moonshot'; Pattern = 'kimi' }
         @{ Creator = 'Microsoft'; Pattern = 'azure ai search|azure speech' }
-        @{ Creator = 'Deepseek'; Pattern = 'deepseek' }
+        @{ Creator = 'DeepSeek'; Pattern = 'deepseek' }
         @{ Creator = 'Cohere'; Pattern = 'cohere' }
+        @{ Creator = 'Microsoft'; Pattern = '^(?:Microsoft Decision Models|Microsoft Defender for AI Services|Microsoft Defender for Cloud|Azure Content Understanding|Machine Learning service|Model Tools|Observability)$' }
     )
     foreach ($rule in $rules)
     {
@@ -542,12 +567,12 @@ function Get-AiModelCreator
 
     # Ordered name rules. (?<![a-z0-9]) starts a word and (?![a-z0-9]) ends one; both together make a bounded match.
     $nameRules = @(
-        @{ Creator = 'Deepseek'; Pattern = 'deepseek|(?<![a-z0-9])ds(?![a-z0-9])' }
+        @{ Creator = 'DeepSeek'; Pattern = 'deepseek|(?<![a-z0-9])ds(?![a-z0-9])' }
         @{ Creator = 'Meta'; Pattern = 'llama|^ME-' }
         @{ Creator = 'Mistral'; Pattern = 'mistral|ministral|codestral|(?<![a-z0-9])mist(?![a-z0-9])' }
         @{ Creator = 'Cohere'; Pattern = 'cohere|(?<![a-z0-9])coh(?![a-z0-9])' }
         @{ Creator = 'Moonshot'; Pattern = '(?<![a-z0-9])kimi(?![a-z0-9])' }
-        @{ Creator = 'OpenAi'; Pattern = '(?<![a-z0-9])gpt(?![a-z0-9])' }
+        @{ Creator = 'OpenAI'; Pattern = '(?<![a-z0-9])gpt(?![a-z0-9])' }
         @{ Creator = 'Zhipu'; Pattern = '(?<![a-z0-9])glm' }
         @{ Creator = 'MiniMax'; Pattern = 'minimax' }
         @{ Creator = 'NVIDIA'; Pattern = 'nvidia|nemotron' }
@@ -577,7 +602,9 @@ function Get-AiMeterClassification
 
         .DESCRIPTION
         Composes the token, model, Copilot, commitment, consumption, and agent rules. The model creator comes
-        from the subcategory, and from the meter name when the subcategory names a host. Throws when a
+        from the subcategory, and from the meter name when the subcategory names a host. The model version
+        comes from the meter name, and from the subcategory (the offer name) when the meter ID isn't a GUID,
+        that is, for Azure Marketplace meters. Throws when a
         Copilot meter has the Anthropic provider, because the ruleset doesn't define that case.
 
         .PARAMETER Category
@@ -610,7 +637,7 @@ function Get-AiMeterClassification
     $literals = Get-AiMeterRuleLiteral
     $provider = Get-AiMeterProvider $Subcategory $Name $MeterIdKind
     $isToken = Test-AiTokenMeter $Name $MeterIdKind
-    $isCopilot = Test-AiCopilotMeter $Category $Subcategory $Name
+    $isCopilot = Test-AiCopilotMeter $Category $Subcategory $Name $MeterIdKind
 
     $copilotProvider = 'N/A'
     if ($isCopilot)
@@ -628,7 +655,7 @@ function Get-AiMeterClassification
     $copilotType = 'N/A'
     if ($isCopilot)
     {
-        if ($Subcategory -eq $literals.DragonCopilotSubcategory) { $copilotType = 'Dragon' }
+        if ($Subcategory -eq $literals.DragonCopilotSubcategory -or "$Subcategory".StartsWith($literals.DaxCopilotSubcategoryPrefix, [System.StringComparison]::OrdinalIgnoreCase)) { $copilotType = 'Dragon' }
         elseif ($literals.GitHubPlanSubcategories -contains $Subcategory) { $copilotType = 'GitHub' }
         else
         {
@@ -638,7 +665,7 @@ function Get-AiMeterClassification
                 'Security' { 'Security' }
                 'Developer Tools' { 'GitHub' }
                 'Data' { 'Fabric' }
-                default { 'other' }
+                default { 'Other' }
             }
         }
     }
@@ -681,7 +708,10 @@ function Get-AiMeterClassification
         $values.IsBatchToken = [bool](Test-AiBatchToken $Name)
         $values.TokenContextType = Get-AiTokenContextType $Name
         $values.TokenLocation = Get-AiTokenLocation $Name
-        $values.ModelVersion = Get-AiModelVersion $Name $Subcategory
+        # A Marketplace meter name is "offer - plan - meter" and the offer is the subcategory. Plan and meter
+        # carry plan and pack numbers, so only the offer says the model version.
+        $versionSource = if ($MeterIdKind -eq 'Guid') { $Name } else { $Subcategory }
+        $values.ModelVersion = Get-AiModelVersion $versionSource $Subcategory
         $values.ModelCreator = Get-AiModelCreator $Subcategory $Name
     }
 

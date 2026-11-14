@@ -217,10 +217,10 @@ Sample data:
 
 | x_SkuMeterCategory       | x_SkuMeterSubcategory    | SkuMeter                     | Provider  | TokenType | IsCachedToken | ModelVersion | ModelCreator |
 | ------------------------ | ------------------------ | ---------------------------- | --------- | --------- | ------------- | ------------ | ------------ |
-| Foundry Models           | Azure OpenAI GPT5        | 5 pp cd inp Gl 1M Tokens     | Microsoft | Input     | true          | 5            | OpenAi       |
-| Foundry Models           | Azure OpenAI GPT5        | 5 pp inp Gl 1M Tokens        | Microsoft | Input     | false         | 5            | OpenAi       |
-| Foundry Models           | Azure OpenAI GPT5        | 5 pp opt Gl 1M Tokens        | Microsoft | Output    | false         | 5            | OpenAi       |
-| Foundry Models           | Azure OpenAI GPT5        | 5.1 codex inp Gl 1M Tokens   | Microsoft | Input     | false         | 5.1          | OpenAi       |
+| Foundry Models           | Azure OpenAI GPT5        | 5 pp cd inp Gl 1M Tokens     | Microsoft | Input     | true          | 5            | OpenAI       |
+| Foundry Models           | Azure OpenAI GPT5        | 5 pp inp Gl 1M Tokens        | Microsoft | Input     | false         | 5            | OpenAI       |
+| Foundry Models           | Azure OpenAI GPT5        | 5 pp opt Gl 1M Tokens        | Microsoft | Output    | false         | 5            | OpenAI       |
+| Foundry Models           | Azure OpenAI GPT5        | 5.1 codex inp Gl 1M Tokens   | Microsoft | Input     | false         | 5.1          | OpenAI       |
 | Microsoft Copilot Studio | Microsoft Copilot Studio | Pay As You Go Copilot Credit | Microsoft | N/A       | false         | N/A          | N/A          |
 
 A few important notes about the data:
