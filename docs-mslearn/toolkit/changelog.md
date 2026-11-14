@@ -61,7 +61,7 @@ _Released November 2026_
   - Fixed reservation details exports being skipped with no error when the export manifest has a null `dataRowCount` ([#2173](https://github.com/microsoft/finops-toolkit/issues/2173)).
     - Runs of `msexports_ExecuteETL` reported success while `CommitmentDiscountUsage` stopped updating. Exports with a `dataRowCount` of 0 are still skipped.
   - Fixed reservation recommendations missing `x_RecommendationDate` and `x_RecommendationDetails` after ingestion.
-  - Fixed the `monthly-cost-change-percentage` query returning `inf` when the prior month's cost was zero, which can happen when a month is fully covered by commitment discounts ([#2323](https://github.com/microsoft/finops-toolkit/issues/2323)).
+  - Fixed the `monthly-cost-change-percentage` query returning `inf` when the prior month's cost was zero, which can happen when a month is fully covered by commitment discounts. The change percentage is now empty when there's no prior month or the prior month's cost was zero ([#2323](https://github.com/microsoft/finops-toolkit/issues/2323)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v16
 
