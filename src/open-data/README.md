@@ -45,6 +45,7 @@ The [AiMeters.csv](./AiMeters.csv) file classifies Azure AI meters, such as toke
 - **camelCase words:** `Inp`, `Inpt`, `Input`, `Outp`, `Outpt`, and `Output` count as direction hints after a lowercase letter, and `Batch` followed by an uppercase letter marks a batch meter, as in `BatchOutp`.
 - **Model version:** a dotless version such as `54` becomes `5.4` when the subcategory is `GPT5`, and eight-digit date stamps are not versions.
 - **Cached write:** a bounded `cd` followed by `wr` or `write` is a write meter.
+- **Model creator from the meter name:** when the subcategory names a host, such as `Managed Model Hosting Service` or `Azure Fireworks Models`, and so doesn't name the model creator, the creator comes from the meter name. For example, `FW Kimi K3 Inp DZ Tokens` has the creator `Moonshot`. Creators found this way include `Zhipu`, `MiniMax`, `NVIDIA`, `Alibaba`, `AI21`, `NTT`, `G42`, `Bria`, `Gretel`, `Inflection`, `Leonardo`, `Reka`, and `Nixtla`, in addition to the creators the subcategory rules return. A meter that matches no rule has the creator `Other`.
 
 The columns fall into four groups:
 

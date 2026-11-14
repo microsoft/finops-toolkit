@@ -329,6 +329,38 @@ Describe 'Update-AiMeters' {
             @{ Sub = 'Something else'; Creator = 'Other' }
             @{ Sub = ''; Creator = 'Other' }
         ) { Get-AiModelCreator $Sub | Should -Be $Creator }
+
+        It 'model creator of <Name> in <Sub> is <Creator>' -ForEach @(
+            @{ Sub = 'Azure Fireworks Models'; Name = 'FW Kimi K2.5 Cache Inp DZ Tokens'; Creator = 'Moonshot' }
+            @{ Sub = 'Azure Fireworks Models'; Name = 'FW GLM 5 Cache Inp DZ Tokens'; Creator = 'Zhipu' }
+            @{ Sub = 'Azure Baseten Models'; Name = 'GLM5.2 cd Inp DZ 1M Tokens'; Creator = 'Zhipu' }
+            @{ Sub = 'Azure Fireworks Models'; Name = 'FW DS V4.1 Flash Cd Inp - US DZ 1M Tokens'; Creator = 'Deepseek' }
+            @{ Sub = 'Azure Fireworks Models'; Name = 'FW DeepSeekV3.2 Cache Inp DZ Tokens'; Creator = 'Deepseek' }
+            @{ Sub = 'Azure Fireworks Models'; Name = 'FW GPT OSS 120B Cache Inp DZ Tokens'; Creator = 'OpenAi' }
+            @{ Sub = 'Azure Fireworks Models'; Name = 'FW MiniMax 3 Cache Inp DZ Tokens'; Creator = 'MiniMax' }
+            @{ Sub = 'Azure Fireworks Models'; Name = 'FW NVIDIA Nemotron 3.5 LN Cd In DZ Tokens'; Creator = 'NVIDIA' }
+            @{ Sub = 'Azure Baseten Models'; Name = 'NemotronUltra cd Inp DZ 1M Tokens'; Creator = 'NVIDIA' }
+            @{ Sub = 'FT Models'; Name = 'Qwen36 35b SFT Dz 1M Tokens'; Creator = 'Alibaba' }
+            @{ Sub = 'Managed Model Hosting Service'; Name = 'ME-405B-Instruct-IN Tokens'; Creator = 'Meta' }
+            @{ Sub = 'Managed Model Hosting Service'; Name = 'Llama-4-Mvrck-17B-128E-FP8-In Tokens'; Creator = 'Meta' }
+            @{ Sub = 'Managed Model Hosting Service'; Name = 'MIST-Code-FT Tokens'; Creator = 'Mistral' }
+            @{ Sub = 'Managed Model Hosting Service'; Name = 'COH-ComR-IN Tokens'; Creator = 'Cohere' }
+            @{ Sub = 'Managed Model Hosting Service'; Name = 'AI21-Jamba 1.5-FT Tokens'; Creator = 'AI21' }
+            @{ Sub = 'Managed Model Hosting Service'; Name = 'NTT-Tsuzumi-Input Tokens'; Creator = 'NTT' }
+            @{ Sub = 'Managed Model Hosting Service'; Name = 'G42-Jais-Input Tokens'; Creator = 'G42' }
+            @{ Sub = 'Managed Model Hosting Service'; Name = 'Nix-TGPT-IN Tokens'; Creator = 'Nixtla' }
+            @{ Sub = 'Managed Model Hosting Service'; Name = 'Reka-Input Tokens'; Creator = 'Reka' }
+            @{ Sub = 'Some Marketplace Offer'; Name = 'SambaNova Cloud - DeepSeek-R1-Distill-Llama-70B - Output Price'; Creator = 'Deepseek' }
+            @{ Sub = 'Managed Model Hosting Service'; Name = 'Provider1-Model1-TBD1-FT Tokens'; Creator = 'Other' }
+            @{ Sub = 'Managed Model Hosting Service'; Name = 'Model 24-FT Tokens'; Creator = 'Other' }
+            @{ Sub = 'Managed Model Hosting Service'; Name = 'G-J30-IN Tokens'; Creator = 'Other' }
+            @{ Sub = 'Some Offer'; Name = 'Aspex AI Lite - ChatGPT 3.5 fine-tuning training tokens'; Creator = 'Other' }
+            @{ Sub = 'Some Offer'; Name = 'Home for me Input Tokens'; Creator = 'Other' }
+            # the subcategory still wins over the name
+            @{ Sub = 'Azure Mistral Models'; Name = 'FW Kimi K3 Inp DZ Tokens'; Creator = 'Mistral' }
+            @{ Sub = 'Azure Deepseek Models'; Name = 'MAI-DS-R1 Inp Dzone Tokens'; Creator = 'Deepseek' }
+            @{ Sub = 'Azure Fireworks Models'; Name = ''; Creator = 'Other' }
+        ) { Get-AiModelCreator $Sub $Name | Should -Be $Creator }
     }
 
     Context 'Get-AiMeterClassification' {
@@ -344,6 +376,11 @@ Describe 'Update-AiMeters' {
             $c.IsCopilotMeter | Should -BeFalse;  $c.CopilotProvider | Should -Be 'N/A';  $c.CopilotType | Should -Be 'N/A'
             $c.IsAgentMeter | Should -BeFalse;  $c.AgentType | Should -Be 'N/A';  $c.IsConsumptionMeter | Should -BeFalse
             $c.IsCachedToken | Should -BeFalse;  $c.IsBatchToken | Should -BeFalse;  $c.TokenContextType | Should -Be 'N/A'
+        }
+
+        It 'takes the model creator from the meter name when the subcategory names a host' {
+            $c = Get-AiMeterClassification 'Foundry Models' 'Azure Fireworks Models' 'FW Kimi K3 Inp DZ Tokens' 'AI + Machine Learning' 'Guid'
+            $c.ModelCreator | Should -Be 'Moonshot'
         }
 
         It 'classifies a cached token meter with a dotless model version' {
