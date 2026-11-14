@@ -55,6 +55,7 @@ _Released November 2026_
   - Fixed the Azure Resource Graph query pipeline only ingesting the first 1,000 rows of any query (for example, `Recommendations-Microsoft-AdvisorCost`). The pipeline now pages through all results, writing each page to its own Parquet file ([#2320](https://github.com/microsoft/finops-toolkit/issues/2320)).
   - Fixed reservation prices not backfilling when Actual and Amortized costs carried the full billing profile path instead of the short ID ([#2356](https://github.com/microsoft/finops-toolkit/issues/2356)).
     - Billing account ID, billing account type, and pricing currency now use the short billing profile ID too.
+  - Fixed the `monthly-cost-change-percentage` query returning `inf` when the prior month's cost was zero, which can happen when a month is fully covered by commitment discounts. The change percentage is now empty when there's no prior month or the prior month's cost was zero ([#2323](https://github.com/microsoft/finops-toolkit/issues/2323)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v16
 
