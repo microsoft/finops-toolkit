@@ -315,7 +315,8 @@ function Test-AiCachedToken
 
         .DESCRIPTION
         Cached when the name contains cache, has a bounded cchd, or has a bounded cd followed by a direction,
-        reasoning, embedding, or write alias. A negative form such as non-cached wins.
+        reasoning, embedding, or write alias. A cd prefix counts before any direction alias, which includes
+        prompt and completion. A cchd token counts as cached. A negative form such as non-cached wins.
 
         .PARAMETER Name
         The meter name.
@@ -552,7 +553,7 @@ function Get-AiModelCreator
         @{ Creator = 'NVIDIA'; Pattern = 'nvidia|nemotron' }
         @{ Creator = 'Alibaba'; Pattern = '(?<![a-z0-9])qwen' }
         @{ Creator = 'AI21'; Pattern = '(?<![a-z0-9])ai21' }
-        @{ Creator = 'NTT'; Pattern = '(?<![a-z0-9])ntt(?![a-z0-9])' }
+        @{ Creator = 'NTT'; Pattern = '(?<![a-z0-9])ntt' }
         @{ Creator = 'G42'; Pattern = '(?<![a-z0-9])g42(?![a-z0-9])' }
         @{ Creator = 'Bria'; Pattern = '(?<![a-z0-9])bria(?![a-z0-9])' }
         @{ Creator = 'Gretel'; Pattern = '(?<![a-z0-9])gretel(?![a-z0-9])' }

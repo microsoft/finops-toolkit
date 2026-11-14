@@ -347,6 +347,8 @@ Describe 'Update-AiMeters' {
             @{ Sub = 'Managed Model Hosting Service'; Name = 'COH-ComR-IN Tokens'; Creator = 'Cohere' }
             @{ Sub = 'Managed Model Hosting Service'; Name = 'AI21-Jamba 1.5-FT Tokens'; Creator = 'AI21' }
             @{ Sub = 'Managed Model Hosting Service'; Name = 'NTT-Tsuzumi-Input Tokens'; Creator = 'NTT' }
+            @{ Sub = 'NTTDATA tsuzumi-7B Instruct'; Name = 'NTTDATA tsuzumi-7B Instruct - NTTDATA-tsuzumi-1-1-Instruct - PayGo Inference Input Tokens'; Creator = 'NTT' }
+            @{ Sub = 'Some Offer'; Name = 'Apprentt Input Tokens'; Creator = 'Other' }
             @{ Sub = 'Managed Model Hosting Service'; Name = 'G42-Jais-Input Tokens'; Creator = 'G42' }
             @{ Sub = 'Managed Model Hosting Service'; Name = 'Nix-TGPT-IN Tokens'; Creator = 'Nixtla' }
             @{ Sub = 'Managed Model Hosting Service'; Name = 'Reka-Input Tokens'; Creator = 'Reka' }
