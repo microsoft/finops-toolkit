@@ -17,7 +17,7 @@ On this page:
 ## 🤖 AI meters
 
 <sup>
-    📅 Updated: Nov 13, 2026<br>
+    📅 Updated: Nov 14, 2026<br>
     ➡️ Source: Microsoft Customer Agreement price sheet<br>
 </sup>
 
