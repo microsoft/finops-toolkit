@@ -60,8 +60,8 @@ To update the file, pass the path of the zip file. If you update from more than 
 ./src/scripts/Update-AiMeters.ps1 -PricesheetPath <path-to-zip>
 ```
 
-> [!CAUTION]
-> A price sheet can list Azure Marketplace private offers whose meter names include organization names. Before you commit, review the new rows in the diff for such names.
+> [!NOTE]
+> The file includes Azure Marketplace meters as the price sheet lists them. Marketplace meter names contain the offer and plan name, and some plan names include organization names.
 
 <br>
 
