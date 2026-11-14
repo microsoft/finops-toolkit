@@ -34,6 +34,12 @@ The [AiMeters.csv](./AiMeters.csv) file classifies Azure AI meters, such as toke
 - **Consumption:** whether the meter bills consumption units or Copilot credits.
 - **Agents:** whether the meter is an agent meter and its agent type.
 
+**Additions to the ruleset:** the generator adds three hints that the ruleset doesn't list, because real meter names use them:
+
+- **`cchd`:** marks a cached token meter.
+- **`rgnl`:** marks a regional token meter.
+- **`prompt` and `completion`:** mark input and output token meters.
+
 The columns fall into four groups:
 
 - **Key:** `x_SkuMeterCategory`, `x_SkuMeterSubcategory`, and `SkuMeter` identify a meter. Together they are the key. Values are written exactly as they appear in the price sheet.

@@ -114,8 +114,8 @@ function Get-AiTokenDirectionAlias
     param()
 
     return [ordered]@{
-        Output = @('outpt', 'output', 'ouput', 'outp', 'out', 'opt')
-        Input  = @('input', 'inpt', 'inp', 'gi', 'in')
+        Output = @('completion', 'outpt', 'output', 'ouput', 'outp', 'out', 'opt')
+        Input  = @('prompt', 'input', 'inpt', 'inp', 'gi', 'in')
     }
 }
 
@@ -305,7 +305,7 @@ function Test-AiCachedToken
         Returns true when a token meter name marks cached tokens.
 
         .DESCRIPTION
-        Cached when the name contains cache, or has a bounded cd followed by a direction,
+        Cached when the name contains cache, has a bounded cchd, or has a bounded cd followed by a direction,
         reasoning, embedding, or write alias. A negative form such as non-cached wins.
 
         .PARAMETER Name
@@ -319,6 +319,7 @@ function Test-AiCachedToken
 
     if ($Name -match 'non[\s_-]?cached?|uncached?|not\s+cached?') { return $false }
     if ($Name -match 'cache') { return $true }
+    if ($Name -match '(?<![a-z0-9])cchd(?![a-z0-9])') { return $true }
     $direction = Get-AiTokenDirectionAlias
     $aliases = (@($direction.Output) + $direction.Input + @('reasoning', 'embedding', 'embed', 'write', 'wr')) -join '|'
     return [bool]($Name -match "(?<![a-z0-9])cd[\s_-]*(?:$aliases)(?![a-z0-9])")
@@ -398,7 +399,7 @@ function Get-AiTokenLocation
 
     $groups = @(
         @{ Value = 'Global'; Pattern = '(?<![a-z0-9])(?:global|glbl|glb|gl)(?![a-z0-9])' }
-        @{ Value = 'Regional'; Pattern = '(?<![a-z0-9])(?:regional|regnl|regn|rg)(?![a-z0-9])|-rgnl(?![a-z0-9])' }
+        @{ Value = 'Regional'; Pattern = '(?<![a-z0-9])(?:regional|regnl|regn|rgnl|rg)(?![a-z0-9])|-rgnl(?![a-z0-9])' }
         @{ Value = 'DataZone'; Pattern = '(?<![a-z0-9])(?:datazone|data zone|dzone|dzn|dz)(?![a-z0-9])' }
     )
     $found = @($groups | Where-Object { $Name -match $_.Pattern } | ForEach-Object { $_.Value })
