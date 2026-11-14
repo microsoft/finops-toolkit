@@ -26,10 +26,26 @@
     .PARAMETER Branch
     Optional. Indicates whether the changes should be committed to a new branch in the Git repo. Alias: Commit. Default = false.
 
+    .PARAMETER CorrelationId
+    Optional. Azure Quickstart Templates only. Correlation ID of a successful Azure deployment of the template being published. Written to testResult in metadata.json. Requires -DeploymentName and a single template.
+
+    .PARAMETER DeploymentName
+    Optional. Azure Quickstart Templates only. Name of the successful Azure deployment of the template being published. Written to testResult in metadata.json. Requires -CorrelationId and a single template.
+
     .EXAMPLE
     ./Publish-Toolkit "finops-hub"
 
     Publishes the FinOps hub template to the Azure Quickstart Templates repo.
+
+    .EXAMPLE
+    ./Publish-Toolkit "finops-hub" -CorrelationId "00000000-0000-0000-0000-000000000000" -DeploymentName "ftk-finops-hub"
+
+    Publishes the FinOps hub template to the Azure Quickstart Templates repo and records the test deployment that the repo requires in metadata.json.
+
+    .EXAMPLE
+    ./Publish-Toolkit "advisor-workbook"
+
+    Updates the Azure Advisor Cost Optimization workbook in the Application Insights Workbooks repo from the optimization workbook source.
 
     .EXAMPLE
     ./Publish-Toolkit "resourcegroup-scheduled-action" -Build
@@ -43,14 +59,16 @@
 #>
 Param(
     [Parameter(Position = 0)]
-    [ValidateSet("*", "docs", "finops-hub", "finops-workbooks", "governance-workbook", "optimization-workbook")]
+    [ValidateSet("*", "advisor-workbook", "docs", "finops-hub", "finops-workbooks", "governance-workbook", "optimization-workbook")]
     [string]$Template = "*",
     [string]$QuickstartRepo = "azure-quickstart-templates",
     [string]$RegistryRepo = "bicep-registry-modules",
     [string]$AppInsightsRepo = "Application-Insights-Workbooks",
     [string]$DocsRepo = "partner-center-pr",
     [switch]$Build,
-    [Alias("Commit")][switch]$Branch
+    [Alias("Commit")][switch]$Branch,
+    [ValidatePattern('^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$')][string]$CorrelationId,
+    [string]$DeploymentName
 )
 
 # Use the debug flag from common parameters to determine whether to run in debug mode
@@ -64,6 +82,8 @@ $repoConfig = @{
         possibleNames = @($QuickstartRepo, 'azure-quickstart-templates', 'aqt')
         relativePath  = "quickstarts/microsoft.costmanagement"
         requiredFiles = @("main.bicep", "metadata.json", "README.md", "azuredeploy.parameters.json")
+        # The repo rejects a changed template unless metadata.json has today's dateUpdated and a testResult from a real deployment
+        testResult    = $true
     }
     brm         = @{
         org           = 'Azure'
@@ -77,7 +97,9 @@ $repoConfig = @{
         mainBranch    = 'master'
         possibleNames = @($AppInsightsRepo, 'Application-Insights-Workbooks')
         relativePath  = "Workbooks/Azure Advisor/Cost Optimization"
-        requiredFiles = @("CostOptimization.workbook", "Storage.workbook", "Networking.workbook", "Compute.workbook", "AHB.workbook", "Reservations.workbook")
+        requiredFiles = @("CostOptimization.workbook", "Storage/Storage.workbook", "Networking/Networking.workbook", "Compute/Compute.workbook", "AHB/AHB.workbook", "Reservations/Reservations.workbook")
+        # The folder also holds files this repo doesn't own, so only replace workbooks that are already there
+        existingOnly  = '*.workbook'
     }
     pc          = @{
         org           = 'MicrosoftDocs'
@@ -88,8 +110,14 @@ $repoConfig = @{
     }
 }
 
+if ([bool]$CorrelationId -ne [bool]$DeploymentName)
+{
+    Write-Error '-CorrelationId and -DeploymentName must be specified together.'
+    return
+}
+
 # Build toolkit if requested
-if ($Build)
+if ($Build -and $Template -ne "advisor-workbook")
 {
     ./Build-Toolkit $Template
 }
@@ -166,15 +194,32 @@ function Set-RepoContent($repo, [string]$branchPrefix, [string]$sourceDir)
 
     # Copy files
     Write-Host '  Copying release files...'
-    if (Test-Path $repo.path)
+    if ($repo.existingOnly)
     {
-        Remove-Item $repo.path -Recurse -Force
+        Copy-ExistingFiles $sourceDir $repo.path $repo.existingOnly
     }
-    ./New-Directory $repo.path
-    Get-ChildItem $sourceDir -Exclude .buildignore | Copy-Item -Destination $repo.path -Recurse
-    if ($Template -eq "docs")
+    else
     {
-        Remove-DocsMetadataOnlyChanges $repo.path
+        $previousTestResult = $null
+        if ($repo.testResult -and (Test-Path "$($repo.path)/metadata.json"))
+        {
+            # Remember the testResult before the folder is replaced, so publishing again doesn't remove it
+            $previousTestResult = (Get-Content "$($repo.path)/metadata.json" -Raw | ConvertFrom-Json).PSObject.Properties['testResult'].Value
+        }
+        if (Test-Path $repo.path)
+        {
+            Remove-Item $repo.path -Recurse -Force
+        }
+        ./New-Directory $repo.path
+        Get-ChildItem $sourceDir -Exclude .buildignore | Copy-Item -Destination $repo.path -Recurse
+        if ($Template -eq "docs")
+        {
+            Remove-DocsMetadataOnlyChanges $repo.path
+        }
+        if ($repo.testResult)
+        {
+            Update-QuickstartMetadata "$($repo.path)/metadata.json" $previousTestResult $CorrelationId $DeploymentName
+        }
     }
 
     # Commit changes
@@ -207,6 +252,55 @@ function Set-RepoContent($repo, [string]$branchPrefix, [string]$sourceDir)
 
     Write-Host '  Done!'
     Write-Host ''
+}
+
+# Replace files in the target folder that match the filter and already exist there. Nothing is added or removed.
+function Copy-ExistingFiles([string]$sourceDir, [string]$targetDir, [string]$filter)
+{
+    $sourceRoot = (Resolve-Path $sourceDir).Path
+    Get-ChildItem $sourceRoot -Recurse -File -Filter $filter | ForEach-Object {
+        $relativePath = [System.IO.Path]::GetRelativePath($sourceRoot, $_.FullName).Replace("\", "/")
+        $targetPath = Join-Path $targetDir $relativePath
+        if (Test-Path $targetPath -PathType Leaf)
+        {
+            Copy-Item $_.FullName -Destination $targetPath -Force
+        }
+        else
+        {
+            Write-Warning "Skipped $relativePath because the target repo doesn't have it. Add it there by hand if it's new."
+        }
+    }
+}
+
+# Set dateUpdated and testResult in an Azure Quickstart Templates metadata.json
+function Update-QuickstartMetadata([string]$metadataPath, $previousTestResult, [string]$correlationId, [string]$deploymentName)
+{
+    $metadata = Get-Content $metadataPath -Raw | ConvertFrom-Json
+    $metadata | Add-Member -NotePropertyName dateUpdated -NotePropertyValue (Get-Date -Format 'yyyy-MM-dd') -Force
+
+    if ($correlationId -and $deploymentName)
+    {
+        $templateFile = if (Test-Path (Join-Path (Split-Path $metadataPath) 'azuredeploy.json')) { 'azuredeploy.json' } else { 'main.bicep' }
+        $metadata | Add-Member -NotePropertyName testResult -Force -NotePropertyValue ([ordered]@{
+                deployments = [ordered]@{
+                    templateFileName = $templateFile
+                    correlationId    = $correlationId
+                    deploymentName   = $deploymentName
+                }
+            })
+        Write-Host "  Set testResult in metadata.json to deployment $deploymentName."
+    }
+    elseif ($previousTestResult)
+    {
+        $metadata | Add-Member -NotePropertyName testResult -NotePropertyValue $previousTestResult -Force
+        Write-Warning "Kept the testResult that was already in metadata.json. If the template changed, deploy it and run again with -CorrelationId and -DeploymentName."
+    }
+    else
+    {
+        Write-Warning "metadata.json has no testResult, which the repo requires. Deploy the template and run again with -CorrelationId and -DeploymentName."
+    }
+
+    $metadata | ConvertTo-Json -Depth 10 | Out-File $metadataPath -Encoding utf8
 }
 
 function Get-DocsArticleBody([string]$content)
@@ -340,11 +434,43 @@ if ($Template -eq "docs")
 
     Set-RepoContent $repo "finops" $docsDir
 }
+elseif ($Template -eq "advisor-workbook")
+{
+    $workbookDir = "$rootDir/src/workbooks/optimization"
+    $templateName = "Cost Optimization workbook"
+
+    Write-Host "Publishing Azure Advisor Cost Optimization workbook..."
+
+    # Find target repo
+    $repo = Find-Repo $repoConfig.appInsights ""
+    if (-not $repo)
+    {
+        Write-Error "Application Insights Workbooks repo not found. Please clone the repo locally or specify the AppInsightsRepo parameter to indicate the folder name to use."
+        return
+    }
+    Write-Host "  Repo = $($repo.path)"
+
+    # Validate release requirements
+    $missingFiles = @($repo.requiredFiles | Where-Object { -not (Test-Path "$workbookDir/$_") })
+    if ($missingFiles)
+    {
+        Write-Error "$($missingFiles -join ', ') required. Please add the missing files to $workbookDir."
+        return
+    }
+
+    Set-RepoContent $repo "cost-optimization-workbook" $workbookDir
+}
 else
 {
     # Loop thru templates
     Write-Verbose "Checking release directory: $relDir/$Template*"
-    Get-ChildItem "$relDir/$Template*" -Directory `
+    $templateDirs = @(Get-ChildItem "$relDir/$Template*" -Directory)
+    if ($CorrelationId -and $templateDirs.Count -gt 1)
+    {
+        Write-Error "A test deployment belongs to one template. Specify a single template with -CorrelationId and -DeploymentName."
+        return
+    }
+    $templateDirs `
     | ForEach-Object {
         $templateDir = $_
         $templateName = $templateDir.Name

@@ -165,8 +165,10 @@ Status icons:
 - [ ] Submit PRs to publish templates to the Azure Quickstart Templates repo.
   - [ ] Update your fork and local clone of the Azure Quickstart Templates.
     > _Make sure you're in the master branch of the target repo when publishing a new template. If in another folder, the script will assume you're updating that branch and not create a new one._
+  - [ ] Deploy each template from `<root>/release/<template>/azuredeploy.json` to a test resource group. Note the deployment name and the correlation ID.
+    > _The repo rejects a changed template unless `metadata.json` names a successful deployment of it. Get the correlation ID with `az deployment group show --resource-group <rg> --name <deployment> --query properties.correlationId --output tsv`._
   - [ ] Publish a FinOps hub PR:
-    - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "finops-hub" -Commit`
+    - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "finops-hub" -Commit -DeploymentName <deployment> -CorrelationId <id>`
     - Complete PR template requirements and set the name to `FinOps toolkit v#.# – FinOps hub`.
     - Review the code that's changed in the PR, verify that the changelog covers everything, and update as needed.
     - If you make changes, re-publish without committing: `<root>/src/scripts/Publish-Toolkit.ps1 "finops-hub" -Build`
@@ -174,7 +176,7 @@ Status icons:
     - Commit and push your changes.
     - Return to the PR URL and publish the PR.
   - [ ] Publish a governance workbook PR:
-    - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "governance-workbook" -Commit`
+    - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "governance-workbook" -Commit -DeploymentName <deployment> -CorrelationId <id>`
     - Complete PR template requirements and set the name to `FinOps toolkit v#.# – Governance workbook`.
     - Review the code that's changed in the PR, verify that the changelog covers everything, and update as needed.
     - If you make changes, re-publish without committing: `<root>/src/scripts/Publish-Toolkit.ps1 "governance-workbook" -Build`
@@ -182,18 +184,27 @@ Status icons:
     - Commit and push your changes.
     - Return to the PR URL and publish the PR.
   - [ ] Publish a optimization workbook PR:
-    - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "optimization-workbook" -Commit`
+    - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "optimization-workbook" -Commit -DeploymentName <deployment> -CorrelationId <id>`
     - Complete PR template requirements and set the name to `FinOps toolkit v#.# – Optimization workbook`.
     - Review the code that's changed in the PR, verify that the changelog covers everything, and update as needed.
     - If you make changes, re-publish without committing: `<root>/src/scripts/Publish-Toolkit.ps1 "optimization-workbook" -Build`
     - Switch to the target repo folder and verify your changes were applied correctly.
     - Commit and push your changes.
     - Return to the PR URL and publish the PR.
-- [ ] Check back after 1 hour to see if there any failed checks across all PRs ([AQT](https://github.com/Azure/azure-quickstart-templates/pulls?q=is%3Apr+is%3Aopen+finops)).
+- [ ] Submit PR to update the Azure Advisor Cost Optimization workbook in the Application Insights Workbooks repo.
+  > _This is the copy of the optimization workbook that Azure Advisor shows in the Azure portal._
+  - [ ] Update your fork and local clone (master branch) of the [Application Insights Workbooks repo](https://github.com/microsoft/Application-Insights-Workbooks).
+  - [ ] Check the [history of the Cost Optimization folder](https://github.com/microsoft/Application-Insights-Workbooks/commits/master/Workbooks/Azure%20Advisor/Cost%20Optimization) for changes made only in that repo since the last release. Port them to `<root>/src/workbooks/optimization` first, because publishing overwrites them.
+  - [ ] Publish a PR:
+    - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "advisor-workbook" -Commit`
+    - Complete PR template requirements and set the name to `FinOps toolkit v#.# – Cost Optimization workbook`.
+    - The command only replaces workbooks that the repo already has. If it reports a skipped file, add that file by hand only if it's a new workbook.
+    - Return to the PR URL and publish the PR.
+- [ ] Check back after 1 hour to see if there any failed checks across all PRs ([AQT](https://github.com/Azure/azure-quickstart-templates/pulls?q=is%3Apr+is%3Aopen+finops), [Advisor workbook](https://github.com/microsoft/Application-Insights-Workbooks/pulls?q=is%3Apr+is%3Aopen+finops)).
   - If there are errors, click the Details link to understand what needs to be fixed.
   - Fix any issues in the FinOps toolkit codebase (not in the target repo).
   - Repeat publishing steps until all issues have been resolved.
-- [ ] Check back after 2-3 days to see if all your PRs were merged ([AQT](https://github.com/Azure/azure-quickstart-templates/pulls?q=is%3Apr+is%3Aopen+finops)).
+- [ ] Check back after 2-3 days to see if all your PRs were merged ([AQT](https://github.com/Azure/azure-quickstart-templates/pulls?q=is%3Apr+is%3Aopen+finops), [Advisor workbook](https://github.com/microsoft/Application-Insights-Workbooks/pulls?q=is%3Apr+is%3Aopen+finops)).
   > _Bicep Registry and Azure Quickstart Template repos are manually reviewed and closed 2-3x per week. If you don't see an update, contact the ARM team. The Docs repo is partially typically reviewed within a few hours but they may request blocking changes._
 - [ ] Merge to main: `<root>/src/scripts/Merge-DevBranch.ps1 main`
 - [ ] Update the [milestone](https://github.com/microsoft/finops-toolkit/milestones).
@@ -218,7 +229,7 @@ Status icons:
     - Carefully review the list to ensure everyone is covered since feature branch PRs get merged, which can hide contributors.
     - If they made a code change, add them to the contributor list.
     - If they filed an issue, reviewed a PR, or participated in on- or offline discussions, add them to the list of supporters.
-  - [ ] Update the discussion and changelog links in the footer. Comment out the AQT link if not ready.
+  - [ ] Update the discussion and changelog links in the footer. Keep the blog and download links commented out.
   - [ ] Upload all files from the release folder:
     - ZIP files for templates like hubs and workbooks.
     - Power BI PBIX and PBIT files.
@@ -233,11 +244,12 @@ Status icons:
 ## 🔜 Announcements
 
 - [ ] Publish release announcement on the [FinOps blog](https://aka.ms/finops/blog)
+  - [ ] Set the blog link in the release footer to the URL of the post and uncomment it. Keep the download link commented out because it only points at the release page.
 - [ ] Share on LinkedIn
 - [ ] Share on Twitter/X
 - [ ] Share on Azure Updates (TBD)
 - [ ] Share on Engage (Azure Connection Program)
-- [ ] Share on F2 Slack
+- [ ] Share on F2 Slack in the `#microsoft-cloud` channel. Link the blog post and list the top changes from its introduction.
 
 ---
 
