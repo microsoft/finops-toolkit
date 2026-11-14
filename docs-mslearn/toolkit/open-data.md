@@ -211,7 +211,7 @@ A few important notes about the data:
 
 ## AI meters
 
-Azure price sheets mix AI meters, such as tokens, Copilot, and agents, with every other meter, and the meter names don't say which model or kind of usage a meter covers. The AI meters file classifies these meters by provider, token type, model version, model creator, Copilot, commitment, and agent usage. The classification rules come from Dirk Brinkmann's AI meter ruleset, and the file is generated from a Microsoft Customer Agreement price sheet. It doesn't contain prices or IDs.
+Azure price sheets mix AI meters, such as tokens, Copilot, and agents, with every other meter, and the meter names don't say which model or kind of usage a meter covers. The AI meters file classifies these meters by provider, token type, model version, model creator, Copilot, commitment, and agent usage. The classification rules are based on Dirk Brinkmann's AI meter ruleset, and the file is generated from a Microsoft Customer Agreement price sheet. It doesn't contain prices or IDs.
 
 Sample data:
 
