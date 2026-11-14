@@ -189,6 +189,11 @@ Describe 'Update-AiMeters' {
             @{ Name = 'xCdInput Tokens'; Kind = 'Guid'; Type = 'N/A' }
             @{ Name = 'CdInputExtra Tokens'; Kind = 'Guid'; Type = 'N/A' }
             @{ Name = '6-astra ShortCo Cd Inp Std Gl 1M Tokens'; Kind = 'Guid'; Type = 'Input' }
+            @{ Name = 'Az-GPT-35-turbo-16k-LowPrio-Prompt Tokens'; Kind = 'Guid'; Type = 'Input' }
+            @{ Name = 'Az-GPT-35-turbo-16k-Completion Tokens'; Kind = 'Guid'; Type = 'Output' }
+            @{ Name = 'liutong-public - prompt_tokens_1k'; Kind = 'Guid'; Type = 'Input' }
+            @{ Name = 'Model Prompt Completion Tokens'; Kind = 'Guid'; Type = 'Ambiguous' }
+            @{ Name = 'Model Prompts Tokens'; Kind = 'Guid'; Type = 'N/A' }
         ) { Get-AiTokenType $Name $Kind | Should -Be $Type }
 
         It 'token type of a null or empty name is N/A' {
@@ -208,6 +213,10 @@ Describe 'Update-AiMeters' {
             @{ Name = 'not cached Input Tokens'; Cached = $false }
             @{ Name = 'non cache Input Tokens'; Cached = $false }
             @{ Name = 'xCdInput Tokens'; Cached = $false }
+            @{ Name = 'GPT 5 cchd Inpt Rgnl 1M Tokens'; Cached = $true }
+            @{ Name = 'gpt 4o dev ft cchd inpt glbl Tokens'; Cached = $true }
+            @{ Name = 'xcchd Input Tokens'; Cached = $false }
+            @{ Name = 'non-cached cchd Input Tokens'; Cached = $false }
         ) { Test-AiCachedToken $Name | Should -Be $Cached }
 
         It 'batch flag of <Name> is <Batch>' -ForEach @(
@@ -238,6 +247,10 @@ Describe 'Update-AiMeters' {
             @{ Name = 'Model-rgnl Inp Tokens'; Location = 'Regional' }
             @{ Name = 'Model Gl Dz Tokens'; Location = 'Ambiguous' }
             @{ Name = 'English Single Input Tokens'; Location = 'N/A' }
+            @{ Name = 'gpt-4o-rt-aud-0603 cchd Inp rgnl Tokens'; Location = 'Regional' }
+            @{ Name = 'GPT 5 cchd Inpt Rgnl 1M Tokens'; Location = 'Regional' }
+            @{ Name = 'Model Rgnl Gl Tokens'; Location = 'Ambiguous' }
+            @{ Name = 'Model xrgnl Tokens'; Location = 'N/A' }
         ) { Get-AiTokenLocation $Name | Should -Be $Location }
     }
 
