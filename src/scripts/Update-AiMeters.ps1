@@ -265,9 +265,13 @@ function Get-AiTokenType
         Derives the token type of a token meter from its name.
 
         .DESCRIPTION
-        Precedence: ConsumptionUnit, Write, Reasoning, Ambiguous (input and output hints),
-        Output, Input, Embedding, then N/A. Direction hints are bounded and may carry an
-        attached cd prefix.
+        Precedence: ConsumptionUnit, Write (a bounded wr or write, or a bounded cd followed by wr or
+        write), Ambiguous (input and output hints), Output, Input,
+        Reasoning, Training, Embedding, Input for a cached meter without a direction, then N/A.
+        A direction hint wins over reasoning and training. Direction hints are bounded and may carry
+        an attached cd prefix. A camelCase direction (Inp, Inpt, Input, Outp, Outpt, Output with that
+        capitalization, directly after a lowercase letter) also counts as a hint. Training is a
+        bounded training or trng.
 
         .PARAMETER Name
         The meter name.
@@ -285,16 +289,21 @@ function Get-AiTokenType
     $aliases = Get-AiTokenDirectionAlias
     $outputHint = "(?<![a-z0-9])(?:cd)?(?:$($aliases.Output -join '|'))(?![a-z0-9])"
     $inputHint = "(?<![a-z0-9])(?:cd)?(?:$($aliases.Input -join '|'))(?![a-z0-9])"
+    # Case-sensitive camelCase forms such as realtimePrvwTxtOutp: used here only, not by the cached rule.
+    $camelOutput = '(?<=[a-z])(?:Outp|Outpt|Output)(?![A-Za-z0-9])'
+    $camelInput = '(?<=[a-z])(?:Inp|Inpt|Input)(?![A-Za-z0-9])'
 
     if ($MeterIdKind -eq 'ClaudeConsumptionUnits') { return 'ConsumptionUnit' }
-    if ($Name -match '\b(?:wr|write)\b') { return 'Write' }
-    if ($Name -match 'reasoning') { return 'Reasoning' }
-    $hasOutput = $Name -match $outputHint
-    $hasInput = $Name -match $inputHint
+    if (($Name -match '\b(?:wr|write)\b') -or ($Name -match '(?<![a-z0-9])cd[\s_-]*(?:wr|write)(?![a-z0-9])')) { return 'Write' }
+    $hasOutput = ($Name -match $outputHint) -or ($Name -cmatch $camelOutput)
+    $hasInput = ($Name -match $inputHint) -or ($Name -cmatch $camelInput)
     if ($hasInput -and $hasOutput) { return 'Ambiguous' }
     if ($hasOutput) { return 'Output' }
     if ($hasInput) { return 'Input' }
+    if ($Name -match 'reasoning') { return 'Reasoning' }
+    if ($Name -match '(?<![a-z0-9])(?:training|trng)(?![a-z0-9])') { return 'Training' }
     if ($Name -match 'embed') { return 'Embedding' }
+    if (Test-AiCachedToken $Name) { return 'Input' }
     return 'N/A'
 }
 
@@ -329,7 +338,8 @@ function Test-AiBatchToken
 {
     <#
         .SYNOPSIS
-        Returns true when a token meter name marks batch tokens.
+        Returns true when a token meter name marks batch tokens: a bounded batch, or a camelCase
+        Batch (capital B, case-sensitive) that is directly followed by an uppercase letter.
 
         .PARAMETER Name
         The meter name.
@@ -340,7 +350,7 @@ function Test-AiBatchToken
         [AllowEmptyString()][AllowNull()][string]$Name
     )
 
-    return [bool]($Name -match '\bbatch\b')
+    return [bool](($Name -match '\bbatch\b') -or ($Name -cmatch '(?<![A-Za-z0-9])Batch(?=[A-Z])'))
 }
 
 function Get-AiTokenContextType
@@ -415,22 +425,39 @@ function Get-AiModelVersion
         Extracts the model version from a meter name, or N/A when none is present.
 
         .DESCRIPTION
-        Blanks out dates, sizes, precision markers, and four-digit stamps, then returns the first
+        First, a dotless version: a name that starts with two digits (not followed by a digit or a
+        dot) and a subcategory with GPT directly followed by the first of those digits (and no
+        further digit) returns the two digits with a dot between them, for example 54 becomes 5.4.
+
+        Then blanks out dates (including eight-digit MMDDYYYY and YYYYMMDD stamps), sizes, precision
+        markers, and four-digit stamps, then returns the first
         decimal number. Without one, returns the first standalone integer, v-number, GPT or Grok
         number, Kimi K-number, or Deepseek R-number, whichever comes first in the name.
 
         .PARAMETER Name
         The meter name.
+
+        .PARAMETER Subcategory
+        The meter subcategory. Optional; only used for the dotless version.
     #>
     [CmdletBinding()]
     [OutputType([string])]
     param(
-        [AllowEmptyString()][AllowNull()][string]$Name
+        [AllowEmptyString()][AllowNull()][string]$Name,
+        [AllowEmptyString()][AllowNull()][string]$Subcategory = ''
     )
 
     if ([string]::IsNullOrEmpty($Name)) { return 'N/A' }
 
+    $dotless = [regex]::Match($Name, '^(\d)(\d)(?![\d.])')
+    if ($dotless.Success -and $Subcategory -match "GPT$($dotless.Groups[1].Value)(?!\d)")
+    {
+        return "$($dotless.Groups[1].Value).$($dotless.Groups[2].Value)"
+    }
+
     $blank = @(
+        '(?<![a-z0-9])(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])(?:19|20)\d{2}(?![a-z0-9])'
+        '(?<![a-z0-9])(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])(?![a-z0-9])'
         '(?<![a-z0-9])(?:19|20)\d{2}[-/.](?:0?[1-9]|1[0-2])(?:[-/.](?:0?[1-9]|[12]\d|3[01]))?(?![a-z0-9])'
         '(?<![a-z0-9])\d{1,2}[-/.]\d{1,2}[-/.](?:19|20)\d{2}(?![a-z0-9])'
         '(?<![a-z0-9])(?:0?[1-9]|1[0-2])[-/](?:19|20)\d{2}(?![a-z0-9])'
@@ -519,7 +546,7 @@ function Get-AiMeterClassification
         The meter category.
 
         .PARAMETER Subcategory
-        The meter subcategory.
+        The meter subcategory. Also used for the dotless model version.
 
         .PARAMETER Name
         The meter name.
@@ -616,7 +643,7 @@ function Get-AiMeterClassification
         $values.IsBatchToken = [bool](Test-AiBatchToken $Name)
         $values.TokenContextType = Get-AiTokenContextType $Name
         $values.TokenLocation = Get-AiTokenLocation $Name
-        $values.ModelVersion = Get-AiModelVersion $Name
+        $values.ModelVersion = Get-AiModelVersion $Name $Subcategory
         $values.ModelCreator = Get-AiModelCreator $Subcategory
     }
 

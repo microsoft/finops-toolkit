@@ -71,7 +71,7 @@ _Released November 2026_
 - **Added**
   - Added an [AI meters](open-data.md#ai-meters) dataset that classifies Azure AI meters by provider, token type, model, Copilot, commitment, and agent usage.
     - Generated from a Microsoft Customer Agreement price sheet. The file has no prices or IDs.
-    - The classification rules come from Dirk Brinkmann's AI meter ruleset.
+    - The classification rules are based on Dirk Brinkmann's AI meter ruleset.
 
 <br>
 
