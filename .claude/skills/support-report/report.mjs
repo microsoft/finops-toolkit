@@ -35,7 +35,7 @@ for (let after = null; ;) {
 // Open discussions (paged)
 const discussions = [];
 for (let after = null; ;) {
-  const r = gql(`{repository(owner:"${OWNER}",name:"${NAME}"){discussions(first:100,states:OPEN${after ? `,after:"${after}"` : ''}){pageInfo{hasNextPage endCursor}nodes{number title createdAt author{login} authorAssociation category{name} answer{id} comments(last:100){nodes{author{login} authorAssociation createdAt replies(last:100){nodes{author{login} authorAssociation createdAt}}}}}}}}`).discussions;
+  const r = gql(`{repository(owner:"${OWNER}",name:"${NAME}"){discussions(first:20,states:OPEN${after ? `,after:"${after}"` : ''}){pageInfo{hasNextPage endCursor}nodes{number title createdAt author{login} authorAssociation category{name} answer{id} comments(last:100){nodes{author{login} authorAssociation createdAt replies(last:100){nodes{author{login} authorAssociation createdAt}}}}}}}}`).discussions;
   discussions.push(...r.nodes); if (!r.pageInfo.hasNextPage) break; after = r.pageInfo.endCursor;
 }
 

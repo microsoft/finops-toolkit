@@ -529,6 +529,11 @@ Costs_transform_v1_0()
         isnotempty(x_ResourceType), coalesce(resource_type(x_ResourceType).SingularDisplayName, ResourceType, x_ResourceType),
         ResourceType)
     //
+    // Recovery Services vaults host both Azure Backup and Azure Site Recovery; Cost Management labels both as Site Recovery, so split by meter category (#1751)
+    | extend tmp_IsVaultBackup = x_ResourceType =~ 'microsoft.recoveryservices/vaults' and x_SkuMeterCategory =~ 'Backup'
+    | extend ServiceName = iff(tmp_IsVaultBackup, 'Azure Backup', ServiceName)
+    | extend ServiceCategory = iff(tmp_IsVaultBackup, 'Storage', ServiceCategory)
+    //
     // Sort columns and apply final transforms
     | project
         AvailabilityZone,

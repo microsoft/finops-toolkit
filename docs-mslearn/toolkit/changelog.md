@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/10/2026
+ms.date: 11/16/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -47,9 +47,26 @@ _Released November 2026_
 - **Added**
   - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
   - Added optional guidance to scope FinOps hub data by team with row-level security, so each team sees only its own scopes in KQL queries, dashboards, and AI agents ([#2374](https://github.com/microsoft/finops-toolkit/pull/2374)).
+  - Added the [instance size flexibility](open-data.md#instance-size-flexibility) open data to the Data Explorer database. The hub initialization pipeline loads it into a new `InstanceSizeFlexibility` table, and the `InstanceSizeFlexibility()` function exposes it in the Hub database.
+- **Changed**
+  - Documented that two exports of the same dataset and scope that cover the same month replace each other's data with no error. For guidance, see [Use one export per dataset and scope](hubs/configure-scopes.md#use-one-export-per-dataset-and-scope) ([#2383](https://github.com/microsoft/finops-toolkit/issues/2383)).
 - **Fixed**
+  - Fixed Azure Backup charges on Recovery Services vaults being labeled as Azure Site Recovery ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
+    - Backup charges now map to `ServiceName` "Azure Backup" with `ServiceCategory` "Storage" and `ServiceSubcategory` "Backup Storage" for FOCUS, actual, and amortized cost exports.
+    - Already-ingested rows keep the old label until they're reingested.
+  - Fixed non-FOCUS actual cost exports failing to ingest into Data Explorer because the amortized cost update policy replaced the actual cost one ([#2177](https://github.com/microsoft/finops-toolkit/issues/2177)).
+    - Reingest actual cost months that were exported before upgrading.
+  - Fixed the Azure Resource Graph query pipeline only ingesting the first 1,000 rows of any query (for example, `Recommendations-Microsoft-AdvisorCost`). The pipeline now pages through all results, writing each page to its own Parquet file ([#2320](https://github.com/microsoft/finops-toolkit/issues/2320)).
   - Fixed reservation prices not backfilling when Actual and Amortized costs carried the full billing profile path instead of the short ID ([#2356](https://github.com/microsoft/finops-toolkit/issues/2356)).
     - Billing account ID, billing account type, and pricing currency now use the short billing profile ID too.
+  - Fixed reservation details exports being skipped with no error when the export manifest has a null `dataRowCount` ([#2173](https://github.com/microsoft/finops-toolkit/issues/2173)).
+    - Runs of `msexports_ExecuteETL` reported success while `CommitmentDiscountUsage` stopped updating. Exports with a `dataRowCount` of 0 are still skipped.
+  - Fixed reservation recommendations missing `x_RecommendationDate` and `x_RecommendationDetails` after ingestion.
+
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v16
+
+- **Added**
+  - Added Export to Excel to the storage queries in the optimization workbook.
 
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
@@ -149,6 +166,8 @@ _Released October 28, 2026_
   - Fixed hub redeploys and upgrades resetting data retention and purging historical data ([#2206](https://github.com/microsoft/finops-toolkit/issues/2206), [#2348](https://github.com/microsoft/finops-toolkit/issues/2348)).
     - Retention now stays as configured unless you specify a new value.
   - Fixed private network deployments with Data Explorer failing with a `ServiceIsInMaintenance` error when approving the Data Explorer private endpoint connections.
+- **Known issues**
+  - Two exports of the same dataset and scope that cover the same month replace each other's data with no error, even with different storage paths or FOCUS versions. This behavior isn't new in v15. For guidance, see [Use one export per dataset, scope, and month](hubs/configure-scopes.md#use-one-export-per-dataset-scope-and-month) ([#2383](https://github.com/microsoft/finops-toolkit/issues/2383)).
 
 ### [Power BI reports](power-bi/reports.md) v15
 

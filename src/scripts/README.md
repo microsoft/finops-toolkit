@@ -439,6 +439,8 @@ Examples:
 | `‑DocsRepo`        | Optional. Name of the folder where the Partner Center documentation repo is cloned. Default = partner-center-pr.                |
 | `‑Build`           | Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false.                                |
 | `‑Branch`          | Optional. Indicates whether the changes should be committed to a new branch in the Git repo. Alias: Commit. Default = false.    |
+| `‑CorrelationId`   | Optional. Azure Quickstart Templates only. Correlation ID of a successful Azure deployment of the template being published. Written to `testResult` in metadata.json. Requires ‑DeploymentName and a single template. |
+| `‑DeploymentName`  | Optional. Azure Quickstart Templates only. Name of the successful Azure deployment of the template being published. Written to `testResult` in metadata.json. Requires ‑CorrelationId and a single template. |
 
 Examples:
 
@@ -446,6 +448,18 @@ Examples:
 
   ```powershell
   ./Publish-Toolkit "finops-hub" -Build -Commit
+  ```
+
+- Publishes the FinOps hub template to the Azure Quickstart Templates repo and records the test deployment that the repo requires in metadata.json.
+
+  ```powershell
+  ./Publish-Toolkit "finops-hub" -Commit -DeploymentName "ftk-finops-hub" -CorrelationId "00000000-0000-0000-0000-000000000000"
+  ```
+
+- Updates the Azure Advisor Cost Optimization workbook in the Application Insights Workbooks repo from the optimization workbook source. Only workbooks that the repo already has are replaced.
+
+  ```powershell
+  ./Publish-Toolkit "advisor-workbook" -Commit
   ```
 
 - Builds and publishes the resource group scheduled action module to the Bicep Registry repo locally but does not commit.
@@ -834,6 +848,6 @@ Examples:
   ./Update-Contributors -PullRequest 2395 -Apply
   ```
 
-The [update-contributors](../../.github/workflows/update-contributors.yml) workflow runs this on every pull request from this repo, adding a commit with the author's and reviewers' credits to the PR branch. It also runs weekly and opens a pull request with everything else, including fork PRs, bugs, and feature requests.
+The [update-contributors](../../.github/workflows/update-contributors.yml) workflow runs this weekly and opens a pull request with the missing credits, including fork PRs, bugs, and feature requests.
 
 <br>
