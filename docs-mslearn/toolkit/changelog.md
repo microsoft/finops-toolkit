@@ -56,6 +56,9 @@ _Released November 2026_
   - Fixed the Azure Resource Graph query pipeline only ingesting the first 1,000 rows of any query (for example, `Recommendations-Microsoft-AdvisorCost`). The pipeline now pages through all results, writing each page to its own Parquet file ([#2320](https://github.com/microsoft/finops-toolkit/issues/2320)).
   - Fixed reservation prices not backfilling when Actual and Amortized costs carried the full billing profile path instead of the short ID ([#2356](https://github.com/microsoft/finops-toolkit/issues/2356)).
     - Billing account ID, billing account type, and pricing currency now use the short billing profile ID too.
+  - Fixed reservation details exports being skipped with no error when the export manifest has a null `dataRowCount` ([#2173](https://github.com/microsoft/finops-toolkit/issues/2173)).
+    - Runs of `msexports_ExecuteETL` reported success while `CommitmentDiscountUsage` stopped updating. Exports with a `dataRowCount` of 0 are still skipped.
+  - Fixed reservation recommendations missing `x_RecommendationDate` and `x_RecommendationDetails` after ingestion.
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v16
 
