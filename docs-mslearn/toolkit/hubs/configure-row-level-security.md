@@ -3,7 +3,7 @@ title: Configure row-level security for FinOps hubs
 description: Scope FinOps hub data by team with row-level security in Azure Data Explorer, so KQL queries, dashboards, and AI agents return only the rows a user may see.
 author: keerthimath
 ms.author: micflan
-ms.date: 11/06/2026
+ms.date: 11/16/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
