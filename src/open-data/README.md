@@ -58,6 +58,8 @@ The columns fall into four groups:
 - **Fallback marker:** `IsDefault` is `true` on exactly one row for each meter category and meter name. Use that row when a subcategory is empty or doesn't match any row. The script picks the row whose subcategory equals the category, otherwise the first row by subcategory.
 - **Classification:** `Provider`, `IsTokenMeter`, `TokenType`, `IsCachedToken`, `IsBatchToken`, `TokenContextType`, `TokenLocation`, `IsCopilotMeter`, `CopilotProvider`, `IsCommitmentMeter`, `IsConsumptionMeter`, `CopilotType`, `IsAgentMeter`, `AgentType`, `ModelVersion`, and `ModelCreator`.
 
+A classification value is empty when it doesn't apply or can't be determined. The file never uses a placeholder value.
+
 The script recomputes the classification from the rule inputs on every run. Rows for meters that are no longer in the price sheet are kept.
 
 The file has no prices, billing IDs, meter IDs, product IDs, or SKU IDs.

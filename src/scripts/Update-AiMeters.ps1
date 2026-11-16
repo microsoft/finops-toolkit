@@ -290,7 +290,7 @@ function Get-AiTokenType
         .DESCRIPTION
         Precedence: ConsumptionUnit, Write (a bounded wr or write, or a bounded cd followed by wr or
         write), Ambiguous (input and output hints), Output, Input,
-        Reasoning, Training, Embedding, Input for a cached meter without a direction, then N/A.
+        Reasoning, Training, Embedding, Input for a cached meter without a direction, then an empty string.
         A direction hint wins over reasoning and training. Direction hints are bounded and may carry
         an attached cd prefix. A camelCase direction (Inp, Inpt, Input, Outp, Outpt, Output with that
         capitalization, directly after a lowercase letter) also counts as a hint. Training is a
@@ -327,7 +327,7 @@ function Get-AiTokenType
     if ($Name -match '(?<![a-z0-9])(?:training|trng)(?![a-z0-9])') { return 'Training' }
     if ($Name -match 'embed') { return 'Embedding' }
     if (Test-AiCachedToken $Name) { return 'Input' }
-    return 'N/A'
+    return ''
 }
 
 function Test-AiCachedToken
@@ -382,10 +382,10 @@ function Get-AiTokenContextType
     <#
         .SYNOPSIS
         Derives the context type of a token meter: Short Context, Long Context, a context
-        descriptor, Ambiguous, or N/A.
+        descriptor, Ambiguous, or an empty string.
 
         .DESCRIPTION
-        Collects hints. No hints is N/A, one distinct hint is that value, more is Ambiguous.
+        Collects hints. No hints is an empty string, one distinct hint is that value, more is Ambiguous.
         Descriptors keep their original casing; the same descriptor in another case counts once.
 
         .PARAMETER Name
@@ -411,7 +411,7 @@ function Get-AiTokenContextType
     }
 
     $distinct = @($hints | Group-Object { $_.ToLowerInvariant() } | ForEach-Object { $_.Group[0] })
-    if ($distinct.Count -eq 0) { return 'N/A' }
+    if ($distinct.Count -eq 0) { return '' }
     if ($distinct.Count -eq 1) { return $distinct[0] }
     return 'Ambiguous'
 }
@@ -420,7 +420,7 @@ function Get-AiTokenLocation
 {
     <#
         .SYNOPSIS
-        Derives the location of a token meter: Global, Regional, DataZone, Ambiguous, or N/A.
+        Derives the location of a token meter: Global, Regional, DataZone, Ambiguous, or an empty string.
 
         .PARAMETER Name
         The meter name.
@@ -437,7 +437,7 @@ function Get-AiTokenLocation
         @{ Value = 'DataZone'; Pattern = '(?<![a-z0-9])(?:datazone|data zone|dzone|dzn|dz)(?![a-z0-9])' }
     )
     $found = @($groups | Where-Object { $Name -match $_.Pattern } | ForEach-Object { $_.Value })
-    if ($found.Count -eq 0) { return 'N/A' }
+    if ($found.Count -eq 0) { return '' }
     if ($found.Count -eq 1) { return $found[0] }
     return 'Ambiguous'
 }
@@ -446,7 +446,7 @@ function Get-AiModelVersion
 {
     <#
         .SYNOPSIS
-        Extracts the model version from a meter name, or N/A when none is present.
+        Extracts the model version from a meter name, or an empty string when none is present.
 
         .DESCRIPTION
         First, a dotless version: a name that starts with two digits (not followed by a digit or a
@@ -471,7 +471,7 @@ function Get-AiModelVersion
         [AllowEmptyString()][AllowNull()][string]$Subcategory = ''
     )
 
-    if ([string]::IsNullOrEmpty($Name)) { return 'N/A' }
+    if ([string]::IsNullOrEmpty($Name)) { return '' }
 
     $dotless = [regex]::Match($Name, '^(\d)(\d)(?![\d.])')
     if ($dotless.Success -and $Subcategory -match "GPT$($dotless.Groups[1].Value)(?!\d)")
@@ -516,7 +516,7 @@ function Get-AiModelVersion
             $best = @{ Match = $match; Gpt = $candidate.Gpt }
         }
     }
-    if ($null -eq $best) { return 'N/A' }
+    if ($null -eq $best) { return '' }
 
     $number = $best.Match.Groups[1].Value
     if ($best.Gpt -and $number -eq '35' -and $best.Match.Value -match '^gpt') { return '3.5' }
@@ -639,7 +639,7 @@ function Get-AiMeterClassification
     $isToken = Test-AiTokenMeter $Name $MeterIdKind
     $isCopilot = Test-AiCopilotMeter $Category $Subcategory $Name $MeterIdKind
 
-    $copilotProvider = 'N/A'
+    $copilotProvider = ''
     if ($isCopilot)
     {
         if ($provider -eq 'Anthropic')
@@ -652,7 +652,7 @@ function Get-AiMeterClassification
     $isCommitment = ($isCopilot -and $literals.CopilotCommitmentSubcategories -contains $Subcategory) -or
         ($literals.PrePurchasePlanSubcategories -contains $Subcategory)
 
-    $copilotType = 'N/A'
+    $copilotType = ''
     if ($isCopilot)
     {
         if ($Subcategory -eq $literals.DragonCopilotSubcategory -or "$Subcategory".StartsWith($literals.DaxCopilotSubcategoryPrefix, [System.StringComparison]::OrdinalIgnoreCase)) { $copilotType = 'Dragon' }
@@ -679,17 +679,17 @@ function Get-AiMeterClassification
     else
     {
         $isAgent = $false
-        $agentType = 'N/A'
+        $agentType = ''
     }
 
     $values = @{
         Provider           = $provider
         IsTokenMeter       = [bool]$isToken
-        TokenType          = 'N/A'
+        TokenType          = ''
         IsCachedToken      = $false
         IsBatchToken       = $false
-        TokenContextType   = 'N/A'
-        TokenLocation      = 'N/A'
+        TokenContextType   = ''
+        TokenLocation      = ''
         IsCopilotMeter     = [bool]$isCopilot
         CopilotProvider    = $copilotProvider
         IsCommitmentMeter  = [bool]$isCommitment
@@ -697,8 +697,8 @@ function Get-AiMeterClassification
         CopilotType        = $copilotType
         IsAgentMeter       = $isAgent
         AgentType          = $agentType
-        ModelVersion       = 'N/A'
-        ModelCreator       = 'N/A'
+        ModelVersion       = ''
+        ModelCreator       = ''
     }
 
     if ($isToken)
@@ -1085,7 +1085,7 @@ function Get-AiMeterSummary
         An object with Written, New (keys not in the existing file), Changed, Kept (keys not in
         the price sheet), Dropped (keys of the existing file that the inclusion rule no longer
         includes), and ValueCounts (for each classification column, the "value=count" entries
-        sorted by value).
+        sorted by value, with an empty value shown as "(empty)").
     #>
     [CmdletBinding()]
     [OutputType([pscustomobject])]
@@ -1121,7 +1121,7 @@ function Get-AiMeterSummary
     $valueCounts = [ordered]@{}
     foreach ($column in $classificationColumns)
     {
-        $valueCounts[$column] = @($NewRows | Group-Object -Property $column -NoElement | Sort-Object Name | ForEach-Object { "$($_.Name)=$($_.Count)" })
+        $valueCounts[$column] = @($NewRows | Group-Object -Property $column -NoElement | Sort-Object Name | ForEach-Object { "$(if ($_.Name -ceq '') { '(empty)' } else { $_.Name })=$($_.Count)" })
     }
 
     return [pscustomobject]@{

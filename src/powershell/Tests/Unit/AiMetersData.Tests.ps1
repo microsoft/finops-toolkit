@@ -103,6 +103,17 @@ Describe 'AiMeters open data' {
         $mismatches | Should -BeNullOrEmpty
     }
 
+    It 'has no N/A placeholder in any cell' {
+        $placeholders = @($rows | ForEach-Object {
+                $row = $_
+                foreach ($property in $row.PSObject.Properties)
+                {
+                    if ("$($property.Value)" -ieq 'N/A') { "$($property.Name): $($row.x_SkuMeterCategory) | $($row.x_SkuMeterSubcategory) | $($row.SkuMeter)" }
+                }
+            })
+        $placeholders | Should -BeNullOrEmpty
+    }
+
     It 'has no column for prices or identifiers' {
         $forbidden = @('MeterId', 'ProductId', 'SkuId', 'SkuPriceId', 'UnitPrice', 'BillingAccountId')
         @($header | Where-Object { $_ -in $forbidden }) | Should -BeNullOrEmpty
