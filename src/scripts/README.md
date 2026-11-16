@@ -834,6 +834,6 @@ Examples:
   ./Update-Contributors -PullRequest 2395 -Apply
   ```
 
-The [update-contributors](../../.github/workflows/update-contributors.yml) workflow runs this on every pull request from this repo, adding a commit with the author's and reviewers' credits to the PR branch. It also runs weekly and opens a pull request with everything else, including fork PRs, bugs, and feature requests.
+The [update-contributors](../../.github/workflows/update-contributors.yml) workflow runs this weekly and opens a pull request with the missing credits, including fork PRs, bugs, and feature requests.
 
 <br>
