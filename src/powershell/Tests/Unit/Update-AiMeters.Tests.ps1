@@ -165,65 +165,83 @@ Describe 'Update-AiMeters' {
 
     Context 'Token rules' {
         It 'classifies <Name>' -ForEach @(
-            @{ Name = 'Cache Inp Tokens';             Type = 'Input';  Cached = $true;  Batch = $false; Context = 'N/A' }
-            @{ Name = 'cached Tokens';                Type = 'Input';  Cached = $true;  Batch = $false; Context = 'N/A' }
-            @{ Name = 'Non-Cached Input Tokens';      Type = 'Input';  Cached = $false; Batch = $false; Context = 'N/A' }
+            @{ Name = 'Cache Inp Tokens';             Type = 'Input';  Cached = $true;  Batch = $false; Context = '' }
+            @{ Name = 'cached Tokens';                Type = 'Input';  Cached = $true;  Batch = $false; Context = '' }
+            @{ Name = 'Non-Cached Input Tokens';      Type = 'Input';  Cached = $false; Batch = $false; Context = '' }
             @{ Name = 'ShortCo Batch cd inp Tokens';  Type = 'Input';  Cached = $true;  Batch = $true;  Context = 'Short Context' }
             @{ Name = 'ShortCo Batch Cd Wr Tokens';   Type = 'Write';  Cached = $true;  Batch = $true;  Context = 'Short Context' }
-            @{ Name = 'cache-write Tokens';           Type = 'Write';  Cached = $true;  Batch = $false; Context = 'N/A' }
+            @{ Name = 'cache-write Tokens';           Type = 'Write';  Cached = $true;  Batch = $false; Context = '' }
             @{ Name = 'longco batch opt Tokens';      Type = 'Output'; Cached = $false; Batch = $true;  Context = 'Long Context' }
             @{ Name = 'shco CdInput Tokens';          Type = 'Input';  Cached = $true;  Batch = $false; Context = 'Short Context' }
             @{ Name = 'loco Output Tokens';           Type = 'Output'; Cached = $false; Batch = $false; Context = 'Long Context' }
             @{ Name = 'shco loco Input Tokens';       Type = 'Input';  Cached = $false; Batch = $false; Context = 'Ambiguous' }
-            @{ Name = 'Pro Contextualization Tokens'; Type = 'N/A';    Cached = $false; Batch = $false; Context = 'Contextualization' }
+            @{ Name = 'Pro Contextualization Tokens'; Type = '';    Cached = $false; Batch = $false; Context = 'Contextualization' }
         ) {
-            Get-AiTokenType $Name 'Guid'  | Should -Be $Type
+            Get-AiTokenType $Name 'Guid'  | Should -BeExactly $Type
             Test-AiCachedToken $Name      | Should -Be $Cached
             Test-AiBatchToken $Name       | Should -Be $Batch
-            Get-AiTokenContextType $Name  | Should -Be $Context
+            Get-AiTokenContextType $Name  | Should -BeExactly $Context
         }
 
         It 'token type of <Name> is <Type>' -ForEach @(
             @{ Name = 'Units'; Kind = 'ClaudeConsumptionUnits'; Type = 'ConsumptionUnit' }
-            @{ Name = 'Model writer Tokens'; Kind = 'Guid'; Type = 'N/A' }
-            @{ Name = 'Model rewrite Tokens'; Kind = 'Guid'; Type = 'N/A' }
+            @{ Name = 'Model writer Tokens'; Kind = 'Guid'; Type = '' }
+            @{ Name = 'Model rewrite Tokens'; Kind = 'Guid'; Type = '' }
             @{ Name = 'Model CdWr Tokens'; Kind = 'Guid'; Type = 'Write' }
             @{ Name = 'Model CdWrite Tokens'; Kind = 'Guid'; Type = 'Write' }
-            @{ Name = 'Model CdWrap Tokens'; Kind = 'Guid'; Type = 'N/A' }
+            @{ Name = 'Model CdWrap Tokens'; Kind = 'Guid'; Type = '' }
             @{ Name = 'Model reasoning Tokens'; Kind = 'Guid'; Type = 'Reasoning' }
             @{ Name = 'Model Inp Out Tokens'; Kind = 'Guid'; Type = 'Ambiguous' }
             @{ Name = 'Model embed Tokens'; Kind = 'Guid'; Type = 'Embedding' }
             @{ Name = 'Cache read Tokens'; Kind = 'Guid'; Type = 'Input' }
             @{ Name = 'xCdInput Tokens'; Kind = 'Guid'; Type = 'Input' }
-            @{ Name = 'CdInputExtra Tokens'; Kind = 'Guid'; Type = 'N/A' }
+            @{ Name = 'CdInputExtra Tokens'; Kind = 'Guid'; Type = '' }
             @{ Name = '6-astra ShortCo Cd Inp Std Gl 1M Tokens'; Kind = 'Guid'; Type = 'Input' }
             @{ Name = 'Az-GPT-35-turbo-16k-LowPrio-Prompt Tokens'; Kind = 'Guid'; Type = 'Input' }
             @{ Name = 'Az-GPT-35-turbo-16k-Completion Tokens'; Kind = 'Guid'; Type = 'Output' }
             @{ Name = 'liutong-public - prompt_tokens_1k'; Kind = 'Guid'; Type = 'Input' }
             @{ Name = 'Model Prompt Completion Tokens'; Kind = 'Guid'; Type = 'Ambiguous' }
-            @{ Name = 'Model Prompts Tokens'; Kind = 'Guid'; Type = 'N/A' }
+            @{ Name = 'Model Prompts Tokens'; Kind = 'Guid'; Type = '' }
             @{ Name = '4.7 Cached DZ L 1M Tokens'; Kind = 'Guid'; Type = 'Input' }
             @{ Name = 'K2.6 cached glbl Tokens'; Kind = 'Guid'; Type = 'Input' }
             @{ Name = 'paygo-inf-longctx-cache-hit-tokens'; Kind = 'Guid'; Type = 'Input' }
             @{ Name = 'cache-write Tokens'; Kind = 'Guid'; Type = 'Write' }
-            @{ Name = 'Non-Cached Tokens'; Kind = 'Guid'; Type = 'N/A' }
+            @{ Name = 'Non-Cached Tokens'; Kind = 'Guid'; Type = '' }
             @{ Name = 'Phi-4-reasoning-Input Tokens'; Kind = 'Guid'; Type = 'Input' }
             @{ Name = 'Phi-4-reasoning-plus-output Tokens'; Kind = 'Guid'; Type = 'Output' }
             @{ Name = 'Agentic Retrieval Low Reasoning Tokens'; Kind = 'Guid'; Type = 'Reasoning' }
             @{ Name = '4.1 nano ft training Dz Tokens'; Kind = 'Guid'; Type = 'Training' }
             @{ Name = 'gpt-35-turbo16K-FT-Trng-regnl tkn Tokens'; Kind = 'Guid'; Type = 'Training' }
             @{ Name = 'Model training Input Tokens'; Kind = 'Guid'; Type = 'Input' }
-            @{ Name = 'Model retraining Tokens'; Kind = 'Guid'; Type = 'N/A' }
+            @{ Name = 'Model retraining Tokens'; Kind = 'Guid'; Type = '' }
             @{ Name = 'gpt4o realtimePrvwTxtOutp DataZone Tokens'; Kind = 'Guid'; Type = 'Output' }
             @{ Name = 'gpt4o realtimePrvwAudInp DataZone Tokens'; Kind = 'Guid'; Type = 'Input' }
             @{ Name = 'gpt 4o mini0718 BatchOutp DataZone Tokens'; Kind = 'Guid'; Type = 'Output' }
-            @{ Name = 'Model xinput Tokens'; Kind = 'Guid'; Type = 'N/A' }
-            @{ Name = 'Model TXTINP Tokens'; Kind = 'Guid'; Type = 'N/A' }
-        ) { Get-AiTokenType $Name $Kind | Should -Be $Type }
+            @{ Name = 'Model xinput Tokens'; Kind = 'Guid'; Type = '' }
+            @{ Name = 'Model TXTINP Tokens'; Kind = 'Guid'; Type = '' }
+        ) { Get-AiTokenType $Name $Kind | Should -BeExactly $Type }
 
-        It 'token type of a null or empty name is N/A' {
-            Get-AiTokenType $null 'Guid' | Should -Be 'N/A'
-            Get-AiTokenType '' 'Guid' | Should -Be 'N/A'
+        It 'token type of a null or empty name is an empty string' {
+            Get-AiTokenType $null 'Guid' | Should -BeExactly ''
+            Get-AiTokenType '' 'Guid' | Should -BeExactly ''
+        }
+
+        It 'token type with no rule is an empty string, not null' {
+            $result = Get-AiTokenType 'Model writer Tokens' 'Guid'
+            ($result -is [string]) | Should -BeTrue
+            $result | Should -BeExactly ''
+        }
+
+        It 'token context with no hint is an empty string, not null' {
+            $result = Get-AiTokenContextType 'xshco Tokens'
+            ($result -is [string]) | Should -BeTrue
+            $result | Should -BeExactly ''
+        }
+
+        It 'token location with no hint is an empty string, not null' {
+            $result = Get-AiTokenLocation 'English Single Input Tokens'
+            ($result -is [string]) | Should -BeTrue
+            $result | Should -BeExactly ''
         }
 
         It 'token type of the consumption units meter wins over a direction hint' {
@@ -259,14 +277,14 @@ Describe 'Update-AiMeters' {
         It 'context of <Name> is <Context>' -ForEach @(
             @{ Name = 'model-longctx-input Tokens'; Context = 'Long Context' }
             @{ Name = 'model-shco-input Tokens'; Context = 'Short Context' }
-            @{ Name = 'xshco Tokens'; Context = 'N/A' }
-            @{ Name = 'loco2 Tokens'; Context = 'N/A' }
-            @{ Name = 'shco_input Tokens'; Context = 'N/A' }
+            @{ Name = 'xshco Tokens'; Context = '' }
+            @{ Name = 'loco2 Tokens'; Context = '' }
+            @{ Name = 'shco_input Tokens'; Context = '' }
             @{ Name = 'Short_Context Input Tokens'; Context = 'Short Context' }
             @{ Name = 'shco Short Context Tokens'; Context = 'Short Context' }
             @{ Name = 'Adv Contextual Tokens'; Context = 'Contextual' }
             @{ Name = 'Context context Tokens'; Context = 'Context' }
-        ) { Get-AiTokenContextType $Name | Should -Be $Context }
+        ) { Get-AiTokenContextType $Name | Should -BeExactly $Context }
 
         It 'location of <Name> is <Location>' -ForEach @(
             @{ Name = '5.4 opt Dz 1M Tokens'; Location = 'DataZone' }
@@ -275,12 +293,12 @@ Describe 'Update-AiMeters' {
             @{ Name = 'Model Inp Regnl Tokens'; Location = 'Regional' }
             @{ Name = 'Model-rgnl Inp Tokens'; Location = 'Regional' }
             @{ Name = 'Model Gl Dz Tokens'; Location = 'Ambiguous' }
-            @{ Name = 'English Single Input Tokens'; Location = 'N/A' }
+            @{ Name = 'English Single Input Tokens'; Location = '' }
             @{ Name = 'gpt-4o-rt-aud-0603 cchd Inp rgnl Tokens'; Location = 'Regional' }
             @{ Name = 'GPT 5 cchd Inpt Rgnl 1M Tokens'; Location = 'Regional' }
             @{ Name = 'Model Rgnl Gl Tokens'; Location = 'Ambiguous' }
-            @{ Name = 'Model xrgnl Tokens'; Location = 'N/A' }
-        ) { Get-AiTokenLocation $Name | Should -Be $Location }
+            @{ Name = 'Model xrgnl Tokens'; Location = '' }
+        ) { Get-AiTokenLocation $Name | Should -BeExactly $Location }
     }
 
     Context 'Get-AiModelVersion' {
@@ -292,31 +310,40 @@ Describe 'Update-AiMeters' {
             @{ Name = 'FW Kimi K3 Inp DZ Tokens';                  Sub = ''; Version = '3' }
             @{ Name = 'Grok4 Fast Inp DZone Tokens';               Sub = ''; Version = '4' }
             @{ Name = 'Az-GPT35-Turbo-16K-0125 Input Tokens';      Sub = ''; Version = '3.5' }
-            @{ Name = 'Model 1.5B Input Tokens';                   Sub = ''; Version = 'N/A' }
+            @{ Name = 'Model 1.5B Input Tokens';                   Sub = ''; Version = '' }
             @{ Name = 'Llama-3 1.5B Input Tokens';                 Sub = ''; Version = '3' }
             @{ Name = 'Model 2024-08-01 GPT-5 Input Tokens';       Sub = ''; Version = '5' }
-            @{ Name = 'Model K3 R1 Input Tokens';                  Sub = ''; Version = 'N/A' }
+            @{ Name = 'Model K3 R1 Input Tokens';                  Sub = ''; Version = '' }
             @{ Name = 'GPT35 Turbo 2.0 Input Tokens';              Sub = ''; Version = '2.0' }
             @{ Name = 'GPT4omini Input Tokens';                    Sub = ''; Version = '4' }
             @{ Name = 'GPT 4o Input Tokens';                       Sub = ''; Version = '4' }
             @{ Name = '5.4 opt Dz 1M Tokens';                      Sub = ''; Version = '5.4' }
             @{ Name = '6-astra ShortCo Cd Inp Std Gl 1M Tokens';   Sub = ''; Version = '6' }
-            @{ Name = 'G42 Model Input Tokens';                    Sub = ''; Version = 'N/A' }
-            @{ Name = 'Model 2407 Input Tokens';                   Sub = ''; Version = 'N/A' }
-            @{ Name = '';                                          Sub = ''; Version = 'N/A' }
+            @{ Name = 'G42 Model Input Tokens';                    Sub = ''; Version = '' }
+            @{ Name = 'Model 2407 Input Tokens';                   Sub = ''; Version = '' }
+            @{ Name = '';                                          Sub = ''; Version = '' }
             @{ Name = '54 inp Flex Gl 1M Tokens'; Sub = 'Azure OpenAI GPT5'; Version = '5.4' }
             @{ Name = '56luna LoCo Cd Inp Fl Gl 1M Tokens'; Sub = 'Azure OpenAI GPT5'; Version = '5.6' }
             @{ Name = '61 pro inp Gl 1M Tokens'; Sub = 'Azure OpenAI GPT6'; Version = '6.1' }
             @{ Name = '54 inp Flex Gl 1M Tokens'; Sub = 'Azure OpenAI GPT6'; Version = '54' }
             @{ Name = '54 inp Flex Gl 1M Tokens'; Sub = ''; Version = '54' }
-            @{ Name = '32b FT DZ Tokens'; Sub = 'FT Models'; Version = 'N/A' }
+            @{ Name = '32b FT DZ Tokens'; Sub = 'FT Models'; Version = '' }
             @{ Name = '5.4 opt Dz 1M Tokens'; Sub = 'Azure OpenAI GPT5'; Version = '5.4' }
-            @{ Name = 'chat-latest 05052026 cd inp Gl 1M Tokens'; Sub = 'Azure OpenAI GPT5'; Version = 'N/A' }
-            @{ Name = 'Model 20261107 Input Tokens'; Sub = ''; Version = 'N/A' }
-            @{ Name = 'ISO Manager 365'; Sub = ''; Version = 'N/A' }
-            @{ Name = 'R2 Copilot: Private AI for Office 365'; Sub = ''; Version = 'N/A' }
+            @{ Name = 'chat-latest 05052026 cd inp Gl 1M Tokens'; Sub = 'Azure OpenAI GPT5'; Version = '' }
+            @{ Name = 'Model 20261107 Input Tokens'; Sub = ''; Version = '' }
+            @{ Name = 'ISO Manager 365'; Sub = ''; Version = '' }
+            @{ Name = 'R2 Copilot: Private AI for Office 365'; Sub = ''; Version = '' }
             @{ Name = 'Model 365 4.5 Input Tokens'; Sub = ''; Version = '4.5' }
-        ) { Get-AiModelVersion $Name $Sub | Should -Be $Version }
+        ) { Get-AiModelVersion $Name $Sub | Should -BeExactly $Version }
+
+        It 'model version with no version is an empty string, not null' {
+            foreach ($name in @('Model 1.5B Input Tokens', '', $null))
+            {
+                $result = Get-AiModelVersion $name ''
+                ($result -is [string]) | Should -BeTrue
+                $result | Should -BeExactly ''
+            }
+        }
 
         It 'converts 35 to 3.5 for GPT only, not for Grok' {
             Get-AiModelVersion 'Grok35 Input Tokens' | Should -Be '35'
@@ -389,9 +416,21 @@ Describe 'Update-AiMeters' {
             @($c.Keys) | Should -Be @('Provider','IsTokenMeter','TokenType','IsCachedToken','IsBatchToken','TokenContextType','TokenLocation','IsCopilotMeter','CopilotProvider','IsCommitmentMeter','IsConsumptionMeter','CopilotType','IsAgentMeter','AgentType','ModelVersion','ModelCreator')
             $c.Provider | Should -Be 'Microsoft';  $c.IsTokenMeter | Should -BeTrue;  $c.TokenType | Should -Be 'Output'
             $c.TokenLocation | Should -Be 'DataZone';  $c.ModelVersion | Should -Be '5.4';  $c.ModelCreator | Should -Be 'OpenAI'
-            $c.IsCopilotMeter | Should -BeFalse;  $c.CopilotProvider | Should -Be 'N/A';  $c.CopilotType | Should -Be 'N/A'
-            $c.IsAgentMeter | Should -BeFalse;  $c.AgentType | Should -Be 'N/A';  $c.IsConsumptionMeter | Should -BeFalse
-            $c.IsCachedToken | Should -BeFalse;  $c.IsBatchToken | Should -BeFalse;  $c.TokenContextType | Should -Be 'N/A'
+            $c.IsCopilotMeter | Should -BeFalse;  $c.CopilotProvider | Should -BeExactly '';  $c.CopilotType | Should -BeExactly ''
+            $c.IsAgentMeter | Should -BeFalse;  $c.AgentType | Should -BeExactly '';  $c.IsConsumptionMeter | Should -BeFalse
+            $c.IsCachedToken | Should -BeFalse;  $c.IsBatchToken | Should -BeFalse;  $c.TokenContextType | Should -BeExactly ''
+        }
+
+        It 'writes an empty string, not null, for every classification column that does not apply' {
+            $c = Get-AiMeterClassification 'X' 'Microsoft Agent Pre-Purchase Plan' 'Unit' 'AI + Machine Learning' 'Guid'
+            foreach ($column in 'TokenType', 'TokenContextType', 'TokenLocation', 'CopilotProvider', 'CopilotType', 'ModelVersion', 'ModelCreator')
+            {
+                ($c[$column] -is [string]) | Should -BeTrue -Because $column
+                $c[$column] | Should -BeExactly '' -Because $column
+            }
+            $c = Get-AiMeterClassification 'Foundry Models' 'Azure OpenAI GPT5' '5.4 opt Dz 1M Tokens' 'AI + Machine Learning' 'Guid'
+            ($c['AgentType'] -is [string]) | Should -BeTrue
+            $c['AgentType'] | Should -BeExactly ''
         }
 
         It 'takes the model creator from the meter name when the subcategory names a host' {
@@ -450,12 +489,12 @@ Describe 'Update-AiMeters' {
         }
 
         It 'takes the model version of a Marketplace meter from the offer name: <Sub>' -ForEach @(
-            @{ Sub = 'Mistral Large 2411'; Name = 'Mistral Large 2411 - mistral-large-2411-plan-prod-v2 - PayGo Finetuned Inference Input Tokens'; Version = 'N/A'; Creator = 'Mistral' }
+            @{ Sub = 'Mistral Large 2411'; Name = 'Mistral Large 2411 - mistral-large-2411-plan-prod-v2 - PayGo Finetuned Inference Input Tokens'; Version = ''; Creator = 'Mistral' }
             @{ Sub = 'Meta Llama-2-70B'; Name = 'Meta Llama-2-70B - Meta Llama 2 70B - paygo-finetuned-model-inference-input-tokens'; Version = '2'; Creator = 'Meta' }
             @{ Sub = 'Claude Sonnet 5.5'; Name = 'Claude Sonnet 5.5 - anthropic-claude-sonnet-5-5-plan - paygo-inf-longctx-cache-hit-tokens'; Version = '5.5'; Creator = 'Anthropic' }
         ) {
             $c = Get-AiMeterClassification 'SaaS' $Sub $Name 'SaaS' 'Other'
-            $c.ModelVersion | Should -Be $Version;  $c.ModelCreator | Should -Be $Creator
+            $c.ModelVersion | Should -BeExactly $Version;  $c.ModelCreator | Should -Be $Creator
         }
 
         It 'classifies a cached Marketplace token meter with the version from the offer' {
@@ -471,7 +510,7 @@ Describe 'Update-AiMeters' {
         ) {
             $c = Get-AiMeterClassification 'X' $Sub 'Unit' 'AI + Machine Learning' 'Guid'
             $c.IsAgentMeter | Should -BeTrue;  $c.AgentType | Should -Be $Agent;  $c.IsCommitmentMeter | Should -Be $Commit
-            $c.IsCopilotMeter | Should -BeFalse;  $c.IsTokenMeter | Should -BeFalse;  $c.TokenType | Should -Be 'N/A'
+            $c.IsCopilotMeter | Should -BeFalse;  $c.IsTokenMeter | Should -BeFalse;  $c.TokenType | Should -BeExactly ''
         }
 
         It 'classifies the Claude consumption unit meter' {
@@ -789,7 +828,7 @@ Describe 'Update-AiMeters' {
             {
                 param([string]$Name, [string]$TokenType = 'Input')
                 $row = [ordered]@{ x_SkuMeterCategory = 'Cat'; x_SkuMeterSubcategory = 'Sub'; SkuMeter = $Name }
-                foreach ($column in (Get-AiMeterColumn).Classification) { $row[$column] = 'N/A' }
+                foreach ($column in (Get-AiMeterColumn).Classification) { $row[$column] = '' }
                 $row.TokenType = $TokenType
                 return [pscustomobject]$row
             }
@@ -812,7 +851,13 @@ Describe 'Update-AiMeters' {
             $s = Get-AiMeterSummary -OldRows @() -NewRows $new -SheetKeys @()
             @($s.ValueCounts.Keys) | Should -Be (Get-AiMeterColumn).Classification
             $s.ValueCounts.TokenType | Should -Be @('Input=1', 'Output=2')
-            $s.ValueCounts.Provider | Should -Be @('N/A=3')
+            $s.ValueCounts.Provider | Should -Be @('(empty)=3')
+        }
+
+        It 'labels an empty value (empty) and keeps counts of real values' {
+            $new = @((New-SummaryRow 'A Tokens' ''), (New-SummaryRow 'B Tokens' 'Input'))
+            $s = Get-AiMeterSummary -OldRows @() -NewRows $new -SheetKeys @()
+            $s.ValueCounts.TokenType | Should -Be @('(empty)=1', 'Input=1')
         }
 
         It 'counts every row as new when there is no existing file' {

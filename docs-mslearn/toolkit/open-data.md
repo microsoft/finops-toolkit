@@ -231,12 +231,13 @@ Sample data:
 | Foundry Models           | Azure OpenAI GPT5        | 5 pp inp Gl 1M Tokens        | Microsoft | Input     | false         | 5            | OpenAI       |
 | Foundry Models           | Azure OpenAI GPT5        | 5 pp opt Gl 1M Tokens        | Microsoft | Output    | false         | 5            | OpenAI       |
 | Foundry Models           | Azure OpenAI GPT5        | 5.1 codex inp Gl 1M Tokens   | Microsoft | Input     | false         | 5.1          | OpenAI       |
-| Microsoft Copilot Studio | Microsoft Copilot Studio | Pay As You Go Copilot Credit | Microsoft | N/A       | false         | N/A          | N/A          |
+| Microsoft Copilot Studio | Microsoft Copilot Studio | Pay As You Go Copilot Credit | Microsoft |           | false         |              |              |
 
 A few important notes about the data:
 
 - Match meters by `x_SkuMeterCategory`, `x_SkuMeterSubcategory`, and `SkuMeter`. Matching is case-insensitive.
 - `IsDefault` marks the row to use when the subcategory is unknown.
+- A value is empty when it doesn't apply or can't be determined. For example, `TokenType` is empty for a meter that isn't a token meter.
 - The file is updated periodically from a current price sheet.
 
 <!-- prettier-ignore-start -->
