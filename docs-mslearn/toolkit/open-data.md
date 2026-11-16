@@ -232,7 +232,7 @@ A few important notes about the data:
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/AiMeters.csv)
+> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/SkuDetailsAI.csv)
 <!-- prettier-ignore-end -->
 
 <br>

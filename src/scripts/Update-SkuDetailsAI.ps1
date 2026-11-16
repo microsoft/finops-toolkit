@@ -9,20 +9,20 @@
 
     .DESCRIPTION
     Reads a price sheet and classifies AI-related meters (tokens, Copilot, agents, and
-    commitments) into AiMeters.csv. No price, billing ID, meter ID, product ID, or SKU ID
+    commitments) into SkuDetailsAI.csv. No price, billing ID, meter ID, product ID, or SKU ID
     is written to the output.
 
     .PARAMETER PricesheetPath
     Path to the price sheet to read.
 
     .PARAMETER OutputPath
-    Path of the CSV file to write. Defaults to AiMeters.csv in the open-data folder.
+    Path of the CSV file to write. Defaults to SkuDetailsAI.csv in the open-data folder.
 #>
 param(
     [Parameter(Mandatory)]
     [string]$PricesheetPath,
 
-    [string]$OutputPath = "$PSScriptRoot/../open-data/AiMeters.csv"
+    [string]$OutputPath = "$PSScriptRoot/../open-data/SkuDetailsAI.csv"
 )
 
 function Get-AiMeterRuleLiteral
@@ -81,7 +81,7 @@ function Get-AiMeterColumn
 {
     <#
         .SYNOPSIS
-        Returns the column names of AiMeters.csv.
+        Returns the column names of SkuDetailsAI.csv.
 
         .OUTPUTS
         An ordered hashtable with Input (the five rule-input columns, the first three being the
@@ -900,7 +900,7 @@ function Import-AiMeterInput
 {
     <#
         .SYNOPSIS
-        Reads the rule inputs of an existing AiMeters.csv.
+        Reads the rule inputs of an existing SkuDetailsAI.csv.
 
         .DESCRIPTION
         Reads the five rule-input columns and ignores the classification columns, so the rules can
@@ -1065,7 +1065,7 @@ function Get-AiMeterSummary
 {
     <#
         .SYNOPSIS
-        Counts what a run changes in AiMeters.csv.
+        Counts what a run changes in SkuDetailsAI.csv.
 
         .DESCRIPTION
         Compares the rows of the existing file with the rows about to be written, by

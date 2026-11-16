@@ -1,11 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-Describe 'AiMeters open data' {
+Describe 'SkuDetailsAI open data' {
     BeforeAll {
         $repoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
-        $scriptPath = Join-Path $repoRoot 'src/scripts/Update-AiMeters.ps1'
-        $csvPath = Join-Path $repoRoot 'src/open-data/AiMeters.csv'
+        $scriptPath = Join-Path $repoRoot 'src/scripts/Update-SkuDetailsAI.ps1'
+        $csvPath = Join-Path $repoRoot 'src/open-data/SkuDetailsAI.csv'
 
         # Load only the functions the data checks need, so the script body never runs.
         $ast = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$null, [ref]$null)
@@ -71,7 +71,7 @@ Describe 'AiMeters open data' {
 
     It 'is skipped by Build-OpenData -PowerShell' {
         $build = Get-Content "$PSScriptRoot/../../../scripts/Build-OpenData.ps1" -Raw
-        $build | Should -Match "\`$skipPowerShell\s*=\s*@\('AiMeters'\)"
+        $build | Should -Match "\`$skipPowerShell\s*=\s*@\('SkuDetailsAI'\)"
         $build | Should -Match '\$_\.BaseName -notin \$skipPowerShell'
         Test-Path "$PSScriptRoot/../../Private/Get-OpenDataAiMeter.ps1" | Should -BeFalse
     }
