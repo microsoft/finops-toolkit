@@ -23,7 +23,7 @@ On this page:
 
 <br>
 
-The [AiMeters.csv](./AiMeters.csv) file classifies Azure AI meters, such as token, Copilot, and agent meters. The classification rules are based on Dirk Brinkmann's AI meter ruleset. In short, the rules cover:
+The [SkuDetailsAI.csv](./SkuDetailsAI.csv) file classifies Azure AI meters, such as token, Copilot, and agent meters. The classification rules are based on Dirk Brinkmann's AI meter ruleset. In short, the rules cover:
 
 - **Inclusion:** which meters count as AI meters, based on the meter name (for example, `tokens` or `copilot`) and a list of known agent and pre-purchase plan subcategories.
 - **Provider:** whether the meter is from Anthropic, Microsoft, or another vendor.
@@ -76,7 +76,7 @@ POST https://management.azure.com/providers/Microsoft.Billing/billingAccounts/<b
 To update the file, pass the path of the zip file. If you update from more than one price sheet, run the older ones before the newer ones, because a newer price sheet wins where two have the same meter:
 
 ```powershell
-./src/scripts/Update-AiMeters.ps1 -PricesheetPath <path-to-zip>
+./src/scripts/Update-SkuDetailsAI.ps1 -PricesheetPath <path-to-zip>
 ```
 
 > [!NOTE]

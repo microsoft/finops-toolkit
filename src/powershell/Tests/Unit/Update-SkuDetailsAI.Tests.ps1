@@ -1,14 +1,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-# Unit tests for the pure functions in src/scripts/Update-AiMeters.ps1. The script body
+# Unit tests for the pure functions in src/scripts/Update-SkuDetailsAI.ps1. The script body
 # reads a price sheet, so rather than dot-source it we extract just the named function
 # definitions via the AST and evaluate those in isolation.
 
 BeforeDiscovery {
     # Build one pre-filter case per inclusion literal from Get-AiMeterRuleLiteral itself, so a
     # literal added there is covered without a test change.
-    $discoveryScript = Join-Path (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName 'src/scripts/Update-AiMeters.ps1'
+    $discoveryScript = Join-Path (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName 'src/scripts/Update-SkuDetailsAI.ps1'
     $discoveryAst = [System.Management.Automation.Language.Parser]::ParseFile($discoveryScript, [ref]$null, [ref]$null)
     $literalFunction = $discoveryAst.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'Get-AiMeterRuleLiteral' }, $true) | Select-Object -First 1
     . ([scriptblock]::Create($literalFunction.Extent.Text))
@@ -30,9 +30,9 @@ BeforeDiscovery {
     )
 }
 
-Describe 'Update-AiMeters' {
+Describe 'Update-SkuDetailsAI' {
     BeforeAll {
-        $scriptPath = Join-Path (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName 'src/scripts/Update-AiMeters.ps1'
+        $scriptPath = Join-Path (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName 'src/scripts/Update-SkuDetailsAI.ps1'
         $ast = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$null, [ref]$null)
         # Add each new function name to this list as later tasks introduce it.
         $functionNames = @(

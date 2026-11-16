@@ -510,7 +510,7 @@ if ($Csv)
 if ($PowerShell)
 {
     # Datasets that aren't exposed as a PowerShell function: the generated copy would be ASCII and would turn 2.0 into a number
-    $skipPowerShell = @('AiMeters')
+    $skipPowerShell = @('SkuDetailsAI')
 
     # Loop thru all datasets
     Get-ChildItem "$srcDir/*.csv" `
