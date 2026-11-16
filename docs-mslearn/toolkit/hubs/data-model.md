@@ -3,7 +3,7 @@ title: FinOps hubs data model
 description: Learn about the tables and functions available in FinOps hubs to build your own queries, reports, and dashboards.
 author: flanakin
 ms.author: micflan
-ms.date: 10/28/2026
+ms.date: 11/13/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -476,6 +476,8 @@ Examples:
 ## InstanceSizeFlexibility table
 
 The **InstanceSizeFlexibility** table in Power BI and Data Explorer is populated from the [Instance size flexibility open data file](../open-data.md#instance-size-flexibility). This table is used to identify reservation-eligible SKUs that share instance size flexibility with a purchased reservation.
+
+In Data Explorer, use the **InstanceSizeFlexibility()** function in the Hub database. It returns the **InstanceSizeFlexibilityGroup**, **ArmSkuName**, and **Ratio** columns from the open data file. **ArmSkuName** keeps its published casing, so use `=~` or normalize the casing on both sides before you use it in a `lookup` or `join`.
 
 <br>
 

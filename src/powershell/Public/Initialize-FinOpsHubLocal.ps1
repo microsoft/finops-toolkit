@@ -183,6 +183,13 @@ function Initialize-FinOpsHubLocal
                 # The emulator's first external data read after setup can return no rows without
                 # raising an error. Load, verify the tables filled, and retry before giving up.
                 $openDataTables = @('PricingUnits', 'Regions', 'ResourceTypes', 'Services')
+
+                # Releases pinned through -ReleaseUri may predate this table, so only verify it when the script loads it.
+                if ($openDataScript -like '*.set-or-replace InstanceSizeFlexibility *')
+                {
+                    $openDataTables += 'InstanceSizeFlexibility'
+                }
+
                 $maxAttempts = 5
                 for ($attempt = 1; $attempt -le $maxAttempts; $attempt++)
                 {
