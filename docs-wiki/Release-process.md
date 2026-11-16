@@ -85,6 +85,8 @@ Once the above requirements have been met, the feature branch can be merged into
       ./Publish-Toolkit "finops-hub|governance-workbook|optimization-workbook" -Build
       ```
 
+      > _For Azure Quickstart Templates, add `-DeploymentName <deployment> -CorrelationId <id>` again. If the template changed, deploy it again first and use the new deployment. Otherwise, `metadata.json` keeps the old test deployment and the repo rejects the PR._
+
    6. Switch to the target repo folder and verify your changes were applied correctly.
    7. Commit and push your changes.
    8. Return to the PR URL and publish the PR.

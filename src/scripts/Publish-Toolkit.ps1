@@ -30,7 +30,7 @@
     Optional. Azure Quickstart Templates only. Correlation ID of a successful Azure deployment of the template being published. Written to testResult in metadata.json. Requires -DeploymentName and a single template.
 
     .PARAMETER DeploymentName
-    Optional. Azure Quickstart Templates only. Name of the successful Azure deployment of the template being published. Written to testResult in metadata.json. Requires -CorrelationId and a single template.
+    Optional. Azure Quickstart Templates only. Name of the successful Azure deployment of the template being published. Written to testResult in metadata.json. Requires -CorrelationId and a single template. Up to 64 letters, numbers, periods, underscores, hyphens, and parentheses, like an Azure deployment name.
 
     .EXAMPLE
     ./Publish-Toolkit "finops-hub"
@@ -68,7 +68,7 @@ Param(
     [switch]$Build,
     [Alias("Commit")][switch]$Branch,
     [ValidatePattern('^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$')][string]$CorrelationId,
-    [string]$DeploymentName
+    [ValidatePattern('^[a-zA-Z0-9._()-]{1,64}$')][string]$DeploymentName
 )
 
 # Use the debug flag from common parameters to determine whether to run in debug mode
@@ -116,6 +116,12 @@ if ([bool]$CorrelationId -ne [bool]$DeploymentName)
     return
 }
 
+if ($CorrelationId -and $Template -eq "*")
+{
+    Write-Error "A test deployment belongs to one template. Specify a single template with -CorrelationId and -DeploymentName."
+    return
+}
+
 # Build toolkit if requested
 if ($Build -and $Template -ne "advisor-workbook")
 {
@@ -124,6 +130,17 @@ if ($Build -and $Template -ne "advisor-workbook")
 
 $rootDir = "$PSScriptRoot/../.."
 $relDir = "$rootDir/release"
+
+# Find the release folders to publish
+function Get-TemplateFolder([string]$releaseDir, [string]$templateName, [switch]$Exact)
+{
+    if ($Exact)
+    {
+        # A test deployment belongs to one template. Don't match other templates that share its prefix, like finops-hub-copilot.
+        return @(Get-ChildItem $releaseDir -Directory | Where-Object Name -eq $templateName)
+    }
+    return @(Get-ChildItem "$releaseDir/$templateName*" -Directory)
+}
 
 # Find the local repo folder
 function Find-Repo($config, [string]$templateName)
@@ -464,10 +481,10 @@ else
 {
     # Loop thru templates
     Write-Verbose "Checking release directory: $relDir/$Template*"
-    $templateDirs = @(Get-ChildItem "$relDir/$Template*" -Directory)
-    if ($CorrelationId -and $templateDirs.Count -gt 1)
+    $templateDirs = Get-TemplateFolder $relDir $Template -Exact:([bool]$CorrelationId)
+    if ($CorrelationId -and -not $templateDirs)
     {
-        Write-Error "A test deployment belongs to one template. Specify a single template with -CorrelationId and -DeploymentName."
+        Write-Error "Template folder not found: $relDir/$Template. Build the template first or add -Build."
         return
     }
     $templateDirs `

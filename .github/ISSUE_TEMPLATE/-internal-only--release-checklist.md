@@ -140,6 +140,8 @@ Status icons:
 
 ## 🔜 Publish release
 
+> _Run the `Publish-Toolkit.ps1` commands from the `<root>/src/scripts` folder. The script calls other scripts in that folder by relative path._
+
 - [ ] Publish the PowerShell module by running the [Publish PowerShell action](https://github.com/microsoft/finops-toolkit/actions/workflows/publish.yml).
 - [ ] Submit PR to publish docs to the Microsoft Docs repo.
   - [ ] Update your fork and local clone (main branch) of the Microsoft Docs repo.
@@ -171,7 +173,8 @@ Status icons:
     - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "finops-hub" -Commit -DeploymentName <deployment> -CorrelationId <id>`
     - Complete PR template requirements and set the name to `FinOps toolkit v#.# – FinOps hub`.
     - Review the code that's changed in the PR, verify that the changelog covers everything, and update as needed.
-    - If you make changes, re-publish without committing: `<root>/src/scripts/Publish-Toolkit.ps1 "finops-hub" -Build`
+    - If you make changes, re-publish without committing: `<root>/src/scripts/Publish-Toolkit.ps1 "finops-hub" -Build -DeploymentName <deployment> -CorrelationId <id>`
+      > _If the template changed, deploy it again first and use the new deployment name and correlation ID. Otherwise, `metadata.json` keeps the old test deployment and the repo rejects the PR._
     - Switch to the target repo folder and verify your changes were applied correctly.
     - Commit and push your changes.
     - Return to the PR URL and publish the PR.
@@ -179,7 +182,8 @@ Status icons:
     - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "governance-workbook" -Commit -DeploymentName <deployment> -CorrelationId <id>`
     - Complete PR template requirements and set the name to `FinOps toolkit v#.# – Governance workbook`.
     - Review the code that's changed in the PR, verify that the changelog covers everything, and update as needed.
-    - If you make changes, re-publish without committing: `<root>/src/scripts/Publish-Toolkit.ps1 "governance-workbook" -Build`
+    - If you make changes, re-publish without committing: `<root>/src/scripts/Publish-Toolkit.ps1 "governance-workbook" -Build -DeploymentName <deployment> -CorrelationId <id>`
+      > _If the template changed, deploy it again first and use the new deployment name and correlation ID. Otherwise, `metadata.json` keeps the old test deployment and the repo rejects the PR._
     - Switch to the target repo folder and verify your changes were applied correctly.
     - Commit and push your changes.
     - Return to the PR URL and publish the PR.
@@ -187,7 +191,8 @@ Status icons:
     - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "optimization-workbook" -Commit -DeploymentName <deployment> -CorrelationId <id>`
     - Complete PR template requirements and set the name to `FinOps toolkit v#.# – Optimization workbook`.
     - Review the code that's changed in the PR, verify that the changelog covers everything, and update as needed.
-    - If you make changes, re-publish without committing: `<root>/src/scripts/Publish-Toolkit.ps1 "optimization-workbook" -Build`
+    - If you make changes, re-publish without committing: `<root>/src/scripts/Publish-Toolkit.ps1 "optimization-workbook" -Build -DeploymentName <deployment> -CorrelationId <id>`
+      > _If the template changed, deploy it again first and use the new deployment name and correlation ID. Otherwise, `metadata.json` keeps the old test deployment and the repo rejects the PR._
     - Switch to the target repo folder and verify your changes were applied correctly.
     - Commit and push your changes.
     - Return to the PR URL and publish the PR.
