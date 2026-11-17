@@ -24,9 +24,8 @@
 // a key regression (that is covered by a content assertion in HubsReservationPriceBackfill.Tests.ps1). It also does not
 // model the month segment of the key, the x_SkuPriceType filter, or several price rows sharing one key.
 //
-// NOTE: this harness intentionally does not model x_BillingProfileId format (ARM path vs bare ID). Whether the
-// Costs and Prices transforms need to agree on that format is a separate, unconfirmed question -- see the test
-// file docstring.
+// NOTE: this harness does not model x_BillingProfileId format (ARM path vs short ID); that normalization (#2356) is
+// covered by a content assertion in HubsReservationPriceBackfill.Tests.ps1.
 //
 // How to run: paste into any Kusto database (ADX or Fabric eventhouse; no table access required).
 //   - PASS = the query returns 0 rows.

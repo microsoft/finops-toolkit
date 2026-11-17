@@ -138,6 +138,8 @@
           href: toolkit/hubs/configure-recommendations.md
         - name: Configure dashboards
           href: toolkit/hubs/configure-dashboards.md
+        - name: Configure row-level security
+          href: toolkit/hubs/configure-row-level-security.md
         - name: Configure AI agents
           href: toolkit/hubs/configure-ai.md
         - name: Configure AI in Copilot Studio
