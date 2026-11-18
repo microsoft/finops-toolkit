@@ -489,11 +489,8 @@ InModuleScope 'FinOpsToolkit' {
                 } -Times 1
             }
 
-            It 'Should not pass disableStorageSharedKeyAccess when targeting a version older than 16.0' {
-                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -DisableStorageSharedKeyAccess -Version '15.0' } | Should -Not -Throw
-                Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
-                    -not $TemplateParameterObject.ContainsKey('disableStorageSharedKeyAccess')
-                } -Times 1
+            It 'Should throw when -DisableStorageSharedKeyAccess targets a version older than 16.0' {
+                { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -DisableStorageSharedKeyAccess -Version '15.0' } | Should -Throw '*requires hub template version 16.0*'
             }
         }
     }

@@ -288,6 +288,12 @@ function Deploy-FinOpsHub
             throw "NAT Gateway / private network mode requires hub template version 15.0 or later. Current version: $Version"
         }
 
+        # Disabling Shared Key access requires hub template version 16.0 or later
+        if ($DisableStorageSharedKeyAccess -and $Version -ne 'latest' -and $templateVersion -lt '16.0')
+        {
+            throw "-DisableStorageSharedKeyAccess requires hub template version 16.0 or later. Current version: $Version"
+        }
+
         # Key Vault RBAC authorization requires hub template version 16.0 or later
         if ($EnableKeyVaultRbacAuthorization -and $Version -ne 'latest' -and $templateVersion -lt '16.0')
         {
