@@ -217,7 +217,7 @@ Official Microsoft documentation for FinOps and the FinOps toolkit. Source: [lea
 | [finops-toolkit-overview.md](references/docs-mslearn/toolkit/finops-toolkit-overview.md) | FinOps toolkit overview |
 | [changelog.md](references/docs-mslearn/toolkit/changelog.md) | Toolkit changelog |
 | [roadmap.md](references/docs-mslearn/toolkit/roadmap.md) | Toolkit roadmap |
-| [open-data.md](references/docs-mslearn/toolkit/open-data.md) | Open data (pricing units, regions, services, resource types) |
+| [open-data.md](references/docs-mslearn/toolkit/open-data.md) | Open data (pricing units, regions, services, resource types, commitment discount eligibility, instance size flexibility) |
 | [data-lake-storage-connectivity.md](references/docs-mslearn/toolkit/data-lake-storage-connectivity.md) | Data lake storage connectivity |
 
 ### FinOps hubs
