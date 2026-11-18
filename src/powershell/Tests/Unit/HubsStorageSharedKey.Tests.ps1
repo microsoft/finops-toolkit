@@ -34,7 +34,7 @@ Describe 'HubsStorageSharedKey' {
     }
 
     It 'Private-mode script storage account always allows Shared Key' {
-        $m = [regex]::Match($infra, "resource scriptStorageAccount '[^']+' = [\s\S]*?\n}\n")
+        $m = [regex]::Match($infra, "resource scriptStorageAccount '[^']+' = [\s\S]*?\r?\n}\r?\n")
         $m.Success | Should -BeTrue
         $m.Value | Should -Match 'allowSharedKeyAccess:\s*true'
         $m.Value | Should -Not -Match 'disableStorageSharedKeyAccess'
