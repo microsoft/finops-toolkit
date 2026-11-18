@@ -46,6 +46,9 @@ _Released November 2026_
 
 - **Added**
   - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+  - Added an opt-in `disableStorageSharedKeyAccess` parameter to disable Shared Key (storage account key) authentication on hub storage accounts ([#2312](https://github.com/microsoft/finops-toolkit/issues/2312)).
+    - Data Factory authenticates with managed identity and RBAC, so data ingestion isn't affected.
+    - Defaults to false to avoid changing the authentication model on existing deployments.
   - Added optional guidance to scope FinOps hub data by team with row-level security, so each team sees only its own scopes in KQL queries, dashboards, and AI agents ([#2374](https://github.com/microsoft/finops-toolkit/pull/2374)).
   - Added the [instance size flexibility](open-data.md#instance-size-flexibility) open data to the Data Explorer database. The hub initialization pipeline loads it into a new `InstanceSizeFlexibility` table, and the `InstanceSizeFlexibility()` function exposes it in the Hub database.
 - **Changed**
@@ -73,6 +76,7 @@ _Released November 2026_
 
 - **Added**
   - Added a `-EnableKeyVaultRbacAuthorization` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that moves the hub Key Vault from access policies to Azure RBAC. Requires hub template version 16.0 or later ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+  - Added a `-DisableStorageSharedKeyAccess` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that disables Shared Key authentication on hub storage accounts. Requires hub template version 16.0 or later ([#2312](https://github.com/microsoft/finops-toolkit/issues/2312)).
 
 <br>
 
