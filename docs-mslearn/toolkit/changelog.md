@@ -68,6 +68,8 @@ _Released November 2026_
 
 - **Added**
   - Added Export to Excel to the storage queries in the optimization workbook.
+- **Changed**
+  - Clarified in the Azure Hybrid Benefit workbook tile text that each VM counts as at least 8 cores, so the total can exceed the sum of vCPUs ([#2067](https://github.com/microsoft/finops-toolkit/issues/2067)).
 
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
