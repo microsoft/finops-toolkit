@@ -2,7 +2,7 @@
 ms.service: finops
 ms.author: flanakin
 author: flanakin
-ms.date: 04/01/2026
+ms.date: 11/18/2026
 ms.topic: how-to
 title: Configure remote hubs
 description: Learn how to configure FinOps hubs to collect cost data across multiple Azure tenants and clouds using remote hub functionality.
@@ -49,6 +49,10 @@ In a remote hub configuration:
    - Select **Settings** > **Endpoints**
    - Copy the **Data Lake storage** URL (format: `https://storageaccount.dfs.core.windows.net/`)
 4. Get the storage account access key:
+
+   > [!IMPORTANT]
+   > Remote hub ingestion authenticates with the primary hub's storage account key. Don't deploy the primary hub with Shared Key access disabled (`disableStorageSharedKeyAccess`).
+
    - Navigate to **Security + networking** > **Access keys**
    - Copy **key1** or **key2** value
 
