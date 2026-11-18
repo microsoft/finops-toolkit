@@ -68,7 +68,7 @@ function Get-CommandCategory([string] $CommandName)
     {
         return @{ Folder = 'hubs'; FeaturePrefix = 'Hubs' }
     }
-    elseif (@('PricingUnit', 'Region', 'ResourceType', 'Service') -contains $noun)
+    elseif (@('CommitmentDiscountEligibility', 'InstanceSizeFlexibility', 'PricingUnit', 'Region', 'ResourceType', 'Service') -contains $noun)
     {
         return @{ Folder = 'data'; FeaturePrefix = 'OpenData' }
     }
