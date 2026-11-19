@@ -31,6 +31,9 @@ param arguments string = ''
 @description('Optional. Environment variables to use for the deployment script.')
 param environmentVariables EnvironmentVariable[] = []
 
+@description('Optional. Forces the script to run again when the value changes. Default = empty (only reruns when properties change).')
+param forceUpdateTag string = ''
+
 
 //==============================================================================
 // Variables
@@ -117,6 +120,7 @@ resource script 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
     scriptContent: scriptContent
     arguments: arguments
     environmentVariables: environmentVariables
+    forceUpdateTag: empty(forceUpdateTag) ? null : forceUpdateTag
   }
 }
 
@@ -125,4 +129,5 @@ resource script 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
 // Outputs
 //==============================================================================
 
-// None
+@description('Values the script set in $DeploymentScriptOutputs. Empty if the script did not set any.')
+output scriptOutputs object = script.properties.?outputs ?? {}

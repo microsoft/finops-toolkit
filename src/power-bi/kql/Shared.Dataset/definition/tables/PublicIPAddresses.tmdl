@@ -210,10 +210,10 @@ table PublicIPAddresses
 				      ['properties.ipAddress'] = properties.ipAddress,
 				      ['properties.ipConfiguration'] = properties.ipConfiguration,
 				      ['properties.ipTags'] = properties.ipTags
-				  " & ftk_DemoFilter(),
-				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  ",
+				  Source = ftk_QueryARG(query, 5),
 				  NullHandling =
-				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+				    if Source = null then
 							#table(
 								{ "id", "name", "location", "resourceGroup", "properties.provisioningState", "properties.resourceGuid", "properties.idleTimeoutInMinutes", "properties.publicIPAllocationMethod", "properties.publicIPAddressVersion", "properties.ipAddress", "properties.ipConfiguration", "properties.ipTags" },
 								{}

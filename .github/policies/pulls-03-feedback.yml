@@ -32,6 +32,17 @@ configuration:
                       reviewState: Commented
                   - isActivitySender:
                       issueAuthor: False
+              - and:
+                  - payloadType: Issue_Comment
+                  - isAction:
+                      action: Created
+                  - not:
+                      commentContains:
+                        pattern: '#needs-review'
+                  - isActivitySender:
+                      issueAuthor: False
+                  - isPullRequest
+                  - isOpen
           - not:
               targetsBranch:
                 branch: main

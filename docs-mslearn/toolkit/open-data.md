@@ -4,7 +4,7 @@ description: Use open data to normalize and enhance your FinOps reporting, ensur
 ms.topic: concept-article
 author: flanakin
 ms.author: micflan
-ms.date: 04/04/2026
+ms.date: 10/12/2026
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
@@ -162,19 +162,49 @@ Sample data:
 | MeterId                              | x_CommitmentDiscountSpendEligibility | x_CommitmentDiscountUsageEligibility |
 | ------------------------------------ | ------------------------------------ | ------------------------------------ |
 | 00003b45-e996-5b04-b673-a2db710f9237 | Eligible                             | Eligible                             |
-| 00020329-e657-5687-9d1a-0be9876e5116 | Eligible                             | Not Eligible                         |
-| 0003c425-b1df-551f-a855-9c95a08cb4ae | Not Eligible                         | Eligible                             |
+| 00020329-e657-5687-9d1a-0be9876e5116 | Not Eligible                         | Eligible                             |
+| 0003c425-b1df-551f-a855-9c95a08cb4ae | Eligible                             | Not Eligible                         |
 
 A few important notes about the data:
 
-- `x_CommitmentDiscountSpendEligibility` indicates whether the meter has Reserved Instance pricing.
-- `x_CommitmentDiscountUsageEligibility` indicates whether the meter has Savings Plan pricing.
+- `x_CommitmentDiscountSpendEligibility` indicates whether the meter has savings plan pricing. FOCUS classifies a savings plan as a spend commitment because you commit to an amount of money.
+- `x_CommitmentDiscountUsageEligibility` indicates whether the meter has reservation pricing. FOCUS classifies a reservation as a usage commitment because you commit to a quantity of usage.
 - Only primary meter regions are included to avoid duplicates.
 - Data is updated weekly via a GitHub Actions workflow.
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CommitmentDiscountEligibility.csv)
+> [!div class="nextstepaction"]
+> [See PowerShell](powershell/data/get-finopscommitmentdiscounteligibility.md)
+<!-- prettier-ignore-end -->
+
+<br>
+
+## Instance size flexibility
+
+Instance size flexibility (ISF) lets a reservation apply across multiple SKUs in the same flexibility group, weighted by a ratio. The instance size flexibility file maps each ARM SKU to its flexibility group and ratio, sourced from the [Azure Reservations Catalogs API](/azure/cost-management-billing/reservations/instance-size-flexibility#extract-instance-size-flexibility-ratios-using-azure-catalogs-api). It replaces the static ISF ratio files that were previously hosted on `ccmstorageprod.blob.core.windows.net`, which Microsoft is retiring.
+
+Sample data:
+
+| InstanceSizeFlexibilityGroup         | ArmSkuName        | Ratio |
+| ------------------------------------ | ----------------- | ----- |
+| Virtual Machines Dadsv6-series Linux | Standard_D2ads_v6 | 1     |
+| Virtual Machines Dadsv6-series Linux | Standard_D4ads_v6 | 2     |
+| Virtual Machines Dadsv6-series Linux | Standard_D8ads_v6 | 4     |
+
+A few important notes about the data:
+
+- It covers Virtual Machines, Redis Cache, and Dedicated Host across every physical Azure region.
+- `ArmSkuName` is unique across the file and can be used as a join key on its own.
+- Ratios are normalized so the smallest SKU in each flexibility group has a ratio of `1`. Compare ratios only within a flexibility group.
+- Data is updated weekly via a GitHub Actions workflow and always reflects the current API catalog, so retired SKUs are removed automatically.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/InstanceSizeFlexibility.csv)
+> [!div class="nextstepaction"]
+> [See PowerShell](powershell/data/get-finopsinstancesizeflexibility.md)
 <!-- prettier-ignore-end -->
 
 <br>
