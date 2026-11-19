@@ -3,7 +3,7 @@ title: FOCUS conformance summary
 description: Summary of FOCUS conformance gaps in the Microsoft Cost Management FOCUS dataset with applicable workarounds.
 author: flanakin
 ms.author: micflan
-ms.date: 07/15/2026
+ms.date: 11/19/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-learning-resources
