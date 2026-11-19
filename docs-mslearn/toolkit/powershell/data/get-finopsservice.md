@@ -23,16 +23,16 @@ Please note that both ConsumedService and ResourceType are required to find a un
 
 ```powershell
 Get-FinOpsService `
-    [[‑ConsumedService] <string>] `
-    [[‑ResourceId] <string>] `
-    [[‑ResourceType] <string>] `
-    [‑ServiceName <string>] `
-    [‑ServiceCategory <string>] `
-    [‑ServiceSubcategory <string>] `
-    [‑ServiceModel <string>] `
-    [‑Environment <string>] `
-    [‑PublisherName <string>] `
-    [‑PublisherCategory <string>]
+    [[-ConsumedService] <string>] `
+    [[-ResourceId] <string>] `
+    [[-ResourceType] <string>] `
+    [-ServiceName <string>] `
+    [-ServiceCategory <string>] `
+    [-ServiceSubcategory <string>] `
+    [-ServiceModel <string>] `
+    [-Environment <string>] `
+    [-PublisherName <string>] `
+    [-PublisherCategory <string>]
 ```
 
 <br>

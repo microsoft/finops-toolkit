@@ -21,8 +21,8 @@ The **Get-FinOpsResourceType** command returns an Azure resource type with reada
 
 ```powershell
 Get-FinOpsResourceType `
-    [[‑ResourceType] <string>] `
-    [‑IsPreview <bool>]
+    [[-ResourceType] <string>] `
+    [-IsPreview <bool>]
 ```
 
 <br>

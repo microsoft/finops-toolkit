@@ -25,14 +25,14 @@ Database storage paths assume the emulator's default data root (/kustodata), mat
 
 ```powershell
 Initialize-FinOpsHubLocal `
-    [[‑ClusterUri] <string>] `
-    [[‑ReleaseUri] <string>] `
-    [[‑RawRetentionInDays] <int>] `
-    [[‑OpenDataPath] <string>] `
-    [‑SkipOpenData] `
-    [[‑Destination] <string>] `
-    [[‑TimeoutSec] <int>] `
-    [‑WhatIf] `
+    [[-ClusterUri] <string>] `
+    [[-ReleaseUri] <string>] `
+    [[-RawRetentionInDays] <int>] `
+    [[-OpenDataPath] <string>] `
+    [-SkipOpenData] `
+    [[-Destination] <string>] `
+    [[-TimeoutSec] <int>] `
+    [-WhatIf] `
     [<CommonParameters>]
 ```
 

@@ -21,8 +21,8 @@ The **Get-FinOpsHub** command gets details about a FinOps hub instance using the
 
 ```powershell
 Get-FinOpsHub `
-    [[‑Name] <string>] `
-    [‑ResourceGroupName <string>] `
+    [[-Name] <string>] `
+    [-ResourceGroupName <string>] `
     [<CommonParameters>]
 ```
 

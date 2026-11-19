@@ -23,10 +23,10 @@ For more information about granting roles to service principals, see [Assign Ent
 
 ```powershell
 Add-FinOpsServicePrincipal `
-    [‑ObjectId] <string> `
-    [‑TenantId] <string> `
-    [‑BillingAccountId] <string> `
-    [[‑DepartmentId] <string>]
+    [-ObjectId] <string> `
+    [-TenantId] <string> `
+    [-BillingAccountId] <string> `
+    [[-DepartmentId] <string>]
 ```
 
 <br>

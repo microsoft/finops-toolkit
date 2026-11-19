@@ -23,7 +23,7 @@ To register a resource provider, you must have Contributor access (or the /regis
 
 ```powershell
 Register-FinOpsHubProviders `
-    [‑WhatIf] `
+    [-WhatIf] `
     [<CommonParameters>]
 ```
 

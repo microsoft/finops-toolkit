@@ -21,7 +21,7 @@ The **Initialize-FinOpsHubDeployment** command performs any initialization tasks
 
 ```powershell
 Initialize-FinOpsHubDeployment `
-    [‑WhatIf] `
+    [-WhatIf] `
     [<CommonParameters>]
 ```
 

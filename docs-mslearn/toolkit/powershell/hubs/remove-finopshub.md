@@ -23,20 +23,20 @@ The command returns a boolean value indicating whether all resources were succes
 
 ```powershell
 Remove-FinOpsHub `
-    ‑Name <string> `
-    [‑ResourceGroupName <string>] `
-    [‑KeepStorageAccount] `
-    [‑Force] `
-    [‑WhatIf] `
+    -Name <string> `
+    [-ResourceGroupName <string>] `
+    [-KeepStorageAccount] `
+    [-Force] `
+    [-WhatIf] `
     [<CommonParameters>]
 ```
 
 ```powershell
 Remove-FinOpsHub `
-    ‑InputObject <PSObject> `
-    [‑KeepStorageAccount] `
-    [‑Force] `
-    [‑WhatIf] `
+    -InputObject <PSObject> `
+    [-KeepStorageAccount] `
+    [-Force] `
+    [-WhatIf] `
     [<CommonParameters>]
 ```
 

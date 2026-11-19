@@ -28,11 +28,11 @@ This command was tested with the following API versions:
 
 ```powershell
 Remove-FinOpsCostExport `
-    [‑Name] <string> `
-    [‑Scope] <string> `
-    [‑RemoveData] `
-    [[‑ApiVersion] <string>] `
-    [‑WhatIf] `
+    [-Name] <string> `
+    [-Scope] <string> `
+    [-RemoveData] `
+    [[-ApiVersion] <string>] `
+    [-WhatIf] `
     [<CommonParameters>]
 ```
 

@@ -24,9 +24,9 @@ The **Get-FinOpsPricingUnit** command returns a pricing unit (also known as unit
 
 ```powershell
 Get-FinOpsPricingUnit `
-    [[‑UnitOfMeasure] <string>] `
-    [‑DistinctUnits <string>] `
-    [‑BlockSize <double>]
+    [[-UnitOfMeasure] <string>] `
+    [-DistinctUnits <string>] `
+    [-BlockSize <double>]
 ```
 
 <br>

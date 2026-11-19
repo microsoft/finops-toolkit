@@ -21,9 +21,9 @@ The **Get-FinOpsCommitmentDiscountEligibility** command returns a pre-computed l
 
 ```powershell
 Get-FinOpsCommitmentDiscountEligibility `
-    [[‑MeterId] <string>] `
-    [‑SpendEligibility <string>] `
-    [‑UsageEligibility <string>]
+    [[-MeterId] <string>] `
+    [-SpendEligibility <string>] `
+    [-UsageEligibility <string>]
 ```
 
 <br>

@@ -21,10 +21,10 @@ The **Get-FinOpsRegion** command returns an Azure region ID and name based on th
 
 ```powershell
 Get-FinOpsRegion `
-    [[‑ResourceLocation] <string>] `
-    [‑RegionId <string>] `
-    [‑RegionName <string>] `
-    [‑IncludeResourceLocation]
+    [[-ResourceLocation] <string>] `
+    [-RegionId <string>] `
+    [-RegionName <string>] `
+    [-IncludeResourceLocation]
 ```
 
 <br>
