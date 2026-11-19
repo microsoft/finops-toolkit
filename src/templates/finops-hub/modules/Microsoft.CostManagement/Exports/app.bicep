@@ -332,7 +332,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
           typeProperties: {
             variableName: 'hasNoRows'
             value: {
-              value: '@or(equals(activity(\'Read Manifest\').output.firstRow.blobCount, null), equals(activity(\'Read Manifest\').output.firstRow.blobCount, 0), and(contains(activity(\'Read Manifest\').output.firstRow, \'dataRowCount\'), or(equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, null), equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, 0))))'
+              value: '@or(equals(activity(\'Read Manifest\').output.firstRow.blobCount, null), equals(activity(\'Read Manifest\').output.firstRow.blobCount, 0), and(contains(activity(\'Read Manifest\').output.firstRow, \'dataRowCount\'), equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, 0)))'
               type: 'Expression'
             }
           }
@@ -1109,6 +1109,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
               }
             }
             fieldList: [
+              'exists'
               'childItems'
             ]
             storeSettings: {
@@ -1128,14 +1129,14 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
             {
               activity: 'Get Existing Parquet Files'
               dependencyConditions: [
-                'Completed'
+                'Succeeded'
               ]
             }
           ]
           userProperties: []
           typeProperties: {
             items: {
-              value: '@if(contains(activity(\'Get Existing Parquet Files\').output, \'childItems\'), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
+              value: '@if(and(activity(\'Get Existing Parquet Files\').output.exists, contains(activity(\'Get Existing Parquet Files\').output, \'childItems\')), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
               type: 'Expression'
             }
             condition: {

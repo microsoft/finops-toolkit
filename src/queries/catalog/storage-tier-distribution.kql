@@ -48,7 +48,7 @@ bucketedCosts
     EffectiveCost = todouble(sum(EffectiveCost)),
     GBMonths = todouble(sum(GBMonths))
     by BillingCurrency, TierBucket
-| join kind=inner totalsByCurrency on BillingCurrency
+| lookup kind=inner (totalsByCurrency) on BillingCurrency
 | project
     BillingCurrency,
     TierBucket,

@@ -1,9 +1,15 @@
 table Resources
 	lineageTag: ec447c64-6e55-41d8-a5ea-a43adab5dc79
 
+	column x_ResourceGroupId = "/subscriptions/" & Resources[subscriptionId] & "/resourcegroups/" & Resources[resourceGroup]
+		lineageTag: dfd516fd-8d25-441f-93a3-190abe05d572
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
 	column id
 		dataType: string
-		lineageTag: 6c849866-bafa-4cdf-a863-0a5831052c26
+		lineageTag: 3e3f2af4-0c29-4314-bb73-2f2814bce3d0
 		summarizeBy: none
 		sourceColumn: id
 
@@ -11,7 +17,7 @@ table Resources
 
 	column name
 		dataType: string
-		lineageTag: d4a137b0-b83b-4750-8515-efc2bd5aecd0
+		lineageTag: df96413f-3717-4f22-8e50-69d5e667c403
 		summarizeBy: none
 		sourceColumn: name
 
@@ -19,7 +25,7 @@ table Resources
 
 	column type
 		dataType: string
-		lineageTag: 1b2381eb-97e7-4d28-90ab-21ca7571abeb
+		lineageTag: f5eb1b01-e021-4ae0-9a31-6f52efec4801
 		summarizeBy: none
 		sourceColumn: type
 
@@ -27,7 +33,7 @@ table Resources
 
 	column tenantId
 		dataType: string
-		lineageTag: 22020c14-f82a-4ce1-91aa-258318ca95d5
+		lineageTag: f3a1771a-7794-4bf1-bf81-7c046a215b44
 		summarizeBy: none
 		sourceColumn: tenantId
 
@@ -35,7 +41,7 @@ table Resources
 
 	column location
 		dataType: string
-		lineageTag: 94a3783c-937e-4fad-a7bd-7dc286027241
+		lineageTag: 565179fa-8aec-468c-bee1-0442f3a3be54
 		summarizeBy: none
 		sourceColumn: location
 
@@ -43,7 +49,7 @@ table Resources
 
 	column resourceGroup
 		dataType: string
-		lineageTag: bf7f9a12-8b99-43f1-bb81-7df06117afb8
+		lineageTag: d6304358-f530-408f-ba5c-b9de2d9c2be8
 		summarizeBy: none
 		sourceColumn: resourceGroup
 
@@ -51,7 +57,7 @@ table Resources
 
 	column subscriptionId
 		dataType: string
-		lineageTag: 8c7bbeee-c26d-4a1c-9f17-1061d8e43724
+		lineageTag: 2964f864-60c6-47d5-b1b9-cbeebda9e754
 		summarizeBy: none
 		sourceColumn: subscriptionId
 
@@ -59,21 +65,15 @@ table Resources
 
 	column creationTime
 		dataType: string
-		lineageTag: 3313d128-8b39-4fe1-ba22-8e9f6dc24f42
+		lineageTag: 3793d80a-795c-429a-a786-e29e1c04cb0c
 		summarizeBy: none
 		sourceColumn: creationTime
 
 		annotation SummarizationSetBy = Automatic
 
-	column x_ResourceGroupId = "/subscriptions/" & Resources[subscriptionId] & "/resourcegroups/" & Resources[resourceGroup]
-		lineageTag: dfd516fd-8d25-441f-93a3-190abe05d572
-		summarizeBy: none
-
-		annotation SummarizationSetBy = Automatic
-
 	column timeModified
 		dataType: string
-		lineageTag: f9a30d28-b76c-4f48-b909-ae980bbfbc27
+		lineageTag: 1fea57ec-7e6c-4929-84f9-8842192253b1
 		summarizeBy: none
 		sourceColumn: timeModified
 
@@ -91,10 +91,10 @@ table Resources
 				      ['creationTime'] = properties.creationTime,
 				      ['timeModified'] = properties.timeModified
 				    | project id, name, type, tenantId, location, subscriptionId, resourceGroup, creationTime, timeModified
-				  " & ftk_DemoFilter(),
-				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  ",
+				  Source = ftk_QueryARG(query),
 				  NullHandling =
-				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+				    if Source = null then
 				      #table(
 				        { "id", "name", "type", "tenantId", "location", "subscriptionId", "resourceGroup", "creationTime", "timeModified" },
 				        {}
