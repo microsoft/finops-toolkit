@@ -52,6 +52,7 @@ _Released November 2026_
   - Documented that two exports of the same dataset and scope that cover the same month replace each other's data with no error. For guidance, see [Use one export per dataset and scope](hubs/configure-scopes.md#use-one-export-per-dataset-and-scope) ([#2383](https://github.com/microsoft/finops-toolkit/issues/2383)).
   - Updated the FinOps hub cost estimate to ~$330/mo for a default Data Explorer hub (was $120/mo) in the deployment UI and docs, based on measured costs that include the managed VM, load balancer, storage, and public IP. Updated the Data Explorer SKU price estimates in the deployment UI dropdown to current Azure retail pricing ([#2229](https://github.com/microsoft/finops-toolkit/issues/2229)).
 - **Fixed**
+  - Fixed FOCUS 1.2 and 1.2-preview rows being flagged `LegacyFocusVersion` in `x_SourceChanges`. Only versions older than 1.2 are flagged now ([#2384](https://github.com/microsoft/finops-toolkit/issues/2384)).
   - Fixed Azure Backup charges on Recovery Services vaults being labeled as Azure Site Recovery ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
     - Backup charges now map to `ServiceName` "Azure Backup" with `ServiceCategory` "Storage" and `ServiceSubcategory` "Backup Storage" for FOCUS, actual, and amortized cost exports.
     - Already-ingested rows keep the old label until they're reingested.

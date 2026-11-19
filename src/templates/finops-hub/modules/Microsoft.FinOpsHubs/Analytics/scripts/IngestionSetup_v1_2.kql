@@ -392,7 +392,7 @@ Costs_transform_v1_2()
         ''
     ))
     // Append version check error code
-    | extend x_SourceChanges = iff(x_SourceVersion == '1.0', x_SourceChanges,
+    | extend x_SourceChanges = iff(x_SourceVersion startswith '1.2', x_SourceChanges,
         strcat(x_SourceChanges, iff(isempty(x_SourceChanges), '', ','), iff(x_SourceVersion == '', 'UnknownFocusVersion', 'LegacyFocusVersion'))
     )
     //
