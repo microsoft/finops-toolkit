@@ -26,10 +26,26 @@
     .PARAMETER Branch
     Optional. Indicates whether the changes should be committed to a new branch in the Git repo. Alias: Commit. Default = false.
 
+    .PARAMETER CorrelationId
+    Optional. Azure Quickstart Templates only. Correlation ID of a successful Azure deployment of the template being published. Written to testResult in metadata.json. Requires -DeploymentName and a single template.
+
+    .PARAMETER DeploymentName
+    Optional. Azure Quickstart Templates only. Name of the successful Azure deployment of the template being published. Written to testResult in metadata.json. Requires -CorrelationId and a single template. Up to 64 letters, numbers, periods, underscores, hyphens, and parentheses, like an Azure deployment name.
+
     .EXAMPLE
     ./Publish-Toolkit "finops-hub"
 
     Publishes the FinOps hub template to the Azure Quickstart Templates repo.
+
+    .EXAMPLE
+    ./Publish-Toolkit "finops-hub" -CorrelationId "00000000-0000-0000-0000-000000000000" -DeploymentName "ftk-finops-hub"
+
+    Publishes the FinOps hub template to the Azure Quickstart Templates repo and records the test deployment that the repo requires in metadata.json.
+
+    .EXAMPLE
+    ./Publish-Toolkit "advisor-workbook"
+
+    Updates the Azure Advisor Cost Optimization workbook in the Application Insights Workbooks repo from the optimization workbook source.
 
     .EXAMPLE
     ./Publish-Toolkit "resourcegroup-scheduled-action" -Build
@@ -43,14 +59,16 @@
 #>
 Param(
     [Parameter(Position = 0)]
-    [ValidateSet("*", "docs", "finops-hub", "finops-workbooks", "governance-workbook", "optimization-workbook")]
+    [ValidateSet("*", "advisor-workbook", "docs", "finops-hub", "finops-workbooks", "governance-workbook", "optimization-workbook")]
     [string]$Template = "*",
     [string]$QuickstartRepo = "azure-quickstart-templates",
     [string]$RegistryRepo = "bicep-registry-modules",
     [string]$AppInsightsRepo = "Application-Insights-Workbooks",
     [string]$DocsRepo = "partner-center-pr",
     [switch]$Build,
-    [Alias("Commit")][switch]$Branch
+    [Alias("Commit")][switch]$Branch,
+    [ValidatePattern('^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$')][string]$CorrelationId,
+    [ValidatePattern('^[a-zA-Z0-9._()-]{1,64}$')][string]$DeploymentName
 )
 
 # Use the debug flag from common parameters to determine whether to run in debug mode
@@ -64,6 +82,8 @@ $repoConfig = @{
         possibleNames = @($QuickstartRepo, 'azure-quickstart-templates', 'aqt')
         relativePath  = "quickstarts/microsoft.costmanagement"
         requiredFiles = @("main.bicep", "metadata.json", "README.md", "azuredeploy.parameters.json")
+        # The repo rejects a changed template unless metadata.json has today's dateUpdated and a testResult from a real deployment
+        testResult    = $true
     }
     brm         = @{
         org           = 'Azure'
@@ -73,11 +93,13 @@ $repoConfig = @{
         requiredFiles = @("main.bicep", "main.json", "metadata.json", "README.md", "version.json")
     }
     appInsights = @{
-        org           = 'Azure'
+        org           = 'microsoft'
         mainBranch    = 'master'
         possibleNames = @($AppInsightsRepo, 'Application-Insights-Workbooks')
         relativePath  = "Workbooks/Azure Advisor/Cost Optimization"
-        requiredFiles = @("CostOptimization.workbook", "Storage.workbook", "Networking.workbook", "Compute.workbook", "AHB.workbook", "Reservations.workbook")
+        requiredFiles = @("CostOptimization.workbook", "Storage/Storage.workbook", "Networking/Networking.workbook", "Compute/Compute.workbook", "AHB/AHB.workbook", "Reservations/Reservations.workbook")
+        # The folder also holds files this repo doesn't own, so only replace workbooks that are already there
+        existingOnly  = '*.workbook'
     }
     pc          = @{
         org           = 'MicrosoftDocs'
@@ -88,14 +110,37 @@ $repoConfig = @{
     }
 }
 
+if ([bool]$CorrelationId -ne [bool]$DeploymentName)
+{
+    Write-Error '-CorrelationId and -DeploymentName must be specified together.'
+    return
+}
+
+if ($CorrelationId -and $Template -eq "*")
+{
+    Write-Error "A test deployment belongs to one template. Specify a single template with -CorrelationId and -DeploymentName."
+    return
+}
+
 # Build toolkit if requested
-if ($Build)
+if ($Build -and $Template -ne "advisor-workbook")
 {
     ./Build-Toolkit $Template
 }
 
 $rootDir = "$PSScriptRoot/../.."
 $relDir = "$rootDir/release"
+
+# Find the release folders to publish
+function Get-TemplateFolder([string]$releaseDir, [string]$templateName, [switch]$Exact)
+{
+    if ($Exact)
+    {
+        # A test deployment belongs to one template. Don't match other templates that share its prefix, like finops-hub-copilot.
+        return @(Get-ChildItem $releaseDir -Directory | Where-Object Name -eq $templateName)
+    }
+    return @(Get-ChildItem "$releaseDir/$templateName*" -Directory)
+}
 
 # Find the local repo folder
 function Find-Repo($config, [string]$templateName)
@@ -166,12 +211,33 @@ function Set-RepoContent($repo, [string]$branchPrefix, [string]$sourceDir)
 
     # Copy files
     Write-Host '  Copying release files...'
-    if (Test-Path $repo.path)
+    if ($repo.existingOnly)
     {
-        Remove-Item $repo.path -Recurse -Force
+        Copy-ExistingFiles $sourceDir $repo.path $repo.existingOnly
     }
-    ./New-Directory $repo.path
-    Get-ChildItem $sourceDir -Exclude .buildignore | Copy-Item -Destination $repo.path -Recurse
+    else
+    {
+        $previousTestResult = $null
+        if ($repo.testResult -and (Test-Path "$($repo.path)/metadata.json"))
+        {
+            # Remember the testResult before the folder is replaced, so publishing again doesn't remove it
+            $previousTestResult = (Get-Content "$($repo.path)/metadata.json" -Raw | ConvertFrom-Json).PSObject.Properties['testResult'].Value
+        }
+        if (Test-Path $repo.path)
+        {
+            Remove-Item $repo.path -Recurse -Force
+        }
+        ./New-Directory $repo.path
+        Get-ChildItem $sourceDir -Exclude .buildignore | Copy-Item -Destination $repo.path -Recurse
+        if ($Template -eq "docs")
+        {
+            Remove-DocsMetadataOnlyChanges $repo.path
+        }
+        if ($repo.testResult)
+        {
+            Update-QuickstartMetadata "$($repo.path)/metadata.json" $previousTestResult $CorrelationId $DeploymentName
+        }
+    }
 
     # Commit changes
     if ($Branch)
@@ -205,6 +271,165 @@ function Set-RepoContent($repo, [string]$branchPrefix, [string]$sourceDir)
     Write-Host ''
 }
 
+# Replace files in the target folder that match the filter and already exist there. Nothing is added or removed.
+function Copy-ExistingFiles([string]$sourceDir, [string]$targetDir, [string]$filter)
+{
+    $sourceRoot = (Resolve-Path $sourceDir).Path
+    Get-ChildItem $sourceRoot -Recurse -File -Filter $filter | ForEach-Object {
+        $relativePath = [System.IO.Path]::GetRelativePath($sourceRoot, $_.FullName).Replace("\", "/")
+        $targetPath = Join-Path $targetDir $relativePath
+        if (Test-Path $targetPath -PathType Leaf)
+        {
+            Copy-Item $_.FullName -Destination $targetPath -Force
+        }
+        else
+        {
+            Write-Warning "Skipped $relativePath because the target repo doesn't have it. Add it there by hand if it's new."
+        }
+    }
+}
+
+# Set dateUpdated and testResult in an Azure Quickstart Templates metadata.json
+function Update-QuickstartMetadata([string]$metadataPath, $previousTestResult, [string]$correlationId, [string]$deploymentName)
+{
+    $metadata = Get-Content $metadataPath -Raw | ConvertFrom-Json
+    $metadata | Add-Member -NotePropertyName dateUpdated -NotePropertyValue (Get-Date -Format 'yyyy-MM-dd') -Force
+
+    if ($correlationId -and $deploymentName)
+    {
+        $templateFile = if (Test-Path (Join-Path (Split-Path $metadataPath) 'azuredeploy.json')) { 'azuredeploy.json' } else { 'main.bicep' }
+        $metadata | Add-Member -NotePropertyName testResult -Force -NotePropertyValue ([ordered]@{
+                deployments = [ordered]@{
+                    templateFileName = $templateFile
+                    correlationId    = $correlationId
+                    deploymentName   = $deploymentName
+                }
+            })
+        Write-Host "  Set testResult in metadata.json to deployment $deploymentName."
+    }
+    elseif ($previousTestResult)
+    {
+        $metadata | Add-Member -NotePropertyName testResult -NotePropertyValue $previousTestResult -Force
+        Write-Warning "Kept the testResult that was already in metadata.json. If the template changed, deploy it and run again with -CorrelationId and -DeploymentName."
+    }
+    else
+    {
+        Write-Warning "metadata.json has no testResult, which the repo requires. Deploy the template and run again with -CorrelationId and -DeploymentName."
+    }
+
+    $metadata | ConvertTo-Json -Depth 10 | Out-File $metadataPath -Encoding utf8
+}
+
+function Get-DocsArticleBody([string]$content)
+{
+    # Body normalization rules. Keep this aligned with strip_frontmatter() in
+    # .github/workflows/update-mslearn-dates.yml so both code paths classify the
+    # same edits as metadata-only:
+    #   1. Split on \r?\n (CRLF tolerance).
+    #   2. Whitespace-tolerant --- fence detection. If line 1 trims to ---,
+    #      drop everything through the next line that trims to ---. If no
+    #      closing fence is found, treat the entire file as body (errs safe
+    #      for malformed frontmatter; any byte change registers as a body
+    #      change instead of silently being masked).
+    #   3. Drop markdownlint-disable-next-line MD025 and prettier-ignore
+    #      directive lines (whitespace-tolerant trim equality).
+    #   4. Strip leading and trailing blank lines from the body.
+    #
+    # Whitespace preservation: Trailing whitespace, blank line runs, and all
+    # content inside fenced/indented code blocks are preserved exactly. This
+    # ensures real content changes (e.g., hard line breaks, code block
+    # formatting) are not misclassified as metadata-only.
+
+    $lines = $content -split "`r?`n"
+    $start = 0
+
+    if ($lines.Count -gt 0 -and $lines[0].Trim() -eq "---")
+    {
+        for ($i = 1; $i -lt $lines.Count; $i++)
+        {
+            if ($lines[$i].Trim() -eq "---")
+            {
+                $start = $i + 1
+                break
+            }
+        }
+    }
+
+    if ($start -ge $lines.Count)
+    {
+        return ""
+    }
+
+    $ignoreLines = @(
+        "<!-- markdownlint-disable-next-line MD025 -->",
+        "<!-- prettier-ignore-start -->",
+        "<!-- prettier-ignore-end -->"
+    )
+
+    $body = New-Object 'System.Collections.Generic.List[string]'
+    for ($i = $start; $i -lt $lines.Count; $i++)
+    {
+        $line = $lines[$i]
+        if ($ignoreLines -contains $line.Trim())
+        {
+            continue
+        }
+        $null = $body.Add($line)
+    }
+
+    $s = 0
+    while ($s -lt $body.Count -and $body[$s] -eq "")
+    {
+        $s++
+    }
+    $e = $body.Count - 1
+    while ($e -ge $s -and $body[$e] -eq "")
+    {
+        $e--
+    }
+
+    if ($s -gt $e)
+    {
+        return ""
+    }
+
+    return ($body[$s..$e] -join "`n")
+}
+
+function Remove-DocsMetadataOnlyChanges([string]$docsPath)
+{
+    Push-Location
+    try
+    {
+        Set-Location $docsPath
+        $repoRoot = git rev-parse --show-toplevel
+        Set-Location $repoRoot
+
+        Get-ChildItem $docsPath -Recurse -Filter "*.md" | ForEach-Object {
+            $repoFile = [System.IO.Path]::GetRelativePath($repoRoot, $_.FullName).Replace("\", "/")
+            git cat-file -e "HEAD:$repoFile" 2>$null
+
+            # return in ForEach-Object skips the current pipeline item (per-iteration), not the enclosing function.
+            if ($LASTEXITCODE -ne 0)
+            {
+                return
+            }
+
+            $previousContent = [string]::Join("`n", (git show "HEAD:$repoFile"))
+            $currentContent = Get-Content $_.FullName -Raw
+
+            if ((Get-DocsArticleBody $previousContent) -eq (Get-DocsArticleBody $currentContent))
+            {
+                git restore --source HEAD -- $repoFile
+            }
+        }
+    }
+    finally
+    {
+        Pop-Location
+    }
+}
+
 # Get version for branch name and commit message
 $ver = & "$PSScriptRoot/Get-Version.ps1"
 
@@ -226,11 +451,43 @@ if ($Template -eq "docs")
 
     Set-RepoContent $repo "finops" $docsDir
 }
+elseif ($Template -eq "advisor-workbook")
+{
+    $workbookDir = "$rootDir/src/workbooks/optimization"
+    $templateName = "Cost Optimization workbook"
+
+    Write-Host "Publishing Azure Advisor Cost Optimization workbook..."
+
+    # Find target repo
+    $repo = Find-Repo $repoConfig.appInsights ""
+    if (-not $repo)
+    {
+        Write-Error "Application Insights Workbooks repo not found. Please clone the repo locally or specify the AppInsightsRepo parameter to indicate the folder name to use."
+        return
+    }
+    Write-Host "  Repo = $($repo.path)"
+
+    # Validate release requirements
+    $missingFiles = @($repo.requiredFiles | Where-Object { -not (Test-Path "$workbookDir/$_") })
+    if ($missingFiles)
+    {
+        Write-Error "$($missingFiles -join ', ') required. Please add the missing files to $workbookDir."
+        return
+    }
+
+    Set-RepoContent $repo "cost-optimization-workbook" $workbookDir
+}
 else
 {
     # Loop thru templates
     Write-Verbose "Checking release directory: $relDir/$Template*"
-    Get-ChildItem "$relDir/$Template*" -Directory `
+    $templateDirs = Get-TemplateFolder $relDir $Template -Exact:([bool]$CorrelationId)
+    if ($CorrelationId -and -not $templateDirs)
+    {
+        Write-Error "Template folder not found: $relDir/$Template. Build the template first or add -Build."
+        return
+    }
+    $templateDirs `
     | ForEach-Object {
         $templateDir = $_
         $templateName = $templateDir.Name

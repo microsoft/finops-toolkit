@@ -24,6 +24,9 @@
     .PARAMETER Repository
     Optional. GitHub repo in "owner/repo" format. Default: "microsoft/finops-toolkit".
 
+    .PARAMETER ReviewerId
+    Optional. GitHub user IDs to set as required reviewers on the "ftk-fork" environment. Cleanup uses this environment for closed fork PRs, including earlier test resources. Fork PRs cannot deploy directly. Deployment uses "ftk-pr", which this script creates without required reviewers.
+
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md
 #>
@@ -32,19 +35,27 @@ param(
     [Parameter(Mandatory)]
     [string]$SubscriptionId,
 
-    [string]$Repository = "microsoft/finops-toolkit"
+    [string]$Repository = "microsoft/finops-toolkit",
+
+    # Required reviewers for cleanup of closed fork PRs, not for fork deployment.
+    [int[]]$ReviewerId
 )
 
 $ErrorActionPreference = "Stop"
 
 $appName = "FinOps toolkit CI ($Repository)"
-$environmentName = "ftk-pr"
+
+# Deployment uses 'ftk-pr' without required reviewers. Cleanup selects 'ftk-pr'
+# or 'ftk-fork' from the closed PR's source repository.
+$internalEnvironment = "ftk-pr"
+$forkEnvironment = "ftk-fork"
+$environments = @($internalEnvironment, $forkEnvironment)
 
 $scope = "/subscriptions/$SubscriptionId"
 
 Write-Host "Initializing CI for $Repository..."
 Write-Host "  Subscription: $SubscriptionId"
-Write-Host "  Environment: $environmentName"
+Write-Host "  Environments: $($environments -join ', ')"
 Write-Host ""
 
 #------------------------------------------------------------------------------
@@ -93,30 +104,42 @@ else
 Write-Host ""
 Write-Host "Step 2: Adding federated credential for GitHub Actions..."
 
-$credName = "github-$environmentName"
-$subject = "repo:${Repository}:environment:${environmentName}"
+# GitHub presents environment-scoped OIDC tokens with an ID-based subject
+# (repository_owner_id:...:repository_id:...:environment:...), not the name-based
+# "repo:owner/repo:environment:..." form. The federated credential subject must
+# match the presented assertion or Azure login fails with AADSTS700213. Each
+# environment needs its own credential because the subject includes the env name.
+$repoIds = gh api "repos/$Repository" --jq '"\(.owner.id):\(.id)"'
+if ($LASTEXITCODE -ne 0 -or -not $repoIds) { throw "Failed to look up owner/repo IDs for '$Repository' via gh." }
+$ownerId, $repoId = $repoIds -split ':'
 
-if ($app)
+foreach ($env in $environments)
 {
-    $existingCred = Get-AzADAppFederatedCredential -ApplicationObjectId $app.Id -ErrorAction SilentlyContinue | Where-Object { $_.Subject -eq $subject }
-    if ($existingCred)
+    $credName = "github-$env"
+    $subject = "repository_owner_id:${ownerId}:repository_id:${repoId}:environment:${env}"
+
+    if ($app)
     {
-        Write-Host "  Federated credential already exists."
+        $existingCred = Get-AzADAppFederatedCredential -ApplicationObjectId $app.Id -ErrorAction SilentlyContinue | Where-Object { $_.Subject -eq $subject }
+        if ($existingCred)
+        {
+            Write-Host "  Federated credential for '$env' already exists."
+        }
+        elseif ($PSCmdlet.ShouldProcess($subject, 'Add federated credential'))
+        {
+            New-AzADAppFederatedCredential `
+                -ApplicationObjectId $app.Id `
+                -Name $credName `
+                -Issuer "https://token.actions.githubusercontent.com" `
+                -Subject $subject `
+                -Audience @("api://AzureADTokenExchange") | Out-Null
+            Write-Host "  Added federated credential for '$env' (subject: $subject)."
+        }
     }
-    elseif ($PSCmdlet.ShouldProcess($subject, 'Add federated credential'))
+    else
     {
-        New-AzADAppFederatedCredential `
-            -ApplicationObjectId $app.Id `
-            -Name $credName `
-            -Issuer "https://token.actions.githubusercontent.com" `
-            -Subject $subject `
-            -Audience @("api://AzureADTokenExchange") | Out-Null
-        Write-Host "  Added federated credential (subject: $subject)."
+        $PSCmdlet.ShouldProcess($subject, 'Add federated credential') | Out-Null
     }
-}
-else
-{
-    $PSCmdlet.ShouldProcess($subject, 'Add federated credential') | Out-Null
 }
 
 #------------------------------------------------------------------------------
@@ -157,7 +180,7 @@ else
 #------------------------------------------------------------------------------
 
 Write-Host ""
-Write-Host "Step 4: Creating GitHub environment '$environmentName'..."
+Write-Host "Step 4: Creating GitHub environments $($environments -join ', ')..."
 
 # Verify gh CLI is available
 if (-not (Get-Command gh -ErrorAction SilentlyContinue))
@@ -165,22 +188,16 @@ if (-not (Get-Command gh -ErrorAction SilentlyContinue))
     Write-Warning "GitHub CLI (gh) not found. Install it from https://cli.github.com/ and run this step manually."
     Write-Host ""
     Write-Host "Manual steps:"
-    Write-Host "  1. Create environment '$environmentName' in $Repository settings"
-    Write-Host "  2. Add secrets: AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID, CI_SCOPE"
+    Write-Host "  1. Create environments '$internalEnvironment' and '$forkEnvironment' in $Repository settings"
+    Write-Host "  2. Add required reviewers to '$forkEnvironment' only"
+    Write-Host "  3. Add secrets to BOTH: AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID, CI_SCOPE"
     return
 }
 
-if ($PSCmdlet.ShouldProcess("$environmentName in $Repository", 'Create GitHub environment'))
+if ($PSCmdlet.ShouldProcess("$($environments -join ', ') in $Repository", 'Create GitHub environments'))
 {
-    # Create environment
-    gh api "repos/$Repository/environments/$environmentName" -X PUT --silent
-    if ($LASTEXITCODE -ne 0) { throw "Failed to create GitHub environment '$environmentName'." }
-    Write-Host "  Created environment '$environmentName'."
-
-    # Get tenant ID from current context
+    # Get tenant ID from current context (shared by both environments)
     $tenantId = (Get-AzContext).Tenant.Id
-
-    # Set secrets
     $secrets = @{
         AZURE_CLIENT_ID       = $app.AppId
         AZURE_TENANT_ID       = $tenantId
@@ -188,11 +205,38 @@ if ($PSCmdlet.ShouldProcess("$environmentName in $Repository", 'Create GitHub en
         CI_SCOPE              = $scope
     }
 
-    foreach ($name in $secrets.Keys)
+    foreach ($env in $environments)
     {
-        $secrets[$name] | gh secret set $name --repo $Repository --env $environmentName
-        if ($LASTEXITCODE -ne 0) { throw "Failed to set secret '$name'." }
-        Write-Host "  Set secret: $name"
+        # Fork cleanup can require approval. Deployment uses only 'ftk-pr'.
+        if ($env -eq $forkEnvironment)
+        {
+            if ($ReviewerId)
+            {
+                $reviewers = @($ReviewerId | ForEach-Object { @{ type = 'User'; id = $_ } })
+                $body = @{ reviewers = $reviewers; prevent_self_review = $true } | ConvertTo-Json -Depth 5 -Compress
+                $body | gh api "repos/$Repository/environments/$env" -X PUT --input - --silent
+            }
+            else
+            {
+                Write-Warning "No -ReviewerId supplied: '$env' will have no required reviewers. Cleanup for closed fork PRs can delete test resource groups without environment approval. This does not enable fork deployment."
+                gh api "repos/$Repository/environments/$env" -X PUT --silent
+            }
+        }
+        else
+        {
+            # Explicitly clear reviewers so a re-run always leaves the internal
+            # environment ungated, even if it previously had reviewers.
+            '{"reviewers":[]}' | gh api "repos/$Repository/environments/$env" -X PUT --input - --silent
+        }
+        if ($LASTEXITCODE -ne 0) { throw "Failed to create GitHub environment '$env'." }
+        Write-Host "  Created environment '$env'."
+
+        foreach ($name in $secrets.Keys)
+        {
+            $secrets[$name] | gh secret set $name --repo $Repository --env $env
+            if ($LASTEXITCODE -ne 0) { throw "Failed to set secret '$name' on '$env'." }
+            Write-Host "    Set secret: $name"
+        }
     }
 }
 
@@ -206,7 +250,7 @@ if ($app)
 {
     Write-Host "  App registration: $appName (AppId: $($app.AppId))"
 }
-Write-Host "  GitHub environment: $environmentName"
+Write-Host "  GitHub environments: $($environments -join ', ') ('$forkEnvironment' gated by reviewers)"
 Write-Host "  Subscription: $SubscriptionId"
 Write-Host ""
-Write-Host "CI is ready. The ftk-pr-deploy workflow will use the '$environmentName' environment."
+Write-Host "CI is ready. Internal PRs use '$internalEnvironment'; fork PRs use '$forkEnvironment'."

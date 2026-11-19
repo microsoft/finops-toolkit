@@ -9,7 +9,7 @@ metadata hubApp = {
   id: 'Microsoft.FinOpsHubs.IngestionQueries'
   version: '$$ftkver$$'
   dependencies: ['Microsoft.FinOpsHubs.Core']
-  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/$$ftkver$$/Microsoft.FinOpsHubs/IngestionQueries/metadata.bicep'
+  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/finops-hub/$$ftkver$$/Microsoft.FinOpsHubs/IngestionQueries/metadata.bicep'
 }
 
 
@@ -96,7 +96,11 @@ resource trigger_DailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06
       recurrence: {
         frequency: 'Hour'
         interval: 24
-        startTime: '2023-01-01T01:01:00'
+        // Data Factory requires a trailing 'Z' on startTime when timeZone resolves to 'UTC' (the
+        // fallback for regions not in timeZones.bicep's map); a missing 'Z' fails trigger activation
+        // with InvalidWorkflowTriggerRecurrence. Mapped, non-UTC regions must keep the no-'Z' format
+        // so they continue scheduling on local wall-clock time.
+        startTime: timeZones.outputs.Timezone == 'UTC' ? '2023-01-01T01:01:00Z' : '2023-01-01T01:01:00'
         timeZone: timeZones.outputs.Timezone
       }
     }

@@ -28,6 +28,7 @@ type IdNameObject = { id: string, name: string }
   dnsZones: {
     blob: 'Resource ID and name for the blob storage DNS zone.'
     dfs: 'Resource ID and name for the DFS storage DNS zone.'
+    file: 'Resource ID and name for the file storage DNS zone.'
     queue: 'Resource ID and name for the queue storage DNS zone.'
     table: 'Resource ID and name for the table storage DNS zone.'
   }
@@ -46,6 +47,7 @@ type HubRoutingProperties = {
   dnsZones: {
     blob: IdNameObject
     dfs: IdNameObject
+    file: IdNameObject
     queue: IdNameObject
     table: IdNameObject
   }
@@ -71,7 +73,9 @@ type HubRoutingProperties = {
     enableTelemetry: 'Indicates whether telemetry should be enabled for deployments.'
     keyVaultSku: 'KeyVault SKU. Allowed values: "standard", "premium".'
     keyVaultEnablePurgeProtection: 'Indicates whether purge protection is enabled for the Key Vault. When enabled, deleted Key Vault and its secrets cannot be permanently deleted until the retention period expires, which is required for compliance in some environments.'
+    keyVaultEnableRbacAuthorization: 'Indicates whether the Key Vault uses Azure RBAC instead of access policies to authorize access to secrets. When enabled, access policies are ignored and callers need an RBAC role assignment (e.g., Key Vault Secrets User) on the vault, which is required for compliance in some environments.'
     networkAddressPrefix: 'Address prefix for the FinOps hub isolated virtual network, if private network routing is enabled.'
+    natGateway: 'Indicates whether a NAT Gateway should be deployed for controlled outbound internet access. When enabled, the script and Data Explorer subnets route outbound traffic through the NAT Gateway.'
     privateRouting: 'Indicates whether private network routing is enabled.'
     publisherIsolation: 'Indicates whether FinOps hub resources should be separated by publisher for advanced security.'
     storageInfrastructureEncryption: 'Indicates whether infrastructure encryption is enabled for the storage account.'
@@ -95,7 +99,9 @@ type HubProperties = {
     enableTelemetry: bool
     keyVaultSku: string
     keyVaultEnablePurgeProtection: bool
+    keyVaultEnableRbacAuthorization: bool
     networkAddressPrefix: string
+    natGateway: bool
     privateRouting: bool
     publisherIsolation: bool
     storageInfrastructureEncryption: bool
@@ -190,8 +196,10 @@ func newHubInternal(
   storageSku string,
   keyVaultSku string,
   keyVaultEnablePurgeProtection bool,
+  keyVaultEnableRbacAuthorization bool,
   enableInfrastructureEncryption bool,
   enablePublicAccess bool,
+  enableNatGateway bool,
   networkName string,
   networkAddressPrefix string,
   isTelemetryEnabled bool,
@@ -210,7 +218,9 @@ func newHubInternal(
     enableTelemetry: isTelemetryEnabled ?? true
     keyVaultSku: keyVaultSku
     keyVaultEnablePurgeProtection: keyVaultEnablePurgeProtection
+    keyVaultEnableRbacAuthorization: keyVaultEnableRbacAuthorization
     networkAddressPrefix: networkAddressPrefix
+    natGateway: !enablePublicAccess && enableNatGateway
     privateRouting: !enablePublicAccess
     publisherIsolation: false  // TODO: Expose publisher isolation option
     storageInfrastructureEncryption: enableInfrastructureEncryption
@@ -223,6 +233,7 @@ func newHubInternal(
     dnsZones: {
       blob:  enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('blob')
       dfs:   enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('dfs')
+      file:  enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('file')
       queue: enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('queue')
       table: enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('table')
     }
@@ -249,8 +260,10 @@ func newHub(
   storageSku string,
   keyVaultSku string,
   keyVaultEnablePurgeProtection bool,
+  keyVaultEnableRbacAuthorization bool,
   enableInfrastructureEncryption bool,
   enablePublicAccess bool,
+  enableNatGateway bool,
   networkAddressPrefix string,
   isTelemetryEnabled bool,
 ) HubProperties => newHubInternal(
@@ -263,8 +276,10 @@ func newHub(
   storageSku,
   keyVaultSku,
   keyVaultEnablePurgeProtection,
+  keyVaultEnableRbacAuthorization,
   enableInfrastructureEncryption,
   enablePublicAccess,
+  enableNatGateway,
   '${safeStorageName(name)}-vnet-${location}',    // networkName, cSpell:ignore vnet
   networkAddressPrefix,
   isTelemetryEnabled ?? true

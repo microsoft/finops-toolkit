@@ -3,7 +3,7 @@ title: FinOps Framework overview
 description: 'Learn about what the FinOps Framework is and how you can use it to accelerate your cost management and optimization goals.'
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 06/21/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -133,7 +133,7 @@ The FinOps Framework includes capabilities that cover everything you need to per
 - Optimize usage and cost
 
   - [Architecting for the cloud](./optimize/architecting.md)
-  - [Workload optimization](./optimize/workloads.md)
+  - [Usage optimization](./optimize/workloads.md)
   - [Rate optimization](./optimize/rates.md)
   - [Licensing and SaaS](./optimize/licensing.md)
   - [Cloud sustainability](./optimize/sustainability.md)
@@ -143,7 +143,7 @@ The FinOps Framework includes capabilities that cover everything you need to per
   - [FinOps education and enablement](./manage/education.md)
   - [FinOps practice operations](./manage/operations.md)
   - [Onboarding workloads](./manage/onboarding.md)
-  - [Policy and governance](./manage/governance.md)
+  - [Governance, policy, and risk](./manage/governance.md)
   - [Invoicing and chargeback](./manage/invoicing-chargeback.md)
   - [FinOps assessment](./manage/assessment.md)
   - [FinOps tools and services](./manage/tools-services.md)

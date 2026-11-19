@@ -109,16 +109,20 @@ Status icons:
   - Build all toolkit templates and resolve any issues: `<root>/src/scripts/Build-Toolkit`
     > _This step is optional, but can catch issues earlier. You can also add the `-Build` parameter to the publish command in the next step._
   - Ensure all tests pass: `<root>/src/scripts/Test-PowerShell -Unit -Integration`
-- [ ] <!-- release:package --> Package all release files (except Power BI): `<root>/src/scripts/Package-Toolkit.ps1 -Build -CopyFiles` script
-- [ ] Package Power BI files
-  - [ ] Run `Package-Toolkit.ps1 -OpenPBI` script.
-  - [ ] Save and close each Power BI project:
-    - Select the `<root>/release/pbix` folder.
-    - Change the file extension to PBIX.
-    - When prompted, set the sensitivity to "Public".
-    - Manually remove unused queries based on what's documented in Build-PowerBI.ps1 ~line 120.
-    - Verify all pages, switch to the Get started page, and save again.
-  - [ ] Run `Package-Toolkit -ZipPBI` script.
+- [ ] <!-- release:package --> Package all release files: `<root>/src/scripts/Package-Toolkit.ps1 -Build -CopyFiles` script
+  > _Package from the release prep branch; don't wait for the merge to main. Commit and push the generated `docs/deploy` files to the prep branch. To get files ready early, create a draft GitHub release and upload the files from `release/`; add PowerBI-demo.zip when this step finishes._
+- [ ] Confirm the data source saved in the Power BI semantic models points at the current demo hub.
+- [ ] Make sure the demo hub is on this release and has current data: `<root>/src/scripts/Deploy-Demo.ps1`
+  - It deploys or updates the hub and waits until data is ingested, so Power BI can be packaged right after.
+- [ ] <!-- release:powerbi --> Package Power BI files on Windows: `<root>/src/scripts/Package-PowerBI.ps1 -Unattended`
+  > _Builds, saves demo PBIX files with Power BI Desktop, validates, and packages. Takes about an hour. Don't use the mouse or keyboard while it runs. If it stops because the reports were built from a test open data URL, rerun once with `-Build`._
+  >
+  > _First, sign in to Power BI Desktop and refresh one demo project by hand so the data source credentials are stored and, if your tenant uses sensitivity labels, the "Public" label is available. The "Public" label is only needed when sensitivity labels are enabled. The command can't sign in or answer a credential prompt._
+  - If a report can't be saved automatically, the command names the step that failed and saves a screenshot. Save that report by hand, then rerun the command:
+    - Run `Package-PowerBI.ps1 -Open` to open the projects that need to be saved.
+    - Refresh the report, select **File** > **Save as**, keep the `<root>/release/pbix` folder, change the file type to PBIX, and set the sensitivity to "Public" (only if sensitivity labels are enabled).
+    > _Queries are already trimmed and the Get started page is already selected. There is nothing else to change._
+  - [ ] Confirm all 3 files were created: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
 - [ ] Check the docs for broken links:
   - Create a personal fork of the main repo.
   - If you already have one, update it to the latest.
@@ -135,6 +139,8 @@ Status icons:
 ---
 
 ## 🔜 Publish release
+
+> _Run the `Publish-Toolkit.ps1` commands from the `<root>/src/scripts` folder. The script calls other scripts in that folder by relative path._
 
 - [ ] Publish the PowerShell module by running the [Publish PowerShell action](https://github.com/microsoft/finops-toolkit/actions/workflows/publish.yml).
 - [ ] Submit PR to publish docs to the Microsoft Docs repo.
@@ -161,35 +167,52 @@ Status icons:
 - [ ] Submit PRs to publish templates to the Azure Quickstart Templates repo.
   - [ ] Update your fork and local clone of the Azure Quickstart Templates.
     > _Make sure you're in the master branch of the target repo when publishing a new template. If in another folder, the script will assume you're updating that branch and not create a new one._
+  - [ ] Deploy each template from `<root>/release/<template>/azuredeploy.json` to a test resource group in any subscription. Note the deployment name and the correlation ID.
+    > _The repo rejects a changed template unless `metadata.json` names a successful deployment of it. Its CI checks the deployment in the Azure deployment logs by correlation ID, so it doesn't need to run in an Azure Quickstart Templates subscription. Get the correlation ID with `az deployment group show --resource-group <rg> --name <deployment> --query properties.correlationId --output tsv`._
   - [ ] Publish a FinOps hub PR:
-    - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "finops-hub" -Commit`
+    - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "finops-hub" -Commit -DeploymentName <deployment> -CorrelationId <id>`
     - Complete PR template requirements and set the name to `FinOps toolkit v#.# – FinOps hub`.
     - Review the code that's changed in the PR, verify that the changelog covers everything, and update as needed.
-    - If you make changes, re-publish without committing: `<root>/src/scripts/Publish-Toolkit.ps1 "finops-hub" -Build`
+    - If you make changes, re-publish without committing: `<root>/src/scripts/Publish-Toolkit.ps1 "finops-hub" -Build -DeploymentName <deployment> -CorrelationId <id>`
+      > _If the template changed, deploy it again first and use the new deployment name and correlation ID. Otherwise, `metadata.json` keeps the old test deployment and the repo rejects the PR._
     - Switch to the target repo folder and verify your changes were applied correctly.
     - Commit and push your changes.
     - Return to the PR URL and publish the PR.
   - [ ] Publish a governance workbook PR:
-    - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "governance-workbook" -Commit`
+    - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "governance-workbook" -Commit -DeploymentName <deployment> -CorrelationId <id>`
     - Complete PR template requirements and set the name to `FinOps toolkit v#.# – Governance workbook`.
     - Review the code that's changed in the PR, verify that the changelog covers everything, and update as needed.
-    - If you make changes, re-publish without committing: `<root>/src/scripts/Publish-Toolkit.ps1 "governance-workbook" -Build`
+    - If you make changes, re-publish without committing: `<root>/src/scripts/Publish-Toolkit.ps1 "governance-workbook" -Build -DeploymentName <deployment> -CorrelationId <id>`
+      > _If the template changed, deploy it again first and use the new deployment name and correlation ID. Otherwise, `metadata.json` keeps the old test deployment and the repo rejects the PR._
     - Switch to the target repo folder and verify your changes were applied correctly.
     - Commit and push your changes.
     - Return to the PR URL and publish the PR.
   - [ ] Publish a optimization workbook PR:
-    - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "optimization-workbook" -Commit`
+    - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "optimization-workbook" -Commit -DeploymentName <deployment> -CorrelationId <id>`
     - Complete PR template requirements and set the name to `FinOps toolkit v#.# – Optimization workbook`.
     - Review the code that's changed in the PR, verify that the changelog covers everything, and update as needed.
-    - If you make changes, re-publish without committing: `<root>/src/scripts/Publish-Toolkit.ps1 "optimization-workbook" -Build`
+    - If you make changes, re-publish without committing: `<root>/src/scripts/Publish-Toolkit.ps1 "optimization-workbook" -Build -DeploymentName <deployment> -CorrelationId <id>`
+      > _If the template changed, deploy it again first and use the new deployment name and correlation ID. Otherwise, `metadata.json` keeps the old test deployment and the repo rejects the PR._
     - Switch to the target repo folder and verify your changes were applied correctly.
     - Commit and push your changes.
     - Return to the PR URL and publish the PR.
-- [ ] Check back after 1 hour to see if there any failed checks across all PRs ([AQT](https://github.com/Azure/azure-quickstart-templates/pulls?q=is%3Apr+is%3Aopen+finops)).
+- [ ] Submit PR to update the Azure Advisor Cost Optimization workbook in the Application Insights Workbooks repo.
+  > _This is the copy of the optimization workbook that Azure Advisor shows in the Azure portal._
+  - Update your fork and local clone (master branch) of the [Application Insights Workbooks repo](https://github.com/microsoft/Application-Insights-Workbooks).
+  - Check the [history of the Cost Optimization folder](https://github.com/microsoft/Application-Insights-Workbooks/commits/master/Workbooks/Azure%20Advisor/Cost%20Optimization) for changes made only in that repo since the last release. Port them to `<root>/src/workbooks/optimization` first, because publishing overwrites them.
+  - Start PR: `<root>/src/scripts/Publish-Toolkit.ps1 "advisor-workbook" -Commit`
+  - Complete PR template requirements and set the name to `FinOps toolkit v#.# – Cost Optimization workbook`.
+  - The command only replaces workbooks that the repo already has. If it reports a skipped file, add that file by hand only if it's a new workbook.
+  - Return to the PR URL and publish the PR.
+- [ ] Check back after 1 hour to see if there any failed checks across all PRs:
+  - [AQT](https://github.com/Azure/azure-quickstart-templates/pulls?q=is%3Apr+is%3Aopen+finops)
+  - [Advisor workbook](https://github.com/microsoft/Application-Insights-Workbooks/pulls?q=is%3Apr+is%3Aopen+finops)
   - If there are errors, click the Details link to understand what needs to be fixed.
   - Fix any issues in the FinOps toolkit codebase (not in the target repo).
   - Repeat publishing steps until all issues have been resolved.
-- [ ] Check back after 2-3 days to see if all your PRs were merged ([AQT](https://github.com/Azure/azure-quickstart-templates/pulls?q=is%3Apr+is%3Aopen+finops)).
+- [ ] Check back after 2-3 days to see if all your PRs were merged:
+  - [AQT](https://github.com/Azure/azure-quickstart-templates/pulls?q=is%3Apr+is%3Aopen+finops)
+  - [Advisor workbook](https://github.com/microsoft/Application-Insights-Workbooks/pulls?q=is%3Apr+is%3Aopen+finops)
   > _Bicep Registry and Azure Quickstart Template repos are manually reviewed and closed 2-3x per week. If you don't see an update, contact the ARM team. The Docs repo is partially typically reviewed within a few hours but they may request blocking changes._
 - [ ] Merge to main: `<root>/src/scripts/Merge-DevBranch.ps1 main`
 - [ ] Update the [milestone](https://github.com/microsoft/finops-toolkit/milestones).
@@ -214,7 +237,7 @@ Status icons:
     - Carefully review the list to ensure everyone is covered since feature branch PRs get merged, which can hide contributors.
     - If they made a code change, add them to the contributor list.
     - If they filed an issue, reviewed a PR, or participated in on- or offline discussions, add them to the list of supporters.
-  - [ ] Update the discussion and changelog links in the footer. Comment out the AQT link if not ready.
+  - [ ] Update the discussion and changelog links in the footer. Keep the blog and download links commented out.
   - [ ] Upload all files from the release folder:
     - ZIP files for templates like hubs and workbooks.
     - Power BI PBIX and PBIT files.
@@ -229,44 +252,24 @@ Status icons:
 ## 🔜 Announcements
 
 - [ ] Publish release announcement on the [FinOps blog](https://aka.ms/finops/blog)
+  - [ ] Set the blog link in the release footer to the URL of the post and uncomment it. Keep the download link commented out because it only points at the release page.
 - [ ] Share on LinkedIn
 - [ ] Share on Twitter/X
 - [ ] Share on Azure Updates (TBD)
 - [ ] Share on Engage (Azure Connection Program)
-- [ ] Share on F2 Slack
+- [ ] Share on F2 Slack in the `#microsoft-cloud` channel. Link the blog post and list the top changes from its introduction.
 
 ---
 
 ## 🔜 Post-release clean-up
 
-- [ ] Update the `Toolkit / Should return all known releases` PowerShell integration test based on the latest version.
-  > _See `src/powershell/Tests/Integration/Toolkit.Tests.ps1` > `Get-FinOpsToolkitVersion` > `Should return all known releases`_
-  - Add the latest public version to the `$expected` variable.
-  - Update the file checks to include/exclude any new/removed files.
-- [ ] Update the minor version and add the "dev" label: `<root>/src/scripts/Update-Version.ps1 -Minor -Label dev`
-- [ ] Create a placeholder in the changelog for the new release.
-
-  ```markdown
-  ## vX.Y
-
-  _Released Mmm yyyy_
-
-  > [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/vX.Y) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/vX.Y...vX.Y)
-
-  <br>
-  ```
-
-- [ ] Update remaining branches that were not merged with dev
-  - [ ] TODO: Add branches
-  - [ ] features/anomaly
-  - [ ] features/finley
-  - [ ] features/recs
-  - [ ] features/ux
-  - [ ] features/xcloud
+- [ ] <!-- update-version:post --> Run the `/update-version` command in Claude Code (or complete the following manually):
+  - Bump version to next major with dev label: `<root>/src/scripts/Update-Version.ps1 -Major -Label dev`
+  - Update integration test: add released version to `$expected`, bump `$plannedRelease` in `src/powershell/Tests/Integration/Toolkit.Tests.ps1`.
+  - Add changelog placeholder for the next release in `docs-mslearn/toolkit/changelog.md`.
+  - Merge dev into all feature branches: `<root>/src/scripts/Merge-DevBranch.ps1 *`
 - [ ] Copy any additional code from the following branches and delete them:
   - [ ] features/hack24
   - [ ] features/hourly
-- [ ] Delete the following branches:
-  - [ ] features/alerts
 
 <br>

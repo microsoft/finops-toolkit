@@ -143,7 +143,13 @@ var useFabric = !empty(fabricQueryUri)
 var useAzure = !useFabric && !empty(clusterName)
 
 // cSpell:ignore ftkver, privatelink
-var dataExplorerPrivateDnsZoneName = replace('privatelink.${app.hub.location}.${replace(environment().suffixes.storage, 'core', 'kusto')}', '..', '.')
+var dataExplorerDnsSuffixLookup = {
+  AzureCloud: 'kusto.windows.net'
+  AzureUSGovernment: 'kusto.usgovcloudapi.net'
+  AzureChinaCloud: 'kusto.windows.cn'
+}
+var dataExplorerDnsSuffix = dataExplorerDnsSuffixLookup[?environment().name] ?? replace(environment().suffixes.storage, 'core', 'kusto')
+var dataExplorerPrivateDnsZoneName = replace('privatelink.${app.hub.location}.${dataExplorerDnsSuffix}', '..', '.')
 
 // Actual = Minimum(ClusterMaximumConcurrentOperations, Number of nodes in cluster * Maximum(1, Core count per node * CoreUtilizationCoefficient))
 var ingestionCapacity = {
@@ -219,7 +225,7 @@ var dataExplorerIngestionCapacity = useFabric
 
 // WORKAROUND: Direct property access fails on cluster updates due to ARM bug
 // See: https://github.com/Azure/azure-resource-manager-templates/issues/[issue-number]
-var dataExplorerUri = useFabric ? fabricQueryUri : 'https://${cluster.name}.${app.hub.location}.kusto.windows.net'
+var dataExplorerUri = useFabric ? fabricQueryUri : 'https://${cluster.name}.${app.hub.location}.${dataExplorerDnsSuffix}'
 
 //==============================================================================
 // Resources
@@ -475,8 +481,12 @@ resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtu
 }
 
 // Private endpoint
+// Kusto rejects concurrent cluster writes with ServiceIsInMaintenance, so private endpoint changes wait for the database scripts
 resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (useAzure && app.hub.options.privateRouting) {
   name: '${cluster.name}-ep'
+  dependsOn: [
+    hub_LatestScripts
+  ]
   location: app.hub.location
   tags: union(app.tags, app.hub.tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
   properties: {
@@ -540,13 +550,16 @@ resource dataFactoryVNet 'Microsoft.DataFactory/factories/managedVirtualNetworks
 
   resource dataExplorerManagedPrivateEndpoint 'managedPrivateEndpoints' = {
     name: HUB_DATA_EXPLORER
+    dependsOn: [
+      dataExplorerEndpoint
+    ]
     properties: {
       name: HUB_DATA_EXPLORER
       groupId: 'cluster'
       #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access
       privateLinkResourceId: cluster.id
       fqdns: [
-        'https://${replace(clusterName, '_', '-')}.${app.hub.location}.kusto.windows.net'
+        'https://${cluster.name}.${app.hub.location}.${dataExplorerDnsSuffix}'
       ]
     }
   }
@@ -594,19 +607,14 @@ resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservi
   }
 }
 
-// GitHub repository linked service for FTK open data
+// GitHub repository linked service for FTK release files
 resource linkedService_ftkRepo 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: 'ftkRepo'
   parent: dataFactory
   properties: {
     type: 'HttpServer'
-    parameters: {
-      filePath: {
-        type: 'string'
-      }
-    }
     typeProperties: {
-      url: '@concat(\'https://gitapp.hub.com/microsoft/finops-toolkit/\', linkedService().filePath)'
+      url: 'https://github.com/microsoft/finops-toolkit/'
       enableServerCertificateValidation: true
       authenticationType: 'Anonymous'
     }
@@ -1091,12 +1099,43 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       }
                     }
                   }
+                  { // Update InstanceSizeFlexibility in ADX
+                    name: 'Update InstanceSizeFlexibility in ADX'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Update Services in ADX'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: '.set-or-replace InstanceSizeFlexibility <| externaldata(InstanceSizeFlexibilityGroup: string, ArmSkuName: string, Ratio: real)[@"${ftkReleaseUri}/InstanceSizeFlexibility.csv"] with (format="csv", ignoreFirstRecord=true)'
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
+                      }
+                    }
+                  }
                   { // Ingestion Complete
                     name: 'Ingestion Complete'
                     type: 'SetVariable'
                     dependsOn: [
                       {
-                        activity: 'Update Services in ADX'
+                        activity: 'Update InstanceSizeFlexibility in ADX'
                         dependencyConditions: [
                           'Succeeded'
                         ]
@@ -1693,6 +1732,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
             }
           }
           fieldList: [
+            'exists'
             'childItems'
           ]
           storeSettings: {
@@ -1719,7 +1759,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
         userProperties: []
         typeProperties: {
           items: {
-            value: '@if(contains(activity(\'Get Existing Parquet Files\').output, \'childItems\'), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
+            value: '@if(and(activity(\'Get Existing Parquet Files\').output.exists, contains(activity(\'Get Existing Parquet Files\').output, \'childItems\')), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
             type: 'Expression'
           }
           condition: {

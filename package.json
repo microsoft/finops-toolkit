@@ -1,6 +1,6 @@
 {
   "name": "ftk",
-  "version": "14.0.0",
+  "version": "16.0.0-dev.0",
   "description": "Starter kits, scripts, and advanced solutions to accelerate your FinOps journey in the Microsoft Cloud.",
   "main": "index.js",
   "directories": {
@@ -32,6 +32,6 @@
   },
   "homepage": "https://aka.ms/finops/toolkit",
   "devDependencies": {
-    "all-contributors-cli": "^6.26.1"
+    "all-contributors-cli": "^7.0.0"
   }
 }
