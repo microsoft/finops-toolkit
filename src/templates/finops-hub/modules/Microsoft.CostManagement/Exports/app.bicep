@@ -332,7 +332,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
           typeProperties: {
             variableName: 'hasNoRows'
             value: {
-              value: '@or(equals(activity(\'Read Manifest\').output.firstRow.blobCount, null), equals(activity(\'Read Manifest\').output.firstRow.blobCount, 0), and(contains(activity(\'Read Manifest\').output.firstRow, \'dataRowCount\'), or(equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, null), equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, 0))))'
+              value: '@or(equals(activity(\'Read Manifest\').output.firstRow.blobCount, null), equals(activity(\'Read Manifest\').output.firstRow.blobCount, 0), and(contains(activity(\'Read Manifest\').output.firstRow, \'dataRowCount\'), equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, 0)))'
               type: 'Expression'
             }
           }

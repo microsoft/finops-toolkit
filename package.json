@@ -32,6 +32,6 @@
   },
   "homepage": "https://aka.ms/finops/toolkit",
   "devDependencies": {
-    "all-contributors-cli": "^6.26.1"
+    "all-contributors-cli": "^7.0.0"
   }
 }

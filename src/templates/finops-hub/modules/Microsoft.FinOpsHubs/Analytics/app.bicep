@@ -1099,12 +1099,43 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       }
                     }
                   }
+                  { // Update InstanceSizeFlexibility in ADX
+                    name: 'Update InstanceSizeFlexibility in ADX'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Update Services in ADX'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: '.set-or-replace InstanceSizeFlexibility <| externaldata(InstanceSizeFlexibilityGroup: string, ArmSkuName: string, Ratio: real)[@"${ftkReleaseUri}/InstanceSizeFlexibility.csv"] with (format="csv", ignoreFirstRecord=true)'
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
+                      }
+                    }
+                  }
                   { // Ingestion Complete
                     name: 'Ingestion Complete'
                     type: 'SetVariable'
                     dependsOn: [
                       {
-                        activity: 'Update Services in ADX'
+                        activity: 'Update InstanceSizeFlexibility in ADX'
                         dependencyConditions: [
                           'Succeeded'
                         ]
