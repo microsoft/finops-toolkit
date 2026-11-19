@@ -116,6 +116,11 @@ This PowerShell script solution automates the generation of cost optimization re
         ```powershell
         .\CostRecommendations.ps1 -Verbose
         ```
+    *   To skip the reservation scenario prompts (for example, in unattended runs), pass the term and the look-back period as parameters:
+        ```powershell
+        .\CostRecommendations.ps1 -ReservationTerm 1 -ReservationLookback 60
+        ```
+        `-ReservationTerm` accepts `1` or `3` (years) and `-ReservationLookback` accepts `7`, `30` or `60` (days). When a parameter is omitted, the script prompts for it. The other prompts (assessment file, scope and manual checks) are not affected.
 
 4.  **Follow the Interactive Prompts:**
     *   **Azure Login:** If not already connected, an Azure login window will appear.
@@ -127,6 +132,7 @@ This PowerShell script solution automates the generation of cost optimization re
             *   `1. Entire environment (no filters).`
             *   `2. Load scope(s) from JSON file.` (A file dialog will appear to select the JSON file. See [Scope Definition JSON File](#scope-definition-json-file-optional) below).
     *   **Manual Checks:** Choose "Yes" or "Y" to process YAML-based recommendations.
+    *   **Reservation Scenario:** Choose the term (1 or 3 years) and the look-back period (7, 30 or 60 days) used as the primary scenario. Press Enter to keep the defaults (1 year, 60 days). These prompts are skipped when `-ReservationTerm` and `-ReservationLookback` are provided.
     *   **Script Self-Update (if triggered, e.g., missing prerequisites):** If the script updates itself, it may ask if you want to restart with the new version.
 
 5.  **Review the Output:**

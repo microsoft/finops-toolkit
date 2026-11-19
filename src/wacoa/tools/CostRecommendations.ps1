@@ -11,6 +11,10 @@
 param (
     [string]$subscriptionIds,
     [string]$resourceGroupName,
+    [ValidateSet('1', '3')]
+    [string]$ReservationTerm,
+    [ValidateSet('7', '30', '60')]
+    [string]$ReservationLookback,
     [switch]$Verbose
 )
 
@@ -487,20 +491,39 @@ function Manual-Validations {
 }
 
 function Get-ReservationScenario {
-    # Asks for the primary reservation/savings plan scenario used in the 'Recommendations' tab.
+    # Returns the primary reservation/savings plan scenario used in the 'Recommendations' tab.
     # All other scenarios are kept in the 'Reservation Scenarios' tab.
-    Write-Host "`nPrimary reservation/savings plan scenario (other scenarios go to the 'Reservation Scenarios' tab):" -ForegroundColor Cyan
+    # When -Term and/or -Lookback are provided, the matching prompt is skipped (unattended runs).
+    param (
+        [string]$Term,
+        [string]$Lookback
+    )
 
     $termMap = @{ '1' = 'P1Y'; '3' = 'P3Y' }
-    do {
-        $termChoice = Read-Host "Term: [1]-year or [3]-year? (Enter 1 or 3, default 1)"
-        if ([string]::IsNullOrWhiteSpace($termChoice)) { $termChoice = '1' }
-    } until ($termMap.ContainsKey($termChoice.Trim()))
+    $lookbackOptions = @('7', '30', '60')
 
-    do {
-        $lookbackChoice = Read-Host "Look-back period: [7], [30] or [60] days? (default 60)"
-        if ([string]::IsNullOrWhiteSpace($lookbackChoice)) { $lookbackChoice = '60' }
-    } until (@('7', '30', '60') -contains $lookbackChoice.Trim())
+    $termChoice = "$Term".Trim()
+    $lookbackChoice = "$Lookback".Trim()
+    $promptForTerm = -not $termMap.ContainsKey($termChoice)
+    $promptForLookback = $lookbackOptions -notcontains $lookbackChoice
+
+    if ($promptForTerm -or $promptForLookback) {
+        Write-Host "`nPrimary reservation/savings plan scenario (other scenarios go to the 'Reservation Scenarios' tab):" -ForegroundColor Cyan
+    }
+
+    if ($promptForTerm) {
+        do {
+            $termChoice = Read-Host "Term: [1]-year or [3]-year? (Enter 1 or 3, default 1)"
+            if ([string]::IsNullOrWhiteSpace($termChoice)) { $termChoice = '1' }
+        } until ($termMap.ContainsKey($termChoice.Trim()))
+    }
+
+    if ($promptForLookback) {
+        do {
+            $lookbackChoice = Read-Host "Look-back period: [7], [30] or [60] days? (default 60)"
+            if ([string]::IsNullOrWhiteSpace($lookbackChoice)) { $lookbackChoice = '60' }
+        } until ($lookbackOptions -contains $lookbackChoice.Trim())
+    }
 
     $scenario = @{ Term = $termMap[$termChoice.Trim()]; Lookback = $lookbackChoice.Trim() }
     Write-Log -Message "Primary reservation scenario: Term=$($scenario.Term), Lookback=$($scenario.Lookback) days." -Level "INFO"
@@ -714,6 +737,10 @@ function Start-CostRecommendations {
     param (
         [string]$subscriptionIds,
         [string]$resourceGroupName,
+        [ValidateSet('1', '3')]
+        [string]$ReservationTerm,
+        [ValidateSet('7', '30', '60')]
+        [string]$ReservationLookback,
         [switch]$Verbose
     )
 
@@ -821,7 +848,7 @@ function Start-CostRecommendations {
             Write-Log -Message "Skipping manual checks as per user request." -Level "INFO"
         }
         
-        $reservationScenario = Get-ReservationScenario
+        $reservationScenario = Get-ReservationScenario -Term $ReservationTerm -Lookback $ReservationLookback
 
         $results = Process-KQLFiles -BasePath $tempDir -ScopeObject $scope
 
@@ -895,5 +922,12 @@ function Start-CostRecommendations {
 }
 
 if ($MyInvocation.InvocationName -ne '.') {
-    Start-CostRecommendations -subscriptionIds $subscriptionIds -resourceGroupName $resourceGroupName -Verbose:$Verbose
+    $startParams = @{
+        subscriptionIds   = $subscriptionIds
+        resourceGroupName = $resourceGroupName
+        Verbose           = $Verbose
+    }
+    if ($PSBoundParameters.ContainsKey('ReservationTerm')) { $startParams.ReservationTerm = $ReservationTerm }
+    if ($PSBoundParameters.ContainsKey('ReservationLookback')) { $startParams.ReservationLookback = $ReservationLookback }
+    Start-CostRecommendations @startParams
 }
