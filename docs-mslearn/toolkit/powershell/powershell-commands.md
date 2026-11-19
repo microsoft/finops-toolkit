@@ -3,7 +3,11 @@ title: FinOps toolkit PowerShell module
 description: Automate and scale your FinOps efforts using the FinOps toolkit PowerShell module, which includes commands to manage FinOps solutions.
 author: flanakin
 ms.author: micflan
+<<<<<<< HEAD
 ms.date: 11/23/2026
+=======
+ms.date: 11/19/2026
+>>>>>>> d3887878 (chore: Update ms.date in docs-mslearn files)
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
