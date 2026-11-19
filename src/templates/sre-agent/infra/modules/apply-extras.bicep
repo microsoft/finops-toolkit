@@ -12,7 +12,8 @@ param agentEndpoint string
 @description('Subscription that contains the SRE Agent.')
 param subscriptionId string
 
-@description('Public URI for the generated SRE Agent recipe package.')
+@description('URI for the generated SRE Agent recipe package.')
+@secure()
 param recipePackageUri string
 
 @description('Profile to apply from the release package.')
@@ -90,7 +91,7 @@ resource applyExtras 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
       }
       {
         name: 'recipePackageUri'
-        value: recipePackageUri
+        secureValue: recipePackageUri
       }
       {
         name: 'costSourceMode'

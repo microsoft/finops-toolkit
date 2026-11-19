@@ -47,7 +47,7 @@ class ProfileTests(unittest.TestCase):
     def test_hubs_has_catalog_and_hub_schedules(self):
         profile = self.extras['hubs']
         actual = {item['metadata']['name'] for item in profile['tools'] if item['spec']['type'] == 'KustoTool'}
-        catalog = ROOT.parents[2] / 'queries/catalog'
+        catalog = ROOT.parents[1] / 'queries/catalog'
         self.assertEqual({path.stem for path in catalog.glob('*.kql')} | {'hub-query-probe', 'hub-cost-query-proof'}, actual)
         self.assertIn('monthly-cost-trend', actual)
         self.assertEqual(19, len(profile['scheduledTasks']))

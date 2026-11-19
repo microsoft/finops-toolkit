@@ -32,7 +32,7 @@
             "constraints": {
               "required": true,
               "allowedValues": [
-                { "label": "Native Azure Cost Management", "value": "native" },
+                { "label": "Azure Cost Management", "value": "native" },
                 { "label": "FinOps hubs", "value": "hubs" }
               ]
             }

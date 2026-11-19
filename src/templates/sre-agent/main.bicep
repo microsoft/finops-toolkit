@@ -61,7 +61,8 @@ param enableSubscriptionReaderRole bool = false
 @description('Grant Cost Management Reader on the deployment subscription.')
 param enableSubscriptionCostReaderRole bool = false
 
-@description('Public URI for the generated SRE Agent recipe package. Deploy-to-Azure links derive this from the template URI.')
+@description('URI for the generated SRE Agent recipe package. Deploy-to-Azure links derive this from the template URI when no URI is supplied.')
+@secure()
 param recipePackageUri string = ''
 
 @description('Apply the packaged profile in Azure. The CLI applies the same package locally.')

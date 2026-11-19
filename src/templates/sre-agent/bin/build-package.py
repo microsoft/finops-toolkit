@@ -11,7 +11,7 @@ import yaml
 from catalog import build_tools
 
 ROOT = Path(__file__).resolve().parents[1]
-TEMPLATES = ROOT.parents[1]
+TEMPLATES = ROOT.parent
 PROFILES = ROOT / 'profiles'
 SHARED = PROFILES / 'shared'
 MCP = 'azure-resource-manager-mcp'
@@ -99,7 +99,7 @@ def profile(mode):
                      'Report ingestion, reachability, and data coverage gaps without changing the hub.', ['data-freshness-check', 'resource-graph-query']),
         ])
         routing = ('Use Task to invoke ftk-database-query for Hub financial history and ftk-hubs-agent for Hub freshness and scope. '
-                   'Use assigned native Azure Cost Management tools for live budgets, alerts, prices, and billing evidence, never as a silent replacement for Hub history. '
+                   'Use assigned Azure Cost Management tools for live budgets, alerts, prices, and billing evidence, never as a silent replacement for Hub history. '
                    'Use Task to invoke azure-capacity-manager for quota and capacity evidence and chief-financial-officer for finance framing.')
     agents.append(subagent('finops-practitioner', routing + ' Use the reporting guide in the knowledge base. '
                            'Never change resources. Recommend owner and dependency validation for deletion candidates. '

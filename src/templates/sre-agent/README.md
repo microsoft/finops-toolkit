@@ -1,8 +1,8 @@
 # FinOps toolkit SRE Agent deployment requirements
 
-**Status:** Both profiles passed deployment UAT. Teams authorization and delivery are out of scope. See the [implementation plan](PLAN.md) for acceptance checks.
+**Status:** Both profiles passed deployment testing, including deployment through the Azure portal. Teams authorization and delivery were out of scope. For deployment steps, see [Deploy Azure SRE Agent for FinOps](../../../docs-mslearn/toolkit/hubs/deploy-sre-agent.md).
 
-Build one self-contained release package that deploys one Azure SRE Agent. At deployment time, choose **Native Azure Cost Management** or **FinOps hubs** as the primary cost data source. Both profiles are maintained here. Optional [FinOps hubs Live Reports](live-reports/README.md) are available separately from agent deployment.
+Build one self-contained release package that deploys one Azure SRE Agent. At deployment time, choose **Azure Cost Management** or **FinOps hubs** as the primary cost data source. Both profiles are maintained here. Optional [FinOps hubs Live Reports](live-reports/README.md) are available separately from agent deployment.
 
 ## Build and validate
 
@@ -50,7 +50,7 @@ Use `bin/run-smoke.py` against a UAT agent to start a read-only test and capture
 
 ## Mode requirements
 
-| Requirement | Native Azure Cost Management (`native`) | FinOps hubs (`hubs`) |
+| Requirement | Azure Cost Management (`native`) | FinOps hubs (`hubs`) |
 |---|---|---|
 | Primary cost evidence | Azure Cost Management through the Azure Resource Manager Model Context Protocol (MCP) connector. | Existing FinOps hub in Azure Data Explorer (ADX). Use the connector and catalog-backed queries for historical cost, allocation, savings, and fiscal reporting. |
 | Required data connection | No hub inputs, Kusto connector, ADX grants, or hub-only schedules. | Require a database-qualified ADX URI and the resource ID needed for the grant. For UAT, resolve these from the supplied hub resource group or require explicit IDs if discovery is ambiguous. Don't create or upgrade the hub. |
