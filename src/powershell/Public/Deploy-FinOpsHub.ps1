@@ -374,9 +374,11 @@ function Deploy-FinOpsHub
                 $parameterSplat.TemplateParameterObject.Add('enableKeyVaultRbacAuthorization', $true)
             }
 
-            if ($Version -eq 'latest' -or $templateVersion -ge '16.0')
+            # Only pass disableStorageSharedKeyAccess when requested so default deployments stay compatible
+            # with published templates that predate the parameter.
+            if ($DisableStorageSharedKeyAccess -and ($Version -eq 'latest' -or $templateVersion -ge '16.0'))
             {
-                $parameterSplat.TemplateParameterObject.Add('disableStorageSharedKeyAccess', $DisableStorageSharedKeyAccess.IsPresent)
+                $parameterSplat.TemplateParameterObject.Add('disableStorageSharedKeyAccess', $true)
             }
 
             # Only pass enableNatGateway when private mode is requested. This keeps public/vnet

@@ -475,10 +475,10 @@ InModuleScope 'FinOpsToolkit' {
                 Mock -CommandName 'New-AzResourceGroupDeployment'
             }
 
-            It 'Should default to allowing Shared Key access' {
+            It 'Should omit disableStorageSharedKeyAccess by default' {
                 { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Not -Throw
                 Should -Invoke -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
-                    $TemplateParameterObject.disableStorageSharedKeyAccess -eq $false
+                    -not $TemplateParameterObject.ContainsKey('disableStorageSharedKeyAccess')
                 } -Times 1
             }
 
