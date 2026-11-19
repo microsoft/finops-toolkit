@@ -15,6 +15,7 @@ with (docstring = 'Gets all commitment discount usage records aligned to FOCUS 1
 CommitmentDiscountUsage_v1_2()
 {
     database('Ingestion').CommitmentDiscountUsage_final_v1_2
+    | union (database('Ingestion').CommitmentDiscountUsage_final_v1_4)
     | union (
         database('Ingestion').CommitmentDiscountUsage_final_v1_0
         // Convert decimal to real
@@ -199,6 +200,37 @@ Costs_v1_2()
             parse_json(replace_string(tostring(SkuPriceDetails), '}', strcat(@',"OperatingSystem":"', x_SkuOperatingSystem, '"}'))),
             SkuPriceDetails)
     )
+    | union (
+        database('Ingestion').Costs_final_v1_4
+        // Restore deprecated columns removed in FOCUS 1.4
+        | extend
+            ProviderName  = HostProviderName,
+            PublisherName = ServiceProviderName
+        // Remove FOCUS 1.3 and 1.4 columns
+        | project-away
+            AllocatedMethodDetails,
+            AllocatedMethodId,
+            AllocatedResourceId,
+            AllocatedResourceName,
+            AllocatedTags,
+            CommitmentProgramEligibilityDetails,
+            ContractApplied,
+            ContractCommitmentBenefitCategory,
+            ContractCommitmentCreated,
+            ContractCommitmentDiscountPercentage,
+            ContractCommitmentDurationType,
+            ContractCommitmentFulfillmentInterval,
+            ContractCommitmentLastUpdated,
+            ContractCommitmentLifecycleStatus,
+            ContractCommitmentModel,
+            ContractCommitmentOfferCategory,
+            ContractCommitmentPaymentInterval,
+            ContractCommitmentPaymentModel,
+            ContractCommitmentPaymentUpfrontPercentage,
+            HostProviderName,
+            InvoiceDetailId,
+            ServiceProviderName
+    )
     | extend SkuPriceDetails = iff(isnotempty(SkuPriceDetails), SkuPriceDetails, parse_json(replace_regex(tostring(x_SkuDetails), @'([\{,])"', @'\1"x_')))
     | project
         AvailabilityZone,
@@ -365,6 +397,7 @@ with (docstring = 'Gets all prices aligned to FOCUS 1.2.', folder = 'Prices')
 Prices_v1_2()
 {
     database('Ingestion').Prices_final_v1_2
+    | union (database('Ingestion').Prices_final_v1_4)
     | union (
         database('Ingestion').Prices_final_v1_0
         // Convert decimal to real
@@ -452,6 +485,7 @@ with (docstring = 'Gets all recommendations aligned to FOCUS 1.2.', folder = 'Re
 Recommendations_v1_2()
 {
     database('Ingestion').Recommendations_final_v1_2
+    | union (database('Ingestion').Recommendations_final_v1_4)
     | union (
         database('Ingestion').Recommendations_final_v1_0
         // Convert decimal to real
@@ -490,6 +524,7 @@ with (docstring = 'Gets all transactions aligned to FOCUS 1.2.', folder = 'Trans
 Transactions_v1_2()
 {
     database('Ingestion').Transactions_final_v1_2
+    | union (database('Ingestion').Transactions_final_v1_4)
     | union (
         database('Ingestion').Transactions_final_v1_0
         // Convert decimal to real
@@ -542,48 +577,4 @@ Transactions_v1_2()
         x_SourceVersion,
         x_SubscriptionId,
         x_TransactionType
-}
-
-
-//======================================================================================================================
-// Latest FOCUS version
-//======================================================================================================================
-
-.create-or-alter function
-with (docstring = 'Gets all commitment discount usage records with the latest supported version of the FOCUS schema.', folder = 'CommitmentDiscountUsage')
-CommitmentDiscountUsage()
-{
-    CommitmentDiscountUsage_v1_2()
-}
-
-
-.create-or-alter function
-with (docstring = 'Gets all cost and usage records with the latest supported version of the FOCUS schema.', folder = 'Costs')
-Costs()
-{
-    Costs_v1_2()
-}
-
-
-.create-or-alter function
-with (docstring = 'Gets all prices with the latest supported version of the FOCUS schema.', folder = 'Prices')
-Prices()
-{
-    Prices_v1_2()
-}
-
-
-.create-or-alter function
-with (docstring = 'Gets all recommendations with the latest supported version of the FOCUS schema.', folder = 'Recommendations')
-Recommendations()
-{
-    Recommendations_v1_2()
-}
-
-
-.create-or-alter function
-with (docstring = 'Gets all transactions with the latest supported version of the FOCUS schema.', folder = 'Transactions')
-Transactions()
-{
-    Transactions_v1_2()
 }
