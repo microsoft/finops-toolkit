@@ -5,6 +5,7 @@ Our open data solutions are pretty straightforward. Nothing to deploy. Just use 
 On this page:
 
 - [💰 Commitment discount eligibility](#-commitment-discount-eligibility)
+- [📐 Instance size flexibility](#-instance-size-flexibility)
 - [📏 Pricing units](#-pricing-units)
 - [🗺️ Regions](#️-regions)
 - [🗺️ Resource types](#️-resource-types)
@@ -27,6 +28,36 @@ To update manually:
 
 ```powershell
 ./src/scripts/Update-CommitmentDiscountEligibility.ps1
+```
+
+<br>
+
+## 📐 Instance size flexibility
+
+<sup>
+    📅 Updated: Jun 28, 2026<br>
+    ➡️ Source: Azure Reservations Catalogs API<br>
+</sup>
+
+<br>
+
+The [InstanceSizeFlexibility.csv](./InstanceSizeFlexibility.csv) file maps each ARM SKU to its instance size flexibility (ISF) group and ratio. ISF lets a reservation apply across multiple SKUs in the same flexibility group; the ratio is the relative weight of each SKU within its group. It covers Virtual Machines, Redis Cache, and Dedicated Host, unioned across every physical region the ARM locations API reports (ISF groups are region-stable, but SKU availability is not, and new GPU and specialty SKUs often launch in only a handful of regions). Each group is normalized so its smallest SKU has a ratio of `1`; pass `-Raw` to publish the Catalogs API values verbatim instead. The API leaves ratios unnormalized — only 52 of its 211 groups start at `1`, which [Microsoft's own documentation calls out](https://learn.microsoft.com/azure/cost-management-billing/reservations/instance-size-flexibility#normalize-isf-ratios) (`BS Series` starts at `0.25`, `Ddsv5 Series` at `2`) alongside a normalization step. Both forms carry identical proportions within a group and differ by a per-group constant, and ratios are only ever meaningful within their group, so normalizing loses nothing. It is also the form the retired `isfratioblob.csv` published and the form the Optimization Engine assumes when it converts quantities into units of a group's smallest SKU. This data is updated weekly by the [Update Instance Size Flexibility](../../.github/workflows/opendata-instance-size-flexibility.yml) workflow, which queries the [Azure Reservations Catalogs API](https://learn.microsoft.com/azure/cost-management-billing/reservations/instance-size-flexibility#extract-instance-size-flexibility-ratios-using-azure-catalogs-api). Each run publishes exactly what the API returns, so records Microsoft retires from the catalog disappear from the file on the next update.
+
+SKUs whose ratio is not a positive number are dropped. The API returns one such row today (`azure_redis_cache_isolated_i100` at `0`); a zero carries no flexibility information and consumers divide by `Ratio`, so publishing it would hand them a division by zero. Ratios are also parsed and written with the invariant culture, so a comma-decimal machine can't publish `"2,1"`.
+
+This dataset replaces two deprecated static CSVs that were hosted on `ccmstorageprod.blob.core.windows.net` (`AutofitComboMeterData.csv` and `isfratioblob.csv` / `aka.ms/isf`), which Microsoft is retiring (no updates after 9 May 2026, removed 30 Aug 2026).
+
+The file uses the canonical three-column Catalogs API schema: `InstanceSizeFlexibilityGroup`, `ArmSkuName`, `Ratio`. This is a 1:1 match for the deprecated `isfratioblob.csv`. `ArmSkuName` is unique across the whole file and is safe to use as a standalone join key; both the generator and a unit test enforce this. The deprecated `AutofitComboMeterData.csv` also carried Cost Management connector columns (`ResourceLocation`, meter IDs, composite key, normalized SKU) that are not part of the Catalogs API and aren't reproducible from it; consumers that relied on them (e.g. the Power BI model's join key) should join on `ArmSkuName` instead.
+
+Block Blob storage also exposes ISF metadata in the Catalogs API, but it is intentionally excluded: its entries carry meter-style catalog names rather than real ARM SKU names, every ratio is `1`, and its groups are region-specific — which would duplicate `ArmSkuName` values and break the join-key guarantee above. Pass `-ReservedResourceType` explicitly to generate it if needed.
+
+The Catalogs API is authenticated and requires the `Microsoft.Capacity/catalogs/read` permission, so this script must run with an active Azure context. Downstream tools consume the resulting public CSV and need no Azure credentials.
+
+To update manually:
+
+```powershell
+Connect-AzAccount
+./src/scripts/Update-InstanceSizeFlexibility.ps1
 ```
 
 <br>

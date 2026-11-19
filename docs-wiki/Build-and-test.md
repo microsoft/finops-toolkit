@@ -10,6 +10,7 @@ On this page:
 - [👍 Manually deployed + verified](#-manually-deployed--verified)
 - [💪 Unit tests](#-unit-tests)
 - [🙌 Integration tests](#-integration-tests)
+- [PR deployment and cleanup](#pr-deployment-and-cleanup)
 
 ---
 
@@ -132,16 +133,23 @@ The Build-PowerShell script calls an Invoke-Build task internally.
 
 ### Building Power BI reports
 
-Power BI reports cannot be built automatically. Generating PBIT and PBIX files must be done manually:
+Run [Build-PowerBI](../tree/dev/src/scripts/README.md#-build-powerbi) to generate the Power BI release artifacts:
 
-1. Open the desired Power BI report.
-2. Save the report as a `.pbix` file using the same name in the `releases` folder.
-3. Remove unnecessary queries.
-4. Remove setup instructions for unnecessary parameters.
-5. Remove unnecessary parameters.
-6. Save the report again.
-7. Copy the first paragraph description from the main page.
-8. Save the report as a `.pbit` file using the copied description and add "To learn more, see https://aka.ms/ftk/<report-name-no-spaces>".
+```powershell
+cd <root>/src/scripts
+./Build-PowerBI
+```
+
+This generates two things from a single prune, so the template and the demo report can't drift:
+
+- PBIT templates in `release/pbit`, zipped into `PowerBI-kql.zip` and `PowerBI-storage.zip`.
+- PBIP projects for demo reports in `release/pbix`, each containing only the tables, relationships, and queries that report needs.
+
+The tables and queries each report keeps are listed in [src/power-bi/reports.json](../tree/dev/src/power-bi/reports.json). When a report starts using a new table or query, add it there. The build fails when a visual, query, table, or measure uses something the report doesn't keep. The `PowerBIReports` lint test checks the visuals and the list itself in pull requests.
+
+Demo projects keep the data source saved in the semantic model. They read open data from the `main` branch, because the release URL resolves to the last published release and doesn't have open data files added during the release being built. Templates always ship with the data source set to null and the release open data URL. Only permanent URLs are accepted, because the URL ships inside the demo reports. To test before the merge to `main`, add `-TestOpenDataUrl` and pass a branch with `-OpenDataUrl`. Reports built that way are not packaged.
+
+Demo PBIX files need Power BI Desktop to load and save them. On Windows, run [Package-PowerBI](../tree/dev/src/scripts/README.md#-package-powerbi) `-Unattended` to save, validate, and package them automatically.
 
 ### Building documentation
 
@@ -155,6 +163,57 @@ Documentation does not currently require a build process. Documentation is autom
    - Folder = /docs
 4. Wait 5m for everything to build (or go to Actions to track the deployment proactively).
 5. Go to (your-username).github.io/finops-toolkit in the browser to view the docs.
+
+<br>
+
+## PR deployment and cleanup
+
+### Test PR changes
+
+`PR Deploy` runs only for PRs from branches in this repository. It runs build scripts and deploys templates with Azure credentials. It checks out the exact commit from the PR event and does not save Git credentials. Its module cache uses a new name to exclude entries from earlier fork deployments. Adding the `Needs: Deployment` label does not deploy a fork PR.
+
+To test a fork contribution:
+
+1. Record the full commit ID (SHA) from the fork PR.
+2. Review that exact commit, including scripts, workflows, templates, dependencies, and other code.
+3. Copy only the reviewed commit to a branch in this repository. Follow the repository's Git policy to preserve commit history.
+4. Open a PR from that branch and select the deployment checkboxes in its description.
+5. Review each new fork commit before you update the repository branch. Do not copy later fork commits automatically.
+
+A branch in this repository can run code with Azure credentials. A maintainer must review fork code before copying it to that branch. `Initialize-CI.ps1` creates `ftk-pr` without required reviewers. Check its current settings before use. Deployment options, template path filters, Azure resource names, and automatic cleanup do not change.
+
+### Review Copilot changes
+
+Copilot cloud agent creates `copilot/*` branches in this repository. These branches pass the same-repository check, but the check does not establish that someone reviewed the code.
+
+By default, GitHub waits for **Approve and run workflows** before it runs workflows after a Copilot push. Review the exact proposed commit before you select this button. If deployment checkboxes are selected, this approval can allow deployment with Azure credentials. Do not enable automatic workflow runs for Copilot as a replacement for code review.
+
+See [Review output from Copilot](https://docs.github.com/en/copilot/how-tos/copilot-on-github/use-copilot-agents/review-copilot-output).
+
+### Cleanup event policy
+
+`PR Cleanup` keeps `pull_request_target: closed`. This event starts cleanup when a PR closes, including a PR from a fork. The task needs Azure sign-in and repository write permissions to delete test resource groups and report failures. It does not check out code, run PR scripts, or use files from PR builds. Its permissions apply only to the cleanup job. Keep credentials for both `ftk-pr` and `ftk-fork` while cleanup can need them.
+
+The October 28 reminder extends the deadline from November 2 to **December 2, 2026**. The notice states that GitHub will block this trigger in public repositories without an applicable event policy. A repository administrator must obtain temporary administrator access through JIT (just-in-time access). The administrator must then:
+
+1. Open **Settings > Actions > Policy insights** to check which runs GitHub will block.
+2. Set an event policy that allows only `.github/workflows/ftk-pr-cleanup.yml`.
+3. Keep `.github/workflows/ftk-pr-deploy.yml` outside that policy. Deployment no longer uses `pull_request_target`.
+4. Check the policy and required environment approvals before a cleanup test.
+
+Do not allow this trigger for the whole repository. This code change does not change repository settings, environment protection, Azure permissions, or the event policy. Cleanup will stop at the deadline without a policy that allows it.
+
+Before use, run the five CodeQL checks for untrusted checkout and checkout timing errors against these two workflows. Require zero findings, or obtain the security-team review allowed by the notice. Checking out an exact commit prevents the checked version from changing. It does not make unreviewed code safe.
+
+Run the local workflow tests from the repository root:
+
+```powershell
+Invoke-Pester -Path ./src/powershell/Tests/Unit/PrWorkflowSecurity.Tests.ps1 -Output Detailed
+```
+
+These tests check deployment restrictions, all six checkboxes, template file selection, API errors, and resource deletion. Azure commands use test responses; the tests do not connect to Azure or delete resources. Bash is required. On Windows, the tests use Bash from Git for Windows. The separate Fabric URI extractor requires GNU grep and is not part of these local tests.
+
+References: [Preventing pwn requests](https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/) and [GitHub Actions: New patterns and mitigations](https://securitylab.github.com/resources/github-actions-new-patterns-and-mitigations/).
 
 <br>
 

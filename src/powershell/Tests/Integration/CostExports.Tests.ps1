@@ -15,6 +15,18 @@ Describe 'CostExports' {
         $storageName = ([guid]::NewGuid().Guid.Replace('-', '').Substring(0, 24))
         $exportName = "ftk-int-CostExports"
 
+        # The exports list API is eventually consistent, so a just-created export can be missing for a short time
+        function Get-FinOpsCostExportWithRetry($Name, $Scope, $MaxAttempts = 12, $DelaySeconds = 10)
+        {
+            for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++)
+            {
+                $result = Get-FinOpsCostExport -Name $Name -Scope $Scope -RunHistory
+                if (@($result).Count -ge 1) { return $result }
+                Start-Sleep -Seconds $DelaySeconds
+            }
+            return $result
+        }
+
         New-AzResourceGroup -Name $rg -Location $loc -Force
         $storage = New-AzStorageAccount `
             -ResourceGroupName $rg `
@@ -40,7 +52,7 @@ Describe 'CostExports' {
 
             Monitor "Getting $typedExportName..." {
                 # Act -- read
-                $getResult = Get-FinOpsCostExport -Name $typedExportName -Scope $scope -RunHistory
+                $getResult = Get-FinOpsCostExportWithRetry -Name $typedExportName -Scope $scope
 
                 # Assert
                 Report "Found $($getResult.Count) export(s)"
@@ -98,7 +110,7 @@ Describe 'CostExports' {
 
             Monitor "Getting $historicalExportName..." {
                 # Act -- read
-                $getResult = Get-FinOpsCostExport -Name $historicalExportName -Scope $scope -RunHistory
+                $getResult = Get-FinOpsCostExportWithRetry -Name $historicalExportName -Scope $scope
 
                 # Assert
                 Report "Found $($getResult.Count) export(s)"
@@ -146,7 +158,7 @@ Describe 'CostExports' {
 
             Monitor "Getting $historicalExportName..." {
                 # Act -- read
-                $getResult = Get-FinOpsCostExport -Name $historicalExportName -Scope $scope -RunHistory
+                $getResult = Get-FinOpsCostExportWithRetry -Name $historicalExportName -Scope $scope
 
                 # Assert
                 Report "Found $($getResult.Count) export(s)"
@@ -198,7 +210,7 @@ Describe 'CostExports' {
 
             Monitor "Getting $historicalExportName..." {
                 # Act -- read
-                $getResult = Get-FinOpsCostExport -Name $historicalExportName -Scope $scope -RunHistory
+                $getResult = Get-FinOpsCostExportWithRetry -Name $historicalExportName -Scope $scope
 
                 # Assert
                 Report "Found $($getResult.Count) export(s)"
@@ -262,7 +274,7 @@ Describe 'CostExports' {
 
             Monitor "Getting $exportName..." {
                 # Act -- read
-                $getResult = Get-FinOpsCostExport -Name $exportName -Scope $scope -RunHistory
+                $getResult = Get-FinOpsCostExportWithRetry -Name $exportName -Scope $scope
 
                 # Assert
                 Report "Found $($getResult.Count) export(s)"
