@@ -3,7 +3,7 @@ title: FinOps benchmarking
 description: This article helps you understand the benchmarking capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 05/12/2026
+ms.date: 06/21/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -33,7 +33,7 @@ When you first start managing cost in the cloud, use the existing guidance and r
 
 - Review the [Azure Advisor score](/azure/advisor/azure-advisor-score) at the primary scope you manage, whether that's a subscription, resource group, or based on tags.
   - The Advisor score consists of an overall score, which can be further broken down into five category scores. One score for each category of Advisor represents the five pillars of the Well-Architected Framework.
-  - Use the [Workload optimization](../optimize/workloads.md) capability to prioritize and implement recommendations with the highest priority.
+  - Use the [Usage optimization](../optimize/workloads.md) capability to prioritize and implement recommendations with the highest priority.
   - Use the [Rate optimization](../optimize/rates.md) capability to maximize savings with commitment discounts, like reservations and savings plans.
 - Complete the [Azure Well-Architected Review self-assessment](/azure/well-architected/cross-cutting-guides/implementing-recommendations) to identify areas your existing workloads can be improved based on the Azure Well-Architected Framework.
   - Link your subscription to include Azure Advisor recommendations in the assessment.
@@ -87,7 +87,7 @@ Related FinOps capabilities:
 - [Forecasting](./forecasting.md)
 - [Budgeting](./budgeting.md)
 - [Unit economics](./unit-economics.md)
-- [Workload optimization](../optimize/workloads.md)
+- [Usage optimization](../optimize/workloads.md)
 - [Rate optimization](../optimize/rates.md)
 
 Related products:

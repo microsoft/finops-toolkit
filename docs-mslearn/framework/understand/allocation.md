@@ -3,7 +3,7 @@ title: Allocation
 description: This article helps you understand the Allocation capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 06/21/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -65,7 +65,7 @@ Allocation is usually an afterthought and requires some level of cleanup when in
 - Contact stakeholders who are responsible for the potentially shared services. Make sure they understand if the shared services are shared and how costs are allocated today. If not accounted for, how allocation could or should be done.
 - How do you want to use management groups?
   - Organize subscriptions into environment-based management groups to optimize for policy assignment. Management groups allow policy admins to manage policies at the top level but blocks the ability to perform cross-subscription reporting without an external solution, which increases your data analysis and showback efforts.
-  - To optimize for organizational reporting, organize subscriptions into management groups based on the organizational hierarchy. Management groups allow leaders within the organization to view costs more naturally from the portal but requires policy admins to use tag-based policies, which increases policy and governance efforts. Also keep in mind you might have multiple organizational hierarchies and management groups only support one.
+  - To optimize for organizational reporting, organize subscriptions into management groups based on the organizational hierarchy. Management groups allow leaders within the organization to view costs more naturally from the portal but requires policy admins to use tag-based policies, which increases governance, policy, and risk efforts. Also keep in mind you might have multiple organizational hierarchies and management groups only support one.
 - [Define a comprehensive tagging strategy](/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging) that aligns with your organization's allocation objectives.
   - Consider the specific attributes that are relevant for cost attribution, such as:
     - How to map costs back to financial constructs, for example, cost center?
