@@ -3,7 +3,7 @@ title: FinOps best practices for compute
 description: This article provides FinOps best practices for compute services, including cost optimization, efficiency improvements, and insights into Azure resources.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/12/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -180,7 +180,7 @@ Costs
 // Join with prices to filter out ineligible SKUs
 | extend tmp_MeterKey = strcat(substring(ChargePeriodStart, 0, 7), x_SkuMeterId)
 | project tmp_MeterKey, EffectiveCost, PricingCategory, CommitmentDiscountCategory, ResourceName, x_ResourceGroupName, SubAccountName, BillingCurrency
-| join kind=leftouter (
+| lookup kind=leftouter (
     Prices
     | where x_SkuMeterCategory startswith 'Virtual Machines'
     | summarize sp = countif(x_SkuPriceType == 'SavingsPlan'), ri = countif(x_SkuPriceType == 'ReservedInstance')
@@ -216,7 +216,7 @@ Costs
 // Join with prices to filter out ineligible SKUs
 | extend tmp_MeterKey = strcat(substring(ChargePeriodStart, 0, 7), x_SkuMeterId)
 | project tmp_MeterKey, EffectiveCost, PricingCategory, CommitmentDiscountCategory, ResourceName, x_ResourceGroupName, SubAccountName, BillingCurrency
-| join kind=leftouter (
+| lookup kind=leftouter (
     Prices
     | where x_SkuMeterCategory startswith 'Virtual Machines'
     | summarize sp = countif(x_SkuPriceType == 'SavingsPlan'), ri = countif(x_SkuPriceType == 'ReservedInstance')
@@ -366,7 +366,7 @@ resourcecontainers
 | where type =~ 'Microsoft.Resources/subscriptions'
 | where tostring(properties.subscriptionPolicies.quotaId) !has 'MSDNDevTest_2014-09-01'
 | project SubscriptionName = name, subscriptionId
-| join (
+| join kind=inner (
     resources
     | where type =~ 'microsoft.compute/virtualmachines'
         or type =~ 'microsoft.compute/virtualMachineScaleSets'
@@ -422,13 +422,14 @@ resourcecontainers
 | where type =~ 'Microsoft.Resources/subscriptions'
 | where tostring(properties.subscriptionPolicies.quotaId) !has 'MSDNDevTest_2014-09-01'
 | project SubscriptionName = name, subscriptionId
-| join (
+| join kind=inner (
     resources
     | where type =~ 'Microsoft.SqlVirtualMachine/SqlVirtualMachines'
         and tostring(properties.['sqlServerLicenseType']) != 'AHUB'
     | project
         ResourceId = id,
         ResourceName = name,
+        VMResourceId = tolower(tostring(properties.virtualMachineResourceId)),
         LicenseType = tostring(properties.['sqlServerLicenseType']),
         SQLVersion = tostring(properties.['sqlImageOffer']),
         SQLSKU = tostring(properties.['sqlImageSku']),
@@ -436,14 +437,13 @@ resourcecontainers
         ResourceGroupName = resourceGroup,
         subscriptionId
 ) on subscriptionId
-| join (
+| join kind=inner (
     resources
     | where type =~ 'Microsoft.Compute/virtualMachines'
     | project
-        ResourceName = tolower(name),
-        VMSize = tostring(properties.hardwareProfile.vmSize),
-        subscriptionId
-) on ResourceName
+        VMResourceId = tolower(id),
+        VMSize = tostring(properties.hardwareProfile.vmSize)
+) on VMResourceId
 | where SQLSKU != 'Developer' and SQLSKU != 'Express'
 | project
     ResourceId,

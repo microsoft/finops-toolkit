@@ -3,7 +3,7 @@ title: FinOps capabilities
 description: Learn about what the fundamental building blocks of the FinOps Framework that enable you to maximize business value through the cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 06/21/2026
 ms.topic: conceptual
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -44,7 +44,7 @@ The **Quantify business value** domain is focused on identifying and breaking do
 The **Optimize usage and cost** domain is focused on designing and optimizing solutions for efficiency to ensure you get the most out of your cloud investments.
 
 - [Architecting for the cloud](./optimize/architecting.md)
-- [Workload optimization](./optimize/workloads.md)
+- [Usage optimization](./optimize/workloads.md)
 - [Rate optimization](./optimize/rates.md)
 - [Licensing and SaaS](./optimize/licensing.md)
 - [Cloud sustainability](./optimize/sustainability.md)
@@ -58,7 +58,7 @@ The **Manage the FinOps practice** domain is focused on establishing a clear and
 - [FinOps education and enablement](./manage/education.md)
 - [FinOps practice operations](./manage/operations.md)
 - [Onboarding workloads](./manage/onboarding.md)
-- [Policy and governance](./manage/governance.md)
+- [Governance, policy, and risk](./manage/governance.md)
 - [Invoicing and chargeback](./manage/invoicing-chargeback.md)
 - [FinOps assessment](./manage/assessment.md)
 - [FinOps tools and services](./manage/tools-services.md)
