@@ -308,9 +308,6 @@
 ]
 ```
 
-// BillingPeriods_raw retention policy (clear historical data)
-.alter-merge table BillingPeriods_raw policy retention softdelete = 0d recoverability = disabled
-
 // BillingPeriods_raw retention policy (set the user-defined retention period)
 .alter-merge table BillingPeriods_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
@@ -467,9 +464,6 @@
     { "Column": "x_SourceVersion",                            "Properties": { "Field": "x_SourceVersion" } }
 ]
 ```
-
-// ContractCommitments_raw retention policy (clear historical data)
-.alter-merge table ContractCommitments_raw policy retention softdelete = 0d recoverability = disabled
 
 // ContractCommitments_raw retention policy (set the user-defined retention period)
 .alter-merge table ContractCommitments_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
@@ -901,9 +895,6 @@
     { "Column": "x_SourceVersion",                "Properties": { "Field": "x_SourceVersion" } }
 ]
 ```
-
-// InvoiceDetails_raw retention policy (clear historical data)
-.alter-merge table InvoiceDetails_raw policy retention softdelete = 0d recoverability = disabled
 
 // InvoiceDetails_raw retention policy (set the user-defined retention period)
 .alter-merge table InvoiceDetails_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
