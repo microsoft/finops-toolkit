@@ -1,0 +1,288 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: zone-mapping
+spec:
+  type: PythonFunctionTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Compares logical availability-zone mappings between a reference Azure
+    subscription and one or more peer subscriptions in a region. Use this
+    read-only check before cross-subscription zonal placement or shared capacity
+    reservation group decisions.
+  functionCode: |-
+    def main(**kwargs):
+        import datetime
+        import uuid
+
+        ARM_ENDPOINT = "https://management.azure.com"
+        ARM_SCOPE = "https://management.azure.com/.default"
+        API_VERSION = "2022-12-01"
+
+        def normalize_subscription_id(value):
+            value = str(value or "").strip()
+            value = value.removeprefix("/subscriptions/").removeprefix("subscriptions/")
+            try:
+                return str(uuid.UUID(value))
+            except ValueError:
+                return None
+
+        reference_input = kwargs.get("reference_subscription_id")
+        reference_subscription_id = normalize_subscription_id(reference_input)
+        location = str(kwargs.get("location") or "").strip()
+        peer_subscription_ids = kwargs.get("peer_subscription_ids")
+
+        if isinstance(peer_subscription_ids, str):
+            peer_inputs = [item.strip() for item in peer_subscription_ids.split(",") if item.strip()]
+        elif isinstance(peer_subscription_ids, (list, tuple, set)):
+            peer_inputs = [str(item).strip() for item in peer_subscription_ids if str(item).strip()]
+        else:
+            peer_inputs = []
+
+        peers = []
+        invalid_peers = []
+        for peer_input in peer_inputs:
+            normalized_peer = normalize_subscription_id(peer_input)
+            if normalized_peer:
+                if normalized_peer not in peers:
+                    peers.append(normalized_peer)
+            else:
+                invalid_peers.append(peer_input)
+
+        checked_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        result = {
+            "reference_subscription_id": reference_subscription_id or str(reference_input or "").strip(),
+            "peer_subscription_ids": peers,
+            "location": location,
+            "checked_at": checked_at,
+            "availability_zone_peers": [],
+            "errors": [],
+        }
+
+        if not reference_subscription_id:
+            result["errors"].append({
+                "field": "reference_subscription_id",
+                "error": "A valid reference subscription UUID is required",
+            })
+        if not location:
+            result["errors"].append({
+                "field": "location",
+                "error": "location is required",
+            })
+        if not peers:
+            result["errors"].append({
+                "field": "peer_subscription_ids",
+                "error": "At least one peer subscription UUID is required",
+            })
+        if invalid_peers:
+            result["errors"].append({
+                "field": "peer_subscription_ids",
+                "error": "All peer subscription IDs must be valid UUIDs",
+                "invalid_values": invalid_peers,
+            })
+
+        if result["errors"]:
+            return result
+
+        try:
+            import requests
+            from azure.core.exceptions import AzureError
+            from azure.identity import DefaultAzureCredential
+
+            credential = DefaultAzureCredential()
+            token = credential.get_token(ARM_SCOPE).token
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            }
+        except (AzureError, ImportError) as exc:
+            result["errors"].append({
+                "stage": "authentication",
+                "error": f"Failed to initialize Azure ARM credential: {exc}",
+            })
+            return result
+
+        url = (
+            f"{ARM_ENDPOINT}/subscriptions/{reference_subscription_id}"
+            "/providers/Microsoft.Resources/checkZonePeers/"
+        )
+        params = {"api-version": API_VERSION}
+        body = {
+            "location": location,
+            "subscriptionIds": [
+                f"subscriptions/{subscription_id}" for subscription_id in peers
+            ],
+        }
+        result["source_endpoint"] = f"{url}?api-version={API_VERSION}"
+
+        try:
+            response = requests.post(
+                url,
+                headers=headers,
+                params=params,
+                json=body,
+                timeout=120,
+            )
+            response.raise_for_status()
+            payload = response.json()
+        except requests.HTTPError as exc:
+            error = {
+                "stage": "check_zone_peers",
+                "status_code": exc.response.status_code if exc.response is not None else None,
+                "error": str(exc),
+            }
+            if exc.response is not None:
+                try:
+                    error["response"] = exc.response.json()
+                except ValueError:
+                    error["response"] = exc.response.text[:2000]
+            result["errors"].append(error)
+            return result
+        except requests.RequestException as exc:
+            result["errors"].append({
+                "stage": "check_zone_peers",
+                "error": str(exc),
+            })
+            return result
+        except ValueError as exc:
+            result["errors"].append({
+                "stage": "parse_response",
+                "error": f"Check Zone Peers returned invalid JSON: {exc}",
+            })
+            return result
+
+        if not isinstance(payload, dict):
+            result["errors"].append({
+                "stage": "normalize_response",
+                "error": "Check Zone Peers returned a non-object response",
+                "raw_response": payload,
+            })
+            return result
+
+        mappings = payload.get("availabilityZonePeers")
+        if not isinstance(mappings, list) or not mappings:
+            result["errors"].append({
+                "stage": "normalize_response",
+                "error": "Check Zone Peers returned no availability-zone mappings",
+            })
+            result["raw_response"] = payload
+            return result
+
+        returned_peer_ids = set()
+        for mapping_index, mapping in enumerate(mappings):
+            if not isinstance(mapping, dict):
+                result["errors"].append({
+                    "stage": "normalize_response",
+                    "error": "Availability-zone mapping must be an object",
+                    "mapping_index": mapping_index,
+                })
+                continue
+
+            reference_zone = mapping.get("availabilityZone")
+            if reference_zone in (None, ""):
+                result["errors"].append({
+                    "stage": "normalize_response",
+                    "error": "Availability-zone mapping is missing the reference zone",
+                    "mapping_index": mapping_index,
+                })
+                continue
+
+            mapping_peers = mapping.get("peers")
+            if not isinstance(mapping_peers, list):
+                result["errors"].append({
+                    "stage": "normalize_response",
+                    "error": "Availability-zone mapping peers must be a list",
+                    "mapping_index": mapping_index,
+                })
+                continue
+
+            normalized_peers = []
+            for peer_index, peer in enumerate(mapping_peers):
+                if not isinstance(peer, dict):
+                    result["errors"].append({
+                        "stage": "normalize_response",
+                        "error": "Availability-zone peer must be an object",
+                        "mapping_index": mapping_index,
+                        "peer_index": peer_index,
+                    })
+                    continue
+
+                peer_subscription_id = normalize_subscription_id(peer.get("subscriptionId"))
+                peer_zone = peer.get("availabilityZone")
+                if not peer_subscription_id or peer_zone in (None, ""):
+                    result["errors"].append({
+                        "stage": "normalize_response",
+                        "error": "Availability-zone peer is missing a valid subscription or zone",
+                        "mapping_index": mapping_index,
+                        "peer_index": peer_index,
+                    })
+                    continue
+
+                returned_peer_ids.add(peer_subscription_id)
+                normalized_peers.append({
+                    "subscription_id": peer_subscription_id,
+                    "availability_zone": peer_zone,
+                })
+            result["availability_zone_peers"].append({
+                "reference_availability_zone": reference_zone,
+                "peers": normalized_peers,
+            })
+
+        response_subscription_id = normalize_subscription_id(payload.get("subscriptionId"))
+        response_location = str(payload.get("location") or "").strip()
+        result["response_subscription_id"] = response_subscription_id
+        result["response_location"] = response_location
+        result["mapping_count"] = len(result["availability_zone_peers"])
+
+        if not result["availability_zone_peers"]:
+            result["errors"].append({
+                "stage": "normalize_response",
+                "error": "Check Zone Peers returned no usable availability-zone mappings",
+            })
+        if response_subscription_id != reference_subscription_id:
+            result["errors"].append({
+                "stage": "normalize_response",
+                "error": "Response subscription does not match the reference subscription",
+                "expected": reference_subscription_id,
+                "actual": response_subscription_id,
+            })
+        if response_location.lower() != location.lower():
+            result["errors"].append({
+                "stage": "normalize_response",
+                "error": "Response location does not match the requested location",
+                "expected": location,
+                "actual": response_location,
+            })
+
+        missing_peer_ids = [
+            peer_subscription_id
+            for peer_subscription_id in peers
+            if peer_subscription_id not in returned_peer_ids
+        ]
+        if missing_peer_ids:
+            result["errors"].append({
+                "stage": "evidence_gap",
+                "error": "Check Zone Peers did not return mappings for every requested peer subscription",
+                "missing_peer_subscription_ids": missing_peer_ids,
+            })
+        return result
+  timeoutSeconds: 180
+  dependencies:
+    - azure-identity
+    - requests
+  authScopes:
+    - ARM
+  parameters:
+    - name: reference_subscription_id
+      type: string
+      description: Reference Azure subscription UUID whose logical zones are being compared.
+      required: true
+    - name: location
+      type: string
+      description: Azure region whose logical availability-zone mappings should be compared.
+      required: true
+    - name: peer_subscription_ids
+      type: string
+      description: Comma-separated peer Azure subscription UUIDs to compare with the reference subscription.
+      required: true

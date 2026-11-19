@@ -1,0 +1,52 @@
+api_version: azuresre.ai/v2
+kind: ManagedConnector
+metadata:
+  name: microsoft-teams
+spec:
+  apiName: teams
+  displayName: Microsoft Teams
+  connectionName: cost-management-teams
+  requireApprovalTools: []
+  operations:
+    - name: GetUnifiedActionSchema
+      displayName: Get unified action input metadata
+      description: Get the schema information for unified actions
+      requiresApproval: false
+      userParameters: []
+      agentParameters: []
+    - name: PostMessageToConversation
+      displayName: Post message in a chat or channel
+      description: Posts a message to a chat or a channel
+      requiresApproval: false
+      userParameters: []
+      agentParameters: []
+    - name: PostCardToConversation
+      displayName: Post card in a chat or channel
+      description: Posts a card to a chat or a channel
+      requiresApproval: false
+      userParameters: []
+      agentParameters: []
+    - name: ReplyWithMessageToConversation
+      displayName: Reply with a message in a channel
+      description: Replies with a message to a channel's message
+      requiresApproval: false
+      userParameters: []
+      agentParameters: []
+    - name: ReplyWithCardToConversation
+      displayName: Reply with an adaptive card in a channel
+      description: Replies with an adaptive card to a channel's message
+      requiresApproval: false
+      userParameters: []
+      agentParameters: []
+    - name: UpdateCardInConversation
+      displayName: Update an adaptive card in a chat or channel
+      description: Updates an existing adaptive card
+      requiresApproval: false
+      userParameters: []
+      agentParameters: []
+    - name: GetMessagesFromChannel
+      displayName: Get messages in a channel
+      description: Gets messages from a channel in a specific team
+      requiresApproval: false
+      userParameters: []
+      agentParameters: []

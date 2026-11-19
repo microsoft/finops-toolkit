@@ -1,0 +1,6 @@
+/uat.local.md
+/dist/
+/evidence/
+!/bin/
+!/bin/*.py
+__pycache__/

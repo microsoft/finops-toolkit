@@ -1,0 +1,20 @@
+[
+  {
+    "id": "mtd-kpi-cockpit",
+    "source": "FinOps-Hub-MTD-KPI-Cockpit.html",
+    "output": "FinOps-Hub-MTD-KPI-Cockpit.local.html",
+    "routes": ["/", "/report.local.html", "/FinOps-Hub-MTD-KPI-Cockpit.local.html"],
+    "allowedTools": ["system-mcp-kusto_kusto_query"]
+  },
+  {
+    "id": "savings-plans",
+    "source": "FinOps-Hub-Savings-Plans.html",
+    "output": "FinOps-Hub-Savings-Plans.local.html",
+    "routes": ["/savings-plans", "/savings-plans.local.html", "/FinOps-Hub-Savings-Plans.local.html"],
+    "allowedTools": [
+      "system-mcp-kusto_kusto_query",
+      "azure-resource-manager-mcp_get_benefit_recommendations",
+      "azure-resource-manager-mcp_list_benefit_utilization"
+    ]
+  }
+]

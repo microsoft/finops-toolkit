@@ -1,0 +1,130 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: capacity-reservation-groups
+spec:
+  type: PythonFunctionTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Lists capacity reservation groups and their reservation utilization.
+    Failed detail or reservation reads are reported as unknown, not zero.
+  functionCode: |-
+    def main(**kwargs):
+        import json
+        import requests
+        from urllib.parse import quote
+
+        base = "https://management.azure.com"
+        version = "2024-03-01"
+        subscription = kwargs.get("subscription_id")
+        resource_group = str(kwargs.get("resource_group") or "").strip()
+        result = {"summary": {"group_count": 0}, "groups": []}
+        if not subscription:
+            result["error"] = "subscription_id is required"
+            return json.dumps(result, separators=(",", ":"))
+        try:
+            from azure.identity import DefaultAzureCredential
+            token = DefaultAzureCredential().get_token("https://management.azure.com/.default").token
+            headers = {"Authorization": f"Bearer {token}"}
+
+            def get(url):
+                response = requests.get(url, headers=headers, timeout=120)
+                response.raise_for_status()
+                return response.json()
+
+            path = f"/subscriptions/{subscription}"
+            if resource_group:
+                path += f"/resourceGroups/{quote(resource_group, safe='')}"
+            url = f"{base}{path}/providers/Microsoft.Compute/capacityReservationGroups?api-version={version}"
+            groups = []
+            while url:
+                page = get(url)
+                groups.extend(page.get("value", []))
+                url = page.get("nextLink")
+            for group in groups:
+                resource_id = group.get("id", "")
+                item = {"name": group.get("name"), "rg": None, "location": group.get("location"),
+                        "vms_associated": None, "reservations": []}
+                parts = resource_id.split("/")
+                for index, part in enumerate(parts):
+                    if part.lower() == "resourcegroups" and index + 1 < len(parts):
+                        item["rg"] = parts[index + 1]
+                        break
+                result["groups"].append(item)
+                if not resource_id:
+                    item["detail_error"] = "Group ID is missing"
+                    continue
+                try:
+                    detail_url = f"{base}{resource_id}?api-version={version}&$expand=instanceView"
+                    try:
+                        detail = get(detail_url)
+                    except requests.HTTPError as exc:
+                        if exc.response is None or exc.response.status_code != 400:
+                            raise
+                        detail = get(f"{base}{resource_id}?api-version={version}")
+                    associated = detail.get("properties", {}).get("virtualMachinesAssociated", [])
+                    item["vms_associated"] = len(associated)
+                    reservation_url = f"{base}{resource_id}/capacityReservations?api-version={version}"
+                    reservations = []
+                    while reservation_url:
+                        page = get(reservation_url)
+                        reservations.extend(page.get("value", []))
+                        reservation_url = page.get("nextLink")
+                    for reservation in reservations:
+                        reservation_id = reservation.get("id")
+                        if not reservation_id:
+                            raise ValueError(f"Reservation {reservation.get('name')} has no ID")
+                        reservation_detail = get(f"{base}{reservation_id}?api-version={version}&$expand=instanceView")
+                        view = reservation_detail.get("properties", {}).get("instanceView", {})
+                        utilization = view.get("utilizationInfo", {})
+                        capacity = utilization.get("currentCapacity")
+                        if capacity is None or "virtualMachinesAllocated" not in utilization:
+                            raise ValueError(f"Reservation {reservation.get('name')} has no utilization evidence")
+                        item["reservations"].append({
+                            "name": reservation.get("name"),
+                            "sku": (reservation_detail.get("sku") or reservation.get("sku") or {}).get("name"),
+                            "zones": reservation_detail.get("zones", reservation.get("zones", [])),
+                            "reserved": int(capacity),
+                            "allocated": len(utilization.get("virtualMachinesAllocated", [])),
+                        })
+                except Exception as exc:
+                    item["detail_error"] = str(exc)
+            result["summary"]["group_count"] = len(groups)
+        except Exception as exc:
+            result["error"] = f"Failed to list capacity reservation groups: {exc}"
+        try:
+            offset = int(kwargs.get("offset") or 0)
+            if offset < 0:
+                raise ValueError()
+        except (ValueError, TypeError):
+            return json.dumps({"error": "offset must be a nonnegative integer"}, separators=(",", ":"))
+        result["groups"] = result["groups"][offset:]
+        while len(result["groups"]) > 1 and len(json.dumps(result, separators=(",", ":"))) >= 880:
+            result["groups"].pop()
+            result["next_offset"] = offset + len(result["groups"])
+        if result["groups"]:
+            group = result["groups"][0]
+            while group["reservations"] and len(json.dumps(result, separators=(",", ":"))) >= 880:
+                group["reservations"].pop()
+                group["reservations_omitted_count"] = group.get("reservations_omitted_count", 0) + 1
+        return json.dumps(result, separators=(",", ":"))
+  timeoutSeconds: 300
+  dependencies:
+    - azure-identity
+    - requests
+  authScopes:
+    - ARM
+  parameters:
+    - name: subscription_id
+      type: string
+      description: Azure subscription ID.
+      required: true
+    - name: resource_group
+      type: string
+      description: Optional resource group to limit the list.
+      required: false
+    - name: offset
+      type: integer
+      description: Continue from the previous result's next_offset.
+      required: false
