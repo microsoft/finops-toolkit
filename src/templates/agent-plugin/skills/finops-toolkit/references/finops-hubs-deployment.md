@@ -112,7 +112,7 @@ Create exports for each scope you want to monitor:
 
 **Required Settings:**
 - **Type of data:** `Cost and usage details (FOCUS)`
-- **Dataset version:** `1.0` or `1.0r2`
+- **Dataset version:** `1.2` (latest supported)
 - **Frequency:** `Daily export of month-to-date costs`
 - **Container:** `msexports`
 - **Format:** `Parquet` with `Snappy` compression
@@ -129,7 +129,8 @@ Create exports for each scope you want to monitor:
 | Resource Group | `subscriptions/{subscription-id}/resourceGroups/{rg-name}` |
 
 **Supported Datasets:**
-- Cost and usage details (FOCUS) - `1.0`, `1.0r2`
+
+- Cost and usage details (FOCUS) - `1.0-preview(v1)`, `1.0`, `1.0r2`, `1.2-preview`, `1.2` (Cost Management export versions; a FOCUS 1.4 export is not yet available)
 - Price sheet - `2023-05-01` (required for missing prices)
 - Reservation details - `2023-03-01`
 - Reservation recommendations - `2023-05-01` (required for Rate optimization report)

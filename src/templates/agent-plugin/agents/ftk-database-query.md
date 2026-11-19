@@ -93,7 +93,7 @@ These are the documented past-failure patterns. If you do any of them you have f
 
 ## Database Architecture
 
-The FinOps hubs database exposes four main analytic functions:
+The FinOps hubs database exposes eight main analytic functions. The unversioned forms below return the latest supported FOCUS schema (v1_4); pin to a specific schema with the versioned variants (`Costs_v1_0()`, `Costs_v1_2()`, `Costs_v1_4()`).
 
 ### Costs()
 
@@ -111,6 +111,9 @@ The primary table for cost and usage analytics. Aligned with the FOCUS specifica
 | ChargeCategory | string | Category of the charge (Usage, Purchase) |
 | PricingCategory | string | Category of pricing (Standard, Spot, Committed) |
 | CommitmentDiscountStatus | string | Status of commitment discount (Used, Unused) |
+| ContractApplied | dynamic | (FOCUS 1.3+, in the hubs v1_4 schema) JSON array of contract commitments applied to this row; empty until a FOCUS 1.4 export ships |
+| ServiceProviderName | string | (FOCUS 1.3+, in the hubs v1_4 schema) Vendor that makes the service available (Marketplace publisher or Microsoft); never null; replaces the removed `PublisherName` and `ProviderName` |
+| HostProviderName | string | (FOCUS 1.3+, in the hubs v1_4 schema) Infrastructure provider that hosts the resource; always `Microsoft` for Cost Management data |
 | ResourceId | string | Unique identifier for the resource |
 | ResourceName | string | Name of the resource |
 | ResourceType | string | Type of resource |
@@ -123,6 +126,22 @@ The primary table for cost and usage analytics. Aligned with the FOCUS specifica
 ### Prices()
 
 Price sheets with list, contracted, and effective pricing. Key columns include `SkuId`, `SkuPriceId`, `ListUnitPrice`, `ContractedUnitPrice`, `x_EffectiveUnitPrice`, `PricingUnit`, `x_SkuMeterCategory`, `x_SkuMeterSubcategory`, `x_SkuRegion`, `x_SkuTerm`, `CommitmentDiscountType` (`'Reservation'` / `'Savings plan'`), `CommitmentDiscountCategory` (`'Usage'` / `'Spend'`), `x_EffectivePeriodStart`, `x_EffectivePeriodEnd`. **Always confirm the actual column set on the live hub with `Prices() | getschema`** — `x_SkuMeterName` is listed in some docs but may not be present on every hub build.
+
+### CommitmentDiscountUsage()
+
+Reservation and savings plan utilization, joining commitment discounts to the resources that consumed them. Key columns include `ChargePeriodStart`, `ChargePeriodEnd`, `CommitmentDiscountId`, `CommitmentDiscountQuantity`, `CommitmentDiscountUnit`, `ConsumedQuantity`, `ResourceId`, `ServiceName`, `x_CommitmentDiscountCommittedCount`, `x_CommitmentDiscountNormalizedRatio`.
+
+### ContractCommitments()
+
+(FOCUS 1.4+) Provider-confirmed contract commitment metadata — the dataset behind the `ContractApplied` JSON arrays on each row in `Costs()`. Key columns include `ContractCommitmentId`, `ContractCommitmentCategory` (Spend / Usage), `ContractCommitmentCost`, `ContractCommitmentQuantity`, `ContractCommitmentPeriodStart`, `ContractCommitmentPeriodEnd`, `ContractId`, `BillingCurrency`, `InvoiceIssuerName`, `ContractCommitmentPaymentModel`, `ContractCommitmentPaymentInterval`, `ContractCommitmentLifecycleStatus`, `ContractCommitmentDurationType`. Note: returns no data until Microsoft Cost Management ships a FOCUS 1.4 export (not yet available).
+
+### BillingPeriods()
+
+(FOCUS 1.4+) Billing period metadata. Key columns: `BillingPeriodStart`, `BillingPeriodEnd`, `BillingPeriodCreated`, `BillingPeriodLastUpdated`, `BillingPeriodStatus`, `InvoiceIssuerName`. Join on billing period to align cost data with invoice timing. Note: returns no data until Microsoft Cost Management ships a FOCUS 1.4 export (not yet available).
+
+### InvoiceDetails()
+
+(FOCUS 1.4+) Invoice line-item metadata. Key columns: `InvoiceDetailId`, `InvoiceId`, `BilledCost`, `BillingAccountId`, `BillingCurrency`, `ChargeCategory`, `InvoiceIssueDate`, `InvoiceIssueStatus`, `PaymentCurrency`, `PaymentCurrencyBilledCost`, `PaymentDueDate`, `PaymentTerms`, `PurchaseOrderNumber`, `ReferenceInvoiceId`. Join to `Costs()` on `InvoiceDetailId` (FOCUS 1.4+) for invoice reconciliation. Note: returns no data until Microsoft Cost Management ships a FOCUS 1.4 export (not yet available).
 
 ### Recommendations()
 
@@ -280,7 +299,7 @@ Why this composite key (not `x_SkuMeterId`): see Rule 6 above. RI/SP rows in `Pr
 
 ## Data Sources
 
-- **FinOps hubs database (ADX/Fabric RTI)**: The primary data source. Query using the four analytic functions above via KQL.
+- **FinOps hubs database (ADX/Fabric RTI)**: The primary data source. Query using the analytic functions above via KQL.
 - **Open data**: CSV reference data for pricing units, regions, resource types, and services is available in the FinOps toolkit repository.
 
 ## Operational Guidelines
