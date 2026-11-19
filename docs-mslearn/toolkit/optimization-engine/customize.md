@@ -3,7 +3,7 @@ title: Customize Azure optimization engine
 description: This article describes how to customize the Azure optimization engine settings according to your organization requirements.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/22/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -95,7 +95,7 @@ By default, AOE Automation runbooks are executed in the context of the Azure Aut
 
 ## Adjust thresholds
 
-For Advisor cost recommendations, the AOE's default configuration produces percentile 99th VM metrics aggregations, but you can adjust them to be less conservative. There are also adjustable metrics thresholds that are used to compute the fit score. The default thresholds values are 30% for CPU (5% for shutdown recommendations), 50% for memory (100% for shutdown) and 750 Mbps for network bandwidth (10 Mbps for shutdown). All the adjustable configurations are available as Azure Automation variables. The information in the next table highlights the most relevant configuration variables. To access them, go to the Automation Account _Shared Resources - Variables_ menu option.
+For Advisor cost recommendations, the AOE's default configuration produces percentile 99th VM metrics aggregations, but you can adjust them to be less conservative. There are also adjustable metrics thresholds that are used to compute the fit score. The default threshold values are 30% for CPU (5% for shutdown recommendations), 50% for memory (100% for shutdown) and 750 Mbps for network bandwidth (10 Mbps for shutdown). All the adjustable configurations are available as Azure Automation variables. The information in the next table highlights the most relevant configuration variables. To access them, go to the Automation Account _Shared Resources - Variables_ menu option. For a complete list of AOE variables, see the [Azure optimization engine reference](reference.md#variables).
 
 | Variable                                                                  | Description                                                                                                                                                                                                                                                                               |
 | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

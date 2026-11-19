@@ -26,8 +26,11 @@ param storageSku string = 'Premium_LRS'
 @description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
 param enableInfrastructureEncryption bool = false
 
-@description('Optional. Enable purge protection for the Key Vault. Default: false.')
+@description('Optional. Enable purge protection for the Key Vault. Once enabled on a vault, purge protection cannot be disabled. Default: false.')
 param enablePurgeProtection bool = false
+
+@description('Optional. Enable Azure RBAC for authorizing access to the Key Vault instead of access policies. Required by some organizations for policy compliance (e.g., Cloud Adoption Framework guardrails). Switching an existing vault from access policies to RBAC has migration implications, so this defaults to false for backward compatibility with existing deployments; review before enabling on an upgrade. Default: false.')
+param enableKeyVaultRbacAuthorization bool = false
 
 @description('Optional. Storage account to push data to for ingestion into a remote hub.')
 param remoteHubStorageUri string = ''
@@ -36,7 +39,7 @@ param remoteHubStorageUri string = ''
 @secure()
 param remoteHubStorageKey string = ''
  
-@description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant User Access Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
+@description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant the Role Based Access Control Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
 param enableManagedExports bool = true
 
 @description('Optional. Enable recommendations ingested from Azure Resource Graph based on configurable queries. The Data Factory managed identity requires Reader role on management groups or subscriptions to execute Resource Graph queries. Default: false.')
@@ -144,22 +147,22 @@ param tagsByResource object = {}
 @description('Optional. List of scope IDs to monitor and ingest cost for.')
 param scopesToMonitor array = []
 
-@description('Optional. Number of days of data to retain in the msexports container. Default: 0.')
-param exportRetentionInDays int = 0
+@description('Optional. Number of days of data to retain in the msexports container. If not specified, keeps the current value from settings.json (0 for new hubs).')
+param exportRetentionInDays int?
 
-@description('Optional. Number of months of data to retain in the ingestion container. Default: 13.')
-param ingestionRetentionInMonths int = 13
+@description('Optional. Number of months of data to retain in the ingestion container. If not specified, keeps the current value from settings.json (13 for new hubs).')
+param ingestionRetentionInMonths int?
 
-@description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
-param dataExplorerRawRetentionInDays int = 0
+@description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. If not specified, keeps the current value from settings.json (0 for new hubs).')
+param dataExplorerRawRetentionInDays int?
 
-@description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
-param dataExplorerFinalRetentionInMonths int = 13
+@description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. If not specified, keeps the current value from settings.json (13 for new hubs).')
+param dataExplorerFinalRetentionInMonths int?
 
 @description('Optional. Enable public access to FinOps hubs resources.  Default: true.')
 param enablePublicAccess bool = true
 
-@description('Optional. Deploy a NAT Gateway for controlled outbound access when private routing is enabled. When true, subnets disable Azure default outbound access and route through the NAT Gateway. Ignored when enablePublicAccess is true. Default: false.')
+@description('Optional. Deploy a NAT Gateway for controlled outbound access when private routing is enabled. When true, the script and Data Explorer subnets route outbound traffic through the NAT Gateway. Ignored when enablePublicAccess is true. Default: false.')
 param enableNatGateway bool = false
 
 @description('Optional. Address space for the workload. Minimum /26 subnet size is required for the workload. Default: "10.20.30.0/26".')
@@ -179,6 +182,7 @@ module hub 'modules/hub.bicep' = {
     storageSku: storageSku
     enableInfrastructureEncryption: enableInfrastructureEncryption
     enablePurgeProtection: enablePurgeProtection
+    enableKeyVaultRbacAuthorization: enableKeyVaultRbacAuthorization
     enableManagedExports: enableManagedExports
     enableRecommendations: enableRecommendations
     enableAHBRecommendations: enableAHBRecommendations

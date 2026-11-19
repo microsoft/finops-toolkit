@@ -4,7 +4,7 @@
 & "$PSScriptRoot/../Initialize-Tests.ps1"
 
 InModuleScope 'FinOpsToolkit' {
-    BeforeAll {
+    BeforeDiscovery {
         function New-MockReleaseObject
         {
             param
