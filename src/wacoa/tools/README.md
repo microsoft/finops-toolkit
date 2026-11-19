@@ -26,7 +26,7 @@ This PowerShell script solution automates the generation of cost optimization re
 *   🔍 **YAML-based Recommendations:**
     *   Integrates "manual" validation checks by processing YAML files, validating them against resource types present in your scope.
     *   Includes "custom cost" YAML recommendations directly without prior ARG validation.
-*   🔍 **Well-Architected Framework Integration:** Incorporates results from a Well-Architected Cost Optimization assessment CSV file for a holistic view.
+*   🔍 **Well-Architected Framework Integration:** Incorporates results from a Well-Architected Cost Optimization assessment CSV file for a holistic view. The table headers are detected automatically, so exports that include more than one pillar are supported; only Cost Optimization recommendations and the customer's answers are imported.
 *   ✅ **Comprehensive Excel Export:** Consolidates all findings into a structured Excel file with distinct sheets for KQL-based recommendations, YAML-based recommendations, and Well-Architected assessment data.
 *   ✅ **Flexible Scope Selection:** Supports analysis across your entire Azure environment, specific subscriptions, or resource groups defined in a JSON file. Caches the last used scope for convenience.
 *   ⚙️ **Self-Management & Updates:**
@@ -35,6 +35,10 @@ This PowerShell script solution automates the generation of cost optimization re
     *   Can download and apply updates to itself and prerequisite scripts.
 *   ⚙️ **Configurable Settings:** Utilizes a `settings.json` file for repository URLs, and local paths.
 *   📝 **Detailed Logging:** Generates a timestamped log file for troubleshooting and audit purposes.
+*   💰 **Reservation and savings plan scenarios:**
+    *   Azure Advisor returns one reservation recommendation per term (1 or 3 years) and look-back period (7, 30 or 60 days). The script prompts for the primary scenario (default: 1-year term, 60-day look-back; savings plans always use the 30-day look-back) and keeps only that scenario in the `Recommendations` sheet, so the same commitment is not counted several times.
+    *   All other combinations are exported to the `Reservation Scenarios` sheet, with a summary per scenario, for comparison. Scenarios are alternatives: compare them, do not add them. Reservations and savings plans can be combined, but their Advisor estimates may cover the same usage.
+*   🧹 **Deduplication:** When Azure Advisor and the FinOps toolkit report the equivalent recommendation for the same resource (unattached managed disks, VMs stopped but not deallocated), only the toolkit row is kept, with `x_AlsoReportedBy` set to `Azure.Advisor`.
 
 ---
 
@@ -112,6 +116,11 @@ This PowerShell script solution automates the generation of cost optimization re
         ```powershell
         .\CostRecommendations.ps1 -Verbose
         ```
+    *   To skip the reservation scenario prompts (for example, in unattended runs), pass the term and the look-back period as parameters:
+        ```powershell
+        .\CostRecommendations.ps1 -ReservationTerm 1 -ReservationLookback 60
+        ```
+        `-ReservationTerm` accepts `1` or `3` (years) and `-ReservationLookback` accepts `7`, `30` or `60` (days). When a parameter is omitted, the script prompts for it. The other prompts (assessment file, scope and manual checks) are not affected.
 
 4.  **Follow the Interactive Prompts:**
     *   **Azure Login:** If not already connected, an Azure login window will appear.
@@ -123,6 +132,7 @@ This PowerShell script solution automates the generation of cost optimization re
             *   `1. Entire environment (no filters).`
             *   `2. Load scope(s) from JSON file.` (A file dialog will appear to select the JSON file. See [Scope Definition JSON File](#scope-definition-json-file-optional) below).
     *   **Manual Checks:** Choose "Yes" or "Y" to process YAML-based recommendations.
+    *   **Reservation Scenario:** Choose the term (1 or 3 years) and the look-back period (7, 30 or 60 days) used as the primary scenario. Press Enter to keep the defaults (1 year, 60 days). These prompts are skipped when `-ReservationTerm` and `-ReservationLookback` are provided.
     *   **Script Self-Update (if triggered, e.g., missing prerequisites):** If the script updates itself, it may ask if you want to restart with the new version.
 
 5.  **Review the Output:**
