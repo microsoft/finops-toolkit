@@ -21,8 +21,8 @@ Costs()
 | where x_SkuMeterSubcategory has "OpenAI"
 | extend Model = x_SkuDescription
 | extend Direction = case(
-    Model contains "Input", "Input",
-    Model contains "Output", "Output",
+    Model has "Input", "Input",
+    Model has "Output", "Output",
     "Other")
 | summarize
     TokenCount = sum(ConsumedQuantity),

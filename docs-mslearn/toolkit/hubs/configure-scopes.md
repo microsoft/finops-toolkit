@@ -3,7 +3,7 @@ title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: flanakin
 ms.author: micflan
-ms.date: 05/14/2026
+ms.date: 11/16/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -28,7 +28,7 @@ FinOps hubs are designed to handle multiple scopes and even data from multiple c
 - **Extensible platform**: The open architecture allows you to extend FinOps hubs to ingest custom data sources beyond standard cloud billing data.
 
 > [!TIP]
-> When configuring multiple scopes, ensure each scope has a unique directory path in your exports to avoid data conflicts. See the [Settings.json scope examples](#settingsjson-scope-examples) section for detailed configuration guidance.
+> When configuring multiple scopes, ensure each scope has a unique directory path in your exports to avoid data conflicts. See the [Settings.json scope examples](#settingsjson-scope-examples) section for detailed configuration guidance. A unique path doesn't separate two exports of the same dataset and scope. For details, see [Use one export per dataset and scope](#use-one-export-per-dataset-and-scope).
 
 > [!WARNING]
 > Avoid configuring overlapping export scopes as this leads to duplicate cost data. For example, if you configure both a billing account-level export and a subscription-level export for the same subscription, costs for that subscription will be duplicated in your hub. Always ensure your export scopes are mutually exclusive.
@@ -123,6 +123,17 @@ FinOps hubs support the following dataset types, versions, and API versions:
 - API versions: 2023-07-01-preview
 
 For the most seamless experience, we recommend [allowing FinOps hubs to manage exports](#configure-managed-exports) for you. This option requires the least effort to maintain over time. Please note that Cost Management does not support managed exports for Microsoft Customer Agreement billing accounts or billing profiles.
+
+### Use one export per dataset and scope
+
+A FinOps hub keeps data from one export per dataset and scope. The ingestion folder doesn't include the export name or export path, so two exports of the same dataset and scope write to the same folder. Each ingestion replaces any other data in that folder.
+
+> [!WARNING]
+> Two exports of the same dataset and scope that cover the same month replace each other's data, even when they use different storage paths or FOCUS versions. Both exports succeed and no error is reported, but only the data from the export processed last stays in your hub. Reservation recommendations are the exception because their ingestion folder also includes the export name.
+
+The daily month-to-date and monthly last-month exports recommended in [Configure exports manually](#configure-exports-manually) work together because they cover different months. When the monthly export runs, it replaces the data for last month, as intended.
+
+To change the FOCUS version of an export, stop the old export and then re-export the history with the new one. Don't run both side by side.
 
 <br>
 
@@ -263,19 +274,22 @@ Managed exports use a managed identity (MI) to configure the exports automatical
 
    As soon as you configure a new scope, FinOps hubs will start to monitor current and future costs. To backfill historical data, you have several options:
 
-   #### Option 1: Using config_RunBackfillJob pipeline
+   #### Option 1: Using the backfill pipelines
 
-   Use the **config_RunBackfillJob** pipeline to process historical data after it's been exported. For more information about running Azure Data Factory pipelines, see [Azure Data Factory pipelines](/azure/data-factory/concepts-pipelines-activities).
+   Use the backfill pipelines to run the managed exports for past months. For more information about running Azure Data Factory pipelines, see [Azure Data Factory pipelines](/azure/data-factory/concepts-pipelines-activities).
+
+   - **config_StartBackfillProcess** runs **config_RunBackfillJob** once per month, from last month back to the number of months in your ingestion retention setting (`ingestionRetentionInMonths`). It doesn't need any parameters. The current month is covered by the daily managed export.
+   - **config_RunBackfillJob** backfills one calendar month. It requires the `StartDate` and `EndDate` parameters, and both dates must be in the same month, for example `2026-09-01` and `2026-09-30`. Cost Management runs an export for one calendar month at a time and rejects a date range that spans months.
 
    > [!IMPORTANT]
    > This option relies on managed exports and is **not supported for Microsoft Customer Agreement (MCA) billing accounts or billing profiles**. The pipeline calls the Cost Management `exports/run` API using the Data Factory managed identity, which Cost Management rejects on MCA scopes regardless of role assignments — typically with an `RBACAccessDenied` error. For MCA, use [Option 2](#option-2-using-cost-management-exports) or [Option 3](#option-3-using-start-finopscostexport-powershell-command) instead.
 
    To run the pipeline from the Azure portal:
 
-   1. From the FinOps hub resource group, open the Data Factory instance, select **Launch Studio**, and navigate to **Author** > **Pipelines** > **config_RunBackfillJob**.
+   1. From the FinOps hub resource group, open the Data Factory instance, select **Launch Studio**, and navigate to **Author** > **Pipelines** > **config_StartBackfillProcess**.
    2. Select **Debug** in the command bar to run the pipeline. The total run time varies depending on the retention period and number of scopes you're monitoring.
 
-   To run the pipeline from PowerShell:
+   To backfill the months covered by your ingestion retention setting from PowerShell:
 
    ```powershell
    Get-AzDataFactoryV2 `
@@ -285,7 +299,22 @@ Managed exports use a managed identity (MI) to configure the exports automatical
        Invoke-AzDataFactoryV2Pipeline `
          -ResourceGroupName $_.ResourceGroupName `
          -DataFactoryName $_.DataFactoryName `
-         -PipelineName 'config_RunBackfillJob'
+         -PipelineName 'config_StartBackfillProcess'
+   }
+   ```
+
+   To backfill one month from PowerShell:
+
+   ```powershell
+   Get-AzDataFactoryV2 `
+     -ResourceGroupName "{hub-resource-group}" `
+     -ErrorAction SilentlyContinue `
+   | ForEach-Object {
+       Invoke-AzDataFactoryV2Pipeline `
+         -ResourceGroupName $_.ResourceGroupName `
+         -DataFactoryName $_.DataFactoryName `
+         -PipelineName 'config_RunBackfillJob' `
+         -Parameter @{ StartDate = '2026-09-01'; EndDate = '2026-09-30' }
    }
    ```
 
