@@ -1,21 +1,21 @@
 ---
-title: FinOps toolkit Workload optimization report
-description: Learn about the Workload optimization report, which identifies opportunities for rightsizing and removing unused resources to enhance efficiency.
+title: FinOps toolkit Usage optimization report
+description: Learn about the Usage optimization report, which identifies opportunities for rightsizing and removing unused resources to enhance efficiency.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 08/13/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-# customer intent: As a As a FinOps user, I want to learn about the Workload optimization report so that I can identify and eliminate inefficiencies in my cloud resource usage.
+# customer intent: As a FinOps user, I want to learn about the Usage optimization report so that I can identify and eliminate inefficiencies in my cloud resource usage.
 ---
 
 <!-- cSpell:ignore nextstepaction -->
 
-# Workload optimization report
+# Usage optimization report
 
-The **Workload optimization report** provides insights into resource utilization and efficiency opportunities based on historical usage patterns. This report helps you:
+The **Usage optimization report** provides insights into resource utilization and efficiency opportunities based on historical usage patterns. This report helps you:
 
 - Identify unattached disks
 
@@ -24,7 +24,7 @@ This report pulls data from:
 - Cost Management exports or FinOps hubs
 - Azure Resource Graph
 
-The Workload optimization report is new and still in development. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../workbooks/optimization.md). To request other capabilities, [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
+The Usage optimization report is new and still in development. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../workbooks/optimization.md). To request other capabilities, [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
@@ -45,7 +45,7 @@ Before using this report, you need to configure Cost Management exports to provi
 | ---------------------- | -------------------------------- | ------------ | ----------------------------------------------------------------------------------------------- |
 | Cost and usage (FOCUS) | `1.0`, `1.0r2`, or `1.2-preview` | **Required** | Provides the primary cost and usage data for resource cost analysis.                            |
 | Price sheet            | `2023-05-01`                     | Recommended  | Required to populate missing prices for EA and MCA accounts to show accurate cost calculations. |
-| Azure Resource Graph   | Latest                           | **Required** | Required to gather resource metadata for workload optimization analysis.                        |
+| Azure Resource Graph   | Latest                           | **Required** | Required to gather resource metadata for usage optimization analysis.                        |
 
 For instructions on how to create Cost Management exports, see [Create and manage exports](/azure/cost-management-billing/costs/tutorial-improved-exports). If using FinOps hubs, these exports can be configured automatically.
 
@@ -76,6 +76,16 @@ The **Unattached disks** page lists the unattached disks sorted by cost.
 The chart shows the cost of each disk over time. The table shows the disks with related properties. It includes billed and effective cost and the dates the disk was available during the selected date range. The date range is shown in the Charge period filter at the top-left of the page.
 
 :::image type="content" source="./media/workload-optimization/unattached-disks.png" border="true" alt-text="Screenshot of the Unattached disks page that shows unattached disks sorted by cost." lightbox="./media/workload-optimization/unattached-disks.png" :::
+
+<br>
+
+## Known limitations
+
+The Workload optimization report uses Azure Resource Graph to query resource details. Azure Resource Graph has a response payload limit of 16 MB per query. The report automatically paginates queries in batches of subscriptions to stay within this limit, but may not work for large environments where a single batch exceeds the limit.
+
+If you experience a "Response payload size... exceeded the limit" error, open the report in Power BI Desktop, go to the Power Query editor, and reduce the value returned by the `ftk_ARGBatchSize` function (default: 100). For detailed steps, see [Response payload size exceeded the limit](../help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) in the error reference guide.
+
+Batching queries by subscription requires Reader access at the subscription level or above. If your account only has resource group-scoped access, some subscriptions may be silently excluded from the report even though you can see their resources elsewhere.
 
 <br>
 
