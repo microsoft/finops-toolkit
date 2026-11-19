@@ -386,7 +386,8 @@ Costs()
 | extend x_CommitmentDiscountKey = iff(tmp_IsVMUsage and isnotempty(x_SkuDetails.ServiceType), strcat(x_SkuDetails.ServiceType, x_SkuMeterId), '')
 | extend x_CommitmentDiscountUtilizationPotential = case(
     ChargeCategory == 'Purchase', real(0),
-    ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), EffectiveCost,
+    // HostProviderName (FOCUS 1.4) = infrastructure provider; replaces the removed ProviderName for "is this Microsoft-billed data" checks
+    HostProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), EffectiveCost,
     CommitmentDiscountCategory == 'Usage', ConsumedQuantity,
     CommitmentDiscountCategory == 'Spend', EffectiveCost,
     real(0)
@@ -494,6 +495,7 @@ The following table lists the columns produced in the `All available columns` qu
 | ContractedCost                            | real       | Negotiated cost for the resource or usage.                                                                                                                                              |
 | ContractedUnitPrice                       | real       | Negotiated unit price for the resource.                                                                                                                                                 |
 | EffectiveCost                             | real       | Actual cost after all discounts and credits.                                                                                                                                            |
+| HostProviderName                          | string     | Infrastructure provider that hosts the resource; always "Microsoft" for Cost Management data. Replaces the removed `ProviderName` (FOCUS 1.4). |
 | InvoiceId                                 | string     | Unique identifier for the invoice the charge is included in. Only available for closed months after the invoice is published. Renamed from x_InvoiceId in hubs v12.                     |
 | InvoiceIssuerName                         | string     | Name of the invoice issuer.                                                                                                                                                             |
 | ListCost                                  | real       | List (retail) cost for the resource or usage.                                                                                                                                           |
@@ -502,8 +504,6 @@ The following table lists the columns produced in the `All available columns` qu
 | PricingCurrency                           | string     | Currency code used for internal pricing. Renamed from x_PricingCurrency in hubs v12.                                                                                                    |
 | PricingQuantity                           | real       | Quantity used for pricing.                                                                                                                                                              |
 | PricingUnit                               | string     | Unit of measure for pricing.                                                                                                                                                            |
-| ProviderName                              | string     | Name of the cloud provider.                                                                                                                                                             |
-| PublisherName                             | string     | Name of the publisher.                                                                                                                                                                  |
 | RegionId                                  | string     | Identifier for the region.                                                                                                                                                              |
 | RegionName                                | string     | Name of the region.                                                                                                                                                                     |
 | ResourceId                                | string     | Unique identifier for the resource.                                                                                                                                                     |
@@ -512,6 +512,7 @@ The following table lists the columns produced in the `All available columns` qu
 | ResourceType                              | string     | Type of resource (e.g., Virtual Machine, SQL Database).                                                                                                                                 |
 | ServiceCategory                           | string     | High-level service category (e.g., Compute, Storage).                                                                                                                                   |
 | ServiceName                               | string     | Name of the Azure service.                                                                                                                                                              |
+| ServiceProviderName                       | string     | Vendor that makes the service available (Marketplace publisher or Microsoft); never null. Replaces the removed `PublisherName` and `ProviderName` (FOCUS 1.4). |
 | ServiceSubcategory                        | string     | Secondary classification of the ServiceCategory for a service based on its core function.                                                                                               |
 | SkuId                                     | string     | Unique identifier for the SKU.                                                                                                                                                          |
 | SkuMeter                                  | string     | Name of the usage meter. Not applicable for purchases. Renamed from x_SkuMeterName in hubs v12.                                                                                         |

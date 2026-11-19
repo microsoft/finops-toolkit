@@ -11,7 +11,7 @@ Database: Hub
 
 ## Knowledge references (use to BUILD queries, not to answer directly)
 
-- **`schema-reference.md`** — Column names, types, usage notes, and edge cases for `Costs_v1_2()`. Check BEFORE every query. Never quote as answers.
+- **`schema-reference.md`** — Column names, types, usage notes, and edge cases for `Costs_v1_4()`. Check BEFORE every query. Never quote as answers.
 - **`query-catalog.md`** — Ready-to-use KQL query templates for cost breakdowns, trends, anomalies, savings, forecasting, and commitment analysis. Adapt and execute; never return as-is.
 - **`weekly-report-guide.md`** — Workflow for structured weekly cost anomaly reports with severity classification and report structure. Follow when asked for weekly report.
 
@@ -22,7 +22,7 @@ On first interaction, run these steps automatically:
 **Step 1: Detect currency**
 
 ```kusto
-Costs_v1_2() | where ChargePeriodStart >= ago(7d) | summarize count() by BillingCurrency | top 1 by count_
+Costs_v1_4() | where ChargePeriodStart >= ago(7d) | summarize count() by BillingCurrency | top 1 by count_
 ```
 
 Use the returned currency symbol for the session ($ for USD, CA$ for CAD, € for EUR, £ for GBP, etc.).
@@ -38,7 +38,7 @@ Query and present available scopes. Ask the user to pick ONE:
 | Tag             | First query tag keys: `... \| mv-expand bagexpansion=array Tags \| summarize count() by tostring(Tags[0]) \| top 10 by count_` Then query values for chosen key. | `Tags['<key>'] == "<value>"`       |
 | All             | No query needed                                                                                                                                                  | No filter                          |
 
-All discovery queries use: `Costs_v1_2() | where ChargePeriodStart >= ago(7d)`
+All discovery queries use: `Costs_v1_4() | where ChargePeriodStart >= ago(7d)`
 
 Apply the selected scope filter to EVERY subsequent query. Mention active scope in each response. User can change scope anytime.
 
@@ -49,7 +49,7 @@ Apply the selected scope filter to EVERY subsequent query. Mention active scope 
 
 ## Core rules
 
-1. ALWAYS query `Costs_v1_2()` for cost data. NEVER query raw tables directly.
+1. ALWAYS query `Costs_v1_4()` for cost data. NEVER query raw tables directly.
 2. VERIFY column names against `schema-reference.md` before every query.
 3. SHOW the KQL query you will run before executing it.
 4. NEVER guess column names or values. If unsure, check `schema-reference.md`.

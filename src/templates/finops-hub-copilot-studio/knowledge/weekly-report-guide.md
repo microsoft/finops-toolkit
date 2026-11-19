@@ -24,7 +24,7 @@ All queries filter `ChargeCategory == "Usage" and x_PublisherCategory == "Cloud 
 let LastWeekEnd = startofweek(now());
 let LastWeekStart = datetime_add('day', -7, LastWeekEnd);
 let PriorWeekStart = datetime_add('day', -14, LastWeekEnd);
-Costs_v1_2()
+Costs_v1_4()
 | where ChargePeriodStart >= PriorWeekStart and ChargePeriodStart < LastWeekEnd
     and ChargeCategory == "Usage" and x_PublisherCategory == "Cloud Provider"
 | summarize Cost = round(sum(EffectiveCost), 2), Days = dcount(ChargePeriodStart)
@@ -38,7 +38,7 @@ Costs_v1_2()
 let LastWeekEnd = startofweek(now());
 let LastWeekStart = datetime_add('day', -7, LastWeekEnd);
 let PriorWeekStart = datetime_add('day', -14, LastWeekEnd);
-Costs_v1_2()
+Costs_v1_4()
 | where ChargePeriodStart >= PriorWeekStart and ChargePeriodStart < LastWeekEnd
     and ChargeCategory == "Usage" and x_PublisherCategory == "Cloud Provider"
 | extend Week = iff(ChargePeriodStart >= LastWeekStart, "LastWeek", "PriorWeek")
@@ -56,7 +56,7 @@ Costs_v1_2()
 let LastWeekEnd = startofweek(now());
 let LastWeekStart = datetime_add('day', -7, LastWeekEnd);
 let PriorWeekStart = datetime_add('day', -14, LastWeekEnd);
-Costs_v1_2()
+Costs_v1_4()
 | where ChargePeriodStart >= PriorWeekStart and ChargePeriodStart < LastWeekEnd
     and ChargeCategory == "Usage" and x_PublisherCategory == "Cloud Provider"
 | extend Week = iff(ChargePeriodStart >= LastWeekStart, "LastWeek", "PriorWeek")
@@ -77,7 +77,7 @@ Same as Q3 but filter for decreases:
 let LastWeekEnd = startofweek(now());
 let LastWeekStart = datetime_add('day', -7, LastWeekEnd);
 let PriorWeekStart = datetime_add('day', -14, LastWeekEnd);
-Costs_v1_2()
+Costs_v1_4()
 | where ChargePeriodStart >= PriorWeekStart and ChargePeriodStart < LastWeekEnd
     and ChargeCategory == "Usage" and x_PublisherCategory == "Cloud Provider"
 | extend Week = iff(ChargePeriodStart >= LastWeekStart, "LastWeek", "PriorWeek")
@@ -96,7 +96,7 @@ Costs_v1_2()
 let LastWeekEnd = startofweek(now());
 let LastWeekStart = datetime_add('day', -7, LastWeekEnd);
 let PriorWeekStart = datetime_add('day', -14, LastWeekEnd);
-Costs_v1_2()
+Costs_v1_4()
 | where ChargePeriodStart >= PriorWeekStart and ChargePeriodStart < LastWeekEnd
 | extend Week = iff(ChargePeriodStart >= LastWeekStart, "LastWeek", "PriorWeek")
 | summarize
@@ -118,12 +118,12 @@ Costs_v1_2()
 let LastWeekEnd = startofweek(now());
 let LastWeekStart = datetime_add('day', -7, LastWeekEnd);
 let PriorWeekStart = datetime_add('day', -14, LastWeekEnd);
-Costs_v1_2()
+Costs_v1_4()
 | where ChargePeriodStart >= PriorWeekStart and ChargePeriodStart < LastWeekEnd
     and x_PublisherCategory == "Vendor"
 | extend Week = iff(ChargePeriodStart >= LastWeekStart, "LastWeek", "PriorWeek")
 | summarize Cost = round(sum(EffectiveCost), 2)
-    by ResourceId, ResourceName, x_ResourceGroupName, PublisherName, ChargeCategory, Week
+    by ResourceId, ResourceName, x_ResourceGroupName, ServiceProviderName, ChargeCategory, Week
 | evaluate pivot(Week, sum(Cost))
 | extend LastWeek = coalesce(LastWeek, 0.0), PriorWeek = coalesce(PriorWeek, 0.0)
 | extend Change = round(LastWeek - PriorWeek, 2),
@@ -135,13 +135,13 @@ Costs_v1_2()
 ### Q7: Marketplace purchases (13-month lookback)
 
 ```kusto
-Costs_v1_2()
+Costs_v1_4()
 | where ChargePeriodStart >= datetime_add('month', -13, startofmonth(now()))
     and ChargeCategory == "Purchase" and x_PublisherCategory == "Vendor"
 | summarize Cost = round(sum(EffectiveCost), 2)
-    by BillingMonth = startofmonth(ChargePeriodStart), PublisherName
+    by BillingMonth = startofmonth(ChargePeriodStart), ServiceProviderName
 | where Cost >= 10
-| order by PublisherName asc, BillingMonth asc
+| order by ServiceProviderName asc, BillingMonth asc
 ```
 
 Classify each publisher by frequency: 10+ months = Monthly recurring, 3-9 months = Intermittent, 2 months = Annual, 1 month (current) = New, 1 month (older) = One-time.
