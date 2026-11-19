@@ -62,6 +62,7 @@ _Released November 2026_
     - Billing account ID, billing account type, and pricing currency now use the short billing profile ID too.
   - Fixed reservation details exports being skipped with no error when the export manifest has a null `dataRowCount` ([#2173](https://github.com/microsoft/finops-toolkit/issues/2173)).
     - Runs of `msexports_ExecuteETL` reported success while `CommitmentDiscountUsage` stopped updating. Exports with a `dataRowCount` of 0 are still skipped.
+  - Fixed FinOps hub deployments failing when Data Factory has leftover triggers from older versions (for example, v0.7) with an invalid time zone. Deployment now only starts the triggers the hub creates ([#1995](https://github.com/microsoft/finops-toolkit/issues/1995)).
   - Fixed reservation recommendations missing `x_RecommendationDate` and `x_RecommendationDetails` after ingestion.
 
 ### [Power BI reports](power-bi/reports.md) v16

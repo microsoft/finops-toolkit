@@ -51,6 +51,9 @@ param(
 )
 
 $MAX_RETRIES = 20
+
+# Triggers deployed by the hub: <container>_<DailySchedule|MonthlySchedule|SettingsUpdated|ManifestAdded>
+$HubTriggerPattern = '^(config|ingestion|msexports|queries)_(DailySchedule|MonthlySchedule|SettingsUpdated|ManifestAdded)$'
 $DeploymentScriptOutputs = @{}
 
 function Write-Log($Message)
@@ -134,8 +137,11 @@ if ($StartTriggers -or $StopTriggers)
             -ResourceGroupName $DataFactoryResourceGroup `
             -DataFactoryName $DataFactoryName `
         | Where-Object {
-            ($StartTriggers -and $_.Properties.RuntimeState -ne "Started") `
+            # Only start the hub's own triggers; leftover triggers from older versions (e.g., v0.7) can have invalid settings
+            $isHubTrigger = -not $StartTriggers -or $_.Name -match $HubTriggerPattern
+            $needsChange = ($StartTriggers -and $_.Properties.RuntimeState -ne "Started") `
                 -or ($StopTriggers -and $_.Properties.RuntimeState -ne "Stopped")
+            $isHubTrigger -and $needsChange
         }
     }
 
