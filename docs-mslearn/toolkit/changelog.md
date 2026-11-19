@@ -83,6 +83,16 @@ _Released November 2026_
     - Runs of `msexports_ExecuteETL` reported success while `CommitmentDiscountUsage` stopped updating. Exports with a `dataRowCount` of 0 are still skipped.
   - Fixed reservation recommendations missing `x_RecommendationDate` and `x_RecommendationDetails` after ingestion.
 
+### [Power BI reports](power-bi/reports.md) v16
+
+- **Added**
+  - Added the new FOCUS 1.3 and 1.4 columns to the Costs table in KQL and storage reports: `AllocatedMethodDetails`, `AllocatedMethodId`, `AllocatedResourceId`, `AllocatedResourceName`, `AllocatedTags`, `CommitmentProgramEligibilityDetails`, `ContractApplied`, the 12 `ContractCommitment*` columns, `HostProviderName`, `InvoiceDetailId`, and `ServiceProviderName` ([#2120](https://github.com/microsoft/finops-toolkit/issues/2120)).
+- **Changed**
+  - Updated KQL reports to use the FinOps hubs `v1_4` schema (`Costs_v1_4()` and `Recommendations_v1_4()`) for FOCUS 1.4 ([#2120](https://github.com/microsoft/finops-toolkit/issues/2120)).
+  - Updated storage reports to align FOCUS 1.0-1.4 exports to the FOCUS 1.4 schema and to detect FOCUS 1.4 data when identifying the source version.
+- **Deprecated**
+  - Deprecated the `ProviderName` and `PublisherName` columns in the Costs table. Both columns are retained for backward compatibility and are populated from the FOCUS 1.3 replacements, `HostProviderName` and `ServiceProviderName`, when not available in the source data.
+
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v16
 
 - **Added**

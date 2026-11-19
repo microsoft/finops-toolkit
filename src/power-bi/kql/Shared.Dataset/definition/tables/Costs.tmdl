@@ -1848,6 +1848,210 @@ table Costs
 
 		annotation SummarizationSetBy = Automatic
 
+	column AllocatedMethodDetails
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 55113e62-acbf-4acb-b0e1-41854cefeadc
+		summarizeBy: none
+		sourceColumn: AllocatedMethodDetails
+
+		annotation SummarizationSetBy = Automatic
+
+	column AllocatedMethodId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 8256f9c9-1499-49ff-9d84-e528dc8dd3b5
+		summarizeBy: none
+		sourceColumn: AllocatedMethodId
+
+		annotation SummarizationSetBy = Automatic
+
+	column AllocatedResourceId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: ce5ffa08-514d-41c4-b3f9-ad22054d5b6e
+		summarizeBy: none
+		sourceColumn: AllocatedResourceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column AllocatedResourceName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 505ecaae-5603-46a4-9c7d-c2a93f84350f
+		summarizeBy: none
+		sourceColumn: AllocatedResourceName
+
+		annotation SummarizationSetBy = Automatic
+
+	column AllocatedTags
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 0c09f14d-e1b7-48a3-a51d-dbe9c65c7a4e
+		summarizeBy: none
+		sourceColumn: AllocatedTags
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentProgramEligibilityDetails
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: e0a419cd-689a-4667-96e7-848817cf3140
+		summarizeBy: none
+		sourceColumn: CommitmentProgramEligibilityDetails
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractApplied
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 8e7d2334-99f6-4b4f-8683-2c3c9a535719
+		summarizeBy: none
+		sourceColumn: ContractApplied
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentBenefitCategory
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: c1b085bd-8b41-4947-adf8-3f7b295f7b02
+		summarizeBy: none
+		sourceColumn: ContractCommitmentBenefitCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentCreated
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetimeoffset
+		lineageTag: b881035d-76ff-43bc-83ab-72f7c9ff9912
+		summarizeBy: none
+		sourceColumn: ContractCommitmentCreated
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentDiscountPercentage
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 3acab673-4552-4996-aa7e-8b04a05f8ea3
+		summarizeBy: none
+		sourceColumn: ContractCommitmentDiscountPercentage
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ContractCommitmentDurationType
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 495b8505-e715-47fc-a27e-4834d2a1e3f6
+		summarizeBy: none
+		sourceColumn: ContractCommitmentDurationType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentFulfillmentInterval
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 0b54f930-ae2b-4efd-8422-fa6e56971946
+		summarizeBy: none
+		sourceColumn: ContractCommitmentFulfillmentInterval
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentLastUpdated
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetimeoffset
+		lineageTag: 58258b25-f8e3-45f8-862d-86e433720454
+		summarizeBy: none
+		sourceColumn: ContractCommitmentLastUpdated
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentLifecycleStatus
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: b09906a8-b301-4cdb-920a-dd91fcb40e1b
+		summarizeBy: none
+		sourceColumn: ContractCommitmentLifecycleStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentModel
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: f79edd03-14c9-4a89-a877-fe9bcf3e6c8a
+		summarizeBy: none
+		sourceColumn: ContractCommitmentModel
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentOfferCategory
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: d2bc0b21-e86c-4ff2-9085-bb4fdd816e6b
+		summarizeBy: none
+		sourceColumn: ContractCommitmentOfferCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentPaymentInterval
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 4e174c85-2d67-4a8a-a8fb-63b1bdd9de4b
+		summarizeBy: none
+		sourceColumn: ContractCommitmentPaymentInterval
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentPaymentModel
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 9ec28b52-c4c7-499e-abc8-62254bd7a94d
+		summarizeBy: none
+		sourceColumn: ContractCommitmentPaymentModel
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractCommitmentPaymentUpfrontPercentage
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: a7a0be0e-0f44-4c34-b313-0ae2a2e692a0
+		summarizeBy: none
+		sourceColumn: ContractCommitmentPaymentUpfrontPercentage
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column HostProviderName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 5b7f174f-09d5-4c7b-9f51-4486012cf9d3
+		summarizeBy: none
+		sourceColumn: HostProviderName
+
+		annotation SummarizationSetBy = Automatic
+
+	column InvoiceDetailId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: f338213d-a52c-4fbd-8865-8f9e2ced5907
+		summarizeBy: none
+		sourceColumn: InvoiceDetailId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ServiceProviderName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: d3d89090-75d9-4695-9df3-1758ab163a73
+		summarizeBy: none
+		sourceColumn: ServiceProviderName
+
+		annotation SummarizationSetBy = Automatic
+
 	hierarchy 'Service Hierarchy'
 		lineageTag: 039a7b6d-f19d-4a79-91b3-a05fbc778704
 
@@ -1886,7 +2090,11 @@ table Costs
 				    Source = AzureDataExplorer.Contents(#"Cluster URL", "Hub", "
 				
 				
-				    Costs_v1_2
+				    Costs_v1_4
+				    //
+				    // Deprecated columns -- Removed from FOCUS in 1.3; retained for backward compatibility with existing visuals and custom reports
+				    | extend ProviderName = HostProviderName
+				    | extend PublisherName = ServiceProviderName
 				    //
 				    // Apply summarization settings
 				    | where ChargePeriodStart >= monthsago(" & lookback & ")
@@ -1952,6 +2160,10 @@ table Costs
 				        )
 				    ) else "") & "
 				    //
+				    | extend AllocatedMethodDetails = tostring(AllocatedMethodDetails)
+				    | extend AllocatedTags = tostring(AllocatedTags)
+				    | extend CommitmentProgramEligibilityDetails = tostring(CommitmentProgramEligibilityDetails)
+				    | extend ContractApplied = tostring(ContractApplied)
 				    | extend SkuPriceDetails = tostring(SkuPriceDetails)
 				    | extend Tags = tostring(Tags)
 				    | extend x_SkuDetails = tostring(x_SkuDetails)
