@@ -23183,7 +23183,7 @@ cultureInfo en-US
 			      "Definition": {
 			        "Binding": {
 			          "ConceptualEntity": "AdvisorReservationRecommendations",
-			          "ConceptualProperty": "properties.extendedProperties.region"
+			          "ConceptualProperty": "properties.extendedProperties.Region"
 			        }
 			      },
 			      "State": "Generated",
