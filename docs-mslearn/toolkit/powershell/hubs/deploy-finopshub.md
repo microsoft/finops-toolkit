@@ -23,34 +23,34 @@ Deploy-FinOpsHub calls [Initialize-FinOpsHubDeployment](Initialize-FinOpsHubDepl
 
 ```powershell
 Deploy-FinOpsHub `
-    [‑Name] <string> `
-    [‑ResourceGroupName] <string> `
-    [‑Location] <string> `
-    [[‑Version] <string>] `
-    [‑Preview] `
-    [[‑StorageSku] <string>] `
-    [‑EnableInfrastructureEncryption] `
-    [‑EnablePurgeProtection] `
-    [‑EnableKeyVaultRbacAuthorization] `
-    [[‑RemoteHubStorageUri] <string>] `
-    [[‑RemoteHubStorageKey] <string>] `
-    [‑EnableManagedExports] `
-    [[‑DataExplorerName] <string>] `
-    [[‑DataExplorerSku] <string>] `
-    [[‑DataExplorerCapacity] <int>] `
-    [[‑FabricQueryUri] <string>] `
-    [[‑FabricCapacityUnits] <int>] `
-    [[‑DataExplorerRawRetentionInDays] <int>] `
-    [[‑DataExplorerFinalRetentionInMonths] <int>] `
-    [[‑NetworkMode] <string>] `
-    [‑DisablePublicAccess] `
-    [[‑VirtualNetworkAddressPrefix] <string>] `
-    [[‑Tags] <hashtable>] `
-    [[‑TagsByResource] <hashtable>] `
-    [[‑ScopesToMonitor] <String[]>] `
-    [[‑ExportRetentionInDays] <int>] `
-    [[‑IngestionRetentionInMonths] <int>] `
-    [‑WhatIf] `
+    [-Name] <string> `
+    [-ResourceGroupName] <string> `
+    [-Location] <string> `
+    [[-Version] <string>] `
+    [-Preview] `
+    [[-StorageSku] <string>] `
+    [-EnableInfrastructureEncryption] `
+    [-EnablePurgeProtection] `
+    [-EnableKeyVaultRbacAuthorization] `
+    [[-RemoteHubStorageUri] <string>] `
+    [[-RemoteHubStorageKey] <string>] `
+    [-EnableManagedExports] `
+    [[-DataExplorerName] <string>] `
+    [[-DataExplorerSku] <string>] `
+    [[-DataExplorerCapacity] <int>] `
+    [[-FabricQueryUri] <string>] `
+    [[-FabricCapacityUnits] <int>] `
+    [[-DataExplorerRawRetentionInDays] <int>] `
+    [[-DataExplorerFinalRetentionInMonths] <int>] `
+    [[-NetworkMode] <string>] `
+    [-DisablePublicAccess] `
+    [[-VirtualNetworkAddressPrefix] <string>] `
+    [[-Tags] <hashtable>] `
+    [[-TagsByResource] <hashtable>] `
+    [[-ScopesToMonitor] <String[]>] `
+    [[-ExportRetentionInDays] <int>] `
+    [[-IngestionRetentionInMonths] <int>] `
+    [-WhatIf] `
     [<CommonParameters>]
 ```
 

@@ -21,8 +21,8 @@ The **Get-FinOpsInstanceSizeFlexibility** command returns instance size flexibil
 
 ```powershell
 Get-FinOpsInstanceSizeFlexibility `
-    [[‑ArmSkuName] <string>] `
-    [[‑InstanceSizeFlexibilityGroup] <string>]
+    [[-ArmSkuName] <string>] `
+    [[-InstanceSizeFlexibilityGroup] <string>]
 ```
 
 <br>

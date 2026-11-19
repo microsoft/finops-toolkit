@@ -288,7 +288,7 @@ Get-ChildItem -Path "$srcDir/Public/$Command.ps1" | ForEach-Object {
             $piece = ''
             if ($p.Required -ne $true) { $piece += '[' }
             if ($p.Position -ne 'named') { $piece += '[' }
-            $piece += "‑$($p.Name)"
+            $piece += "-$($p.Name)"
             if ($p.Position -ne 'named') { $piece += ']' }
             if ($p.ParameterValue) { $piece += " <$(Get-FriendlyTypeName $p.ParameterValue)>" }
             if ($p.Required -ne $true) { $piece += ']' }

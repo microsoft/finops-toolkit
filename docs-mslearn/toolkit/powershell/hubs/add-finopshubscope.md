@@ -21,8 +21,8 @@ The **Add-FinOpsHubScope** command adds a scope to the settings.json configurati
 
 ```powershell
 Add-FinOpsHubScope `
-    [‑HubName] <string> `
-    [‑Scope] <string> `
+    [-HubName] <string> `
+    [-Scope] <string> `
     [<CommonParameters>]
 ```
 

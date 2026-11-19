@@ -21,8 +21,8 @@ The **Get-FinOpsToolkitVersion** command calls GitHub to retrieve all toolkit re
 
 ```powershell
 Get-FinOpsToolkitVersion `
-    [‑Latest] `
-    [‑Preview] `
+    [-Latest] `
+    [-Preview] `
     [<CommonParameters>]
 ```
 

@@ -21,11 +21,11 @@ The **Remove-FinOpsHubScope** command removes a scope from being monitored by a 
 
 ```powershell
 Remove-FinOpsHubScope `
-    [‑Id] <string> `
-    [‑HubName] <string> `
-    [[‑HubResourceGroupName] <string>] `
-    [‑RemoveData] `
-    [‑WhatIf] `
+    [-Id] <string> `
+    [-HubName] <string> `
+    [[-HubResourceGroupName] <string>] `
+    [-RemoveData] `
+    [-WhatIf] `
     [<CommonParameters>]
 ```
 

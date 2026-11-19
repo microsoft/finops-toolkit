@@ -28,14 +28,14 @@ This command was tested with the following API versions:
 
 ```powershell
 Get-FinOpsCostExport `
-    [[‑Name] <string>] `
-    [[‑Scope] <string>] `
-    [[‑Dataset] <string>] `
-    [[‑DatasetVersion] <string>] `
-    [[‑StorageAccountId] <string>] `
-    [[‑StorageContainer] <string>] `
-    [‑RunHistory] `
-    [[‑ApiVersion] <string>]
+    [[-Name] <string>] `
+    [[-Scope] <string>] `
+    [[-Dataset] <string>] `
+    [[-DatasetVersion] <string>] `
+    [[-StorageAccountId] <string>] `
+    [[-StorageContainer] <string>] `
+    [-RunHistory] `
+    [[-ApiVersion] <string>]
 ```
 
 <br>

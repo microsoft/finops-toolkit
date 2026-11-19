@@ -38,12 +38,12 @@ select numbered prompts in any console, or NonInteractive to run with no prompts
 
 ```powershell
 Start-FinOpsMultitool `
-    [[‑SubscriptionId] <string>] `
-    [[‑OutputPath] <string>] `
-    [[‑Scans] <String[]>] `
-    [[‑DataSource] <string>] `
-    [‑NonInteractive] `
-    [‑Accessible] `
+    [[-SubscriptionId] <string>] `
+    [[-OutputPath] <string>] `
+    [[-Scans] <String[]>] `
+    [[-DataSource] <string>] `
+    [-NonInteractive] `
+    [-Accessible] `
     [<CommonParameters>]
 ```
 

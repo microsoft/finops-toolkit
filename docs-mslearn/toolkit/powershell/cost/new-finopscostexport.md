@@ -28,59 +28,59 @@ This command was tested with the following API versions:
 ```powershell
 # Create a new daily/monthly export
 New-FinOpsCostExport `
-    ‑Name <string> `
-    ‑Scope <string> `
-    [‑Dataset <string>] `
-    [‑Format <string>] `
-    [‑CompressionMode <string>] `
-    [‑DatasetVersion <string>] `
-    [‑DatasetFilters <hashtable>] `
-    [‑CommitmentDiscountScope <string>] `
-    [‑CommitmentDiscountResourceType <string>] `
-    [‑CommitmentDiscountLookback <int>] `
-    [‑Monthly] `
-    [‑StartDate <datetime>] `
-    [‑EndDate <datetime>] `
-    ‑StorageAccountId <string> `
-    [‑StorageContainer <string>] `
-    [‑StoragePath <string>] `
-    [‑Location <string>] `
-    [‑DoNotPartition] `
-    [‑DoNotOverwrite] `
-    [‑SystemAssignedIdentity] `
-    [‑Execute] `
-    [‑Backfill <int>] `
-    [‑ApiVersion <string>] `
-    [‑WhatIf] `
+    -Name <string> `
+    -Scope <string> `
+    [-Dataset <string>] `
+    [-Format <string>] `
+    [-CompressionMode <string>] `
+    [-DatasetVersion <string>] `
+    [-DatasetFilters <hashtable>] `
+    [-CommitmentDiscountScope <string>] `
+    [-CommitmentDiscountResourceType <string>] `
+    [-CommitmentDiscountLookback <int>] `
+    [-Monthly] `
+    [-StartDate <datetime>] `
+    [-EndDate <datetime>] `
+    -StorageAccountId <string> `
+    [-StorageContainer <string>] `
+    [-StoragePath <string>] `
+    [-Location <string>] `
+    [-DoNotPartition] `
+    [-DoNotOverwrite] `
+    [-SystemAssignedIdentity] `
+    [-Execute] `
+    [-Backfill <int>] `
+    [-ApiVersion <string>] `
+    [-WhatIf] `
     [<CommonParameters>]
 ```
 
 ```powershell
 # Create a new one-time export
 New-FinOpsCostExport `
-    ‑Name <string> `
-    ‑Scope <string> `
-    [‑Dataset <string>] `
-    [‑Format <string>] `
-    [‑CompressionMode <string>] `
-    [‑DatasetVersion <string>] `
-    [‑DatasetFilters <hashtable>] `
-    [‑CommitmentDiscountScope <string>] `
-    [‑CommitmentDiscountResourceType <string>] `
-    [‑CommitmentDiscountLookback <int>] `
-    [‑OneTime] `
-    [‑StartDate <datetime>] `
-    [‑EndDate <datetime>] `
-    ‑StorageAccountId <string> `
-    [‑StorageContainer <string>] `
-    [‑StoragePath <string>] `
-    [‑Location <string>] `
-    [‑DoNotPartition] `
-    [‑DoNotOverwrite] `
-    [‑SystemAssignedIdentity] `
-    [‑Execute] `
-    [‑ApiVersion <string>] `
-    [‑WhatIf] `
+    -Name <string> `
+    -Scope <string> `
+    [-Dataset <string>] `
+    [-Format <string>] `
+    [-CompressionMode <string>] `
+    [-DatasetVersion <string>] `
+    [-DatasetFilters <hashtable>] `
+    [-CommitmentDiscountScope <string>] `
+    [-CommitmentDiscountResourceType <string>] `
+    [-CommitmentDiscountLookback <int>] `
+    [-OneTime] `
+    [-StartDate <datetime>] `
+    [-EndDate <datetime>] `
+    -StorageAccountId <string> `
+    [-StorageContainer <string>] `
+    [-StoragePath <string>] `
+    [-Location <string>] `
+    [-DoNotPartition] `
+    [-DoNotOverwrite] `
+    [-SystemAssignedIdentity] `
+    [-Execute] `
+    [-ApiVersion <string>] `
+    [-WhatIf] `
     [<CommonParameters>]
 ```
 

@@ -28,13 +28,13 @@ This command was tested with the following API versions:
 
 ```powershell
 Start-FinOpsCostExport `
-    [‑Name] <string> `
-    [[‑Scope] <string>] `
-    [[‑StartDate] <datetime>] `
-    [[‑EndDate] <datetime>] `
-    [[‑Backfill] <int>] `
-    [[‑ApiVersion] <string>] `
-    [‑WhatIf] `
+    [-Name] <string> `
+    [[-Scope] <string>] `
+    [[-StartDate] <datetime>] `
+    [[-EndDate] <datetime>] `
+    [[-Backfill] <int>] `
+    [[-ApiVersion] <string>] `
+    [-WhatIf] `
     [<CommonParameters>]
 ```
 
