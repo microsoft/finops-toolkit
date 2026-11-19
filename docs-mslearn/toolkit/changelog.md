@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/16/2026
+ms.date: 11/19/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -50,6 +50,7 @@ _Released November 2026_
   - Added the [instance size flexibility](open-data.md#instance-size-flexibility) open data to the Data Explorer database. The hub initialization pipeline loads it into a new `InstanceSizeFlexibility` table, and the `InstanceSizeFlexibility()` function exposes it in the Hub database.
 - **Changed**
   - Documented that two exports of the same dataset and scope that cover the same month replace each other's data with no error. For guidance, see [Use one export per dataset and scope](hubs/configure-scopes.md#use-one-export-per-dataset-and-scope) ([#2383](https://github.com/microsoft/finops-toolkit/issues/2383)).
+  - Updated the FinOps hub cost estimate to ~$330/mo for a default Data Explorer hub (was $120/mo) in the deployment UI and docs, based on measured costs that include the managed VM, load balancer, storage, and public IP. Updated the Data Explorer SKU price estimates in the deployment UI dropdown to current Azure retail pricing ([#2229](https://github.com/microsoft/finops-toolkit/issues/2229)).
 - **Fixed**
   - Fixed Azure Backup charges on Recovery Services vaults being labeled as Azure Site Recovery ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
     - Backup charges now map to `ServiceName` "Azure Backup" with `ServiceCategory` "Storage" and `ServiceSubcategory` "Backup Storage" for FOCUS, actual, and amortized cost exports.
