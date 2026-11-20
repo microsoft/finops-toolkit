@@ -138,12 +138,36 @@ Set-Retention -Name ingestion -Unit months -Default 13 -Requested $env:ingestion
 Set-Retention -Name raw       -Unit days   -Default 0  -Requested $env:rawRetentionInDays
 Set-Retention -Name final     -Unit months -Default 13 -Requested $env:finalRetentionInMonths
 
+# Set savings plan recommendation settings
+# NOTE: Like retention, only values the deployment specifies are written. When a value isn't passed, keep the stored value.
+# When neither exists, the savings plan recommendations pipeline falls back to all lookback periods and terms.
+function Set-SavingsPlanRecommendationSetting([string] $Name, [string] $Requested)
+{
+    if ([string]::IsNullOrWhiteSpace($Requested))
+    {
+        return
+    }
+    if (!($json.recommendations))
+    {
+        $json | Add-Member -Name recommendations -Value ([PSCustomObject]@{}) -MemberType NoteProperty -Force
+    }
+    if (!($json.recommendations.savingsPlans))
+    {
+        $json.recommendations | Add-Member -Name savingsPlans -Value ([PSCustomObject]@{}) -MemberType NoteProperty -Force
+    }
+    $values = @($Requested.Split('|') | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique)
+    Write-Output "  Setting savings plan recommendation $Name to $($values -join ', ')..."
+    $json.recommendations.savingsPlans | Add-Member -Name $Name -Value $values -MemberType NoteProperty -Force
+}
+Set-SavingsPlanRecommendationSetting -Name lookbackPeriods -Requested $env:savingsPlanRecommendationLookbackPeriods
+Set-SavingsPlanRecommendationSetting -Name terms           -Requested $env:savingsPlanRecommendationTerms
+
 # Updating settings
 Write-Output "Updating version to $env:ftkVersion..."
 $json.version = $env:ftkVersion
 $json.scopes = ($json.scopes + $newScopes) | Sort-Object scope -Unique
 if ($null -eq $json.scopes) { $json.scopes = @() }
-$text = $json | ConvertTo-Json
+$text = $json | ConvertTo-Json -Depth 10  # Depth 10: recommendations.savingsPlans.* is nested deeper than the default depth of 2
 Write-Output "---------"
 Write-Output $text
 Write-Output "---------"

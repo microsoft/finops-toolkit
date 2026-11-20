@@ -36,6 +36,12 @@ param rawRetentionInDays int?
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. If not specified, keeps the current value from settings.json (13 for new hubs).')
 param finalRetentionInMonths int?
 
+@description('Optional. Lookback periods to request savings plan purchase recommendations for. Allowed: Last7Days, Last30Days, Last60Days. If not specified, keeps the current value from settings.json (all lookback periods for new hubs).')
+param savingsPlanRecommendationLookbackPeriods string[]?
+
+@description('Optional. Terms to request savings plan purchase recommendations for. Allowed: P1Y, P3Y. If not specified, keeps the current value from settings.json (both terms for new hubs).')
+param savingsPlanRecommendationTerms string[]?
+
 @description('Optional. Forces the settings script to run on every deployment so changed retention values always apply. Do not change.')
 param forceUpdateTag string = utcNow()
 
@@ -159,6 +165,19 @@ module uploadSettings '../../fx/hub-deploymentScript.bicep' = {
         {
           name: 'finalRetentionInMonths'
           value: string(finalRetentionInMonths)
+        }
+      ])
+      // Only pass savings plan recommendation settings that were explicitly specified so the script keeps stored values on redeploy
+      ...(savingsPlanRecommendationLookbackPeriods == null ? [] : [
+        {
+          name: 'savingsPlanRecommendationLookbackPeriods'
+          value: join(savingsPlanRecommendationLookbackPeriods!, '|')
+        }
+      ])
+      ...(savingsPlanRecommendationTerms == null ? [] : [
+        {
+          name: 'savingsPlanRecommendationTerms'
+          value: join(savingsPlanRecommendationTerms!, '|')
         }
       ])
     ]
