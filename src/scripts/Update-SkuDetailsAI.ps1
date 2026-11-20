@@ -289,7 +289,7 @@ function Get-AiTokenType
 
         .DESCRIPTION
         Precedence: ConsumptionUnit, Write (a bounded wr or write, or a bounded cd followed by wr or
-        write), Ambiguous (input and output hints), Output, Input,
+        write), an empty string when the name has both input and output hints, Output, Input,
         Reasoning, Training, Embedding, Input for a cached meter without a direction, then an empty string.
         A direction hint wins over reasoning and training. Direction hints are bounded and may carry
         an attached cd prefix. A camelCase direction (Inp, Inpt, Input, Outp, Outpt, Output with that
@@ -320,7 +320,7 @@ function Get-AiTokenType
     if (($Name -match '\b(?:wr|write)\b') -or ($Name -match '(?<![a-z0-9])cd[\s_-]*(?:wr|write)(?![a-z0-9])')) { return 'Write' }
     $hasOutput = ($Name -match $outputHint) -or ($Name -cmatch $camelOutput)
     $hasInput = ($Name -match $inputHint) -or ($Name -cmatch $camelInput)
-    if ($hasInput -and $hasOutput) { return 'Ambiguous' }
+    if ($hasInput -and $hasOutput) { return '' }
     if ($hasOutput) { return 'Output' }
     if ($hasInput) { return 'Input' }
     if ($Name -match 'reasoning') { return 'Reasoning' }
@@ -382,10 +382,10 @@ function Get-AiTokenContextType
     <#
         .SYNOPSIS
         Derives the context type of a token meter: Short Context, Long Context, a context
-        descriptor, Ambiguous, or an empty string.
+        descriptor, or an empty string.
 
         .DESCRIPTION
-        Collects hints. No hints is an empty string, one distinct hint is that value, more is Ambiguous.
+        Collects hints. No hints is an empty string, one distinct hint is that value, more is an empty string.
         Descriptors keep their original casing; the same descriptor in another case counts once.
 
         .PARAMETER Name
@@ -413,14 +413,14 @@ function Get-AiTokenContextType
     $distinct = @($hints | Group-Object { $_.ToLowerInvariant() } | ForEach-Object { $_.Group[0] })
     if ($distinct.Count -eq 0) { return '' }
     if ($distinct.Count -eq 1) { return $distinct[0] }
-    return 'Ambiguous'
+    return ''
 }
 
 function Get-AiTokenLocation
 {
     <#
         .SYNOPSIS
-        Derives the location of a token meter: Global, Regional, DataZone, Ambiguous, or an empty string.
+        Derives the location of a token meter: Global, Regional, DataZone, or an empty string. More than one location hint is an empty string.
 
         .PARAMETER Name
         The meter name.
@@ -439,7 +439,7 @@ function Get-AiTokenLocation
     $found = @($groups | Where-Object { $Name -match $_.Pattern } | ForEach-Object { $_.Value })
     if ($found.Count -eq 0) { return '' }
     if ($found.Count -eq 1) { return $found[0] }
-    return 'Ambiguous'
+    return ''
 }
 
 function Get-AiModelVersion
@@ -531,14 +531,14 @@ function Get-AiModelCreator
 
         .DESCRIPTION
         The subcategory rules run first and the first matching rule wins. Hosting subcategories such as
-        Managed Model Hosting Service name the host, not the model creator, so those rules return
-        Other. Subcategories that are Microsoft services, such as Observability, return Microsoft. Only then are the meter name rules tried, in order. No match returns Other.
+        Managed Model Hosting Service name the host, not the model creator, so no subcategory rule
+        matches them. Subcategories that are Microsoft services, such as Observability, return Microsoft. Only then are the meter name rules tried, in order. No match returns an empty string.
 
         .PARAMETER Subcategory
         The meter subcategory.
 
         .PARAMETER Name
-        The meter name. Used only when the subcategory rules return Other.
+        The meter name. Used only when no subcategory rule matches.
     #>
     [CmdletBinding()]
     [OutputType([string])]
@@ -591,7 +591,7 @@ function Get-AiModelCreator
     {
         if ($Name -match $rule.Pattern) { return $rule.Creator }
     }
-    return 'Other'
+    return ''
 }
 
 function Get-AiMeterClassification
@@ -665,17 +665,17 @@ function Get-AiMeterClassification
                 'Security' { 'Security' }
                 'Developer Tools' { 'GitHub' }
                 'Data' { 'Fabric' }
-                default { 'Other' }
+                default { '' }
             }
         }
     }
 
-    # Agent subcategories have their own agent type; pre-purchase plans are generic.
+    # Agent subcategories have their own agent type; pre-purchase plans and Copilot meters without a known type have none.
     $isAgent = $true
     $agentKey = @($literals.AgentSubcategories.Keys | Where-Object { $_ -eq $Subcategory })
     if ($agentKey.Count -gt 0) { $agentType = $literals.AgentSubcategories[$agentKey[0]] }
-    elseif ($literals.PrePurchasePlanSubcategories -contains $Subcategory) { $agentType = 'Generic' }
-    elseif ($isCopilot) { $agentType = "Copilot - $copilotType" }
+    elseif ($literals.PrePurchasePlanSubcategories -contains $Subcategory) { $agentType = '' }
+    elseif ($isCopilot) { $agentType = if ($copilotType) { "Copilot - $copilotType" } else { '' } }
     else
     {
         $isAgent = $false

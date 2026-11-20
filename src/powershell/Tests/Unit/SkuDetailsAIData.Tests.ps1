@@ -73,7 +73,7 @@ Describe 'SkuDetailsAI open data' {
         $build = Get-Content "$PSScriptRoot/../../../scripts/Build-OpenData.ps1" -Raw
         $build | Should -Match "\`$skipPowerShell\s*=\s*@\('SkuDetailsAI'\)"
         $build | Should -Match '\$_\.BaseName -notin \$skipPowerShell'
-        Test-Path "$PSScriptRoot/../../Private/Get-OpenDataAiMeter.ps1" | Should -BeFalse
+        Test-Path "$PSScriptRoot/../../Private/Get-OpenDataSkuDetailsAI.ps1" | Should -BeFalse
     }
 
     It 'has the 22 columns in order' {
@@ -109,6 +109,19 @@ Describe 'SkuDetailsAI open data' {
                 foreach ($property in $row.PSObject.Properties)
                 {
                     if ("$($property.Value)" -ieq 'N/A') { "$($property.Name): $($row.x_SkuMeterCategory) | $($row.x_SkuMeterSubcategory) | $($row.SkuMeter)" }
+                }
+            })
+        $placeholders | Should -BeNullOrEmpty
+    }
+
+    It 'has no placeholder value in a classification column' {
+        # Unknown values stay empty. MeterIdKind is a rule input, so its 'Other' value is allowed.
+        $placeholderValues = @('Other', 'Generic', 'Ambiguous', 'Unknown')
+        $placeholders = @($rows | ForEach-Object {
+                $row = $_
+                foreach ($column in $derivedColumns)
+                {
+                    if ($placeholderValues -contains "$($row.$column)") { "${column}=$($row.$column): $($row.x_SkuMeterCategory) | $($row.x_SkuMeterSubcategory) | $($row.SkuMeter)" }
                 }
             })
         $placeholders | Should -BeNullOrEmpty
