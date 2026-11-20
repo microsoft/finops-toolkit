@@ -64,6 +64,7 @@ _Released November 2026_
     - Runs of `msexports_ExecuteETL` reported success while `CommitmentDiscountUsage` stopped updating. Exports with a `dataRowCount` of 0 are still skipped.
   - Fixed reservation recommendations missing `x_RecommendationDate` and `x_RecommendationDetails` after ingestion.
   - Fixed `ListCost`/`ContractedCost` never being repaired for rows without a Microsoft meter or offer ID (for example, third-party Marketplace/ISV purchases), which left `ListCost` at 0 despite a real `EffectiveCost` and corrupted Effective Savings Rate reporting; also cleared the `MissingListCost` data-quality flag once a row is successfully repaired instead of leaving it flagged as broken ([#2214](https://github.com/microsoft/finops-toolkit/issues/2214), [#2235](https://github.com/microsoft/finops-toolkit/issues/2235)).
+
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v16
 
 - **Added**
