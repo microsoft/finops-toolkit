@@ -3,7 +3,7 @@ title: FinOps hubs data model
 description: Learn about the tables and functions available in FinOps hubs to build your own queries, reports, and dashboards.
 author: flanakin
 ms.author: micflan
-ms.date: 11/13/2026
+ms.date: 11/20/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -722,6 +722,7 @@ The **Recommendations_raw** table supports the following data sources:
 - Microsoft Cost Management reservation recommendation export schemas for EA and MCA accounts.
 - Azure Advisor cost recommendations via Azure Resource Graph (HubsRecommendations).
 - Custom recommendations from Azure Resource Graph queries (HubsRecommendations).
+- Microsoft Cost Management savings plan purchase recommendations from the Benefit Recommendations API 2025-03-01 (optional). [Learn more](configure-recommendations.md#savings-plan-recommendations).
 
 Data is transformed into a FOCUS-aligned dataset when ingested into the final table. This dataset does not explicitly support other clouds.
 
@@ -750,7 +751,7 @@ Columns in the **Recommendations** managed dataset include:
 | x_SourceType                | String   | Source: Hubs add-on.                                          |
 | x_SourceVersion             | String   | Source: Hubs add-on.                                          |
 
-The **x_RecommendationDetails** column is a dynamic object that contains source-specific metadata. For Cost Management reservation recommendations, it includes commitment discount details like scope, term, SKU, and region. For hubs recommendations, it includes the recommendation provider, solution, type ID, resource type, and any additional properties from the query.
+The **x_RecommendationDetails** column is a dynamic object that contains source-specific metadata. For Cost Management reservation recommendations, it includes commitment discount details like scope, term, SKU, and region. For hubs recommendations, it includes the recommendation provider, solution, type ID, resource type, and any additional properties from the query. For savings plan recommendations, it includes the recommended commitment, all evaluated commitment scenarios, and the usage history the recommendation is based on. For details, see [Savings plan recommendation details](configure-recommendations.md#savings-plan-recommendation-details).
 
 <br>
 
