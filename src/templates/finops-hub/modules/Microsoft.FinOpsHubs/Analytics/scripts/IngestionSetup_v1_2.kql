@@ -438,8 +438,8 @@ Costs_transform_v1_2()
     // never reached the cost fallback, leaving ListCost/ContractedCost at 0 despite a real EffectiveCost -- which
     // breaks downstream savings/ESR math (#2214, #2286). tmp_MissingCost is the broader set that flows through to
     // the fallback case() blocks below; tmp_MissingPrices narrows that to rows the price-sheet join can actually
-    // resolve. Rows in tmp_MissingCost but not tmp_MissingPrices skip the join (all Prices_final_v1_2 columns come
-    // back null) and fall through the case() blocks' existing null-safe branches straight to the EffectiveCost-based
+    // resolve. Rows in tmp_MissingCost but not tmp_MissingPrices get an empty lookup key so they can't match the join
+    // (all Prices_final_v1_2 columns come back null) and fall through the case() blocks' existing null-safe branches straight to the EffectiveCost-based
     // fallback -- the same outcome #2214's fix asks for, using logic that already exists for the join's no-match case.
     | extend tmp_MissingCost = ProviderName == 'Microsoft'
         and (isempty(ListUnitPrice) or isempty(ContractedUnitPrice) or ListUnitPrice == 0 or ContractedUnitPrice == 0)
@@ -450,7 +450,7 @@ Costs_transform_v1_2()
         and (isnotempty(x_SkuOfferId) or CommitmentDiscountCategory == 'Usage')
     | as allCosts
     | where tmp_MissingCost
-    | extend tmp_ReservationPriceLookupKey = tolower(strcat(x_BillingProfileId, substring(ChargePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId))
+    | extend tmp_ReservationPriceLookupKey = iff(tmp_MissingPrices, tolower(strcat(x_BillingProfileId, substring(ChargePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId)), '')
     | as costsWithMissingPrices
     | join kind=leftouter (
         Prices_final_v1_2

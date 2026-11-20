@@ -57,6 +57,12 @@ Describe 'HubsMissingCostGate' {
                 -Because 'a row without a meter/offer ID has no valid lookup key and must not join to the price sheet'
         }
 
+        It 'Should build the price-sheet lookup key only for tmp_MissingPrices rows: <Name>' -ForEach $guardFiles {
+            $content = Get-Content -Path $FullName -Raw
+            $content | Should -Match 'tmp_ReservationPriceLookupKey\s*=\s*iff\(tmp_MissingPrices,\s*tolower\(strcat\(x_BillingProfileId, substring\(ChargePeriodStart' `
+                -Because 'rows in tmp_MissingCost but not tmp_MissingPrices must get an empty key; otherwise they can match a price-sheet row that shares the key with a qualifying row'
+        }
+
         It 'Should merge unrepaired rows back by tmp_MissingCost, not tmp_MissingPrices: <Name>' -ForEach $guardFiles {
             $content = Get-Content -Path $FullName -Raw
             $content | Should -Match 'union\s*\(allCosts\s*\|\s*where\s+not\(tmp_MissingCost\)\)' `
