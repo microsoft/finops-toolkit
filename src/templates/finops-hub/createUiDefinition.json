@@ -840,6 +840,70 @@
                 }
               }
             ]
+          },
+          {
+            "name": "savingsPlans",
+            "type": "Microsoft.Common.Section",
+            "label": "Savings plan recommendations",
+            "visible": true,
+            "elements": [
+              {
+                "name": "savingsPlansIntro",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "FinOps hubs can ingest savings plan purchase recommendations from Cost Management daily for the EA billing accounts, MCA billing profiles, subscriptions, and resource groups configured in settings.json."
+                }
+              },
+              {
+                "name": "enableSavingsPlanRecommendations",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable savings plan recommendations (preview)"
+              },
+              {
+                "name": "lookbackPeriods",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Lookback periods",
+                "toolTip": "Days of historical usage Cost Management uses to calculate recommendations. One request is made per billing scope, lookback period, and term.",
+                "multiselect": true,
+                "selectAll": true,
+                "defaultValue": [{ "value": "Last7Days" }, { "value": "Last30Days" }, { "value": "Last60Days" }],
+                "constraints": {
+                  "allowedValues": [
+                    { "label": "Last 7 days", "value": "Last7Days" },
+                    { "label": "Last 30 days", "value": "Last30Days" },
+                    { "label": "Last 60 days", "value": "Last60Days" }
+                  ],
+                  "required": true
+                },
+                "visible": "[steps('recommendations').savingsPlans.enableSavingsPlanRecommendations]"
+              },
+              {
+                "name": "terms",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Terms",
+                "toolTip": "Savings plan terms to get recommendations for.",
+                "multiselect": true,
+                "selectAll": true,
+                "defaultValue": [{ "value": "P1Y" }, { "value": "P3Y" }],
+                "constraints": {
+                  "allowedValues": [
+                    { "label": "1 year", "value": "P1Y" },
+                    { "label": "3 years", "value": "P3Y" }
+                  ],
+                  "required": true
+                },
+                "visible": "[steps('recommendations').savingsPlans.enableSavingsPlanRecommendations]"
+              },
+              {
+                "name": "savingsPlansPermissionsNote",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": "[steps('recommendations').savingsPlans.enableSavingsPlanRecommendations]",
+                "options": {
+                  "text": "The Data Factory managed identity requires read access to each billing scope: enrollment reader for EA billing accounts, billing profile reader for MCA billing profiles, or Cost Management Reader for subscriptions and resource groups. Access isn't granted by the template."
+                }
+              }
+            ]
           }
         ]
       },
@@ -1009,6 +1073,9 @@
       "enableRecommendations": "[steps('recommendations').enableRecommendations]",
       "enableAHBRecommendations": "[steps('recommendations').optional.enableAHBRecommendations]",
       "enableSpotRecommendations": "[steps('recommendations').optional.enableSpotRecommendations]",
+      "enableSavingsPlanRecommendations": "[steps('recommendations').savingsPlans.enableSavingsPlanRecommendations]",
+      "savingsPlanRecommendationLookbackPeriods": "[if(or(not(steps('recommendations').savingsPlans.enableSavingsPlanRecommendations), equals(length(steps('recommendations').savingsPlans.lookbackPeriods), 3)), parse('null'), steps('recommendations').savingsPlans.lookbackPeriods)]",
+      "savingsPlanRecommendationTerms": "[if(or(not(steps('recommendations').savingsPlans.enableSavingsPlanRecommendations), equals(length(steps('recommendations').savingsPlans.terms), 2)), parse('null'), steps('recommendations').savingsPlans.terms)]",
       "enablePublicAccess": "[steps('advanced').networking.enablePublicAccess]",
       "enableNatGateway": "[steps('advanced').networking.enableNatGateway]",
       "virtualNetworkAddressPrefix": "[steps('advanced').networking.virtualNetworkAddressPrefix]",
