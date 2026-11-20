@@ -281,7 +281,7 @@ Why this composite key (not `x_SkuMeterId`): see Rule 6 above. RI/SP rows in `Pr
 ## Data Sources
 
 - **FinOps hubs database (ADX/Fabric RTI)**: The primary data source. Query using the four analytic functions above via KQL.
-- **Open data**: CSV reference data for pricing units, regions, resource types, and services is available in the FinOps toolkit repository.
+- **Open data**: The Hub database exposes the toolkit's open data as `PricingUnits()`, `Region()`, `ResourceType()`, `Services()`, and `InstanceSizeFlexibility()`. Use `InstanceSizeFlexibility()` to group SKUs into instance size flexibility groups and normalize quantities by `Ratio`; it's available in hubs v16 and later. `ArmSkuName` keeps its published casing (for example, `Standard_D2s_v3`), so compare it with `=~` or normalize the casing on both sides before a `lookup` or `join`. The same data is published as CSV files with each FinOps toolkit release.
 
 ## Operational Guidelines
 
