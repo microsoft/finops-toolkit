@@ -174,7 +174,7 @@ Describe 'Update-SkuDetailsAI' {
             @{ Name = 'longco batch opt Tokens';      Type = 'Output'; Cached = $false; Batch = $true;  Context = 'Long Context' }
             @{ Name = 'shco CdInput Tokens';          Type = 'Input';  Cached = $true;  Batch = $false; Context = 'Short Context' }
             @{ Name = 'loco Output Tokens';           Type = 'Output'; Cached = $false; Batch = $false; Context = 'Long Context' }
-            @{ Name = 'shco loco Input Tokens';       Type = 'Input';  Cached = $false; Batch = $false; Context = 'Ambiguous' }
+            @{ Name = 'shco loco Input Tokens';       Type = 'Input';  Cached = $false; Batch = $false; Context = '' }
             @{ Name = 'Pro Contextualization Tokens'; Type = '';    Cached = $false; Batch = $false; Context = 'Contextualization' }
         ) {
             Get-AiTokenType $Name 'Guid'  | Should -BeExactly $Type
@@ -191,7 +191,7 @@ Describe 'Update-SkuDetailsAI' {
             @{ Name = 'Model CdWrite Tokens'; Kind = 'Guid'; Type = 'Write' }
             @{ Name = 'Model CdWrap Tokens'; Kind = 'Guid'; Type = '' }
             @{ Name = 'Model reasoning Tokens'; Kind = 'Guid'; Type = 'Reasoning' }
-            @{ Name = 'Model Inp Out Tokens'; Kind = 'Guid'; Type = 'Ambiguous' }
+            @{ Name = 'Model Inp Out Tokens'; Kind = 'Guid'; Type = '' }
             @{ Name = 'Model embed Tokens'; Kind = 'Guid'; Type = 'Embedding' }
             @{ Name = 'Cache read Tokens'; Kind = 'Guid'; Type = 'Input' }
             @{ Name = 'xCdInput Tokens'; Kind = 'Guid'; Type = 'Input' }
@@ -200,7 +200,7 @@ Describe 'Update-SkuDetailsAI' {
             @{ Name = 'Az-GPT-35-turbo-16k-LowPrio-Prompt Tokens'; Kind = 'Guid'; Type = 'Input' }
             @{ Name = 'Az-GPT-35-turbo-16k-Completion Tokens'; Kind = 'Guid'; Type = 'Output' }
             @{ Name = 'liutong-public - prompt_tokens_1k'; Kind = 'Guid'; Type = 'Input' }
-            @{ Name = 'Model Prompt Completion Tokens'; Kind = 'Guid'; Type = 'Ambiguous' }
+            @{ Name = 'Model Prompt Completion Tokens'; Kind = 'Guid'; Type = '' }
             @{ Name = 'Model Prompts Tokens'; Kind = 'Guid'; Type = '' }
             @{ Name = '4.7 Cached DZ L 1M Tokens'; Kind = 'Guid'; Type = 'Input' }
             @{ Name = 'K2.6 cached glbl Tokens'; Kind = 'Guid'; Type = 'Input' }
@@ -292,11 +292,11 @@ Describe 'Update-SkuDetailsAI' {
             @{ Name = '6-luna ShortCo Opt Std Gl 1M Tokens'; Location = 'Global' }
             @{ Name = 'Model Inp Regnl Tokens'; Location = 'Regional' }
             @{ Name = 'Model-rgnl Inp Tokens'; Location = 'Regional' }
-            @{ Name = 'Model Gl Dz Tokens'; Location = 'Ambiguous' }
+            @{ Name = 'Model Gl Dz Tokens'; Location = '' }
             @{ Name = 'English Single Input Tokens'; Location = '' }
             @{ Name = 'gpt-4o-rt-aud-0603 cchd Inp rgnl Tokens'; Location = 'Regional' }
             @{ Name = 'GPT 5 cchd Inpt Rgnl 1M Tokens'; Location = 'Regional' }
-            @{ Name = 'Model Rgnl Gl Tokens'; Location = 'Ambiguous' }
+            @{ Name = 'Model Rgnl Gl Tokens'; Location = '' }
             @{ Name = 'Model xrgnl Tokens'; Location = '' }
         ) { Get-AiTokenLocation $Name | Should -BeExactly $Location }
     }
@@ -362,12 +362,12 @@ Describe 'Update-SkuDetailsAI' {
             @{ Sub = 'Azure AI Search Cohere'; Creator = 'Microsoft' }
             @{ Sub = 'Deepseek Models'; Creator = 'DeepSeek' }
             @{ Sub = 'Cohere Models'; Creator = 'Cohere' }
-            @{ Sub = 'Something else'; Creator = 'Other' }
-            @{ Sub = ''; Creator = 'Other' }
+            @{ Sub = 'Something else'; Creator = '' }
+            @{ Sub = ''; Creator = '' }
             @{ Sub = 'Azure Content Understanding'; Creator = 'Microsoft' }
             @{ Sub = 'Microsoft Decision Models'; Creator = 'Microsoft' }
             @{ Sub = 'Observability'; Creator = 'Microsoft' }
-            @{ Sub = 'Managed Model Hosting Service'; Creator = 'Other' }
+            @{ Sub = 'Managed Model Hosting Service'; Creator = '' }
             @{ Sub = 'Azure Deepseek Models'; Creator = 'DeepSeek' }
         ) { Get-AiModelCreator $Sub | Should -Be $Creator }
 
@@ -389,20 +389,20 @@ Describe 'Update-SkuDetailsAI' {
             @{ Sub = 'Managed Model Hosting Service'; Name = 'AI21-Jamba 1.5-FT Tokens'; Creator = 'AI21' }
             @{ Sub = 'Managed Model Hosting Service'; Name = 'NTT-Tsuzumi-Input Tokens'; Creator = 'NTT' }
             @{ Sub = 'NTTDATA tsuzumi-7B Instruct'; Name = 'NTTDATA tsuzumi-7B Instruct - NTTDATA-tsuzumi-1-1-Instruct - PayGo Inference Input Tokens'; Creator = 'NTT' }
-            @{ Sub = 'Some Offer'; Name = 'Apprentt Input Tokens'; Creator = 'Other' }
+            @{ Sub = 'Some Offer'; Name = 'Apprentt Input Tokens'; Creator = '' }
             @{ Sub = 'Managed Model Hosting Service'; Name = 'G42-Jais-Input Tokens'; Creator = 'G42' }
             @{ Sub = 'Managed Model Hosting Service'; Name = 'Nix-TGPT-IN Tokens'; Creator = 'Nixtla' }
             @{ Sub = 'Managed Model Hosting Service'; Name = 'Reka-Input Tokens'; Creator = 'Reka' }
             @{ Sub = 'Some Marketplace Offer'; Name = 'SambaNova Cloud - DeepSeek-R1-Distill-Llama-70B - Output Price'; Creator = 'DeepSeek' }
-            @{ Sub = 'Managed Model Hosting Service'; Name = 'Provider1-Model1-TBD1-FT Tokens'; Creator = 'Other' }
-            @{ Sub = 'Managed Model Hosting Service'; Name = 'Model 24-FT Tokens'; Creator = 'Other' }
-            @{ Sub = 'Managed Model Hosting Service'; Name = 'G-J30-IN Tokens'; Creator = 'Other' }
-            @{ Sub = 'Some Offer'; Name = 'Aspex AI Lite - ChatGPT 3.5 fine-tuning training tokens'; Creator = 'Other' }
-            @{ Sub = 'Some Offer'; Name = 'Home for me Input Tokens'; Creator = 'Other' }
+            @{ Sub = 'Managed Model Hosting Service'; Name = 'Provider1-Model1-TBD1-FT Tokens'; Creator = '' }
+            @{ Sub = 'Managed Model Hosting Service'; Name = 'Model 24-FT Tokens'; Creator = '' }
+            @{ Sub = 'Managed Model Hosting Service'; Name = 'G-J30-IN Tokens'; Creator = '' }
+            @{ Sub = 'Some Offer'; Name = 'Aspex AI Lite - ChatGPT 3.5 fine-tuning training tokens'; Creator = '' }
+            @{ Sub = 'Some Offer'; Name = 'Home for me Input Tokens'; Creator = '' }
             # the subcategory still wins over the name
             @{ Sub = 'Azure Mistral Models'; Name = 'FW Kimi K3 Inp DZ Tokens'; Creator = 'Mistral' }
             @{ Sub = 'Azure Deepseek Models'; Name = 'MAI-DS-R1 Inp Dzone Tokens'; Creator = 'DeepSeek' }
-            @{ Sub = 'Azure Fireworks Models'; Name = ''; Creator = 'Other' }
+            @{ Sub = 'Azure Fireworks Models'; Name = ''; Creator = '' }
         ) { Get-AiModelCreator $Sub $Name | Should -Be $Creator }
     }
 
@@ -463,9 +463,9 @@ Describe 'Update-SkuDetailsAI' {
             @{ Cat = 'GitHub'; Sub = 'GitHub Copilot'; Name = 'AI Credit GAC'; Family = 'Developer Tools'; Kind = 'Other'; Type = 'GitHub'; Agent = 'Copilot - GitHub'; Commit = $false; CopilotProvider = 'Vendor' }
             @{ Cat = 'Microsoft Fabric'; Sub = 'Fabric Capacity'; Name = 'Copilot and AI Capacity Usage CU'; Family = 'Data'; Kind = 'Guid'; Type = 'Fabric'; Agent = 'Copilot - Fabric'; Commit = $false; CopilotProvider = 'Microsoft' }
             @{ Cat = 'X'; Sub = 'Y'; Name = 'Security Copilot Unit'; Family = 'Security'; Kind = 'Guid'; Type = 'Security'; Agent = 'Copilot - Security'; Commit = $false; CopilotProvider = 'Microsoft' }
-            @{ Cat = 'X'; Sub = 'Y'; Name = 'Some Copilot Unit'; Family = 'Compute'; Kind = 'Guid'; Type = 'Other'; Agent = 'Copilot - Other'; Commit = $false; CopilotProvider = 'Microsoft' }
+            @{ Cat = 'X'; Sub = 'Y'; Name = 'Some Copilot Unit'; Family = 'Compute'; Kind = 'Guid'; Type = ''; Agent = ''; Commit = $false; CopilotProvider = 'Microsoft' }
             @{ Cat = 'X'; Sub = 'Copilot Credit Pre-Purchase Plan'; Name = 'Copilot Credit Commit Unit'; Family = 'Microsoft 365 Copilot'; Kind = 'Guid'; Type = 'M365'; Agent = 'Copilot - M365'; Commit = $true; CopilotProvider = 'Microsoft' }
-            @{ Cat = 'GitHub'; Sub = 'GitHub AI Credits Pre-Purchase Plan'; Name = '100,000 GHAICCUs GitHub AI Credit Commit Unit'; Family = 'Developer Tools'; Kind = 'Guid'; Type = 'GitHub'; Agent = 'Generic'; Commit = $true; CopilotProvider = 'Microsoft' }
+            @{ Cat = 'GitHub'; Sub = 'GitHub AI Credits Pre-Purchase Plan'; Name = '100,000 GHAICCUs GitHub AI Credit Commit Unit'; Family = 'Developer Tools'; Kind = 'Guid'; Type = 'GitHub'; Agent = ''; Commit = $true; CopilotProvider = 'Microsoft' }
         ) {
             $c = Get-AiMeterClassification $Cat $Sub $Name $Family $Kind
             $c.IsCopilotMeter | Should -BeTrue;  $c.IsConsumptionMeter | Should -BeTrue;  $c.IsAgentMeter | Should -BeTrue
@@ -485,7 +485,7 @@ Describe 'Update-SkuDetailsAI' {
 
         It 'classifies a first-party Copilot meter of another type' {
             $c = Get-AiMeterClassification 'Foundry Tools' 'Foundry Agents' 'Copilot Agent Unit' 'AI + Machine Learning' 'Guid'
-            $c.IsCopilotMeter | Should -BeTrue;  $c.CopilotType | Should -Be 'Other';  $c.AgentType | Should -Be 'Copilot - Other'
+            $c.IsCopilotMeter | Should -BeTrue;  $c.CopilotType | Should -BeExactly '';  $c.AgentType | Should -BeExactly ''
         }
 
         It 'takes the model version of a Marketplace meter from the offer name: <Sub>' -ForEach @(
@@ -506,7 +506,7 @@ Describe 'Update-SkuDetailsAI' {
             @{ Sub = 'Azure Agent Unit'; Agent = 'Azure SRE Agent'; Commit = $false }
             @{ Sub = 'Azure Monitor Observability Agent'; Agent = 'Azure Monitor Observability Agent'; Commit = $false }
             @{ Sub = 'Microsoft 365 Agent'; Agent = 'Agent 365'; Commit = $false }
-            @{ Sub = 'Microsoft Agent Pre-Purchase Plan'; Agent = 'Generic'; Commit = $true }
+            @{ Sub = 'Microsoft Agent Pre-Purchase Plan'; Agent = ''; Commit = $true }
         ) {
             $c = Get-AiMeterClassification 'X' $Sub 'Unit' 'AI + Machine Learning' 'Guid'
             $c.IsAgentMeter | Should -BeTrue;  $c.AgentType | Should -Be $Agent;  $c.IsCommitmentMeter | Should -Be $Commit
