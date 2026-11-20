@@ -3,7 +3,7 @@ title: FinOps best practices for general resource management
 description: This article outlines proven FinOps practices for Microsoft Cloud services, focusing on cost optimization, efficiency improvements, and resource insights.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 11/05/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -99,6 +99,48 @@ advisorresources
     PotentialMonthlyCarbonEmissions = properties.extendedProperties.PotentialMonthlyCarbonEmissions,
     PotentialMonthlyCarbonSavings = toreal(properties.extendedProperties.PotentialMonthlyCarbonSavings),
     properties
+```
+
+<br>
+
+## Azure Resource Manager
+
+Azure Resource Manager is the deployment and management layer for Azure. Azure Resource Graph queries it at scale to inventory resources across subscriptions.
+
+Related resources:
+
+- [Azure Resource Graph documentation](/azure/governance/resource-graph/)
+
+### Query: Count of all resources per type
+
+This ARG query counts all resources within the specified scope per resource type.
+
+**Category**
+
+Inventory
+
+**Query**
+
+```kusto
+Resources
+| summarize Count = count() by type
+```
+
+<br>
+
+### Query: Count of all resources per region
+
+This ARG query counts all resources within the specified scope per region.
+
+**Category**
+
+Inventory
+
+**Query**
+
+```kusto
+Resources
+| summarize Count = count() by location
 ```
 
 <br>
