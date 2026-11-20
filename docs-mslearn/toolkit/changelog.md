@@ -67,7 +67,7 @@ _Released November 2026_
 ### [Power BI reports](power-bi/reports.md) v16
 
 - **Fixed**
-  - Replaced dead `aka.ms/ftk/pbi/invoicing` links in the Invoicing and chargeback report and the workbooks README with direct Microsoft Learn links ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
+  - Replaced dead `aka.ms/ftk/pbi/invoicing` links in the Invoicing and chargeback report with direct Microsoft Learn links. Reports already installed (v15 and earlier) keep the dead link until the `aka.ms/ftk/pbi/invoicing` redirect is repaired ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v16
 
