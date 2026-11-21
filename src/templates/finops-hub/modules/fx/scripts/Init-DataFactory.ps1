@@ -51,6 +51,9 @@ param(
 )
 
 $MAX_RETRIES = 20
+
+# Triggers deployed by the hub (keep in sync with trigger names in Bicep; see HubsInitDataFactoryTriggers.Tests.ps1): <container>_<DailySchedule|MonthlySchedule|SettingsUpdated|ManifestAdded>
+$HubTriggerPattern = '^(config|ingestion|msexports|queries)_(DailySchedule|MonthlySchedule|SettingsUpdated|ManifestAdded)$'
 $DeploymentScriptOutputs = @{}
 
 function Write-Log($Message)
@@ -134,9 +137,22 @@ if ($StartTriggers -or $StopTriggers)
             -ResourceGroupName $DataFactoryResourceGroup `
             -DataFactoryName $DataFactoryName `
         | Where-Object {
-            ($StartTriggers -and $_.Properties.RuntimeState -ne "Started") `
+            # Only start the hub's own triggers; leftover triggers from older versions (e.g., v0.7) can have invalid settings
+            $isHubTrigger = -not $StartTriggers -or $_.Name -match $HubTriggerPattern
+            $needsChange = ($StartTriggers -and $_.Properties.RuntimeState -ne "Started") `
                 -or ($StopTriggers -and $_.Properties.RuntimeState -ne "Stopped")
+            $isHubTrigger -and $needsChange
         }
+    }
+
+    # Log skipped triggers outside the filter so log output doesn't leak into the trigger list
+    if ($StartTriggers)
+    {
+        $skipped = Get-AzDataFactoryV2Trigger `
+            -ResourceGroupName $DataFactoryResourceGroup `
+            -DataFactoryName $DataFactoryName `
+        | Where-Object { $_.Properties.RuntimeState -ne "Started" -and $_.Name -notmatch $HubTriggerPattern }
+        $skipped | ForEach-Object { Write-Log "Skipping trigger $($_.Name): not a FinOps hub trigger." }
     }
 
     Write-Log "Found $($triggers.Count) trigger(s) to $(if ($StartTriggers) { 'start' } else { 'stop' })"

@@ -53,9 +53,19 @@ _Released November 2026_
   - Documented that two exports of the same dataset and scope that cover the same month replace each other's data with no error. For guidance, see [Use one export per dataset and scope](hubs/configure-scopes.md#use-one-export-per-dataset-and-scope) ([#2383](https://github.com/microsoft/finops-toolkit/issues/2383)).
   - Updated the FinOps hub cost estimate to ~$330/mo for a default Data Explorer hub (was $120/mo) in the deployment UI and docs, based on measured costs that include the managed VM, load balancer, storage, and public IP. Updated the Data Explorer SKU price estimates in the deployment UI dropdown to current Azure retail pricing ([#2229](https://github.com/microsoft/finops-toolkit/issues/2229)).
 - **Fixed**
-  - Fixed Azure Backup charges on Recovery Services vaults being labeled as Azure Site Recovery ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
-    - Backup charges now map to `ServiceName` "Azure Backup" with `ServiceCategory` "Storage" and `ServiceSubcategory` "Backup Storage" for FOCUS, actual, and amortized cost exports.
-    - Already-ingested rows keep the old label until they're reingested.
+  - Fixed FOCUS 1.2 and 1.2-preview rows being flagged `LegacyFocusVersion` in `x_SourceChanges`. Only versions older than 1.2 are flagged now ([#2384](https://github.com/microsoft/finops-toolkit/issues/2384)).
+    - FOCUS 1.0 rows (including `1.0r2` and 1.0 previews) are now flagged `LegacyFocusVersion` on newly ingested data. This is expected, since 1.0 is older than 1.2.
+  - Fixed price transforms in FinOps hubs that created more rows than were ingested ([#1736](https://github.com/microsoft/finops-toolkit/issues/1736)).
+    - The savings plan price lookup now returns one row per key.
+    - The lookup key now includes billing profile and currency.
+  - Fixed incorrect commitment discount eligibility (`x_CommitmentDiscountSpendEligibility`, `x_CommitmentDiscountUsageEligibility`) when a pricesheet export has multiple files ([#1625](https://github.com/microsoft/finops-toolkit/issues/1625)).
+    - Eligibility now comes from the [Commitment discount eligibility](open-data.md#commitment-discount-eligibility) open data in a new `CommitmentDiscountEligibility` table.
+    - If a meter is missing from the open data, the transform uses the pricesheet-derived value.
+    - Fabric users who rerun the versioned script on an existing eventhouse must first run `IngestionSetup_HubInfra.kql` to create the new table.
+  - Fixed services that share a resource type showing as one service ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
+    - Backup charges on Recovery Services vaults now show as Azure Backup instead of Azure Site Recovery.
+    - Functions and Logic Apps Standard charges on App Service sites now show as Functions and Logic Apps instead of Azure App Service.
+    - Uses the new `x_SkuMeterCategory` column in [Services](open-data.md#services) open data. Already-ingested rows keep the old label until they're reingested.
   - Fixed non-FOCUS actual cost exports failing to ingest into Data Explorer because the amortized cost update policy replaced the actual cost one ([#2177](https://github.com/microsoft/finops-toolkit/issues/2177)).
     - Reingest actual cost months that were exported before upgrading.
   - Fixed the Azure Resource Graph query pipeline only ingesting the first 1,000 rows of any query (for example, `Recommendations-Microsoft-AdvisorCost`). The pipeline now pages through all results, writing each page to its own Parquet file ([#2320](https://github.com/microsoft/finops-toolkit/issues/2320)).
@@ -63,6 +73,7 @@ _Released November 2026_
     - Billing account ID, billing account type, and pricing currency now use the short billing profile ID too.
   - Fixed reservation details exports being skipped with no error when the export manifest has a null `dataRowCount` ([#2173](https://github.com/microsoft/finops-toolkit/issues/2173)).
     - Runs of `msexports_ExecuteETL` reported success while `CommitmentDiscountUsage` stopped updating. Exports with a `dataRowCount` of 0 are still skipped.
+  - Fixed FinOps hub deployments failing when Data Factory has leftover triggers from older versions (for example, v0.7) with an invalid time zone. Deployment now only starts the triggers the hub creates ([#1995](https://github.com/microsoft/finops-toolkit/issues/1995)).
   - Fixed reservation recommendations missing `x_RecommendationDate` and `x_RecommendationDetails` after ingestion.
 
 ### [Power BI reports](power-bi/reports.md) v16
@@ -80,7 +91,15 @@ _Released November 2026_
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
 - **Added**
+  - Added a `-MeterCategory` parameter to [Get-FinOpsService](powershell/data/get-finopsservice.md) to split resource types shared by multiple services, like Azure Backup and Azure Site Recovery ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
   - Added a `-EnableKeyVaultRbacAuthorization` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that moves the hub Key Vault from access policies to Azure RBAC. Requires hub template version 16.0 or later ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+
+### [Open data](open-data.md) v16
+
+- **Added**
+  - Added an optional `x_SkuMeterCategory` column to [Services](open-data.md#services) to split resource types shared by multiple services ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
+    - Empty means the row applies to all meter categories for that resource type.
+    - Added Azure Backup on Recovery Services vaults, and Functions and Logic Apps on App Service sites.
 
 <br>
 
