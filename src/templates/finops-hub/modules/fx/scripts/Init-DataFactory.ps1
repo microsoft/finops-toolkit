@@ -52,8 +52,8 @@ param(
 
 $MAX_RETRIES = 20
 
-# Triggers deployed by the hub (keep in sync with trigger names in Bicep; see HubsInitDataFactoryTriggers.Tests.ps1): <container>_<DailySchedule|MonthlySchedule|SettingsUpdated|ManifestAdded>
-$HubTriggerPattern = '^(config|ingestion|msexports|queries)_(DailySchedule|MonthlySchedule|SettingsUpdated|ManifestAdded)$'
+# Triggers deployed by the hub (keep in sync with trigger names in Bicep; see HubsInitDataFactoryTriggers.Tests.ps1): <container|app>_<DailySchedule|MonthlySchedule|SettingsUpdated|ManifestAdded>
+$HubTriggerPattern = '^(config|ingestion|msexports|queries|savingsPlanRecommendations)_(DailySchedule|MonthlySchedule|SettingsUpdated|ManifestAdded)$'
 $DeploymentScriptOutputs = @{}
 
 function Write-Log($Message)
