@@ -140,7 +140,8 @@ Set-Retention -Name final     -Unit months -Default 13 -Requested $env:finalRete
 
 # Set savings plan recommendation settings
 # NOTE: Like retention, only values the deployment specifies are written. When a value isn't passed, keep the stored value.
-# When neither exists, the savings plan recommendations pipeline falls back to all lookback periods and terms.
+# When neither exists, the savings plan recommendations pipeline falls back to all lookback periods and terms, and to no scopes.
+# Scopes are separate from the top-level scopes, which are used for managed exports.
 function Set-SavingsPlanRecommendationSetting([string] $Name, [string] $Requested)
 {
     if ([string]::IsNullOrWhiteSpace($Requested))
@@ -155,10 +156,11 @@ function Set-SavingsPlanRecommendationSetting([string] $Name, [string] $Requeste
     {
         $json.recommendations | Add-Member -Name savingsPlans -Value ([PSCustomObject]@{}) -MemberType NoteProperty -Force
     }
-    $values = @($Requested.Split('|') | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique)
+    $values = @($Requested.Split('|') | ForEach-Object { $_.Trim() } | Where-Object { $_ } | Select-Object -Unique)
     Write-Output "  Setting savings plan recommendation $Name to $($values -join ', ')..."
     $json.recommendations.savingsPlans | Add-Member -Name $Name -Value $values -MemberType NoteProperty -Force
 }
+Set-SavingsPlanRecommendationSetting -Name scopes          -Requested $env:savingsPlanRecommendationScopes
 Set-SavingsPlanRecommendationSetting -Name lookbackPeriods -Requested $env:savingsPlanRecommendationLookbackPeriods
 Set-SavingsPlanRecommendationSetting -Name terms           -Requested $env:savingsPlanRecommendationTerms
 

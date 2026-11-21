@@ -162,6 +162,9 @@ param dataExplorerRawRetentionInDays int?
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. If not specified, keeps the current value from settings.json (13 for new hubs).')
 param dataExplorerFinalRetentionInMonths int?
 
+@description('Optional. Billing scopes to request savings plan purchase recommendations for, separate from the scopes used for managed exports. Supported: EA billing accounts, MCA billing profiles, subscriptions, and resource groups (for example, "/providers/Microsoft.Billing/billingAccounts/1234567" or "/subscriptions/{subscriptionId}"). Requires enableSavingsPlanRecommendations. If not specified, keeps the current value from settings.json (none for new hubs, so no recommendations are ingested until scopes are set).')
+param savingsPlanRecommendationScopes string[]?
+
 @description('Optional. Lookback periods to request savings plan purchase recommendations for. Allowed values: "Last7Days", "Last30Days", "Last60Days". Requires enableSavingsPlanRecommendations. If not specified, keeps the current value from settings.json (all lookback periods for new hubs).')
 @allowed(['Last7Days', 'Last30Days', 'Last60Days'])
 param savingsPlanRecommendationLookbackPeriods string[]?
@@ -211,6 +214,7 @@ module hub 'modules/hub.bicep' = {
     ingestionRetentionInMonths: ingestionRetentionInMonths
     dataExplorerRawRetentionInDays: dataExplorerRawRetentionInDays
     dataExplorerFinalRetentionInMonths: dataExplorerFinalRetentionInMonths
+    savingsPlanRecommendationScopes: savingsPlanRecommendationScopes
     savingsPlanRecommendationLookbackPeriods: savingsPlanRecommendationLookbackPeriods
     savingsPlanRecommendationTerms: savingsPlanRecommendationTerms
     remoteHubStorageUri: remoteHubStorageUri

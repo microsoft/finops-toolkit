@@ -22,11 +22,11 @@ Describe 'HubsSavingsPlanRecommendations' {
         $schemaPath = Join-Path $modulesRoot 'Microsoft.FinOpsHubs/SavingsPlanRecommendations/schemas/recommendations_savingsplans_2025-03-01.json'
         $hubPath = Join-Path $modulesRoot 'hub.bicep'
         $kqlPath = Join-Path $modulesRoot 'Microsoft.FinOpsHubs/Analytics/scripts/IngestionSetup_v1_2.kql'
-        $envVars = 'msexportRetentionInDays', 'ingestionRetentionInMonths', 'rawRetentionInDays', 'finalRetentionInMonths', 'savingsPlanRecommendationLookbackPeriods', 'savingsPlanRecommendationTerms'
+        $envVars = 'msexportRetentionInDays', 'ingestionRetentionInMonths', 'rawRetentionInDays', 'finalRetentionInMonths', 'savingsPlanRecommendationScopes', 'savingsPlanRecommendationLookbackPeriods', 'savingsPlanRecommendationTerms'
 
         function Invoke-CopyScript
         {
-            param([string] $ExistingJson, [string] $LookbackPeriods, [string] $Terms, [string] $Scopes = '')
+            param([string] $ExistingJson, [string] $LookbackPeriods, [string] $Terms, [string] $Scopes = '', [string] $SavingsPlanScopes)
 
             $workDir = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString())
             New-Item -ItemType Directory -Path $workDir | Out-Null
@@ -49,6 +49,7 @@ Describe 'HubsSavingsPlanRecommendations' {
             # The template omits these environment variables when the deployment doesn't specify them
             $env:savingsPlanRecommendationLookbackPeriods = $LookbackPeriods
             $env:savingsPlanRecommendationTerms = $Terms
+            $env:savingsPlanRecommendationScopes = $SavingsPlanScopes
 
             Push-Location $workDir
             try
@@ -92,6 +93,29 @@ Describe 'HubsSavingsPlanRecommendations' {
             @($s.recommendations.savingsPlans.terms) | Should -Be @('P1Y', 'P3Y')
             $s.retention.ingestion.months | Should -Be 13 -Because 'writing nested settings must not break retention'
         }
+
+        It 'Should write savings plan scopes separately from the managed exports scopes' {
+            $exportScope = '/subscriptions/11111111-1111-1111-1111-111111111111'
+            $s = Invoke-CopyScript -ExistingJson $null -Scopes $exportScope -SavingsPlanScopes ' /providers/Microsoft.Billing/billingAccounts/1234567 |/subscriptions/00000000-0000-0000-0000-000000000000'
+            @($s.recommendations.savingsPlans.scopes) | Should -Be @('/providers/Microsoft.Billing/billingAccounts/1234567', '/subscriptions/00000000-0000-0000-0000-000000000000') -Because 'values are trimmed'
+            @($s.scopes).scope | Should -Be @($exportScope) -Because 'managed exports scopes must not change'
+        }
+
+        It 'Should write a single savings plan scope as an array' {
+            $s = Invoke-CopyScript -ExistingJson $null -SavingsPlanScopes '/subscriptions/00000000-0000-0000-0000-000000000000'
+            ($s.recommendations.savingsPlans.scopes -is [array]) | Should -BeTrue -Because 'the Filter activity needs an array'
+        }
+
+        It 'Should not copy managed exports scopes to savings plan scopes' {
+            $s = Invoke-CopyScript -ExistingJson $null -Scopes '/subscriptions/11111111-1111-1111-1111-111111111111'
+            $s.PSObject.Properties.Name | Should -Not -Contain 'recommendations' -Because 'there is no fallback to the managed exports scopes'
+        }
+
+        It 'Should keep stored savings plan scopes when they are not specified' {
+            $stored = $existing.Replace('"lookbackPeriods"', '"scopes":["/subscriptions/00000000-0000-0000-0000-000000000000"],"lookbackPeriods"')
+            $s = Invoke-CopyScript -ExistingJson $stored
+            @($s.recommendations.savingsPlans.scopes) | Should -Be @('/subscriptions/00000000-0000-0000-0000-000000000000')
+        }
     }
 
     Context 'Templates' {
@@ -125,16 +149,17 @@ Describe 'HubsSavingsPlanRecommendations' {
             $names | ForEach-Object { "$_.Identity".Length | Should -BeLessOrEqual 64 -Because "$_ is a nested deployment name" }
         }
 
-        It 'Should accept the settings.json shape of a single scope in Filter Supported Scopes' {
-            # Regression: the first deployed run failed with "The 'from' property value ... is of type 'Object'" because
-            # Copy-FileToAzureBlob.ps1 writes a one-item scopes array as an object
-            $scope = '/subscriptions/00000000-0000-0000-0000-000000000000'
-            $s = Invoke-CopyScript -ExistingJson $null -Scopes $scope
-            @($s.scopes).scope | Should -Be $scope
-            if ($s.scopes -isnot [array])
-            {
-                $app | Should -Match "(?s)name: 'Filter Supported Scopes'.*?createArray\(\$\{settingsRow\}\.scopes\)" -Because 'settings.json stores a single scope as an object, and the Filter activity needs an array'
-            }
+        It 'Should read scopes from recommendations.savingsPlans.scopes only' {
+            # Savings plan scopes are separate from the top-level scopes used for managed exports, with no fallback
+            $filter = [regex]::Match($app, "(?s)name: 'Filter Supported Scopes'.*?items: \{\s*value: '([^\r\n]+)'").Groups[1].Value
+            $filter | Should -Match '\$\{scopesExpression\}'
+            $filter | Should -Not -Match 'settingsRow\}\.scopes'
+            $app | Should -Match ('var scopesExpression = .*' + [regex]::Escape('contains(${settingsSavingsPlans}, \''scopes\''), ${settingsSavingsPlans}.scopes, json(\''[]\''))'))
+        }
+
+        It 'Should wrap a single savings plan scope in an array' {
+            # Regression: the first deployed run failed with "The 'from' property value ... is of type 'Object'" for a single scope
+            $app | Should -Match "(?s)name: 'Filter Supported Scopes'.*?createArray\(\$\{scopesExpression\}\)"
         }
 
         It 'Should not write Parquet for an empty response' {

@@ -91,6 +91,14 @@
         "savingsPlans": {
           "type": "object",
           "properties": {
+            "scopes": {
+              "description": "Billing scopes to get savings plan recommendations for. Separate from the top-level scopes, which are used for managed exports.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true
+            },
             "lookbackPeriods": {
               "type": "array",
               "items": {

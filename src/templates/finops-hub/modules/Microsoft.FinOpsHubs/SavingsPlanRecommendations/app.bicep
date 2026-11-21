@@ -64,6 +64,8 @@ var settingsRow = 'activity(\'Load Settings\').output.firstRow'
 var settingsSavingsPlans = '${settingsRow}.recommendations.savingsPlans'
 var lookbackPeriodsExpression = 'if(contains(${settingsRow}, \'recommendations\'), if(contains(${settingsRow}.recommendations, \'savingsPlans\'), if(contains(${settingsSavingsPlans}, \'lookbackPeriods\'), ${settingsSavingsPlans}.lookbackPeriods, json(\'${string(DEFAULT_LOOKBACK_PERIODS)}\')), json(\'${string(DEFAULT_LOOKBACK_PERIODS)}\')), json(\'${string(DEFAULT_LOOKBACK_PERIODS)}\'))'
 var termsExpression = 'if(contains(${settingsRow}, \'recommendations\'), if(contains(${settingsRow}.recommendations, \'savingsPlans\'), if(contains(${settingsSavingsPlans}, \'terms\'), ${settingsSavingsPlans}.terms, json(\'${string(DEFAULT_TERMS)}\')), json(\'${string(DEFAULT_TERMS)}\')), json(\'${string(DEFAULT_TERMS)}\'))'
+// Scopes are separate from the top-level scopes in settings.json (used for managed exports). No scopes means nothing is requested.
+var scopesExpression = 'if(contains(${settingsRow}, \'recommendations\'), if(contains(${settingsRow}.recommendations, \'savingsPlans\'), if(contains(${settingsSavingsPlans}, \'scopes\'), ${settingsSavingsPlans}.scopes, json(\'[]\')), json(\'[]\')), json(\'[]\'))'
 
 // Supported billing scopes for the Benefit Recommendations API:
 // - EA billing account:  providers/Microsoft.Billing/billingAccounts/{id} (MCA billing account IDs include ':' and aren't supported)
@@ -71,7 +73,7 @@ var termsExpression = 'if(contains(${settingsRow}, \'recommendations\'), if(cont
 // - Subscription:        subscriptions/{id}
 // - Resource group:      subscriptions/{id}/resourceGroups/{name}
 // NOTE: ADF and()/or() don't short-circuit, so only string checks are used (no array indexing)
-var normalizedScope = 'toLower(if(startsWith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)), item().scope))'
+var normalizedScope = 'toLower(if(startsWith(item(), \'/\'), substring(item(), 1, sub(length(item()), 1)), item()))'
 var scopeSegments = 'length(split(${normalizedScope}, \'/\'))'
 var isSubscription = 'and(startsWith(${normalizedScope}, \'subscriptions/\'), equals(${scopeSegments}, 2))'
 var isResourceGroup = 'and(startsWith(${normalizedScope}, \'subscriptions/\'), and(equals(${scopeSegments}, 4), contains(${normalizedScope}, \'/resourcegroups/\')))'
@@ -435,7 +437,7 @@ resource pipeline_ExecuteScope 'Microsoft.DataFactory/factories/pipelines@2018-0
   }
 }
 
-// Reads settings.json and runs the savings plan recommendations query for each supported billing scope
+// Reads settings.json and runs the savings plan recommendations query for each supported scope in recommendations.savingsPlans.scopes
 resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
   name: '${PREFIX}_ExecuteETL'
   parent: dataFactory
@@ -494,7 +496,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
       }
       { // Filter Supported Scopes
         name: 'Filter Supported Scopes'
-        description: 'Keep EA billing accounts, MCA billing profiles, subscriptions, and resource groups. Other scopes in settings.json aren\'t supported by the Benefit Recommendations API. A single scope can be stored as an object instead of an array, so it\'s wrapped in an array first, like in ManagedExports.'
+        description: 'Keep EA billing accounts, MCA billing profiles, subscriptions, and resource groups. Scopes come from recommendations.savingsPlans.scopes in settings.json, not from the top-level scopes used for managed exports. Other scopes aren\'t supported by the Benefit Recommendations API. A single scope that isn\'t stored as an array is wrapped in an array first.'
         type: 'Filter'
         dependsOn: [
           {
@@ -505,7 +507,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
         userProperties: []
         typeProperties: {
           items: {
-            value: '@if(contains(${settingsRow}, \'scopes\'), if(startsWith(string(${settingsRow}.scopes), \'[\'), ${settingsRow}.scopes, createArray(${settingsRow}.scopes)), json(\'[]\'))'
+            value: '@if(startsWith(string(${scopesExpression}), \'[\'), ${scopesExpression}, createArray(${scopesExpression}))'
             type: 'Expression'
           }
           condition: {
@@ -582,7 +584,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
                     type: 'Expression'
                   }
                   scope: {
-                    value: '@item().scope'
+                    value: '@item()'
                     type: 'Expression'
                   }
                   combinations: {

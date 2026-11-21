@@ -852,13 +852,26 @@
                 "type": "Microsoft.Common.TextBlock",
                 "visible": true,
                 "options": {
-                  "text": "FinOps hubs can ingest savings plan purchase recommendations from Cost Management daily for the EA billing accounts, MCA billing profiles, subscriptions, and resource groups configured in settings.json."
+                  "text": "FinOps hubs can ingest savings plan purchase recommendations from Cost Management daily for EA billing accounts, MCA billing profiles, subscriptions, and resource groups. These scopes are separate from the scopes used for managed exports."
                 }
               },
               {
                 "name": "enableSavingsPlanRecommendations",
                 "type": "Microsoft.Common.CheckBox",
                 "label": "Enable savings plan recommendations (preview)"
+              },
+              {
+                "name": "scopes",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Scopes",
+                "placeholder": "/providers/Microsoft.Billing/billingAccounts/1234567, /subscriptions/00000000-0000-0000-0000-000000000000",
+                "toolTip": "Comma-separated list of EA billing account, MCA billing profile, subscription, or resource group IDs to get savings plan recommendations for. Scopes used for managed exports aren't included automatically.",
+                "constraints": {
+                  "required": true,
+                  "regex": "^\\s*/?(subscriptions|providers)/[^,]+(\\s*,\\s*/?(subscriptions|providers)/[^,]+)*\\s*$",
+                  "validationMessage": "Enter one or more scope IDs separated by commas, like /providers/Microsoft.Billing/billingAccounts/1234567 or /subscriptions/{subscriptionId}."
+                },
+                "visible": "[steps('recommendations').savingsPlans.enableSavingsPlanRecommendations]"
               },
               {
                 "name": "lookbackPeriods",
@@ -1074,6 +1087,7 @@
       "enableAHBRecommendations": "[steps('recommendations').optional.enableAHBRecommendations]",
       "enableSpotRecommendations": "[steps('recommendations').optional.enableSpotRecommendations]",
       "enableSavingsPlanRecommendations": "[steps('recommendations').savingsPlans.enableSavingsPlanRecommendations]",
+      "savingsPlanRecommendationScopes": "[if(not(steps('recommendations').savingsPlans.enableSavingsPlanRecommendations), parse('null'), split(steps('recommendations').savingsPlans.scopes, ','))]",
       "savingsPlanRecommendationLookbackPeriods": "[if(or(not(steps('recommendations').savingsPlans.enableSavingsPlanRecommendations), equals(length(steps('recommendations').savingsPlans.lookbackPeriods), 3)), parse('null'), steps('recommendations').savingsPlans.lookbackPeriods)]",
       "savingsPlanRecommendationTerms": "[if(or(not(steps('recommendations').savingsPlans.enableSavingsPlanRecommendations), equals(length(steps('recommendations').savingsPlans.terms), 2)), parse('null'), steps('recommendations').savingsPlans.terms)]",
       "enablePublicAccess": "[steps('advanced').networking.enablePublicAccess]",
