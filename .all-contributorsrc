@@ -1062,6 +1062,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "keerthimath",
+      "name": "Keerthi Math",
+      "avatar_url": "https://avatars.githubusercontent.com/u/50626041?v=4",
+      "profile": "https://github.com/keerthimath",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "commitType": "docs",
