@@ -123,7 +123,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
 
 // Upload schema files to storage
 module uploadSchemas '../../fx/hub-storage.bicep' = {
-  name: 'Microsoft.FinOpsHubs.SavingsPlanRecommendations_UploadSchemas'
+  name: 'Microsoft.FinOpsHubs.SavingsPlanRecs_UploadSchemas'
   dependsOn: [appRegistration]
   params: {
     app: app

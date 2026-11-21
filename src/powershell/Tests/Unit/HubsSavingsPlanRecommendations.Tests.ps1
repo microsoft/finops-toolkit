@@ -118,6 +118,15 @@ Describe 'HubsSavingsPlanRecommendations' {
             $app | Should -Match "name: '\$\{ingestionQueries\.queries\.folder\}_\$\{QUERY_ENGINE\}_ExecuteQuery'"
         }
 
+        It 'Should keep nested deployment names within the 64-character limit' {
+            # hub-storage.bicep appends '.Identity' and '.Upload' to the module deployment name
+            $names = [regex]::Matches($app, "(?m)^module \w+ '[^']*hub-storage\.bicep' = \{
+?
+\s+name: '([^'$]+)'") | ForEach-Object { $_.Groups[1].Value }
+            $names | Should -Not -BeNullOrEmpty
+            $names | ForEach-Object { "$_.Identity".Length | Should -BeLessOrEqual 64 -Because "$_ is a nested deployment name" }
+        }
+
         It 'Should not write Parquet for an empty response' {
             $app | Should -Match "(?s)name: 'If Results Returned'.*?name: 'Write Results'"
         }
