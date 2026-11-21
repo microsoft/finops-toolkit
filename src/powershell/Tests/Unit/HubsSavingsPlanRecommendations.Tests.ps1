@@ -26,7 +26,7 @@ Describe 'HubsSavingsPlanRecommendations' {
 
         function Invoke-CopyScript
         {
-            param([string] $ExistingJson, [string] $LookbackPeriods, [string] $Terms)
+            param([string] $ExistingJson, [string] $LookbackPeriods, [string] $Terms, [string] $Scopes = '')
 
             $workDir = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString())
             New-Item -ItemType Directory -Path $workDir | Out-Null
@@ -44,7 +44,7 @@ Describe 'HubsSavingsPlanRecommendations' {
 
             $env:storageAccountName = 'sa'
             $env:containerName = 'config'
-            $env:scopes = ''
+            $env:scopes = $Scopes
             $env:ftkVersion = '0.0.0'
             # The template omits these environment variables when the deployment doesn't specify them
             $env:savingsPlanRecommendationLookbackPeriods = $LookbackPeriods
@@ -123,6 +123,18 @@ Describe 'HubsSavingsPlanRecommendations' {
             $names = [regex]::Matches($app, "(?m)^module \w+ '[^']*hub-storage\.bicep' = \{\r?\n\s+name: '([^'$]+)'") | ForEach-Object { $_.Groups[1].Value }
             $names | Should -Not -BeNullOrEmpty
             $names | ForEach-Object { "$_.Identity".Length | Should -BeLessOrEqual 64 -Because "$_ is a nested deployment name" }
+        }
+
+        It 'Should accept the settings.json shape of a single scope in Filter Supported Scopes' {
+            # Regression: the first deployed run failed with "The 'from' property value ... is of type 'Object'" because
+            # Copy-FileToAzureBlob.ps1 writes a one-item scopes array as an object
+            $scope = '/subscriptions/00000000-0000-0000-0000-000000000000'
+            $s = Invoke-CopyScript -ExistingJson $null -Scopes $scope
+            @($s.scopes).scope | Should -Be $scope
+            if ($s.scopes -isnot [array])
+            {
+                $app | Should -Match "(?s)name: 'Filter Supported Scopes'.*?createArray\(\$\{settingsRow\}\.scopes\)" -Because 'settings.json stores a single scope as an object, and the Filter activity needs an array'
+            }
         }
 
         It 'Should not write Parquet for an empty response' {

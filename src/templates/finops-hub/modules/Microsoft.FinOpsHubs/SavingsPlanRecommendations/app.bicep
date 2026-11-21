@@ -494,7 +494,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
       }
       { // Filter Supported Scopes
         name: 'Filter Supported Scopes'
-        description: 'Keep EA billing accounts, MCA billing profiles, subscriptions, and resource groups. Other scopes in settings.json aren\'t supported by the Benefit Recommendations API.'
+        description: 'Keep EA billing accounts, MCA billing profiles, subscriptions, and resource groups. Other scopes in settings.json aren\'t supported by the Benefit Recommendations API. A single scope can be stored as an object instead of an array, so it\'s wrapped in an array first, like in ManagedExports.'
         type: 'Filter'
         dependsOn: [
           {
@@ -505,7 +505,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
         userProperties: []
         typeProperties: {
           items: {
-            value: '@if(contains(${settingsRow}, \'scopes\'), ${settingsRow}.scopes, json(\'[]\'))'
+            value: '@if(contains(${settingsRow}, \'scopes\'), if(startsWith(string(${settingsRow}.scopes), \'[\'), ${settingsRow}.scopes, createArray(${settingsRow}.scopes)), json(\'[]\'))'
             type: 'Expression'
           }
           condition: {
