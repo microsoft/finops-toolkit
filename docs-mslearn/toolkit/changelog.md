@@ -61,9 +61,10 @@ _Released November 2026_
     - Eligibility now comes from the [Commitment discount eligibility](open-data.md#commitment-discount-eligibility) open data in a new `CommitmentDiscountEligibility` table.
     - If a meter is missing from the open data, the transform uses the pricesheet-derived value.
     - Fabric users who rerun the versioned script on an existing eventhouse must first run `IngestionSetup_HubInfra.kql` to create the new table.
-  - Fixed Azure Backup charges on Recovery Services vaults being labeled as Azure Site Recovery ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
-    - Backup charges now map to `ServiceName` "Azure Backup" with `ServiceCategory` "Storage" and `ServiceSubcategory` "Backup Storage" for FOCUS, actual, and amortized cost exports.
-    - Already-ingested rows keep the old label until they're reingested.
+  - Fixed services that share a resource type showing as one service ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
+    - Backup charges on Recovery Services vaults now show as Azure Backup instead of Azure Site Recovery.
+    - Functions and Logic Apps Standard charges on App Service sites now show as Functions and Logic Apps instead of Azure App Service.
+    - Uses the new `x_SkuMeterCategory` column in [Services](open-data.md#services) open data. Already-ingested rows keep the old label until they're reingested.
   - Fixed non-FOCUS actual cost exports failing to ingest into Data Explorer because the amortized cost update policy replaced the actual cost one ([#2177](https://github.com/microsoft/finops-toolkit/issues/2177)).
     - Reingest actual cost months that were exported before upgrading.
   - Fixed the Azure Resource Graph query pipeline only ingesting the first 1,000 rows of any query (for example, `Recommendations-Microsoft-AdvisorCost`). The pipeline now pages through all results, writing each page to its own Parquet file ([#2320](https://github.com/microsoft/finops-toolkit/issues/2320)).
@@ -89,7 +90,15 @@ _Released November 2026_
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
 - **Added**
+  - Added a `-MeterCategory` parameter to [Get-FinOpsService](powershell/data/get-finopsservice.md) to split resource types shared by multiple services, like Azure Backup and Azure Site Recovery ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
   - Added a `-EnableKeyVaultRbacAuthorization` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that moves the hub Key Vault from access policies to Azure RBAC. Requires hub template version 16.0 or later ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+
+### [Open data](open-data.md) v16
+
+- **Added**
+  - Added an optional `x_SkuMeterCategory` column to [Services](open-data.md#services) to split resource types shared by multiple services ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
+    - Empty means the row applies to all meter categories for that resource type.
+    - Added Azure Backup on Recovery Services vaults, and Functions and Logic Apps on App Service sites.
 
 <br>
 
