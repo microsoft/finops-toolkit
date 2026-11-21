@@ -35,6 +35,7 @@ The FinOps toolkit is an ever-evolving collection of tools and resources. The fo
 - [Azure Optimization Engine](./optimization-engine/overview.md) – Extensible solution for custom optimization recommendations.
 - [Agent plugin](./agent-plugin/finops-toolkit-agent-plugin-overview.md) – AI-powered cloud financial management for Claude Code and GitHub Copilot CLI.
 - [PowerShell module](./powershell/powershell-commands.md) – Automate and manage FinOps solutions and capabilities.
+- [FinOps multitool](./powershell/multitool/finops-multitool-commands.md) – Scan an Azure environment for cost, governance, and optimization insights from a terminal UI, with agent skills so AI assistants can run the same analysis.
 - [Bicep Registry modules](./bicep-registry/modules.md) – Official repository for Bicep modules.
 - [Open data](open-data.md) – Data available for anyone to access, use, and share without restriction.
   - [Pricing units](open-data.md#pricing-units) – Microsoft pricing units, distinct units, and scaling factors.
