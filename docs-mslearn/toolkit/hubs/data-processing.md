@@ -105,7 +105,7 @@ HubsRecommendations includes the following query types:
 When the `enableSavingsPlanRecommendations` template parameter is enabled, an additional pipeline runs daily to get savings plan purchase recommendations from the Cost Management Benefit Recommendations API:
 
 1. The **savingsPlanRecommendations_DailySchedule** trigger runs once per day.
-2. The **savingsPlanRecommendations_ExecuteETL** pipeline reads the scopes, lookback periods, and terms from **config/settings.json**. Only EA billing accounts, MCA billing profiles, subscriptions, and resource groups are supported.
+2. The **savingsPlanRecommendations_ExecuteETL** pipeline reads the scopes, lookback periods, and terms from the **recommendations.savingsPlans** property in **config/settings.json**. These scopes are separate from the scopes used for managed exports. Only EA billing accounts, MCA billing profiles, subscriptions, and resource groups are supported.
 3. The **savingsPlanRecommendations_ExecuteScope** pipeline runs the **queries_ETL_ingestion** pipeline for each lookback period and term, using the **queries_CostManagement_ExecuteQuery** engine pipeline to call the API.
 4. Results are saved as parquet in the **ingestion/Recommendations/{scope}/Microsoft-SavingsPlans-{term}-{lookbackPeriod}** folder. Each run replaces the previous result for the same folder.
 5. (If using Azure Data Explorer or Microsoft Fabric) Data is ingested into the `Recommendations_raw` table and transformed using the `Recommendations_transform_v1_2()` function.

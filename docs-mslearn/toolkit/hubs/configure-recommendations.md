@@ -112,11 +112,28 @@ To disable a specific default recommendation, delete its query file from the **c
 
 FinOps hubs can ingest Azure savings plan purchase recommendations from the [Cost Management Benefit Recommendations API](/rest/api/cost-management/benefit-recommendations/list). Cost Management exports don't include savings plan recommendations. Savings plan recommendations are added to the [Recommendations managed dataset](data-model.md#recommendations-managed-dataset) next to reservation recommendations, with `x_SourceType` set to `SavingsPlanRecommendations`.
 
-Savings plan recommendations are optional. To enable them, set the `enableSavingsPlanRecommendations` template parameter to `true` when you deploy or redeploy your hub. They don't require the `enableRecommendations` parameter. To report on savings plan recommendations, deploy your hub with Azure Data Explorer or Microsoft Fabric.
+Savings plan recommendations are optional. To enable them, set the `enableSavingsPlanRecommendations` template parameter to `true` and specify the scopes in the `savingsPlanRecommendationScopes` template parameter when you deploy or redeploy your hub. They don't require the `enableRecommendations` parameter. To report on savings plan recommendations, deploy your hub with Azure Data Explorer or Microsoft Fabric.
 
 ### Supported scopes
 
-The pipeline gets recommendations for each scope in the **scopes** property of **config/settings.json** that the Benefit Recommendations API supports. The benefit scope, which is where the recommended savings plan would apply, follows from the scope.
+Savings plan recommendation scopes are separate from the scopes used for [managed exports](configure-scopes.md#configure-managed-exports). The pipeline gets recommendations for each scope in the `savingsPlanRecommendationScopes` template parameter, which is saved to the **recommendations.savingsPlans.scopes** property of **config/settings.json**:
+
+```json
+{
+  "recommendations": {
+    "savingsPlans": {
+      "scopes": [
+        "/providers/Microsoft.Billing/billingAccounts/1234567",
+        "/subscriptions/00000000-0000-0000-0000-000000000000"
+      ]
+    }
+  }
+}
+```
+
+If no scopes are configured, the pipeline runs but doesn't get any recommendations. Like retention settings, a redeploy only changes the scopes when you specify the template parameter. Otherwise, the scopes in **config/settings.json** are kept.
+
+The Benefit Recommendations API supports the following scopes. The benefit scope, which is where the recommended savings plan would apply, follows from the scope.
 
 | Scope               | Example                                                                         | Benefit scope |
 | ------------------- | ------------------------------------------------------------------------------- | ------------- |
@@ -159,7 +176,7 @@ Like retention settings, a redeploy only changes these values when you specify t
 ### How savings plan recommendations are processed
 
 1. The **savingsPlanRecommendations_DailySchedule** trigger runs once per day.
-2. The **savingsPlanRecommendations_ExecuteETL** pipeline reads **config/settings.json** and keeps the supported scopes and the configured lookback periods and terms.
+2. The **savingsPlanRecommendations_ExecuteETL** pipeline reads **config/settings.json** and keeps the supported scopes in **recommendations.savingsPlans.scopes** and the configured lookback periods and terms.
 3. The **savingsPlanRecommendations_ExecuteScope** pipeline runs the **queries_ETL_ingestion** pipeline once for each lookback period and term. The **queries_CostManagement_ExecuteQuery** pipeline calls the API, follows `nextLink` to get all pages, and saves the results as parquet.
 4. Results are saved in the **ingestion/Recommendations/{scope}/Microsoft-SavingsPlans-{term}-{lookbackPeriod}** folder. The folder doesn't include a date, so each run replaces the previous recommendation for the same scope, term, and lookback period. Hubs don't keep a history of savings plan recommendations.
 5. If you use Data Explorer or Microsoft Fabric, data is ingested into the `Recommendations_raw` table and transformed using the `Recommendations_transform_v1_2()` function.

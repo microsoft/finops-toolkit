@@ -195,9 +195,9 @@ New-FinOpsCostExport -Name 'finops-hub-resrecs' `
 
 Cost Management exports don't include savings plan recommendations. To ingest them from the Benefit Recommendations API (`2025-03-01`) into `Recommendations()`:
 
-1. Deploy or redeploy the hub with `enableSavingsPlanRecommendations = true`. Requires Data Explorer or Fabric.
+1. Deploy or redeploy the hub with `enableSavingsPlanRecommendations = true` and `savingsPlanRecommendationScopes` (for example, `['/providers/Microsoft.Billing/billingAccounts/1234567']`). Requires Data Explorer or Fabric. These scopes are separate from `scopesToMonitor` (managed exports); there's no fallback, so without them no recommendations are ingested. Stored in `config/settings.json` at `recommendations.savingsPlans.scopes` and kept on redeploy unless specified.
 2. Optionally limit `savingsPlanRecommendationLookbackPeriods` (`Last7Days`, `Last30Days`, `Last60Days`) and `savingsPlanRecommendationTerms` (`P1Y`, `P3Y`). Default: all, which is six API calls per scope. Like retention, the values are kept in `config/settings.json` unless specified on redeploy.
-3. Grant the Data Factory identity (`managedIdentityId` output) read access to each scope in `settings.json`. The template doesn't assign these roles:
+3. Grant the Data Factory identity (`managedIdentityId` output) read access to each savings plan scope. The template doesn't assign these roles:
    - EA billing account: EnrollmentReader
    - MCA billing profile: billing profile reader
    - Subscription or resource group: Cost Management Reader
