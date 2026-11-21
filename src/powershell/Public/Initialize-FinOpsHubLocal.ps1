@@ -184,10 +184,15 @@ function Initialize-FinOpsHubLocal
                 # raising an error. Load, verify the tables filled, and retry before giving up.
                 $openDataTables = @('PricingUnits', 'Regions', 'ResourceTypes', 'Services')
 
-                # Releases pinned through -ReleaseUri may predate this table, so only verify it when the script loads it.
+                # Releases pinned through -ReleaseUri may predate these tables, so only verify them when the script loads them.
                 if ($openDataScript -like '*.set-or-replace InstanceSizeFlexibility *')
                 {
                     $openDataTables += 'InstanceSizeFlexibility'
+                }
+
+                if ($openDataScript -like '*.set-or-replace CommitmentDiscountEligibility *')
+                {
+                    $openDataTables += 'CommitmentDiscountEligibility'
                 }
 
                 $maxAttempts = 5

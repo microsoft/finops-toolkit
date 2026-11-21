@@ -54,6 +54,13 @@ _Released November 2026_
 - **Fixed**
   - Fixed FOCUS 1.2 and 1.2-preview rows being flagged `LegacyFocusVersion` in `x_SourceChanges`. Only versions older than 1.2 are flagged now ([#2384](https://github.com/microsoft/finops-toolkit/issues/2384)).
     - FOCUS 1.0 rows (including `1.0r2` and 1.0 previews) are now flagged `LegacyFocusVersion` on newly ingested data. This is expected, since 1.0 is older than 1.2.
+  - Fixed price transforms in FinOps hubs that created more rows than were ingested ([#1736](https://github.com/microsoft/finops-toolkit/issues/1736)).
+    - The savings plan price lookup now returns one row per key.
+    - The lookup key now includes billing profile and currency.
+  - Fixed incorrect commitment discount eligibility (`x_CommitmentDiscountSpendEligibility`, `x_CommitmentDiscountUsageEligibility`) when a pricesheet export has multiple files ([#1625](https://github.com/microsoft/finops-toolkit/issues/1625)).
+    - Eligibility now comes from the [Commitment discount eligibility](open-data.md#commitment-discount-eligibility) open data in a new `CommitmentDiscountEligibility` table.
+    - If a meter is missing from the open data, the transform uses the pricesheet-derived value.
+    - Fabric users who rerun the versioned script on an existing eventhouse must first run `IngestionSetup_HubInfra.kql` to create the new table.
   - Fixed Azure Backup charges on Recovery Services vaults being labeled as Azure Site Recovery ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
     - Backup charges now map to `ServiceName` "Azure Backup" with `ServiceCategory` "Storage" and `ServiceSubcategory` "Backup Storage" for FOCUS, actual, and amortized cost exports.
     - Already-ingested rows keep the old label until they're reingested.

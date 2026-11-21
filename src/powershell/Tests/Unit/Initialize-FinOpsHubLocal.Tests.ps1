@@ -224,13 +224,31 @@ InModuleScope 'FinOpsToolkit' {
         }
 
         Context 'Open data table verification' {
-            It 'Should not query InstanceSizeFlexibility when a pinned release does not load it' {
+            It 'Should stage every table the open data script loads in the run-locally guide' {
+                # Arrange
+                $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '../../../..')
+                $kql = [System.IO.File]::ReadAllText((Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts/IngestionSetup_OpenDataExternal.kql'))
+                $guide = [System.IO.File]::ReadAllText((Join-Path $repoRoot 'docs-mslearn/toolkit/hubs/run-hubs-locally.md'))
+                $tables = [regex]::Matches($kql, '(?m)^\.set-or-replace (\w+) ') | ForEach-Object { $_.Groups[1].Value }
+
+                # Assert
+                $tables | Should -Not -BeNullOrEmpty
+                foreach ($table in $tables)
+                {
+                    [regex]::Matches($guide, "'$table'").Count | Should -BeGreaterOrEqual 3 -Because "the guide must download and verify $table"
+                }
+            }
+
+            It 'Should not query InstanceSizeFlexibility or CommitmentDiscountEligibility when a pinned release does not load them' {
                 # Act -- the default mock load script represents a release without the table, such as v15.
                 Initialize-FinOpsHubLocal -ClusterUri $clusterUri -Destination $destination
 
                 # Assert
                 Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 0 -ParameterFilter {
                     $Endpoint -eq 'query' -and $Command -like 'InstanceSizeFlexibility*'
+                }
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 0 -ParameterFilter {
+                    $Endpoint -eq 'query' -and $Command -like 'CommitmentDiscountEligibility*'
                 }
                 Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter {
                     $Endpoint -eq 'query' -and $Command -like 'Services*'
@@ -249,6 +267,21 @@ InModuleScope 'FinOpsToolkit' {
                 # Assert
                 Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter {
                     $Endpoint -eq 'query' -and $Command -like 'InstanceSizeFlexibility*'
+                }
+            }
+
+            It 'Should verify CommitmentDiscountEligibility when the release loads it' {
+                # Arrange
+                Mock -CommandName 'Get-Content' -ParameterFilter { $Path -like '*opendata*' } -MockWith {
+                    return '.set-or-replace CommitmentDiscountEligibility <| externaldata(Ratio: real)[@"$$openDataPath$$/CommitmentDiscountEligibility.csv"]'
+                }
+
+                # Act
+                Initialize-FinOpsHubLocal -ClusterUri $clusterUri -Destination $destination
+
+                # Assert
+                Should -Invoke -CommandName 'Invoke-FinOpsHubLocalCommand' -Times 1 -ParameterFilter {
+                    $Endpoint -eq 'query' -and $Command -like 'CommitmentDiscountEligibility*'
                 }
             }
         }
