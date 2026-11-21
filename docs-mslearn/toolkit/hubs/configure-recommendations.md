@@ -149,10 +149,10 @@ Other scopes, like EA departments, EA enrollment accounts, MCA billing accounts,
 The template doesn't grant access to billing scopes. Grant the Data Factory managed identity read access to each scope you want recommendations for:
 
 - **EA billing accounts** – Assign the EnrollmentReader role. For more information, see [Assign Enterprise Agreement roles to service principals](/azure/cost-management-billing/manage/assign-roles-azure-service-principals).
-- **MCA billing profiles** – Assign the billing profile reader role. For more information, see [Manage billing roles in the Azure portal](/azure/cost-management-billing/manage/understand-mca-roles#manage-billing-roles-in-the-azure-portal).
+- **MCA billing profiles** – Assign the billing profile reader role on the billing profile. You can add the managed identity in **Access control (IAM)** like a user. For more information, see [Manage billing roles in the Azure portal](/azure/cost-management-billing/manage/understand-mca-roles#manage-billing-roles-in-the-azure-portal).
 - **Subscriptions and resource groups** – Assign the **Cost Management Reader** role, which includes the `Microsoft.CostManagement/benefitRecommendations/read` permission. For more information, see [Azure permissions for Management and governance](/azure/role-based-access-control/permissions/management-and-governance#microsoftcostmanagement).
 
-To find the managed identity, open the FinOps hub resource group, go to **Deployments** > **hub** > **Outputs**, and note the **managedIdentityId** and **managedIdentityTenantId** values. If you use [managed exports](configure-scopes.md#configure-managed-exports), the managed identity might already have the access it needs for EA billing accounts.
+To find the managed identity, open the FinOps hub resource group, go to **Deployments** > **hub** > **Outputs**, and note the **managedIdentityId** and **managedIdentityTenantId** values. If you use [managed exports](configure-scopes.md#configure-managed-exports), the managed identity might already have the access it needs for EA billing accounts. New billing role assignments can take several minutes to take effect. Until then, the API returns an authorization error and the pipeline run fails for that scope.
 
 ### Lookback periods and terms
 
