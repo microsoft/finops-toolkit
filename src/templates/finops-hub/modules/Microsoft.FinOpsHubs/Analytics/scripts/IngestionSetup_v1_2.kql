@@ -1687,6 +1687,7 @@ CommitmentDiscountUsage_transform_v1_2()
 // Supported datasets/versions:
 // - MS CM EA reservation recommendations: 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-ea
 // - MS CM MCA reservation recommendations: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-mca
+// - MS CM savings plan recommendations: 2025-03-01   -- See https://learn.microsoft.com/rest/api/cost-management/benefit-recommendations/list
 //======================================================================================================================
 
 // Recommendations_transform_v1_2 function
@@ -1709,6 +1710,27 @@ Recommendations_transform_v1_2()
     //
     // Set ProviderName
     | extend ProviderName = 'Microsoft'
+    //
+    // Savings plan recommendations from the Cost Management Benefit Recommendations API
+    // The pipeline maps "id" to x_RecommendationId, "kind" to x_SourceType, and the "properties" object (as a JSON string) to x_RecommendationDetails
+    | extend tmp_IsSavingsPlan = x_SourceType == 'SavingsPlan' and x_RecommendationId has 'benefitRecommendations'
+    | extend tmp_SP = iff(tmp_IsSavingsPlan, iff(gettype(x_RecommendationDetails) == 'string', parse_json(tostring(x_RecommendationDetails)), x_RecommendationDetails), dynamic(null))
+    | extend
+        ResourceId                  = iff(tmp_IsSavingsPlan, extract(@'(?i)^(.*)/providers/Microsoft\.CostManagement/benefitRecommendations/', 1, x_RecommendationId), ResourceId),
+        SubscriptionId              = iff(tmp_IsSavingsPlan, tostring(tmp_SP.subscriptionId), SubscriptionId),
+        x_EffectiveCostAfter        = iff(tmp_IsSavingsPlan, toreal(tmp_SP.recommendationDetails.totalCost), x_EffectiveCostAfter),
+        x_EffectiveCostBefore       = iff(tmp_IsSavingsPlan, toreal(tmp_SP.costWithoutBenefit), x_EffectiveCostBefore),
+        x_EffectiveCostSavings      = iff(tmp_IsSavingsPlan, toreal(tmp_SP.recommendationDetails.savingsAmount), x_EffectiveCostSavings),
+        x_RecommendationCategory    = iff(tmp_IsSavingsPlan, 'Cost', x_RecommendationCategory),
+        x_RecommendationDate        = iff(tmp_IsSavingsPlan, todatetime(tmp_SP.lastConsumptionDate), x_RecommendationDate),
+        x_RecommendationDescription = iff(tmp_IsSavingsPlan, strcat('Buy a ', isoMonths(tostring(tmp_SP.term)) / 12, '-year savings plan with ', case(tmp_SP.commitmentGranularity == 'Hourly', 'an hourly', tmp_SP.commitmentGranularity == 'Daily', 'a daily', tmp_SP.commitmentGranularity == 'Monthly', 'a monthly', 'a'), ' commitment of ', round(toreal(tmp_SP.recommendationDetails.commitmentAmount), 3), ' ', tostring(tmp_SP.currencyCode)), x_RecommendationDescription),
+        x_RecommendationDetails     = iff(tmp_IsSavingsPlan, dynamic(null), x_RecommendationDetails),  // Rebuilt below, after key normalization
+        x_ResourceGroupName         = iff(tmp_IsSavingsPlan, tostring(tmp_SP.resourceGroup), x_ResourceGroupName),
+        x_SourceName                = iff(tmp_IsSavingsPlan, 'Cost Management', x_SourceName),
+        x_SourceProvider            = iff(tmp_IsSavingsPlan, 'Microsoft', x_SourceProvider),
+        x_SourceType                = iff(tmp_IsSavingsPlan, 'SavingsPlanRecommendations', x_SourceType),
+        x_SourceVersion             = iff(tmp_IsSavingsPlan, '2025-03-01', x_SourceVersion)
+    | extend ResourceName = iff(tmp_IsSavingsPlan, tostring(split(ResourceId, '/')[-1]), ResourceName)
     //
     // Set source columns
     | extend x_SourceName     = coalesce(x_SourceName, iff(ProviderName == 'Microsoft', 'Cost Management', ProviderName))
@@ -1759,6 +1781,28 @@ Recommendations_transform_v1_2()
             'SkuPriceDetails', SkuProperties,
             'SkuSize', coalesce(SKU, SkuName),
             'SkuTerm', isoMonths(Term)
+        ),
+        // Create one for savings plan recommendations
+        x_SourceType == 'SavingsPlanRecommendations', bag_pack(
+            'AllRecommendationDetails', tmp_SP.allRecommendationDetails.value,
+            'BenefitCost', toreal(tmp_SP.recommendationDetails.benefitCost),
+            'CommitmentAmount', toreal(tmp_SP.recommendationDetails.commitmentAmount),
+            'CommitmentDiscountScope', tostring(tmp_SP.scope),
+            'CommitmentGranularity', tostring(tmp_SP.commitmentGranularity),
+            'CoveragePercentage', toreal(tmp_SP.recommendationDetails.coveragePercentage),
+            'CurrencyCode', tostring(tmp_SP.currencyCode),
+            'LookbackPeriodDuration', replace_regex(tostring(tmp_SP.lookBackPeriod), @'^Last([0-9]+)Days$', @'P\1D'),
+            'LookbackPeriodEnd', todatetime(tmp_SP.lastConsumptionDate),
+            'LookbackPeriodStart', todatetime(tmp_SP.firstConsumptionDate),
+            'OverageCost', toreal(tmp_SP.recommendationDetails.overageCost),
+            'SavingsPercentage', toreal(tmp_SP.recommendationDetails.savingsPercentage),
+            'SkuName', tostring(tmp_SP.armSkuName),
+            'SkuTerm', isoMonths(tostring(tmp_SP.term)),
+            'TotalHours', toint(tmp_SP.totalHours),
+            'UsageCharges', tmp_SP.usage.charges,
+            'UsageGrain', tostring(tmp_SP.usage.usageGrain),
+            'UtilizationPercentage', toreal(tmp_SP.recommendationDetails.averageUtilizationPercentage),
+            'WastageCost', toreal(tmp_SP.recommendationDetails.wastageCost)
         ),
         dynamic({})
     )

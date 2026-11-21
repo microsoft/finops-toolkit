@@ -3,7 +3,7 @@ title: FinOps hubs data processing
 description: Learn how FinOps hubs process data, including scope setup, data normalization, and optimization, to enhance cost management and analysis.
 author: flanakin
 ms.author: micflan
-ms.date: 10/28/2026
+ms.date: 11/21/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -56,7 +56,8 @@ The following diagram depicts the end-to-end data ingestion process within FinOp
       - Data retention can be configured during the template deployment or manually in the **config/settings.json** file in storage.
       - When you redeploy or upgrade a hub, retention parameters you don't specify keep their current values in **config/settings.json**. New hubs use the default values. In the Azure portal, values left at the default keep the current settings. To set a value back to the default on an existing hub, edit **config/settings.json** or specify the value with [Deploy-FinOpsHub](../powershell/hubs/deploy-finopshub.md). Data Explorer raw table retention from **config/settings.json** is applied on the next deployment.
 6. (Optional) The **queries_DailySchedule** trigger runs the **queries_ExecuteETL** pipeline once per day to query Azure Resource Graph for additional recommendations and saves results to the **ingestion/Recommendations** folder. [Learn more](#azure-resource-graph-recommendations).
-7. Reports and other tools like Power BI read data from Data Explorer or the **ingestion** container.
+7. (Optional) The **savingsPlanRecommendations_DailySchedule** trigger runs the **savingsPlanRecommendations_ExecuteETL** pipeline once per day to get savings plan purchase recommendations from Cost Management and saves results to the **ingestion/Recommendations** folder. [Learn more](#savings-plan-recommendations).
+8. Reports and other tools like Power BI read data from Data Explorer or the **ingestion** container.
    - Data in Data Explorer can be read from the **Hub** database.
      - Use the `{dataset}()` function to use the latest schema.
        - This function is useful for quick exploration, but may introduce breaking changes as the FinOps hub instance is updated.
@@ -96,6 +97,23 @@ HubsRecommendations includes the following query types:
 
 > [!NOTE]
 > The Data Factory managed identity requires **Reader** role on management groups or subscriptions to execute Resource Graph queries. This permission must be configured separately from the FinOps hub deployment.
+
+<br>
+
+## Savings plan recommendations
+
+When the `enableSavingsPlanRecommendations` template parameter is enabled, an additional pipeline runs daily to get savings plan purchase recommendations from the Cost Management Benefit Recommendations API:
+
+1. The **savingsPlanRecommendations_DailySchedule** trigger runs once per day.
+2. The **savingsPlanRecommendations_ExecuteETL** pipeline reads the scopes, lookback periods, and terms from the **recommendations.savingsPlans** property in **config/settings.json**. These scopes are separate from the scopes used for managed exports. Only EA billing accounts, MCA billing profiles, subscriptions, and resource groups are supported.
+3. The **savingsPlanRecommendations_ExecuteScope** pipeline runs the **queries_ETL_ingestion** pipeline for each lookback period and term, using the **queries_CostManagement_ExecuteQuery** engine pipeline to call the API.
+4. Results are saved as parquet in the **ingestion/Recommendations/{scope}/Microsoft-SavingsPlans-{term}-{lookbackPeriod}** folder. Each run replaces the previous result for the same folder.
+5. (If using Azure Data Explorer or Microsoft Fabric) Data is ingested into the `Recommendations_raw` table and transformed using the `Recommendations_transform_v1_2()` function.
+
+An empty response doesn't fail the pipeline. When the API returns no recommendations, no new data is ingested and Data Explorer keeps the last recommendation for that folder.
+
+> [!NOTE]
+> The Data Factory managed identity requires read access to each billing scope. This permission must be configured separately from the FinOps hub deployment. For more information, see [Configure savings plan recommendations](configure-recommendations.md#savings-plan-recommendations).
 
 <br>
 
@@ -232,6 +250,7 @@ Supported datasets:
 
 - Microsoft ReservationRecommendations: `2023-05-01` (EA and MCA)
 - HubsRecommendations: `1.0` (Azure Advisor and Azure Resource Graph)
+- Microsoft SavingsPlanRecommendations: `2025-03-01` (Benefit Recommendations API)
 
 Transforms:
 
@@ -241,6 +260,8 @@ Transforms:
     - Doesn't change the underlying values, which may differ across EA and MCA.
   - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
   - Preserve incoming `x_RecommendationDetails` from HubsRecommendations queries (contains recommendation metadata like provider, solution, type ID, and resource type).
+- v16+:
+  - Map savings plan recommendations to the Recommendations dataset with `x_SourceType` set to `SavingsPlanRecommendations`. The recommended commitment, commitment scenarios, and usage history are in `x_RecommendationDetails`.
 
 ### Transaction data transforms
 
