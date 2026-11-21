@@ -128,6 +128,14 @@ Price sheets with list, contracted, and effective pricing. Key columns include `
 
 Reservation and savings plan recommendations from Microsoft. Key columns include `x_EffectiveCostBefore`, `x_EffectiveCostAfter`, `x_EffectiveCostSavings`, `x_RecommendationDate`, `x_RecommendationDetails` (dynamic), `SubAccountId`.
 
+Filter by `x_SourceType` before you aggregate:
+
+- `ReservationRecommendations` – reservation recommendations from Cost Management exports.
+- `SavingsPlanRecommendations` – savings plan purchase recommendations from the Benefit Recommendations API (optional, `enableSavingsPlanRecommendations`). `ResourceId` is the scope the recommendation was requested for. `x_RecommendationDetails` holds `CommitmentAmount`, `CommitmentGranularity`, `CommitmentDiscountScope` (`Shared` or `Single`), `SkuTerm` (months), `LookbackPeriodDuration` (for example `P30D`), `CurrencyCode`, `AllRecommendationDetails` (all evaluated commitment scenarios), and `UsageCharges` (usage history at `UsageGrain`).
+- Recommendations from Azure Resource Graph queries use other source types.
+
+**Never sum savings across recommendations for the same usage.** Each savings plan lookback period and term is a separate recommendation for the same usage, and reservation and savings plan recommendations can cover the same usage too. Pick one lookback period and term (for example `SkuTerm == 36` and `LookbackPeriodDuration == 'P30D'`), keep reservations and savings plans apart, and group by `CurrencyCode`. Savings plan costs cover the lookback period, not a month.
+
 ### Transactions()
 
 Commitment purchases, refunds, and exchanges. Key columns include `BilledCost`, `ChargeCategory`, `ChargeDescription`, `ChargeFrequency`, `x_SkuOrderName`, `x_SkuTerm`, `x_TransactionType`, `x_MonetaryCommitment`, `x_Overage`.

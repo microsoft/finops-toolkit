@@ -32,6 +32,7 @@ FinOps hubs provide a scalable platform for cost analytics, insights, and optimi
 | Configure EA billing exports | Enterprise Reader, Department Reader, or Account Owner |
 | Configure MCA billing exports | Contributor on billing account/profile/invoice section |
 | Configure MPA billing exports | Contributor on billing account/profile/customer |
+| Savings plan recommendations (optional) | Data Factory identity: EnrollmentReader (EA billing account), billing profile reader (MCA billing profile), or Cost Management Reader (subscription/resource group) |
 
 ### Resource Providers
 
@@ -187,6 +188,24 @@ New-FinOpsCostExport -Name 'finops-hub-resrecs' `
     -StorageContainer msexports `
     -StoragePath 'billingProfiles/###'
 ```
+
+---
+
+## Savings Plan Recommendations (Optional)
+
+Cost Management exports don't include savings plan recommendations. To ingest them from the Benefit Recommendations API (`2025-03-01`) into `Recommendations()`:
+
+1. Deploy or redeploy the hub with `enableSavingsPlanRecommendations = true`. Requires Data Explorer or Fabric.
+2. Optionally limit `savingsPlanRecommendationLookbackPeriods` (`Last7Days`, `Last30Days`, `Last60Days`) and `savingsPlanRecommendationTerms` (`P1Y`, `P3Y`). Default: all, which is six API calls per scope. Like retention, the values are kept in `config/settings.json` unless specified on redeploy.
+3. Grant the Data Factory identity (`managedIdentityId` output) read access to each scope in `settings.json`. The template doesn't assign these roles:
+   - EA billing account: EnrollmentReader
+   - MCA billing profile: billing profile reader
+   - Subscription or resource group: Cost Management Reader
+4. The `savingsPlanRecommendations_DailySchedule` trigger runs once per day. To run it now, trigger the `savingsPlanRecommendations_ExecuteETL` pipeline.
+
+Other scopes (EA departments and enrollment accounts, MCA billing accounts and invoice sections, management groups) are skipped. Results replace the previous run per scope, term, and lookback period. An empty API response keeps the last ingested recommendation.
+
+For details, see [Configure savings plan recommendations](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/configure-recommendations#savings-plan-recommendations).
 
 ---
 
