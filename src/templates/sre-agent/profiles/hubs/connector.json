@@ -1,0 +1,8 @@
+{
+  "name": "finops-hub-kusto",
+  "properties": {
+    "dataConnectorType": "Kusto",
+    "dataSource": "https://__FINOPS_HUB_CLUSTER__.kusto.windows.net/Hub",
+    "identity": "system"
+  }
+}

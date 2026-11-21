@@ -1,0 +1,82 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "basics": [
+      {
+        "name": "resourceGroupName",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Agent resource group",
+        "toolTip": "Resource group for the agent and its telemetry.",
+        "constraints": { "required": true, "regex": "^[a-zA-Z0-9._()\\-]{1,90}$", "validationMessage": "Enter an Azure resource group name." }
+      },
+      {
+        "name": "agentName",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Agent base name",
+        "toolTip": "The deployment appends the cost data source to the agent name.",
+        "constraints": { "required": true, "regex": "^[a-z0-9][a-z0-9-]{1,54}[a-z0-9]$", "validationMessage": "Enter 3 to 56 lowercase letters, digits, or hyphens, beginning and ending with a letter or digit." }
+      }
+    ],
+    "steps": [
+      {
+        "name": "configuration",
+        "label": "Configuration",
+        "elements": [
+          {
+            "name": "mode",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Cost data source",
+            "toolTip": "Choose how the agent collects financial evidence.",
+            "constraints": {
+              "required": true,
+              "allowedValues": [
+                { "label": "Azure Cost Management", "value": "native" },
+                { "label": "FinOps hubs", "value": "hubs" }
+              ]
+            }
+          },
+          {
+            "name": "clusterUri",
+            "type": "Microsoft.Common.TextBox",
+            "label": "FinOps hub database URI",
+            "toolTip": "Use the URI for the Hub database on the existing Azure Data Explorer cluster.",
+            "constraints": { "required": true, "regex": "^https://[a-z0-9.-]+\\.kusto\\.windows\\.net/Hub$", "validationMessage": "Enter the Azure Data Explorer URI ending in /Hub." },
+            "visible": "[equals(steps('configuration').mode, 'hubs')]"
+          },
+          {
+            "name": "clusterResourceId",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Azure Data Explorer cluster resource ID",
+            "toolTip": "The deployment grants read access to the Hub and Ingestion databases on this cluster.",
+            "constraints": { "required": true, "regex": "^/subscriptions/[^/]+/resourceGroups/[^/]+/providers/Microsoft\\.Kusto/clusters/[^/]+$", "validationMessage": "Enter an Azure Data Explorer cluster resource ID." },
+            "visible": "[equals(steps('configuration').mode, 'hubs')]"
+          },
+          {
+            "name": "subscriptionReader",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Grant Reader on this subscription",
+            "toolTip": "Select if the monitored workflows need subscription-wide inventory or quota evidence.",
+            "defaultValue": false
+          },
+          {
+            "name": "subscriptionCostReader",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Grant Cost Management Reader on this subscription",
+            "toolTip": "Select to enable subscription-scope cost queries in this subscription.",
+            "defaultValue": false
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "resourceGroupName": "[basics('resourceGroupName')]",
+      "agentName": "[basics('agentName')]",
+      "location": "[location()]",
+      "costSource": "[if(equals(steps('configuration').mode, 'hubs'), parse(concat('{\"mode\":\"hubs\",\"clusterUri\":\"', steps('configuration').clusterUri, '\",\"clusterResourceId\":\"', steps('configuration').clusterResourceId, '\"}')), parse('{\"mode\":\"native\"}'))]",
+      "enableSubscriptionReaderRole": "[steps('configuration').subscriptionReader]",
+      "enableSubscriptionCostReaderRole": "[steps('configuration').subscriptionCostReader]"
+    }
+  }
+}

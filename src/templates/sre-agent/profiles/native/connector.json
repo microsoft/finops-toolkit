@@ -1,0 +1,47 @@
+{
+  "name": "azure-resource-manager-mcp",
+  "properties": {
+    "dataConnectorType": "Mcp",
+    "dataSource": "https://mcp.management.azure.com",
+    "extendedProperties": {
+      "type": "http",
+      "endpoint": "https://mcp.management.azure.com",
+      "authType": "AzureARM",
+      "armScope": "https://mcp.management.azure.com/.default",
+      "x-mcp-toolset": "CostManagement",
+      "toolsVisibleToMetaAgent": [
+        "query_costs",
+        "query_aks_costs",
+        "forecast_costs",
+        "list_dimensions",
+        "list_budgets",
+        "get_budget",
+        "create_budget",
+        "list_alerts",
+        "list_benefit_utilization",
+        "get_benefit_recommendations",
+        "list_reservation_transactions",
+        "get_retail_prices",
+        "start_pricesheet_download",
+        "get_pricesheet_status"
+      ],
+      "selectedTools": [
+        "query_costs",
+        "query_aks_costs",
+        "forecast_costs",
+        "list_dimensions",
+        "list_budgets",
+        "get_budget",
+        "create_budget",
+        "list_alerts",
+        "list_benefit_utilization",
+        "get_benefit_recommendations",
+        "list_reservation_transactions",
+        "get_retail_prices",
+        "start_pricesheet_download",
+        "get_pricesheet_status"
+      ]
+    },
+    "identity": "system"
+  }
+}
