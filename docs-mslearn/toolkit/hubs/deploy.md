@@ -3,7 +3,7 @@ title: How to create and update FinOps hubs
 description: This tutorial helps you create a new or update an existing FinOps hubs instance in Azure or Microsoft Fabric.
 author: flanakin
 ms.author: micflan
-ms.date: 08/19/2026
+ms.date: 11/20/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -562,7 +562,7 @@ For more information, see [Configure Data Explorer dashboards](configure-dashboa
 3. Authorize each data source:
    - **Azure Data Explorer (Kusto)** &ndash; Use an account that has at least viewer access to the Hub and Ingestion databases.
    - **Azure Resource Graph** &ndash; Use an account that has direct access to any subscriptions you would like to report on.
-   - **(your storage account)** &ndash; Use a SAS token or an account that has Storage Blob Data Reader or greater access.
+   - **(your storage account)** &ndash; Use a SAS token or an account that has Storage Blob Data Reader or greater access. If Shared Key access is disabled on the storage account, use Microsoft Entra ID; SAS tokens and account keys stop working.
    - **<https://github.com/>...** &ndash; Anonymous access. This URL is used for FinOps toolkit open data files.
 
 For more information, see [Set up Power BI reports](../power-bi/setup.md).

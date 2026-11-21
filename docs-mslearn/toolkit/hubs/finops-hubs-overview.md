@@ -3,7 +3,7 @@ title: FinOps hubs overview
 description: FinOps hubs provide a reliable platform for cost analytics, insights, and optimization, supporting large accounts and organizations.
 author: flanakin
 ms.author: micflan
-ms.date: 11/19/2026
+ms.date: 11/20/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -193,7 +193,7 @@ Configuring and managing FinOps hubs requires the following permissions:
   - [Owner](/azure/role-based-access-control/built-in-roles#owner)
   - For least-privileged access, see [template details](template.md#prerequisites).
 - Configuring Power BI requires one of the following
-  - Storage reports: [Storage Blob Data Reader](/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-reader) or SAS token
+  - Storage reports: [Storage Blob Data Reader](/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-reader) or SAS token (SAS tokens don't work if Shared Key access is disabled on the storage account)
   - KQL reports: Viewer on the Hub and Ingestion databases.
 
 CSP customers need to configure exports for each subscription in order to ingest their total cost into FinOps hubs. Cost Management doesn't support management group exports for MCA or CSP subscriptions (as of May 2024).

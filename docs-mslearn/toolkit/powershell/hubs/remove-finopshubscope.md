@@ -3,7 +3,7 @@ title: Remove-FinOpsHubScope command
 description: Stops monitoring a scope within a FinOps hub instance and optionally remove the data using the Remove-FinOpsHubScope command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 11/20/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -13,7 +13,7 @@ ms.reviewer: micflan
 
 # Remove-FinOpsHubScope command
 
-The **Remove-FinOpsHubScope** command removes a scope from being monitored by a FinOps hub instance. Data related to that scope is kept by default. To remove the data, use the `-RemoveData` option.
+The **Remove-FinOpsHubScope** command removes a scope from being monitored by a FinOps hub instance. Data related to that scope is kept by default. To remove the data, use the `-RemoveData` option. If the storage account has Shared Key access disabled, the command uses your Microsoft Entra credentials, which requires the **Storage Blob Data Contributor** role (or equivalent) on the storage account.
 
 <br>
 
