@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/19/2026
+ms.date: 11/20/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -63,6 +63,7 @@ _Released November 2026_
   - Fixed reservation details exports being skipped with no error when the export manifest has a null `dataRowCount` ([#2173](https://github.com/microsoft/finops-toolkit/issues/2173)).
     - Runs of `msexports_ExecuteETL` reported success while `CommitmentDiscountUsage` stopped updating. Exports with a `dataRowCount` of 0 are still skipped.
   - Fixed reservation recommendations missing `x_RecommendationDate` and `x_RecommendationDetails` after ingestion.
+  - Fixed `ListCost`/`ContractedCost` never being repaired for rows without a Microsoft meter or offer ID (for example, third-party Marketplace/ISV purchases), which left `ListCost` at 0 despite a real `EffectiveCost` and corrupted Effective Savings Rate reporting; also cleared the `MissingListCost` data-quality flag once a row is successfully repaired instead of leaving it flagged as broken ([#2214](https://github.com/microsoft/finops-toolkit/issues/2214), [#2235](https://github.com/microsoft/finops-toolkit/issues/2235)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v16
 
