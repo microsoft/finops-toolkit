@@ -20,10 +20,10 @@
     .PARAMETER ServiceCategory
     Optional. The service category to find services for. Default = null (all).
 
-    .PARAMETER ServiceCategory
+    .PARAMETER ServiceSubcategory
     Optional. The service subcategory to find services for. Default = null (all).
 
-    .PARAMETER Servicemodel
+    .PARAMETER ServiceModel
     Optional. The service model the service aligns to. Expected values: IaaS, PaaS, SaaS. Default = null (all).
 
     .PARAMETER Environment
@@ -43,6 +43,7 @@
     .EXAMPLE
     Get-FinOpsService -ConsumedService "Microsoft.C*" -ResourceType "Microsoft.Compute/virtualMachines"
 
+    ### Get services for a resource provider
     Returns all services with a resource provider that starts with "Microsoft.C".
 
     .LINK

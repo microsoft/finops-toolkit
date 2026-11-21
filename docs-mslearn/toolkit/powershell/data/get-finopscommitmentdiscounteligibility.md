@@ -3,7 +3,7 @@ title: Get-FinOpsCommitmentDiscountEligibility command
 description: Get commitment discount eligibility for a meter using the Get-FinOpsCommitmentDiscountEligibility command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 10/12/2026
+ms.date: 11/19/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -30,11 +30,11 @@ Get-FinOpsCommitmentDiscountEligibility `
 
 ## Parameters
 
-| Name             | Description                                                                                                                                                                                                                                                |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| MeterId          | Optional. The meter ID to look up. Accepts wildcards. Default = \* (all).                                                                                                                                                                                  |
-| SpendEligibility | Optional. Filters to meters with the specified savings plan (spend commitment) eligibility. FOCUS classifies a savings plan as a spend commitment because you commit to an amount of money. Expected values: Eligible, Not Eligible. Default = \* (all). |
-| UsageEligibility | Optional. Filters to meters with the specified reservation (usage commitment) eligibility. FOCUS classifies a reservation as a usage commitment because you commit to a quantity of usage. Expected values: Eligible, Not Eligible. Default = \* (all).  |
+| Name                | Description                                                                                                                                                                                                                                              |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `‑MeterId`          | Optional. The meter ID to look up. Accepts wildcards. Default = \* (all).                                                                                                                                                                                |
+| `‑SpendEligibility` | Optional. Filters to meters with the specified savings plan (spend commitment) eligibility. FOCUS classifies a savings plan as a spend commitment because you commit to an amount of money. Expected values: Eligible, Not Eligible. Default = \* (all). |
+| `‑UsageEligibility` | Optional. Filters to meters with the specified reservation (usage commitment) eligibility. FOCUS classifies a reservation as a usage commitment because you commit to a quantity of usage. Expected values: Eligible, Not Eligible. Default = \* (all).  |
 
 <br>
 
@@ -42,7 +42,7 @@ Get-FinOpsCommitmentDiscountEligibility `
 
 The following examples demonstrate how to use the Get-FinOpsCommitmentDiscountEligibility command to retrieve commitment discount eligibility based on different criteria.
 
-### Get based on meter ID
+### Example 1
 
 ```powershell
 Get-FinOpsCommitmentDiscountEligibility -MeterId "00003b45-e996-5b04-b673-a2db710f9237"
@@ -50,7 +50,7 @@ Get-FinOpsCommitmentDiscountEligibility -MeterId "00003b45-e996-5b04-b673-a2db71
 
 Returns commitment discount eligibility for the specified meter.
 
-### Get meters eligible for reservations
+### Example 2
 
 ```powershell
 Get-FinOpsCommitmentDiscountEligibility -UsageEligibility "Eligible"
