@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/20/2026
+ms.date: 11/21/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -65,10 +65,17 @@ _Released November 2026_
     - Runs of `msexports_ExecuteETL` reported success while `CommitmentDiscountUsage` stopped updating. Exports with a `dataRowCount` of 0 are still skipped.
   - Fixed reservation recommendations missing `x_RecommendationDate` and `x_RecommendationDetails` after ingestion.
 
+### [Power BI reports](power-bi/reports.md) v16
+
+- **Fixed**
+  - Replaced dead `aka.ms/ftk/pbi/invoicing` links in the Invoicing and chargeback report with direct Microsoft Learn links. Reports already installed (v15 and earlier) keep the dead link until the `aka.ms/ftk/pbi/invoicing` redirect is repaired ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
+
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v16
 
 - **Added**
   - Added Export to Excel to the storage queries in the optimization workbook.
+- **Changed**
+  - Clarified in the Azure Hybrid Benefit workbook tile text that each VM counts as at least 8 cores, so the total can exceed the sum of vCPUs ([#2067](https://github.com/microsoft/finops-toolkit/issues/2067)).
 
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
