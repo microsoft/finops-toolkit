@@ -54,7 +54,9 @@ jobs:
     # Windows runners.
     - name: Install Pester
       shell: pwsh
-      run: Install-Module -Name Pester -MinimumVersion 6.0.0 -Scope CurrentUser -Repository PSGallery -Force
+      run: |
+        if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) { Register-PSRepository -Default }
+        Install-Module -Name Pester -MinimumVersion 6.0.0 -Scope CurrentUser -Repository PSGallery -Force
     - name: Test Open Data
       id: test
       shell: pwsh
