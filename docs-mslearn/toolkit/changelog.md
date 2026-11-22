@@ -87,6 +87,11 @@ _Released November 2026_
 - **Changed**
   - Clarified in the Azure Hybrid Benefit workbook tile text that each VM counts as at least 8 cores, so the total can exceed the sum of vCPUs ([#2067](https://github.com/microsoft/finops-toolkit/issues/2067)).
 
+### [Optimization engine](optimization-engine/overview.md) v16
+
+- **Fixed**
+  - Replaced the URL for the Instance Size Flexibility CSV file in the Benefits Simulation, Reservations Potential and Reservations Usage workbooks with the respective FinOps toolkit open data file release version ([#2414](https://github.com/microsoft/finops-toolkit/issues/2414)).
+
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
 - **Added**
