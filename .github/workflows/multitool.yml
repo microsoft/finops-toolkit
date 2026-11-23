@@ -12,12 +12,14 @@ on:
       - 'package.json'
       - 'src/scripts/Get-Version.ps1'
       - 'src/powershell/FinOpsToolkit.psm1'
+      - 'src/powershell/en-US/**'
       # Multitool code
       - 'src/powershell/Private/FinOpsMultitool/**'
       - 'src/powershell/Private/Get-VersionNumber.ps1'
       - 'src/powershell/Public/Start-FinOpsMultitool.ps1'
       # Multitool tests
       - 'src/powershell/Tests/Initialize-Tests.ps1'
+      - 'src/scripts/Monitor.ps1'
       - 'src/powershell/Tests/Integration/Multitool*.Tests.ps1'
       - 'src/powershell/Tests/Unit/AzGraphPagination.Tests.ps1'
       - 'src/powershell/Tests/Unit/BudgetCoverage.Tests.ps1'
