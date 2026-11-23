@@ -6,8 +6,8 @@
 Describe 'Get-FinOpsToolkitVersion' {
     It 'Should return all known releases' {
         # Arrange
-        $plannedRelease = '15'
-        $expected = @('14', '13', '12', '0.11', '0.10', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
+        $plannedRelease = '16'
+        $expected = @('15', '14', '13', '12', '0.11', '0.10', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
 
         # Helper function to normalize version strings for [version] parsing
         # Single-part versions like "12" need to become "12.0" for [version] to parse them
@@ -77,10 +77,12 @@ Describe 'Get-FinOpsToolkitVersion' {
                 # Open data
                 CheckFile "dataset-examples.zip"                '0.4' $null
                 CheckFile "dataset-metadata.zip"                '0.4' $null
+                CheckFile "InstanceSizeFlexibility.csv"         '15.0' $null
                 CheckFile "PricingUnits.csv"                    '0.1' $null
                 CheckFile "Regions.csv"                         '0.1' $null
                 CheckFile "ResourceTypes.csv"                   '0.2' $null
                 CheckFile "ResourceTypes.json"                  '0.2' $null
+                CheckFile "ResourceTypes.Overrides.json"        '15.0' $null
                 CheckFile "CommitmentDiscountEligibility.csv"   '14.0' $null
                 CheckFile "Services.csv"                        '0.1' $null
 

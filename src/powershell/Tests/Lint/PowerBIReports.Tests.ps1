@@ -98,3 +98,55 @@ Describe 'Demo data source' {
         $inList | Should -BeTrue -Because "$account should be in the ftk_DemoFilter storage account list"
     }
 }
+
+Describe 'Storage incremental refresh' {
+    BeforeAll {
+        $tablesDir = Join-Path $PSScriptRoot '../../../power-bi/storage/Shared.Dataset/definition/tables'
+    }
+
+    It 'Ends the Costs query with a RangeStart/RangeEnd row filter' {
+        # Power BI only offers incremental refresh when the table's own query filters rows with RangeStart and RangeEnd
+        $text = Get-Content (Join-Path $tablesDir 'Costs.tmdl') -Raw
+        $isLastStep = $text -match '(?s)Output\s*=\s*Table\.SelectRows\((?<filter>(?:(?!Table\.SelectRows).)*?)\)\s*in\s+Output\s*\r?\n\s*```'
+        $isLastStep | Should -BeTrue -Because 'the final step of the Costs query must be Table.SelectRows so Power BI detects the filter'
+        $filter = $Matches['filter']
+        $filter | Should -Match '\bRangeStart\b'
+        $filter | Should -Match '\bRangeEnd\b'
+        $filter | Should -Match 'x_IncrementalRefreshDate'
+        # Half-open interval: >= RangeStart and < RangeEnd, so boundary days are not counted in two partitions
+        $filter | Should -Match '>=\s*Date\.StartOfDay\(DateTime\.From\(RangeStart\)\)' -Because 'the lower bound must be inclusive (>= RangeStart)'
+        $filter | Should -Match '<\s*Date\.StartOfDay\(DateTime\.From\(RangeEnd\)\)' -Because 'the upper bound must be exclusive (< RangeEnd)'
+        $filter | Should -Not -Match '<=' -Because 'an inclusive upper bound would count boundary days twice'
+    }
+
+    It 'Keeps every Costs row when RangeStart and RangeEnd are empty' {
+        # With empty parameters, the Costs filter must pass every row so the report matches the previous version
+        $text = Get-Content (Join-Path $tablesDir 'Costs.tmdl') -Raw
+        $null = $text -match '(?s)Output\s*=\s*Table\.SelectRows\((?<filter>(?:(?!Table\.SelectRows).)*?)\)\s*in\s+Output\s*\r?\n\s*```'
+        $Matches['filter'] | Should -Match '\(\s*RangeStart\s*=\s*null\s+or\b' -Because 'an empty RangeStart must short-circuit the lower bound'
+        $Matches['filter'] | Should -Match '\(\s*RangeEnd\s*=\s*null\s+or\b' -Because 'an empty RangeEnd must short-circuit the upper bound'
+    }
+
+    It 'Uses the same date bounds in Costs and ftk_Storage' {
+        # The Costs filter must not drop rows that ftk_Storage keeps, or totals change when a range is set
+        $costs = Get-Content (Join-Path $tablesDir 'Costs.tmdl') -Raw
+        $storage = Get-Content (Join-Path $tablesDir '../expressions.tmdl') -Raw
+        $costs | Should -Match ([regex]::Escape('[x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] >= Date.StartOfDay(DateTime.From(RangeStart))'))
+        $costs | Should -Match ([regex]::Escape('[x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] < Date.StartOfDay(DateTime.From(RangeEnd))'))
+        $storage | Should -Match ([regex]::Escape('[x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] >= Date.StartOfDay(DateTime.From(start))'))
+        $storage | Should -Match ([regex]::Escape('[x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] < Date.StartOfDay(DateTime.From(end))'))
+    }
+
+    It 'Types the ftk_Storage x_IncrementalRefreshDate column as datetime' {
+        # The Power Query column type must match the TMDL dataType, or refresh fails with a type mismatch
+        $storage = Get-Content (Join-Path $tablesDir '../expressions.tmdl') -Raw
+        $storage | Should -Match '(?s)"x_IncrementalRefreshDate",\s*each _parseCostManagementDate\(.*?\),\s*type datetime\s*\)' -Because 'Table.AddColumn must declare type datetime'
+        $storage | Should -Match 'try DateTime\.From\(Date\.From\(' -Because 'the parsed value must be a datetime at midnight'
+    }
+
+    It 'Types x_IncrementalRefreshDate as dateTime in <_>' -ForEach @('Costs', 'Prices', 'ReservationDetails', 'ReservationRecommendations', 'ReservationTransactions') {
+        $text = Get-Content (Join-Path $tablesDir "$_.tmdl") -Raw
+        $isDateTime = $text -match '(?m)^\tcolumn x_IncrementalRefreshDate\r?\n\t\tdataType: dateTime\b'
+        $isDateTime | Should -BeTrue -Because 'incremental refresh needs a Date/Time column to compare with RangeStart and RangeEnd'
+    }
+}

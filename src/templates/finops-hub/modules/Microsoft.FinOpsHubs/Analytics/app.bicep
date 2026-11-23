@@ -1103,8 +1103,70 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                     }
                     userProperties: []
                     typeProperties: {
-                      command: '.set-or-replace Services <| externaldata(x_ConsumedService: string, x_ResourceType: string, ServiceName: string, ServiceCategory: string, ServiceSubcategory: string, PublisherName: string, x_PublisherCategory: string, x_Environment: string, x_ServiceModel: string)[@"${ftkReleaseUri}/Services.csv"] with (format="csv", ignoreFirstRecord=true)'
+                      command: '.set-or-replace Services <| externaldata(x_ConsumedService: string, x_ResourceType: string, ServiceName: string, ServiceCategory: string, ServiceSubcategory: string, PublisherName: string, x_PublisherCategory: string, x_Environment: string, x_ServiceModel: string, x_SkuMeterCategory: string)[@"${ftkReleaseUri}/Services.csv"] with (format="csv", ignoreFirstRecord=true)'
                       commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
+                      }
+                    }
+                  }
+                  { // Update InstanceSizeFlexibility in ADX
+                    name: 'Update InstanceSizeFlexibility in ADX'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Update Services in ADX'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: '.set-or-replace InstanceSizeFlexibility <| externaldata(InstanceSizeFlexibilityGroup: string, ArmSkuName: string, Ratio: real)[@"${ftkReleaseUri}/InstanceSizeFlexibility.csv"] with (format="csv", ignoreFirstRecord=true)'
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
+                      }
+                    }
+                  }
+                  { // Update CommitmentDiscountEligibility in ADX
+                    name: 'Update CommitmentDiscountEligibility in ADX'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Update InstanceSizeFlexibility in ADX'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 2  // Larger CSV; retry transient failures
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: '.set-or-replace CommitmentDiscountEligibility <| externaldata(MeterId: string, x_CommitmentDiscountSpendEligibility: string, x_CommitmentDiscountUsageEligibility: string)[@"${ftkReleaseUri}/CommitmentDiscountEligibility.csv"] with (format="csv", ignoreFirstRecord=true)'
+                      commandTimeout: '00:30:00'
                     }
                     linkedServiceName: {
                       referenceName: linkedService_dataExplorer.name
@@ -1119,7 +1181,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                     type: 'SetVariable'
                     dependsOn: [
                       {
-                        activity: 'Update Services in ADX'
+                        activity: 'Update CommitmentDiscountEligibility in ADX'
                         dependencyConditions: [
                           'Succeeded'
                         ]

@@ -42,7 +42,8 @@ The FinOps toolkit agent plugin pairs role-specific agents, ready-to-run command
 
 ```bash
 # Claude Code
-claude plugin add microsoft/finops-toolkit
+claude plugin marketplace add microsoft/finops-toolkit
+claude plugin install microsoft-finops-toolkit@finops-toolkit
 
 # GitHub Copilot CLI
 copilot plugin install microsoft/finops-toolkit

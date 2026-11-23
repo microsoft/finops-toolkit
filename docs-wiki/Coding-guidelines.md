@@ -42,6 +42,9 @@ We adhere to the [Microsoft style guide](https://docs.microsoft.com/style-guide/
 - Remember the last comma – Always use a comma before "and" and "or" in a list of 3 or more items.
 - Don't be spacey
 - Revise weak writing
+- Stay positive – Lead with what works, the right path, and what's better in the new version. Don't dwell on what was broken, missing, or unsupported.
+- Spell out references – Spell out product names and versions on first use in each section, including titles, previews, and social posts, and only abbreviate secondary references in that section. For example, use "FinOps hubs" first and "hub" later. Never use "hubs" alone to mean FinOps hubs since other products use the term.
+- Format versions – Write "FinOps toolkit 15" and "FinOps hubs 15", without a "v", since Microsoft doesn't usually add one to spelled-out versions. Use "v15" only on its own.
 
 [Learn more](https://docs.microsoft.com/style-guide/welcome)
 

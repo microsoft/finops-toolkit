@@ -85,7 +85,22 @@ HubScopes()
     PublisherName:            string,
     x_PublisherCategory:      string,
     x_Environment:            string,
-    x_ServiceModel:           string
+    x_ServiceModel:           string,
+    x_SkuMeterCategory:       string
+)
+
+// CommitmentDiscountEligibility
+.create-merge table CommitmentDiscountEligibility(
+    MeterId:                               string,
+    x_CommitmentDiscountSpendEligibility:  string,
+    x_CommitmentDiscountUsageEligibility:  string
+)
+
+// InstanceSizeFlexibility
+.create-merge table InstanceSizeFlexibility(
+    InstanceSizeFlexibilityGroup: string,
+    ArmSkuName:                   string,
+    Ratio:                        real
 )
 
 //----------------------------------------------------------------------------------------------------------------------
