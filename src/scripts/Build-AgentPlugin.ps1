@@ -52,4 +52,30 @@ if (Test-Path $finopsSkill)
     }
 }
 
+# Agent skills are linked into the plugin so the sources stay single-copy. Git
+# writes those links as plain files wherever core.symlinks is disabled, so the
+# build replaces whichever placeholder is present with the real directory.
+$agentSkills = Join-Path $repoRoot 'src/templates/agent-skills'
+if (Test-Path $agentSkills)
+{
+    foreach ($entry in (Get-ChildItem $skillsDir -Force))
+    {
+        $isLink = [bool]($entry.Attributes -band [IO.FileAttributes]::ReparsePoint)
+        if ($entry.PSIsContainer -and -not $isLink)
+        {
+            continue
+        }
+
+        $source = Join-Path $agentSkills $entry.Name
+        if (-not (Test-Path $source))
+        {
+            continue
+        }
+
+        $dest = Join-Path $skillsDir $entry.Name
+        Remove-PluginBundle $dest
+        Copy-Item $source -Destination $dest -Recurse -Force
+    }
+}
+
 Get-ChildItem $DestDir -Force -Recurse -Filter '.DS_Store' | Remove-Item -Force

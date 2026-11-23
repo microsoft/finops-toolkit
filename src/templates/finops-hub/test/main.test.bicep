@@ -15,4 +15,16 @@ module hub '../main.bicep' = {
   }
 }
 
+// Test 2 - Creates a FinOps hub with Azure Data Explorer encryption enabled.
+module hubWithAdxEncryption '../main.bicep' = {
+  name: 'finops-hub-adx-encryption'
+  params: {
+    hubName: '${uniqueName}-adx'
+    location: location
+    dataExplorerName: '${uniqueName}-adx'
+    enableDataExplorerDiskEncryption: true
+    enableDataExplorerDoubleEncryption: true
+  }
+}
+
 output hubName string = hub.outputs.name

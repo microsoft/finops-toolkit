@@ -963,6 +963,36 @@
             "visible": true
           },
           {
+            "name": "dataExplorerEncryption",
+            "type": "Microsoft.Common.Section",
+            "label": "Data Explorer encryption",
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'adx')]",
+            "elements": [
+              {
+                "name": "dataExplorerEncryptionIntro",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "Disk encryption and double encryption can be enabled for the Azure Data Explorer cluster. Double encryption can only be enabled when the cluster is created."
+                }
+              },
+              {
+                "name": "enableDataExplorerDiskEncryption",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable Data Explorer disk encryption",
+                "toolTip": "Enable disk encryption for the Azure Data Explorer cluster.",
+                "defaultValue": false
+              },
+              {
+                "name": "enableDataExplorerDoubleEncryption",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable Data Explorer double encryption",
+                "toolTip": "Enable double encryption for the Azure Data Explorer cluster. This setting can only be enabled when the cluster is created.",
+                "defaultValue": false
+              }
+            ]
+          },
+          {
             "name": "managedExports",
             "type": "Microsoft.Common.Section",
             "label": "Managed exports",
@@ -1094,6 +1124,8 @@
       "enableNatGateway": "[steps('advanced').networking.enableNatGateway]",
       "virtualNetworkAddressPrefix": "[steps('advanced').networking.virtualNetworkAddressPrefix]",
       "dataExplorerSku": "[steps('pricing').dataExplorer.dataExplorerSku]",
+      "enableDataExplorerDiskEncryption": "[steps('advanced').dataExplorerEncryption.enableDataExplorerDiskEncryption]",
+      "enableDataExplorerDoubleEncryption": "[steps('advanced').dataExplorerEncryption.enableDataExplorerDoubleEncryption]",
       "exportRetentionInDays": "[if(or(equals(steps('retention').storage.msexportsDays, ''), equals(steps('retention').storage.msexportsDays, '0')), parse('null'), steps('retention').storage.msexportsDays)]",
       "ingestionRetentionInMonths": "[if(or(equals(steps('retention').storage.ingestionMonths, ''), equals(steps('retention').storage.ingestionMonths, '13')), parse('null'), steps('retention').storage.ingestionMonths)]",
       "dataExplorerRawRetentionInDays": "[if(or(equals(steps('retention').dataExplorer.rawDays, ''), equals(steps('retention').dataExplorer.rawDays, '0')), parse('null'), steps('retention').dataExplorer.rawDays)]",
