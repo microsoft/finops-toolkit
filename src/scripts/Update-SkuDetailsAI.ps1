@@ -17,6 +17,10 @@
 
     .PARAMETER OutputPath
     Path of the CSV file to write. Defaults to SkuDetailsAI.csv in the open-data folder.
+
+    .NOTES
+    When the output is the repository's SkuDetailsAI.csv, the script runs SkuDetailsAIData.Tests.ps1
+    after writing the file and fails if a data check fails.
 #>
 param(
     [Parameter(Mandatory)]
@@ -1171,4 +1175,15 @@ Write-Host "Rows dropped (no longer included): $($summary.Dropped)"
 foreach ($column in $summary.ValueCounts.Keys)
 {
     Write-Host "${column}: $($summary.ValueCounts[$column] -join ', ')"
+}
+
+# Run the data checks when the repository's file was written. They read that file only.
+$repoFile = [System.IO.Path]::GetFullPath("$PSScriptRoot/../open-data/SkuDetailsAI.csv")
+if ($target -eq $repoFile)
+{
+    $tests = Invoke-Pester -Path "$PSScriptRoot/../powershell/Tests/Unit/SkuDetailsAIData.Tests.ps1" -Output Normal -PassThru
+    if ($tests.Result -ne 'Passed')
+    {
+        throw "SkuDetailsAIData.Tests.ps1 failed ($($tests.FailedCount) failed). Review the changes in '$OutputPath'."
+    }
 }
