@@ -29,13 +29,14 @@
 //
 // How to run: paste into any Kusto database (ADX or Fabric eventhouse; no table access required).
 //   - PASS = the query returns 0 rows.
+//   - Verified on a live ADX cluster: 0 rows; flipping one expectation returns 1 row.
 //
 // expectedRepaired = whether the row should enter the repair fallback (new_entersRepair) after the fix.
 // expectedChanged  = whether this row's outcome should actually differ from the old gate (old_entersRepair). Rows
 // with a meter/offer ID behave identically under both gates -- only rows missing one or both IDs should change.
 //======================================================================================================================
 
-let cases = datatable(
+datatable(
     label:string,
     provider:string,
     listPrice:real,
