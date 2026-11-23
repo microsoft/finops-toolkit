@@ -6,7 +6,7 @@ param()
 
 ###########################################################################
 # GET-OPTIMIZATIONADVICE.PS1
-# AZURE FINOPS MULTITOOL - Azure Advisor Cost Optimization
+# FINOPS EXPLORER - Azure Advisor Cost Optimization
 ###########################################################################
 # Purpose: Pull all cost optimization recommendations from Azure Advisor
 #          across every subscription. Categorize by type: rightsize,

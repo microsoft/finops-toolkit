@@ -11,7 +11,7 @@ param()
 ###########################################################################
 # Purpose: Follow the Cost Management query API's nextLink and return every
 #          page, so a caller that sums rows sees the whole result set.
-# Date: Created for FinOps Multitool
+# Date: Created for FinOps Explorer
 #
 # Description:
 # The Cost Management query API returns one page at a time. A subscription

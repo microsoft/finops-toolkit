@@ -8,7 +8,7 @@ param()
 
 ###########################################################################
 # GET-RESOURCECOSTS.PS1
-# AZURE FINOPS MULTITOOL - Per-Resource Cost Breakdown
+# FINOPS EXPLORER - Per-Resource Cost Breakdown
 ###########################################################################
 # Purpose: Query Cost Management per subscription to retrieve actual and
 #          forecasted spend grouped by individual resource.

@@ -6,7 +6,7 @@ param()
 
 ###########################################################################
 # GET-STORAGETIERADVICE.PS1
-# AZURE FINOPS MULTITOOL - Storage Tier Optimization
+# FINOPS EXPLORER - Storage Tier Optimization
 ###########################################################################
 # Purpose: Identify storage accounts with hot-tier blob containers that
 #          have not been accessed recently and would benefit from moving

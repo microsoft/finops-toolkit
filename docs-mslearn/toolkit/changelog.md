@@ -33,7 +33,7 @@ The following section lists features and enhancements that are currently in deve
 
 _Released November 2026_
 
-### [FinOps multitool](multitool/finops-multitool-overview.md) v16
+### [FinOps Explorer](explorer/finops-explorer-overview.md) v16
 
 - **Added**
   - Added FinOps Explorer, which scans an Azure environment for cost optimization, governance, and FinOps insights through a PowerShell 7 terminal UI ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).

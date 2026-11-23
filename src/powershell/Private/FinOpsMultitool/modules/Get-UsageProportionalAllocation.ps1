@@ -12,7 +12,7 @@ param()
 # Purpose: Split the billed cost of a shared platform across SUB-RESOURCE
 #          consumers (k8s namespace, APIM product, OpenAI deployment) by a
 #          usage signal pulled from telemetry - for showback/chargeback.
-# Date: Created for FinOps Multitool shared-cost allocation
+# Date: Created for FinOps Explorer shared-cost allocation
 #
 # Description:
 # Native Azure cost allocation rules can only key on SubscriptionId,

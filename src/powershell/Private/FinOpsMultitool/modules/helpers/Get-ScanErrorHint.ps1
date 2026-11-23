@@ -3,7 +3,7 @@
 
 ###########################################################################
 # GET-SCANERRORHINT.PS1
-# AZURE FINOPS MULTITOOL - Error hints for failed scans
+# FINOPS EXPLORER - Error hints for failed scans
 ###########################################################################
 # Purpose: Explain a failed scan in terms that fit its cause. A request limit
 #          or a timeout isn't fixed by a role assignment, so a permission hint

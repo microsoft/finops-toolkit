@@ -11,7 +11,7 @@ param()
 ###########################################################################
 # Purpose: Decide whether cost scans should read FinOps Hub / Cost
 #          Management export data (fast) or the live Cost Management API.
-# Date: Created for FinOps Multitool export-first routing
+# Date: Created for FinOps Explorer export-first routing
 #
 # Description:
 # Non-interactive detector used by the TUI and the agent skills.

@@ -13,7 +13,7 @@ param()
 # FINOPS HUB STORAGE DATA READER
 ###########################################################################
 # Purpose: Read cost data from a FinOps Hub storage account
-# Date: Created for FinOps Multitool TUI integration
+# Date: Created for FinOps Explorer hub data integration
 #
 # Description:
 # Reads FOCUS-schema cost data from a Hub storage account.
@@ -25,7 +25,7 @@ param()
 #
 # 1. Checks ingestion container for parquet (preferred)
 # 2. Falls back to msexports CSV if no parquet found
-# 3. Returns FOCUS-schema cost objects for Multitool consumption
+# 3. Returns FOCUS-schema cost objects for FinOps Explorer consumption
 #
 # ── Parameters ──────────────────────────────────────────────
 # StorageAccountName   Hub storage account name
@@ -155,7 +155,7 @@ function Get-FinOpsParquetCachePath {
     # predictable path that we would then load into this process.
     $base = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData, [Environment+SpecialFolderOption]::DoNotVerify)
     if ([string]::IsNullOrWhiteSpace($base)) { throw 'Private application data is unavailable. The Parquet cache cannot use a shared temporary directory.' }
-    return (Join-Path (Join-Path $base 'FinOpsMultitool') 'parquet')
+    return (Join-Path (Join-Path (Join-Path $base 'FinOpsToolkit') 'Explorer') 'parquet')
 }
 
 # Every managed/native DLL the loader can pull in, in a stable order.

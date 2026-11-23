@@ -4,7 +4,7 @@
 
 Terminal interface for running FinOps scans against Azure subscriptions without GUI dependencies. PowerShell 7 is required.
 
-The [PR test workflow](../../../../.github/workflows/dev.yml) defines Windows, macOS, and Ubuntu jobs for the multitool suites and packaged launcher. Its signed Parquet integration jobs target Windows and Ubuntu. The jobs require no Azure sign-in or deployment credentials. Use each platform's result for the tested commit; Windows results don't establish native compatibility.
+The [PR test workflow](../../../../.github/workflows/dev.yml) defines Windows, macOS, and Ubuntu jobs for the FinOps Explorer test suites and packaged launcher. Its signed Parquet integration jobs target Windows and Ubuntu. The jobs require no Azure sign-in or deployment credentials. Use each platform's result for the tested commit; Windows results don't establish native compatibility.
 
 NuGet signed-package verification [isn't supported on macOS](https://learn.microsoft.com/dotnet/core/tools/nuget-signed-package-verification#macos). Parquet setup stops with that reason before invoking a package client or downloading packages. Use a configured Kusto endpoint or available CSV exports there. The reader doesn't bypass signature verification to load Parquet.
 
@@ -130,7 +130,7 @@ The run folder allows access only to the current user through filesystem permiss
 
 Reports are plaintext and can contain subscription, resource, tag, and billing details. They aren't encrypted or uploaded by the tool. Administrators and processes running as your account can still access them. Keep custom locations outside synced folders, follow your organization's retention policy, and delete reports when they're no longer needed. These safeguards don't stop someone from moving or force-adding the files to a repository later.
 
-Raw Hub downloads use private, per-run folders under the user's `FinOpsMultitool` application-data directory, not shared temporary storage. The reader removes these folders when a read finishes or returns an error. A process termination or host failure can leave a private `download-*` folder behind; after confirming no scan is using it, delete it according to your retention policy. The Parquet cache stays under `FinOpsMultitool/parquet`. Cached assemblies must match signature-verified package archives before loading. Untrusted ownership, replacement permissions on ancestor directories, write access by other accounts, and linked cache paths are rejected.
+Raw Hub downloads use private, per-run folders under `FinOpsToolkit/Explorer` in the user's local application data, not shared temporary storage. The reader removes these folders when a read finishes or returns an error. A process termination or host failure can leave a private `download-*` folder behind; after confirming no scan is using it, delete it according to your retention policy. The Parquet cache stays under `FinOpsMultitool/parquet`. Cached assemblies must match signature-verified package archives before loading. Untrusted ownership, replacement permissions on ancestor directories, write access by other accounts, and linked cache paths are rejected.
 
 The Parquet reader pins its net8.0 dependency versions and SHA-512 archive hashes in [Get-FinOpsParquetPackageLock](modules/helpers/Read-FinOpsHubData.ps1), using published [NuGet package metadata](https://www.nuget.org/api/v2/). Corporate feeds must return the same archives; repackaged or unexpected dependencies are rejected. The pins include Snappier 1.3.1, which addresses [CVE-2026-44302](https://github.com/advisories/GHSA-pggp-6c3x-2xmx). Dependency updates require reviewing and updating the pins together.
 
@@ -513,7 +513,7 @@ if ($null -eq $result -or $result.Result -ne 'Passed' -or
   $result.SkippedCount -ne 0 -or $result.NotRunCount -ne 0 -or
   $result.FailedContainersCount -ne 0 -or $result.FailedBlocksCount -ne 0 -or
   $result.Containers.Count -ne $paths.Count) {
-  throw 'Multitool integration validation failed or was incomplete.'
+  throw 'FinOps Explorer integration validation failed or was incomplete.'
 }
 ```
 

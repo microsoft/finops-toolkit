@@ -6,7 +6,7 @@ param()
 
 ###########################################################################
 # GET-BILLINGSTRUCTURE.PS1
-# AZURE FINOPS MULTITOOL - Billing Profiles, Invoice Sections & Cost Allocation
+# FINOPS EXPLORER - Billing Profiles, Invoice Sections & Cost Allocation
 ###########################################################################
 # Purpose: Retrieve billing account structure (profiles, invoice sections)
 #          and any configured cost allocation rules. Requires Billing Reader

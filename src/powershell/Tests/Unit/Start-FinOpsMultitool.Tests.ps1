@@ -4,58 +4,23 @@
 & "$PSScriptRoot/../Initialize-Tests.ps1"
 
 InModuleScope 'FinOpsToolkit' {
-    Describe 'Start-FinOpsMultitool' {
+    Describe 'Start-FinOpsExplorer' {
 
         Context 'Command availability' {
-            It 'Should be exported as a public command' {
-                $cmd = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit' -ErrorAction SilentlyContinue
-                $cmd | Should -Not -BeNullOrEmpty
-            }
-
             It 'Should export the FinOps Explorer command' {
                 $cmd = Get-Command -Name 'Start-FinOpsExplorer' -Module 'FinOpsToolkit' -ErrorAction SilentlyContinue
                 $cmd | Should -Not -BeNullOrEmpty
                 $cmd.CmdletBinding | Should -BeTrue
             }
-
-            It 'Should keep the legacy command parameter-compatible' {
-                $explorer = Get-Command -Name 'Start-FinOpsExplorer' -Module 'FinOpsToolkit'
-                $legacy = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit'
-                foreach ($parameter in 'SubscriptionId', 'OutputPath', 'Scans', 'DataSource', 'NonInteractive', 'Accessible') {
-                    $explorer.Parameters.ContainsKey($parameter) | Should -BeTrue
-                    $legacy.Parameters.ContainsKey($parameter) | Should -BeTrue
-                }
-            }
-
-            It 'Forwards all legacy command arguments to FinOps Explorer' {
-                Mock Start-FinOpsExplorer { }
-
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' `
-                    -OutputPath 'C:\reports' -Scans @('Get-CostData', 'Get-IdleVMs') `
-                    -DataSource GraphOnly -NonInteractive -Accessible
-
-                Should -Invoke Start-FinOpsExplorer -Times 1 -Exactly -ParameterFilter {
-                    $SubscriptionId -eq '11111111-1111-1111-1111-111111111111' -and
-                    $OutputPath -eq 'C:\reports' -and
-                    ($Scans -join ',') -eq 'Get-CostData,Get-IdleVMs' -and
-                    $DataSource -eq 'GraphOnly' -and
-                    $NonInteractive -and $Accessible
-                }
-            }
-
-            It 'Should have CmdletBinding attribute' {
-                $cmd = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit'
-                $cmd.CmdletBinding | Should -BeTrue
-            }
         }
 
         Context 'File dependencies' {
-            It 'Should have the Multitool TUI launcher' {
+            It 'Should have the Explorer launcher' {
                 $tuiPath = Join-Path -Path $PSScriptRoot -ChildPath '../../Private/FinOpsMultitool/Invoke-FinOpsMultitool.ps1'
                 Test-Path -Path $tuiPath | Should -BeTrue
             }
 
-            It 'Should have the Multitool module loader' {
+            It 'Should have the Explorer module loader' {
                 $psm1Path = Join-Path -Path $PSScriptRoot -ChildPath '../../Private/FinOpsMultitool/FinOpsMultitool.psm1'
                 Test-Path -Path $psm1Path | Should -BeTrue
             }
@@ -81,7 +46,6 @@ InModuleScope 'FinOpsToolkit' {
         Context 'Behavior' {
             It 'Shows missing-module guidance before any Azure calls through <Command>' -ForEach @(
                 @{ Command = 'Start-FinOpsExplorer' }
-                @{ Command = 'Start-FinOpsMultitool' }
             ) {
                 Mock Import-Module { }
                 Mock Get-Module { $null }
@@ -96,7 +60,6 @@ InModuleScope 'FinOpsToolkit' {
 
             It 'Rejects Windows PowerShell 5.1 before scanning through <Command>' -Skip:(-not $IsWindows) -ForEach @(
                 @{ Command = 'Start-FinOpsExplorer'; Script = '../../Public/Start-FinOpsExplorer.ps1' }
-                @{ Command = 'Start-FinOpsMultitool'; Script = '../../Public/Start-FinOpsMultitool.ps1' }
                 @{ Command = 'Invoke-FinOpsMultitool'; Script = '../../Private/FinOpsMultitool/Invoke-FinOpsMultitool.ps1' }
             ) {
                 $entryPath = (Join-Path $PSScriptRoot $Script).Replace("'", "''")
@@ -139,14 +102,14 @@ catch {
 
             It 'Should write an error when the TUI launcher is missing' {
                 Mock Test-Path { $false }
-                { Start-FinOpsMultitool -ErrorAction Stop } | Should -Throw '*installation may be incomplete*'
+                { Start-FinOpsExplorer -ErrorAction Stop } | Should -Throw '*installation may be incomplete*'
             }
 
             It 'Should not attempt to launch the TUI when the launcher is missing' {
                 Mock Test-Path { $false }
                 # Returns instead of dot-sourcing; a throw here would be a
                 # CommandNotFoundException for the never-loaded TUI function.
-                Start-FinOpsMultitool -ErrorAction SilentlyContinue
+                Start-FinOpsExplorer -ErrorAction SilentlyContinue
                 Should -Invoke Test-Path -Times 1 -Exactly
             }
         }
@@ -191,7 +154,7 @@ function Invoke-FinOpsMultitool {
                 $outputDirectory = Join-Path $TestDrive 'reports with spaces'
                 $scans = @('Get-CostData', 'Get-ResourceCosts')
 
-                $result = Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -OutputPath $outputDirectory -Scans $scans -DataSource $Source -NonInteractive
+                $result = Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -OutputPath $outputDirectory -Scans $scans -DataSource $Source -NonInteractive
 
                 $result.SubscriptionId | Should -Be '11111111-1111-1111-1111-111111111111'
                 $result.OutputPath | Should -Be $outputDirectory
@@ -202,7 +165,7 @@ function Invoke-FinOpsMultitool {
             }
 
             It 'Leaves omitted choices to the launcher defaults' {
-                $result = Start-FinOpsMultitool
+                $result = Start-FinOpsExplorer
 
                 $result.BoundParameters.Count | Should -Be 0
                 $result.SubscriptionId | Should -BeNullOrEmpty
@@ -211,7 +174,7 @@ function Invoke-FinOpsMultitool {
             }
 
             It 'Preserves an explicitly disabled NonInteractive switch' {
-                $result = Start-FinOpsMultitool -NonInteractive:$false
+                $result = Start-FinOpsExplorer -NonInteractive:$false
 
                 $result.NonInteractive | Should -BeFalse
                 $result.BoundParameters | Should -Contain 'NonInteractive'
@@ -221,7 +184,7 @@ function Invoke-FinOpsMultitool {
                 @{ Enabled = $true }
                 @{ Enabled = $false }
             ) {
-                $result = Start-FinOpsMultitool -Accessible:$Enabled
+                $result = Start-FinOpsExplorer -Accessible:$Enabled
 
                 $result.Accessible | Should -Be $Enabled
                 $result.BoundParameters | Should -Contain 'Accessible'
@@ -357,7 +320,7 @@ function Invoke-FinOpsMultitool {
                 }
                 if ($Unattended) { $parameters.SubscriptionId = '11111111-1111-1111-1111-111111111111' }
 
-                Start-FinOpsMultitool @parameters
+                Start-FinOpsExplorer @parameters
 
                 $result = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
                 $result.ContainsKey('_error_Get-CostData') | Should -BeFalse
@@ -378,7 +341,7 @@ function Invoke-FinOpsMultitool {
                 $env:FINOPS_HUB_KUSTO_DB = 'Hub'
                 $reportPath = Join-Path $TestDrive $Mode
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource $Source -OutputPath $reportPath -NonInteractive -ErrorAction Stop
+                Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource $Source -OutputPath $reportPath -NonInteractive -ErrorAction Stop
 
                 $runs = @(Get-ChildItem -LiteralPath $reportPath -Directory)
                 $runs.Count | Should -Be 1
@@ -676,7 +639,7 @@ function Invoke-FinOpsMultitool {
                 }
                 $reportRoot = Join-Path $TestDrive 'ordinary-export-public'
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -DataSource Export -Scans Get-CostData -NonInteractive -OutputPath $reportRoot -ErrorAction Stop
+                Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -DataSource Export -Scans Get-CostData -NonInteractive -OutputPath $reportRoot -ErrorAction Stop
 
                 $run = @(Get-ChildItem -LiteralPath $reportRoot -Directory)[0].FullName
                 $rows = @(Import-Csv -LiteralPath (Join-Path $run 'Get-CostData.csv'))
@@ -883,7 +846,7 @@ function Invoke-FinOpsMultitool {
                 Mock Get-AzSubscription { $null }
                 Mock Get-AzTenant { [pscustomobject]@{ Id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' } }
 
-                { Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource API -NonInteractive:$Unattended -ErrorAction Stop } |
+                { Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource API -NonInteractive:$Unattended -ErrorAction Stop } |
                 Should -Throw '*current tenant*'
 
                 Should -Invoke Get-AzSubscription -Times 1 -Exactly -ParameterFilter {
@@ -1116,7 +1079,7 @@ function Invoke-FinOpsMultitool {
                 }
                 $reportRoot = Join-Path $TestDrive 'partial-hub-discovery'
 
-                Start-FinOpsMultitool -Scans Get-CostData -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+                Start-FinOpsExplorer -Scans Get-CostData -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
 
                 $runs = @(Get-ChildItem -LiteralPath $reportRoot -Directory)
                 $runs.Count | Should -Be 1
@@ -1139,7 +1102,7 @@ function Invoke-FinOpsMultitool {
                 Mock Search-AzGraph { throw 'Synthetic Resource Graph HTTP 403.' }
                 $reportRoot = Join-Path $TestDrive 'all-hub-probes-failed'
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+                Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
 
                 $result = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
                 $result['Get-CostData'].Count | Should -Be 1
@@ -1162,7 +1125,7 @@ function Invoke-FinOpsMultitool {
                 Mock ConvertTo-CostDataFromHub { throw 'Synthetic summary conversion failed.' }
                 $reportRoot = Join-Path $TestDrive 'independent-hub-converters'
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag') -DataSource Hub -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+                Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans @('Get-CostData', 'Get-ResourceCosts', 'Get-CostByTag') -DataSource Hub -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
 
                 $result = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
                 $result['_error_Get-CostData'] | Should -Match 'Synthetic summary'
@@ -1207,7 +1170,7 @@ function Invoke-FinOpsMultitool {
                 $env:FINOPS_HUB_KUSTO_URI = 'http://localhost:8082'
                 Mock Get-TagInventory { [pscustomobject]@{ TagNames = @{}; TotalResources = 0; TaggedCount = 0; UntaggedCount = 0; TagCoverage = 0 } }
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-TagInventory -DataSource GraphOnly -OutputPath (Join-Path $TestDrive 'graph-only') -NonInteractive -ErrorAction Stop
+                Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-TagInventory -DataSource GraphOnly -OutputPath (Join-Path $TestDrive 'graph-only') -NonInteractive -ErrorAction Stop
 
                 Should -Invoke Get-TagInventory -Times 1 -Exactly
                 Should -Invoke Invoke-FOHubKustoQuery -ModuleName FinOpsMultitool -Times 0 -Exactly
@@ -1231,7 +1194,7 @@ function Invoke-FinOpsMultitool {
                 Mock Get-AIWorkloadMetrics { throw 'AI costs must not run.' }
                 Mock Get-MaccCommitment { throw 'Commitments must not run.' }
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans @('Get-TagInventory', $CostScan) -DataSource GraphOnly -OutputPath (Join-Path $TestDrive "graph-$CostScan") -NonInteractive -ErrorAction Stop
+                Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans @('Get-TagInventory', $CostScan) -DataSource GraphOnly -OutputPath (Join-Path $TestDrive "graph-$CostScan") -NonInteractive -ErrorAction Stop
 
                 foreach ($command in @('Get-BudgetHistory', 'Get-BudgetStatus', 'Get-CostTrend', 'Get-UnitEconomics', 'Get-AIWorkloadMetrics', 'Get-MaccCommitment')) { Should -Invoke $command -Times 0 -Exactly }
                 Should -Invoke Get-TagInventory -Times 1 -Exactly
@@ -1242,7 +1205,7 @@ function Invoke-FinOpsMultitool {
                 Mock Get-AzContext { $null }
                 Mock Connect-AzAccount { throw 'Interactive sign-in must not be attempted.' }
 
-                { Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-TagInventory -DataSource GraphOnly -NonInteractive -ErrorAction Stop } | Should -Throw '*NonInteractive*Connect-AzAccount*'
+                { Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-TagInventory -DataSource GraphOnly -NonInteractive -ErrorAction Stop } | Should -Throw '*NonInteractive*Connect-AzAccount*'
 
                 Should -Invoke Connect-AzAccount -Times 0 -Exactly
             }
@@ -1251,7 +1214,7 @@ function Invoke-FinOpsMultitool {
                 $env:FINOPS_HUB_KUSTO_URI = $null
                 Mock Get-OrphanedResources { [pscustomobject]@{ Orphans = @(); TotalCount = 0; HasData = $false } }
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-OrphanedResources -DataSource GraphOnly -OutputPath (Join-Path $TestDrive 'graph-orphans') -NonInteractive -ErrorAction Stop
+                Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-OrphanedResources -DataSource GraphOnly -OutputPath (Join-Path $TestDrive 'graph-orphans') -NonInteractive -ErrorAction Stop
 
                 Should -Invoke Get-OrphanedResources -Times 1 -Exactly -ParameterFilter { $SkipCost }
                 Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
@@ -1260,7 +1223,7 @@ function Invoke-FinOpsMultitool {
             It 'Rejects an unavailable explicit Hub rather than silently selecting API' {
                 $env:FINOPS_HUB_KUSTO_URI = $null
 
-                { Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource Hub -NonInteractive -ErrorAction Stop } |
+                { Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource Hub -NonInteractive -ErrorAction Stop } |
                 Should -Throw '*No FinOps hub*'
 
                 Should -Invoke Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool -Times 0 -Exactly
@@ -1271,7 +1234,7 @@ function Invoke-FinOpsMultitool {
                 $repository = Join-Path $TestDrive 'blocked-report-repository'
                 [void](New-Item -ItemType Directory -Path (Join-Path $repository '.git') -Force)
 
-                { Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource API -OutputPath $repository -NonInteractive -ErrorAction Stop } |
+                { Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource API -OutputPath $repository -NonInteractive -ErrorAction Stop } |
                 Should -Throw '*report saving failed*Git*Results remain*'
 
                 $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
@@ -1290,7 +1253,7 @@ function Invoke-FinOpsMultitool {
                 @{ Entry = 'private'; ScanCase = 'empty-name'; RequestedScans = @('') }
                 @{ Entry = 'private'; ScanCase = 'null-element'; RequestedScans = @('Get-PolicyInventory', $null) }
             ) {
-                $entryCommand = 'Start-FinOpsMultitool'
+                $entryCommand = 'Start-FinOpsExplorer'
                 if ($Entry -eq 'private') {
                     $launcherAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RealMultitoolRoot 'Invoke-FinOpsMultitool.ps1'), [ref]$null, [ref]$null)
                     $launcher = $launcherAst.Find({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -eq 'Invoke-FinOpsMultitool' }, $true)
@@ -1316,7 +1279,7 @@ function Invoke-FinOpsMultitool {
                 }
                 Mock Get-TagRecommendations { throw 'Incomplete tags must not become missing-tag recommendations.' }
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-TagRecommendations -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+                Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-TagRecommendations -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
 
                 $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
                 $results['_error_Get-TagRecommendations'] | Should -Match 'No tags are assumed missing'
@@ -1338,7 +1301,7 @@ function Invoke-FinOpsMultitool {
                 Mock Invoke-AzRestMethodWithRetry { [pscustomobject]@{ StatusCode = 503; Content = '{}' } }
                 Mock Get-TagRecommendations { throw 'Unreadable Hub tags must not become missing-tag recommendations.' }
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-TagRecommendations -DataSource Hub -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+                Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-TagRecommendations -DataSource Hub -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
 
                 $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
                 $results['Get-TagInventory'].CoverageIncomplete | Should -BeTrue
@@ -1383,7 +1346,7 @@ function Invoke-FinOpsMultitool {
                 }
                 Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool { throw 'Direct policy fixtures must not query Azure.' }
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-PolicyRecommendations -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+                Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-PolicyRecommendations -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
 
                 $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
                 $results.ContainsKey('_error_Get-PolicyRecommendations') | Should -BeFalse
@@ -1412,7 +1375,7 @@ function Invoke-FinOpsMultitool {
                 }
                 Mock Get-PolicyRecommendations { throw 'Recommendations must not consume failed inventory.' }
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-PolicyRecommendations -DataSource API -OutputPath (Join-Path $TestDrive 'policy-inventory-failed') -NonInteractive -ErrorAction Stop
+                Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-PolicyRecommendations -DataSource API -OutputPath (Join-Path $TestDrive 'policy-inventory-failed') -NonInteractive -ErrorAction Stop
 
                 $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
                 if ($InventoryState -eq 'failed') { $results['_error_Get-PolicyInventory'] | Should -Match '403' }
@@ -1456,7 +1419,7 @@ function Invoke-FinOpsMultitool {
                 }
                 Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool { throw 'History must use the complete cached fixture.' }
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-BudgetHistory -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+                Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-BudgetHistory -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
 
                 $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
                 $results.ContainsKey('_error_Get-BudgetHistory') | Should -Be $ExpectError
@@ -1490,7 +1453,7 @@ function Invoke-FinOpsMultitool {
                 $reportRoot = Join-Path $TestDrive 'failed-payload-scan'
                 Mock Get-OrphanedResources { throw '403 AuthorizationFailed: orphan fixture.' }
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-OrphanedResources -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+                Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-OrphanedResources -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
 
                 $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
                 $results['_error_Get-OrphanedResources'] | Should -Be '403 AuthorizationFailed: orphan fixture.'
@@ -1514,7 +1477,7 @@ function Invoke-FinOpsMultitool {
                     $null
                 }
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-AIWorkloadMetrics -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+                Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-AIWorkloadMetrics -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
 
                 $results = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
                 $results['_error_Get-AIWorkloadMetrics'] | Should -Match 'AI workload inventory is incomplete'
@@ -1549,7 +1512,7 @@ function Invoke-FinOpsMultitool {
                 Mock Invoke-AzRestMethodWithRetry -ModuleName FinOpsMultitool { throw '403 Forbidden: API fixture.' }
                 Mock Invoke-FOHubKustoQuery -ModuleName FinOpsMultitool { @{ Ok = $false; Rows = @(); Error = '403 Forbidden: Kusto fixture.' } }
 
-                Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource $Source -OutputPath $reportPath -NonInteractive -ErrorAction Stop
+                Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource $Source -OutputPath $reportPath -NonInteractive -ErrorAction Stop
 
                 $runs = @(Get-ChildItem -LiteralPath $reportPath -Directory)
                 $runs.Count | Should -Be 1
@@ -1578,24 +1541,24 @@ function Invoke-FinOpsMultitool {
 
         Context 'Parameters' {
             It 'Should expose an optional SubscriptionId parameter' {
-                $cmd = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit'
+                $cmd = Get-Command -Name 'Start-FinOpsExplorer' -Module 'FinOpsToolkit'
                 $cmd.Parameters.ContainsKey('SubscriptionId') | Should -BeTrue
             }
 
             It 'Should expose an optional OutputPath parameter' {
-                $cmd = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit'
+                $cmd = Get-Command -Name 'Start-FinOpsExplorer' -Module 'FinOpsToolkit'
                 $cmd.Parameters.ContainsKey('OutputPath') | Should -BeTrue
             }
 
             It 'Should expose Scans, DataSource, and NonInteractive parameters' {
-                $cmd = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit'
+                $cmd = Get-Command -Name 'Start-FinOpsExplorer' -Module 'FinOpsToolkit'
                 foreach ($p in 'Scans', 'DataSource', 'NonInteractive') {
                     $cmd.Parameters.ContainsKey($p) | Should -BeTrue -Because "$p is documented as a parameter"
                 }
             }
 
             It 'Should constrain DataSource to the supported sources' {
-                $cmd = Get-Command -Name 'Start-FinOpsMultitool' -Module 'FinOpsToolkit'
+                $cmd = Get-Command -Name 'Start-FinOpsExplorer' -Module 'FinOpsToolkit'
                 $set = $cmd.Parameters['DataSource'].Attributes |
                 Where-Object { $_ -is [System.Management.Automation.ValidateSetAttribute] }
                 $set.ValidValues | Should -Be @('Hub', 'Export', 'API', 'GraphOnly')

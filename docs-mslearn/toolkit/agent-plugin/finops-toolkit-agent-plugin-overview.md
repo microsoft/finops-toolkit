@@ -3,7 +3,7 @@ title: FinOps toolkit agent plugin overview
 description: The FinOps toolkit agent plugin brings AI-powered cloud financial management to Claude Code and GitHub Copilot CLI.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/06/2026
+ms.date: 11/23/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -55,11 +55,18 @@ The plugin registers an Azure MCP server scoped to the Kusto namespace in read-o
 
 The **finops-toolkit** skill triggers on FinOps hubs, KQL, and Azure Data Explorer topics and provides task routing, a query catalog, and schema guidance for working with a FinOps hub's `Costs()`, `Prices()`, `Recommendations()`, and `Transactions()` functions.
 
+### FinOps Explorer skills
+
+The **finops-explorer** skill and its companion skills carry the [FinOps Explorer](../explorer/finops-explorer-overview.md) investigations as guidance an AI agent can act on: which investigation answers a question, the Resource Graph and Cost Management queries behind it, and where raw results can mislead. Agents run the queries through Azure CLI or an Azure MCP server, so no additional server is required.
+
+The **finops-explorer** skill routes questions to companion skills for anomaly investigation, cost allocation, cost data sources, reporting, FOCUS data quality, forecasting and budgeting, Azure Policy governance, Power BI, rate optimization, sustainability, unit economics, and Azure workbooks. The skills are read-only. They report what they find and recommend changes; applying a change stays with you.
+
 ## Required permissions
 
 - [Azure CLI](/cli/azure/install-azure-cli) authenticated (`az login`).
 - Azure RBAC permissions for the Cost Management APIs you want to query or manage.
 - For FinOps hubs queries: Database Viewer access to the hub's Azure Data Explorer cluster.
+- For FinOps Explorer skills: Reader or Cost Management Reader on the scopes you analyze.
 
 ## Give feedback
 

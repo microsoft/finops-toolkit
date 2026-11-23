@@ -1,5 +1,5 @@
 ---
-title: FinOps Explorer TUI commands
+title: FinOps Explorer commands
 description: Learn about PowerShell commands in the FinOpsToolkit module that scan an Azure environment for cost optimization, governance, and FinOps insights.
 author: z-larsen
 ms.author: zlarsen
@@ -8,19 +8,14 @@ ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to know which PowerShell commands launch FinOps Explorer TUI scans.
+#customer intent: As a FinOps user, I want to know which PowerShell commands launch FinOps Explorer scans.
 ---
 
-# FinOps Explorer TUI commands
+# FinOps Explorer commands
 
-The FinOps Explorer TUI PowerShell command helps you scan an Azure environment for cost, governance, and optimization insights. Findings are grounded in your live resource state and cover cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance.
+The FinOps Explorer PowerShell command helps you scan an Azure environment for cost, governance, and optimization insights. Findings are grounded in your live resource state and cover cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance.
 
-`Start-FinOpsMultitool` remains available as a backward-compatible wrapper with the same parameters and behavior.
-
-FinOps Explorer offers two ways to investigate FinOps data:
-
-- **Terminal UI (TUI)** – An interactive terminal experience launched with [Start-FinOpsExplorer](start-finopsmultitool.md). It surfaces 26 of the 30 scans.
-- **Agent skills** – A set of skills that describe which investigation answers a question, the queries behind it, and how to read the results.
+[Start-FinOpsExplorer](start-finopsexplorer.md) launches an interactive terminal UI (TUI) that surfaces 26 of the 30 scans. To run the same investigations from an AI agent, use the FinOps Explorer skills in the [FinOps toolkit agent plugin](../../agent-plugin/finops-toolkit-agent-plugin-overview.md#finops-explorer-skills).
 
 The terminal UI prompts for each choice by default. Consoles that can't render the arrow-key menus, such as PowerShell remoting sessions, fall back to numbered prompts. Use `-Accessible` to select numbered prompts without clearing the screen or repainting menu rows in any console. This mode stays in the signed-in tenant. To run the tool from a pipeline or a scheduled job, use `-NonInteractive` and supply the choices as parameters; it takes precedence over `-Accessible`.
 
@@ -28,7 +23,7 @@ Automation requires an existing Azure context established with the intended iden
 
 An explicit `-SubscriptionId` must resolve in the current tenant. Unresolved or mismatched subscriptions stop the run without searching other tenants or widening scope. Sign in to the intended tenant before trying again. A valid subscription selection changes context only in the current PowerShell process. The tool verifies tenant ownership before source discovery and stops subscription enumeration if the tenant is missing or changed.
 
-CSV, HTML, and text reports are saved automatically on the machine running the FinOps Explorer TUI, in a new private folder under the current user's local application data. Use `-OutputPath` to select a different local parent folder outside Git repositories. For location details and privacy limits, see [Report storage](start-finopsmultitool.md#report-storage).
+CSV, HTML, and text reports are saved automatically on the machine running FinOps Explorer, in a new private folder under the current user's local application data. Use `-OutputPath` to select a different local parent folder outside Git repositories. For location details and privacy limits, see [Report storage](start-finopsexplorer.md#report-storage).
 
 The HTML report's **KPI reference** tab lists the available KPI definitions, including entries not measured in the current run. Each entry includes its status, calculation, required inputs, interpretation, limitations, and a link to its source scan when that scan was included. **Computed** means a value was derived, not that the environment is healthy; some values are estimates or proxies. **Unavailable**, **Not run**, and **Informational** distinguish missing measurements, unselected scans, and definitions that need additional data or calculations.
 
@@ -42,11 +37,7 @@ Idle and storage screening show their thresholds and evaluated counts. Missing m
 
 ## Commands
 
-- [Start-FinOpsExplorer](start-finopsmultitool.md) – Launch the FinOps Explorer terminal UI.
-
-<br>
-
-- [Start-FinOpsMultitool](start-finopsmultitool.md) – Backward-compatible wrapper with the same parameters and behavior.
+- [Start-FinOpsExplorer](start-finopsexplorer.md) – Launch the FinOps Explorer terminal UI.
 
 <br>
 
@@ -129,28 +120,20 @@ When no hub is available, the tool offers the Cost Management API. Once you sele
 
 <br>
 
-## Agent skills
-
-A companion set of agent skills carries the same analysis as guidance an AI agent can act on: which investigation answers the question, the Resource Graph and Cost Management queries behind it, and the places raw results mislead. Agents run the queries through Azure CLI or an Azure MCP server, so no additional server is required.
-
-The `finops-explorer` skill is the routing hub and hands off to FinOps-adjacent skills for reporting, allocation, governance, unit economics, and more. The skills are read-only, and so is the terminal UI. Both report what they find and recommend a change; applying it stays with you.
-
-<br>
-
 ## Give feedback
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20toolkit%20PowerShell%20module%3F/cvaQuestion/How%20valuable%20are%20the%20FinOps%20toolkit%20PowerShell%20module%3F/surveyId/FTK/bladeName/PowerShell/featureName/Multitool)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20toolkit%20PowerShell%20module%3F/cvaQuestion/How%20valuable%20are%20the%20FinOps%20toolkit%20PowerShell%20module%3F/surveyId/FTK/bladeName/PowerShell/featureName/Explorer)
 <!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20PowerShell%22%20sort%3Areactions-%2B1-desc)
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20Explorer%22%20sort%3Areactions-%2B1-desc)
 <!-- prettier-ignore-end -->
 
 <br>
@@ -159,6 +142,7 @@ If you're looking for something specific, vote for an existing or create a new i
 
 Related solutions:
 
+- [FinOps toolkit agent plugin](../../agent-plugin/finops-toolkit-agent-plugin-overview.md)
 - [FinOps toolkit PowerShell module](../powershell-commands.md)
 - [FinOps hubs](../../hubs/finops-hubs-overview.md)
 

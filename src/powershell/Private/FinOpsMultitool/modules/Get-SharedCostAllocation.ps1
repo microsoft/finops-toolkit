@@ -8,7 +8,7 @@ param()
 
 ###########################################################################
 # GET-SHAREDCOSTALLOCATION.PS1
-# AZURE FINOPS MULTITOOL - Shared Hub Cost Allocation (Showback)
+# FINOPS EXPLORER - Shared Hub Cost Allocation (Showback)
 ###########################################################################
 # Purpose: Distribute the billed cost of SHARED hub resources (ExpressRoute
 #          gateway/circuit, VPN gateway, Azure Firewall, shared bandwidth)

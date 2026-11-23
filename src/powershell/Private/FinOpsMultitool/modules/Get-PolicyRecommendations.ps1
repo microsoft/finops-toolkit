@@ -6,7 +6,7 @@ param()
 
 ###########################################################################
 # GET-POLICYRECOMMENDATIONS.PS1
-# AZURE FINOPS MULTITOOL - FinOps Policy Recommendations
+# FINOPS EXPLORER - FinOps Policy Recommendations
 ###########################################################################
 # Purpose: Compare the customer's existing policy assignments against a
 #          curated list of Microsoft-recommended FinOps/cost governance

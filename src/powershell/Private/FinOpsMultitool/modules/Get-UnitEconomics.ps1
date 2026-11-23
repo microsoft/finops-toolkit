@@ -7,7 +7,7 @@ param()
 
 ###########################################################################
 # GET-UNITECONOMICS.PS1
-# AZURE FINOPS MULTITOOL - Unit Economics ($/vCPU, $/GB)
+# FINOPS EXPLORER - Unit Economics ($/vCPU, $/GB)
 ###########################################################################
 # Purpose: Compute FinOps unit-economics KPIs by dividing amortized cost
 #          by provisioned capacity: cost per vCPU (compute) and cost per

@@ -3,7 +3,7 @@
 
 & "$PSScriptRoot/../Initialize-Tests.ps1"
 
-Describe 'FinOps Multitool safety' {
+Describe 'FinOps Explorer safety' {
 
     # Scoped to this Describe: Initialize-Tests.ps1 already declares a root-level
     # BeforeAll, and Pester 6 rejects a second one during discovery.
@@ -2991,7 +2991,7 @@ console.log('Credit, numeric, and unavailable sorting passed');
     }
 }
 
-Describe 'FinOps Multitool cost math' {
+Describe 'FinOps Explorer cost math' {
 
     BeforeAll {
         $script:ModuleRoot = Join-Path $PSScriptRoot '../../Private/FinOpsMultitool'

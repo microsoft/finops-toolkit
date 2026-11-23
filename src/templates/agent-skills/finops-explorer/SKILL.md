@@ -14,7 +14,7 @@ This is the routing hub for FinOps investigations. It answers "what should I loo
 
 Two ways to gather the data:
 
-- **Interactively** - `Start-FinOpsMultitool` launches a terminal UI with 26 selectable read-only scans, renders the results, and exports them. Four additional investigations are available as direct functions. Best when a person wants the full picture.
+- **Interactively** - `Start-FinOpsExplorer` launches a terminal UI with 26 selectable read-only scans, renders the results, and exports them. Four additional investigations are available as direct functions. Best when a person wants the full picture.
 - **Directly** - query Azure Resource Graph, Cost Management, Advisor, Monitor, or a FinOps hub yourself with `az` or an Azure MCP server. Best when answering one question inside a conversation. This skill carries the queries and the interpretation rules.
 
 Prefer the direct path for a single question. Suggest the terminal UI when the user wants a full assessment.

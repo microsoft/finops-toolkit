@@ -7,7 +7,7 @@ param()
 
 ###########################################################################
 # GET-SAVINGSREALIZED.PS1
-# AZURE FINOPS MULTITOOL - Estimated Savings from Commitments
+# FINOPS EXPLORER - Estimated Savings from Commitments
 ###########################################################################
 # Purpose: Estimate how much existing RIs, Savings Plans, and AHB are saving
 #          versus pay-as-you-go. RI and savings plan figures apply an assumed

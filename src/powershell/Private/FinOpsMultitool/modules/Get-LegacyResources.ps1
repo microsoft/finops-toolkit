@@ -7,7 +7,7 @@ param()
 
 ###########################################################################
 # GET-LEGACYRESOURCES.PS1
-# AZURE FINOPS MULTITOOL - Legacy & Retiring Resource Detection
+# FINOPS EXPLORER - Legacy & Retiring Resource Detection
 ###########################################################################
 # Purpose: Use Azure Resource Graph to surface resources running on legacy
 #          or retiring SKUs that should be modernized: first-generation VM

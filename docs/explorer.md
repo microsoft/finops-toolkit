@@ -4,7 +4,7 @@ title: FinOps Explorer
 browser: FinOps Explorer - Scan your Azure environment for FinOps insights
 nav_order: 52
 description: 'FinOps Explorer scans an Azure environment for cost optimization, governance, and FinOps insights from an interactive terminal UI, with agent skills so AI assistants can run the same analysis.'
-permalink: /multitool
+permalink: /explorer
 #customer intent: As a FinOps practitioner, I need to learn about FinOps Explorer
 ---
 
@@ -13,7 +13,7 @@ Scan your Azure environment for cost optimization, governance, and FinOps insigh
 {: .fs-6 .fw-300 }
 
 <a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#install">Install</a>
-<a class="btn fs-5 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/finops-multitool-commands">Documentation</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/explorer/finops-explorer-commands">Documentation</a>
 
 ---
 
@@ -35,22 +35,22 @@ FinOps Explorer scans an Azure environment for cost optimization, governance, an
     <div class="ftk-tile">
         <div>🖥️ Terminal UI</div>
         <div>Run cost, governance, and optimization scans from an interactive PowerShell 7 terminal experience.</div>
-        <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/start-finopsmultitool">Learn more</a>
+        <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/explorer/start-finopsexplorer">Learn more</a>
     </div>
     <div class="ftk-tile">
         <div>🤖 Agent skills</div>
         <div>Teach AI agents the FinOps investigations, the queries behind them, and how to read the results.</div>
-        <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/finops-multitool-commands">Learn more</a>
+        <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/agent-plugin/finops-toolkit-agent-plugin-overview#finops-explorer-skills">Learn more</a>
     </div>
     <div class="ftk-tile">
         <div>🏦 FinOps hub data paths</div>
         <div>Query the hub's Azure Data Explorer or Fabric database directly and push aggregation into the engine to scale to large environments.</div>
-        <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/finops-multitool-commands">Learn more</a>
+        <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/explorer/finops-explorer-commands">Learn more</a>
     </div>
     <div class="ftk-tile">
         <div>🛡️ Read-only by design</div>
         <div>Every scan reads your environment and reports what it finds. FinOps Explorer never creates, changes, or deletes a resource.</div>
-        <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/finops-multitool-commands">Learn more</a>
+        <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/explorer/finops-explorer-commands">Learn more</a>
     </div>
 </div>
 
@@ -99,7 +99,7 @@ FinOps Explorer scans an Azure environment for cost optimization, governance, an
 </div>
 <a name="docs"></a>
 
-<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/multitool/finops-multitool-commands">About the commands</a>
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/explorer/finops-explorer-commands">About the commands</a>
 <a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20PowerShell%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20PowerShell%3F/surveyId/FTK{% include ftkver.txt %}/bladeName/PowerShell/featureName/Marketing.Docs">💜 Give feedback</a>
 
 <br>

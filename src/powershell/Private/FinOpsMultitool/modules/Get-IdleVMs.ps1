@@ -7,7 +7,7 @@ param()
 
 ###########################################################################
 # GET-IDLEVMS.PS1
-# AZURE FINOPS MULTITOOL - Idle & Underutilized VM Detection
+# FINOPS EXPLORER - Idle & Underutilized VM Detection
 ###########################################################################
 # Purpose: Query Azure Monitor metrics to find running VMs with very low
 #          CPU and network utilization that Advisor hasn't flagged yet.

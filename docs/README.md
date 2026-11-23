@@ -73,7 +73,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
     <div class="ftk-tile">
         <div>🛠️ FinOps Explorer</div>
         <div>Scan your environment for cost, governance, and optimization insights.</div>
-        <a href="./multitool">Learn more</a>
+        <a href="./explorer">Learn more</a>
     </div>
     <div class="ftk-tile">
         <div>🦾 Bicep Registry</div>

@@ -6,7 +6,7 @@ param()
 
 ###########################################################################
 # GET-COMMITMENTUTILIZATION.PS1
-# AZURE FINOPS MULTITOOL - RI & Savings Plan Utilization
+# FINOPS EXPLORER - RI & Savings Plan Utilization
 ###########################################################################
 # Purpose: Query existing reservation and savings plan utilization to show
 #          how well current commitments are being used. This answers the

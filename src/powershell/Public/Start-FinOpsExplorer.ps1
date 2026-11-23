@@ -3,7 +3,7 @@
 
 <#
     .SYNOPSIS
-    Launches the FinOps Explorer TUI.
+    Launches the FinOps Explorer terminal UI.
 
     .DESCRIPTION
     The Start-FinOpsExplorer command launches an interactive terminal UI (TUI) that
@@ -79,7 +79,7 @@
     .EXAMPLE
     Start-FinOpsExplorer
 
-    Launches FinOps Explorer TUI. You will be prompted to authenticate and
+    Launches FinOps Explorer. You will be prompted to authenticate and
     select the subscriptions and modules to scan.
 
     .EXAMPLE
@@ -121,15 +121,15 @@ function Start-FinOpsExplorer {
     )
 
     if ($PSVersionTable.PSVersion.Major -lt 7) {
-        throw "FinOps Explorer TUI requires PowerShell 7 or later. This session is PowerShell $($PSVersionTable.PSVersion). Open PowerShell 7 with 'pwsh', import the module there, and run Start-FinOpsExplorer again. No scan was started."
+        throw "FinOps Explorer requires PowerShell 7 or later. This session is PowerShell $($PSVersionTable.PSVersion). Open PowerShell 7 with 'pwsh', import the module there, and run Start-FinOpsExplorer again. No scan was started."
     }
 
-    # Locate the Multitool TUI implementation
+    # Locate the FinOps Explorer runtime
     $multitoolRoot = Join-Path -Path $PSScriptRoot -ChildPath '../Private/FinOpsMultitool'
     $tuiScript = Join-Path -Path $multitoolRoot -ChildPath 'Invoke-FinOpsMultitool.ps1'
 
     if (-not (Test-Path -Path $tuiScript)) {
-        Write-Error "FinOps Explorer TUI files not found at '$multitoolRoot'. The module installation may be incomplete."
+        Write-Error "FinOps Explorer files not found at '$multitoolRoot'. The module installation may be incomplete."
         return
     }
 
