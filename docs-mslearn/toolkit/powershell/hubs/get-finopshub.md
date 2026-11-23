@@ -68,7 +68,9 @@ Returns all hubs in the `foo` resource group.
 ### Get named hubs in a resource group
 
 ```powershell
-Get-FinOpsHub -Name foo -ResourceGroupName bar
+Get-FinOpsHub `
+    -Name foo `
+    -ResourceGroupName bar
 ```
 
 Returns all FinOps hubs named `foo` in the `bar` resource group.

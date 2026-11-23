@@ -39,13 +39,20 @@
     Runs an export called 'CostExport' for the configured period on the subscription configured in Get-AzContext.
 
     .EXAMPLE
-    Start-FinopsCostExport -Scope '/providers/Microsoft.Billing/billingAccounts/1234' -Name 'CostExport' -StartDate '2023-01-01' -EndDate '2023-12-31'
+    Start-FinopsCostExport `
+        -Scope '/providers/Microsoft.Billing/billingAccounts/1234' `
+        -Name 'CostExport' `
+        -StartDate '2023-01-01' `
+        -EndDate '2023-12-31'
 
     ### Export specific dates
     Runs an export called 'CostExport' for a specific date range on the 1234 billing account.
 
     .EXAMPLE
-    Start-FinopsCostExport -Scope '/providers/Microsoft.Billing/billingAccounts/1234/billingProfiles/5678' -Name 'CostExport' -Backfill 12
+    Start-FinopsCostExport `
+        -Scope '/providers/Microsoft.Billing/billingAccounts/1234/billingProfiles/5678' `
+        -Name 'CostExport' `
+        -Backfill 12
 
     ### Backfill export
     Runs an export called 'CostExport' for the previous 12 months on the 5678 billing profile.

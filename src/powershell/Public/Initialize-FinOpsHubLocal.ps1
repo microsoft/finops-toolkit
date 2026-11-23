@@ -39,7 +39,10 @@
     Sets up a local FinOps hub in the emulator at http://localhost:8082 using the latest release.
 
     .EXAMPLE
-    Initialize-FinOpsHubLocal -ClusterUri 'http://localhost:8082' -RawRetentionInDays 30 -SkipOpenData
+    Initialize-FinOpsHubLocal `
+        -ClusterUri 'http://localhost:8082' `
+        -RawRetentionInDays 30 `
+        -SkipOpenData
 
     Sets up the databases and schema with 30-day raw retention and skips loading open data.
 

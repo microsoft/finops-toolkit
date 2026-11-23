@@ -63,7 +63,9 @@ The following example demonstrates how to use the Get-FinOpsService command to r
 ### Get services for a resource provider
 
 ```powershell
-Get-FinOpsService -ConsumedService "Microsoft.C*" -ResourceType "Microsoft.Compute/virtualMachines"
+Get-FinOpsService `
+    -ConsumedService "Microsoft.C*" `
+    -ResourceType "Microsoft.Compute/virtualMachines"
 ```
 
 Returns all services with a resource provider that starts with "Microsoft.C".
@@ -71,7 +73,9 @@ Returns all services with a resource provider that starts with "Microsoft.C".
 ### Example 2
 
 ```powershell
-Get-FinOpsService -ResourceType "Microsoft.RecoveryServices/vaults" -MeterCategory "Backup"
+Get-FinOpsService `
+    -ResourceType "Microsoft.RecoveryServices/vaults" `
+    -MeterCategory "Backup"
 ```
 
 Returns Azure Backup instead of Azure Site Recovery for backup charges on a Recovery Services vault.

@@ -55,7 +55,10 @@ Remove-FinOpsCostExport `
 ### Delete a Cost Management export
 
 ```powershell
-Remove-FinOpsCostExport -Name MyExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -RemoveData
+Remove-FinOpsCostExport `
+    -Name MyExport `
+    -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" `
+    -RemoveData
 ```
 
 Deletes a Cost Management export and removes the exported data from the linked storage account.

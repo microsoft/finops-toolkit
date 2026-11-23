@@ -20,13 +20,20 @@
     Optional. The department ID to grant permissions against.
 
     .EXAMPLE
-    Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingAccountId 12345
+    Add-FinOpsServicePrincipal `
+        -ObjectId 00000000-0000-0000-0000-000000000000 `
+        -TenantId 00000000-0000-0000-0000-000000000000 `
+        -BillingAccountId 12345
 
     ### Enterprise Administrator (read only)
     Grants Enterprise Administrator (read only) permissions to the specified service principal or managed identity.
 
     .EXAMPLE
-    Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingAccountId 12345 -DepartmentId 67890
+    Add-FinOpsServicePrincipal `
+        -ObjectId 00000000-0000-0000-0000-000000000000 `
+        -TenantId 00000000-0000-0000-0000-000000000000 `
+        -BillingAccountId 12345 `
+        -DepartmentId 67890
 
     ### Department Administrator (read only)
     Grants Department Administrator (read only) permissions to the specified service principal or managed identity.

@@ -12,7 +12,9 @@
     Required. Resource ID of the scope to add to the FinOps hub configuration.
 
     .EXAMPLE
-    Add-FinOpsHubScope -HubName ftk-FinOps-Hub -Scope "/providers/Microsoft.Billing/billingAccounts/1234567"
+    Add-FinOpsHubScope `
+        -HubName ftk-FinOps-Hub `
+        -Scope "/providers/Microsoft.Billing/billingAccounts/1234567"
 
     ### Add a billing account scope
     Adds the specified billing account scope to the ftk-FinOps-Hub hub configuration.

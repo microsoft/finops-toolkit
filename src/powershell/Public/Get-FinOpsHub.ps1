@@ -33,7 +33,9 @@
     Returns all hubs in the `foo` resource group.
 
     .EXAMPLE
-    Get-FinOpsHub -Name foo -ResourceGroupName bar
+    Get-FinOpsHub `
+        -Name foo `
+        -ResourceGroupName bar
 
     ### Get named hubs in a resource group
     Returns all FinOps hubs named `foo` in the `bar` resource group.

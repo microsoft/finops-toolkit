@@ -62,7 +62,10 @@ The following example demonstrates how to use the Remove-FinOpsHub command to de
 ### Remove a FinOps hub instance
 
 ```powershell
-Remove-FinOpsHub -Name MyHub -ResourceGroupName MyRG -KeepStorageAccount
+Remove-FinOpsHub `
+    -Name MyHub `
+    -ResourceGroupName MyRG `
+    -KeepStorageAccount
 ```
 
 Deletes a FinOps hub named MyHub and deletes all associated resource except the storage account.

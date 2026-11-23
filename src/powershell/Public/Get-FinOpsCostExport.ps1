@@ -45,7 +45,9 @@
     Gets all exports for a subscription. Does not include exports in nested resource groups.
 
     .EXAMPLE
-    Get-FinOpsCostExport -Name mtd* -Scope "providers/Microsoft.Billing/billingAccounts/00000000"
+    Get-FinOpsCostExport `
+        -Name mtd* `
+        -Scope "providers/Microsoft.Billing/billingAccounts/00000000"
 
     ### Get exports matching a wildcard name
     Gets export with name matching wildcard mtd* within the specified billing account scope. Does not include exports in nested resource groups.
@@ -57,19 +59,26 @@
     Gets all exports within the current context subscription scope and filtered by dataset AmortizedCost.
 
     .EXAMPLE
-    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageAccountId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyResourceGroup/providers/Microsoft.Storage/storageAccounts/MyStorageAccount"
+    Get-FinOpsCostExport `
+        -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" `
+        -StorageAccountId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyResourceGroup/providers/Microsoft.Storage/storageAccounts/MyStorageAccount"
 
     ### Get exports using a specific storage account
     Gets all exports within the subscription scope filtered by a specific storage account.
 
     .EXAMPLE
-    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "MyContainer*"
+    Get-FinOpsCostExport `
+        -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" `
+        -StorageContainer "MyContainer*"
 
     ### Get exports using a specific container
     Gets all exports within the subscription scope for a specific container. Supports wildcard.
 
     .EXAMPLE
-    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -ApiVersion "2025-03-01"
+    Get-FinOpsCostExport `
+        -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" `
+        -StorageContainer "mtd*" `
+        -ApiVersion "2025-03-01"
 
     ### Get exports using a specific API version
     Gets all exports within the subscription scope for a container matching wildcard pattern and using a specific API version.

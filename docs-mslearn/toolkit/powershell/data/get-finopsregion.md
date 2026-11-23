@@ -55,7 +55,9 @@ Returns the region ID and name for the East US region.
 ### Get many regions with the original Cost Management value
 
 ```powershell
-Get-FinOpsRegion -RegionId "*asia*" -IncludeResourceLocation
+Get-FinOpsRegion `
+    -RegionId "*asia*" `
+    -IncludeResourceLocation
 ```
 
 Returns all Asia regions with the original Cost Management ResourceLocation value.

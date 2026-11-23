@@ -120,7 +120,9 @@ Gets all exports for a subscription. Does not include exports in nested resource
 ### Get exports matching a wildcard name
 
 ```powershell
-Get-FinOpsCostExport -Name mtd* -Scope "providers/Microsoft.Billing/billingAccounts/00000000"
+Get-FinOpsCostExport `
+    -Name mtd* `
+    -Scope "providers/Microsoft.Billing/billingAccounts/00000000"
 ```
 
 Gets export with name matching wildcard mtd* within the specified billing account scope. Does not include exports in nested resource groups.
@@ -136,7 +138,9 @@ Gets all exports within the current context subscription scope and filtered by d
 ### Get exports using a specific storage account
 
 ```powershell
-Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageAccountId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyResourceGroup/providers/Microsoft.Storage/storageAccounts/MyStorageAccount"
+Get-FinOpsCostExport `
+    -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" `
+    -StorageAccountId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyResourceGroup/providers/Microsoft.Storage/storageAccounts/MyStorageAccount"
 ```
 
 Gets all exports within the subscription scope filtered by a specific storage account.
@@ -144,7 +148,9 @@ Gets all exports within the subscription scope filtered by a specific storage ac
 ### Get exports using a specific container
 
 ```powershell
-Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "MyContainer*"
+Get-FinOpsCostExport `
+    -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" `
+    -StorageContainer "MyContainer*"
 ```
 
 Gets all exports within the subscription scope for a specific container. Supports wildcard.
@@ -152,7 +158,10 @@ Gets all exports within the subscription scope for a specific container. Support
 ### Get exports using a specific API version
 
 ```powershell
-Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -ApiVersion "2025-03-01"
+Get-FinOpsCostExport `
+    -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" `
+    -StorageContainer "mtd*" `
+    -ApiVersion "2025-03-01"
 ```
 
 Gets all exports within the subscription scope for a container matching wildcard pattern and using a specific API version.

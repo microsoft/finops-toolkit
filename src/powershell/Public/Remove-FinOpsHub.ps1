@@ -26,7 +26,10 @@
     Optional. Deletes specified resources without asking for a confirmation. Default = false.
 
     .EXAMPLE
-    Remove-FinOpsHub -Name MyHub -ResourceGroupName MyRG -KeepStorageAccount
+    Remove-FinOpsHub `
+        -Name MyHub `
+        -ResourceGroupName MyRG `
+        -KeepStorageAccount
 
     ### Remove a FinOps hub instance
     Deletes a FinOps hub named MyHub and deletes all associated resource except the storage account.

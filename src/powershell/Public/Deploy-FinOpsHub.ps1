@@ -100,19 +100,32 @@
     Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".
 
     .EXAMPLE
-    Deploy-FinOpsHub -Name MyHub -ResourceGroupName MyNewResourceGroup -Location westus -DataExplorerName MyFinOpsHubCluster
+    Deploy-FinOpsHub `
+        -Name MyHub `
+        -ResourceGroupName MyNewResourceGroup `
+        -Location westus `
+        -DataExplorerName MyFinOpsHubCluster
 
     ### Deploy latest version
     Deploys a FinOps hub instance named MyHub to the MyNewResourceGroup resource group with a new MyFinOpsHubCluster Data Explorer cluster. If the resource group does not exist, it will be created. If the hub already exists, it will be updated to the latest version.
 
     .EXAMPLE
-    Deploy-FinOpsHub -Name MyHub -ResourceGroupName MyExistingResourceGroup -Location westus -Version 0.1.1
+    Deploy-FinOpsHub `
+        -Name MyHub `
+        -ResourceGroupName MyExistingResourceGroup `
+        -Location westus `
+        -Version 0.1.1
 
     ### Deploy specific version
     Deploys a FinOps hub instance named MyHub to the MyExistingResourceGroup resource group using version 0.1.1 of the template. This version is required for Microsoft Online Services Agreement (MOSA) subscriptions since FOCUS exports aren't available from Cost Management. If the resource group does not exist, it will be created. If the hub already exists, it will be updated to version 0.1.1.
 
     .EXAMPLE
-    Deploy-FinOpsHub -Name MyRemoteHub -ResourceGroupName MyRemoteHubResourceGroup -Location westus -RemoteHubStorageUri "https://centralfinopshub123.dfs.core.windows.net/" -RemoteHubStorageKey "abc123...xyz789=="
+    Deploy-FinOpsHub `
+        -Name MyRemoteHub `
+        -ResourceGroupName MyRemoteHubResourceGroup `
+        -Location westus `
+        -RemoteHubStorageUri "https://centralfinopshub123.dfs.core.windows.net/" `
+        -RemoteHubStorageKey "abc123...xyz789=="
 
     ### Deploy with remote hub configuration
     Deploys a FinOps hub instance named MyRemoteHub configured to send data to a remote (central) hub. The remote hub storage URI and key enable cross-tenant data collection scenarios where a central tenant aggregates cost data from multiple tenants. The RemoteHubStorageUri should be copied from the central hub's storage account Settings > Endpoints > Data Lake storage, and the RemoteHubStorageKey should be copied from Security + networking > Access keys. Remote hubs require template version 0.4 or later.

@@ -42,7 +42,9 @@ Add-FinOpsHubScope `
 ### Add a billing account scope
 
 ```powershell
-Add-FinOpsHubScope -HubName ftk-FinOps-Hub -Scope "/providers/Microsoft.Billing/billingAccounts/1234567"
+Add-FinOpsHubScope `
+    -HubName ftk-FinOps-Hub `
+    -Scope "/providers/Microsoft.Billing/billingAccounts/1234567"
 ```
 
 Adds the specified billing account scope to the ftk-FinOps-Hub hub configuration.

@@ -50,7 +50,9 @@ The following examples demonstrate how to use the Remove-FinOpsHubScope command 
 ### Remove billing account and keep data
 
 ```powershell
-Remove-FinOpsHubScope -Id "/providers/Microsoft.Billing/billingAccounts/123" -HubName "FooHub"
+Remove-FinOpsHubScope `
+    -Id "/providers/Microsoft.Billing/billingAccounts/123" `
+    -HubName "FooHub"
 ```
 
 Deletes the exports configured to use the FooHub hub instance. Existing data is retained in the storage account.
@@ -58,7 +60,10 @@ Deletes the exports configured to use the FooHub hub instance. Existing data is 
 ### Remove subscription and historical data
 
 ```powershell
-Remove-FinOpsHubScope -Id "/subscriptions/##-#-#-#-###" -HubName "FooHub" -RemoveData
+Remove-FinOpsHubScope `
+    -Id "/subscriptions/##-#-#-#-###" `
+    -HubName "FooHub" `
+    -RemoveData
 ```
 
 Deletes the exports configured to use the FooHub hub instance and removes data for that scope.

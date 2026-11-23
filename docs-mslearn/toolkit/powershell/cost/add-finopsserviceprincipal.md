@@ -49,7 +49,10 @@ The following examples demonstrate how to use the Add-FinOpsServicePrincipal com
 ### Enterprise Administrator (read only)
 
 ```powershell
-Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingAccountId 12345
+Add-FinOpsServicePrincipal `
+    -ObjectId 00000000-0000-0000-0000-000000000000 `
+    -TenantId 00000000-0000-0000-0000-000000000000 `
+    -BillingAccountId 12345
 ```
 
 Grants Enterprise Administrator (read only) permissions to the specified service principal or managed identity.
@@ -57,7 +60,11 @@ Grants Enterprise Administrator (read only) permissions to the specified service
 ### Department Administrator (read only)
 
 ```powershell
-Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingAccountId 12345 -DepartmentId 67890
+Add-FinOpsServicePrincipal `
+    -ObjectId 00000000-0000-0000-0000-000000000000 `
+    -TenantId 00000000-0000-0000-0000-000000000000 `
+    -BillingAccountId 12345 `
+    -DepartmentId 67890
 ```
 
 Grants Department Administrator (read only) permissions to the specified service principal or managed identity.

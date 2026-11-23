@@ -17,7 +17,7 @@ The **New-FinOpsCostExport** command creates a new Cost Management export for th
 
 This command was tested with the following API versions:
 
-- 2025-03-01 (default) – GA version for FocusCost and other datasets.
+- 2025-03-01 (default) - GA version for FocusCost and other datasets.
 - 2023-07-01-preview
 - 2023-08-01
 
