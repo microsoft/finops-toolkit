@@ -140,5 +140,30 @@ InModuleScope 'FinOpsToolkit' {
                 $actual[0].ServiceName | Should -Be $expected
             }
         }
+        Context "MeterCategory" {
+            It 'Should return <Expected> for <ResourceType> with meter category <MeterCategory>' -ForEach @(
+                @{ ResourceType = 'microsoft.recoveryservices/vaults'; MeterCategory = 'Backup'; Expected = 'Azure Backup' }
+                @{ ResourceType = 'microsoft.recoveryservices/vaults'; MeterCategory = 'Azure Site Recovery'; Expected = 'Azure Site Recovery' }
+                @{ ResourceType = 'microsoft.web/sites'; MeterCategory = 'Functions'; Expected = 'Functions' }
+                @{ ResourceType = 'microsoft.web/sites'; MeterCategory = 'Logic Apps'; Expected = 'Logic Apps' }
+                @{ ResourceType = 'microsoft.web/sites'; MeterCategory = 'Azure App Service'; Expected = 'Azure App Service' }
+                @{ ResourceType = 'Microsoft.Web/sites'; MeterCategory = 'functions'; Expected = 'Functions' }
+            ) {
+                # Act
+                $actual = Get-FinOpsService -ResourceType $ResourceType -MeterCategory $MeterCategory
+
+                # Assert
+                @($actual).Count | Should -Be 1
+                $actual.ServiceName | Should -Be $Expected
+            }
+            It 'Should return every service for a shared resource type when no meter category is specified' {
+                # Act
+                $actual = Get-FinOpsService -ResourceType 'microsoft.recoveryservices/vaults'
+
+                # Assert
+                $actual.ServiceName | Should -Contain 'Azure Backup'
+                $actual.ServiceName | Should -Contain 'Azure Site Recovery'
+            }
+        }
     }
 }

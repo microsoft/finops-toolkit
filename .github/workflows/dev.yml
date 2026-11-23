@@ -24,6 +24,8 @@ on:
       - 'src/power-bi/reports.json'
       - 'src/scripts/Build-PowerBI.ps1'
       - 'src/scripts/Package-PowerBI.ps1'
+      # Workbooks README is covered by DeadAkaMsLinks.Tests.ps1
+      - 'src/templates/finops-workbooks/README.md'
 
 permissions:
   contents: read

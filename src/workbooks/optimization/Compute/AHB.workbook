@@ -405,7 +405,7 @@
                       {
                         "type": 1,
                         "content": {
-                          "json": "### Number of required Cores to enable Windows Azure Hybrid Benefit\r\nNumber of cores required to enable AHB across the entire environment.",
+                          "json": "### Number of required Cores to enable Windows Azure Hybrid Benefit\r\nNumber of cores required to enable AHB across the entire environment. Each VM counts as at least 8 cores, the Azure Hybrid Benefit minimum, so this can be higher than the sum of vCPUs.",
                           "style": "info"
                         },
                         "customWidth": "50",
@@ -4092,7 +4092,7 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "### Number of required Cores to enable Windows Azure Hybrid Benefit\r\nNumber of cores required to enable AHB across the entire environment.",
+                    "json": "### Number of required Cores to enable Windows Azure Hybrid Benefit\r\nNumber of cores required to enable AHB across the entire environment. Each VM counts as at least 8 cores, the Azure Hybrid Benefit minimum, so this can be higher than the sum of vCPUs.",
                     "style": "info"
                   },
                   "customWidth": "50",

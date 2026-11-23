@@ -3,7 +3,7 @@ title: Run FinOps hubs locally
 description: Stand up a FinOps hub on your own hardware in a local container and ingest cost data, using the same KQL and open data as a deployed hub.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/13/2026
+ms.date: 11/21/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -82,7 +82,7 @@ To use the module, stage the open data CSVs in the mounted folder first (the emu
 
 ```powershell
 New-Item -ItemType Directory -Force -Path "$exportPath/open-data" | Out-Null
-foreach ($f in 'PricingUnits', 'Regions', 'ResourceTypes', 'Services', 'InstanceSizeFlexibility') {
+foreach ($f in 'CommitmentDiscountEligibility', 'InstanceSizeFlexibility', 'PricingUnits', 'Regions', 'ResourceTypes', 'Services') {
   Invoke-WebRequest "https://github.com/microsoft/finops-toolkit/releases/latest/download/$f.csv" -OutFile "$exportPath/open-data/$f.csv"
 }
 
@@ -140,7 +140,7 @@ The emulator's first external-data read right after setup sometimes returns no r
 
 ```powershell
 New-Item -ItemType Directory -Force -Path "$exportPath/open-data" | Out-Null
-foreach ($f in 'PricingUnits', 'Regions', 'ResourceTypes', 'Services', 'InstanceSizeFlexibility') {
+foreach ($f in 'CommitmentDiscountEligibility', 'InstanceSizeFlexibility', 'PricingUnits', 'Regions', 'ResourceTypes', 'Services') {
   Invoke-WebRequest "$release/$f.csv" -OutFile "$exportPath/open-data/$f.csv"
 }
 Invoke-WebRequest "$release/finops-hub-local-opendata.kql" -OutFile "$exportPath/setup/load-open-data.kql"
@@ -151,7 +151,7 @@ $openData = (Get-Content "$exportPath/setup/load-open-data.kql" -Raw) -replace '
 # Load, verify the tables filled, and retry if the first read came back empty.
 foreach ($attempt in 1..5) {
   Invoke-Kusto Ingestion $openData | Out-Null
-  $empty = 'PricingUnits', 'Regions', 'ResourceTypes', 'Services', 'InstanceSizeFlexibility' | Where-Object {
+  $empty = 'CommitmentDiscountEligibility', 'InstanceSizeFlexibility', 'PricingUnits', 'Regions', 'ResourceTypes', 'Services' | Where-Object {
     (Invoke-Kusto Ingestion "$_ | count" -Endpoint query).Tables[0].Rows[0][0] -eq 0
   }
   if (-not $empty) { Write-Host 'open data loaded'; break }

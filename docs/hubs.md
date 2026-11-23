@@ -59,7 +59,7 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 
 <div id="pricing" class="ftk-pricing">
     <h3>Estimated cost for FinOps hubs</h3>
-    <p>FinOps hubs starts at $120/mo + $10/mo per $1 million in monitored spend.</p>
+    <p>FinOps hubs starts at ~$330/mo + $10/mo per $1 million in monitored spend.</p>
     <p>Costs may be lower depending on your negotiated and commitment discounts.</p>
 </div>
 

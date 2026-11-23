@@ -53,12 +53,14 @@ Describe 'HubsInstanceSizeFlexibilityLoad' {
 
     It 'Should stage the CSV in each local hub download step' {
         $guide = Get-Content -Path (Join-Path $repoRoot 'docs-mslearn/toolkit/hubs/run-hubs-locally.md')
-        $downloadLines = @($guide | Where-Object { $_ -match "foreach \(\`$f in 'PricingUnits'" })
+        $downloadLines = @($guide | Where-Object { $_ -match "foreach \(\`$f in .*'PricingUnits'" })
         $downloadLines.Count | Should -BeGreaterThan 0
         $downloadLines | ForEach-Object { $_ | Should -Match "'InstanceSizeFlexibility'" }
     }
 
     It 'Should complete ingestion only after the load succeeds' {
-        $appBicep | Should -Match "name: 'Ingestion Complete'\s+type: 'SetVariable'\s+dependsOn: \[\s*\{\s*activity: 'Update InstanceSizeFlexibility in ADX'"
+        # InstanceSizeFlexibility is loaded before CommitmentDiscountEligibility, which is the last open data load
+        $appBicep | Should -Match "name: 'Update CommitmentDiscountEligibility in ADX'[\s\S]*?dependsOn: \[\s*\{\s*activity: 'Update InstanceSizeFlexibility in ADX'"
+        $appBicep | Should -Match "name: 'Ingestion Complete'\s+type: 'SetVariable'\s+dependsOn: \[\s*\{\s*activity: 'Update CommitmentDiscountEligibility in ADX'"
     }
 }
