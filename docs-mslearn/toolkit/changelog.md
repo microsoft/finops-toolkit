@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/22/2026
+ms.date: 11/23/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -33,6 +33,20 @@ The following section lists features and enhancements that are currently in deve
 
 _Released November 2026_
 
+### [FinOps multitool](multitool/finops-multitool-overview.md) v16
+
+- **Added**
+  - Added the FinOps multitool, which scans an Azure environment for cost optimization, governance, and FinOps insights through a PowerShell 7 terminal UI ([#2155](https://github.com/microsoft/finops-toolkit/pull/2155)).
+    - Included 30 read-only scan modules, with 26 available in the menu, covering orphaned resources, idle VMs, storage tier advice, Azure Hybrid Benefit, tag and policy inventory and recommendations, cost data, cost trend, cost by tag, resource costs, reservation advice, commitment utilization, estimated savings, budget status and history, anomaly alerts, Advisor recommendations, billing structure, and contract info.
+    - Added a companion set of agent skills that carry the investigation routing, the queries, and the interpretation rules so AI agents can run the same analysis through Azure CLI or an Azure MCP server.
+    - Added engine-side aggregation through the FinOps hub's Azure Data Explorer or Microsoft Fabric Kusto database for large environments, with a storage reader as a small-dataset fallback.
+    - Added a non-interactive mode for an already-authenticated pipeline or scheduled job, and automatic private CSV, HTML, and text reports. Consoles that can't render the arrow-key menus, such as PowerShell remoting sessions, fall back to numbered prompts.
+    - Added `-Accessible` to select numbered prompts without clearing the screen or repainting menus in cursor-capable terminals.
+    - Added a searchable KPI reference and in-report calculation details for cost shares, unit rates, VM and storage screening, and budget coverage and forecast availability.
+    - Added aggregate and per-subscription cost trend views with captured UTC periods, partial-month labels, and separate empty and unverified coverage states.
+    - Added sticky table headers, row numbers, sorting, resizable columns, and expanded views to the local HTML report without changing CSV data.
+    - Added an explicit ordinary Cost Management CSV export source without requiring a FinOps hub, with selected-scope coverage, reads limited to the chosen export folder, manifest-verified partitions, and no silent live-cost fallback. Discovery reports progress per scope and per storage account. If you choose exports from the menu and none can be verified, you're asked whether to use the Cost Management API instead. Interactive runs ask before scanning more than 100 storage accounts for exports.
+
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v16)
@@ -45,6 +59,7 @@ _Released November 2026_
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v16
 
 - **Added**
+  - Added Azure Data Explorer disk and double encryption options for FinOps hub deployments ([#2196](https://github.com/microsoft/finops-toolkit/issues/2196)).
   - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
   - Added optional guidance to scope FinOps hub data by team with row-level security, so each team sees only its own scopes in KQL queries, dashboards, and AI agents ([#2374](https://github.com/microsoft/finops-toolkit/pull/2374)).
   - Added the [instance size flexibility](open-data.md#instance-size-flexibility) open data to the Data Explorer database. The hub initialization pipeline loads it into a new `InstanceSizeFlexibility` table, and the `InstanceSizeFlexibility()` function exposes it in the Hub database.
@@ -74,12 +89,19 @@ _Released November 2026_
     - Runs of `msexports_ExecuteETL` reported success while `CommitmentDiscountUsage` stopped updating. Exports with a `dataRowCount` of 0 are still skipped.
   - Fixed FinOps hub deployments failing when Data Factory has leftover triggers from older versions (for example, v0.7) with an invalid time zone. Deployment now only starts the triggers the hub creates ([#1995](https://github.com/microsoft/finops-toolkit/issues/1995)).
   - Fixed reservation recommendations missing `x_RecommendationDate` and `x_RecommendationDetails` after ingestion.
+  - Fixed the `monthly-cost-change-percentage` query returning `inf` when the prior month's cost was zero, which can happen when a month is fully covered by commitment discounts. The change percentage is now empty when there's no prior month or the prior month's cost was zero ([#2323](https://github.com/microsoft/finops-toolkit/issues/2323)).
 
 ### [Power BI reports](power-bi/reports.md) v16
 
+_**Breaking change**_
+
+- **Added**
+  - Added support for incremental refresh on the **Costs** table in storage reports. Power BI can now detect the **RangeStart**/**RangeEnd** filter on the `x_IncrementalRefreshDate` column. To learn more, see [Configure incremental refresh](power-bi/setup.md#configure-incremental-refresh) ([#2314](https://github.com/microsoft/finops-toolkit/issues/2314)).
+- **Changed**
+  - Changed the `x_IncrementalRefreshDate` column in storage reports from text to Date/Time. Update any custom filters, measures, or visuals that treat it as text or a number ([#2314](https://github.com/microsoft/finops-toolkit/issues/2314)).
 - **Fixed**
   - Replaced dead `aka.ms/ftk/pbi/invoicing` links in the Invoicing and chargeback report with direct Microsoft Learn links. Reports already installed (v15 and earlier) keep the dead link until the `aka.ms/ftk/pbi/invoicing` redirect is repaired ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
-  - Fixed slow KQL report visuals that use a promoted `tag_*` column. Tag keys are now matched with one regex per tag instead of normalizing every key on every row, so a visual pays only for the tags it uses. A single-tag visual uses about one-third of the previous CPU, and visuals that don't use tags are unchanged ([#2336](https://github.com/microsoft/finops-toolkit/issues/2336)).
+  - Fixed slow KQL report visuals that use a promoted `tag_*` column. Tag keys are now matched with one regex per tag instead of normalizing every key on every row, so a visual pays only for the tags it uses. A single-tag visual uses about one-third of the previous CPU, and visuals that don't use tags are unchanged. ([#2336](https://github.com/microsoft/finops-toolkit/issues/2336)).
   - Fixed the KQL reports failing to load when `Trim_spaces_from_tags` is enabled without `Handle_mixed_case_tags`, which generated a query that called `replace_string()` on an array ([#2336](https://github.com/microsoft/finops-toolkit/issues/2336)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v16

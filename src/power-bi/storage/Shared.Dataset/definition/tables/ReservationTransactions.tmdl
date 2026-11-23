@@ -156,7 +156,8 @@ table ReservationTransactions
 		annotation SummarizationSetBy = Automatic
 
 	column x_IncrementalRefreshDate
-		dataType: string
+		dataType: dateTime
+		formatString: General Date
 		lineageTag: db9b73cb-8a9d-455c-88dd-41a7fd42bb2e
 		summarizeBy: none
 		sourceColumn: x_IncrementalRefreshDate
