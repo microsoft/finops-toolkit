@@ -97,7 +97,7 @@ gh() {
     }
 
     It 'Runs cleanup only on closure, without checkout or PR code' {
-        $cleanup | Should -Match 'pull_request_target:\r?\n    types: \[closed\]'
+        $cleanup | Should -Match 'pull_request:\r?\n    types: \[closed\]'
         $cleanup | Should -Not -Match 'actions/checkout|workflow_run|download-artifact'
         ([regex]::Matches($cleanup, '(?m)^\s+uses:')).Count | Should -Be 1
         $deploy | Should -Match '(?m)^permissions: \{\}'
