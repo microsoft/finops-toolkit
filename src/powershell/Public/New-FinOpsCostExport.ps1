@@ -74,7 +74,7 @@
     Optional. Indicates that a system-assigned managed identity should be used to push data to the storage account. When set, the command also assigns the Storage Blob Data Contributor role to the identity on the storage container, which requires permission to assign roles on the storage account (for example, Owner, User Access Administrator, or Role Based Access Control Administrator). Managed identity is required for storage accounts behind a firewall and keeps scheduled runs independent of the permissions of the person who created the export. Without managed identity, every run checks the storage permissions of the person who created or last updated the export and fails with AccessToStorageAccountDenied once that access is removed or expires. When updating an export that already uses managed identity, the identity is kept even if this option isn't specified. Default = (empty).
 
     .PARAMETER Location
-    Optional. Indicates the Azure location to use for the managed identity used to push data to the storage account. Implies -SystemAssignedIdentity. Default = "global" if -SystemAssignedIdentity is set; otherwise, (empty).
+    Optional. Indicates the Azure location to use for the managed identity used to push data to the storage account. Implies -SystemAssignedIdentity. Default = the location of the existing export when updating an export that has one; otherwise, "global" if -SystemAssignedIdentity is set; otherwise, (empty).
 
     .PARAMETER Execute
     Optional. Indicates that the export should be run immediately after created.
@@ -470,6 +470,11 @@ function New-FinOpsCostExport
             Write-Verbose "Export $Name already uses a system-assigned managed identity. Keeping it."
             $properties | Add-Member -Name identity -Value @{ type = "SystemAssigned" } -MemberType NoteProperty -Force
             $properties | Add-Member -Name location -Value $(if ($export.Location) { $export.Location } else { 'global' }) -MemberType NoteProperty -Force
+        }
+        elseif ($properties.identity -and -not $Location -and $export.Location)
+        {
+            # Keep the location of the existing identity instead of defaulting to global
+            $properties | Add-Member -Name location -Value $export.Location -MemberType NoteProperty -Force
         }
 
         # Create/update export

@@ -77,10 +77,10 @@ function Grant-FinOpsCostExportStorageAccess
     $containerScope = "$storageAccountId/blobServices/default/containers/$($StorageContainer.ToLower())"
 
     # Deterministic name so re-running updates the same assignment instead of creating duplicates
-    $md5 = [System.Security.Cryptography.MD5]::Create()
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
     $seed = [System.Text.Encoding]::UTF8.GetBytes("$containerScope|$PrincipalId|$roleId".ToLower())
-    $assignmentName = [guid]::new($md5.ComputeHash($seed)).ToString()
-    $md5.Dispose()
+    $assignmentName = [guid]::new([byte[]]($sha256.ComputeHash($seed)[0..15])).ToString()
+    $sha256.Dispose()
 
     $uri = "$containerScope/providers/Microsoft.Authorization/roleAssignments/$assignmentName`?api-version=2022-04-01"
     $body = @{

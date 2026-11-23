@@ -90,6 +90,28 @@ function Enable-FinOpsCostExportIdentity
         return
     }
 
+    # Calls the export API without stopping the loop. Invoke-Rest already reports structured errors
+    # and throws when the response has no error body, so turn both into a failed response.
+    function invokeExportRest([string]$Method, $Body)
+    {
+        $prevErrorActionPreference = $ErrorActionPreference
+        $ErrorActionPreference = 'SilentlyContinue'
+        try
+        {
+            $restParams = @{ Method = $Method; Uri = $exportUri }
+            if ($Body) { $restParams.Body = $Body }
+            return Invoke-Rest @restParams @commandDetails
+        }
+        catch
+        {
+            return @{ Success = $false; Failure = $true; Content = @{ error = @{ code = 'Unknown'; message = $_.Exception.Message } } }
+        }
+        finally
+        {
+            $ErrorActionPreference = $prevErrorActionPreference
+        }
+    }
+
     foreach ($summary in $exports)
     {
         $exportUri = "$($summary.Id.Trim('/'))?api-version=$ApiVersion"
@@ -102,7 +124,7 @@ function Enable-FinOpsCostExportIdentity
         elseif ($PSCmdlet.ShouldProcess($summary.Name, 'Enable system-assigned managed identity'))
         {
             # Read the full export so the update keeps every setting, including ones this module doesn't manage
-            $getResponse = Invoke-Rest -Method GET -Uri $exportUri @commandDetails
+            $getResponse = invokeExportRest -Method GET
             if (-not $getResponse.Success)
             {
                 Write-Error ($script:LocalizedData.CostExport_Identity_UpdateFailedFormat -f $summary.Name, $getResponse.Content.error.message, $getResponse.Content.error.code)
@@ -125,7 +147,7 @@ function Enable-FinOpsCostExportIdentity
             }
 
             # Update in place. The eTag prevents overwriting a change made since the export was read.
-            $putResponse = Invoke-Rest -Method PUT -Uri $exportUri -Body $body @commandDetails
+            $putResponse = invokeExportRest -Method PUT -Body $body
             if (-not $putResponse.Success)
             {
                 Write-Error ($script:LocalizedData.CostExport_Identity_UpdateFailedFormat -f $summary.Name, $putResponse.Content.error.message, $putResponse.Content.error.code)

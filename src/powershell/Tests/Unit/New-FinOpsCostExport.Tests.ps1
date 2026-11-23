@@ -270,6 +270,34 @@ InModuleScope 'FinOpsToolkit' {
                         -and $Body.eTag -eq 'etag'
                 }
             }
+
+            It 'Should keep the identity location of an existing export with -SystemAssignedIdentity' {
+                # Arrange
+                Mock -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' { @{ name = $exportName; etag = "etag"; IdentityType = 'SystemAssigned'; Location = 'westeurope'; PrincipalId = $mockPrincipalId } }
+                Mock -ModuleName FinOpsToolkit -CommandName 'Grant-FinOpsCostExportStorageAccess' { $true }
+
+                # Act
+                New-FinOpsCostExport @newExportParams -SystemAssignedIdentity
+
+                # Assert
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.identity.type -eq 'SystemAssigned' -and $Body.location -eq 'westeurope'
+                }
+            }
+
+            It 'Should use -Location over the location of an existing export' {
+                # Arrange
+                Mock -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' { @{ name = $exportName; etag = "etag"; IdentityType = 'SystemAssigned'; Location = 'westeurope'; PrincipalId = $mockPrincipalId } }
+                Mock -ModuleName FinOpsToolkit -CommandName 'Grant-FinOpsCostExportStorageAccess' { $true }
+
+                # Act
+                New-FinOpsCostExport @newExportParams -Location 'eastus'
+
+                # Assert
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.identity.type -eq 'SystemAssigned' -and $Body.location -eq 'eastus'
+                }
+            }
         }
 
         Describe 'Format and compression' {

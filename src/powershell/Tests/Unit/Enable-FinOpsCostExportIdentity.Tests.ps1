@@ -159,5 +159,27 @@ InModuleScope 'FinOpsToolkit' {
             $errors.Count | Should -BeGreaterThan 0
             Should -Invoke -CommandName 'Grant-FinOpsCostExportStorageAccess' -Times 0
         }
+
+        It 'Should continue with the next export when a request throws' {
+            # Arrange
+            $failing = [PSCustomObject]@{
+                Name             = 'ftk-failing'
+                Id               = "$scope/providers/Microsoft.CostManagement/exports/ftk-failing"
+                StorageAccountId = $storageId
+                StorageContainer = 'msexports'
+                IdentityType     = $null
+                PrincipalId      = $null
+            }
+            Mock -CommandName 'Get-FinOpsCostExport' { @($failing, $summary) }
+            Mock -CommandName 'Invoke-Rest' -ParameterFilter { $Method -eq 'GET' -and $Uri -like '*ftk-failing*' } { throw 'Service unavailable' }
+
+            # Act
+            Enable-FinOpsCostExportIdentity -Name '*' -Scope $scope -ErrorAction SilentlyContinue -ErrorVariable errors
+
+            # Assert
+            $errors.Count | Should -BeGreaterThan 0
+            Should -Invoke -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter { $Method -eq 'PUT' -and $Uri -like "*$exportName*" }
+            Should -Invoke -CommandName 'Grant-FinOpsCostExportStorageAccess' -Times 1
+        }
     }
 }
