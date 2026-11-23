@@ -24,3 +24,24 @@ Describe 'PowerShell command docs' {
         (Get-Content (Join-Path $docsPath 'powershell-commands.md') -Raw) | Should -Match "\[$Name\]"
     }
 }
+
+Describe 'PowerShell command docs drift' {
+    It 'Should match what Build-Documentation generates' {
+        $files = Get-ChildItem -Path $docsPath -Recurse -Filter '*.md' -File
+        $before = @{}
+        foreach ($f in $files) { $before[$f.FullName] = Get-Content $f.FullName -Raw }
+        try
+        {
+            & (Join-Path $root 'src/scripts/Build-Documentation.ps1') *> $null
+            $after = Get-ChildItem -Path $docsPath -Recurse -Filter '*.md' -File
+            $changed = @($after | Where-Object { -not $before.ContainsKey($_.FullName) -or $before[$_.FullName] -ne (Get-Content $_.FullName -Raw) } | ForEach-Object Name)
+        }
+        finally
+        {
+            # Restore original content and remove any newly generated pages
+            Get-ChildItem -Path $docsPath -Recurse -Filter '*.md' -File | Where-Object { -not $before.ContainsKey($_.FullName) } | Remove-Item
+            foreach ($k in $before.Keys) { Set-Content -Path $k -Value $before[$k] -NoNewline }
+        }
+        $changed | Should -BeNullOrEmpty -Because "docs must match help comments; run ./src/scripts/Build-Documentation and commit ($($changed -join ', '))"
+    }
+}

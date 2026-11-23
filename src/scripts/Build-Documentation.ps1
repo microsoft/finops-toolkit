@@ -174,7 +174,7 @@ Get-ChildItem -Path "$srcDir/Public/$Command.ps1" | ForEach-Object {
     $synopsis = ($help.Synopsis | Out-String).Trim().TrimEnd('.')
     # Convert the synopsis's leading 3rd-person verb to imperative for the meta description,
     # e.g. "Gets a list of..." -> "Get a list of...".
-    $synopsisImperative = [regex]::Replace($synopsis, '^(\w+?)s\b', '$1')
+    $synopsisImperative = [regex]::Replace($synopsis, '^(\w+?)(?<!s)s\b', '$1')
 
     # The meta description is often a hand-curated paraphrase rather than a mechanical function of
     # the synopsis, so preserve it verbatim from the existing file. New pages get a synthesized
