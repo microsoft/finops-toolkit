@@ -31,11 +31,13 @@ Describe 'PowerShell command docs drift' {
         $files = Get-ChildItem -Path $docsPath -Recurse -Filter '*.md' -File
         $before = @{}
         foreach ($f in $files) { $before[$f.FullName] = Get-Content $f.FullName -Raw }
+        # Normalize line endings: Windows checkouts may use CRLF while the generator writes LF
+        $norm = { param($t) ($t -replace "`r`n", "`n") }
         try
         {
             & (Join-Path $root 'src/scripts/Build-Documentation.ps1') *> $null
             $after = Get-ChildItem -Path $docsPath -Recurse -Filter '*.md' -File
-            $changed = @($after | Where-Object { -not $before.ContainsKey($_.FullName) -or $before[$_.FullName] -ne (Get-Content $_.FullName -Raw) } | ForEach-Object Name)
+            $changed = @($after | Where-Object { -not $before.ContainsKey($_.FullName) -or (& $norm $before[$_.FullName]) -ne (& $norm (Get-Content $_.FullName -Raw)) } | ForEach-Object Name)
         }
         finally
         {
