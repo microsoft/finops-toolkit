@@ -119,6 +119,31 @@ Describe 'Storage incremental refresh' {
         $filter | Should -Not -Match '<=' -Because 'an inclusive upper bound would count boundary days twice'
     }
 
+    It 'Keeps every Costs row when RangeStart and RangeEnd are empty' {
+        # With empty parameters, the Costs filter must pass every row so the report matches the previous version
+        $text = Get-Content (Join-Path $tablesDir 'Costs.tmdl') -Raw
+        $null = $text -match '(?s)Output\s*=\s*Table\.SelectRows\((?<filter>(?:(?!Table\.SelectRows).)*?)\)\s*in\s+Output\s*\r?\n\s*```'
+        $Matches['filter'] | Should -Match '\(\s*RangeStart\s*=\s*null\s+or\b' -Because 'an empty RangeStart must short-circuit the lower bound'
+        $Matches['filter'] | Should -Match '\(\s*RangeEnd\s*=\s*null\s+or\b' -Because 'an empty RangeEnd must short-circuit the upper bound'
+    }
+
+    It 'Uses the same date bounds in Costs and ftk_Storage' {
+        # The Costs filter must not drop rows that ftk_Storage keeps, or totals change when a range is set
+        $costs = Get-Content (Join-Path $tablesDir 'Costs.tmdl') -Raw
+        $storage = Get-Content (Join-Path $tablesDir '../expressions.tmdl') -Raw
+        $costs | Should -Match ([regex]::Escape('[x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] >= Date.StartOfDay(DateTime.From(RangeStart))'))
+        $costs | Should -Match ([regex]::Escape('[x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] < Date.StartOfDay(DateTime.From(RangeEnd))'))
+        $storage | Should -Match ([regex]::Escape('[x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] >= Date.StartOfDay(DateTime.From(start))'))
+        $storage | Should -Match ([regex]::Escape('[x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] < Date.StartOfDay(DateTime.From(end))'))
+    }
+
+    It 'Types the ftk_Storage x_IncrementalRefreshDate column as datetime' {
+        # The Power Query column type must match the TMDL dataType, or refresh fails with a type mismatch
+        $storage = Get-Content (Join-Path $tablesDir '../expressions.tmdl') -Raw
+        $storage | Should -Match '(?s)"x_IncrementalRefreshDate",\s*each _parseCostManagementDate\(.*?\),\s*type datetime\s*\)' -Because 'Table.AddColumn must declare type datetime'
+        $storage | Should -Match 'try DateTime\.From\(Date\.From\(' -Because 'the parsed value must be a datetime at midnight'
+    }
+
     It 'Types x_IncrementalRefreshDate as dateTime in <_>' -ForEach @('Costs', 'Prices', 'ReservationDetails', 'ReservationRecommendations', 'ReservationTransactions') {
         $text = Get-Content (Join-Path $tablesDir "$_.tmdl") -Raw
         $isDateTime = $text -match '(?m)^\tcolumn x_IncrementalRefreshDate\r?\n\t\tdataType: dateTime\b'
