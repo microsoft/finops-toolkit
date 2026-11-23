@@ -71,10 +71,10 @@
     Optional. Indicates whether to overwrite previously exported data for the current month. Overwriting is recommended to keep storage size and costs down so this option is to disable overwriting. If creating an export for FinOps hubs, we recommend you specify the -DoNotOverwrite option to improve troubleshooting. Default = false.
 
     .PARAMETER SystemAssignedIdentity
-    Optional. Indicates that managed identity should be used to push data to the storage account. Managed identity is required in order to work with storage accounts behind a firewall but require access to grant permissions (for example, Owner). If specified, managed identity will be used; otherwise, managed identity will not be used and your export will not be able to push data to a storage account behind a firewall. Default = (empty).
+    Optional. Indicates that a system-assigned managed identity should be used to push data to the storage account. When set, the command also assigns the Storage Blob Data Contributor role to the identity on the storage container, which requires permission to assign roles on the storage account (for example, Owner, User Access Administrator, or Role Based Access Control Administrator). Managed identity is required for storage accounts behind a firewall and keeps scheduled runs independent of the permissions of the person who created the export. Without managed identity, every run checks the storage permissions of the person who created or last updated the export and fails with AccessToStorageAccountDenied once that access is removed or expires. When updating an export that already uses managed identity, the identity is kept even if this option isn't specified. Default = (empty).
 
     .PARAMETER Location
-    Optional. Indicates the Azure location to use for the managed identity used to push data to the storage account. Managed identity is required in order to work with storage accounts behind a firewall but require access to grant permissions (for example, Owner). If specified, managed identity will be used; otherwise, managed identity will not be used and your export will not be able to push data to a storage account behind a firewall. Default = (empty).
+    Optional. Indicates the Azure location to use for the managed identity used to push data to the storage account. Implies -SystemAssignedIdentity. Default = "global" if -SystemAssignedIdentity is set; otherwise, (empty).
 
     .PARAMETER Execute
     Optional. Indicates that the export should be run immediately after created.
@@ -132,6 +132,15 @@
 
     ### Create daily export and backfill four months
     Creates a new daily export called **Daily-MTD** with StartDate = DateTime.Now and EndDate 5 years from StartDate. Additionally, export cost data for the previous four months and save all results in `costreports` container of the specified storage account.
+
+    .EXAMPLE
+    New-FinopsCostExport -Name 'DailyMTD' `
+        -Scope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
+        -StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
+        -SystemAssignedIdentity `
+        -Location "westeurope"
+
+    Creates a new daily export called DailyMTD with a system-assigned managed identity and assigns the Storage Blob Data Contributor role to the identity on the cost-management container.
 
     .LINK
     https://aka.ms/ftk/New-FinOpsCostExport
@@ -454,6 +463,15 @@ function New-FinOpsCostExport
             Write-Verbose "Creating a new export from $startdateString to $enddateString : $uri"
         }
 
+        # Keep the managed identity of an existing export, so updating the export doesn't
+        # silently move storage access back to the permissions of the person running this command
+        if ($export.IdentityType -like '*SystemAssigned*' -and -not $properties.identity)
+        {
+            Write-Verbose "Export $Name already uses a system-assigned managed identity. Keeping it."
+            $properties | Add-Member -Name identity -Value @{ type = "SystemAssigned" } -MemberType NoteProperty -Force
+            $properties | Add-Member -Name location -Value $(if ($export.Location) { $export.Location } else { 'global' }) -MemberType NoteProperty -Force
+        }
+
         # Create/update export
         if ($PSCmdlet.ShouldProcess($Name, 'Create cost export'))
         {
@@ -462,6 +480,24 @@ function New-FinOpsCostExport
             {
                 Write-Error "Unable to create export $Name in scope $Scope. Error: $($createResponse.Content.error.message) ($($createResponse.Content.error.code))" -ErrorAction Stop
                 return
+            }
+
+            # Grant the managed identity access to the destination container
+            if ($properties.identity)
+            {
+                $principalId = $createResponse.Content.identity.principalId
+                if ($principalId)
+                {
+                    $null = Grant-FinOpsCostExportStorageAccess `
+                        -PrincipalId $principalId `
+                        -StorageAccountId $StorageAccountId `
+                        -StorageContainer $StorageContainer `
+                        -CommandName 'New-FinOpsCostExport'
+                }
+                else
+                {
+                    Write-Warning ($script:LocalizedData.CostExport_Identity_NoPrincipalFormat -f $Name)
+                }
             }
 
             # Run now if requested

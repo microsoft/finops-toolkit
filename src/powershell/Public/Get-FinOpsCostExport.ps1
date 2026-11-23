@@ -337,6 +337,9 @@ function Get-FinOpsCostExport
                 OverwriteData       = $export.properties.dataOverwriteBehavior -eq "OverwritePreviousReport"
                 PartitionData       = $export.properties.partitionData
                 CompressionMode     = $export.properties.compressionMode
+                Location            = $export.location
+                IdentityType        = $export.identity.type
+                PrincipalId         = $export.identity.principalId
                 RunHistory          = $runs
             }
             $exportdetails += $item

@@ -242,6 +242,8 @@
               href: toolkit/powershell/cost/cost-management-commands.md
             - name: Add-FinOpsServicePrincipal
               href: toolkit/powershell/cost/add-finopsserviceprincipal.md
+            - name: Enable-FinOpsCostExportIdentity
+              href: toolkit/powershell/cost/enable-finopscostexportidentity.md
             - name: Get-FinOpsCostExport
               href: toolkit/powershell/cost/get-finopscostexport.md
             - name: New-FinOpsCostExport

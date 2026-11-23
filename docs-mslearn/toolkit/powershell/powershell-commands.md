@@ -55,6 +55,7 @@ The FinOps toolkit PowerShell module includes commands to manage FinOps solution
 ### Cost Management commands
 
 - [Add-FinOpsServicePrincipal](cost/add-finopsserviceprincipal.md) – Grants a service principal or managed identity access to an Enterprise Agreement billing account or department.
+- [Enable-FinOpsCostExportIdentity](cost/enable-finopscostexportidentity.md) – Switch existing Cost Management exports to a system-assigned managed identity.
 - [Get-FinOpsCostExport](cost/Get-FinOpsCostExport.md) – Get details about Cost Management exports.
 - [New-FinOpsCostExport](cost/New-FinOpsCostExport.md) – Create a new Cost Management export.
 - [Remove-FinOpsCostExport](cost/Remove-FinOpsCostExport.md) – Delete a Cost Management export and optionally data associated with the export.

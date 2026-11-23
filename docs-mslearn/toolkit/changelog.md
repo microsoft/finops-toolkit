@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/24/2026
+ms.date: 11/25/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -120,9 +120,12 @@ _**Breaking change**_
   - Added a `-MeterCategory` parameter to [Get-FinOpsService](powershell/data/get-finopsservice.md) to split resource types shared by multiple services, like Azure Backup and Azure Site Recovery ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
   - Added a `-EnableKeyVaultRbacAuthorization` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that moves the hub Key Vault from access policies to Azure RBAC. Requires hub template version 16.0 or later ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
   - Added a `-DisableStorageSharedKeyAccess` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that disables Shared Key authentication on hub storage accounts. Power BI storage reports must then sign in with Microsoft Entra ID; SAS tokens and account keys stop working. Requires hub template version 16.0 or later ([#2312](https://github.com/microsoft/finops-toolkit/issues/2312)).
+  - Added the [Enable-FinOpsCostExportIdentity](powershell/cost/enable-finopscostexportidentity.md) command to switch existing Cost Management exports to a system-assigned managed identity in place and assign the Storage Blob Data Contributor role on the destination container.
+  - Added `Location`, `IdentityType`, and `PrincipalId` properties to [Get-FinOpsCostExport](powershell/cost/get-finopscostexport.md) to show which exports use a managed identity.
 - **Changed**
   - Changed the `-HubName` and `-Scope` parameters of [Add-FinOpsHubScope](powershell/hubs/add-finopshubscope.md) to required. Scripts that omit them now prompt or fail.
   - Generated the PowerShell command reference pages from command help with `Build-Documentation`.
+  - Updated [New-FinOpsCostExport](powershell/cost/new-finopscostexport.md) to assign the Storage Blob Data Contributor role to the export's managed identity when `-SystemAssignedIdentity` or `-Location` is set, and to keep the managed identity of an existing export when it's updated.
 
 ### [Open data](open-data.md) v16
 

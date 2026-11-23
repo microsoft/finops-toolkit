@@ -307,6 +307,7 @@ Official Microsoft documentation for FinOps and the FinOps toolkit. Source: [lea
 | File | Description |
 |------|-------------|
 | [cost-management-commands.md](references/docs-mslearn/toolkit/powershell/cost/cost-management-commands.md) | Cost Management commands overview |
+| [enable-finopscostexportidentity.md](references/docs-mslearn/toolkit/powershell/cost/enable-finopscostexportidentity.md) | Enable-FinOpsCostExportIdentity |
 | [get-finopscostexport.md](references/docs-mslearn/toolkit/powershell/cost/get-finopscostexport.md) | Get-FinOpsCostExport |
 | [new-finopscostexport.md](references/docs-mslearn/toolkit/powershell/cost/new-finopscostexport.md) | New-FinOpsCostExport |
 | [start-finopscostexport.md](references/docs-mslearn/toolkit/powershell/cost/start-finopscostexport.md) | Start-FinOpsCostExport |
