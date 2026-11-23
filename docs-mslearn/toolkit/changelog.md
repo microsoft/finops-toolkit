@@ -89,6 +89,7 @@ _Released November 2026_
     - Runs of `msexports_ExecuteETL` reported success while `CommitmentDiscountUsage` stopped updating. Exports with a `dataRowCount` of 0 are still skipped.
   - Fixed FinOps hub deployments failing when Data Factory has leftover triggers from older versions (for example, v0.7) with an invalid time zone. Deployment now only starts the triggers the hub creates ([#1995](https://github.com/microsoft/finops-toolkit/issues/1995)).
   - Fixed reservation recommendations missing `x_RecommendationDate` and `x_RecommendationDetails` after ingestion.
+  - Fixed the `monthly-cost-change-percentage` query returning `inf` when the prior month's cost was zero, which can happen when a month is fully covered by commitment discounts. The change percentage is now empty when there's no prior month or the prior month's cost was zero ([#2323](https://github.com/microsoft/finops-toolkit/issues/2323)).
 
 ### [Power BI reports](power-bi/reports.md) v16
 
