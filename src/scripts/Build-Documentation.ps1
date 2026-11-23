@@ -129,7 +129,8 @@ function Get-FriendlyTypeName([string] $TypeName)
 
 Write-Host 'Generating PowerShell command documentation...'
 
-Get-ChildItem -Path "$srcDir/Public/$Command.ps1" | ForEach-Object {
+# Start-FinOpsMultitool's page is hand-written (richer than its help comment), so it is not generated.
+Get-ChildItem -Path "$srcDir/Public/$Command.ps1" | Where-Object { $_.BaseName -ne 'Start-FinOpsMultitool' } | ForEach-Object {
     $file = $_
     $commandName = $file.BaseName
 

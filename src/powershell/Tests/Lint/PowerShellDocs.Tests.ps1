@@ -4,6 +4,7 @@
 BeforeDiscovery {
     $root = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
     $commands = Get-ChildItem -Path (Join-Path $root 'src/powershell/Public') -Filter '*-FinOps*.ps1' -File |
+        Where-Object { $_.BaseName -ne 'Start-FinOpsMultitool' } |
         ForEach-Object { @{ Name = $_.BaseName } }
 }
 
