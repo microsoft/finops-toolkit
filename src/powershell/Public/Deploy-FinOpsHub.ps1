@@ -71,7 +71,7 @@
     Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.
 
     .PARAMETER ScopesToMonitor
-    Optional. Array of scope IDs to monitor and ingest cost for. Used with managed exports to automatically create Cost Management exports. Scope ID formats:
+    Optional. Array of scope ID strings to monitor and ingest cost for. Used with managed exports to automatically create Cost Management exports. Scope ID formats:
     - EA billing account: /providers/Microsoft.Billing/billingAccounts/{enrollment-number}
     - MCA billing profile: /providers/Microsoft.Billing/billingAccounts/{billing-account-id}/billingProfiles/{billing-profile-id}
     - Subscription: /subscriptions/{subscription-id}
