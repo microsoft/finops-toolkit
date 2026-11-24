@@ -14,7 +14,7 @@
 //   old: tmp_MissingPrices gates BOTH the price-sheet join AND the cost-repair fallback
 //        (isempty(ListUnitPrice) or isempty(ContractedUnitPrice) or ListUnitPrice == 0 or ContractedUnitPrice == 0)
 //            and x_EffectiveUnitPrice != 0 and not(unused spend commitment)
-//            and isnotempty(x_SkuMeterId) and isnotempty(x_SkuOfferId)
+//            and isnotempty(x_SkuMeterId) and (isnotempty(x_SkuOfferId) or CommitmentDiscountCategory == 'Usage')
 //
 //   new: tmp_MissingCost (no meter/offer ID requirement) gates the cost-repair fallback;
 //        tmp_MissingPrices narrows that further to rows the price-sheet join can resolve
@@ -23,8 +23,8 @@
 //        tmp_MissingPrices = tmp_MissingCost and isnotempty(x_SkuMeterId)
 //            and (isnotempty(x_SkuOfferId) or CommitmentDiscountCategory == 'Usage')
 //
-// A row that is tmp_MissingCost but NOT tmp_MissingPrices now enters the repair block (skips the join, all joined
-// columns come back null) and falls through the existing case() branches' null-safe fallback to EffectiveCost-based
+// A row that is tmp_MissingCost but NOT tmp_MissingPrices now enters the repair block (gets an empty lookup key, so all
+// joined columns come back null) and falls through the existing case() branches' null-safe fallback to EffectiveCost-based
 // values -- the same outcome #2214 asked for, reusing logic that already exists for the join's no-match case.
 //
 // How to run: paste into any Kusto database (ADX or Fabric eventhouse; no table access required).
@@ -53,9 +53,9 @@ datatable(
         'Microsoft', real(0),    real(0),    real(1.5), '',      '',       '',       '',       true,  true,
     'Microsoft usage, has meter/offer ID -- price-sheet lookup applies as before',
         'Microsoft', real(0),    real(0),    real(1.5), '',      '',       'meter1', 'offer1', true,  false,
-    'Microsoft usage, only meter ID set (no offer ID) -- still enters repair, still skips the join',
+    'Microsoft usage, only meter ID set (no offer ID) -- still enters repair, gets an empty lookup key',
         'Microsoft', real(0),    real(0),    real(1.5), '',      '',       'meter1', '',       true,  true,
-    'Microsoft usage, only offer ID set (no meter ID) -- still enters repair, still skips the join',
+    'Microsoft usage, only offer ID set (no meter ID) -- still enters repair, gets an empty lookup key',
         'Microsoft', real(0),    real(0),    real(1.5), '',      '',       '',       'offer1', true,  true,
     'prices already populated -- gate should not fire either way',
         'Microsoft', real(1.5),  real(1.5),  real(1.5), '',      '',       '',       '',       false, false,
@@ -67,12 +67,14 @@ datatable(
         'AWS',       real(0),    real(0),    real(1.5), '',      '',       '',       '',       false, false,
     'only contracted price missing, meter/offer ID absent -- still enters repair under the new gate',
         'Microsoft', real(1.5),  real(0),    real(1.5), '',      '',       '',       '',       true,  true,
+    'reservation usage, only meter ID -- entered repair before, unchanged',
+        'Microsoft', real(0),    real(0),    real(1.5), 'Usage', '',       'meter1', '',       true,  false,
 ]
 | extend old_entersRepair = coalesce(provider == 'Microsoft'
     and (listPrice == 0 or contractedPrice == 0)
     and effectivePrice != 0
     and not(commitmentCategory == 'Spend' and commitmentStatus == 'Unused')
-    and isnotempty(meterId) and isnotempty(offerId), false)
+    and isnotempty(meterId) and (isnotempty(offerId) or commitmentCategory == 'Usage'), false)
 | extend new_entersRepair = coalesce(provider == 'Microsoft'
     and (listPrice == 0 or contractedPrice == 0)
     and effectivePrice != 0
