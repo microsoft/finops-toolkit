@@ -28,6 +28,7 @@ param timezoneobject object = {
   koreasouth: 'Korea Standard Time'
   northcentralus: 'Central Standard Time'
   northeurope: 'GMT Standard Time'
+  newzealandnorth: 'New Zealand Standard Time'
   norwayeast: 'W. Europe Standard Time'
   norwaywest: 'W. Europe Standard Time'
   southcentralus: 'Central Standard Time'
