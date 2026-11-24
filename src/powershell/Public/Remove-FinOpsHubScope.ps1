@@ -76,8 +76,17 @@ function Remove-FinOpsHubScope
             {
                 $exportStorageName = $export.StorageAccountId.Split("/")[-1]
                 $resourceGroup = (Get-AzResource -ResourceType "Microsoft.Storage/storageAccounts" -Name $exportStorageName).ResourceGroupName
-                $exportStorageKey = (Get-AzStorageAccountKey -ResourceGroupName $resourceGroup -Name $exportStorageName).Value[0]
-                $context = New-AzStorageContext -StorageAccountName $exportStorageName -StorageAccountKey $exportStorageKey
+                $exportStorage = Get-AzStorageAccount -ResourceGroupName $resourceGroup -Name $exportStorageName
+                if ($exportStorage.AllowSharedKeyAccess -eq $false)
+                {
+                    # Shared Key access is disabled; use Microsoft Entra auth (requires a Storage Blob Data role)
+                    $context = New-AzStorageContext -StorageAccountName $exportStorageName -UseConnectedAccount
+                }
+                else
+                {
+                    $exportStorageKey = (Get-AzStorageAccountKey -ResourceGroupName $resourceGroup -Name $exportStorageName).Value[0]
+                    $context = New-AzStorageContext -StorageAccountName $exportStorageName -StorageAccountKey $exportStorageKey
+                }
                 Write-Verbose -Message "Deleting data for Cost Management export $($export.Name) in storage account $($exportStorageName) at path $($export.StoragePath)."
                 Remove-AzDataLakeGen2Item -FileSystem "ingestion" -Path $export.Id.ToLower().Split("/provider/microsoft.costmanagement/exports/")[0] -Context $context -Force
                 Write-Verbose -Message "Complete: Deleted data for Cost Management export $($export.Name) in storage account $($exportStorageName) at path $($export.StoragePath)."

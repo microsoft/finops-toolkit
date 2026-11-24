@@ -114,7 +114,7 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
 
    - **Azure Data Explorer (Kusto)** &ndash; Use an account that has at least viewer access to the Hub database.
    - **Azure Resource Graph** &ndash; Use an account that has direct access to any subscriptions you would like to report on.
-   - **(your storage account)** &ndash; Use a SAS token or an account that has Storage Blob Data Reader or greater access.
+   - **(your storage account)** &ndash; Use a SAS token or an account that has Storage Blob Data Reader or greater access. If Shared Key access is disabled on the storage account, use Microsoft Entra ID; SAS tokens and account keys stop working.
    - **<https://github.com/>...** &ndash; Anonymous access. This URL is used for FinOps toolkit open data files.
 
 If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../help/troubleshooting.md).
@@ -144,6 +144,9 @@ If you leave **RangeStart** and **RangeEnd** empty, the **Costs** query doesn't 
 <br>
 
 ## Use a SAS token to connect data to a report
+
+> [!NOTE]
+> Account and service SAS tokens are signed with the storage account key, so they stop working if Shared Key access is disabled on the storage account (`disableStorageSharedKeyAccess`). Use Microsoft Entra ID with Storage Blob Data Reader instead.
 
 Shared Access Signature (SAS) tokens allow you to connect to a storage account without end user credentials or setting up a service principal. To connect Power BI reports to your data via SAS tokens:
 
