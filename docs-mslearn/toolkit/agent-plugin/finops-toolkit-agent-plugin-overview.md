@@ -3,7 +3,7 @@ title: FinOps toolkit agent plugin overview
 description: The FinOps toolkit agent plugin brings AI-powered cloud financial management to Claude Code and GitHub Copilot CLI.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/06/2026
+ms.date: 11/23/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -13,7 +13,7 @@ ms.reviewer: msbrett
 
 # FinOps toolkit agent plugin
 
-The FinOps toolkit agent plugin brings AI-powered cloud financial management to your coding agent. It works with both [Claude Code](https://claude.com/claude-code) and [GitHub Copilot CLI](https://docs.github.com/copilot/how-tos/set-up/install-copilot-cli), pairing role-specific agents, ready-to-run commands, and a FinOps hubs query skill with a read-only [Azure MCP server](https://github.com/Azure/azure-mcp) so you can analyze cost data, review recommendations, and manage FinOps hubs without leaving your terminal.
+The FinOps toolkit agent plugin brings AI-powered cloud financial management to your coding agent. It works with both [Claude Code](https://claude.com/claude-code) and [GitHub Copilot CLI](https://docs.github.com/copilot/how-tos/set-up/install-copilot-cli), pairing role-specific agents, ready-to-run commands, and a FinOps hubs query skill with a read-only [Azure MCP server](https://github.com/Azure/azure-mcp) so you can analyze cost data, review recommendations, and manage FinOps hubs without leaving your terminal. For Microsoft 365 Copilot, see [Use FinOps Guidance in Microsoft 365 Copilot](#use-finops-guidance-in-microsoft-365-copilot).
 
 ## Installation
 
@@ -60,6 +60,29 @@ The **finops-toolkit** skill triggers on FinOps hubs, KQL, and Azure Data Explor
 - [Azure CLI](/cli/azure/install-azure-cli) authenticated (`az login`).
 - Azure RBAC permissions for the Cost Management APIs you want to query or manage.
 - For FinOps hubs queries: Database Viewer access to the hub's Azure Data Explorer cluster.
+
+## Use FinOps Guidance in Microsoft 365 Copilot
+
+FinOps Guidance is a plugin for Copilot Cowork in Microsoft 365 Copilot. Ask about Azure and AI costs, savings, billing terms, and FinOps practices. It's designed to check product facts against current Microsoft Learn documentation and to say what it couldn't verify. It gives guidance only. It doesn't query your cost data, and the agents, commands, and hub queries in the terminal plugin don't carry over.
+
+[Download FinOps Guidance for Microsoft 365](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-guidance-m365.zip)
+
+To add it for yourself:
+
+1. In Cowork, select **+** > **Customize**, and then select the **Plugins** tab.
+2. Select **Upload plugin**, and then choose the downloaded .zip file.
+3. Select **Only you** or **Specific users in your organization**, and then select **Apply**.
+4. Ask a FinOps question. Cowork uses the skill automatically when your question matches it.
+
+To add it for your organization:
+
+1. In the [Microsoft 365 admin center](https://admin.microsoft.com), select **Agents** > **Tools** > **Registry**, and then select **Upload**.
+2. Upload the .zip file, review the skill and the Microsoft Learn connection, and then select **Next**.
+3. Select **All users** or **Specific users or groups**, and then select **Install**.
+
+If users see "This plugin is blocked by your organization's policy," check which publisher categories are allowed in the Microsoft 365 admin center under **Agents** > **Settings** > **Agent and plugin access**.
+
+Each user needs a Microsoft 365 Copilot license, and Cowork and usage-based billing must be turned on. The plugin's only connection is the [Microsoft Learn MCP Server](/training/support/mcp), which is public and doesn't require sign-in. For details, see [Get started with Copilot Cowork](/copilot/cowork/get-started), [Use plugins with Copilot Cowork](/copilot/cowork/cowork-plugins), and [Manage plugins, skills, and MCP servers](/microsoft-agent-365/admin/manage-plugins-skills-mcp-servers).
 
 ## Give feedback
 

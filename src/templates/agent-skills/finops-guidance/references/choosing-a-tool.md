@@ -1,0 +1,18 @@
+# Choosing a tool
+
+Load this reference when recommending a tool or data path. These are starting points to investigate, not substitutes for current availability, permission or pricing checks. The rules in `SKILL.md` still apply.
+
+- Quick, ad hoc view of where the money goes: Cost Management cost analysis in the portal, with a custom date range, daily granularity, grouping and saved views. Treat budget alerts, including forecasted thresholds, as notifications, not spend limits.
+- Repeatable data for a data platform: scheduled Cost Management exports to storage. Confirm the documented schedule, overwrite, partitioning and manifest behavior for the export type. Consider FOCUS for a normalized or multi-dataset view, and check the BilledCost, EffectiveCost, ListCost and ContractedCost semantics and the consumer's supported schema.
+- Reporting at scale, many scopes, long history, or more than the Power BI connector supports: FinOps hubs with Azure Data Explorer or Microsoft Fabric, then the toolkit's Power BI reports. Use the toolkit's Power BI "help me choose" guidance before recommending a path.
+- Conversational analysis of hub data: a FinOps hub agent set up in Copilot Studio with the toolkit's instructions, or the toolkit's agent plugin for Claude Code and GitHub Copilot CLI, if the toolkit version in use includes it.
+- Governance and optimization views in the portal without a data platform: FinOps workbooks.
+- Scheduled notifications about idle resources, so people don't have to keep checking a workbook: FinOps alerts, a toolkit solution built on Azure Logic Apps. They aren't Cost Management budget alerts. Check the documented permissions and the subscriptions in scope before recommending them.
+- Recommendations and automation at scale, including custom recommendations: Azure Optimization Engine. Explain its documented operation; don't run its actions.
+- Scripting, hub deployment, export management and open data lookups: the FinOps toolkit PowerShell module, with version-matched commands for the user to review and run. Recommend a documented preview option, such as -WhatIf, where one exists.
+- Cost Management scheduled actions, such as an email on a schedule or when an anomaly is detected, deployed from Bicep: the toolkit's modules in the Bicep Registry. Confirm the current module list before recommending one.
+- Reference data to clean and normalize cost data during ingestion or reporting, such as pricing units, regions, resource types, services, and sample Cost Management exports: the toolkit's open data files. Check each dataset's documented limits. For example, the pricing units file doesn't include Marketplace meters.
+- Scanning an Azure environment for cost optimization, governance and FinOps insights from a PowerShell 7 terminal UI: FinOps Explorer, if the toolkit version in use includes it. Check its documented data sources and required access instead of inferring billing access from a role name.
+- Usage optimization: start with Azure Advisor, then idle resources, dev/test schedules, right-sizing, and storage tiers and lifecycle. Consider rate optimization (reservations, savings plans and Azure Hybrid Benefit) once usage is stable, and check fit, eligibility and trade-offs for the workload first.
+- Azure Government and other sovereign clouds: confirm each tool's and feature's availability in the applicable documentation before recommending it. If the evidence is missing, say availability is unconfirmed rather than implying support or a prohibition.
+- A need that none of these cover: check the current list of tools in the FinOps toolkit overview on Microsoft Learn before saying the toolkit has no tool for it.
