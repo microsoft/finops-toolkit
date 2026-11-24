@@ -196,6 +196,8 @@ See [Review output from Copilot](https://docs.github.com/en/copilot/how-tos/copi
 
 Resource groups from earlier fork deployments are not cleaned up automatically. Delete any leftover `pr-<number>-*` groups manually.
 
+GitHub doesn't run `pull_request` workflows, including the `closed` event, while a PR has a merge conflict. If you close a same-repository PR that deployed test environments while it conflicts with `dev`, cleanup doesn't run and no issue is created. Resolve the conflict before you close the PR, or delete the `pr-<number>-*` groups manually.
+
 Run the local workflow tests from the repository root:
 
 ```powershell
