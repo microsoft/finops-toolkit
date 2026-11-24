@@ -3,7 +3,7 @@ title: Add-FinOpsServicePrincipal command
 description: Grants the specified service principal or managed identity access to an Enterprise Agreement billing account or department.
 author: flanakin
 ms.author: micflan
-ms.date: 11/23/2026
+ms.date: 11/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
