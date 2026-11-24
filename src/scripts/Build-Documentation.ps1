@@ -129,8 +129,9 @@ function Get-FriendlyTypeName([string] $TypeName)
 
 Write-Host 'Generating PowerShell command documentation...'
 
-# Start-FinOpsMultitool's page is hand-written (richer than its help comment), so it is not generated.
-Get-ChildItem -Path "$srcDir/Public/$Command.ps1" | Where-Object { $_.BaseName -ne 'Start-FinOpsMultitool' } | ForEach-Object {
+# Commands with hand-written pages (richer than their help comments) are listed in hand-written-docs.txt and not generated.
+$handWritten = @(Get-Content "$PSScriptRoot/hand-written-docs.txt" | Where-Object { $_ -and $_ -notmatch '^\s*#' } | ForEach-Object { $_.Trim() })
+Get-ChildItem -Path "$srcDir/Public/$Command.ps1" | Where-Object { $handWritten -notcontains $_.BaseName } | ForEach-Object {
     $file = $_
     $commandName = $file.BaseName
 

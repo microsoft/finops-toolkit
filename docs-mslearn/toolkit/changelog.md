@@ -120,6 +120,9 @@ _**Breaking change**_
   - Added a `-MeterCategory` parameter to [Get-FinOpsService](powershell/data/get-finopsservice.md) to split resource types shared by multiple services, like Azure Backup and Azure Site Recovery ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
   - Added a `-EnableKeyVaultRbacAuthorization` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that moves the hub Key Vault from access policies to Azure RBAC. Requires hub template version 16.0 or later ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
   - Added a `-DisableStorageSharedKeyAccess` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that disables Shared Key authentication on hub storage accounts. Power BI storage reports must then sign in with Microsoft Entra ID; SAS tokens and account keys stop working. Requires hub template version 16.0 or later ([#2312](https://github.com/microsoft/finops-toolkit/issues/2312)).
+- **Changed**
+  - Changed the `-HubName` and `-Scope` parameters of [Add-FinOpsHubScope](powershell/hubs/add-finopshubscope.md) to required. Scripts that omit them now prompt or fail.
+  - Generated the PowerShell command reference pages from command help with `Build-Documentation`.
 
 ### [Open data](open-data.md) v16
 

@@ -3,8 +3,9 @@
 
 BeforeDiscovery {
     $root = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
+    $handWritten = @(Get-Content (Join-Path $root 'src/scripts/hand-written-docs.txt') | Where-Object { $_ -and $_ -notmatch '^\s*#' } | ForEach-Object { $_.Trim() })
     $commands = Get-ChildItem -Path (Join-Path $root 'src/powershell/Public') -Filter '*-FinOps*.ps1' -File |
-        Where-Object { $_.BaseName -ne 'Start-FinOpsMultitool' } |
+        Where-Object { $handWritten -notcontains $_.BaseName } |
         ForEach-Object { @{ Name = $_.BaseName } }
 }
 
