@@ -19,8 +19,8 @@ metadata hubApp = {
 @description('Required. FinOps hub app getting deployed.')
 param app HubAppProperties
 
-@description('Optional. List of scope IDs to monitor and ingest cost for.')
-param scopesToMonitor array
+@description('Optional. List of scope ID strings to monitor and ingest cost for. Each item must be a string, for example "/providers/Microsoft.Billing/billingAccounts/<billingAccountId>". Do not pass { "scope": "..." } objects; those belong in settings.json.')
+param scopesToMonitor string[]
 
 // TODO: Move export retention to the CM Exports app?
 // cSpell:ignore msexport
