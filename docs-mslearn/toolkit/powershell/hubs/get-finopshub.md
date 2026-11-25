@@ -3,17 +3,17 @@ title: Get-FinOpsHub command
 description: Get details about a FinOps hub instance using the Get-FinOpsHub command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 11/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand how to use the what Get-FinOpsHub command in the FinOpsToolkit module.
+#customer intent: As a FinOps user, I want to understand how to use the Get-FinOpsHub command in the FinOpsToolkit module.
 ---
 
 # Get-FinOpsHub command
 
-The Get-FinOpsHubs command calls GitHub to retrieve all toolkit releases, then filters the list based on the specified options.
+The **Get-FinOpsHub** command gets details about a FinOps hub instance using the cm-resource-parent tag to identify hub resources.
 
 <br>
 
@@ -32,8 +32,8 @@ Get-FinOpsHub `
 
 | Name                 | Description                                                                              |
 | -------------------- | ---------------------------------------------------------------------------------------- |
-| '‑Name'              | Optional. Name of the FinOps hub instance. Supports wildcards.                           |
-| '‑ResourceGroupName' | Optional. Name of the resource group the FinOps hub was deployed to. Supports wildcards. |
+| `‑Name`              | Optional. Name of the FinOps hub instance. Supports wildcards.                           |
+| `‑ResourceGroupName` | Optional. Name of the resource group the FinOps hub was deployed to. Supports wildcards. |
 
 <br>
 
@@ -68,7 +68,9 @@ Returns all hubs in the `foo` resource group.
 ### Get named hubs in a resource group
 
 ```powershell
-Get-FinOpsHub -Name foo -ResourceGroupName bar
+Get-FinOpsHub `
+    -Name foo `
+    -ResourceGroupName bar
 ```
 
 Returns all FinOps hubs named `foo` in the `bar` resource group.

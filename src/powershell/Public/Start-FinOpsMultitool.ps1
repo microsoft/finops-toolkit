@@ -88,7 +88,9 @@
     Launches the TUI scoped to a single subscription.
 
     .EXAMPLE
-    Start-FinOpsMultitool -NonInteractive -Scans Get-OrphanedResources, Get-IdleVMs
+    Start-FinOpsMultitool `
+        -NonInteractive `
+        -Scans Get-OrphanedResources, Get-IdleVMs
 
     Requires an existing authenticated Azure context. Runs two scans without prompting and saves CSV, HTML, and text reports in a new
     private run folder under the current user's local application data.

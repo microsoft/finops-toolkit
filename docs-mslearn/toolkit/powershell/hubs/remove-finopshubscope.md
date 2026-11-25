@@ -3,17 +3,17 @@ title: Remove-FinOpsHubScope command
 description: Stops monitoring a scope within a FinOps hub instance and optionally remove the data using the Remove-FinOpsHubScope command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 11/23/2026
+ms.date: 11/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand how to use the Remove-FinOpsHubScope PowerShell command.
+#customer intent: As a FinOps user, I want to understand how to use the Remove-FinOpsHubScope command in the FinOpsToolkit module.
 ---
 
 # Remove-FinOpsHubScope command
 
-The **Remove-FinOpsHubScope** command removes a scope from being monitored by a FinOps hub instance. Data related to that scope is kept by default. To remove the data, use the `-RemoveData` option. If the storage account has Shared Key access disabled, the command uses your Microsoft Entra credentials, which requires the **Storage Blob Data Contributor** role (or equivalent) on the storage account.
+The **Remove-FinOpsHubScope** command removes a scope from being monitored by a FinOps hub instance. Data related to that scope is kept by default. To remove the data, use the `-RemoveData` option.
 
 <br>
 
@@ -22,9 +22,11 @@ The **Remove-FinOpsHubScope** command removes a scope from being monitored by a 
 ```powershell
 Remove-FinOpsHubScope `
     [-Id] <string> `
-    -HubName <string>
-    [-HubResourceGroupName <string>]
-    [-RemoveData]
+    [-HubName] <string> `
+    [[-HubResourceGroupName] <string>] `
+    [-RemoveData] `
+    [-WhatIf] `
+    [<CommonParameters>]
 ```
 
 <br>
@@ -37,6 +39,7 @@ Remove-FinOpsHubScope `
 | `‑HubName`              | Required. Name of the FinOps hub instance.                                              |
 | `‑HubResourceGroupName` | Optional. Name of the resource group the FinOps hub was deployed to.                    |
 | `‑RemoveData`           | Optional. Indicates whether to remove data for this scope from storage. Default = false |
+| `‑WhatIf`               | Optional. Shows what would happen if the command runs without actually running it.      |
 
 <br>
 
@@ -47,18 +50,23 @@ The following examples demonstrate how to use the Remove-FinOpsHubScope command 
 ### Remove billing account and keep data
 
 ```powershell
-Remove-FinOpsHubScope -Id "/providers/Microsoft.Billing/billingAccounts/123" -HubName "FooHub"
+Remove-FinOpsHubScope `
+    -Id "/providers/Microsoft.Billing/billingAccounts/123" `
+    -HubName "FooHub"
 ```
 
-Removes the exports configured to use the FooHub hub instance. Existing data is retained in the storage account.
+Deletes the exports configured to use the FooHub hub instance. Existing data is retained in the storage account.
 
 ### Remove subscription and historical data
 
 ```powershell
-Remove-FinOpsHubScope -Id "/subscriptions/##-#-#-#-###" -HubName "FooHub" -RemoveData
+Remove-FinOpsHubScope `
+    -Id "/subscriptions/##-#-#-#-###" `
+    -HubName "FooHub" `
+    -RemoveData
 ```
 
-Removes the exports configured to use the FooHub hub instance and removes data for that scope.
+Deletes the exports configured to use the FooHub hub instance and removes data for that scope.
 
 <br>
 

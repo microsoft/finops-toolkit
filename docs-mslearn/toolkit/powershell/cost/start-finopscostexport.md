@@ -3,12 +3,12 @@ title: Start-FinOpsCostExport command
 description: Initiate a Cost Management export run for the most recent period using the Start-FinOpsCostExport command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 08/22/2026
+ms.date: 11/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand how to use the what Start-FinOpsCostExport command in the FinOpsToolkit module.
+#customer intent: As a FinOps user, I want to understand how to use the Start-FinOpsCostExport command in the FinOpsToolkit module.
 ---
 
 # Start-FinOpsCostExport command
@@ -20,6 +20,7 @@ This command was tested with the following API versions:
 - 2025-03-01 (default) – GA version for FocusCost and other datasets.
 - 2023-07-01-preview
 - 2023-08-01
+- 2023-03-01
 
 <br>
 
@@ -28,11 +29,13 @@ This command was tested with the following API versions:
 ```powershell
 Start-FinOpsCostExport `
     [-Name] <string> `
-    [-Scope <string>] `
-    [-StartDate <datetime>] `
-    [-EndDate <datetime>] `
-    [-Backfill <number>] `
-    [-ApiVersion <string>]
+    [[-Scope] <string>] `
+    [[-StartDate] <datetime>] `
+    [[-EndDate] <datetime>] `
+    [[-Backfill] <int>] `
+    [[-ApiVersion] <string>] `
+    [-WhatIf] `
+    [<CommonParameters>]
 ```
 
 <br>
@@ -47,6 +50,7 @@ Start-FinOpsCostExport `
 | `‑EndDate`    | Optional. Last day to pull data for. Interpreted as a UTC calendar date, so the day you specify is the day that gets exported, regardless of your local time zone. If not set and -StartDate is set, -EndDate uses the last day of the month. If not set and -StartDate isn't set, the export uses the dates defined in the export configuration. |
 | `‑Backfill`   | Optional. Number of months to export the data for. Make note of throttling (429) errors. It only runs once. Failed exports aren't reattempted. Default = 0.                                                                                                                                                                                       |
 | `‑ApiVersion` | Optional. API version to use when calling the Cost Management Exports API. Default = 2025-03-01.                                                                                                                                                                                                                                                  |
+| `‑WhatIf`     | Optional. Shows what would happen if the command runs without actually running it.                                                                                                                                                                                                                                                                |
 
 <br>
 
@@ -65,7 +69,11 @@ Runs an export called 'CostExport' for the configured period on the subscription
 ### Export specific dates
 
 ```powershell
-Start-FinopsCostExport -Scope '/providers/Microsoft.Billing/billingAccounts/1234' -Name 'CostExport' -StartDate '2023-01-01' -EndDate '2023-12-31'
+Start-FinopsCostExport `
+    -Scope '/providers/Microsoft.Billing/billingAccounts/1234' `
+    -Name 'CostExport' `
+    -StartDate '2023-01-01' `
+    -EndDate '2023-12-31'
 ```
 
 Runs an export called 'CostExport' for a specific date range on the 1234 billing account.
@@ -73,7 +81,10 @@ Runs an export called 'CostExport' for a specific date range on the 1234 billing
 ### Backfill export
 
 ```powershell
-Start-FinopsCostExport -Scope '/providers/Microsoft.Billing/billingAccounts/1234/billingProfiles/5678' -Name 'CostExport' -Backfill 12
+Start-FinopsCostExport `
+    -Scope '/providers/Microsoft.Billing/billingAccounts/1234/billingProfiles/5678' `
+    -Name 'CostExport' `
+    -Backfill 12
 ```
 
 Runs an export called 'CostExport' for the previous 12 months on the 5678 billing profile.
