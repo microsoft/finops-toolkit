@@ -34,10 +34,21 @@ Describe 'Price sheet schema version currency (non-blocking)' {
         # Update this list -- and add the corresponding mapping file and KQL support -- when
         # adding support for a new version.
         $supportedVersions = @{
-            EA  = @('2023-05-01')
-            MCA = @('2023-05-01', '2024-08-01')
+            EA  = @('2023-05-01', '2026-10-01')
+            MCA = @('2023-05-01', '2024-08-01', '2026-10-01')
         }
 
+        $schemaIndexUri = 'https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/schema-index'
+    }
+
+    BeforeAll {
+        # Pester 5 doesn't carry BeforeDiscovery variables into the run phase, so set them again here.
+        $repoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
+        $schemasPath = Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.CostManagement/Exports/schemas'
+        $supportedVersions = @{
+            EA  = @('2023-05-01', '2026-10-01')
+            MCA = @('2023-05-01', '2024-08-01', '2026-10-01')
+        }
         $schemaIndexUri = 'https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/schema-index'
     }
 
@@ -93,5 +104,55 @@ Describe 'Price sheet schema version currency (non-blocking)' {
 
         # This test is informational only: it must always pass, regardless of what was found above.
         $true | Should -BeTrue
+    }
+}
+
+# Blocking checks: unlike the live version check above, these are deterministic and local.
+Describe 'Price sheet 2026-10-01 schema support' {
+
+    BeforeDiscovery {
+        $repoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
+        $exportsPath = Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.CostManagement/Exports'
+        $scriptsPath = Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts'
+        $cases = @(
+            @{ Contract = 'ea';  Base = 'pricesheet_2023-05-01_ea.json';  Latest = 'pricesheet_2026-10-01_ea.json' }
+            @{ Contract = 'mca'; Base = 'pricesheet_2024-08-01_mca.json'; Latest = 'pricesheet_2026-10-01_mca.json' }
+        )
+    }
+
+    Context '<Contract>' -ForEach $cases {
+        BeforeAll {
+            $repoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
+            $exportsPath = Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.CostManagement/Exports'
+            $schemas = Join-Path $exportsPath 'schemas'
+            $base = Get-Content (Join-Path $schemas $Base) -Raw | ConvertFrom-Json
+            $latestPath = Join-Path $schemas $Latest
+        }
+
+        It 'Should have a schema mapping file' {
+            $latestPath | Should -Exist
+        }
+
+        It 'Should be registered in Exports/app.bicep' {
+            Get-Content (Join-Path $exportsPath 'app.bicep') -Raw | Should -Match ([regex]::Escape("'schemas/$Latest'"))
+        }
+
+        It 'Should add only PriceFactors to the previous version' {
+            $latest = Get-Content $latestPath -Raw | ConvertFrom-Json
+            $added = $latest.translator.mappings.sink.name | Where-Object { $_ -notin $base.translator.mappings.sink.name }
+            $removed = $base.translator.mappings.sink.name | Where-Object { $_ -notin $latest.translator.mappings.sink.name }
+            $added | Should -Be @('PriceFactors')
+            $removed | Should -BeNullOrEmpty
+        }
+    }
+
+    BeforeAll {
+        $repoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
+        $scriptsPath = Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts'
+    }
+
+    It 'Should not add PriceFactors to existing Prices_final schemas (compatibility promise)' -ForEach @('1_0', '1_2') {
+        $kql = Get-Content (Join-Path $scriptsPath "IngestionSetup_v$_.kql") -Raw
+        $kql | Should -Not -Match 'PriceFactors'
     }
 }

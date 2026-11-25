@@ -361,7 +361,7 @@ function New-FinOpsCostExport
                     }
                     elseif ($Dataset -eq "PriceSheet")
                     {
-                        $DatasetVersion = "2023-05-01"
+                        $DatasetVersion = "2026-10-01"
                     }
                     elseif ($Dataset -eq "ReservationDetails")
                     {

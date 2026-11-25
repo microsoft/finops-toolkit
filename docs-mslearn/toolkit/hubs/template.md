@@ -125,6 +125,8 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       - `schemas/pricesheet_2023-05-01_ea.json` – Price sheet EA schema definition version 2023-05-01 for parquet conversion.
       - `schemas/pricesheet_2023-05-01_mca.json` – Price sheet MCA schema definition version 2023-05-01 for parquet conversion.
       - `schemas/pricesheet_2024-08-01_mca.json` – Price sheet MCA schema definition version 2024-08-01 for parquet conversion.
+      - `schemas/pricesheet_2026-10-01_ea.json` – Price sheet EA schema definition version 2026-10-01 for parquet conversion.
+      - `schemas/pricesheet_2026-10-01_mca.json` – Price sheet MCA schema definition version 2026-10-01 for parquet conversion.
       - `schemas/reservationdetails_2023-03-01.json` – Reservation details schema definition version 2023-03-01 for parquet conversion.
       - `schemas/reservationrecommendations_2023-05-01_ea.json` – Reservation recommendations EA schema definition version 2023-05-01 for parquet conversion.
       - `schemas/reservationrecommendations_2023-05-01_mca.json` – Reservation recommendations MCA schema definition version 2023-05-01 for parquet conversion.

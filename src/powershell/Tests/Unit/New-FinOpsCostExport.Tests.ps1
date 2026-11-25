@@ -150,7 +150,7 @@ InModuleScope 'FinOpsToolkit' {
                 @{ dataset = 'ActualCost'; version = '2021-10-01'; schedule = 'Daily' },
                 @{ dataset = 'AmortizedCost'; version = '2021-10-01'; schedule = 'Daily' },
                 @{ dataset = 'FocusCost'; version = '1.2-preview'; schedule = 'Daily' },
-                @{ dataset = 'PriceSheet'; version = '2023-05-01'; schedule = 'Daily' },
+                @{ dataset = 'PriceSheet'; version = '2026-10-01'; schedule = 'Daily' },
                 @{ dataset = 'ReservationDetails'; version = '2023-03-01'; schedule = 'Daily' },
                 @{ dataset = 'ReservationRecommendations'; version = '2023-05-01'; schedule = 'Daily' },
                 @{ dataset = 'ReservationTransactions'; version = '2023-05-01'; schedule = 'Daily' }

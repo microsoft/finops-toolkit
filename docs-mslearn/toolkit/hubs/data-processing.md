@@ -194,7 +194,7 @@ Transforms:
 
 Supported datasets:
 
-- Microsoft PriceSheet: `2023-05-01` (EA and MCA), `2024-08-01` (MCA only)
+- Microsoft PriceSheet: `2023-05-01` (EA and MCA), `2024-08-01` (MCA only), `2026-10-01` (EA and MCA)
 
 Transforms:
 
@@ -229,6 +229,10 @@ Transforms:
   - Added support for the MCA `2024-08-01` price sheet schema, which replaces `discount` and `includedQuantity` with `productOrderName` ([#2311](https://github.com/microsoft/finops-toolkit/issues/2311)).
     - Added `x_SkuOrderName` from `productOrderName`, matching the `ProductOrderName` -> `x_SkuOrderName` mapping already used for cost details.
     - EA price sheet exports are unaffected and remain on the `2023-05-01` schema.
+  - Added support for the EA and MCA `2026-10-01` price sheet schemas, which add `priceFactors` and Flex Plan prices (`PriceType` = `FlexPlan`, `Term` = `P1M` or `P2M`).
+    - `priceFactors` is mapped during ingestion but not exposed in `Prices`, to keep the FOCUS 1.2 schema compatible.
+    - Flex Plan price rows (`PriceType` = `FlexPlan`, `Term` = `P1M` or `P2M`) are ingested as-is. They have an empty `ChargeCategory`, no commitment discount type, and a `SkuPriceIdv2` that starts with `XX`. They are not used to enrich costs.
+    - Managed exports now use the `2026-10-01` price sheet version.
 
 ### Recommendation data transforms
 
@@ -363,7 +367,7 @@ To ingest CSV file from Cost Management exports, save files in a specific folder
 <a name="datasets"></a>FinOps hubs support the following dataset types, versions, and API versions:
 
 - FocusCost: `1.2-preview`, `1.0r2`, `1.0`, `1.0-preview(v1)`
-- PriceSheet: `2023-05-01` (EA and MCA), `2024-08-01` (MCA only)
+- PriceSheet: `2023-05-01` (EA and MCA), `2024-08-01` (MCA only), `2026-10-01` (EA and MCA)
 - ReservationDetails: `2023-03-01`
 - ReservationRecommendations: `2023-05-01`
 - ReservationTransactions: `2023-05-01`
