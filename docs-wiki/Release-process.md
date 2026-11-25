@@ -5,6 +5,7 @@ The following outlines the release process after all work is completed and mergi
 On this page:
 
 - [🌿 Promoting a feature branch](#-promoting-a-feature-branch)
+- [🤖 Automated release PR](#-automated-release-pr)
 - [🚀 Publishing an official release](#-publishing-an-official-release)
 - [📜 Changelog guidance](#-changelog-guidance)
 
@@ -29,6 +30,37 @@ Once the above requirements have been met, the feature branch can be merged into
 2. Commit the changes and push to the feature branch.
 3. Create a PR to merge the feature branch into `dev`.
 4. Follow the normal PR process to merge the PR.
+
+<br>
+
+## 🤖 Automated release PR
+
+The [Release PR workflow](../actions/workflows/release-pr.yml) automates every release step that needs no human and no external repo, then opens a draft PR from a `bot/release-v<N>` branch into `main`. A human merges the PR. The workflow never merges, rebases, resets, or force-pushes, and it never pushes to `dev` or `main`.
+
+**What it does**
+
+1. Checks the release is not already tagged and that `dev` and `main` share history.
+2. Creates `bot/release-v<N>` from `dev` and merges `main` into it. If `main` conflicts, it keeps the `dev` side and lists the files in the PR.
+3. Runs [Start-Release](../tree/dev/src/scripts/Start-Release.ps1): release tracking issue, next milestones, version bump (strips the prerelease label), changelog section, Bicep CLI.
+4. Builds the toolkit, runs unit, lint, and toolkit integration tests, and runs `Package-Toolkit -Build -CopyFiles`.
+5. Pushes the branch and opens the PR with the manual steps as a checklist. Packaged files are in the `release-files` artifact on the run.
+
+**How to run it**
+
+1. Finish the work in `dev`. Run **Actions > Release PR > Run workflow** from `dev` with **Dry run** on to rehearse. The same dry run also runs monthly on the 15th.
+2. Run it again with **Dry run** off to push the branch and open the PR.
+3. Complete the manual checklist in the PR body (Power BI packaging, Docs, Bicep Registry, and AQT PRs, GitHub release, announcements).
+4. If `dev` changes, re-run the workflow. It merges `dev` into the existing branch and updates the PR.
+5. Mark the PR ready and merge it using **Create a merge commit**. Never squash or rebase.
+
+**Requirements** (repo or org admins configure these)
+
+- Repo setting **Allow merge commits** is on, and any ruleset on `main` allows the merge method. Without it the PR can only be squashed, which breaks history.
+- A way to open the PR: the `RELEASE_APP_ID` variable and `RELEASE_APP_PRIVATE_KEY` secret for a GitHub App (contents, pull requests, issues, and workflows write), or the org setting **Allow GitHub Actions to create and approve pull requests**. Without either, the workflow pushes the branch and fails with a link to open the PR by hand.
+- PRs opened with the default `GITHUB_TOKEN` do not start CI. A GitHub App token does.
+- A PR into `main` triggers the `pulls-00-main-branch` policy comment and blocked label. Close that gap before first use.
+
+To test locally, run `src/scripts/New-ReleasePr.ps1 -DryRun`.
 
 <br>
 
@@ -110,12 +142,9 @@ Once the above requirements have been met, the feature branch can be merged into
          - Ignore any 429 errors from GitHub. These are caused due to all the contributor links that are checked.
       6. Fix any broken links, push changes, and rerun the tool.
 
-   4. Merge to main:
+   4. Merge to main: run the [Release PR workflow](#-automated-release-pr) and merge the PR it opens using **Create a merge commit**.
 
-      ```powershell
-      cd <root>/src/scripts
-      ./Merge-DevBranch main
-      ```
+      > _`Merge-DevBranch main` pushes directly to `dev` and `main`, which branch rules block. Use it only for feature branches._
 
    5. Verify [documentation](https://aka.ms/finops/toolkit) updated correctly.
 

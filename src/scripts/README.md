@@ -19,6 +19,7 @@ On this page:
 - [📁 New-Directory](#-new-directory)
 - [🌿 New-FeatureBranch](#-new-featurebranch)
 - [🔀 Merge-DevBranch](#-merge-devbranch)
+- [🤖 New-ReleasePr](#-new-releasepr)
 
 ---
 
@@ -571,5 +572,29 @@ Examples:
   ```powershell
   ./Merge-DevBranch *
   ```
+
+<br>
+
+<br>
+
+## 🤖 New-ReleasePr
+
+[New-ReleasePr.ps1](./New-ReleasePr.ps1) prepares a release and opens a draft PR from a `bot/release-v<N>` branch into `main`. It runs [Start-Release](./Start-Release.ps1), Build-Toolkit, tests, and Package-Toolkit. It only pushes the bot branch and never merges. This is the script behind the [Release PR workflow](../../.github/workflows/release-pr.yml). See [Release process](../../docs-wiki/Release-process.md#-automated-release-pr).
+
+Parameters:
+
+| Name                 | Description                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------ |
+| `-DryRun`            | Runs everything locally. Does not push, create issues or milestones, or open a PR.   |
+| `-Ready`             | Opens the PR as ready for review instead of draft.                                   |
+| `-RefreshEligibility`| Refreshes commitment discount eligibility data (about 45 minutes).                   |
+| `-OnConflict`        | `keep-dev` (default) or `fail` when merging `main` conflicts.                        |
+| `-SkipBuild`, `-SkipTests` | Skips build/packaging or tests. For local testing only.                    |
+
+Examples:
+
+```powershell
+./New-ReleasePr -DryRun -SkipBuild -SkipTests
+```
 
 <br>

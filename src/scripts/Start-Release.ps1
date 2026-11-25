@@ -17,6 +17,14 @@
     .PARAMETER OutputFile
     Optional. Path to write JSON output to. If not specified, results are only returned as a PowerShell object.
 
+    .PARAMETER DryRun
+    Optional. Indicates that nothing should be created in GitHub (release issue and future milestones). Existing items are
+    still read. The version, data, and Bicep CLI updates still run against the local working tree. Default = false.
+
+    .PARAMETER SkipEligibility
+    Optional. Indicates that the commitment discount eligibility data update should be skipped. The fetch takes about 45
+    minutes and is also run weekly by the Update Commitment Discount Eligibility workflow. Default = false.
+
     .EXAMPLE
     ./Start-Release
 
@@ -33,7 +41,13 @@ param(
     $DaysUntilRelease = 7,
 
     [string]
-    $OutputFile
+    $OutputFile,
+
+    [switch]
+    $DryRun,
+
+    [switch]
+    $SkipEligibility
 )
 
 $ErrorActionPreference = 'Stop'
@@ -145,6 +159,10 @@ if ($matchingIssues.Count -gt 0)
     Write-Host "Found existing release issue: #$($releaseIssue.number) - $($releaseIssue.title)" -ForegroundColor Green
     Write-Host "  $($releaseIssue.url)" -ForegroundColor Gray
 }
+elseif ($DryRun)
+{
+    Write-Host "Dry run: would create release issue: $title" -ForegroundColor Yellow
+}
 else
 {
     # Create the issue
@@ -166,6 +184,7 @@ else
         # gh issue create returns the URL
         $issueUrl = $result.Trim()
         $issueNumber = [regex]::Match($issueUrl, '/issues/(\d+)').Groups[1].Value
+        $releaseIssue = @{ number = [int]$issueNumber; title = $title; url = $issueUrl }
 
         Write-Host "Created release issue: #$issueNumber" -ForegroundColor Green
         Write-Host "  $issueUrl" -ForegroundColor Gray
@@ -197,22 +216,36 @@ Write-Host "Version updated to $version ($versionTag)" -ForegroundColor Green
 # --- Step 3: Update commitment discount eligibility ---
 
 Write-Host ""
-Write-Host "Updating commitment discount eligibility data..." -ForegroundColor Cyan
-& (Join-Path $PSScriptRoot 'Update-CommitmentDiscountEligibility.ps1')
-Write-Host "Commitment discount eligibility updated." -ForegroundColor Green
+if ($SkipEligibility)
+{
+    Write-Host "Skipping commitment discount eligibility data update." -ForegroundColor Yellow
+}
+else
+{
+    Write-Host "Updating commitment discount eligibility data..." -ForegroundColor Cyan
+    & (Join-Path $PSScriptRoot 'Update-CommitmentDiscountEligibility.ps1')
+    Write-Host "Commitment discount eligibility updated." -ForegroundColor Green
+}
 
 # --- Step 4: Update Bicep CLI ---
 
 Write-Host ""
 Write-Host "Updating Bicep CLI..." -ForegroundColor Cyan
-$bicepResult = az bicep upgrade 2>&1
-if ($LASTEXITCODE -ne 0)
+if (-not (Get-Command az -ErrorAction SilentlyContinue))
 {
-    Write-Warning "Bicep CLI update failed: $bicepResult"
+    Write-Warning "Azure CLI not found. Skipping Bicep CLI update."
 }
 else
 {
-    Write-Host "Bicep CLI updated." -ForegroundColor Green
+    $bicepResult = az bicep upgrade 2>&1
+    if ($LASTEXITCODE -ne 0)
+    {
+        Write-Warning "Bicep CLI update failed: $bicepResult"
+    }
+    else
+    {
+        Write-Host "Bicep CLI updated." -ForegroundColor Green
+    }
 }
 
 # --- Step 5: Query milestone issues and PRs ---
@@ -238,6 +271,10 @@ foreach ($futureTitle in $futureTitles)
     if ($existing)
     {
         Write-Host "  $futureTitle already exists" -ForegroundColor Gray
+    }
+    elseif ($DryRun)
+    {
+        Write-Host "  Dry run: would create milestone: $futureTitle" -ForegroundColor Yellow
     }
     else
     {

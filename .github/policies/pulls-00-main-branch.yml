@@ -21,6 +21,11 @@ configuration:
               action: Opened
           - targetsBranch:
               branch: main
+          # Release PRs from the Release PR workflow (bot/release-v*) are expected
+          - not:
+              titleContains:
+                pattern: '^chore: Release v[0-9.]+ to main$'
+                isRegex: true
         then:
           - addLabel:
               label: 'Status: ⛔ Blocked'
