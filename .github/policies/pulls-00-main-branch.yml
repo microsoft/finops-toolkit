@@ -21,7 +21,7 @@ configuration:
               action: Opened
           - targetsBranch:
               branch: main
-          # Release PRs from the Release PR workflow (bot/release-v*) are expected
+          # Release PRs from the Release PR workflow are expected (matched by title)
           - not:
               titleContains:
                 pattern: '^chore: Release v[0-9.]+ to main$'

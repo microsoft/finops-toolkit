@@ -84,8 +84,6 @@ jobs:
           permission-contents: write
           permission-pull-requests: write
           permission-issues: write
-          # Only needed if dev changes a file under .github/workflows that the prep branch must push.
-          permission-workflows: write
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

@@ -232,6 +232,16 @@ Invoke-Step 'Preflight' {
     $state.Branch = "bot/release-$($state.Tag)"
     Write-Host "Source version: $ver -> release $($state.Tag)"
 
+    $remoteBranch = "origin/bot/release-$($state.Tag)"
+    if (& git rev-parse --verify --quiet $remoteBranch)
+    {
+        & git merge-base --is-ancestor $remoteBranch "origin/$Base"
+        if ($LASTEXITCODE -eq 0)
+        {
+            throw "$remoteBranch is already merged into $Base. Tag the release and run /update-version instead of re-running."
+        }
+    }
+
     if (& git tag --list $state.Tag)
     {
         throw "Release $($state.Tag) is already tagged. $Source still has version $ver. Run /update-version to start the next release first."
@@ -259,7 +269,14 @@ Invoke-Step "Prep branch ($($state.Branch))" {
         {
             Invoke-Git checkout --quiet -b $state.Branch "origin/$($state.Branch)" | Out-Null
         }
-        Invoke-Git merge --no-edit "origin/$Source" | Out-Null
+        & git merge --no-edit "origin/$Source" 2>&1 | Out-Host
+        if ($LASTEXITCODE -ne 0)
+        {
+            # Humans may have edited this branch (for example the changelog). Never overwrite their work.
+            $conflicted = @(& git diff --name-only --diff-filter=U)
+            Invoke-Git merge --abort | Out-Null
+            throw "Conflicts merging $Source into the existing $($state.Branch): $($conflicted -join ', '). Merge origin/$Source into the branch by hand, push, and re-run."
+        }
     }
     else
     {
@@ -485,6 +502,17 @@ else
         {
             $state.PrUrl = $existingPr[0].url
             $state.PrNumber = $existingPr[0].number
+
+            # Keep boxes humans already ticked: tick the same line in the regenerated body.
+            $oldBody = (gh pr view $state.PrNumber --json body --jq .body) -join "`n"
+            $ticked = @([regex]::Matches($oldBody, '(?m)^(\s*- )\[x\] (.+?)\s*$') | ForEach-Object { $_.Groups[2].Value })
+            if ($ticked.Count -gt 0)
+            {
+                $newLines = Get-Content $bodyFile | ForEach-Object {
+                    if ($_ -match '^(\s*- )\[ \] (.+?)\s*$' -and $ticked -contains $Matches[2]) { "$($Matches[1])[x] $($Matches[2])" } else { $_ }
+                }
+                [System.IO.File]::WriteAllLines($bodyFile, [string[]]$newLines)
+            }
             gh pr edit $state.PrNumber --title $title --body-file $bodyFile | Out-Null
             if ($LASTEXITCODE -ne 0) { throw "Failed to update PR $($state.PrNumber)." }
             Write-Host "Updated PR: $($state.PrUrl)"
@@ -494,12 +522,23 @@ else
         $prArgs = @('pr', 'create', '--base', $Base, '--head', $state.Branch, '--title', $title, '--body-file', $bodyFile)
         if (-not $Ready) { $prArgs += '--draft' }
         if ($release.Milestone) { $prArgs += @('--milestone', $release.Milestone.Title) }
-        $out = & gh @prArgs --label 'Type: Release 🚀' 2>&1
-        if ($LASTEXITCODE -ne 0 -and ($out -join ' ') -match 'label|milestone')
+        $labelArgs = @('--label', 'Type: Release 🚀')
+        $out = & gh @prArgs @labelArgs 2>&1
+        if ($LASTEXITCODE -ne 0 -and ($out -join ' ') -match 'label')
         {
-            # Retry without optional metadata that may not exist
-            $prArgs = $prArgs | Where-Object { $_ -ne '--milestone' -and $_ -ne $release.Milestone.Title }
+            # Label may not exist. Retry without it.
+            $labelArgs = @()
             $out = & gh @prArgs 2>&1
+        }
+        if ($LASTEXITCODE -ne 0 -and ($out -join ' ') -match 'milestone')
+        {
+            # Milestone may not exist. Retry without it.
+            $withoutMilestone = @()
+            for ($i = 0; $i -lt $prArgs.Count; $i++)
+            {
+                if ($prArgs[$i] -eq '--milestone') { $i++ } else { $withoutMilestone += $prArgs[$i] }
+            }
+            $out = & gh @withoutMilestone @labelArgs 2>&1
         }
         if ($LASTEXITCODE -ne 0)
         {

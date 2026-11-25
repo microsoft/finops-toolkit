@@ -880,13 +880,19 @@ The [update-contributors](../../.github/workflows/update-contributors.yml) workf
 
 Parameters:
 
-| Name                 | Description                                                                          |
-| -------------------- | ------------------------------------------------------------------------------------ |
-| `-DryRun`            | Runs everything locally. Does not push, create issues or milestones, or open a PR.   |
-| `-Ready`             | Opens the PR as ready for review instead of draft.                                   |
-| `-RefreshEligibility`| Refreshes commitment discount eligibility data (about 45 minutes).                   |
-| `-OnConflict`        | `keep-dev` (default) or `fail` when merging `main` conflicts.                        |
-| `-SkipBuild`, `-SkipTests` | Skips build/packaging or tests. For local testing only.                    |
+| Name                  | Description                                                                         |
+| --------------------- | ----------------------------------------------------------------------------------- |
+| `-Base`               | Optional. Branch to open the PR against. Default = `main`.                          |
+| `-Source`             | Optional. Branch to release from. Default = `dev`.                                  |
+| `-DryRun`             | Optional. Runs everything locally. Does not push, create issues or milestones, or open a PR. |
+| `-Ready`              | Optional. Opens the PR as ready for review instead of draft.                        |
+| `-RefreshEligibility` | Optional. Refreshes commitment discount eligibility data (about 45 minutes).        |
+| `-OnConflict`         | Optional. `keep-dev` (default) or `fail` when merging `main` conflicts.              |
+| `-DaysUntilRelease`   | Optional. Days until the release, used to name the release month. Default = 7.      |
+| `-SkipBuild`          | Optional. Skips build and packaging. For local testing only.                        |
+| `-SkipTests`          | Optional. Skips tests. For local testing only.                                      |
+| `-OutputDir`          | Optional. Folder outside the repo for the PR body and summary.                      |
+| `-RunUrl`             | Optional. Workflow run URL to link from the PR.                                     |
 
 Examples:
 

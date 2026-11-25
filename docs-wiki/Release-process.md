@@ -58,7 +58,7 @@ The [Release PR workflow](../actions/workflows/release-pr.yml) automates every r
 - Repo setting **Allow merge commits** is on, and any ruleset on `main` allows the merge method. Without it the PR can only be squashed, which breaks history.
 - A way to open the PR: the `RELEASE_APP_ID` variable and `RELEASE_APP_PRIVATE_KEY` secret for a GitHub App (contents, pull requests, issues, and workflows write), or the org setting **Allow GitHub Actions to create and approve pull requests**. Without either, the workflow pushes the branch and fails with a link to open the PR by hand.
 - PRs opened with the default `GITHUB_TOKEN` do not start CI. A GitHub App token does.
-- A PR into `main` triggers the `pulls-00-main-branch` policy comment and blocked label. Close that gap before first use.
+- The `pulls-00-main-branch` policy normally comments and labels PRs into `main` as blocked. It exempts titles like `chore: Release v16 to main`. Confirm that after the first run.
 
 To test locally, run `src/scripts/New-ReleasePr.ps1 -DryRun`.
 
