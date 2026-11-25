@@ -105,6 +105,15 @@ if ($InputPath) {
     }
 } else {
     if (-not (Get-AzContext)) { throw 'No Azure session. Run Connect-AzAccount first.' }
+    if ($SubscriptionIds) {
+        # Resource Graph returns a generic BadRequest when a subscription is not in the tenant of the session.
+        $tenantId = (Get-AzContext).Tenant.Id
+        $visible = @(Get-AzSubscription -TenantId $tenantId -WarningAction SilentlyContinue | ForEach-Object { $_.Id })
+        $missing = @($SubscriptionIds | Where-Object { $_ -notin $visible })
+        if ($missing.Count -gt 0) {
+            throw "Not accessible in tenant $($tenantId): $($missing -join ', '). Run Connect-AzAccount for the tenant of these subscriptions and try again."
+        }
+    }
     $vmQuery = @"
 resources
 | where type =~ 'microsoft.compute/virtualmachines'
