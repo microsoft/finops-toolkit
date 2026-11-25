@@ -6,13 +6,18 @@
     Switches existing Cost Management exports to a system-assigned managed identity.
 
     .DESCRIPTION
-    The Enable-FinOpsCostExportIdentity command adds a system-assigned managed identity to existing Cost Management exports and assigns the Storage Blob Data Contributor role to the identity on the destination storage container.
+    The Enable-FinOpsCostExportIdentity command adds a system-assigned managed identity to existing Cost Management exports and assigns the [Storage Blob Data Contributor](/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) role to the identity on the destination storage container.
 
-    Exports without a managed identity write to storage with the permissions of the person who created or last updated the export. Those permissions are checked on every run, so scheduled runs fail with AccessToStorageAccountDenied once that access is removed or expires, for example, when an eligible Privileged Identity Management (PIM) role isn't active. With a managed identity, runs no longer depend on the permissions of a person.
+    Exports without a managed identity write to storage with the permissions of the person who created or last updated the export. Cost Management checks those permissions on every run, so scheduled runs fail with [AccessToStorageAccountDenied](../../help/errors.md#accesstostorageaccountdenied) once that access is removed or expires. For example, runs fail when the person's access comes from an eligible Privileged Identity Management (PIM) role that isn't active. With a managed identity, runs no longer depend on the permissions of a person. To learn more, see [Use a managed identity for exports](../../hubs/configure-scopes.md#use-a-managed-identity-for-exports).
 
-    The export is updated in place. Its schedule, run history, and all other settings are kept. Exports that already use a system-assigned managed identity aren't changed, but the role assignment is still checked.
+    The command updates each export in place. The schedule, run history, and all other settings are kept. Exports that already use a system-assigned managed identity aren't changed, but the command still checks the role assignment.
 
-    To assign the role, you need permission to assign roles on the storage account (for example, Owner, User Access Administrator, or Role Based Access Control Administrator).
+    The command returns the updated exports as [FinOpsCostExport objects](get-finopscostexport.md#finopscostexport-object). The `IdentityType` and `PrincipalId` properties show the managed identity.
+
+    To run this command, you need:
+
+    - Permission to update the export at its scope. For example, **Cost Management Contributor** on a subscription, or billing profile owner or contributor on a Microsoft Customer Agreement billing profile.
+    - Permission to assign roles on the destination storage account. For example, **Owner**, **User Access Administrator**, or **Role Based Access Control Administrator**. Skip this permission with `-SkipRoleAssignment` if someone else assigns the role.
 
     This command has been tested with the following API versions:
     - 2025-03-01 (default)
@@ -33,14 +38,21 @@
     Optional. API version to use when calling the Cost Management Exports API. Default = 2025-03-01.
 
     .EXAMPLE
-    Enable-FinOpsCostExportIdentity -Name 'ftk-FinOpsHub-costs' -Scope '/providers/Microsoft.Billing/billingAccounts/00000000/billingProfiles/0000-0000-000-000'
+    Enable-FinOpsCostExportIdentity `
+        -Name 'ftk-FinOpsHub-costs' `
+        -Scope '/providers/Microsoft.Billing/billingAccounts/00000000/billingProfiles/0000-0000-000-000'
 
-    Adds a system-assigned managed identity to the specified export and assigns the Storage Blob Data Contributor role to it on the destination container.
+    ### Switch one export to a managed identity
+    Adds a system-assigned managed identity to the **ftk-FinOpsHub-costs** export and assigns the Storage Blob Data Contributor role to it on the destination container.
 
     .EXAMPLE
-    Enable-FinOpsCostExportIdentity -Name '*' -Scope '/providers/Microsoft.Billing/billingAccounts/00000000' -WhatIf
+    Enable-FinOpsCostExportIdentity `
+        -Name '*' `
+        -Scope '/providers/Microsoft.Billing/billingAccounts/00000000' `
+        -WhatIf
 
-    Shows which exports in the billing account would be switched to a managed identity without changing them.
+    ### Preview the change for all exports in a scope
+    Shows which exports in the billing account would be switched to a managed identity without changing them. Remove `-WhatIf` to apply the change.
 
     .LINK
     https://aka.ms/ftk/Enable-FinOpsCostExportIdentity

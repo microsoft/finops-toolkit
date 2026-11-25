@@ -3,12 +3,12 @@ title: Enable-FinOpsCostExportIdentity command
 description: Switch existing Cost Management exports to a system-assigned managed identity using the Enable-FinOpsCostExportIdentity command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 11/23/2026
+ms.date: 11/25/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to switch existing Cost Management exports to a managed identity so that scheduled runs don't depend on the permissions of a person.
+#customer intent: As a FinOps user, I want to understand how to use the Enable-FinOpsCostExportIdentity command in the FinOpsToolkit module.
 ---
 
 # Enable-FinOpsCostExportIdentity command
@@ -19,16 +19,16 @@ Exports without a managed identity write to storage with the permissions of the 
 
 The command updates each export in place. The schedule, run history, and all other settings are kept. Exports that already use a system-assigned managed identity aren't changed, but the command still checks the role assignment.
 
-This command was tested with the following API versions:
+The command returns the updated exports as [FinOpsCostExport objects](get-finopscostexport.md#finopscostexport-object). The `IdentityType` and `PrincipalId` properties show the managed identity.
 
-- 2025-03-01 (default)
-
-<br>
-
-## Prerequisites
+To run this command, you need:
 
 - Permission to update the export at its scope. For example, **Cost Management Contributor** on a subscription, or billing profile owner or contributor on a Microsoft Customer Agreement billing profile.
 - Permission to assign roles on the destination storage account. For example, **Owner**, **User Access Administrator**, or **Role Based Access Control Administrator**. Skip this permission with `-SkipRoleAssignment` if someone else assigns the role.
+
+This command was tested with the following API versions:
+
+- 2025-03-01 (default)
 
 <br>
 
@@ -37,12 +37,12 @@ This command was tested with the following API versions:
 ```powershell
 Enable-FinOpsCostExportIdentity `
     [-Name] <string> `
-    -Scope <string> `
-    [-Location <string>] `
+    [-Scope] <string> `
+    [[-Location] <string>] `
     [-SkipRoleAssignment] `
-    [-ApiVersion <string>] `
+    [[-ApiVersion] <string>] `
     [-WhatIf] `
-    [-Confirm]
+    [<CommonParameters>]
 ```
 
 <br>
@@ -56,12 +56,7 @@ Enable-FinOpsCostExportIdentity `
 | `‑Location`           | Optional. Azure location to use for the managed identity. Default = the location of the export, if set; otherwise, "global".                              |
 | `‑SkipRoleAssignment` | Optional. Indicates that the Storage Blob Data Contributor role shouldn't be assigned. Use this option if someone else assigns the role. Default = false. |
 | `‑ApiVersion`         | Optional. API version to use when calling the Cost Management Exports API. Default = 2025-03-01.                                                          |
-
-<br>
-
-## Return value
-
-Returns the updated exports as [FinOpsCostExport objects](get-finopscostexport.md#finopscostexport-object). The `IdentityType` and `PrincipalId` properties show the managed identity.
+| `‑WhatIf`             | Optional. Shows what would happen if the command runs without actually running it.                                                                        |
 
 <br>
 

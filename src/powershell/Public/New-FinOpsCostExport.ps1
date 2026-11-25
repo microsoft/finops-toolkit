@@ -71,7 +71,7 @@
     Optional. Indicates whether to overwrite previously exported data for the current month. Overwriting is recommended to keep storage size and costs down so this option is to disable overwriting. If creating an export for FinOps hubs, we recommend you specify the -DoNotOverwrite option to improve troubleshooting. Default = false.
 
     .PARAMETER SystemAssignedIdentity
-    Optional. Indicates that a system-assigned managed identity should be used to push data to the storage account. When set, the command also assigns the Storage Blob Data Contributor role to the identity on the storage container, which requires permission to assign roles on the storage account (for example, Owner, User Access Administrator, or Role Based Access Control Administrator). Managed identity is required for storage accounts behind a firewall and keeps scheduled runs independent of the permissions of the person who created the export. Without managed identity, every run checks the storage permissions of the person who created or last updated the export and fails with AccessToStorageAccountDenied once that access is removed or expires. When updating an export that already uses managed identity, the identity is kept even if this option isn't specified. Default = (empty).
+    Optional. Indicates that a system-assigned managed identity should be used to push data to the storage account. When set, the command also assigns the Storage Blob Data Contributor role to the identity on the storage container, which requires permission to assign roles on the storage account (for example, Owner, User Access Administrator, or Role Based Access Control Administrator). Managed identity is required for storage accounts behind a firewall and keeps scheduled runs independent of the permissions of the person who created the export. Without managed identity, every run checks the storage permissions of the person who created or last updated the export and fails with AccessToStorageAccountDenied once that access is removed or expires. When updating an export that already uses managed identity, the identity is kept even if this option isn't specified. To learn more, see [Use a managed identity for exports](../../hubs/configure-scopes.md#use-a-managed-identity-for-exports). Default = (empty).
 
     .PARAMETER Location
     Optional. Indicates the Azure location to use for the managed identity used to push data to the storage account. Implies -SystemAssignedIdentity. Default = the location of the existing export when updating an export that has one; otherwise, "global" if -SystemAssignedIdentity is set; otherwise, (empty).
@@ -140,7 +140,8 @@
         -SystemAssignedIdentity `
         -Location "westeurope"
 
-    Creates a new daily export called DailyMTD with a system-assigned managed identity and assigns the Storage Blob Data Contributor role to the identity on the cost-management container.
+    ### Create a daily export that uses a managed identity
+    Creates a new daily export called **DailyMTD** with a system-assigned managed identity and assigns the Storage Blob Data Contributor role to the identity on the `cost-management` container. Scheduled runs don't depend on the permissions of the person who created the export.
 
     .LINK
     https://aka.ms/ftk/New-FinOpsCostExport
