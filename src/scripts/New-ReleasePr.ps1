@@ -140,6 +140,46 @@ function Invoke-Git
     return $out
 }
 
+function Stop-Merge
+{
+    # Aborts an in-progress merge. Safe when no merge is in progress, so it never hides the real error.
+    & git merge --abort 2>&1 | Out-Null
+    $global:LASTEXITCODE = 0
+}
+
+function Resolve-MsDateConflicts
+{
+    # Resolves an in-progress merge when every conflict is only an ms.date front matter line, which
+    # the release prep and the docs date workflow both stamp. Takes the incoming (dev) side. Returns
+    # $true when the merge was completed. Otherwise leaves the merge in progress and returns $false.
+    $files = @(& git diff --name-only --diff-filter=U)
+    if ($files.Count -eq 0) { return $false }
+    $hunk = '(?s)<<<<<<< [^\n]*\n(.*?)=======\r?\n(.*?)>>>>>>> [^\n]*\n'
+    $resolved = @{}
+    foreach ($file in $files)
+    {
+        $text = Get-Content (Join-Path $repoRoot $file) -Raw
+        $hunks = [regex]::Matches($text, $hunk)
+        if ($hunks.Count -eq 0) { return $false }
+        foreach ($h in $hunks)
+        {
+            foreach ($side in $h.Groups[1].Value, $h.Groups[2].Value)
+            {
+                if (@($side -split '\r?\n' | Where-Object { $_ -ne '' } | Where-Object { $_ -notmatch '^ms\.date:' }).Count -gt 0) { return $false }
+            }
+        }
+        $resolved[$file] = [regex]::Replace($text, $hunk, { param($m) $m.Groups[2].Value })
+    }
+    foreach ($file in $resolved.Keys)
+    {
+        [System.IO.File]::WriteAllText((Join-Path $repoRoot $file), $resolved[$file])
+        Invoke-Git add -- $file | Out-Null
+    }
+    Invoke-Git commit --no-edit --quiet | Out-Null
+    Write-Host "Resolved ms.date-only conflicts: $($resolved.Keys -join ', ')"
+    return $true
+}
+
 function Invoke-Step
 {
     # Runs a step, records status and duration, and rethrows on failure.
@@ -242,6 +282,13 @@ Invoke-Step 'Preflight' {
         }
     }
 
+    # The bot branch is deleted on merge, so also look for a merged release PR.
+    $mergedPrs = @(gh pr list --head $state.Branch --base $Base --state merged --json number,url | ConvertFrom-Json)
+    if ($mergedPrs.Count -gt 0)
+    {
+        throw "A release PR for $($state.Tag) was already merged: $($mergedPrs[0].url). Tag the release and run /update-version instead of re-running."
+    }
+
     if (& git tag --list $state.Tag)
     {
         throw "Release $($state.Tag) is already tagged. $Source still has version $ver. Run /update-version to start the next release first."
@@ -270,11 +317,11 @@ Invoke-Step "Prep branch ($($state.Branch))" {
             Invoke-Git checkout --quiet -b $state.Branch "origin/$($state.Branch)" | Out-Null
         }
         & git merge --no-edit "origin/$Source" 2>&1 | Out-Host
-        if ($LASTEXITCODE -ne 0)
+        if ($LASTEXITCODE -ne 0 -and -not (Resolve-MsDateConflicts))
         {
             # Humans may have edited this branch (for example the changelog). Never overwrite their work.
             $conflicted = @(& git diff --name-only --diff-filter=U)
-            Invoke-Git merge --abort | Out-Null
+            Stop-Merge
             throw "Conflicts merging $Source into the existing $($state.Branch): $($conflicted -join ', '). Merge origin/$Source into the branch by hand, push, and re-run."
         }
     }
@@ -289,7 +336,7 @@ Invoke-Step "Prep branch ($($state.Branch))" {
     if ($LASTEXITCODE -ne 0)
     {
         $state.Conflicts = @(& git diff --name-only --diff-filter=U)
-        Invoke-Git merge --abort | Out-Null
+        Stop-Merge
         Write-Host "Conflicts merging ${Base}: $($state.Conflicts -join ', ')"
         if ($OnConflict -eq 'fail')
         {
@@ -299,7 +346,7 @@ Invoke-Step "Prep branch ($($state.Branch))" {
         if ($LASTEXITCODE -ne 0)
         {
             $unresolved = @(& git diff --name-only --diff-filter=U)
-            Invoke-Git merge --abort | Out-Null
+            Stop-Merge
             throw "Conflicts could not be resolved automatically (kept $Source): $($unresolved -join ', ')"
         }
     }
@@ -328,7 +375,7 @@ Invoke-Step 'Start release (version, changelog, milestones)' {
     @(& git diff --name-only -- 'docs-mslearn/*.md') | ForEach-Object {
         $path = Join-Path $repoRoot $_
         $text = Get-Content $path -Raw
-        $updated = $text -replace '(?m)^ms\.date:.*$', "ms.date: $today"
+        $updated = [regex]::Replace($text, '(?s)\A---\r?\n.*?\r?\n---', { param($m) $m.Value -replace '(?m)^ms\.date:.*$', "ms.date: $today" })
         if ($updated -ne $text)
         {
             [System.IO.File]::WriteAllText($path, $updated)
@@ -527,12 +574,14 @@ else
         if ($LASTEXITCODE -ne 0 -and ($out -join ' ') -match 'label')
         {
             # Label may not exist. Retry without it.
+            Write-Host "::warning::PR label 'Type: Release' was not applied. Create the label or add it by hand."
             $labelArgs = @()
             $out = & gh @prArgs 2>&1
         }
         if ($LASTEXITCODE -ne 0 -and ($out -join ' ') -match 'milestone')
         {
             # Milestone may not exist. Retry without it.
+            Write-Host "::warning::PR milestone was not applied. Set it by hand."
             $withoutMilestone = @()
             for ($i = 0; $i -lt $prArgs.Count; $i++)
             {

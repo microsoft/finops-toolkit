@@ -50,13 +50,13 @@ The [Release PR workflow](../actions/workflows/release-pr.yml) automates every r
 1. Finish the work in `dev`. Run **Actions > Release PR > Run workflow** from `dev` with **Dry run** on to rehearse. The same dry run also runs monthly on the 15th.
 2. Run it again with **Dry run** off to push the branch and open the PR.
 3. Complete the manual checklist in the PR body (Power BI packaging, Docs, Bicep Registry, and AQT PRs, GitHub release, announcements).
-4. If `dev` changes, re-run the workflow. It merges `dev` into the existing branch and updates the PR.
+4. If `dev` changes, re-run the workflow. It merges `dev` into the existing branch and updates the PR. Boxes you ticked stay ticked, except lines with live counts. If the merge conflicts, merge `origin/dev` into the branch by hand, push, and re-run.
 5. Mark the PR ready and merge it using **Create a merge commit**. Never squash or rebase.
 
 **Requirements** (repo or org admins configure these)
 
 - Repo setting **Allow merge commits** is on, and any ruleset on `main` allows the merge method. Without it the PR can only be squashed, which breaks history.
-- A way to open the PR: the `RELEASE_APP_ID` variable and `RELEASE_APP_PRIVATE_KEY` secret for a GitHub App (contents, pull requests, issues, and workflows write), or the org setting **Allow GitHub Actions to create and approve pull requests**. Without either, the workflow pushes the branch and fails with a link to open the PR by hand.
+- A way to open the PR: the `RELEASE_APP_ID` variable and `RELEASE_APP_PRIVATE_KEY` secret for a GitHub App (contents, pull requests, and issues write; add workflows write only if a push is rejected because `dev` changed a workflow file), or the org setting **Allow GitHub Actions to create and approve pull requests**. Without either, the workflow pushes the branch and fails with a link to open the PR by hand.
 - PRs opened with the default `GITHUB_TOKEN` do not start CI. A GitHub App token does.
 - The `pulls-00-main-branch` policy normally comments and labels PRs into `main` as blocked. It exempts titles like `chore: Release v16 to main`. Confirm that after the first run.
 
