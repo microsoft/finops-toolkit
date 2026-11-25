@@ -189,7 +189,7 @@ Prices_transform_v1_5()
         x_EffectiveUnitPrice,
         x_EffectiveUnitPriceDiscount,
         x_EffectiveUnitPriceDiscountPercent = 1.0 * x_EffectiveUnitPriceDiscount / ContractedUnitPrice * 100,
-        x_FlexPlanProductCode = extract(@'"Type\\*"\s*:\s*\\*"FlexPlan\\*"[^\]]*?"ProductCode\\*"\s*:\s*\\*"([^"\\]+)', 1, tostring(PriceFactors)),
+        x_FlexPlanProductCode = extract(@'"Type\\*"\s*:\s*\\*"FlexPlan\\*"[^\]}]*?"ProductCode\\*"\s*:\s*\\*"([^"\\]+)', 1, tostring(PriceFactors)),
         x_IngestionTime,
         x_PriceFactors = parse_json(PriceFactors),  // Array of groups; each factor can be an object or a JSON string
         x_PricingBlockSize,

@@ -11,10 +11,6 @@
     pulled from the KQL and run with .NET (the pattern only uses syntax shared with RE2).
 #>
 
-BeforeDiscovery {
-    $script:scripts = Join-Path (Resolve-Path "$PSScriptRoot/../../../..").Path 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts'
-}
-
 Describe 'Prices_v1_5 price factors' {
     BeforeAll {
         $scripts = Join-Path (Resolve-Path "$PSScriptRoot/../../../..").Path 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts'
@@ -41,6 +37,15 @@ Describe 'Prices_v1_5 price factors' {
         $pattern = [regex]::Match($kql, "extract\(@'([^\r\n]+?)', 1, tostring\(PriceFactors\)\)").Groups[1].Value
         $pattern | Should -Not -BeNullOrEmpty
         [regex]::Match($json, $pattern).Groups[1].Value | Should -Be 'FLEX123'
+    }
+
+    It 'Should not read the next factor when a Flex Plan factor has no product code' {
+        $pattern = [regex]::Match($kql, "extract\(@'([^\r\n]+?)', 1, tostring\(PriceFactors\)\)").Groups[1].Value
+        [regex]::Match('[{"Factors":[{"Type":"FlexPlan","Extensions":{}},{"Type":"SavingsPlan","Extensions":{"ProductCode":"SP1"}}]}]', $pattern).Success | Should -BeFalse
+    }
+
+    It 'Should keep Prices() on v1_2 until v1_5 is complete' {
+        (Get-Content (Join-Path $scripts 'HubSetup_v1_2.kql') -Raw) | Should -Match '(?s)Prices\(\)\s*\{\s*Prices_v1_2\(\)'
     }
 
     It 'Should not extract a product code when there is no Flex Plan factor' {
