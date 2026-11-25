@@ -3,7 +3,7 @@ title: How to create and update FinOps hubs
 description: This tutorial helps you create a new or update an existing FinOps hubs instance in Azure or Microsoft Fabric.
 author: flanakin
 ms.author: micflan
-ms.date: 11/23/2026
+ms.date: 11/25/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -210,7 +210,10 @@ For other parameters, see [Deploy-FinOpsHub](../powershell/hubs/Deploy-FinOpsHub
 
 ## Optional: Configure Fabric access
 
-If you set up Microsoft Fabric as a primary data store, configure access for Data Factory and the Fabric eventhouse.
+If you set up Microsoft Fabric as a primary data store, configure access for Data Factory and the Fabric eventhouse. `Deploy-FinOpsHub -FabricQueryUri` grants the Data Factory access in step 2 for you; follow these steps if you deploy the template another way.
+
+> [!WARNING]
+> Fabric eventhouse ingestion pulls files from the storage account and might not be able to pass the storage firewall. With private or VNet networking, if data stays in storage, allow Fabric access.
 
 1. Get the Data Factory identity:
    1. From the Azure portal, open the FinOps hub resource group.

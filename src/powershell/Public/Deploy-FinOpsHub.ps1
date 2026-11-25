@@ -59,7 +59,7 @@
     Optional. Number of nodes to use in the cluster. Allowed values: 1 for the Basic SKU tier and 2-1000 for Standard. Default: 1 for dev/test SKUs, 2 for standard SKUs.
 
     .PARAMETER FabricQueryUri
-    Optional. Microsoft Fabric eventhouse query URI. Default: "" (do not use).
+    Optional. Microsoft Fabric eventhouse query URI. Also grants the Data Factory identity admin on the Ingestion and Hub databases. Default: "" (do not use).
 
     .PARAMETER FabricCapacityUnits
     Optional. Number of capacity units for the Microsoft Fabric capacity. This is the number in your Fabric SKU (e.g., Trial = 1, F2 = 2, F64 = 64). Allowed values: 1-2048. Default: 2.
@@ -274,6 +274,11 @@ function Deploy-FinOpsHub
 
         # Resolve network mode. -NetworkMode wins; -DisablePublicAccess (deprecated) maps to 'vnet'.
         $effectiveNetworkMode = if ($NetworkMode) { $NetworkMode } elseif ($DisablePublicAccess) { 'vnet' } else { 'public' }
+
+        if ($FabricQueryUri -and $effectiveNetworkMode -ne 'public')
+        {
+            Write-Warning 'Fabric eventhouse ingestion pulls files from storage and might not be able to pass the storage firewall. If data stays in storage, allow Fabric access. See https://github.com/microsoft/finops-toolkit/issues/2061.'
+        }
         if (-not $NetworkMode -and $DisablePublicAccess) { Write-Warning "-DisablePublicAccess is deprecated; use -NetworkMode 'vnet' or -NetworkMode 'private'." }
 
         # Accept a "v" prefix (for example, v14 or v14.0); releases are matched without it
@@ -403,7 +408,27 @@ function Deploy-FinOpsHub
         if (Test-ShouldProcess $PSCmdlet $ResourceGroupName 'DeployFinOpsHub')
         {
             Write-Verbose -Message ($LocalizedData.Hub_Deploy_Deploy -f $bicepFile.FullName, $resourceGroupObject.ResourceGroupName)
-            return New-AzResourceGroupDeployment @parameterSplat -ResourceGroupName $resourceGroupObject.ResourceGroupName
+            $deployment = New-AzResourceGroupDeployment @parameterSplat -ResourceGroupName $resourceGroupObject.ResourceGroupName
+
+            if ($FabricQueryUri -and $deployment.Outputs -and $deployment.Outputs.dataFactoryName)
+            {
+                # The grant is best-effort: a lookup failure must not fail a deployment that already succeeded
+                try
+                {
+                    $adf = Get-AzDataFactoryV2 -ResourceGroupName $resourceGroupObject.ResourceGroupName -Name $deployment.Outputs.dataFactoryName.Value -ErrorAction Stop
+                    if (-not $adf.Identity)
+                    {
+                        throw 'The Data Factory has no managed identity.'
+                    }
+                    Grant-FinOpsHubFabricAccess -QueryUri $FabricQueryUri -PrincipalId $adf.Identity.PrincipalId -TenantId $adf.Identity.TenantId -WhatIf:$WhatIfPreference
+                }
+                catch
+                {
+                    Write-Warning "Could not grant the Data Factory identity access to the Fabric eventhouse. Run the .add database command manually (see https://aka.ms/finops/hubs/deploy#optional-configure-fabric-access). $($_.Exception.Message)"
+                }
+            }
+
+            return $deployment
         }
     }
     catch
