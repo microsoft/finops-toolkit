@@ -39,7 +39,10 @@
     Sets up a local FinOps hub in the emulator at http://localhost:8082 using the latest release.
 
     .EXAMPLE
-    Initialize-FinOpsHubLocal -ClusterUri 'http://localhost:8082' -RawRetentionInDays 30 -SkipOpenData
+    Initialize-FinOpsHubLocal `
+        -ClusterUri 'http://localhost:8082' `
+        -RawRetentionInDays 30 `
+        -SkipOpenData
 
     Sets up the databases and schema with 30-day raw retention and skips loading open data.
 
@@ -183,6 +186,18 @@ function Initialize-FinOpsHubLocal
                 # The emulator's first external data read after setup can return no rows without
                 # raising an error. Load, verify the tables filled, and retry before giving up.
                 $openDataTables = @('PricingUnits', 'Regions', 'ResourceTypes', 'Services')
+
+                # Releases pinned through -ReleaseUri may predate these tables, so only verify them when the script loads them.
+                if ($openDataScript -like '*.set-or-replace InstanceSizeFlexibility *')
+                {
+                    $openDataTables += 'InstanceSizeFlexibility'
+                }
+
+                if ($openDataScript -like '*.set-or-replace CommitmentDiscountEligibility *')
+                {
+                    $openDataTables += 'CommitmentDiscountEligibility'
+                }
+
                 $maxAttempts = 5
                 for ($attempt = 1; $attempt -le $maxAttempts; $attempt++)
                 {

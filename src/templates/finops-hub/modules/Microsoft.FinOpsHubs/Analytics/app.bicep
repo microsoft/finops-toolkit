@@ -28,6 +28,12 @@ param core CoreMetadata
 @maxLength(22)
 param clusterName string = ''
 
+@description('Optional. Enable disk encryption on the Azure Data Explorer cluster. Default: false.')
+param enableDataExplorerDiskEncryption bool = false
+
+@description('Optional. Enable double encryption on the Azure Data Explorer cluster. Can only be enabled during cluster creation. Default: false.')
+param enableDataExplorerDoubleEncryption bool = false
+
 // https://learn.microsoft.com/azure/templates/microsoft.kusto/clusters?pivots=deployment-language-bicep#azuresku
 @description('Optional. Name of the Azure Data Explorer SKU. Default: "Dev(No SLA)_Standard_E2a_v4".')
 @allowed([
@@ -141,6 +147,13 @@ var ftkReleaseUri = indexOf(finOpsToolkitVersion, '-dev') != -1
 
 var useFabric = !empty(fabricQueryUri)
 var useAzure = !useFabric && !empty(clusterName)
+
+var diskEncryptionProperties = !enableDataExplorerDiskEncryption ? {} : {
+  enableDiskEncryption: true
+}
+var doubleEncryptionProperties = !enableDataExplorerDoubleEncryption ? {} : {
+  enableDoubleEncryption: true
+}
 
 // cSpell:ignore ftkver, privatelink
 var dataExplorerDnsSuffixLookup = {
@@ -306,6 +319,8 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = if (useAzure) {
   }
   properties: {
     enableStreamingIngest: true
+    ...diskEncryptionProperties
+    ...doubleEncryptionProperties
     enableAutoStop: false
     publicNetworkAccess: app.hub.options.privateRouting ? 'Disabled' : 'Enabled'
     // TODO: Figure out why this is breaking upgrades
@@ -481,8 +496,12 @@ resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtu
 }
 
 // Private endpoint
+// Kusto rejects concurrent cluster writes with ServiceIsInMaintenance, so private endpoint changes wait for the database scripts
 resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (useAzure && app.hub.options.privateRouting) {
   name: '${cluster.name}-ep'
+  dependsOn: [
+    hub_LatestScripts
+  ]
   location: app.hub.location
   tags: union(app.tags, app.hub.tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
   properties: {
@@ -546,6 +565,9 @@ resource dataFactoryVNet 'Microsoft.DataFactory/factories/managedVirtualNetworks
 
   resource dataExplorerManagedPrivateEndpoint 'managedPrivateEndpoints' = {
     name: HUB_DATA_EXPLORER
+    dependsOn: [
+      dataExplorerEndpoint
+    ]
     properties: {
       name: HUB_DATA_EXPLORER
       groupId: 'cluster'
@@ -1081,8 +1103,70 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                     }
                     userProperties: []
                     typeProperties: {
-                      command: '.set-or-replace Services <| externaldata(x_ConsumedService: string, x_ResourceType: string, ServiceName: string, ServiceCategory: string, ServiceSubcategory: string, PublisherName: string, x_PublisherCategory: string, x_Environment: string, x_ServiceModel: string)[@"${ftkReleaseUri}/Services.csv"] with (format="csv", ignoreFirstRecord=true)'
+                      command: '.set-or-replace Services <| externaldata(x_ConsumedService: string, x_ResourceType: string, ServiceName: string, ServiceCategory: string, ServiceSubcategory: string, PublisherName: string, x_PublisherCategory: string, x_Environment: string, x_ServiceModel: string, x_SkuMeterCategory: string)[@"${ftkReleaseUri}/Services.csv"] with (format="csv", ignoreFirstRecord=true)'
                       commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
+                      }
+                    }
+                  }
+                  { // Update InstanceSizeFlexibility in ADX
+                    name: 'Update InstanceSizeFlexibility in ADX'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Update Services in ADX'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: '.set-or-replace InstanceSizeFlexibility <| externaldata(InstanceSizeFlexibilityGroup: string, ArmSkuName: string, Ratio: real)[@"${ftkReleaseUri}/InstanceSizeFlexibility.csv"] with (format="csv", ignoreFirstRecord=true)'
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
+                      }
+                    }
+                  }
+                  { // Update CommitmentDiscountEligibility in ADX
+                    name: 'Update CommitmentDiscountEligibility in ADX'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Update InstanceSizeFlexibility in ADX'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 2  // Larger CSV; retry transient failures
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: '.set-or-replace CommitmentDiscountEligibility <| externaldata(MeterId: string, x_CommitmentDiscountSpendEligibility: string, x_CommitmentDiscountUsageEligibility: string)[@"${ftkReleaseUri}/CommitmentDiscountEligibility.csv"] with (format="csv", ignoreFirstRecord=true)'
+                      commandTimeout: '00:30:00'
                     }
                     linkedServiceName: {
                       referenceName: linkedService_dataExplorer.name
@@ -1097,7 +1181,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                     type: 'SetVariable'
                     dependsOn: [
                       {
-                        activity: 'Update Services in ADX'
+                        activity: 'Update CommitmentDiscountEligibility in ADX'
                         dependencyConditions: [
                           'Succeeded'
                         ]
@@ -1694,6 +1778,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
             }
           }
           fieldList: [
+            'exists'
             'childItems'
           ]
           storeSettings: {
@@ -1720,7 +1805,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
         userProperties: []
         typeProperties: {
           items: {
-            value: '@if(contains(activity(\'Get Existing Parquet Files\').output, \'childItems\'), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
+            value: '@if(and(activity(\'Get Existing Parquet Files\').output.exists, contains(activity(\'Get Existing Parquet Files\').output, \'childItems\')), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
             type: 'Expression'
           }
           condition: {

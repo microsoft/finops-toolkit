@@ -138,6 +138,8 @@
           href: toolkit/hubs/configure-recommendations.md
         - name: Configure dashboards
           href: toolkit/hubs/configure-dashboards.md
+        - name: Configure row-level security
+          href: toolkit/hubs/configure-row-level-security.md
         - name: Configure AI agents
           href: toolkit/hubs/configure-ai.md
         - name: Configure AI in Copilot Studio
@@ -196,6 +198,12 @@
           href: toolkit/alerts/finops-alerts-overview.md
         - name: Configure alerts
           href: toolkit/alerts/configure-finops-alerts.md
+    - name: FinOps multitool
+      items:
+        - name: Overview
+          href: toolkit/multitool/finops-multitool-overview.md
+        - name: Commands
+          href: toolkit/powershell/multitool/finops-multitool-commands.md
     - name: Optimization engine
       items:
         - name: Overview
@@ -216,8 +224,8 @@
           href: toolkit/optimization-engine/troubleshooting.md
         - name: Reference
           href: toolkit/optimization-engine/reference.md
-    - name: Open data
-      href: toolkit/open-data.md
+    - name: Agent plugins
+      href: toolkit/agent-plugin/finops-toolkit-agent-plugin-overview.md
     - name: PowerShell
       items:
         - name: All commands
@@ -242,6 +250,12 @@
               href: toolkit/powershell/cost/remove-finopscostexport.md
             - name: Start-FinOpsCostExport
               href: toolkit/powershell/cost/start-finopscostexport.md
+        - name: FinOps multitool
+          items:
+            - name: FinOps multitool commands
+              href: toolkit/powershell/multitool/finops-multitool-commands.md
+            - name: Start-FinOpsMultitool
+              href: toolkit/powershell/multitool/start-finopsmultitool.md
         - name: FinOps hubs
           items:
             - name: FinOps hubs commands
@@ -264,6 +278,10 @@
           items:
             - name: Open data commands
               href: toolkit/powershell/data/open-data-commands.md
+            - name: Get-FinOpsCommitmentDiscountEligibility
+              href: toolkit/powershell/data/get-finopscommitmentdiscounteligibility.md
+            - name: Get-FinOpsInstanceSizeFlexibility
+              href: toolkit/powershell/data/get-finopsinstancesizeflexibility.md
             - name: Get-FinOpsPricingUnit
               href: toolkit/powershell/data/get-finopspricingunit.md
             - name: Get-FinOpsRegion
@@ -278,6 +296,8 @@
           href: toolkit/bicep-registry/modules.md
         - name: Scheduled actions
           href: toolkit/bicep-registry/scheduled-actions.md
+    - name: Open data
+      href: toolkit/open-data.md
     - name: Data Lake Storage connectivity
       href: toolkit/data-lake-storage-connectivity.md
     - name: Help + support

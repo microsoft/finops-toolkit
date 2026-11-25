@@ -3,7 +3,7 @@ title: FinOps toolkit PowerShell module
 description: Automate and scale your FinOps efforts using the FinOps toolkit PowerShell module, which includes commands to manage FinOps solutions.
 author: flanakin
 ms.author: micflan
-ms.date: 08/13/2026
+ms.date: 11/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -19,7 +19,7 @@ The FinOps toolkit PowerShell module is a collection of commands to automate and
 
 ## Install the module
 
-The FinOps toolkit module requires PowerShell 7, which is built into [Azure Cloud Shell](https://portal.azure.com/#cloudshell) and supported on all major operating systems. 
+The FinOps toolkit module requires PowerShell 7, which is built into [Azure Cloud Shell](https://portal.azure.com/#cloudshell) and supported on all major operating systems.
 
 Azure Cloud Shell comes with PowerShell 7 and Azure PowerShell preinstalled. If you aren't using Azure Cloud Shell, you need to [Install PowerShell](/powershell/scripting/install/installing-powershell) first and then run the following commands to install Azure PowerShell:
 
@@ -54,23 +54,32 @@ The FinOps toolkit PowerShell module includes commands to manage FinOps solution
 
 ### Cost Management commands
 
+- [Add-FinOpsServicePrincipal](cost/add-finopsserviceprincipal.md) – Grants a service principal or managed identity access to an Enterprise Agreement billing account or department.
 - [Get-FinOpsCostExport](cost/Get-FinOpsCostExport.md) – Get details about Cost Management exports.
 - [New-FinOpsCostExport](cost/New-FinOpsCostExport.md) – Create a new Cost Management export.
 - [Remove-FinOpsCostExport](cost/Remove-FinOpsCostExport.md) – Delete a Cost Management export and optionally data associated with the export.
 - [Start-FinOpsCostExport](cost/Start-FinOpsCostExport.md) – Initiates a Cost Management export run for the most recent period.
 
+### FinOps multitool commands
+
+- [Start-FinOpsMultitool](multitool/Start-FinOpsMultitool.md) – Launch the interactive FinOps multitool terminal UI to scan for cost, governance, and optimization insights.
+
 ### FinOps hubs commands
 
+- [Add-FinOpsHubScope](hubs/add-finopshubscope.md) – Adds a scope to be monitored by a FinOps hub instance.
 - [Deploy-FinOpsHub](hubs/Deploy-FinOpsHub.md) – Deploy your first hub or update to the latest version.
 - [Get-FinOpsHub](hubs/Get-FinOpsHub.md) – Get details about your FinOps hub instance.
 - [Initialize-FinOpsHubDeployment](hubs/Initialize-FinOpsHubDeployment.md) – Initializes the deployment for FinOps hubs.
 - [Initialize-FinOpsHubLocal](hubs/initialize-finopshublocal.md) – Set up a local FinOps hub in a running Kusto emulator.
 - [Register-FinOpsHubProviders](hubs/Register-FinOpsHubProviders.md) – Registers resource providers for FinOps hubs.
 - [Remove-FinOpsHub](hubs/Remove-FinOpsHub.md) – Deletes a FinOps hub instance.
+- [Remove-FinOpsHubScope](hubs/remove-finopshubscope.md) – Stops monitoring a scope within a FinOps hub instance.
 
 ### Open data commands
 
-- [Get-FinOpsPricingUnit](data/Get-FinOpsPricingUnit.md) – Gets an Azure region ID and name.
+- [Get-FinOpsCommitmentDiscountEligibility](data/Get-FinOpsCommitmentDiscountEligibility.md) – Gets commitment discount eligibility for a meter.
+- [Get-FinOpsInstanceSizeFlexibility](data/Get-FinOpsInstanceSizeFlexibility.md) – Gets the instance size flexibility group and ratio for an ARM SKU.
+- [Get-FinOpsPricingUnit](data/Get-FinOpsPricingUnit.md) – Gets a pricing unit with its corresponding distinct unit and block size.
 - [Get-FinOpsRegion](data/Get-FinOpsRegion.md) – Gets an Azure region ID and name.
 - [Get-FinOpsResourceType](data/Get-FinOpsResourceType.md) – Gets details about an Azure resource type.
 - [Get-FinOpsService](data/Get-FinOpsService.md) – Gets the name and category for a service, publisher, and cloud provider.

@@ -3,7 +3,7 @@ title: FinOps toolkit overview
 description: Learn how the FinOps toolkit helps you automate and extend the Microsoft Cloud with starter kits, scripts, and advanced solutions to improve FinOps practices.
 author: flanakin
 ms.author: micflan
-ms.date: 08/05/2026
+ms.date: 11/23/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -31,8 +31,11 @@ The FinOps toolkit is an ever-evolving collection of tools and resources. The fo
 - [FinOps workbooks](./workbooks/finops-workbooks-overview.md) – Central hub for cost optimization.
   - [Cost optimization workbook](./workbooks/optimization.md) – Central hub for cost optimization.
   - [Governance workbook](./workbooks/governance.md) – Central hub for governance.
+- [FinOps alerts](./alerts/finops-alerts-overview.md) – Automate cost optimization by managing idle resources.
 - [Azure Optimization Engine](./optimization-engine/overview.md) – Extensible solution for custom optimization recommendations.
+- [Agent plugin](./agent-plugin/finops-toolkit-agent-plugin-overview.md) – AI-powered cloud financial management for Claude Code and GitHub Copilot CLI.
 - [PowerShell module](./powershell/powershell-commands.md) – Automate and manage FinOps solutions and capabilities.
+- [FinOps multitool](./powershell/multitool/finops-multitool-commands.md) – Scan an Azure environment for cost, governance, and optimization insights from a terminal UI, with agent skills so AI assistants can run the same analysis.
 - [Bicep Registry modules](./bicep-registry/modules.md) – Official repository for Bicep modules.
 - [Open data](open-data.md) – Data available for anyone to access, use, and share without restriction.
   - [Pricing units](open-data.md#pricing-units) – Microsoft pricing units, distinct units, and scaling factors.

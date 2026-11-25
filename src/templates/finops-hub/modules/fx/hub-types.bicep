@@ -73,10 +73,12 @@ type HubRoutingProperties = {
     enableTelemetry: 'Indicates whether telemetry should be enabled for deployments.'
     keyVaultSku: 'KeyVault SKU. Allowed values: "standard", "premium".'
     keyVaultEnablePurgeProtection: 'Indicates whether purge protection is enabled for the Key Vault. When enabled, deleted Key Vault and its secrets cannot be permanently deleted until the retention period expires, which is required for compliance in some environments.'
+    keyVaultEnableRbacAuthorization: 'Indicates whether the Key Vault uses Azure RBAC instead of access policies to authorize access to secrets. When enabled, access policies are ignored and callers need an RBAC role assignment (e.g., Key Vault Secrets User) on the vault, which is required for compliance in some environments.'
     networkAddressPrefix: 'Address prefix for the FinOps hub isolated virtual network, if private network routing is enabled.'
     natGateway: 'Indicates whether a NAT Gateway should be deployed for controlled outbound internet access. When enabled, the script and Data Explorer subnets route outbound traffic through the NAT Gateway.'
     privateRouting: 'Indicates whether private network routing is enabled.'
     publisherIsolation: 'Indicates whether FinOps hub resources should be separated by publisher for advanced security.'
+    disableStorageSharedKeyAccess: 'Indicates whether Shared Key (storage account key) authentication is disabled on hub storage accounts. When enabled, only Microsoft Entra ID and managed identity authentication are allowed. This does not affect Data Factory, which already authenticates via managed identity and RBAC. Power BI storage reports must then sign in with Microsoft Entra ID (Storage Blob Data Reader); SAS tokens and account keys stop working. Does not apply to the private-mode deployment script storage account, which requires Shared Key access.'
     storageInfrastructureEncryption: 'Indicates whether infrastructure encryption is enabled for the storage account.'
     storageSku: 'Storage account SKU. Allowed values: "Premium_LRS", "Premium_ZRS".'
   }
@@ -98,10 +100,12 @@ type HubProperties = {
     enableTelemetry: bool
     keyVaultSku: string
     keyVaultEnablePurgeProtection: bool
+    keyVaultEnableRbacAuthorization: bool
     networkAddressPrefix: string
     natGateway: bool
     privateRouting: bool
     publisherIsolation: bool
+    disableStorageSharedKeyAccess: bool
     storageInfrastructureEncryption: bool
     storageSku: string
   }
@@ -194,7 +198,9 @@ func newHubInternal(
   storageSku string,
   keyVaultSku string,
   keyVaultEnablePurgeProtection bool,
+  keyVaultEnableRbacAuthorization bool,
   enableInfrastructureEncryption bool,
+  disableStorageSharedKeyAccess bool,
   enablePublicAccess bool,
   enableNatGateway bool,
   networkName string,
@@ -215,10 +221,12 @@ func newHubInternal(
     enableTelemetry: isTelemetryEnabled ?? true
     keyVaultSku: keyVaultSku
     keyVaultEnablePurgeProtection: keyVaultEnablePurgeProtection
+    keyVaultEnableRbacAuthorization: keyVaultEnableRbacAuthorization
     networkAddressPrefix: networkAddressPrefix
     natGateway: !enablePublicAccess && enableNatGateway
     privateRouting: !enablePublicAccess
     publisherIsolation: false  // TODO: Expose publisher isolation option
+    disableStorageSharedKeyAccess: disableStorageSharedKeyAccess
     storageInfrastructureEncryption: enableInfrastructureEncryption
     storageSku: storageSku
   }
@@ -256,7 +264,9 @@ func newHub(
   storageSku string,
   keyVaultSku string,
   keyVaultEnablePurgeProtection bool,
+  keyVaultEnableRbacAuthorization bool,
   enableInfrastructureEncryption bool,
+  disableStorageSharedKeyAccess bool,
   enablePublicAccess bool,
   enableNatGateway bool,
   networkAddressPrefix string,
@@ -271,7 +281,9 @@ func newHub(
   storageSku,
   keyVaultSku,
   keyVaultEnablePurgeProtection,
+  keyVaultEnableRbacAuthorization,
   enableInfrastructureEncryption,
+  disableStorageSharedKeyAccess,
   enablePublicAccess,
   enableNatGateway,
   '${safeStorageName(name)}-vnet-${location}',    // networkName, cSpell:ignore vnet

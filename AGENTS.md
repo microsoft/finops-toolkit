@@ -168,27 +168,29 @@ The PowerShell-based build system:
 
 ### Git Operations Policy
 
-This repository supports production infrastructure managing significant revenue. All git operations must be non-destructive and preserve full commit history.
+This repository supports production infrastructure managing significant revenue. All git operations on shared branches (`main`, `dev`, `features/*`) must be non-destructive and preserve full commit history. On personal branches (`{username}/*`), the only history-rewriting operations permitted are rebase and force-push with lease (see below), to keep PR history clean against `origin/dev`.
+
+Changes reach `dev` only through squash-merge PRs; merges to `main` are blocked. A personal branch counts as shared while another branch or PR is based on it. Always fetch before rewriting a personal branch, because the `update-mslearn-dates.yml` workflow and maintainers can push to it.
 
 **Permitted operations:**
 
-- `git add`, `git commit`, `git push` (standard push only)
-- `git merge` (merge commits to integrate branches — the only permitted way to sync with `dev` or resolve conflicts)
+- `git add`, `git commit`, `git push` (standard push; force-push only as described under prohibited operations)
+- `git merge` (shared branches only)
 - `git checkout`, `git switch`, `git branch` (branch creation and switching)
 - `git worktree add`, `git worktree remove`, `git worktree prune` (worktree lifecycle)
-- `git fetch`, `git pull` (with merge, not rebase)
+- `git fetch`, `git pull` (with merge on shared branches; `git pull --rebase` on personal branches)
 - `git stash`, `git stash pop` (temporary local state management)
 - `git status`, `git log`, `git diff`, `git show` (read-only inspection)
 
 **Prohibited operations:**
 
-- `git rebase` — rewrites commit history. Never permitted on shared branches. Not permitted as a conflict resolution strategy.
-- `git push --force` / `git push --force-with-lease` — destructive remote update. Never permitted.
+- `git rebase` on a shared branch
+- `git push --force` — never permitted. On a personal branch, push with `git push --force-with-lease --force-if-includes` only, after integrating remote commits. Never permitted on a shared branch.
 - `git reset --hard` to a state behind the remote (discarding pushed commits)
 - `git filter-branch`, `git reflog`-based history manipulation
-- Any operation that rewrites, reorders, squashes, or deletes commits that have been pushed to the remote
+- Any other history rewrite of pushed commits (for example, squashing with `git reset --soft`)
 
-**Conflict resolution:** When a branch has merge conflicts with `dev`, the only permitted approach is `git merge origin/dev` into the feature branch. This creates a merge commit and preserves all history.
+**Conflict resolution:** On a personal branch, sync with `dev` using only `git rebase origin/dev` then force-push with lease; never merge `dev` into it, or the PR shows merged files as changed. On a shared branch, use only `git merge origin/dev`.
 
 **Common conflict patterns in this repository:**
 
@@ -197,7 +199,7 @@ This repository supports production infrastructure managing significant revenue.
 - **`src/scripts/Update-Version.ps1`** — This script has multiple independent version-update blocks (PowerShell, Bicep, plugin.json, survey IDs, etc.). When both sides add new blocks, keep both — they operate on different file sets and do not conflict logically.
 - **`docs-mslearn/toolkit/changelog.md`** — Both sides may add entries under the same version heading. Keep entries from both sides in logical order (plugin entries, then component entries).
 
-**AI agents must ask for explicit approval** before executing any git write operation (`commit`, `push`, `merge`). Read-only git commands (`status`, `log`, `diff`, `branch --list`, `worktree list`) do not require approval.
+**AI agents must ask for explicit approval** before executing any git write operation (`commit`, `push`, `merge`, `rebase`). Read-only git commands (`status`, `log`, `diff`, `branch --list`, `worktree list`) do not require approval.
 
 ### File Organization
 

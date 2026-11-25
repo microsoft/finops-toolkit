@@ -217,7 +217,7 @@ Official Microsoft documentation for FinOps and the FinOps toolkit. Source: [lea
 | [finops-toolkit-overview.md](references/docs-mslearn/toolkit/finops-toolkit-overview.md) | FinOps toolkit overview |
 | [changelog.md](references/docs-mslearn/toolkit/changelog.md) | Toolkit changelog |
 | [roadmap.md](references/docs-mslearn/toolkit/roadmap.md) | Toolkit roadmap |
-| [open-data.md](references/docs-mslearn/toolkit/open-data.md) | Open data (pricing units, regions, services, resource types) |
+| [open-data.md](references/docs-mslearn/toolkit/open-data.md) | Open data (pricing units, regions, services, resource types, commitment discount eligibility, instance size flexibility) |
 | [data-lake-storage-connectivity.md](references/docs-mslearn/toolkit/data-lake-storage-connectivity.md) | Data lake storage connectivity |
 
 ### FinOps hubs
@@ -318,6 +318,8 @@ Official Microsoft documentation for FinOps and the FinOps toolkit. Source: [lea
 | File | Description |
 |------|-------------|
 | [open-data-commands.md](references/docs-mslearn/toolkit/powershell/data/open-data-commands.md) | Open data commands overview |
+| [get-finopscommitmentdiscounteligibility.md](references/docs-mslearn/toolkit/powershell/data/get-finopscommitmentdiscounteligibility.md) | Get-FinOpsCommitmentDiscountEligibility |
+| [get-finopsinstancesizeflexibility.md](references/docs-mslearn/toolkit/powershell/data/get-finopsinstancesizeflexibility.md) | Get-FinOpsInstanceSizeFlexibility |
 | [get-finopspricingunit.md](references/docs-mslearn/toolkit/powershell/data/get-finopspricingunit.md) | Get-FinOpsPricingUnit |
 | [get-finopsregion.md](references/docs-mslearn/toolkit/powershell/data/get-finopsregion.md) | Get-FinOpsRegion |
 | [get-finopsresourcetype.md](references/docs-mslearn/toolkit/powershell/data/get-finopsresourcetype.md) | Get-FinOpsResourceType |

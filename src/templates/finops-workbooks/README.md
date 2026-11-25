@@ -43,7 +43,7 @@ To deploy workbooks using ARM templates, you must have:
 - **Workbook Contributor** role to edit and save workbooks.
 - **Reader** role on all subscriptions you want to monitor.
 
-If you run into any issues, see [Troubleshooting FinOps toolkit solutions](https://aka.ms/ftk/tsg).
+If you run into any issues, see [Troubleshooting FinOps toolkit solutions](https://learn.microsoft.com/cloud-computing/finops/toolkit/help/troubleshooting).
 
 <br>
 

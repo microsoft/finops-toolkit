@@ -3,7 +3,7 @@ title: FinOps hubs overview
 description: FinOps hubs provide a reliable platform for cost analytics, insights, and optimization, supporting large accounts and organizations.
 author: flanakin
 ms.author: micflan
-ms.date: 08/13/2026
+ms.date: 11/23/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -25,9 +25,9 @@ FinOps hubs extend Cost Management to provide a scalable platform for advanced d
 
 <!-- prettier-ignore-start -->
 > [!NOTE]
-> Estimated cost: Starts at $120/mo + $10/mo per $1M in cost being monitored.
+> Estimated cost: Starts at ~$330/mo + $10/mo per $1M in cost being monitored.
 >
-> Estimated monthly cost includes $120 for a single-node Azure Data Explorer cluster or $300 for F2 Fabric capacity, plus $10 in Azure storage and processing cost per $1M being monitored. Exact cost will vary based on discounts, data size (we estimate ~20GB per $1M), and Fabric or Power BI license requirements. Cost without Data Explorer or Fabric is $5 per $1M. For details, refer to the [FinOps hub cost estimate](https://aka.ms/finops/hubs/calculator) in the Azure Pricing Calculator.
+> Estimated monthly cost includes ~$330 for a single-node Azure Data Explorer cluster (about $135 for compute, plus the managed VM, load balancer, storage, and public IP that Azure Data Explorer deploys) or $300 for F2 Fabric capacity, plus $10 in Azure storage and processing cost per $1M being monitored. Exact cost will vary based on region (for example, West Europe costs more than West US), discounts, data size (we estimate ~20GB per $1M), and Fabric or Power BI license requirements. Cost without Data Explorer or Fabric is $5 per $1M. For details, refer to the [FinOps hub cost estimate](https://aka.ms/finops/hubs/calculator) in the Azure Pricing Calculator.
 <!-- prettier-ignore-end -->
 
 <br>
@@ -193,7 +193,7 @@ Configuring and managing FinOps hubs requires the following permissions:
   - [Owner](/azure/role-based-access-control/built-in-roles#owner)
   - For least-privileged access, see [template details](template.md#prerequisites).
 - Configuring Power BI requires one of the following
-  - Storage reports: [Storage Blob Data Reader](/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-reader) or SAS token
+  - Storage reports: [Storage Blob Data Reader](/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-reader) or SAS token (SAS tokens don't work if Shared Key access is disabled on the storage account)
   - KQL reports: Viewer on the Hub and Ingestion databases.
 
 CSP customers need to configure exports for each subscription in order to ingest their total cost into FinOps hubs. Cost Management doesn't support management group exports for MCA or CSP subscriptions (as of May 2024).

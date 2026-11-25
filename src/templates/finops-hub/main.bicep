@@ -26,8 +26,14 @@ param storageSku string = 'Premium_LRS'
 @description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
 param enableInfrastructureEncryption bool = false
 
-@description('Optional. Enable purge protection for the Key Vault. Default: false.')
+@description('Optional. Disable Shared Key (storage account key) authentication on hub storage accounts. When enabled, only Microsoft Entra ID and managed identity authentication are allowed. Data Factory already authenticates using managed identity and RBAC, so this does not affect data ingestion. Power BI storage reports must then sign in with Microsoft Entra ID (Storage Blob Data Reader); SAS tokens and account keys stop working. Do not enable this on a hub that receives data from other hubs (remote hub ingestion authenticates with the storage account key). The private-mode deployment script storage account always allows Shared Key access because deployment scripts require it. Default = false.')
+param disableStorageSharedKeyAccess bool = false
+
+@description('Optional. Enable purge protection for the Key Vault. Once enabled on a vault, purge protection cannot be disabled. Default: false.')
 param enablePurgeProtection bool = false
+
+@description('Optional. Enable Azure RBAC for authorizing access to the Key Vault instead of access policies. Required by some organizations for policy compliance (e.g., Cloud Adoption Framework guardrails). Switching an existing vault from access policies to RBAC has migration implications, so this defaults to false for backward compatibility with existing deployments; review before enabling on an upgrade. Default: false.')
+param enableKeyVaultRbacAuthorization bool = false
 
 @description('Optional. Storage account to push data to for ingestion into a remote hub.')
 param remoteHubStorageUri string = ''
@@ -51,12 +57,18 @@ param enableSpotRecommendations bool = false
 @description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).')
 param dataExplorerName string = ''
 
+@description('Optional. Enable disk encryption on the Azure Data Explorer cluster. Default: false.')
+param enableDataExplorerDiskEncryption bool = false
+
+@description('Optional. Enable double encryption on the Azure Data Explorer cluster. Can only be enabled during cluster creation. Default: false.')
+param enableDataExplorerDoubleEncryption bool = false
+
 // https://learn.microsoft.com/azure/templates/microsoft.kusto/clusters?pivots=deployment-language-bicep#azuresku
 @description('Optional. Name of the Azure Data Explorer SKU. Default: "Dev(No SLA)_Standard_D11_v2".')
 @allowed([
-  'Dev(No SLA)_Standard_E2a_v4' // 2 CPU, 16GB RAM, 24GB cache, $110/mo
-  'Dev(No SLA)_Standard_D11_v2' // 2 CPU, 14GB RAM, 78GB cache, $121/mo
-  'Standard_D11_v2'             // 2 CPU, 14GB RAM, 78GB cache, $245/mo
+  'Dev(No SLA)_Standard_E2a_v4' // 2 CPU, 16GB RAM, 24GB cache, ~$115/mo
+  'Dev(No SLA)_Standard_D11_v2' // 2 CPU, 14GB RAM, 78GB cache, ~$135/mo
+  'Standard_D11_v2'             // 2 CPU, 14GB RAM, 78GB cache, ~$295/mo
   'Standard_D12_v2'
   'Standard_D13_v2'
   'Standard_D14_v2'
@@ -67,7 +79,7 @@ param dataExplorerName string = ''
   'Standard_DS13_v2+2TB_PS'
   'Standard_DS14_v2+3TB_PS'
   'Standard_DS14_v2+4TB_PS'
-  'Standard_E2a_v4'            // 2 CPU, 14GB RAM, 78GB cache, $220/mo
+  'Standard_E2a_v4'            // 2 CPU, 16GB RAM, 30GB cache, ~$275/mo
   'Standard_E2ads_v5'
   'Standard_E2d_v4'
   'Standard_E2d_v5'
@@ -144,17 +156,17 @@ param tagsByResource object = {}
 @description('Optional. List of scope IDs to monitor and ingest cost for.')
 param scopesToMonitor array = []
 
-@description('Optional. Number of days of data to retain in the msexports container. Default: 0.')
-param exportRetentionInDays int = 0
+@description('Optional. Number of days of data to retain in the msexports container. If not specified, keeps the current value from settings.json (0 for new hubs).')
+param exportRetentionInDays int?
 
-@description('Optional. Number of months of data to retain in the ingestion container. Default: 13.')
-param ingestionRetentionInMonths int = 13
+@description('Optional. Number of months of data to retain in the ingestion container. If not specified, keeps the current value from settings.json (13 for new hubs).')
+param ingestionRetentionInMonths int?
 
-@description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
-param dataExplorerRawRetentionInDays int = 0
+@description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. If not specified, keeps the current value from settings.json (0 for new hubs).')
+param dataExplorerRawRetentionInDays int?
 
-@description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
-param dataExplorerFinalRetentionInMonths int = 13
+@description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. If not specified, keeps the current value from settings.json (13 for new hubs).')
+param dataExplorerFinalRetentionInMonths int?
 
 @description('Optional. Enable public access to FinOps hubs resources.  Default: true.')
 param enablePublicAccess bool = true
@@ -178,12 +190,16 @@ module hub 'modules/hub.bicep' = {
     // eventGridLocation: eventGridLocation
     storageSku: storageSku
     enableInfrastructureEncryption: enableInfrastructureEncryption
+    disableStorageSharedKeyAccess: disableStorageSharedKeyAccess
     enablePurgeProtection: enablePurgeProtection
+    enableKeyVaultRbacAuthorization: enableKeyVaultRbacAuthorization
     enableManagedExports: enableManagedExports
     enableRecommendations: enableRecommendations
     enableAHBRecommendations: enableAHBRecommendations
     enableSpotRecommendations: enableSpotRecommendations
     dataExplorerName: dataExplorerName
+    enableDataExplorerDiskEncryption: enableDataExplorerDiskEncryption
+    enableDataExplorerDoubleEncryption: enableDataExplorerDoubleEncryption
     dataExplorerSku: dataExplorerSku
     dataExplorerCapacity: dataExplorerCapacity
     fabricQueryUri: fabricQueryUri
