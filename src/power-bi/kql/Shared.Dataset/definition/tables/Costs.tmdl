@@ -1874,12 +1874,23 @@ table Costs
 				        PromotedTags = {"Application", "BusinessUnit", "CostCenter", "Department", "Division", "Env", "Owner", "Product", "Project", "Purpose", "Service"},
 				
 				        // This option matches tag keys that may have different case (for example, 'env' and 'ENV')
-				        // NOTE: This option slows down the query significantly. Disable it if tag queries are failing.
+				        // NOTE: This option makes tag matching slower than a direct lookup. Disable it if tag queries are failing.
 				        Handle_mixed_case_tags = true,
 				
 				        // This option removes any unwanted spaces before or after the tag key
-				        // NOTE: This option slows down the query significantly. Disable it if tag queries are failing.
+				        // NOTE: This option makes tag matching slower than a direct lookup. Disable it if tag queries are failing.
 				        Trim_spaces_from_tags = true,
+				
+				    // Tag helpers
+				    TagColumn = (tag as text) as text => "tag_" & Text.Replace(Text.Replace(tag, ":", "_"), " ", ""),
+				    // Regex that finds the tag key in the serialized Tags JSON and captures its string value, honoring the tag options above
+				    TagPattern = (tag as text) as text =>
+				        let
+				            spaces = if Trim_spaces_from_tags then " *" else "",
+				            name = if Trim_spaces_from_tags then Text.Replace(tag, " ", "") else tag,
+				            key = Text.Combine(List.Transform(Text.ToList(name), each (if _ = """" then "\\" else if Text.Contains("\.^$|?*+()[]{}", _) then "\" else "") & Text.Replace(_, "'", "''") & spaces))
+				        in
+				            (if Handle_mixed_case_tags then "(?i)" else "") & "[{,]""" & spaces & key & """:""((?:[^""\\]|\\.)*)""",
 				
 				    // Init report parameters
 				    lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
@@ -1937,18 +1948,16 @@ table Costs
 				        'Unknown'
 				    )
 				    //" & (if List.Count(PromotedTags) > 0 then (
+				        // Match keys with a regex on the serialized tags; each tag_* column stays independent, so queries that don't use it skip it
+				        // Relies on tostring() of a dynamic bag emitting compact JSON (no spaces after ':' or ','), non-ASCII characters unescaped,
+				        // and keys in bag_keys() order (so the first matching key wins, as before). Tags is serialized once here and reused below.
 				        if Handle_mixed_case_tags or Trim_spaces_from_tags then ("
-				            | extend keys = bag_keys(Tags)
-				            | extend cleankeys = " & (
-				                if Handle_mixed_case_tags and Trim_spaces_from_tags then "parse_json(replace_string(tolower(keys), ' ', ''))"
-				                else if Handle_mixed_case_tags                      then "parse_json(tolower(keys))"
-				                else if Trim_spaces_from_tags                       then "parse_json(replace_string(keys, ' ', ''))"
-				                else "keys"
-				            ) & "
-				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & Text.Replace(Text.Replace(_, ":", "_"), " ", "") & " = iff(array_index_of(cleankeys, tolower('" & _ & "')) < 0, '', tostring(Tags[tostring(keys[toint(array_index_of(cleankeys, tolower('" & _ & "')))])]))"), ", ") & "
-				            | project-away keys, cleankeys"
+				            | extend Tags = tostring(Tags)
+				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tmp_" & TagColumn(_) & " = extract(@'" & TagPattern(_) & "', 1, Tags)"), ", ") & "
+				            | extend " & Text.Combine(List.Transform(PromotedTags, each TagColumn(_) & " = iff(tmp_" & TagColumn(_) & " contains_cs @'\', tostring(parse_json(strcat('""', tmp_" & TagColumn(_) & ", '""'))), tmp_" & TagColumn(_) & ")"), ", ") & "
+				            | project-away tmp_tag_*"
 				        ) else ("
-				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & Text.Replace(Text.Replace(_, ":", "_"), " ", "") & " = tostring(Tags['" & _ & "'])"), ", ")
+				            | extend " & Text.Combine(List.Transform(PromotedTags, each TagColumn(_) & " = tostring(Tags[@'" & Text.Replace(_, "'", "''") & "'])"), ", ")
 				        )
 				    ) else "") & "
 				    //

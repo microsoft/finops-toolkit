@@ -106,6 +106,8 @@ _**Breaking change**_
   - Changed the `x_IncrementalRefreshDate` column in storage reports from text to Date/Time. Update any custom filters, measures, or visuals that treat it as text or a number ([#2314](https://github.com/microsoft/finops-toolkit/issues/2314)).
 - **Fixed**
   - Replaced dead `aka.ms/ftk/pbi/invoicing` links in the Invoicing and chargeback report with direct Microsoft Learn links. Reports already installed (v15 and earlier) keep the dead link until the `aka.ms/ftk/pbi/invoicing` redirect is repaired ([#2319](https://github.com/microsoft/finops-toolkit/issues/2319)).
+  - Fixed slow KQL report visuals that use a promoted `tag_*` column. Tag keys are now matched with one regex per tag instead of normalizing every key on every row, so a visual pays only for the tags it uses. A single-tag visual uses about one-third of the previous CPU, and visuals that don't use tags are unchanged. Tag values that aren't strings, which Azure doesn't produce, now come back empty ([#2336](https://github.com/microsoft/finops-toolkit/issues/2336)).
+  - Fixed the KQL reports failing to load when `Trim_spaces_from_tags` is enabled without `Handle_mixed_case_tags`, which generated a query that called `replace_string()` on an array ([#2336](https://github.com/microsoft/finops-toolkit/issues/2336)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v16
 
