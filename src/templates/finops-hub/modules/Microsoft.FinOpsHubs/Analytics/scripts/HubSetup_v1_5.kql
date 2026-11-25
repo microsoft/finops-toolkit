@@ -1,0 +1,24 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+//======================================================================================================================
+// Hub database / FOCUS 1.5 functions (Prices only for now)
+// Used for reporting with backward compatibility.
+//======================================================================================================================
+
+// For allowed commands, see https://learn.microsoft.com/azure/data-explorer/database-script
+
+
+
+// Prices_final_v1_5
+.create-or-alter function
+with (docstring = 'Gets all prices aligned to FOCUS 1.5.', folder = 'Prices')
+Prices_v1_5()
+{
+    database('Ingestion').Prices_final_v1_5
+    | union (
+        // Earlier versions don't have price factors
+        Prices_v1_2()
+        | extend x_FlexPlanProductCode = '', x_PriceFactors = dynamic(null)
+    )
+}
