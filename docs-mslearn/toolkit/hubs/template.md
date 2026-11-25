@@ -3,7 +3,7 @@ title: FinOps hub template
 description: Learn about what's included in the FinOps hub template including parameters, resources, and outputs.
 author: flanakin
 ms.author: micflan
-ms.date: 10/29/2026
+ms.date: 11/25/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -92,7 +92,7 @@ Here are the parameters you can use to customize the deployment:
 | **dataExplorerSkuCapacity**            | Int    | Optional. Number of nodes to use in the cluster. Allowed values: 1 for the Basic SKU tier and 2-1000 for Standard. Default: 1.                                                                                                                                                                                                         |                    |
 | **tags**                               | Object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                                                                                                                                                                                 |                    |
 | **tagsByResource**                     | Object | Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.                                                                                                                                                                                             |                    |
-| **scopesToMonitor**                    | Array  | Optional. List of scope IDs to monitor and ingest cost for.                                                                                                                                                                                                                                                                            |                    |
+| **scopesToMonitor**                    | Array  | Optional. List of scope ID strings to monitor and ingest cost for. Objects such as `{ "scope": "..." }` aren't accepted. See [scopesToMonitor format](#scopestomonitor-format). |                    |
 | **exportRetentionInDays**              | Int    | Optional. Number of days of data to retain in the msexports container. If not specified, a redeploy keeps the current value in **config/settings.json**.                                                                                                                                                                               | 0 (new hubs)       |
 | **ingestionRetentionInMonths**         | Int    | Optional. Number of months of data to retain in the ingestion container. If not specified, a redeploy keeps the current value in **config/settings.json**.                                                                                                                                                                             | 13 (new hubs)      |
 | **dataExplorerRawRetentionInDays**     | Int    | Optional. Number of days of data to retain in the Data Explorer \*_raw tables. If not specified, a redeploy keeps the current value in **config/settings.json**.                                                                                                                                                                       | 0 (new hubs)       |
@@ -105,6 +105,32 @@ Here are the parameters you can use to customize the deployment:
 | **enableSpotRecommendations**          | Bool   | Optional. Enable non-Spot AKS cluster recommendations that flag AKS clusters with autoscaling but not using Spot VMs. May generate noise since Spot VMs are only appropriate for interruptible workloads. Requires enableRecommendations.                                                                                                                                                                                                                                                                 | False              |
 | **enablePublicAccess**                 | Bool   | Optional. Disable public access to the data lake (storage firewall).                                                                                                                                                                                                                                                                                                                                                                                                                                      | True               |
 | **virtualNetworkAddressPrefix**        | String | Optional. IP Address range for the private virtual network used by FinOps hubs. Accepts any subnet size from `/8` to `/26` with a minimum of `/26` required. `/26` is recommended to avoid wasting IPs unless you need additional address space for services like Power BI VNet Data Gateway. Internally, the following subnets will be created: `/28` for private endpoints, another `/28` subnet for temporary deployment scripts (container instances), and `/27` for Azure Data Explorer, if enabled. | '10.20.30.0/26'    |
+
+### scopesToMonitor format
+
+The `scopesToMonitor` deployment parameter takes an array of scope ID strings. Don't use the `settings.json` object format for this parameter. The deployment fails validation if any item isn't a string.
+
+**Deployment parameter value: an array of strings**
+
+```json
+[
+  "/providers/Microsoft.Billing/billingAccounts/<billingAccountId>"
+]
+```
+
+**settings.json: the `scopes` property is an array of objects**
+
+```json
+{
+  "scopes": [
+    {
+      "scope": "/providers/Microsoft.Billing/billingAccounts/<billingAccountId>"
+    }
+  ]
+}
+```
+
+`<billingAccountId>` is a placeholder. For more information about `settings.json`, see [Configure scopes](configure-scopes.md).
 
 <br>
 
