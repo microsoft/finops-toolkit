@@ -219,3 +219,35 @@ Describe 'Plugin discovery and marketplaces' {
         }
     }
 }
+
+Describe 'FinOps Guidance package for Microsoft 365' {
+    BeforeAll {
+        $script:Package = Join-Path $script:RepoRoot 'src/templates/finops-guidance-m365'
+        $script:Manifest = Get-Content (Join-Path $script:Package 'manifest.json') -Raw | ConvertFrom-Json
+    }
+
+    It 'Links every declared skill to a shipped agent skill' {
+        $script:Manifest.agentSkills.Count | Should -BeGreaterThan 0
+
+        foreach ($skill in $script:Manifest.agentSkills)
+        {
+            $skill.folder | Should -Match '^\./skills/[a-z0-9-]+$'
+            $name = Split-Path $skill.folder -Leaf
+            Join-Path $script:RepoRoot "src/templates/agent-skills/$name/SKILL.md" | Should -Exist
+
+            # Git checks the link out as a plain file holding its target where core.symlinks is disabled.
+            $link = Get-Item -LiteralPath (Join-Path $script:Package "skills/$name") -Force
+            if (-not $link.PSIsContainer)
+            {
+                (Get-Content -LiteralPath $link.FullName -Raw).Trim() | Should -Be "../../agent-skills/$name"
+            }
+        }
+    }
+
+    It 'Connects only to HTTPS MCP servers' {
+        foreach ($connector in @($script:Manifest.agentConnectors))
+        {
+            $connector.toolSource.remoteMcpServer.mcpServerUrl | Should -Match '^https://'
+        }
+    }
+}

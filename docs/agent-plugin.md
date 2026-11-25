@@ -51,6 +51,15 @@ copilot plugin install microsoft/finops-toolkit
 
 <br>
 
+## Use in Microsoft 365 Copilot
+
+FinOps Guidance brings FinOps guidance to Copilot Cowork in Microsoft 365 Copilot. Ask about Azure and AI costs, savings, billing terms, and FinOps practices. It's designed to check product facts against Microsoft Learn, and it gives guidance only. Upload the package in Cowork for yourself, or in the Microsoft 365 admin center for your organization.
+
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-guidance-m365.zip">Download for Microsoft 365</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/agent-plugin/finops-toolkit-agent-plugin-overview#use-finops-guidance-in-microsoft-365-copilot">Setup steps</a>
+
+<br>
+
 ## Learn more
 
 [Read the full documentation](https://learn.microsoft.com/cloud-computing/finops/toolkit/agent-plugin/finops-toolkit-agent-plugin-overview) for required permissions and setup details.

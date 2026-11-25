@@ -56,6 +56,11 @@ _Released November 2026_
 
 <br>
 
+### [FinOps toolkit agent plugins](agent-plugin/finops-toolkit-agent-plugin-overview.md) v16
+
+- **Added**
+  - Added FinOps Guidance for Microsoft 365 Copilot, a plugin package for Copilot Cowork that answers Microsoft Cloud FinOps and AI cost questions and checks product facts against Microsoft Learn. It gives guidance only and doesn't query cost data. Download `finops-guidance-m365.zip` from the release.
+
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v16
 
 - **Added**

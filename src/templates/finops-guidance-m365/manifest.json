@@ -1,0 +1,45 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.29/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.29",
+  "version": "16.0.0",
+  "id": "cce0ef67-f233-55ca-81ae-8627efffd8cc",
+  "developer": {
+    "name": "FinOps toolkit",
+    "websiteUrl": "https://aka.ms/finops/toolkit",
+    "privacyUrl": "https://go.microsoft.com/fwlink/?LinkID=824704",
+    "termsOfUseUrl": "https://github.com/microsoft/finops-toolkit/blob/main/LICENSE"
+  },
+  "name": {
+    "short": "FinOps Guidance",
+    "full": "FinOps Guidance for Microsoft 365 Copilot"
+  },
+  "description": {
+    "short": "Guidance for Microsoft Cloud FinOps and AI cost questions.",
+    "full": "FinOps Guidance helps Copilot answer Microsoft Cloud FinOps and AI cost questions: why costs changed, how savings and commitments work, what billing and FOCUS terms mean, which FinOps toolkit tool fits and how AI products are billed. It's designed to ask one clarifying question when the answer depends on it, check product facts against current Microsoft Learn documentation and say what it couldn't verify. It includes one skill and a connection to the public Microsoft Learn documentation service, which needs no sign-in. It gives guidance only. It doesn't query your cost data or change anything."
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#0F6CBD",
+  "agentSkills": [
+    {
+      "folder": "./skills/finops-guidance"
+    }
+  ],
+  "agentConnectors": [
+    {
+      "id": "microsoft-learn",
+      "displayName": "Microsoft Learn",
+      "description": "Searches and reads official Microsoft documentation on Microsoft Learn so answers can be checked against current product documentation. Public content. No sign-in.",
+      "toolSource": {
+        "remoteMcpServer": {
+          "mcpServerUrl": "https://learn.microsoft.com/api/mcp",
+          "authorization": {
+            "type": "None"
+          }
+        }
+      }
+    }
+  ]
+}
