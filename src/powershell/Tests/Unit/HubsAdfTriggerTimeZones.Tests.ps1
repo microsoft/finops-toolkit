@@ -178,6 +178,12 @@ Describe 'HubsAdfTriggerTimeZones' {
         }
     }
 
+    Context 'New Zealand North (#2442)' {
+        It 'Maps newzealandnorth to New Zealand Standard Time' {
+            $bicepContent | Should -Match "(?m)^\s*newzealandnorth\s*:\s*'New Zealand Standard Time'" -Because 'unmapped regions fall back to UTC'
+        }
+    }
+
     Context 'Fallback' {
         It "Pins the fallback to the valid Windows ID 'UTC'" {
             # 'UTC' is a real Windows time zone ID; the display name 'Universal Coordinated Time' is not.
