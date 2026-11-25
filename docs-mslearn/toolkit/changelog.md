@@ -114,6 +114,12 @@ _**Breaking change**_
 - **Changed**
   - Clarified in the Azure Hybrid Benefit workbook tile text that each VM counts as at least 8 cores, so the total can exceed the sum of vCPUs ([#2067](https://github.com/microsoft/finops-toolkit/issues/2067)).
 
+### [Power BI reports](power-bi/reports.md) v16
+
+- **Fixed**
+  - Fixed the storage-based Costs query failing to refresh with `Type mismatch (DISP_E_TYPEMISMATCH 0x80020005)` when a row SKU details did not carry a clean numeric VCPUs/vCores value ([#2297](https://github.com/microsoft/finops-toolkit/issues/2297)).
+    - The value is now coerced to null instead of throwing.
+
 ### [PowerShell module](powershell/powershell-commands.md) v16
 
 - **Added**
