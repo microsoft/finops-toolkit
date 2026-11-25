@@ -1071,6 +1071,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "Chaithanyanallamothu",
+      "name": "Chaithanya Nallamothu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/165394070?v=4",
+      "profile": "https://github.com/Chaithanyanallamothu",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitType": "docs",
