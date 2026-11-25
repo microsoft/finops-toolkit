@@ -153,7 +153,7 @@ param tags object = {}
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
 
-@description('Optional. List of scope ID strings to monitor and ingest cost for. Each item must be a string, for example "/providers/Microsoft.Billing/billingAccounts/<billingAccountId>". Do not pass { "scope": "..." } objects; those belong in settings.json.')
+@description('Optional. List of scope ID strings to monitor and ingest cost for. Each item must be a string, for example "/providers/Microsoft.Billing/billingAccounts/<billingAccountId>". Don't pass { "scope": "..." } objects; those belong in settings.json.')
 param scopesToMonitor string[] = []
 
 @description('Optional. Number of days of data to retain in the msexports container. If not specified, keeps the current value from settings.json (0 for new hubs).')
