@@ -130,6 +130,9 @@ _**Breaking change**_
   - Added an optional `x_SkuMeterCategory` column to [Services](open-data.md#services) to split resource types shared by multiple services ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
     - Empty means the row applies to all meter categories for that resource type.
     - Added Azure Backup on Recovery Services vaults, and Functions and Logic Apps on App Service sites.
+  - Added an [AI meters](open-data.md#ai-meters) dataset that classifies Azure AI meters by provider, token type, model, Copilot, commitment, and agent usage.
+    - Generated from a Microsoft Customer Agreement price sheet. The file has no prices or IDs.
+    - The classification rules are based on Dirk Brinkmann's AI meter ruleset.
 
 <br>
 
