@@ -1,0 +1,34 @@
+{
+    "additionalColumns": [],
+    "translator": {
+        "type": "TabularTranslator",
+        "mappings": [
+            {
+                "source": {
+                    "path": "['id']"
+                },
+                "sink": {
+                    "name": "x_RecommendationId"
+                }
+            },
+            {
+                "source": {
+                    "path": "['kind']"
+                },
+                "sink": {
+                    "name": "x_SourceType"
+                }
+            },
+            {
+                "source": {
+                    "path": "['properties']"
+                },
+                "sink": {
+                    "name": "x_RecommendationDetails"
+                }
+            }
+        ],
+        "collectionReference": "$['value']",
+        "mapComplexValuesToString": true
+    }
+}

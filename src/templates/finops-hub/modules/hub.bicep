@@ -62,6 +62,9 @@ param enableAHBRecommendations bool = false
 @description('Optional. Enable non-Spot AKS cluster recommendations that flag AKS clusters with autoscaling but not using Spot VMs. May generate noise since Spot VMs are only appropriate for interruptible workloads. Requires enableRecommendations. Default: false.')
 param enableSpotRecommendations bool = false
 
+@description('Optional. Enable savings plan purchase recommendations ingested daily from the Cost Management Benefit Recommendations API for the EA billing accounts, MCA billing profiles, subscriptions, and resource groups in settings.json. The Data Factory managed identity requires read access to each billing scope. Default: false.')
+param enableSavingsPlanRecommendations bool = false
+
 // cSpell:ignore eventhouse
 @description('Optional. Microsoft Fabric eventhouse query URI. Default: "" (do not use).')
 param fabricQueryUri string = ''
@@ -179,6 +182,17 @@ param dataExplorerRawRetentionInDays int?
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. If not specified, keeps the current value from settings.json (13 for new hubs).')
 param dataExplorerFinalRetentionInMonths int?
 
+@description('Optional. Billing scopes to request savings plan purchase recommendations for, separate from the scopes used for managed exports. Supported: EA billing accounts, MCA billing profiles, subscriptions, and resource groups (for example, "/providers/Microsoft.Billing/billingAccounts/1234567" or "/subscriptions/{subscriptionId}"). Requires enableSavingsPlanRecommendations. If not specified, keeps the current value from settings.json (none for new hubs, so no recommendations are ingested until scopes are set).')
+param savingsPlanRecommendationScopes string[]?
+
+@description('Optional. Lookback periods to request savings plan purchase recommendations for. Allowed values: "Last7Days", "Last30Days", "Last60Days". Requires enableSavingsPlanRecommendations. If not specified, keeps the current value from settings.json (all lookback periods for new hubs).')
+@allowed(['Last7Days', 'Last30Days', 'Last60Days'])
+param savingsPlanRecommendationLookbackPeriods string[]?
+
+@description('Optional. Terms to request savings plan purchase recommendations for. Allowed values: "P1Y", "P3Y". Requires enableSavingsPlanRecommendations. If not specified, keeps the current value from settings.json (both terms for new hubs).')
+@allowed(['P1Y', 'P3Y'])
+param savingsPlanRecommendationTerms string[]?
+
 @description('Optional. Enable public access to the data lake. Default: true.')
 param enablePublicAccess bool = true
 
@@ -280,6 +294,9 @@ module core 'Microsoft.FinOpsHubs/Core/app.bicep' = {
     ingestionRetentionInMonths: ingestionRetentionInMonths
     rawRetentionInDays: dataExplorerRawRetentionInDays
     finalRetentionInMonths: dataExplorerFinalRetentionInMonths
+    savingsPlanRecommendationScopes: savingsPlanRecommendationScopes
+    savingsPlanRecommendationLookbackPeriods: savingsPlanRecommendationLookbackPeriods
+    savingsPlanRecommendationTerms: savingsPlanRecommendationTerms
   }
 }
 
@@ -335,7 +352,7 @@ module analytics 'Microsoft.FinOpsHubs/Analytics/app.bicep' = if (useFabric || u
 // Ingestion queries
 //------------------------------------------------------------------------------
 
-module ingestionQueries 'Microsoft.FinOpsHubs/IngestionQueries/app.bicep' = if (enableRecommendations) {
+module ingestionQueries 'Microsoft.FinOpsHubs/IngestionQueries/app.bicep' = if (enableRecommendations || enableSavingsPlanRecommendations) {
   name: 'Microsoft.FinOpsHubs.IngestionQueries'
   params: {
     app: newApp(hub, 'Microsoft.FinOpsHubs', 'IngestionQueries')
@@ -363,9 +380,22 @@ module recommendations 'Microsoft.FinOpsHubs/Recommendations/app.bicep' = if (en
   params: {
     app: newApp(hub, 'Microsoft.FinOpsHubs', 'Recommendations')
     core: core.outputs.metadata
-    ingestionQueries: ingestionQueries!.outputs.metadata // Safe: guarded by same enableRecommendations condition
+    ingestionQueries: ingestionQueries!.outputs.metadata // Safe: ingestionQueries is deployed whenever enableRecommendations is true
     enableAHBRecommendations: enableAHBRecommendations
     enableSpotRecommendations: enableSpotRecommendations
+  }
+}
+
+//------------------------------------------------------------------------------
+// Savings plan recommendations
+//------------------------------------------------------------------------------
+
+module savingsPlanRecommendations 'Microsoft.FinOpsHubs/SavingsPlanRecommendations/app.bicep' = if (enableSavingsPlanRecommendations) {
+  name: 'Microsoft.FinOpsHubs.SavingsPlanRecommendations'
+  params: {
+    app: newApp(hub, 'Microsoft.FinOpsHubs', 'SavingsPlanRecommendations')
+    core: core.outputs.metadata
+    ingestionQueries: ingestionQueries!.outputs.metadata // Safe: ingestionQueries is deployed whenever enableSavingsPlanRecommendations is true
   }
 }
 
@@ -417,6 +447,7 @@ module startTriggers 'fx/hub-initialize.bicep' = {
   dependsOn: [
     analytics
     recommendations
+    savingsPlanRecommendations
     deleteOldResources
     remoteHub
     cmManagedExports

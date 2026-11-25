@@ -764,6 +764,8 @@
 // Supported datasets/versions:
 // - MS CM EA reservation recommendations: 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-ea
 // - MS CM MCA reservation recommendations: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-mca
+// - MS CM savings plan recommendations: 2025-03-01   -- See https://learn.microsoft.com/rest/api/cost-management/benefit-recommendations/list
+//   Mapped to x_RecommendationId (id), x_SourceType (kind), and x_RecommendationDetails (properties as JSON); see Recommendations_transform_v1_2()
 //======================================================================================================================
 
 // Recommendations_raw table -- Create the table if it doesn't exist

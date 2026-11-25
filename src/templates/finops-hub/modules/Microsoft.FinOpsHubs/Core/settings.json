@@ -84,6 +84,42 @@
       },
       "additionalProperties": true,
       "required": ["ingestion", "msexports"]
+    },
+    "recommendations": {
+      "type": "object",
+      "properties": {
+        "savingsPlans": {
+          "type": "object",
+          "properties": {
+            "scopes": {
+              "description": "Billing scopes to get savings plan recommendations for. Separate from the top-level scopes, which are used for managed exports.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true
+            },
+            "lookbackPeriods": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["Last7Days", "Last30Days", "Last60Days"]
+              },
+              "uniqueItems": true
+            },
+            "terms": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["P1Y", "P3Y"]
+              },
+              "uniqueItems": true
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
     }
   },
   "additionalProperties": true,

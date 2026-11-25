@@ -733,6 +733,24 @@ The following table lists the columns produced in the `All available columns` qu
 | x_SourceType                 | string    | Type of data source.                                                                                                                                                                                                                                                                                                                                                                                                 |
 | x_SourceVersion              | string    | Version of the data source.                                                                                                                                                                                                                                                                                                                                                                                          |
 
+
+#### Recommendation sources
+
+Filter `Recommendations()` by `x_SourceType` before you aggregate. The shape of `x_RecommendationDetails` depends on the source.
+
+| x_SourceType                 | Source                                                                                     | Key `x_RecommendationDetails` properties                                                                                                                                                       |
+| ---------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ReservationRecommendations` | Reservation recommendations from Cost Management exports.                                  | `CommitmentDiscountScope`, `CommitmentDiscountNormalizedSize`, `RegionId`, `RegionName`, `SkuTerm`, `SkuMeterId`                                                                               |
+| `SavingsPlanRecommendations` | Savings plan purchase recommendations from the Benefit Recommendations API (`2025-03-01`). | `CommitmentAmount`, `CommitmentGranularity`, `CommitmentDiscountScope`, `SkuName`, `SkuTerm`, `LookbackPeriodDuration`, `CurrencyCode`, `AllRecommendationDetails`, `UsageCharges`, `UsageGrain` |
+
+Savings plan recommendations are optional (`enableSavingsPlanRecommendations`). For them:
+
+- `ResourceId` is the scope the recommendation was requested for, like an EA billing account or a subscription. `SubAccountId` is only set for single-scope recommendations.
+- `x_RecommendationDate` is set to the last usage date in the lookback period.
+- Costs and savings cover the lookback period (`TotalHours` hours), not a month.
+- Each lookback period and term is a separate recommendation for the same usage. Filter to one, for example `toint(x_RecommendationDetails.SkuTerm) == 36 and tostring(x_RecommendationDetails.LookbackPeriodDuration) == 'P30D'`, and group by `CurrencyCode`.
+- Reservation and savings plan recommendations can cover the same usage. Don't add their savings.
+
 ---
 
 ### Transactions()
@@ -809,6 +827,7 @@ The following table lists the columns produced in the `All available columns` qu
 | 2025-05-16 | 1.1     | FinOps Toolkit Team | Expanded schema, glossary, references                                                                                                                                                                                                                                                                                                                                                              |
 | 2026-05-28 | 1.2     | Sprint 3000 UAT     | Live-Hub schema audit: `Costs()`, `Prices()`, `Recommendations()` numeric columns retyped from `decimal` to `real` to match deployed Hub schema (cause of SEM0019 errors). `Recommendations()` table expanded from 12 to 20 columns to add the 8 columns present in the live schema. `x_RecommendationDate` documented as commonly-null in live Hubs (root cause of T-3000.13). |
 | 2026-08-04 | 1.3     | FinOps Toolkit Team | Added KQL language rules (case-insensitive operators, explicit join kinds, `lookup` for dimension enrichment) distilled from the project coding guidelines so query-writing agents load them alongside the schema.                                                                                                                                                                                 |
+| 2026-11-21 | 1.4     | FinOps Toolkit Team | Added recommendation sources for `Recommendations()`, including savings plan recommendations from the Benefit Recommendations API                                                                                                                                                                                                                                                                  |
 
 ---
 
