@@ -37,7 +37,10 @@ InModuleScope 'FinOpsToolkit' {
         It 'Should warn and not throw when the grant fails' {
             Mock -CommandName 'Invoke-RestMethod' { throw 'denied' }
 
-            { Grant-FinOpsHubFabricAccess -QueryUri 'https://x/' -PrincipalId 'p' -TenantId 't' -Confirm:$false -WarningVariable w -WarningAction SilentlyContinue } | Should -Not -Throw
+            { Grant-FinOpsHubFabricAccess -QueryUri 'https://x/' -PrincipalId 'p' -TenantId 't' -Confirm:$false -WarningAction SilentlyContinue } | Should -Not -Throw
+
+            Grant-FinOpsHubFabricAccess -QueryUri 'https://x/' -PrincipalId 'p' -TenantId 't' -Confirm:$false -WarningVariable w -WarningAction SilentlyContinue
+            $w | Should -Not -BeNullOrEmpty
         }
     }
 }

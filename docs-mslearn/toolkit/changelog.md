@@ -122,7 +122,7 @@ _**Breaking change**_
   - Added a `-DisableStorageSharedKeyAccess` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that disables Shared Key authentication on hub storage accounts. Power BI storage reports must then sign in with Microsoft Entra ID; SAS tokens and account keys stop working. Requires hub template version 16.0 or later ([#2312](https://github.com/microsoft/finops-toolkit/issues/2312)).
 
 - **Fixed**
-  - Fixed Fabric eventhouse deployments leaving the Data Factory identity without access to the Ingestion and Hub databases. [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) `-FabricQueryUri` now grants the admin role automatically, and warns that Fabric ingestion cannot pass the storage firewall in VNet or private modes. Approach informed by [Zahir Hussain Shah](https://github.com/zhshah/Azure-FinOps-Automation-Deployment-Utility) (MIT) ([#2061](https://github.com/microsoft/finops-toolkit/issues/2061)).
+  - Fixed Fabric eventhouse deployments leaving the Data Factory identity without access to the Ingestion and Hub databases. [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) `-FabricQueryUri` now grants the admin role automatically, and warns that Fabric ingestion might not pass the storage firewall in VNet or private modes. Approach informed by [Zahir Hussain Shah](https://github.com/zhshah/Azure-FinOps-Automation-Deployment-Utility) (MIT) ([#2061](https://github.com/microsoft/finops-toolkit/issues/2061)).
 
 ### [Open data](open-data.md) v16
 

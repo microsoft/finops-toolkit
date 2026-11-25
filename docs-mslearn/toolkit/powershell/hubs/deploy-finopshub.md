@@ -49,6 +49,7 @@ Deploy-FinOpsHub `
 | `‑StorageSku`            | Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs aren't available for Data Lake gen2 storage. Default = "Premium_LRS". |
 | `‑RemoteHubStorageUri`   | Optional. Data Lake storage endpoint from the remote hub storage account. Used for cross-tenant cost data collection scenarios. Example: `https://primaryhub.dfs.core.windows.net/` |
 | `‑RemoteHubStorageKey`   | Optional. Storage account access key for the remote hub. Used for cross-tenant cost data collection scenarios. Must be kept secure as it provides full storage access. |
+| `‑FabricQueryUri`        | Optional. Microsoft Fabric eventhouse query URI. Also grants the Data Factory identity admin on the Ingestion and Hub databases. Default = "" (not used).                           |
 | `‑Tags`                  | Optional. Tags for all resources.                                                                                                                                                   |
 
 > [!NOTE]
