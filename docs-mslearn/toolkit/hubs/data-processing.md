@@ -230,7 +230,7 @@ Transforms:
     - Added `x_SkuOrderName` from `productOrderName`, matching the `ProductOrderName` -> `x_SkuOrderName` mapping already used for cost details.
     - EA price sheet exports are unaffected and remain on the `2023-05-01` schema.
   - Added support for the EA and MCA `2026-10-01` price sheet schemas, which add `priceFactors` and Flex Plan prices (`PriceType` = `FlexPlan`, `Term` = `P1M` or `P2M`).
-    - `priceFactors` is mapped during ingestion but not exposed in `Prices`, to keep the FOCUS 1.2 schema compatible.
+    - `priceFactors` is ingested into `Prices_raw` but not exposed in `Prices`, to keep the FOCUS 1.2 schema compatible.
     - Flex Plan price rows (`PriceType` = `FlexPlan`, `Term` = `P1M` or `P2M`) are ingested as-is. They have an empty `ChargeCategory`, no commitment discount type, and a `SkuPriceIdv2` that starts with `XX`. They are not used to enrich costs.
     - Managed exports now use the `2026-10-01` price sheet version.
 

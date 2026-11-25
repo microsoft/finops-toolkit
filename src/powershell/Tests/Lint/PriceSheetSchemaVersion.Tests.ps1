@@ -14,7 +14,7 @@
     2024-08-01 as its default (see https://github.com/microsoft/finops-toolkit/issues/2311) --
     and hubs silently fails to map exports using a version it doesn't know about.
 
-    This test is informational only and must NEVER fail the build. It does a best-effort live
+    The live version check below is informational only and must NEVER fail the build. It does a best-effort live
     check against the Microsoft Learn Cost Management dataset schema index and reports (via
     Write-Warning) when a price sheet schema version newer than what hubs supports is published,
     so a human can decide whether to add support. A network failure, an unparsable page, or a
@@ -113,7 +113,6 @@ Describe 'Price sheet 2026-10-01 schema support' {
     BeforeDiscovery {
         $repoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
         $exportsPath = Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.CostManagement/Exports'
-        $scriptsPath = Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts'
         $cases = @(
             @{ Contract = 'ea';  Base = 'pricesheet_2023-05-01_ea.json';  Latest = 'pricesheet_2026-10-01_ea.json' }
             @{ Contract = 'mca'; Base = 'pricesheet_2024-08-01_mca.json'; Latest = 'pricesheet_2026-10-01_mca.json' }
