@@ -150,7 +150,7 @@ function Stop-Merge
 function Resolve-MsDateConflicts
 {
     # Resolves an in-progress merge when every conflict is only an ms.date front matter line, which
-    # the release prep and the docs date workflow both stamp. Takes the incoming (dev) side. Returns
+    # the release prep and the docs date workflow both stamp. Sets today's date. Returns
     # $true when the merge was completed. Otherwise leaves the merge in progress and returns $false.
     $files = @(& git diff --name-only --diff-filter=U)
     if ($files.Count -eq 0) { return $false }
@@ -165,10 +165,12 @@ function Resolve-MsDateConflicts
         {
             foreach ($side in $h.Groups[1].Value, $h.Groups[2].Value)
             {
-                if (@($side -split '\r?\n' | Where-Object { $_ -ne '' } | Where-Object { $_ -notmatch '^ms\.date:' }).Count -gt 0) { return $false }
+                $sideLines = @($side -split '\r?\n' | Where-Object { $_ -ne '' })
+                if ($sideLines.Count -ne 1 -or $sideLines[0] -notmatch '^ms\.date:') { return $false }
             }
         }
-        $resolved[$file] = [regex]::Replace($text, $hunk, { param($m) $m.Groups[2].Value })
+        $today = (Get-Date).ToString('MM/dd/yyyy', [System.Globalization.CultureInfo]::InvariantCulture)
+        $resolved[$file] = [regex]::Replace($text, $hunk, { param($m) "ms.date: $today`n" })
     }
     foreach ($file in $resolved.Keys)
     {
@@ -282,17 +284,20 @@ Invoke-Step 'Preflight' {
         }
     }
 
+    if (& git tag --list $state.Tag)
+    {
+        throw "Release $($state.Tag) is already tagged. $Source still has version $ver. Run /update-version to start the next release first."
+    }
+
     # The bot branch is deleted on merge, so also look for a merged release PR.
-    $mergedPrs = @(gh pr list --head $state.Branch --base $Base --state merged --json number,url | ConvertFrom-Json)
+    $mergedJson = gh pr list --head $state.Branch --base $Base --state merged --json number,url
+    if ($LASTEXITCODE -ne 0) { throw "Could not check for a merged release PR: $mergedJson" }
+    $mergedPrs = @($mergedJson | ConvertFrom-Json)
     if ($mergedPrs.Count -gt 0)
     {
         throw "A release PR for $($state.Tag) was already merged: $($mergedPrs[0].url). Tag the release and run /update-version instead of re-running."
     }
 
-    if (& git tag --list $state.Tag)
-    {
-        throw "Release $($state.Tag) is already tagged. $Source still has version $ver. Run /update-version to start the next release first."
-    }
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
