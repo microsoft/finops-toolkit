@@ -1,0 +1,189 @@
+[
+  {
+    "file": "advisor-suppression-review",
+    "metadata": {
+      "name": "AdvisorSuppressionReview"
+    },
+    "spec": {
+      "name": "AdvisorSuppressionReview",
+      "description": "Monthly review of active Advisor recommendation suppressions for stale or expired decisions",
+      "schedule": "0 9 1 * *"
+    }
+  },
+  {
+    "file": "ai-workload-cost-analysis",
+    "metadata": {
+      "name": "AIWorkloadCostAnalysis"
+    },
+    "spec": {
+      "name": "AIWorkloadCostAnalysis",
+      "description": "Monthly AI workload cost analysis — token economics, model efficiency, and cost allocation for Azure OpenAI",
+      "schedule": "0 10 1 * *"
+    }
+  },
+  {
+    "file": "alert-coverage-audit",
+    "metadata": {
+      "name": "AlertCoverageAudit"
+    },
+    "spec": {
+      "name": "AlertCoverageAudit",
+      "description": "Monthly audit of cost anomaly alert coverage across active subscriptions",
+      "schedule": "0 8 16 * *"
+    }
+  },
+  {
+    "file": "benefit-recommendation-review",
+    "metadata": {
+      "name": "BenefitRecommendationReview"
+    },
+    "spec": {
+      "name": "BenefitRecommendationReview",
+      "description": "Weekly executive review of reservation and savings plan recommendations",
+      "schedule": "0 8 * * 5"
+    }
+  },
+  {
+    "file": "budget-coverage-audit",
+    "metadata": {
+      "name": "BudgetCoverageAudit"
+    },
+    "spec": {
+      "name": "BudgetCoverageAudit",
+      "description": "Monthly audit of subscription budget coverage and missing budget controls",
+      "schedule": "0 8 15 * *"
+    }
+  },
+  {
+    "file": "capacity-daily-monitor",
+    "metadata": {
+      "name": "CapacityDailyMonitor"
+    },
+    "spec": {
+      "name": "CapacityDailyMonitor",
+      "description": "Daily FinOps capacity management health check — quota usage, CRG utilization, zone capacity",
+      "schedule": "30 6 * * *"
+    }
+  },
+  {
+    "file": "capacity-monthly-planning",
+    "metadata": {
+      "name": "CapacityMonthlyPlanning"
+    },
+    "spec": {
+      "name": "CapacityMonthlyPlanning",
+      "description": "Monthly capacity planning cycle — demand forecast, capacity request pipeline, governance review",
+      "schedule": "0 9 1 * *"
+    }
+  },
+  {
+    "file": "capacity-quarterly-strategy",
+    "metadata": {
+      "name": "CapacityQuarterlyStrategy"
+    },
+    "spec": {
+      "name": "CapacityQuarterlyStrategy",
+      "description": "Quarterly capacity strategy review — FinOps maturity, commitment alignment, architecture evolution",
+      "schedule": "0 9 1 1,4,7,10 *"
+    }
+  },
+  {
+    "file": "capacity-weekly-supply-review",
+    "metadata": {
+      "name": "CapacityWeeklySupplyReview"
+    },
+    "spec": {
+      "name": "CapacityWeeklySupplyReview",
+      "description": "Weekly FinOps capacity management review — quota headroom, CRG cost optimization, SKU availability, benefit recommendations",
+      "schedule": "0 8 * * 1"
+    }
+  },
+  {
+    "file": "compute-utilization-trend",
+    "metadata": {
+      "name": "ComputeUtilizationTrend"
+    },
+    "spec": {
+      "name": "ComputeUtilizationTrend",
+      "description": "Weekly VM quota utilization trend review across subscriptions and regions",
+      "schedule": "0 7 * * 1"
+    }
+  },
+  {
+    "file": "cost-optimization",
+    "metadata": {
+      "name": "CostOptimization"
+    },
+    "spec": {
+      "name": "CostOptimization",
+      "description": "Comprehensive cost optimization report with orphaned resources, rightsizing, and commitment analysis",
+      "schedule": "0 8 * * 1"
+    }
+  },
+  {
+    "file": "db-quota-audit",
+    "metadata": {
+      "name": "DbQuotaAudit"
+    },
+    "spec": {
+      "name": "DbQuotaAudit",
+      "description": "Weekly audit of database (SQL DB, SQL MI, Cosmos DB, PostgreSQL Flex, MySQL Flex) quota and region/AZ access risks",
+      "schedule": "0 7 * * 3"
+    }
+  },
+  {
+    "file": "monthly-report",
+    "metadata": {
+      "name": "Monthly"
+    },
+    "spec": {
+      "name": "Monthly",
+      "description": "Month-over-month cost analysis with Azure Cost Management and ARM MCP tools",
+      "schedule": "15 17 5 * *"
+    }
+  },
+  {
+    "file": "non-compute-quota-audit",
+    "metadata": {
+      "name": "NonComputeQuotaAudit"
+    },
+    "spec": {
+      "name": "NonComputeQuotaAudit",
+      "description": "Weekly audit of storage, network, and non-compute quota usage at risk",
+      "schedule": "0 7 * * 2"
+    }
+  },
+  {
+    "file": "sku-availability-audit",
+    "metadata": {
+      "name": "SkuAvailabilityAudit"
+    },
+    "spec": {
+      "name": "SkuAvailabilityAudit",
+      "description": "Weekly audit of regional SKU availability and restrictions that could block deployments",
+      "schedule": "30 7 * * 3"
+    }
+  },
+  {
+    "file": "storage-paas-growth-forecast",
+    "metadata": {
+      "name": "StoragePaasGrowthForecast"
+    },
+    "spec": {
+      "name": "StoragePaasGrowthForecast",
+      "description": "Monthly storage and PaaS quota growth forecast across active subscriptions",
+      "schedule": "0 8 1 * *"
+    }
+  },
+  {
+    "file": "yoy-report",
+    "metadata": {
+      "name": "Semiannual"
+    },
+    "spec": {
+      "name": "Semiannual",
+      "description": "Semiannual year-over-year financial analysis for January and July close checkpoints",
+      "schedule": "0 9 5 1,7 *"
+    }
+  }
+]

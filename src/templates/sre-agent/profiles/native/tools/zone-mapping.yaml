@@ -1,0 +1,117 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: zone-mapping
+spec:
+  type: PythonFunctionTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Reports subscription logical-to-physical zone mappings and, when supported,
+    compares mappings with distinct peer subscriptions.
+  functionCode: |-
+    def main(**kwargs):
+        import json
+        import uuid
+        import requests
+
+        def normalize(value):
+            try:
+                return str(uuid.UUID(str(value or "").strip().removeprefix("/subscriptions/").removeprefix("subscriptions/")))
+            except ValueError:
+                return None
+
+        subscription = normalize(kwargs.get("subscription_id") or kwargs.get("reference_subscription_id"))
+        raw_locations = kwargs.get("location") or ""
+        locations = [x.strip().lower() for x in str(raw_locations).split(",") if x.strip()]
+        raw_peers = kwargs.get("peer_subscription_ids") or []
+        if isinstance(raw_peers, str):
+            raw_peers = [x.strip() for x in raw_peers.split(",") if x.strip()]
+        peers = []
+        invalid = []
+        for value in raw_peers:
+            peer = normalize(value)
+            if not peer:
+                invalid.append(value)
+            elif peer != subscription and peer not in peers:
+                peers.append(peer)
+        result = {
+            "subscription_id": subscription,
+            "subscription_zone_mappings": {},
+            "cross_subscription_peer_comparison": {"status": "not_applicable_single_subscription"},
+            "errors": [],
+        }
+        if not subscription or not locations or invalid:
+            result["errors"].append({"stage": "validation", "error": "Valid subscription and location are required; peer IDs must be valid", "invalid_peers": invalid})
+            return json.dumps(result, separators=(",", ":"))
+        try:
+            from azure.identity import DefaultAzureCredential
+            token = DefaultAzureCredential().get_token("https://management.azure.com/.default").token
+            headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+            url = f"https://management.azure.com/subscriptions/{subscription}/locations?api-version=2022-12-01"
+            while url:
+                response = requests.get(url, headers=headers, timeout=120)
+                response.raise_for_status()
+                payload = response.json()
+                for item in payload.get("value", []):
+                    name = str(item.get("name") or "").lower()
+                    if name in locations:
+                        result["subscription_zone_mappings"][name] = {
+                            str(mapping.get("logicalZone")): mapping.get("physicalZone")
+                            for mapping in item.get("availabilityZoneMappings", [])
+                            if mapping.get("logicalZone") is not None
+                        }
+                url = payload.get("nextLink")
+            for location in locations:
+                if location not in result["subscription_zone_mappings"]:
+                    result["errors"].append({"stage": "locations", "location": location, "error": "Location not returned by subscription locations API"})
+            if peers:
+                comparisons = {}
+                for location in locations:
+                    response = requests.post(
+                        f"https://management.azure.com/subscriptions/{subscription}/providers/Microsoft.Resources/checkZonePeers/",
+                        params={"api-version": "2022-12-01"},
+                        headers=headers,
+                        json={"location": location, "subscriptionIds": [f"subscriptions/{peer}" for peer in peers]},
+                        timeout=120,
+                    )
+                    if response.status_code in (400, 404):
+                        try:
+                            detail = response.json()
+                        except ValueError:
+                            detail = response.text[:1000]
+                        detail_text = json.dumps(detail).lower()
+                        if response.status_code == 404 or "invalidresourcetype" in detail_text or "availabilityzonepeering" in detail_text:
+                            comparisons[location] = {"status": "feature_not_registered_used_locations_api", "detail": detail}
+                        else:
+                            response.raise_for_status()
+                    else:
+                        response.raise_for_status()
+                        comparisons[location] = {"status": "success", "data": response.json()}
+                result["cross_subscription_peer_comparison"] = comparisons[locations[0]] if len(locations) == 1 else comparisons
+        except Exception as exc:
+            result["errors"].append({"stage": "request", "error": str(exc)})
+        return json.dumps(result, separators=(",", ":"))
+  timeoutSeconds: 180
+  dependencies:
+    - azure-identity
+    - requests
+  authScopes:
+    - ARM
+  parameters:
+    - name: reference_subscription_id
+      type: string
+      description: Reference Azure subscription UUID.
+      required: false
+    - name: subscription_id
+      type: string
+      description: Azure subscription UUID; alternative to reference_subscription_id.
+      required: false
+    - name: location
+      type: string
+      description: Azure region or comma-separated regions to query.
+      required: true
+    - name: peer_subscription_ids
+      type: string
+      description: Optional comma-separated peer subscription UUIDs.
+      required: false

@@ -1,0 +1,244 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: vm-quota-usage
+spec:
+  type: PythonFunctionTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Reports Azure VM family quota usage for one or more regions in a subscription.
+    The tool queries Azure Compute usages through ARM REST, calculates utilization
+    percentages, and flags quota families at or above 80% or 95% usage.
+    Errors from Azure stage, preview, canary, or EUAP locations are suppressed
+    from actionable failure summaries because those regions are expected noise.
+    Quota rows use the returned column order, defaults, and name legend.
+  functionCode: |-
+    def main(**kwargs):
+        import json
+        import requests
+
+        ARM_ENDPOINT = "https://management.azure.com"
+        ARM_SCOPE = "https://management.azure.com/.default"
+        LOCATIONS_API_VERSION = "2022-12-01"
+        USAGES_API_VERSION = "2023-07-01"
+
+        subscription_id = kwargs.get("subscription_id")
+        location = kwargs.get("location")
+
+        if not subscription_id:
+            return {
+                "error": "subscription_id is required",
+                "quotas": [],
+                "warning_count": 0,
+                "critical_count": 0,
+            }
+
+        if location:
+            if isinstance(location, str):
+                locations = [item.strip() for item in location.split(",") if item.strip()]
+            elif isinstance(location, (list, tuple, set)):
+                locations = [str(item).strip() for item in location if str(item).strip()]
+            else:
+                locations = [str(location).strip()]
+        else:
+            locations = []
+
+        result = {
+            "quotas": [],
+            "summary": {
+                "total_families": 0,
+                "active_count": 0,
+                "warning_count_ge_80pct": 0,
+                "critical_count_ge_95pct": 0,
+                "zero_usage_omitted_count": 0,
+            },
+            "gpu_and_key_zero_families": {"zero_limit_gpu_families": []},
+        }
+
+        errors = []
+
+        def is_expected_preview_region(region_name):
+            normalized = "".join(
+                character
+                for character in str(region_name or "").lower()
+                if character.isalnum()
+            )
+            expected_region_markers = ("stage", "staging", "preview", "canary", "euap")
+            return any(marker in normalized for marker in expected_region_markers)
+
+        def suppress_error(error, reason):
+            suppressed = dict(error)
+            suppressed["suppression_reason"] = reason
+            suppressed["suppressed_from_failure_summary"] = True
+            result.setdefault("suppressed_errors", []).append(suppressed)
+
+        try:
+            from azure.identity import DefaultAzureCredential
+            credential = DefaultAzureCredential()
+            token = credential.get_token(ARM_SCOPE).token
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            }
+        except Exception as exc:
+            result["error"] = f"Failed to initialize Azure ARM credential: {exc}"
+            return result
+
+        if not location:
+            try:
+                url = (
+                    f"{ARM_ENDPOINT}/subscriptions/{subscription_id}/locations"
+                    f"?api-version={LOCATIONS_API_VERSION}"
+                )
+                response = requests.get(url, headers=headers, timeout=60)
+                response.raise_for_status()
+                payload = response.json()
+                locations = [
+                    item.get("name")
+                    for item in payload.get("value", [])
+                    if item.get("name")
+                ]
+            except Exception as exc:
+                result["error"] = f"Failed to list Azure subscription locations: {exc}"
+                return result
+
+        if not locations:
+            result["error"] = "location did not contain any valid region names"
+            return result
+
+        if len(locations) == 1:
+            pass
+        else:
+            result["locations"] = locations
+
+        for region in locations:
+            try:
+                url = (
+                    f"{ARM_ENDPOINT}/subscriptions/{subscription_id}/providers/Microsoft.Compute"
+                    f"/locations/{region}/usages?api-version={USAGES_API_VERSION}"
+                )
+                response = requests.get(url, headers=headers, timeout=60)
+                response.raise_for_status()
+                payload = response.json()
+
+                for usage in payload.get("value", []):
+                    name_obj = usage.get("name")
+                    if isinstance(name_obj, dict):
+                        name = (
+                            name_obj.get("localizedValue")
+                            or name_obj.get("localized_value")
+                            or name_obj.get("value")
+                            or str(name_obj)
+                        )
+                    else:
+                        name = str(name_obj)
+                    current = usage.get("currentValue", usage.get("current_value", 0))
+                    limit = usage.get("limit", 0)
+
+                    try:
+                        current_number = float(current or 0)
+                    except (TypeError, ValueError):
+                        current_number = 0.0
+
+                    try:
+                        limit_number = float(limit or 0)
+                    except (TypeError, ValueError):
+                        limit_number = 0.0
+
+                    utilization_pct = None
+                    if limit_number > 0:
+                        utilization_pct = round((current_number / limit_number) * 100, 2)
+
+                    at_risk_80 = bool(utilization_pct is not None and utilization_pct >= 80)
+                    at_risk_95 = bool(utilization_pct is not None and utilization_pct >= 95)
+
+                    summary = result["summary"]
+                    summary["total_families"] += 1
+                    summary["active_count"] += int(current_number > 0)
+                    summary["warning_count_ge_80pct"] += int(at_risk_80)
+                    summary["critical_count_ge_95pct"] += int(at_risk_95)
+                    # Most labels share a prefix and suffix; "=" marks literal labels.
+                    if name.startswith("Standard ") and name.endswith(" Family vCPUs"):
+                        compact_name = name[len("Standard "):-len(" Family vCPUs")]
+                    else:
+                        compact_name = "=" + name
+                    quota = [compact_name, current, limit]
+                    if len(locations) > 1:
+                        quota.append(region)
+
+                    gpu = compact_name.upper().startswith(("NC", "ND", "NV"))
+                    if gpu and not current_number:
+                        key = compact_name if len(locations) == 1 else f"{compact_name}@{region}"
+                        if limit_number == 0:
+                            result["gpu_and_key_zero_families"]["zero_limit_gpu_families"].append(key)
+                        elif compact_name in ("NC", "NCSv3", "NV"):
+                            result["gpu_and_key_zero_families"][key] = f"{current}/{limit}"
+                    include_all = kwargs.get("include_zero_usage", kwargs.get("include_all_zero_usage", False))
+                    if isinstance(include_all, str):
+                        include_all = include_all.lower() in ("true", "1", "yes")
+                    if current_number > 0 or (utilization_pct is not None and utilization_pct >= 80) or include_all:
+                        result["quotas"].append(quota)
+                    else:
+                        summary["zero_usage_omitted_count"] += 1
+            except Exception as exc:
+                error = {"location": region, "error": str(exc)}
+                if is_expected_preview_region(region):
+                    suppress_error(
+                        error,
+                        "Expected noise from Azure stage, preview, canary, or EUAP region; excluded from actionable VM quota failure summaries.",
+                    )
+                else:
+                    errors.append(error)
+
+        if errors:
+            result["errors"] = errors
+
+        result["quota_columns"] = ["name", "current", "limit"]
+        if len(locations) > 1:
+            result["quota_columns"].append("location")
+        try:
+            offset = int(kwargs.get("offset") or 0)
+            if offset < 0:
+                raise ValueError()
+        except (ValueError, TypeError):
+            return json.dumps({"error": "offset must be a nonnegative integer"}, separators=(",", ":"))
+        rows = result["quotas"]
+        result["quotas"] = []
+        include_all = str(kwargs.get("include_zero_usage", kwargs.get("include_all_zero_usage", False))).lower() in ("true", "1", "yes")
+        if not include_all:
+            gpu = result["gpu_and_key_zero_families"]["zero_limit_gpu_families"]
+            while gpu and len(json.dumps(result, separators=(",", ":"))) >= 700:
+                gpu.pop()
+                result["gpu_zero_families_omitted_count"] = result.get("gpu_zero_families_omitted_count", 0) + 1
+        result["quotas"] = rows[offset:]
+        if not include_all:
+            while result["quotas"] and len(json.dumps(result, separators=(",", ":"))) >= 880:
+                result["quotas"].pop()
+                result["next_offset"] = offset + len(result["quotas"])
+            if result.get("next_offset") == offset:
+                result["error"] = "One quota row exceeds the telemetry limit"
+        return json.dumps(result, separators=(",", ":"))
+  timeoutSeconds: 300
+  dependencies:
+    - azure-identity
+    - requests
+  authScopes:
+    - ARM
+  parameters:
+    - name: subscription_id
+      type: string
+      description: Azure subscription ID to query for VM quota usage.
+      required: true
+    - name: location
+      type: string
+      description: Optional Azure region to query. If omitted, all subscription locations are queried.
+      required: false
+    - name: include_zero_usage
+      type: boolean
+      description: Include zero-usage families normally omitted from the output.
+      required: false
+    - name: offset
+      type: integer
+      description: Continue from the previous result's next_offset.
+      required: false

@@ -142,6 +142,8 @@
           href: toolkit/hubs/configure-row-level-security.md
         - name: Configure AI agents
           href: toolkit/hubs/configure-ai.md
+        - name: Deploy Azure SRE Agent
+          href: toolkit/hubs/deploy-sre-agent.md
         - name: Configure AI in Copilot Studio
           href: toolkit/hubs/configure-ai-copilot-studio.md
         - name: Configure remote hubs

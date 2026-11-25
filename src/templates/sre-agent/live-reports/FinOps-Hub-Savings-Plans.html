@@ -1,0 +1,1435 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'nonce-{REPORT_NONCE}'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'">
+  <title>Reservations and savings plans</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #14213a;
+      --muted: #4d5c72;
+      --line: #d8e0ea;
+      --line-strong: #b9c5d4;
+      --paper: #f3f6fa;
+      --card: #fff;
+      --subtle: #eef2f7;
+      --navy: #0f2340;
+      --blue: #0b5cad;
+      --blue-hover: #084882;
+      --blue-tint: #e5eef8;
+      --green: #0f6b55;
+      --red: #a82a3d;
+      --sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+      --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Liberation Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.5 var(--sans); -webkit-text-size-adjust: 100%; }
+    main { max-width: 1440px; margin: 0 auto; padding: 24px; }
+    .workspace { display: grid; grid-template-columns: 224px minmax(0, 1fr); gap: 24px; align-items: start; }
+    .content { display: flex; flex-direction: column; min-width: 0; }
+    .content > * { min-width: 0; }
+    .side-nav { position: sticky; top: 24px; padding: 16px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+    .nav-brand { padding: 4px 10px 16px; color: var(--navy); font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+    .nav-caption { margin: 0 10px 6px; color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .nav-caption:not(:first-of-type) { margin-top: 18px; }
+    .nav-button { display: block; width: 100%; min-height: 44px; padding: 10px 12px; border: 0; border-radius: 8px; background: transparent; color: #3f506a; cursor: pointer; font: inherit; font-size: 14.5px; font-weight: 600; text-align: left; white-space: normal; transition: background-color 150ms ease-out, color 150ms ease-out; }
+    .nav-button:hover { background: var(--subtle); color: var(--navy); }
+    .nav-button.active { background: var(--blue-tint); color: #073f78; font-weight: 700; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .dashboard-controls { display: flex; align-items: center; justify-content: flex-end; gap: 16px; min-height: 44px; margin: 0 0 16px; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+    h1 { margin: 0; font-size: 28px; font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; }
+    h2 { margin: 0; font-size: 24px; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em; }
+    p { margin: 0; }
+    button { min-height: 44px; padding: 10px 20px; border: 1px solid var(--blue); border-radius: 8px; color: #fff; background: var(--blue); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background-color 150ms ease-out, border-color 150ms ease-out; }
+    button:hover { background: var(--blue-hover); border-color: var(--blue-hover); }
+    button:disabled { cursor: wait; background: #52647d; border-color: #52647d; }
+    :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+    .scope, .period { color: var(--muted); font-size: 14px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+    .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin: 0; }
+    .metric { min-width: 0; padding: 28px 28px 26px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+    .metric-label { color: var(--ink); font-size: 16px; font-weight: 600; }
+    .metric-value { margin: 14px 0 12px; font-size: 52px; font-weight: 700; line-height: 1.05; letter-spacing: -0.025em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .metric-note { display: block; color: var(--muted); font-size: 14px; line-height: 1.45; }
+    .section-title { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px 24px; margin-bottom: 18px; }
+    .section-title.sub { margin: 36px 0 12px; }
+    .section-title.sub h3 { font-size: 18px; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+    .table-wrap.scroll { max-height: 560px; overflow-y: auto; }
+    .table-wrap.scroll th { position: sticky; top: 0; z-index: 1; }
+    .table-wrap + .table-wrap, .table-wrap + .section-copy, .section-copy + .table-wrap { margin-top: 12px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 15px; font-variant-numeric: tabular-nums; }
+    caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    th { background: var(--subtle); color: #38485f; font-size: 14px; font-weight: 700; line-height: 1.35; border-bottom: 1px solid var(--line-strong); }
+    th, td { padding: 14px 16px; vertical-align: top; }
+    tbody tr + tr { border-top: 1px solid var(--line); }
+    tbody tr:hover { background: #f8fafc; }
+    tbody tr.highlighted, tbody tr.highlighted:hover { background: var(--blue-tint); }
+    td:first-child { min-width: 240px; }
+    .figures th:nth-child(n+2), .figures td:nth-child(n+2) { text-align: right; }
+    .figures td:first-child { min-width: 220px; }
+    #azure-recommendations td:nth-child(2), #azure-recommendations td:nth-child(3) { white-space: nowrap; }
+    #azure-recommendations td:nth-child(5), #compute-coverage-rows td:nth-child(5), #compute-spend-rows td:nth-child(5) { font-weight: 700; }
+    #azure-recommendations .cell-note, #compute-coverage-rows .cell-note, #compute-spend-rows .cell-note { font-weight: 400; }
+    .daily td:first-child { min-width: 300px; }
+    .daily td:nth-child(2) { white-space: nowrap; }
+    #compute-coverage-rows td:first-child, #compute-spend-rows td:first-child { width: 42%; }
+    .plan-name { font-weight: 650; }
+    .plan-id { display: block; margin-top: 4px; font: 12.5px/1.5 var(--mono); color: var(--muted); overflow-wrap: anywhere; word-break: break-all; }
+    .average { display: block; margin-bottom: 8px; font-size: 26px; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; }
+    progress { display: block; width: 160px; max-width: 100%; height: 8px; accent-color: var(--blue); border: 0; border-radius: 4px; background: #e1e8f1; }
+    progress::-webkit-progress-bar { border-radius: 4px; background: #e1e8f1; }
+    progress::-webkit-progress-value { border-radius: 4px; background: var(--blue); }
+    progress::-moz-progress-bar { border-radius: 4px; background: var(--blue); }
+    .cost-figures { display: grid; grid-template-columns: auto auto; justify-content: start; gap: 2px 20px; margin: 12px 0 0; font-size: 14.5px; }
+    .cost-figures dt { color: var(--muted); }
+    .cost-figures dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+    .cost-figures dd.waste { color: var(--red); font-weight: 700; }
+    .number { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .cell-note { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; }
+    .message { padding: 28px 20px; color: var(--muted); }
+    .error { margin: 0 0 16px; padding: 14px 20px; background: #fdf1f3; border: 1px solid #dfadb6; border-radius: 8px; color: #8c1f30; font-size: 15px; overflow-wrap: anywhere; }
+    .error strong { display: block; margin-bottom: 4px; }
+    details { margin-top: 28px; padding-top: 8px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+    summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--muted); font-size: 14.5px; font-weight: 600; }
+    details p { margin: 10px 0; max-width: 85ch; line-height: 1.55; overflow-wrap: anywhere; }
+    details a { color: var(--blue); }
+    code { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+    .section { margin-top: 0; scroll-margin-top: 24px; }
+    .section.tab-panel { padding: 28px 32px 32px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+    h3.section { margin: 0; padding: 0; border: 0; background: none; font-size: 18px; }
+    .section-copy { margin: 0 0 16px; max-width: 80ch; color: var(--muted); font-size: 15px; line-height: 1.55; }
+    .model { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 40px; }
+    .model .controls { padding-right: 40px; border-right: 1px solid var(--line); }
+    .controls { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; align-content: start; gap: 18px; }
+    .controls > * { min-width: 0; }
+    .controls button { white-space: normal; }
+    label { display: block; font-size: 14.5px; font-weight: 600; }
+    select { display: block; width: 100%; min-width: 0; max-width: 100%; min-height: 44px; margin-top: 6px; padding: 8px 10px; border: 1px solid #94a3b8; border-radius: 8px; background: var(--card); color: var(--ink); font: inherit; font-size: 15px; }
+    input[type="range"] { width: 100%; min-height: 44px; margin: 4px 0 0; accent-color: var(--blue); }
+    .commitment { display: block; margin-top: 6px; font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .control-note { margin-top: 4px; color: var(--muted); font-size: 13px; font-weight: 400; line-height: 1.45; overflow-wrap: anywhere; }
+    .secondary { color: var(--blue); background: var(--card); border-color: #9db8d6; }
+    .secondary:hover { color: var(--blue-hover); background: var(--blue-tint); border-color: var(--blue); }
+    .secondary:disabled { color: var(--muted); background: var(--paper); border-color: var(--line); cursor: default; }
+    .recommendation-kinds { display: inline-flex; gap: 4px; margin-bottom: 24px; padding: 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--subtle); }
+    .recommendation-kinds button { border-color: transparent; background: transparent; color: var(--muted); }
+    .recommendation-kinds button:hover { background: var(--blue-tint); color: var(--blue-hover); }
+    .recommendation-kinds button[aria-pressed="true"] { border-color: var(--line-strong); background: var(--card); color: var(--blue); }
+    .service-switch { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--line); }
+    .service-switch button { margin-bottom: -1px; padding: 10px 12px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--muted); }
+    .service-switch button:hover { background: var(--blue-tint); color: var(--blue-hover); }
+    .service-switch button[aria-pressed="true"] { border-bottom-color: var(--blue); color: var(--blue); }
+    .recommendation-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; margin-bottom: 16px; }
+    .recommendation-filters label { min-width: 160px; }
+    .recommendation-results { margin-left: auto; align-self: center; }
+    .recommendation-sku { font-weight: 600; overflow-wrap: anywhere; }
+    .check { display: flex; align-items: center; min-height: 44px; gap: 10px; }
+    .check input { width: 18px; height: 18px; accent-color: var(--blue); }
+    .outcomes { min-width: 0; }
+    .outcome-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+    .outcome-value { display: block; margin: 10px 0 0; font-size: 34px; font-weight: 700; line-height: 1.15; letter-spacing: -0.015em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .positive { color: var(--green); }
+    .comparison { margin-top: 24px; }
+    .comparison progress { width: 100%; height: 10px; margin-top: 8px; }
+    .comparison-row { margin-top: 18px; }
+    .comparison-label { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 16px; font-variant-numeric: tabular-nums; }
+    .bar-track { height: 10px; margin-top: 8px; border-radius: 4px; background: #e1e8f1; overflow: hidden; }
+    .coverage-grid { display: grid; grid-template-columns: minmax(0, 1fr); margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); }
+    h3 { margin: 0; font-size: 16px; font-weight: 700; }
+    .coverage-value { display: block; margin: 8px 0; font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .coverage-grid p { max-width: 75ch; color: var(--muted); font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
+    .muted-value { color: var(--muted); }
+    .metric-value.muted-value { font-size: 36px; }
+    [hidden] { display: none !important; }
+    @media (min-width: 1800px) {
+      body { font-size: 19px; }
+      main { max-width: 2240px; padding: 40px 48px; }
+      .workspace { grid-template-columns: 280px minmax(0, 1fr); gap: 36px; }
+      .side-nav { top: 40px; padding: 20px 16px; }
+      .nav-brand { font-size: 19px; }
+      .nav-caption { font-size: 15px; }
+      .nav-button { min-height: 52px; font-size: 17px; }
+      .dashboard-controls { min-height: 52px; font-size: 16px; }
+      button { min-height: 52px; font-size: 17px; }
+      h2 { font-size: 30px; }
+      .scope, .period { font-size: 16px; }
+      .metrics { gap: 28px; }
+      .metric { padding: 36px; }
+      .metric-label { font-size: 19px; }
+      .metric-value { font-size: 72px; }
+      .metric-value.muted-value { font-size: 48px; }
+      .metric-note { font-size: 16px; }
+      .section.tab-panel { padding: 36px 44px 40px; }
+      .section-title.sub h3 { font-size: 21px; }
+      table { font-size: 17px; }
+      th { font-size: 16px; }
+      th, td { padding: 16px 20px; }
+      .plan-id { font-size: 14px; }
+      .cell-note { font-size: 15px; }
+      .cost-figures { font-size: 16.5px; }
+      .average { font-size: 32px; }
+      .table-wrap.scroll { max-height: 720px; }
+      .model { grid-template-columns: 340px minmax(0, 1fr); }
+      label { font-size: 16.5px; }
+      select { font-size: 17px; min-height: 52px; }
+      .control-note { font-size: 15px; }
+      .commitment { font-size: 28px; }
+      .outcome-value, .coverage-value { font-size: 44px; }
+      .comparison-label { font-size: 18px; }
+      .coverage-grid p { font-size: 16px; }
+      details, summary { font-size: 16px; }
+      code { font-size: 15px; }
+    }
+    @media (max-width: 1100px) {
+      main { padding: 32px 24px; }
+      .metric { padding: 20px; }
+      .metric-value { font-size: 30px; }
+      th, td { padding: 16px; }
+      progress { width: 128px; }
+      .model { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+      .controls { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 24px; }
+      .check { grid-column: span 2; }
+      .coverage-grid { gap: 24px; }
+    }
+    @media (max-width: 980px) {
+      .workspace { grid-template-columns: 1fr; }
+      .side-nav { position: static; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+      .nav-brand { grid-column: 1 / -1; }
+      .nav-caption { display: none; }
+    }
+    @media (max-width: 640px) {
+      main { padding: 24px 16px; }
+      header { flex-wrap: wrap; }
+      .metrics, .coverage-grid, .outcome-strip, .controls { grid-template-columns: minmax(0, 1fr); }
+      .side-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .check { grid-column: auto; }
+    }  </style>
+</head>
+<body>
+  <main id="report" data-state="loading">
+    <div class="workspace">
+      <aside class="side-nav" aria-label="Reservation and savings-plan dashboard sections">
+        <div class="nav-brand">Reservations and savings plans</div>
+        <p class="nav-caption">Understand</p>
+        <button class="nav-button active" type="button" data-tab="summary" aria-current="page">Summary</button>
+        <button class="nav-button" type="button" data-tab="current-plans">Observed utilization</button>
+        <p class="nav-caption">Optimize</p>
+        <button class="nav-button" type="button" data-tab="recommendations">Recommendations</button>
+        <button class="nav-button" type="button" data-tab="modeler">Impact modeler</button>
+        <button class="nav-button" type="button" data-tab="coverage">Coverage</button>
+      </aside>
+      <div class="content">
+    <h1 class="sr-only">Reservations and savings plans</h1>
+    <div class="dashboard-controls">
+      <span id="refreshed">Updating...</span>
+      <button id="refresh" type="button">Refresh data</button>
+    </div>
+    <section id="error" class="error" role="alert" hidden>
+      <strong>Some figures could not be loaded</strong>
+      <p id="error-detail"></p>
+    </section>
+    <section class="tab-panel active" data-tab-panel="summary" aria-label="Observed reservation and savings-plan summary">
+    <div class="metrics">
+      <div class="metric">
+        <p class="metric-label">Observed savings plans</p>
+        <p class="metric-value" id="plan-count">&mdash;</p>
+        <p class="metric-note">Distinct plan IDs with cost records, last 30 completed UTC days</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Observed reservations</p>
+        <p class="metric-value" id="reservation-count">&mdash;</p>
+        <p class="metric-note">All service types with cost records, last 30 completed UTC days</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Lowest 7-day savings-plan utilization (cost)</p>
+        <p class="metric-value" id="lowest">&mdash;</p>
+        <p class="metric-note">Per plan and currency, not a portfolio average</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Lowest 7-day reservation utilization (cost)</p>
+        <p class="metric-value" id="reservation-lowest">&mdash;</p>
+        <p class="metric-note">Used / total effective cost, per reservation and currency</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">VM usage coverage (vCPU-hours)</p>
+        <p class="metric-value muted-value" id="compute-coverage">&mdash;</p>
+        <p class="metric-note" id="compute-coverage-summary">Reservations + savings plans</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">VM spend share (effective cost)</p>
+        <p class="metric-value muted-value" id="compute-spend-share">&mdash;</p>
+        <p class="metric-note" id="compute-spend-summary">Reservations + savings plans</p>
+      </div>
+    </div>
+    </section>
+    <section id="modeler" class="section tab-panel" data-tab-panel="modeler" aria-labelledby="model-title">
+      <div class="section-title"><h2 id="model-title">Savings-plan impact modeler</h2><span id="model-period" class="scope">Awaiting Azure-evaluated scenarios</span></div>
+      <div id="recommendation-note" class="section-copy" role="status" hidden></div>
+      <div class="model">
+        <div class="controls">
+          <label>Plan type / billing profile<select id="model-plan" disabled><option>Unavailable</option></select></label>
+          <label>Term<select id="model-term" disabled><option value="P3Y">3 years</option><option value="P1Y">1 year</option></select></label>
+          <label>Hourly commitment
+            <output id="model-commitment" class="commitment">&mdash;</output>
+            <input id="model-option" type="range" min="0" max="0" value="0" step="1" disabled aria-label="Azure-evaluated hourly commitment option">
+            <span class="control-note">Azure-evaluated options only</span>
+          </label>
+          <button id="model-recommended" class="secondary" type="button" disabled>Use Azure recommendation</button>
+          <p id="model-source" class="control-note">Select a savings plan option.</p>
+        </div>
+        <div class="outcomes">
+          <div class="outcome-strip">
+            <div><p class="metric-label">Estimated savings</p><output id="model-savings" class="outcome-value">&mdash;</output></div>
+            <div><p class="metric-label">Estimated waste</p><output id="model-wastage" class="outcome-value">&mdash;</output></div>
+            <div><p class="metric-label">Modeled utilization</p><output id="model-utilization" class="outcome-value">&mdash;</output></div>
+          </div>
+          <div class="comparison">
+            <div class="comparison-row"><div class="comparison-label"><span>Cost without benefit</span><strong id="model-without">&mdash;</strong></div><progress id="bar-without" max="1" value="0" aria-label="Azure evaluated cost without benefit"></progress></div>
+            <div class="comparison-row"><div class="comparison-label"><span>Modeled total cost</span><strong id="model-with">&mdash;</strong></div><progress id="bar-with" max="1" value="0" aria-label="Azure modeled total cost"></progress></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="coverage" class="section tab-panel" data-tab-panel="coverage" aria-labelledby="coverage-title">
+      <div class="section-title"><h2 id="coverage-title">Coverage</h2><p id="compute-coverage-period" class="period"></p></div>
+      <div class="section-title"><h3>Spend share by service (effective cost)</h3></div>
+      <p class="section-copy">All services, not just compute. Reservation and savings-plan shares use the same observed usage-spend denominator; this does not establish reservation eligibility.</p>
+      <div class="table-wrap scroll">
+        <table class="figures"><caption>All-service reservation and savings-plan effective-cost spend shares</caption><thead><tr><th scope="col">Service / billing scope</th><th scope="col">Reservation spend</th><th scope="col">Savings-plan spend</th><th scope="col">Total usage spend</th><th scope="col">Combined spend share (%)</th></tr></thead><tbody id="service-spend-rows"><tr><td colspan="5" class="message">Loading all-service spend...</td></tr></tbody></table>
+      </div>
+      <div class="section-title sub"><h3>Reservation usage by meter (native units)</h3></div>
+      <p class="section-copy">Each row retains its exact SKU, meter, region, and reported unit. Fabric meter hours are not VM vCPU-hours. Different meters and units are not combined.</p>
+      <div class="table-wrap scroll">
+        <table class="figures"><caption>Observed reservation usage share within matching native-unit meter populations</caption><thead><tr><th scope="col">Service / meter / billing scope</th><th scope="col">Native unit</th><th scope="col">Reservation usage</th><th scope="col">Total meter usage</th><th scope="col">Usage share (%)</th></tr></thead><tbody id="reservation-usage-rows"><tr><td colspan="5" class="message">Loading reservation meter usage...</td></tr></tbody></table>
+      </div>
+      <div class="section-title sub"><h3>VM usage coverage (vCPU-hours)</h3></div>
+      <div class="table-wrap">
+        <table class="figures"><caption>Reservation and savings-plan coverage of consumed VM vCPU-hours</caption><thead><tr><th scope="col">Billing scope</th><th scope="col">Reservations (vCPU-hours)</th><th scope="col">Savings plans (vCPU-hours)</th><th scope="col">Total usage (vCPU-hours)</th><th scope="col">Usage coverage (%)</th></tr></thead><tbody id="compute-coverage-rows"><tr><td colspan="5" class="message">Loading VM vCPU-hours...</td></tr></tbody></table>
+      </div>
+      <div class="section-title sub"><h3>VM spend share (effective cost)</h3><p class="period">Same VM cohort; amounts use each billing scope's currency.</p></div>
+      <div class="table-wrap">
+        <table class="figures"><caption>Reservation-backed and savings-plan-backed share of VM effective-cost spend</caption><thead><tr><th scope="col">Billing scope / currency</th><th scope="col">Reservations (cost)</th><th scope="col">Savings plans (cost)</th><th scope="col">Total spend (cost)</th><th scope="col">Spend share (%)</th></tr></thead><tbody id="compute-spend-rows"><tr><td colspan="5" class="message">Loading VM effective costs...</td></tr></tbody></table>
+      </div>
+      <div class="coverage-grid">
+        <div><h3>Azure modeled coverage (pre-discount cost)</h3><output id="model-coverage" class="coverage-value muted-value">Unavailable</output><p id="coverage-source">Awaiting an Azure-evaluated scenario. This modeled cost basis and cohort differ from observed VM usage coverage and spend share.</p></div>
+      </div>
+    </section>
+    <section id="recommendations" class="section tab-panel" data-tab-panel="recommendations" aria-labelledby="recommendations-title">
+      <div class="section-title"><h2 id="recommendations-title">Recommendations</h2></div>
+      <div class="recommendation-kinds" role="group" aria-label="Benefit type">
+        <button type="button" data-recommendation-kind="reservations" aria-pressed="true" aria-controls="reservation-recommendation-panel">Reservations</button>
+        <button type="button" data-recommendation-kind="savings-plans" aria-pressed="false" aria-controls="savings-plan-recommendation-panel">Savings plans</button>
+      </div>
+      <div id="reservation-recommendation-panel" data-recommendation-panel="reservations">
+        <div id="reservation-services" class="service-switch" role="group" aria-label="Reservation service" aria-busy="true"><span class="period">Loading services...</span></div>
+        <div class="section-title"><h3 id="reservation-service-title">Reservation options</h3></div>
+        <p class="section-copy">Advisor annual-savings estimates. Terms and lookbacks are alternatives, not additive purchases. Evaluated purchase costs and billing-profile attribution are not supplied.</p>
+        <div class="recommendation-filters">
+          <label>Term<select id="reservation-term" disabled><option value="">All terms</option></select></label>
+          <label>Usage lookback<select id="reservation-lookback" disabled><option value="">All lookbacks</option></select></label>
+          <button id="reservation-clear-filters" class="secondary" type="button" disabled>Clear filters</button>
+          <p id="reservation-results" class="period recommendation-results" role="status" aria-live="polite"></p>
+        </div>
+        <div class="table-wrap scroll">
+          <table class="figures"><caption>Native Azure Advisor reservation recommendations for the selected service, term, and lookback</caption><thead><tr><th scope="col">SKU</th><th scope="col">Quantity / term</th><th scope="col">Region / subscription scope</th><th scope="col">Estimated annual savings</th><th scope="col">Lookback / recommendation date (UTC)</th></tr></thead><tbody id="reservation-recommendations"><tr><td colspan="5" class="message">Loading reservation recommendations...</td></tr></tbody></table>
+        </div>
+      </div>
+      <div id="savings-plan-recommendation-panel" data-recommendation-panel="savings-plans" hidden>
+        <div id="savings-plan-services" class="service-switch" role="group" aria-label="Savings-plan service" aria-busy="true"><span class="period">Loading plan types...</span></div>
+        <div class="section-title"><h3 id="savings-plan-service-title">Savings-plan comparison</h3><p id="savings-plan-results" class="period" role="status" aria-live="polite"></p></div>
+        <p class="section-copy">Compare no additional purchase with Azure-evaluated commitments. Amounts cover the displayed evaluation period; terms are alternatives, not additive purchases.</p>
+        <div class="table-wrap">
+          <table class="figures"><caption>Savings-plan decision comparison for the selected service using actual Azure-evaluated alternatives</caption><thead><tr><th scope="col">Alternative / billing profile</th><th scope="col">Term</th><th scope="col">Proposed hourly commitment</th><th scope="col">Azure modeled total cost</th><th scope="col">Estimated savings / waste</th><th scope="col">Explore</th></tr></thead><tbody id="azure-recommendations"><tr><td colspan="6" class="message">Loading savings plan options...</td></tr></tbody></table>
+        </div>
+      </div>
+    </section>
+    <section id="current-plans" class="section tab-panel" data-tab-panel="current-plans" aria-labelledby="plans-title">
+      <div class="section-title"><h2 id="plans-title">Observed utilization</h2><p id="period" class="period">Loading reporting period...</p></div>
+      <p class="section-copy">Reservations across all services and savings plans. Utilization uses amortized effective cost, not hours or purchased capacity.</p>
+      <div class="table-wrap">
+        <table class="plans">
+          <caption>All-service reservation and savings-plan effective-cost utilization over 7 and 30 completed UTC days</caption>
+          <thead><tr><th scope="col">Benefit / service / billing scope</th><th scope="col">7-day cost utilization / amounts</th><th scope="col">30-day cost utilization / amounts</th><th scope="col">Latest observed usage (UTC)</th><th scope="col">Inventory metadata</th></tr></thead>
+          <tbody id="plans"><tr><td colspan="5" class="message">Loading live cost records...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="section-title sub"><h3 class="section">Azure daily savings-plan utilization</h3><p id="benefit-utilization-note" class="period">Loading daily utilization...</p></div>
+      <div class="table-wrap scroll"><table class="figures daily"><caption>Azure daily benefit utilization, excluding the current incomplete UTC day</caption><thead><tr><th scope="col">Benefit / billing scope</th><th scope="col">Usage day (UTC)</th><th scope="col">Daily average</th><th scope="col">Daily minimum</th><th scope="col">Daily maximum</th></tr></thead><tbody id="azure-utilization"><tr><td colspan="5" class="message">Loading real Azure utilization...</td></tr></tbody></table></div>
+    </section>
+    <details>
+      <summary>Metric definitions</summary>
+      <p>Observed reservations include every service with CommitmentDiscountType = Reservation, without a compute-only filter. Savings plans remain separate. Cost utilization = used / total amortized effective commitment cost. Waste = unused / total. These are cost-weighted measures, not hours or purchased-capacity utilization. Commitment purchase charges are excluded. Observed benefit IDs do not establish purchased or active inventory. Missing or invalid costs, unrecognized allocation statuses, and zero denominators make the affected percentage unavailable. Reported costs may be delayed or revised; reported days do not establish complete ingestion.</p>
+      <p>Observed cost utilization normalizes only negative floating-point residuals within 0.000000001 billing-currency units of zero. Larger negative costs remain invalid. Service spend share uses reservation-backed and savings-plan-backed EffectiveCost / total non-Spot usage EffectiveCost for each service, account, profile, and currency; purchases and unused commitment costs are excluded. This is observed spend attribution, not eligible-usage coverage. No global duplicate audit is asserted for this service aggregate.</p>
+      <p>Reservation native usage share = reservation-backed ConsumedQuantity / total ConsumedQuantity within the same SKU, meter, region, unit, pricing block, license type, and billing scope. Only meter populations with observed reservation usage are shown. Missing identities or units, invalid quantities, mismatched pricing quantities, and size-flex conversion requirements make that row unavailable. Percentages from unlike meter populations must not be combined.</p>
+      <p>VM usage coverage (vCPU-hours) = reservation-backed and savings-plan-backed consumed vCPU-hours / total consumed vCPU-hours for selected VM, VM Scale Sets, and Batch CPU meters. Reservations and savings plans are shown separately. This authored compute usage proxy is not all-eligible Compute coverage or commitment utilization. Spot, license, ancillary, purchase, and unused-commitment accounting rows are excluded. Invalid source quantities or benefit attribution make the affected result unavailable.</p>
+      <p>VM spend share (effective cost) = reservation-backed and savings-plan-backed EffectiveCost / total EffectiveCost for the same selected VM cohort and period. Both sides use the same amortized effective-cost basis, in each billing scope's currency. This is the share of observed spend attributed to benefits, not the share of hours, savings, or pre-discount eligible-usage coverage. Unused commitment cost is excluded. Missing, invalid, or negative costs, invalid benefit attribution, duplicate rows, or a zero denominator make spend share unavailable without replacing valid vCPU-hour coverage.</p>
+      <p>Savings-plan recommendation amounts are Azure estimates for the displayed evaluation period, billing profile, currency, and term. Reservation recommendation amounts are Advisor annual-savings estimates for the displayed subscription, product, term, and lookback; they do not supply evaluated purchase costs. Azure modeled coverage uses the savings-plan evaluated cost-without-benefit basis, not vCPU-hours or observed effective-cost spend share. One-year and three-year terms are alternatives. Modeled waste is included in total cost. Daily savings-plan utilization excludes the current incomplete UTC day.</p>
+    </details>
+      </div>
+    </div>
+  </main>
+  <script nonce="{REPORT_NONCE}">
+    const TOOL_NAME = 'system-mcp-kusto_kusto_query';
+    // Replace the cluster placeholder in a prepared copy before manual upload.
+    const CLUSTER_URI = 'REPLACE_WITH_FINOPS_HUB_CLUSTER_URI';
+    const DATABASE = 'Hub';
+    const RECOMMENDATION_TOOL = 'azure-resource-manager-mcp_get_benefit_recommendations';
+    const UTILIZATION_TOOL = 'azure-resource-manager-mcp_list_benefit_utilization';
+    let recommendations = [];
+    let reservationRecommendations = [];
+    let reservationService = "";
+    let savingsPlanService = "";
+    const byId = (id) => document.getElementById(id);
+    const percentFormat = new Intl.NumberFormat("en-US", { style: "percent", minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const quantityFormat = new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const dateFormat = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+
+    function element(tag, text, className) {
+      const node = document.createElement(tag);
+      if (text !== undefined) node.textContent = text;
+      if (className) node.className = className;
+      return node;
+    }
+    function scopeNote(scope, detail) {
+      const note = element("span", `Billing profile ${scope.split("/").at(-1)}${detail ? `; ${detail}` : ""}`, "cell-note");
+      note.title = scope;
+      return note;
+    }
+    function messageRow(target, text, columns) {
+      const row = element("tr");
+      const cell = element("td", text, "message");
+      cell.colSpan = columns;
+      row.append(cell);
+      byId(target).replaceChildren(row);
+    }
+    function unwrapToolResult(raw, source) {
+      let payload = raw;
+      for (let depth = 0; depth < 8; depth += 1) {
+        if (typeof payload === "string") {
+          payload = JSON.parse(payload);
+          continue;
+        }
+        if (payload?.isError || payload?.error || payload?.Exceptions?.length || (typeof payload?.status === "number" && payload.status >= 400)) {
+          throw new Error(`${source} tool returned an error: ` + JSON.stringify(payload));
+        }
+        // A viewer table can include an incidental result field.
+        if (Array.isArray(payload?.results?.items) || Array.isArray(payload?.items)) return payload;
+        if (payload?.structuredContent !== undefined) payload = payload.structuredContent;
+        else if (payload?.result !== undefined) payload = payload.result;
+        else if (Array.isArray(payload?.content)) {
+          const text = payload.content.find((entry) => (entry?.type === "text" || entry?.$type === "text") && typeof entry.text === "string");
+          if (!text) throw new Error(`${source} response has no text result.`);
+          payload = text.text;
+        } else if (typeof payload?.text === "string") payload = payload.text;
+        else if (payload?.additionalProperties?.results?.items) payload = payload.additionalProperties;
+        else return payload;
+      }
+      throw new Error(`${source} response exceeds the supported nesting depth.`);
+    }
+    function benefitRecords(raw) {
+      const payload = unwrapToolResult(raw, "Azure benefit");
+      if (!Array.isArray(payload?.value)) throw new Error("Azure benefit response is missing result.value.");
+      if (payload.nextLink) throw new Error("Azure returned a partial benefit response with more pages; complete data is unavailable.");
+      return payload.value;
+    }
+    function numeric(value, name, minimum = 0) {
+      if (typeof value !== "number" || !Number.isFinite(value) || value < minimum) {
+        throw new Error(`Azure returned missing or invalid ${name}.`);
+      }
+      return value;
+    }
+    function percentage(value, name) {
+      numeric(value, name, -0.000001);
+      if (value > 100.000001) throw new Error(`Azure returned invalid ${name}.`);
+      return Math.max(0, Math.min(value, 100));
+    }
+    function detail(value) {
+      if (!value || typeof value !== "object") throw new Error("Azure recommendation details are missing.");
+      for (const key of ["commitmentAmount", "overageCost", "benefitCost", "totalCost", "wastageCost"]) numeric(value[key], key);
+      numeric(value.savingsAmount, "savingsAmount", -Infinity);
+      numeric(value.savingsPercentage, "savingsPercentage", -Infinity);
+      percentage(value.averageUtilizationPercentage, "averageUtilizationPercentage");
+      percentage(value.coveragePercentage, "coveragePercentage");
+      return value;
+    }
+    function normalizeRecommendation(record, scope, term) {
+      if (record?.kind !== "SavingsPlan") return null;
+      const p = record.properties;
+      if (!p || !["Compute_Savings_Plan", "Database_Savings_Plan"].includes(p.armSkuName) ||
+          p.term !== term || p.scope !== "Shared" || p.lookBackPeriod !== "Last30Days" ||
+          typeof p.currencyCode !== "string" || !/^[A-Z]{3}$/.test(p.currencyCode) ||
+          typeof record.id !== "string" || !record.id) throw new Error("Azure returned incomplete recommendation identity, currency, scope, or period.");
+      numeric(p.totalHours, "totalHours");
+      if (!Number.isInteger(p.totalHours) || p.totalHours === 0 || typeof p.firstConsumptionDate !== "string" || typeof p.lastConsumptionDate !== "string" ||
+          !Number.isFinite(Date.parse(p.firstConsumptionDate)) || !Number.isFinite(Date.parse(p.lastConsumptionDate)) ||
+          Date.parse(p.firstConsumptionDate) > Date.parse(p.lastConsumptionDate)) throw new Error("Azure recommendation evaluation period is missing or invalid.");
+      numeric(p.costWithoutBenefit, "costWithoutBenefit");
+      if (!Array.isArray(p.allRecommendationDetails?.value) || !p.allRecommendationDetails.value.length || p.allRecommendationDetails.nextLink) {
+        throw new Error(`${p.armSkuName}: expanded allRecommendationDetails are unavailable; no scenario is estimated.`);
+      }
+      function point(value) {
+        const result = detail(value);
+        if (Math.abs(result.totalCost - result.benefitCost - result.overageCost) > 0.02 ||
+            Math.abs(p.costWithoutBenefit - result.totalCost - result.savingsAmount) > 0.02 ||
+            Math.abs(result.commitmentAmount * p.totalHours - result.benefitCost) > 0.02 ||
+            result.wastageCost > result.benefitCost + 0.02) {
+          throw new Error("Azure recommendation costs do not reconcile; modeling is unavailable.");
+        }
+        return result;
+      }
+      const options = p.allRecommendationDetails.value.map(point);
+      const recommended = point(p.recommendationDetails);
+      if (!options.some((option) => option.commitmentAmount === recommended.commitmentAmount)) options.push(recommended);
+      options.sort((a, b) => a.commitmentAmount - b.commitmentAmount);
+      if (new Set(options.map((option) => option.commitmentAmount)).size !== options.length) throw new Error("Azure returned duplicate commitment options.");
+      const recommendedIndex = options.findIndex((option) => option.commitmentAmount === recommended.commitmentAmount);
+      if (["overageCost", "benefitCost", "totalCost", "savingsAmount", "wastageCost", "savingsPercentage", "coveragePercentage", "averageUtilizationPercentage"]
+          .some((key) => Math.abs(options[recommendedIndex][key] - recommended[key]) > (key.endsWith("Percentage") ? 0.000001 : 0.02))) {
+        throw new Error("Azure's highlighted recommendation conflicts with its evaluated alternatives.");
+      }
+      return { scope, p, options, recommendedIndex };
+    }
+    function money(value, currency, digits = 2) {
+      return new Intl.NumberFormat("en-US", { style: "currency", currency, minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
+    }
+    function skuLabel(sku) {
+      return ({ Compute_Savings_Plan: "Compute", Database_Savings_Plan: "Database" })[sku] || sku;
+    }
+    function termLabel(term) {
+      return ({ P1Y: "1 year", P3Y: "3 years" })[term] || term;
+    }
+    function reservationServiceLabel(type) {
+      return ({ virtualmachines: "Virtual machines", sqldatabases: "SQL Database", appservice: "App Service", rediscache: "Redis" })[type.toLowerCase()] || type;
+    }
+    function recommendationServicesMessage(id, message, busy = false) {
+      byId(id).replaceChildren(element("span", message, "period"));
+      byId(id).setAttribute("aria-busy", String(busy));
+    }
+    function selectRecommendationKind(kind) {
+      document.querySelectorAll("[data-recommendation-kind]").forEach((button) =>
+        button.setAttribute("aria-pressed", String(button.dataset.recommendationKind === kind)));
+      document.querySelectorAll("[data-recommendation-panel]").forEach((panel) =>
+        panel.hidden = panel.dataset.recommendationPanel !== kind);
+    }
+    function selectSavingsPlanService(type) {
+      savingsPlanService = type;
+      byId("savings-plan-services").querySelectorAll("button").forEach((button) =>
+        button.setAttribute("aria-pressed", String(button.dataset.service === type)));
+      let visible = 0;
+      byId("azure-recommendations").querySelectorAll("tr").forEach((row) => {
+        row.hidden = row.dataset.service !== type;
+        if (!row.hidden) visible += 1;
+      });
+      byId("savings-plan-service-title").textContent = `${skuLabel(type)} savings plans`;
+      byId("savings-plan-results").textContent = `${visible} decision alternatives`;
+    }
+    function renderScenario() {
+      const rec = recommendations[Number(byId("model-plan").value)];
+      if (!rec) return;
+      const scenario = rec.options[Number(byId("model-option").value)];
+      if (!scenario) return;
+      byId("model-commitment").textContent = `${money(scenario.commitmentAmount, rec.p.currencyCode, 3)} / hour`;
+      byId("model-option").setAttribute("aria-valuetext", `${money(scenario.commitmentAmount, rec.p.currencyCode, 3)} per hour; option ${Number(byId("model-option").value) + 1} of ${rec.options.length}`);
+      byId("model-savings").textContent = money(scenario.savingsAmount, rec.p.currencyCode);
+      byId("model-wastage").textContent = money(scenario.wastageCost, rec.p.currencyCode);
+      byId("model-utilization").textContent = percentFormat.format(percentage(scenario.averageUtilizationPercentage, "averageUtilizationPercentage") / 100);
+      byId("model-coverage").textContent = percentFormat.format(percentage(scenario.coveragePercentage, "coveragePercentage") / 100);
+      byId("model-without").textContent = money(rec.p.costWithoutBenefit, rec.p.currencyCode);
+      byId("model-with").textContent = money(scenario.totalCost, rec.p.currencyCode);
+      const maximum = Math.max(rec.p.costWithoutBenefit, scenario.totalCost);
+      for (const [id, value] of [["bar-without", rec.p.costWithoutBenefit], ["bar-with", scenario.totalCost]]) {
+        byId(id).max = maximum > 0 ? maximum : 1;
+        byId(id).value = value;
+      }
+      byId("model-period").textContent = `${rec.p.totalHours} Azure-evaluated hours; ${dateFormat.format(new Date(rec.p.firstConsumptionDate))} - ${dateFormat.format(new Date(rec.p.lastConsumptionDate))}`;
+      byId("model-source").textContent = `${skuLabel(rec.p.armSkuName)}; ${termLabel(rec.p.term)}; ${rec.p.currencyCode}; billing profile ${rec.scope.split("/").at(-1)}; Shared. Option ${Number(byId("model-option").value) + 1} of ${rec.options.length}${Number(byId("model-option").value) === rec.recommendedIndex ? " - Azure highlighted" : ""}.`;
+      byId("coverage-source").textContent = `Azure modeled ${rec.p.armSkuName} coverage on the cost-without-benefit basis for billing profile ${rec.scope.split("/").at(-1)}, ${rec.p.term}. Different cohort and cost basis from observed VM spend share; not vCPU-hours.`;
+    }
+    function selectRecommendation(index, optionIndex = null) {
+      const rec = recommendations[index];
+      if (!rec) return;
+      byId("model-term").value = rec.p.term;
+      byId("model-plan").value = String(index);
+      for (const option of byId("model-plan").options) option.hidden = recommendations[Number(option.value)].p.term !== rec.p.term;
+      byId("model-option").max = String(rec.options.length - 1);
+      byId("model-option").value = String(optionIndex ?? rec.recommendedIndex);
+      renderScenario();
+    }
+    function renderRecommendations() {
+      const rows = [];
+      const choices = [];
+      const groups = new Set();
+      function decisionRow(rec, index, optionIndex, label) {
+        const d = rec.options[optionIndex];
+        const row = element("tr");
+        row.dataset.service = rec.p.armSkuName;
+        const name = element("td", label);
+        name.append(scopeNote(rec.scope, `Shared; ${rec.p.currencyCode}`));
+        const cost = element("td", money(d.totalCost, rec.p.currencyCode));
+        cost.append(element("span", `${rec.p.totalHours} evaluated hours; ${dateFormat.format(new Date(rec.p.firstConsumptionDate))} - ${dateFormat.format(new Date(rec.p.lastConsumptionDate))}`, "cell-note"));
+        const savings = element("td", money(d.savingsAmount, rec.p.currencyCode));
+        savings.append(element("span", `Waste: ${money(d.wastageCost, rec.p.currencyCode)}; included in total cost`, "cell-note"));
+        const action = element("td");
+        const button = element("button", "Explore", "secondary");
+        button.type = "button";
+        button.addEventListener("click", () => {
+          selectRecommendation(index, optionIndex);
+          activateTab("modeler");
+        });
+        action.append(button);
+        row.append(name, element("td", termLabel(rec.p.term)), element("td", `${money(d.commitmentAmount, rec.p.currencyCode, 3)} / hour`), cost, savings, action);
+        return row;
+      }
+      const ordered = recommendations.map((rec, index) => ({ rec, index })).sort((a, b) =>
+        a.rec.scope.localeCompare(b.rec.scope) || a.rec.p.armSkuName.localeCompare(b.rec.p.armSkuName) ||
+        a.rec.p.currencyCode.localeCompare(b.rec.p.currencyCode) || a.rec.p.term.localeCompare(b.rec.p.term));
+      ordered.forEach(({ rec, index }) => {
+        const group = JSON.stringify([rec.scope, rec.p.armSkuName, rec.p.currencyCode]);
+        if (!groups.has(group)) {
+          groups.add(group);
+          const row = element("tr");
+          row.dataset.service = rec.p.armSkuName;
+          const name = element("td", "No additional purchase");
+          name.append(scopeNote(rec.scope, rec.p.currencyCode));
+          const noCost = element("td", "Unavailable");
+          noCost.append(element("span", "Existing portfolio cost not supplied", "cell-note"));
+          row.append(name, element("td", "None"), element("td", `${money(0, rec.p.currencyCode, 3)} / hour`),
+            noCost, element("td", "Unavailable"), element("td", "No new commitment"));
+          rows.push(row);
+        }
+        const lowerIndex = rec.options.findIndex((option) => option.commitmentAmount > 0 &&
+          option.commitmentAmount < rec.options[rec.recommendedIndex].commitmentAmount);
+        if (lowerIndex >= 0) rows.push(decisionRow(rec, index, lowerIndex, "Lower evaluated commitment"));
+        const row = decisionRow(rec, index, rec.recommendedIndex, "Azure highlighted");
+        rows.push(row);
+        row.classList.add("highlighted");
+        const option = element("option", `${skuLabel(rec.p.armSkuName)} / ${rec.scope.split("/").at(-1)} / ${rec.p.currencyCode}`);
+        option.value = String(index);
+        choices.push(option);
+      });
+      if (!rows.length) {
+        recommendationServicesMessage("savings-plan-services", "No plan types returned");
+        return;
+      }
+      byId("azure-recommendations").replaceChildren(...rows);
+      const services = [...new Set(ordered.map(({ rec }) => rec.p.armSkuName))];
+      const buttons = services.map((type) => {
+        const button = element("button", skuLabel(type));
+        button.type = "button";
+        button.dataset.service = type;
+        button.setAttribute("aria-controls", "azure-recommendations");
+        button.addEventListener("click", () => selectSavingsPlanService(type));
+        return button;
+      });
+      byId("savings-plan-services").replaceChildren(...buttons);
+      byId("savings-plan-services").setAttribute("aria-busy", "false");
+      selectSavingsPlanService(services.includes(savingsPlanService) ? savingsPlanService : services[0]);
+      byId("model-plan").replaceChildren(...choices);
+      for (const id of ["model-plan", "model-term", "model-option", "model-recommended"]) byId(id).disabled = false;
+      for (const option of byId("model-term").options) option.disabled = !recommendations.some((rec) => rec.p.term === option.value);
+      selectRecommendation(0);
+    }
+    function renderAzureUtilization(records, start, end) {
+      const rows = [];
+      const seen = new Set();
+      const ordered = records.slice().sort((a, b) => String(b.record?.properties?.usageDate).localeCompare(String(a.record?.properties?.usageDate)));
+      for (const { record, scope } of ordered) {
+        if (record?.kind !== "SavingsPlan") continue;
+        const p = record.properties;
+        if (!p || typeof p.benefitId !== "string" || !p.benefitId || typeof p.usageDate !== "string" ||
+            !Number.isFinite(Date.parse(p.usageDate)) || typeof p.armSkuName !== "string") throw new Error("Azure returned incomplete daily benefit utilization.");
+        const day = new Date(p.usageDate);
+        if (day < start || day >= end) continue;
+        const key = JSON.stringify([scope.toLowerCase(), p.benefitId.toLowerCase(), day.toISOString().slice(0, 10)]);
+        if (seen.has(key)) throw new Error("Azure returned duplicate daily benefit utilization.");
+        seen.add(key);
+        const values = ["avgUtilizationPercentage", "minUtilizationPercentage", "maxUtilizationPercentage"].map((name) => percentage(p[name], name));
+        if (values[1] > values[0] + 0.000001 || values[0] > values[2] + 0.000001) throw new Error("Azure daily utilization minimum, average and maximum are inconsistent.");
+        const row = element("tr");
+        const identity = element("td", p.armSkuName);
+        identity.append(element("code", p.benefitId, "plan-id"), scopeNote(scope));
+        row.append(identity, element("td", dateFormat.format(day)));
+        for (const value of values) row.append(element("td", percentFormat.format(value / 100)));
+        rows.push(row);
+      }
+      if (rows.length) byId("azure-utilization").replaceChildren(...rows);
+      else messageRow("azure-utilization", "No savings-plan daily utilization records for the last 30 completed UTC days.", 5);
+      return rows.length;
+    }
+    function resetBenefits() {
+      recommendations = [];
+      recommendationServicesMessage("savings-plan-services", "Loading plan types...", true);
+      byId("savings-plan-service-title").textContent = "Savings-plan comparison";
+      byId("savings-plan-results").textContent = "";
+      for (const id of ["model-plan", "model-term", "model-option", "model-recommended"]) byId(id).disabled = true;
+      byId("model-plan").replaceChildren(element("option", "Unavailable"));
+      byId("model-option").max = "0";
+      byId("model-option").value = "0";
+      byId("model-option").removeAttribute("aria-valuetext");
+      for (const id of ["model-commitment", "model-savings", "model-wastage", "model-utilization", "model-without", "model-with"]) byId(id).textContent = "\u2014";
+      byId("model-coverage").textContent = "Unavailable";
+      byId("coverage-source").textContent = "No current Azure scenario is loaded. No modeled coverage is substituted.";
+      byId("model-period").textContent = "Awaiting Azure-evaluated scenarios";
+      byId("model-source").textContent = "Select a savings plan option.";
+      byId("bar-without").value = 0;
+      byId("bar-with").value = 0;
+      byId("recommendation-note").hidden = true;
+      byId("recommendation-note").textContent = "";
+      byId("benefit-utilization-note").textContent = "Loading daily utilization...";
+      messageRow("azure-recommendations", "Loading savings plan options...", 6);
+      messageRow("azure-utilization", "Loading Azure benefit utilization...", 5);
+    }
+    function benefitsUnavailable(message) {
+      recommendationServicesMessage("savings-plan-services", "Plan types unavailable");
+      byId("recommendation-note").textContent = `Azure recommendations unavailable: ${message}`;
+      byId("recommendation-note").hidden = false;
+      byId("benefit-utilization-note").textContent = `Daily utilization unavailable: ${message}`;
+      messageRow("azure-recommendations", `Unavailable: ${message}`, 6);
+      messageRow("azure-utilization", `Unavailable: ${message}`, 5);
+    }
+    async function loadBenefits(start, end) {
+      const scopeQuery = `Costs() | where ChargePeriodStart >= ago(7d) | summarize Rows=count(), Latest=max(ChargePeriodStart) by BillingAccountId, x_BillingProfileId, BillingCurrency`;
+      const scopeRows = parseToolResult(await window.sreagent.callTool(TOOL_NAME, { "cluster-uri": CLUSTER_URI, database: DATABASE, query: scopeQuery }));
+      const scopes = [...new Set(scopeRows.flatMap((row) => [row.BillingAccountId, row.x_BillingProfileId]).filter((scope) =>
+        typeof scope === "string" && /^\/providers\/microsoft\.billing\/billingaccounts\/[^/]+\/billingprofiles\/[^/]+$/i.test(scope)).map((scope) => scope.toLowerCase()))];
+      if (!scopes.length) throw new Error("Costs() returned no full MCA billing-profile resource scope. No subscription-scope recommendation is substituted.");
+      const jobs = scopes.flatMap((scope) => [
+        ...["P3Y", "P1Y"].map((term) => ({ scope, term, type: "recommendation" })),
+        { scope, type: "utilization" }
+      ]);
+      const responses = await Promise.allSettled(jobs.map(async (job) => {
+        if (job.type === "recommendation") {
+          const raw = await window.sreagent.callTool(RECOMMENDATION_TOOL, {
+            scope: job.scope, recommendationScope: "Shared", term: job.term, lookBackPeriod: "Last30Days", expand: true
+          });
+          const records = benefitRecords(raw).map((record) => normalizeRecommendation(record, job.scope, job.term)).filter(Boolean);
+          if (new Set(records.map((rec) => rec.p.armSkuName)).size !== records.length) throw new Error("Azure returned overlapping recommendations for the same plan type and term.");
+          return records;
+        }
+        const raw = await window.sreagent.callTool(UTILIZATION_TOOL, { scope: job.scope, grain: "Daily" });
+        return benefitRecords(raw).map((record) => ({ record, scope: job.scope }));
+      }));
+      const recommendationErrors = [];
+      const utilizationErrors = [];
+      const utilizationRecords = [];
+      responses.forEach((response, index) => {
+        const job = jobs[index];
+        if (response.status === "fulfilled") {
+          if (job.type === "recommendation") recommendations.push(...response.value);
+          else utilizationRecords.push(...response.value);
+        } else {
+          const message = `${job.scope}${job.term ? ` / ${job.term}` : ""}: ${response.reason instanceof Error ? response.reason.message : String(response.reason)}`;
+          (job.type === "recommendation" ? recommendationErrors : utilizationErrors).push(message);
+          console.error("Azure benefit source failed:", message);
+        }
+      });
+      renderRecommendations();
+      if (!recommendations.length) {
+        recommendationServicesMessage("savings-plan-services", recommendationErrors.length ? "Plan types unavailable" : "No plan types returned");
+        messageRow("azure-recommendations", recommendationErrors.length
+          ? "Azure recommendations unavailable. Missing or invalid responses are not evidence of no opportunity."
+          : "Azure returned no savings-plan recommendations for the discovered profiles, Shared scope, P1Y/P3Y terms, and Last30Days.", 6);
+      }
+      if (recommendationErrors.length) {
+        byId("recommendation-note").textContent = `Unavailable: ${recommendationErrors.join("; ")}`;
+        byId("recommendation-note").hidden = false;
+      }
+      let utilizationCount = 0;
+      try {
+        utilizationCount = renderAzureUtilization(utilizationRecords, start, end);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        utilizationErrors.push(message);
+        console.error("Azure utilization response is invalid:", error);
+        messageRow("azure-utilization", `Unavailable: ${message}`, 5);
+      }
+      byId("benefit-utilization-note").textContent = `${utilizationCount} daily records, last 30 completed UTC days.${utilizationErrors.length ? ` Unavailable: ${utilizationErrors.join("; ")}` : ""}`;
+      if (utilizationErrors.length && !utilizationRecords.length) messageRow("azure-utilization", "Azure benefit utilization unavailable. Failed requests do not establish an absence of benefits.", 5);
+      return [...recommendationErrors, ...utilizationErrors];
+    }
+    function tableMessage(text) {
+      const cell = element("td", text, "message");
+      cell.colSpan = 5;
+      const row = document.createElement("tr");
+      row.append(cell);
+      byId("plans").replaceChildren(row);
+    }
+    function parseToolResult(raw) {
+      const payload = unwrapToolResult(raw, "Kusto");
+      const items = payload?.results?.items ?? payload?.items;
+      if (!Array.isArray(items)) throw new Error(`The Kusto tool did not return a result table (response keys: ${Object.keys(payload ?? {}).join(", ") || "none"}).`);
+      if (!items.length) return [];
+      const header = items[0];
+      if (!header || typeof header !== "object" || Array.isArray(header)) throw new Error("The Kusto result has no valid column header.");
+      const keys = Object.keys(header);
+      // The hosted tool and local bridge use a null-valued header followed by positional rows.
+      if (items.length > 1 && Array.isArray(items[1])) {
+        return items.slice(1).map((row) => {
+          if (!Array.isArray(row) || row.length !== keys.length) throw new Error("The Kusto result contains an incomplete row.");
+          return Object.fromEntries(keys.map((key, index) => [key, row[index]]));
+        });
+      }
+      const columnTypes = new Set(["string", "real", "long", "int", "datetime", "timespan", "bool", "dynamic", "decimal", "guid"]);
+      if (items.length === 1 && Object.values(header).every((value) => value === null || columnTypes.has(value))) return [];
+      if (!items.every((row) => row && typeof row === "object" && !Array.isArray(row))) {
+        throw new Error("The Kusto result contains an invalid row.");
+      }
+      return items;
+    }
+    function utilization(row, days) {
+      const count = row[`Records${days}`];
+      const invalid = row[`Invalid${days}`];
+      const used = row[`Used${days}`];
+      const unused = row[`Unused${days}`];
+      const total = row[`Total${days}`];
+      if (!Number.isInteger(count) || count <= 0 || invalid !== 0 ||
+          !Number.isFinite(used) || !Number.isFinite(unused) || used < 0 || unused < 0 ||
+          !Number.isFinite(total) || total <= 0 || Math.abs(total - used - unused) > 0.02) return null;
+      return used / total;
+    }
+    function utilizationCell(row, days) {
+      const cell = document.createElement("td");
+      const value = utilization(row, days);
+      if (value === null) {
+        cell.append(element("span", "Unavailable"), element("span", "No usable denominator, invalid/missing costs, or unrecognized allocation status", "cell-note"));
+        return cell;
+      }
+      const bar = document.createElement("progress");
+      bar.max = 100;
+      bar.value = value * 100;
+      bar.setAttribute("aria-label", `${days}-day observed effective-cost utilization: ${percentFormat.format(value)}`);
+      cell.append(element("span", percentFormat.format(value), "average"), bar);
+      const used = row[`Used${days}`];
+      const unused = row[`Unused${days}`];
+      const total = row[`Total${days}`];
+      const figures = element("dl", null, "cost-figures");
+      for (const [label, text, emphasis] of [
+        ["Used", money(used, row.Currency)],
+        ["Unused", money(unused, row.Currency), true],
+        ["Total", money(total, row.Currency)],
+        ["Waste", percentFormat.format(unused / total)]
+      ]) {
+        const term = element("dt", label);
+        const detail = element("dd", text, emphasis ? "waste" : "");
+        figures.append(term, detail);
+      }
+      cell.append(figures, element("span", `${row[`Days${days}`]} reported days; ${row.Currency}`, "cell-note"));
+      return cell;
+    }
+    function render(rows) {
+      const identities = { "Savings Plan": new Set(), Reservation: new Set() };
+      const groups = new Set();
+      const values = { "Savings Plan": [], Reservation: [] };
+      const nodes = rows.map((row) => {
+        if (typeof row.BenefitId !== "string" || !row.BenefitId ||
+            !["Savings Plan", "Reservation"].includes(row.BenefitType) || typeof row.Services !== "string" ||
+            typeof row.Account !== "string" || typeof row.Profile !== "string" ||
+            typeof row.Currency !== "string" || !/^[A-Z]{3}$/.test(row.Currency) ||
+            !Number.isFinite(Date.parse(row.LatestUsage))) {
+          throw new Error("The Hub returned missing benefit identity, currency, billing scope, or usage date.");
+        }
+        const identity = JSON.stringify([row.Account.toLowerCase(), row.Profile.toLowerCase(), row.BenefitType, row.BenefitId.toLowerCase()]);
+        const group = JSON.stringify([identity, row.Currency]);
+        if (groups.has(group)) throw new Error("The Hub returned duplicate plan/currency groups.");
+        groups.add(group);
+        identities[row.BenefitType].add(identity);
+        const value = utilization(row, 7);
+        if (value !== null) values[row.BenefitType].push(value);
+        const identityCell = document.createElement("td");
+        identityCell.append(element("span", row.BenefitName || (row.BenefitType === "Reservation" ? "Observed reservation" : "Observed savings plan"), "plan-name"),
+          element("span", row.BenefitType, "cell-note"),
+          element("code", row.BenefitId, "plan-id"),
+          element("span", row.Services || "Service not reported", "cell-note"),
+          element("span", `Account: ${row.Account || "Not reported"}; profile: ${row.Profile || "Not reported"}`, "cell-note"));
+        const latest = element("td", dateFormat.format(new Date(row.LatestUsage)), "number");
+        const metadata = element("td", "Unavailable");
+        metadata.append(element("span", "Purchased capacity or commitment, active status, term, and expiry require Azure Billing", "cell-note"));
+        const node = document.createElement("tr");
+        node.append(identityCell, utilizationCell(row, 7), utilizationCell(row, 30), latest, metadata);
+        return node;
+      });
+      if (nodes.length) byId("plans").replaceChildren(...nodes);
+      else tableMessage("No reservation or savings-plan cost records for the last 30 completed UTC days.");
+      byId("plan-count").textContent = String(identities["Savings Plan"].size);
+      byId("reservation-count").textContent = String(identities.Reservation.size);
+      byId("lowest").textContent = values["Savings Plan"].length ? percentFormat.format(Math.min(...values["Savings Plan"])) : "Unavailable";
+      byId("reservation-lowest").textContent = values.Reservation.length ? percentFormat.format(Math.min(...values.Reservation)) : "Unavailable";
+    }
+    function renderServiceSpend(rows) {
+      const seen = new Set();
+      const nodes = rows.map((row) => {
+        if (typeof row.Account !== "string" || !row.Account || typeof row.Profile !== "string" || !row.Profile ||
+            typeof row.ServiceName !== "string" || !row.ServiceName || !/^[A-Z]{3}$/.test(row.Currency) ||
+            typeof row.Valid !== "boolean") throw new Error("The Hub returned incomplete all-service spend identity.");
+        const key = JSON.stringify([row.Account.toLowerCase(), row.Profile.toLowerCase(), row.Currency, row.ServiceName]);
+        if (seen.has(key)) throw new Error("The Hub returned duplicate service spend groups.");
+        seen.add(key);
+        const identity = element("td", row.ServiceName);
+        identity.title = row.Account;
+        identity.append(element("span", `${row.Profile} / ${row.Currency}`, "cell-note"));
+        const node = element("tr");
+        node.append(identity);
+        if (!row.Valid) {
+          identity.append(element("span", "Source validation failed or no usable cost denominator", "cell-note"));
+          for (let i = 0; i < 4; i += 1) node.append(element("td", "Unavailable"));
+          console.error("Service spend share is unavailable:", row);
+          return node;
+        }
+        if (["ReservationEffectiveCost", "SavingsPlanEffectiveCost", "TotalEffectiveCost"]
+            .some((field) => !Number.isFinite(row[field]) || row[field] < 0) ||
+            row.ReservationEffectiveCost + row.SavingsPlanEffectiveCost > row.TotalEffectiveCost + 0.000001 ||
+            (row.TotalEffectiveCost === 0 && (row.ReservationEffectiveCost !== 0 || row.SavingsPlanEffectiveCost !== 0))) {
+          throw new Error("The Hub returned invalid all-service effective costs.");
+        }
+        for (const [amount, share] of [["ReservationEffectiveCost", "ReservationSpendSharePercent"], ["SavingsPlanEffectiveCost", "SavingsPlanSpendSharePercent"]]) {
+          const cell = element("td", money(row[amount], row.Currency));
+          cell.append(element("span", row.TotalEffectiveCost > 0
+            ? `${percentFormat.format(percentage(row[share], share) / 100)} of spend`
+            : "Share unavailable: zero spend", "cell-note"));
+          node.append(cell);
+        }
+        node.append(element("td", money(row.TotalEffectiveCost, row.Currency)),
+          element("td", row.TotalEffectiveCost > 0
+            ? percentFormat.format(percentage(row.CombinedSpendSharePercent, "combined service spend share") / 100) : "Unavailable"));
+        return node;
+      });
+      if (nodes.length) byId("service-spend-rows").replaceChildren(...nodes);
+      else messageRow("service-spend-rows", "No matching usage-spend records were returned for this period.", 5);
+    }
+    function renderReservationUsage(rows) {
+      const seen = new Set();
+      const nodes = rows.map((row) => {
+        if (typeof row.ServiceName !== "string" || typeof row.Account !== "string" ||
+            typeof row.Profile !== "string" || !/^[A-Z]{3}$/.test(row.Currency) ||
+            typeof row.ConsumedUnit !== "string" || typeof row.Valid !== "boolean") {
+          throw new Error("The Hub returned incomplete reservation meter identity.");
+        }
+        const key = JSON.stringify([row.Account, row.Profile, row.Currency, row.ServiceName, row.ResourceType,
+          row.RegionId, row.SkuId, row.x_SkuMeterId, row.SkuMeter, row.ConsumedUnit, row.PricingUnit, row.x_PricingBlockSize, row.x_SkuLicenseType]);
+        if (seen.has(key)) throw new Error("The Hub returned duplicate reservation meter groups.");
+        seen.add(key);
+        const identity = element("td", `${row.ServiceName} / ${row.SkuMeter || row.x_SkuMeterId || "Meter not reported"}`);
+        identity.title = row.Account;
+        identity.append(element("span", `${row.Profile} / ${row.Currency}; ${row.RegionId || "Region not reported"}`, "cell-note"),
+          element("code", `SKU ${row.SkuId || "not reported"}; meter ${row.x_SkuMeterId || "not reported"}`, "plan-id"));
+        const node = element("tr");
+        node.append(identity, element("td", row.ConsumedUnit || "Not reported"));
+        if (row.Valid) {
+          if (!Number.isFinite(row.TotalNativeQuantity) || row.TotalNativeQuantity <= 0 ||
+              !Number.isFinite(row.ReservationNativeQuantity) || row.ReservationNativeQuantity < 0 ||
+              row.ReservationNativeQuantity > row.TotalNativeQuantity) throw new Error("The Hub returned invalid reservation meter quantities.");
+          node.append(element("td", quantityFormat.format(row.ReservationNativeQuantity)),
+            element("td", quantityFormat.format(row.TotalNativeQuantity)),
+            element("td", percentFormat.format(percentage(row.ReservationNativeUsageSharePercent, "reservation native usage share") / 100)));
+        } else {
+          identity.append(element("span", "Native quantities cannot be compared safely for this meter", "cell-note"));
+          for (let i = 0; i < 3; i += 1) node.append(element("td", "Unavailable"));
+          console.error("Reservation native usage share is unavailable:", row);
+        }
+        return node;
+      });
+      if (nodes.length) byId("reservation-usage-rows").replaceChildren(...nodes);
+      else messageRow("reservation-usage-rows", "No reservation-backed meter populations were returned. This does not establish an absence of purchased reservations.", 5);
+    }
+    function reservationRecommendationsMessage(message, serviceMessage = "Services unavailable", busy = false) {
+      reservationRecommendations = [];
+      recommendationServicesMessage("reservation-services", serviceMessage, busy);
+      byId("reservation-service-title").textContent = "Reservation options";
+      byId("reservation-results").textContent = "";
+      for (const id of ["reservation-term", "reservation-lookback", "reservation-clear-filters"]) byId(id).disabled = true;
+      messageRow("reservation-recommendations", message, 5);
+    }
+    function filterReservationRecommendations() {
+      const term = byId("reservation-term").value;
+      const lookback = byId("reservation-lookback").value;
+      const serviceRows = reservationRecommendations.filter(({ record }) => record.ReservedResourceType === reservationService);
+      const filtered = serviceRows.filter(({ record }) =>
+        (!term || record.Term === term) && (!lookback || String(record.LookbackDays) === lookback));
+      if (filtered.length) byId("reservation-recommendations").replaceChildren(...filtered.map(({ node }) => node));
+      else messageRow("reservation-recommendations", "No options match this term and lookback. Clear filters to see all options for this service.", 5);
+      byId("reservation-results").textContent = `${filtered.length} of ${serviceRows.length} options`;
+      byId("reservation-clear-filters").disabled = !term && !lookback;
+    }
+    function selectReservationService(type) {
+      reservationService = type;
+      byId("reservation-services").querySelectorAll("button").forEach((button) =>
+        button.setAttribute("aria-pressed", String(button.dataset.service === type)));
+      const records = reservationRecommendations.filter(({ record }) => record.ReservedResourceType === type).map(({ record }) => record);
+      for (const [id, field, label] of [["reservation-term", "Term", "All terms"], ["reservation-lookback", "LookbackDays", "All lookbacks"]]) {
+        const select = byId(id);
+        const previous = select.value;
+        const values = [...new Set(records.map((record) => record[field]).filter((value) =>
+          field === "Term" ? typeof value === "string" && value.length > 0 : Number.isInteger(value) && value > 0))];
+        values.sort((a, b) => field === "Term" ? a.localeCompare(b) : a - b);
+        const all = element("option", label);
+        all.value = "";
+        const options = values.map((value) => {
+          const option = element("option", field === "Term" ? termLabel(value) : `${value} days`);
+          option.value = String(value);
+          return option;
+        });
+        select.replaceChildren(all, ...options);
+        select.value = values.some((value) => String(value) === previous) ? previous : "";
+        select.disabled = values.length === 0;
+      }
+      byId("reservation-service-title").textContent = `${reservationServiceLabel(type)} reservations`;
+      filterReservationRecommendations();
+    }
+    function renderReservationRecommendations(rows) {
+      const seen = new Set();
+      const records = rows.map((row) => {
+        if (typeof row.RecommendationId !== "string" || !row.RecommendationId ||
+            typeof row.Subscription !== "string" || !row.Subscription ||
+            typeof row.ReservedResourceType !== "string" || !row.ReservedResourceType ||
+            !Number.isFinite(Date.parse(row.RecommendationDate))) throw new Error("The Hub returned incomplete reservation recommendation identity.");
+        const key = JSON.stringify([row.Subscription, row.RecommendationId]);
+        if (seen.has(key)) throw new Error("The Hub returned duplicate reservation recommendations.");
+        seen.add(key);
+        const identity = element("td", row.Sku || "SKU not reported", "recommendation-sku");
+        const quantity = element("td", Number.isFinite(row.Quantity) && row.Quantity > 0 ? quantityFormat.format(row.Quantity) : "Quantity unavailable");
+        quantity.append(element("span", row.Term ? termLabel(row.Term) : "Term not reported", "cell-note"));
+        const scope = element("td", row.Region || "Region not reported");
+        scope.append(element("span", row.Scope || "Scope not reported", "cell-note"),
+          element("code", row.Subscription, "plan-id"));
+        const savings = element("td", Number.isFinite(row.AnnualSavings) && /^[A-Z]{3}$/.test(row.Currency)
+          ? money(row.AnnualSavings, row.Currency) : "Unavailable");
+        savings.append(element("span", /^[A-Z]{3}$/.test(row.Currency) ? `${row.Currency} / year` : "Currency not reported", "cell-note"));
+        const date = element("td", Number.isInteger(row.LookbackDays) && row.LookbackDays > 0 ? `${row.LookbackDays}-day lookback` : "Lookback not reported");
+        date.append(element("span", dateFormat.format(new Date(row.RecommendationDate)), "cell-note"));
+        const node = element("tr");
+        node.dataset.recommendationId = row.RecommendationId;
+        node.dataset.service = row.ReservedResourceType;
+        node.append(identity, quantity, scope, savings, date);
+        return { record: row, node };
+      });
+      if (!records.length) {
+        reservationRecommendationsMessage("No Azure Advisor reservation recommendation snapshots were returned. This is not evidence of no reservation opportunity.", "No services returned");
+        return;
+      }
+      reservationRecommendations = records.sort((a, b) => {
+        for (const field of ["Subscription", "Scope", "Currency", "Sku", "Region", "Term"]) {
+          const comparison = String(a.record[field] ?? "").localeCompare(String(b.record[field] ?? ""));
+          if (comparison) return comparison;
+        }
+        return (a.record.LookbackDays ?? 0) - (b.record.LookbackDays ?? 0);
+      });
+      const services = [...new Set(rows.map((row) => row.ReservedResourceType))]
+        .sort((a, b) => reservationServiceLabel(a).localeCompare(reservationServiceLabel(b)));
+      const buttons = services.map((type) => {
+        const button = element("button", reservationServiceLabel(type));
+        button.type = "button";
+        button.dataset.service = type;
+        button.setAttribute("aria-controls", "reservation-recommendations");
+        button.addEventListener("click", () => selectReservationService(type));
+        return button;
+      });
+      byId("reservation-services").replaceChildren(...buttons);
+      byId("reservation-services").setAttribute("aria-busy", "false");
+      selectReservationService(services.includes(reservationService) ? reservationService : services[0]);
+    }
+    function computeCoverageUnavailable(message) {
+      byId("compute-coverage").textContent = "Unavailable";
+      byId("compute-coverage").classList.add("muted-value");
+      byId("compute-coverage-summary").textContent = "VM vCPU-hour coverage unavailable";
+      byId("compute-spend-share").textContent = "Unavailable";
+      byId("compute-spend-share").classList.add("muted-value");
+      byId("compute-spend-summary").textContent = "VM effective-cost spend share unavailable";
+      byId("compute-coverage-period").textContent = message;
+      messageRow("compute-coverage-rows", message, 5);
+      messageRow("compute-spend-rows", message, 5);
+    }
+    function renderComputeCoverage(rows) {
+      if (rows.some((row) => typeof row.IsSpot !== "boolean")) {
+        throw new Error("The Hub returned an invalid VM usage population.");
+      }
+      rows = rows.filter((row) => !row.IsSpot);
+      if (!rows.length) {
+        computeCoverageUnavailable("No matching VM core-hour cohorts were returned.");
+        return;
+      }
+      const seen = new Set();
+      const start = Date.parse(rows[0].WindowStartUtc);
+      const end = Date.parse(rows[0].WindowEndUtc);
+      const spendNodes = [];
+      const nodes = rows.map((row) => {
+        const value = row.VMCoreHourCoveragePercent;
+        const spendValue = row.VMSpendSharePercent;
+        const validSpendAmounts = ["TotalEffectiveCost", "CoveredEffectiveCost", "ReservationEffectiveCost", "SavingsPlanEffectiveCost"]
+          .every((field) => Number.isFinite(row[field]) && row[field] >= 0) &&
+          row.CoveredEffectiveCost <= row.TotalEffectiveCost &&
+          Math.abs(row.ReservationEffectiveCost + row.SavingsPlanEffectiveCost - row.CoveredEffectiveCost) <= 0.000001;
+        if (typeof row.Account !== "string" || !row.Account ||
+            typeof row.Profile !== "string" || !row.Profile ||
+            typeof row.BillingCurrency !== "string" || !/^[A-Z]{3}$/.test(row.BillingCurrency) ||
+            typeof row.IsSpot !== "boolean" || row.Population !== (row.IsSpot ? "Spot" : "Non-Spot") ||
+            row.Unit !== "vCPU-hours" || !Number.isFinite(start) || !Number.isFinite(end) || end <= start ||
+            Date.parse(row.WindowStartUtc) !== start || Date.parse(row.WindowEndUtc) !== end ||
+            (value !== null && (!Number.isFinite(value) || value < 0 || value > 100 ||
+              !Number.isFinite(row.TotalCoreHours) || row.TotalCoreHours <= 0 ||
+              !Number.isFinite(row.CoveredCoreHours) || row.CoveredCoreHours < 0 || row.CoveredCoreHours > row.TotalCoreHours ||
+              !Number.isFinite(row.ReservationCoreHours) || row.ReservationCoreHours < 0 ||
+              !Number.isFinite(row.SavingsPlanCoreHours) || row.SavingsPlanCoreHours < 0 ||
+              Math.abs(row.ReservationCoreHours + row.SavingsPlanCoreHours - row.CoveredCoreHours) > 0.000001))) {
+          throw new Error("The Hub returned incomplete or invalid VM core-hour coverage data.");
+        }
+        if (spendValue !== null && (!Number.isFinite(spendValue) || spendValue < 0 || spendValue > 100 ||
+            !validSpendAmounts || row.TotalEffectiveCost <= 0)) {
+          throw new Error("The Hub returned incomplete or invalid VM effective-cost spend data.");
+        }
+        const key = JSON.stringify([row.Account.toLowerCase(), row.Profile.toLowerCase(), row.BillingCurrency, row.IsSpot]);
+        if (seen.has(key)) throw new Error("The Hub returned duplicate VM core-hour coverage cohorts.");
+        seen.add(key);
+        const identity = element("td", `${row.Profile} / ${row.BillingCurrency}`);
+        identity.title = row.Account;
+        const spendIdentity = identity.cloneNode(true);
+        const spendNode = element("tr");
+        spendNode.append(spendIdentity,
+          element("td", validSpendAmounts ? money(row.ReservationEffectiveCost, row.BillingCurrency) : "Unavailable"),
+          element("td", validSpendAmounts ? money(row.SavingsPlanEffectiveCost, row.BillingCurrency) : "Unavailable"),
+          element("td", validSpendAmounts ? money(row.TotalEffectiveCost, row.BillingCurrency) : "Unavailable"),
+          element("td", spendValue === null ? "Unavailable" : percentFormat.format(spendValue / 100)));
+        if (spendValue === null) {
+          spendIdentity.append(element("span", validSpendAmounts ? "No positive effective-cost denominator" : "Source cost validation failed", "cell-note"));
+          if (!validSpendAmounts) console.error("VM effective-cost spend share is unavailable for this cohort:", row);
+        }
+        spendNodes.push(spendNode);
+        const node = element("tr");
+        node.append(identity,
+          element("td", value === null ? "Unavailable" : quantityFormat.format(row.ReservationCoreHours)),
+          element("td", value === null ? "Unavailable" : quantityFormat.format(row.SavingsPlanCoreHours)),
+          element("td", value === null ? "Unavailable" : quantityFormat.format(row.TotalCoreHours)),
+          element("td", value === null ? "Unavailable" : percentFormat.format(value / 100)));
+        if (value === null) {
+          identity.append(element("span", "Source validation failed or no usable denominator", "cell-note"));
+          console.error("VM core-hour coverage is unavailable for this cohort:", row);
+        }
+        return node;
+      });
+      byId("compute-coverage-rows").replaceChildren(...nodes);
+      byId("compute-spend-rows").replaceChildren(...spendNodes);
+      const single = rows.length === 1;
+      for (const [id, field] of [["compute-coverage", "VMCoreHourCoveragePercent"], ["compute-spend-share", "VMSpendSharePercent"]]) {
+        const value = single ? rows[0][field] : null;
+        byId(id).textContent = single && value !== null
+          ? percentFormat.format(value / 100) : rows.length > 1 ? "By billing scope" : "Unavailable";
+        byId(id).classList.toggle("muted-value", !single || value === null);
+      }
+      const summary = single
+        ? `Reservations + savings plans; ${rows[0].Profile} / ${rows[0].BillingCurrency}`
+        : "Reservations + savings plans; see Coverage for separate billing scopes";
+      byId("compute-coverage-summary").textContent = summary;
+      byId("compute-spend-summary").textContent = summary;
+      byId("compute-coverage-period").textContent = `${dateFormat.format(new Date(start))} - ${dateFormat.format(new Date(end - 86400000))} (UTC)`;
+    }
+    async function refresh() {
+      const button = byId("refresh");
+      button.disabled = true;
+      button.textContent = "Refreshing...";
+      byId("error").hidden = true;
+      byId("plan-count").textContent = "\u2014";
+      byId("lowest").textContent = "\u2014";
+      byId("reservation-count").textContent = "\u2014";
+      byId("reservation-lowest").textContent = "\u2014";
+      byId("compute-coverage").textContent = "\u2014";
+      byId("compute-coverage").classList.add("muted-value");
+      byId("compute-coverage-summary").textContent = "Reservations + savings plans";
+      byId("compute-spend-share").textContent = "\u2014";
+      byId("compute-spend-share").classList.add("muted-value");
+      byId("compute-spend-summary").textContent = "Reservations + savings plans";
+      byId("compute-coverage-period").textContent = "Loading VM vCPU-hours and effective costs...";
+      messageRow("compute-coverage-rows", "Loading VM vCPU-hours...", 5);
+      messageRow("compute-spend-rows", "Loading VM effective costs...", 5);
+      messageRow("service-spend-rows", "Loading all-service spend...", 5);
+      messageRow("reservation-usage-rows", "Loading reservation meter usage...", 5);
+      reservationRecommendationsMessage("Loading reservation recommendations...", "Loading services...", true);
+      byId("refreshed").textContent = "Updating...";
+      byId("report").dataset.state = "loading";
+      byId("period").textContent = "Loading reporting period...";
+      byId("plans").setAttribute("aria-busy", "true");
+      tableMessage("Loading live cost records...");
+      resetBenefits();
+      try {
+        const cluster = new URL(CLUSTER_URI);
+        if (cluster.protocol !== "https:" || cluster.username || cluster.password || cluster.pathname !== "/" || cluster.search || cluster.hash) {
+          throw new Error("Configure the FinOps Hub HTTPS cluster origin before uploading this report.");
+        }
+        if (typeof window.sreagent?.callTool !== "function") throw new Error("Open this file as an Azure SRE Agent Live Report with the Kusto tool enabled.");
+        const end = new Date();
+        end.setUTCHours(0, 0, 0, 0);
+        const start = new Date(end.getTime() - 30 * 86400000);
+        const week = new Date(end.getTime() - 7 * 86400000);
+        const query = `let windowEnd = datetime(${end.toISOString()});
+let windowStart = datetime(${start.toISOString()});
+let weekStart = datetime(${week.toISOString()});
+Costs()
+| where ChargePeriodStart >= windowStart and ChargePeriodStart < windowEnd
+| where CommitmentDiscountType in ('Savings Plan', 'Reservation') and isnotempty(CommitmentDiscountId)
+| where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))
+| extend ObservedCost = iff(EffectiveCost >= -0.000000001 and EffectiveCost < 0, 0.0, EffectiveCost)
+| extend InvalidCost = isnull(ObservedCost) or not(isfinite(ObservedCost)) or ObservedCost < 0
+    or CommitmentDiscountStatus !in ('Used', 'Unused')
+| summarize LatestUsage = max(ChargePeriodStart), Services = make_set(ServiceName), BenefitName = take_any(CommitmentDiscountName),
+    Total30 = sum(ObservedCost),
+    Used30 = sumif(ObservedCost, CommitmentDiscountStatus == 'Used'),
+    Unused30 = sumif(ObservedCost, CommitmentDiscountStatus == 'Unused'),
+    Invalid30 = countif(InvalidCost), Records30 = count(),
+    Reported30 = make_set(startofday(ChargePeriodStart), 31),
+    Used7 = sumif(ObservedCost, CommitmentDiscountStatus == 'Used' and ChargePeriodStart >= weekStart),
+    Unused7 = sumif(ObservedCost, CommitmentDiscountStatus == 'Unused' and ChargePeriodStart >= weekStart),
+    Total7 = sumif(ObservedCost, ChargePeriodStart >= weekStart),
+    Invalid7 = countif(InvalidCost and ChargePeriodStart >= weekStart),
+    Records7 = countif(ChargePeriodStart >= weekStart),
+    Reported7 = make_set_if(startofday(ChargePeriodStart), ChargePeriodStart >= weekStart, 8)
+    by BenefitId = CommitmentDiscountId, Account = tostring(BillingAccountId),
+       Profile = tostring(x_BillingProfileId), Currency = BillingCurrency, BenefitType = CommitmentDiscountType
+| extend Days7 = array_length(Reported7), Days30 = array_length(Reported30), Services = strcat_array(Services, ', ')
+| project-away Reported7, Reported30
+| order by Account asc, Profile asc, BenefitId asc, Currency asc`;
+        const coverageQuery = `let endDate=startofday(now());
+let startDate=endDate-30d;
+let hourly=materialize(
+    Costs()
+    | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+    | where ServiceCategory == "Compute" and ServiceName in ("Virtual Machines","Virtual Machine Scale Sets","Batch")
+    | where ChargeCategory == "Usage" and CommitmentDiscountStatus != "Unused"
+    | where ConsumedUnit == "Hours" and PricingUnit == "Hours"
+);
+let selectionAudit=hourly
+| summarize HourlyCandidateRows=count(), SelectedCpuRows=countif(x_SkuMeterCategory == "Virtual Machines" and tostring(x_SkuDetails.UsageType) == "ComputeHR"), ExcludedLicenseHourlyRows=countif(x_SkuMeterCategory in ("Virtual Machine Licenses","Virtual Machines Licenses")) by Account=BillingAccountId, Profile=x_BillingProfileId, BillingCurrency
+| extend ExcludedOtherHourlyRows=HourlyCandidateRows-SelectedCpuRows-ExcludedLicenseHourlyRows;
+let selected=materialize(
+    hourly
+    | where x_SkuMeterCategory == "Virtual Machines" and tostring(x_SkuDetails.UsageType) == "ComputeHR"
+    | extend RowFingerprint=hash_sha256(tostring(pack_all()))
+    | extend IsSpot=PricingCategory == "Dynamic" or x_PricingSubcategory == "Spot"
+    | extend IsSavingsPlanUsed=CommitmentDiscountStatus == "Used" and CommitmentDiscountType == "Savings Plan" and CommitmentDiscountCategory == "Spend" and isnotempty(CommitmentDiscountId)
+    | extend IsReservationUsed=CommitmentDiscountStatus == "Used" and CommitmentDiscountType == "Reservation" and CommitmentDiscountCategory == "Usage" and isnotempty(CommitmentDiscountId)
+    | extend IsUncovered=isempty(CommitmentDiscountId) and isempty(CommitmentDiscountCategory) and isempty(CommitmentDiscountType) and isempty(CommitmentDiscountStatus)
+);
+let duplicateAudit=selected
+| summarize Copies=count() by Account=BillingAccountId, Profile=x_BillingProfileId, BillingCurrency, IsSpot, RowFingerprint
+| summarize ExactDuplicateGroups=countif(Copies>1), ExactDuplicateExcess=sum(Copies-1) by Account, Profile, BillingCurrency, IsSpot;
+selected
+| summarize TotalEffectiveCost=sum(EffectiveCost), CoveredEffectiveCost=sumif(EffectiveCost,IsSavingsPlanUsed or IsReservationUsed), ReservationEffectiveCost=sumif(EffectiveCost,IsReservationUsed), SavingsPlanEffectiveCost=sumif(EffectiveCost,IsSavingsPlanUsed), InvalidEffectiveCostRows=countif(isnull(EffectiveCost) or not(isfinite(EffectiveCost)) or EffectiveCost<0),
+    Records=count(), CoveredRows=countif(IsSavingsPlanUsed or IsReservationUsed), UncoveredRows=countif(IsUncovered), TotalCoreHours=sum(x_ConsumedCoreHours), CoveredCoreHours=sumif(x_ConsumedCoreHours,IsSavingsPlanUsed or IsReservationUsed), SavingsPlanCoreHours=sumif(x_ConsumedCoreHours,IsSavingsPlanUsed), ReservationCoreHours=sumif(x_ConsumedCoreHours,IsReservationUsed), InvalidQuantityRows=countif(isnull(ConsumedQuantity) or not(isfinite(ConsumedQuantity)) or ConsumedQuantity<0), InvalidCoreCountRows=countif(isnull(x_SkuCoreCount) or x_SkuCoreCount<=0), InvalidCoreHourRows=countif(isnull(x_ConsumedCoreHours) or not(isfinite(x_ConsumedCoreHours)) or x_ConsumedCoreHours<0), CoreConversionMismatchRows=countif(abs(x_ConsumedCoreHours-x_SkuCoreCount*ConsumedQuantity)>0.000001), QuantityPricingMismatchRows=countif(isnull(PricingQuantity) or not(isfinite(PricingQuantity)) or abs(ConsumedQuantity-PricingQuantity)>0.000001), ZeroQuantityRows=countif(ConsumedQuantity==0), UnclassifiedBenefitRows=countif(not(IsSavingsPlanUsed or IsReservationUsed or IsUncovered)), BenefitPricingMismatchRows=countif(((IsSavingsPlanUsed or IsReservationUsed) and PricingCategory != "Committed") or (IsUncovered and PricingCategory !in ("Standard","Dynamic"))), SpotMeterMismatchRows=countif(IsSpot != (SkuMeter endswith " Spot")), SpotBenefitRows=countif(IsSpot and (IsSavingsPlanUsed or IsReservationUsed)), MissingScopeRows=countif(isempty(BillingAccountId) or isempty(x_BillingProfileId) or isempty(BillingCurrency)), MissingResourceIdRows=countif(isempty(ResourceId)), MissingChargeIdRows=countif(isempty(x_ChargeId)), MissingSpendEligibilityRows=countif(isempty(x_CommitmentDiscountSpendEligibility)), MissingUsageEligibilityRows=countif(isempty(x_CommitmentDiscountUsageEligibility)), SourceTypes=make_set(x_SourceType,5), SourceVersions=make_set(x_SourceVersion,5), PricingCategories=make_set(PricingCategory,5), PricingSubcategories=make_set(x_PricingSubcategory,5), BlockSizes=make_set(x_PricingBlockSize,5), Services=make_set(ServiceName,5), ReportedDays=dcount(startofday(ChargePeriodStart)), FirstUsage=min(ChargePeriodStart), LatestUsage=max(ChargePeriodStart) by Account=BillingAccountId, Profile=x_BillingProfileId, BillingCurrency, IsSpot
+| join kind=inner duplicateAudit on Account, Profile, BillingCurrency, IsSpot
+| project-away Account1, Profile1, BillingCurrency1, IsSpot1
+| join kind=inner selectionAudit on Account, Profile, BillingCurrency
+| project-away Account1, Profile1, BillingCurrency1
+| extend ValidCoverage=InvalidQuantityRows==0 and InvalidCoreCountRows==0 and InvalidCoreHourRows==0 and CoreConversionMismatchRows==0 and QuantityPricingMismatchRows==0 and UnclassifiedBenefitRows==0 and BenefitPricingMismatchRows==0 and SpotMeterMismatchRows==0 and SpotBenefitRows==0 and MissingScopeRows==0 and ExactDuplicateGroups==0 and TotalCoreHours>0 and isfinite(TotalCoreHours) and isfinite(CoveredCoreHours) and CoveredCoreHours>=0 and CoveredCoreHours<=TotalCoreHours
+| extend VMCoreHourCoveragePercent=iff(ValidCoverage,100.0*CoveredCoreHours/TotalCoreHours,real(null)), Unit="vCPU-hours", Population=iff(IsSpot,"Spot","Non-Spot"), WindowStartUtc=startDate, WindowEndUtc=endDate
+| extend ValidSpendAmounts=Records>0 and InvalidEffectiveCostRows==0
+    and UnclassifiedBenefitRows==0 and BenefitPricingMismatchRows==0
+    and SpotMeterMismatchRows==0 and SpotBenefitRows==0
+    and MissingScopeRows==0 and ExactDuplicateGroups==0 and ExactDuplicateExcess==0
+    and isfinite(TotalEffectiveCost) and TotalEffectiveCost>=0
+    and isfinite(CoveredEffectiveCost) and CoveredEffectiveCost>=0 and CoveredEffectiveCost<=TotalEffectiveCost
+    and isfinite(ReservationEffectiveCost) and ReservationEffectiveCost>=0 and ReservationEffectiveCost<=CoveredEffectiveCost
+    and isfinite(SavingsPlanEffectiveCost) and SavingsPlanEffectiveCost>=0 and SavingsPlanEffectiveCost<=CoveredEffectiveCost
+    and isfinite(ReservationEffectiveCost+SavingsPlanEffectiveCost)
+    and abs(ReservationEffectiveCost+SavingsPlanEffectiveCost-CoveredEffectiveCost)<=0.000001
+| extend VMSpendSharePercent=iff(ValidSpendAmounts and TotalEffectiveCost>0,100.0*(CoveredEffectiveCost/TotalEffectiveCost),real(null))
+| extend TotalEffectiveCost=iff(ValidSpendAmounts,TotalEffectiveCost,real(null)),
+    CoveredEffectiveCost=iff(ValidSpendAmounts,CoveredEffectiveCost,real(null)),
+    ReservationEffectiveCost=iff(ValidSpendAmounts,ReservationEffectiveCost,real(null)),
+    SavingsPlanEffectiveCost=iff(ValidSpendAmounts,SavingsPlanEffectiveCost,real(null))
+| project-away ValidCoverage, ValidSpendAmounts
+| order by Account asc, Profile asc, BillingCurrency asc, IsSpot asc`;
+        const serviceSpendQuery = `let endDate=startofday(now());
+let startDate=endDate-30d;
+Costs()
+| where ChargePeriodStart>=startDate and ChargePeriodStart<endDate
+| where ChargeCategory=="Usage" and CommitmentDiscountStatus!="Unused"
+| where not(PricingCategory=="Dynamic" or x_PricingSubcategory=="Spot")
+| extend IsSP=CommitmentDiscountStatus=="Used" and CommitmentDiscountType=="Savings Plan" and CommitmentDiscountCategory=="Spend" and isnotempty(CommitmentDiscountId),
+    IsRI=CommitmentDiscountStatus=="Used" and CommitmentDiscountType=="Reservation" and CommitmentDiscountCategory=="Usage" and isnotempty(CommitmentDiscountId),
+    IsNone=isempty(CommitmentDiscountId) and isempty(CommitmentDiscountType) and isempty(CommitmentDiscountCategory) and isempty(CommitmentDiscountStatus)
+| summarize TotalEffectiveCost=sum(EffectiveCost),
+    ReservationEffectiveCost=sumif(EffectiveCost,IsRI), SavingsPlanEffectiveCost=sumif(EffectiveCost,IsSP),
+    Records=count(), ReservationRows=countif(IsRI), SavingsPlanRows=countif(IsSP),
+    InvalidCostRows=countif(isnull(EffectiveCost) or not(isfinite(EffectiveCost)) or EffectiveCost<0),
+    UnclassifiedBenefitRows=countif(not(IsSP or IsRI or IsNone)),
+    BenefitPricingMismatchRows=countif(((IsSP or IsRI) and PricingCategory!="Committed") or (IsNone and PricingCategory!="Standard")),
+    MissingScopeRows=countif(isempty(BillingAccountId) or isempty(x_BillingProfileId) or isempty(BillingCurrency))
+    by Account=BillingAccountId,Profile=x_BillingProfileId,Currency=BillingCurrency,ServiceName
+| extend Valid=InvalidCostRows==0 and UnclassifiedBenefitRows==0 and BenefitPricingMismatchRows==0 and MissingScopeRows==0
+    and isfinite(TotalEffectiveCost) and TotalEffectiveCost>=0
+    and isfinite(ReservationEffectiveCost) and ReservationEffectiveCost>=0
+    and isfinite(SavingsPlanEffectiveCost) and SavingsPlanEffectiveCost>=0
+    and ReservationEffectiveCost+SavingsPlanEffectiveCost<=TotalEffectiveCost+0.000001
+| extend ReservationSpendSharePercent=iff(Valid and TotalEffectiveCost>0,100.0*ReservationEffectiveCost/TotalEffectiveCost,real(null)),
+    SavingsPlanSpendSharePercent=iff(Valid and TotalEffectiveCost>0,100.0*SavingsPlanEffectiveCost/TotalEffectiveCost,real(null)),
+    CombinedSpendSharePercent=iff(Valid and TotalEffectiveCost>0,100.0*(ReservationEffectiveCost+SavingsPlanEffectiveCost)/TotalEffectiveCost,real(null))
+| order by ReservationEffectiveCost desc, SavingsPlanEffectiveCost desc, ServiceName asc`;
+        const reservationUsageQuery = `let endDate=startofday(now());
+let startDate=endDate-30d;
+let reservationMeters=Costs()
+    | where ChargePeriodStart>=startDate and ChargePeriodStart<endDate
+    | where ChargeCategory=="Usage" and CommitmentDiscountType=="Reservation" and CommitmentDiscountStatus=="Used"
+    | distinct x_SkuMeterId;
+Costs()
+| where ChargePeriodStart>=startDate and ChargePeriodStart<endDate
+| where x_SkuMeterId in (reservationMeters)
+| where ChargeCategory=="Usage" and CommitmentDiscountStatus!="Unused"
+| where not(PricingCategory=="Dynamic" or x_PricingSubcategory=="Spot")
+| extend IsRI=CommitmentDiscountStatus=="Used" and CommitmentDiscountType=="Reservation" and CommitmentDiscountCategory=="Usage" and isnotempty(CommitmentDiscountId),
+    IsSP=CommitmentDiscountStatus=="Used" and CommitmentDiscountType=="Savings Plan" and CommitmentDiscountCategory=="Spend" and isnotempty(CommitmentDiscountId),
+    IsNone=isempty(CommitmentDiscountId) and isempty(CommitmentDiscountType) and isempty(CommitmentDiscountCategory) and isempty(CommitmentDiscountStatus)
+| summarize Records=count(), ReservationRows=countif(IsRI),
+    TotalNativeQuantity=sum(ConsumedQuantity), ReservationNativeQuantity=sumif(ConsumedQuantity,IsRI),
+    InvalidQuantityRows=countif(isnull(ConsumedQuantity) or not(isfinite(ConsumedQuantity)) or ConsumedQuantity<0),
+    QuantityPricingMismatchRows=countif(isnull(PricingQuantity) or not(isfinite(PricingQuantity)) or abs(ConsumedQuantity-PricingQuantity)>0.000001),
+    MissingMeterIdentityRows=countif(isempty(SkuId) or isempty(x_SkuMeterId) or isempty(ConsumedUnit) or isempty(PricingUnit) or isempty(RegionId)),
+    MissingScopeRows=countif(isempty(BillingAccountId) or isempty(x_BillingProfileId) or isempty(BillingCurrency)),
+    SizeFlexRows=countif(IsRI and (isnull(x_CommitmentDiscountNormalizedRatio) or x_CommitmentDiscountNormalizedRatio!=1)),
+    UnclassifiedBenefitRows=countif(not(IsRI or IsSP or IsNone))
+    by Account=BillingAccountId,Profile=x_BillingProfileId,Currency=BillingCurrency,ServiceName,ResourceType,RegionId,
+       SkuId,x_SkuMeterId,SkuMeter,ConsumedUnit,PricingUnit,x_PricingBlockSize,x_SkuLicenseType
+| where ReservationRows>0
+| extend Valid=InvalidQuantityRows==0 and QuantityPricingMismatchRows==0 and MissingMeterIdentityRows==0
+    and MissingScopeRows==0 and SizeFlexRows==0 and UnclassifiedBenefitRows==0
+    and isfinite(TotalNativeQuantity) and TotalNativeQuantity>0
+    and isfinite(ReservationNativeQuantity) and ReservationNativeQuantity>=0 and ReservationNativeQuantity<=TotalNativeQuantity
+| extend ReservationNativeUsageSharePercent=iff(Valid,100.0*ReservationNativeQuantity/TotalNativeQuantity,real(null))
+| order by ServiceName asc,TotalNativeQuantity desc`;
+        const reservationRecommendationQuery = `Recommendations()
+| where x_RecommendationDate>=datetime(${start.toISOString()}) and x_RecommendationDate<=now()
+| where x_SourceProvider=="Microsoft" and x_SourceType=="Microsoft-AdvisorCost"
+| where tostring(x_RecommendationDetails.x_RecommendationSubCategory)=="Reservations"
+| summarize arg_max(x_RecommendationDate,*) by SubAccountId,x_RecommendationId
+| extend D=x_RecommendationDetails
+| project RecommendationId=tostring(x_RecommendationId), Subscription=tostring(SubAccountId),
+    ReservedResourceType=tostring(D.x_ReservedResourceType), Currency=tostring(D.x_SavingsCurrency),
+    Term=tostring(D.x_Term), LookbackDays=toint(D.x_LookbackPeriod), Scope=tostring(D.x_Scope),
+    Sku=tostring(D.x_Sku), Region=tostring(D.x_Region), Quantity=toreal(D.x_Qty),
+    AnnualSavings=toreal(D.x_AnnualSavingsAmount), RecommendationDate=x_RecommendationDate
+| order by ReservedResourceType asc,AnnualSavings desc`;
+        const results = await Promise.allSettled([
+          (async () => {
+            const raw = await window.sreagent.callTool(TOOL_NAME, { "cluster-uri": CLUSTER_URI, database: DATABASE, query });
+            render(parseToolResult(raw));
+            byId("period").textContent = `${dateFormat.format(start)} - ${dateFormat.format(new Date(end.getTime() - 86400000))} (UTC)`;
+          })(),
+          loadBenefits(start, end),
+          (async () => {
+            const raw = await window.sreagent.callTool(TOOL_NAME, { "cluster-uri": CLUSTER_URI, database: DATABASE, query: coverageQuery });
+            renderComputeCoverage(parseToolResult(raw));
+          })(),
+          (async () => {
+            const raw = await window.sreagent.callTool(TOOL_NAME, { "cluster-uri": CLUSTER_URI, database: DATABASE, query: serviceSpendQuery });
+            renderServiceSpend(parseToolResult(raw));
+          })(),
+          (async () => {
+            const raw = await window.sreagent.callTool(TOOL_NAME, { "cluster-uri": CLUSTER_URI, database: DATABASE, query: reservationUsageQuery });
+            renderReservationUsage(parseToolResult(raw));
+          })(),
+          (async () => {
+            const raw = await window.sreagent.callTool(TOOL_NAME, { "cluster-uri": CLUSTER_URI, database: DATABASE, query: reservationRecommendationQuery });
+            renderReservationRecommendations(parseToolResult(raw));
+          })()
+        ]);
+        const failures = [];
+        if (results[0].status === "rejected") {
+          const error = results[0].reason;
+          tableMessage("Observed cost utilization is unavailable.");
+          byId("period").textContent = "Observed cost period unavailable";
+          failures.push(`Observed costs: ${error instanceof Error ? error.message : String(error)}`);
+          console.error("Observed cost source failed:", error);
+        }
+        if (results[1].status === "rejected") {
+          const error = results[1].reason;
+          const message = error instanceof Error ? error.message : String(error);
+          resetBenefits();
+          benefitsUnavailable(message);
+          failures.push(`Azure benefits: ${message}`);
+          console.error("Azure benefit source failed:", error);
+        } else {
+          failures.push(...results[1].value);
+        }
+        if (results[2].status === "rejected") {
+          const error = results[2].reason;
+          const message = error instanceof Error ? error.message : String(error);
+          computeCoverageUnavailable(`VM usage coverage and spend share unavailable: ${message}`);
+          failures.push(`VM usage coverage and spend share: ${message}`);
+          console.error("VM usage coverage and spend share source failed:", error);
+        }
+        for (const [index, target, label] of [
+          [3, "service-spend-rows", "All-service spend share"],
+          [4, "reservation-usage-rows", "Reservation native usage"],
+          [5, "reservation-recommendations", "Reservation recommendations"]
+        ]) {
+          if (results[index].status === "rejected") {
+            const error = results[index].reason;
+            const message = error instanceof Error ? error.message : String(error);
+            if (target === "reservation-recommendations") reservationRecommendationsMessage(`Unavailable: ${message}`);
+            else messageRow(target, `Unavailable: ${message}`, 5);
+            failures.push(`${label}: ${message}`);
+            console.error(`${label} source failed:`, error);
+          }
+        }
+        byId("refreshed").textContent = `Updated ${new Date().toLocaleTimeString()}`;
+        byId("report").dataset.state = failures.length ? "error" : "ready";
+        if (failures.length) {
+          byId("error-detail").textContent = failures.join("; ");
+          byId("error").hidden = false;
+        }
+      } catch (error) {
+        byId("plan-count").textContent = "\u2014";
+        byId("lowest").textContent = "\u2014";
+        byId("reservation-count").textContent = "\u2014";
+        byId("reservation-lowest").textContent = "\u2014";
+        tableMessage("Observed utilization is unavailable.");
+        computeCoverageUnavailable("VM usage coverage and spend share are unavailable.");
+        byId("report").dataset.state = "error";
+        byId("period").textContent = "Reporting period unavailable";
+        byId("error-detail").textContent = error instanceof Error ? error.message : String(error);
+        byId("error").hidden = false;
+        benefitsUnavailable(byId("error-detail").textContent);
+        for (const target of ["service-spend-rows", "reservation-usage-rows", "reservation-recommendations"]) {
+          if (target === "reservation-recommendations") reservationRecommendationsMessage(`Unavailable: ${byId("error-detail").textContent}`);
+          else messageRow(target, `Unavailable: ${byId("error-detail").textContent}`, 5);
+        }
+        console.error("Reservation and savings-plan Live Report failed:", error);
+      } finally {
+        byId("plans").setAttribute("aria-busy", "false");
+        button.disabled = false;
+        button.textContent = "Refresh data";
+      }
+    }
+    function activateTab(tab) {
+      document.querySelectorAll("[data-tab]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.tab === tab);
+        if (button.dataset.tab === tab) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+      });
+      document.querySelectorAll("[data-tab-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.tabPanel === tab));
+    }
+    document.querySelectorAll("[data-tab]").forEach((button) => button.addEventListener("click", () => activateTab(button.dataset.tab)));
+    document.querySelectorAll("[data-recommendation-kind]").forEach((button) =>
+      button.addEventListener("click", () => selectRecommendationKind(button.dataset.recommendationKind)));
+    for (const id of ["reservation-term", "reservation-lookback"]) byId(id).addEventListener("change", filterReservationRecommendations);
+    byId("reservation-clear-filters").addEventListener("click", () => {
+      byId("reservation-term").value = "";
+      byId("reservation-lookback").value = "";
+      filterReservationRecommendations();
+    });
+    byId("model-plan").addEventListener("change", () => selectRecommendation(Number(byId("model-plan").value)));
+    byId("model-term").addEventListener("change", () => {
+      const previous = recommendations[Number(byId("model-plan").value)];
+      const term = byId("model-term").value;
+      let index = recommendations.findIndex((rec) => rec.p.term === term && rec.scope === previous?.scope &&
+        rec.p.armSkuName === previous?.p.armSkuName && rec.p.currencyCode === previous?.p.currencyCode);
+      if (index < 0) index = recommendations.findIndex((rec) => rec.p.term === term);
+      if (index >= 0) selectRecommendation(index);
+    });
+    byId("model-option").addEventListener("input", renderScenario);
+    byId("model-recommended").addEventListener("click", () => selectRecommendation(Number(byId("model-plan").value)));
+    byId("refresh").addEventListener("click", refresh);
+    refresh();
+  </script>
+</body>
+</html>
