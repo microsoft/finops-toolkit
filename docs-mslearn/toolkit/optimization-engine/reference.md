@@ -3,7 +3,7 @@ title: Azure optimization engine reference
 description: Reference to the optimization engine tables, runbooks, schedules, and variables.
 author: flanakin
 ms.author: micflan
-ms.date: 08/22/2026
+ms.date: 11/25/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

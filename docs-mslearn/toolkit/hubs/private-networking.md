@@ -3,7 +3,7 @@ title: Configure private networking in FinOps hubs
 description: Learn about data access options with FinOps hubs and how to configure secure access to your data with private endpoints.
 author: flanakin
 ms.author: micflan
-ms.date: 08/23/2026
+ms.date: 11/25/2026
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan
