@@ -3,7 +3,7 @@ title: New-FinOpsCostExport command
 description: Create a new Cost Management export for the specified scope using the New-FinOpsCostExport command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 11/25/2026
+ms.date: 11/26/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

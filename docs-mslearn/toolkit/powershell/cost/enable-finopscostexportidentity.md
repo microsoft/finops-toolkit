@@ -3,7 +3,7 @@ title: Enable-FinOpsCostExportIdentity command
 description: Switch existing Cost Management exports to a system-assigned managed identity using the Enable-FinOpsCostExportIdentity command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 11/25/2026
+ms.date: 11/26/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
