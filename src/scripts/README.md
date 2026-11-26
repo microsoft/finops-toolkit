@@ -26,6 +26,7 @@ On this page:
 - [🌿 New-FeatureBranch](#-new-featurebranch)
 - [🔀 Merge-DevBranch](#-merge-devbranch)
 - [🏅 Update-Contributors](#-update-contributors)
+- [🤖 New-ReleasePr](#-new-releasepr)
 
 ---
 
@@ -870,5 +871,33 @@ Examples:
   ```
 
 The [update-contributors](../../.github/workflows/update-contributors.yml) workflow runs this weekly and opens a pull request with the missing credits, including fork PRs, bugs, and feature requests.
+
+<br>
+
+## 🤖 New-ReleasePr
+
+[New-ReleasePr.ps1](./New-ReleasePr.ps1) prepares a release and opens a draft PR from a `bot/release-v<N>` branch into `main`. It runs [Start-Release](./Start-Release.ps1), Build-Toolkit, tests, and Package-Toolkit. It only pushes the bot branch and never merges. This is the script behind the [Release PR workflow](../../.github/workflows/release-pr.yml). See [Release process](../../docs-wiki/Release-process.md#-automated-release-pr).
+
+Parameters:
+
+| Name                  | Description                                                                  |
+| --------------------- | ---------------------------------------------------------------------------- |
+| `-Base`               | Optional. Branch to open the PR against. Default = `main`.                   |
+| `-Source`             | Optional. Branch to release from. Default = `dev`.                           |
+| `-DryRun`             | Optional. Runs locally. Does not push, create issues, or open a PR.          |
+| `-Ready`              | Optional. Opens the PR as ready for review instead of draft.                 |
+| `-RefreshEligibility` | Optional. Refreshes commitment discount eligibility data (about 45 minutes). |
+| `-OnConflict`         | Optional. `keep-dev` (default) or `fail` when merging `main` conflicts.      |
+| `-DaysUntilRelease`   | Optional. Days until the release. Default = 7.                               |
+| `-SkipBuild`          | Optional. Skips build and packaging. For local testing only.                 |
+| `-SkipTests`          | Optional. Skips tests. For local testing only.                               |
+| `-OutputDir`          | Optional. Folder outside the repo for the PR body and summary.               |
+| `-RunUrl`             | Optional. Workflow run URL to link from the PR.                              |
+
+Examples:
+
+```powershell
+./New-ReleasePr -DryRun -SkipBuild -SkipTests
+```
 
 <br>

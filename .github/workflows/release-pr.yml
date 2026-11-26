@@ -1,0 +1,153 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# Prepares a release and opens a draft PR from a bot branch into main. Runs the documented
+# release checklist steps that need no human and no external repo (see docs-wiki/Release-process.md).
+#
+# This workflow NEVER merges the PR and never pushes to dev or main. A human merges the PR using
+# a merge commit. The only branch it pushes is bot/release-v<N>.
+#
+# Token: uses a GitHub App token when the RELEASE_APP_ID variable and RELEASE_APP_PRIVATE_KEY
+# secret exist. Otherwise it falls back to GITHUB_TOKEN, which (1) must be allowed to create PRs
+# in the org/repo settings and (2) does not trigger pull_request workflows on the PR it creates.
+# See docs-wiki/Release-process.md for details.
+name: Release PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        # Defaults to true so the safe path is also the default one. A dry run does everything
+        # locally on the runner (merge, version bump, build, test, package) but pushes nothing and
+        # creates no issue, milestone, branch, or PR.
+        description: 'Dry run: do not push, create issues or milestones, or open a PR'
+        required: false
+        default: true
+        type: boolean
+      ready:
+        description: 'Open the PR as ready for review instead of draft'
+        required: false
+        default: false
+        type: boolean
+      refresh_eligibility:
+        description: 'Refresh commitment discount eligibility data (adds ~45 minutes; also refreshed weekly)'
+        required: false
+        default: false
+        type: boolean
+      on_conflict:
+        description: 'When merging main conflicts: keep the dev side and list files in the PR, or fail'
+        required: false
+        default: 'keep-dev'
+        type: choice
+        options:
+          - keep-dev
+          - fail
+  schedule:
+    # Rehearsal only: the scheduled run is always a dry run (see DRY_RUN below). It catches build,
+    # test, and packaging breakage before release day without creating anything. 06:00 UTC on the 15th.
+    - cron: '0 6 15 * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+# Never run two release preps at once. Do not cancel a run that is pushing.
+concurrency:
+  group: release-pr
+  cancel-in-progress: false
+
+jobs:
+  release-pr:
+    name: Prepare release PR
+    runs-on: windows-latest
+    timeout-minutes: 240
+    env:
+      # Schedule has no inputs: treat anything but a manual dispatch as a dry run. Written as a
+      # boolean expression (not `a && b || c`) so a false input is not replaced by the fallback.
+      DRY_RUN: ${{ github.event_name != 'workflow_dispatch' || inputs.dry_run }}
+    steps:
+      # Scripts and source content must come from the same ref. Fail (not skip) on any other ref, so the run
+      # does not show green with no work done.
+      - name: Require dev
+        if: ${{ github.ref != 'refs/heads/dev' }}
+        shell: pwsh
+        run: |
+          Write-Host "::error::Run the Release PR workflow from dev. This run used $env:GITHUB_REF."
+          exit 1
+
+      # Keep LF line endings so generated files do not show as fully changed in the PR.
+      - name: Configure git line endings
+        shell: pwsh
+        run: git config --global core.autocrlf false
+
+      - name: Create GitHub App token
+        id: app-token
+        if: ${{ vars.RELEASE_APP_ID != '' }}
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+          permission-issues: write
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: dev
+          fetch-depth: 0
+          lfs: true
+          token: ${{ steps.app-token.outputs.token || github.token }}
+          # Keep the write token out of .git/config. New-ReleasePr passes it only to the final push.
+          persist-credentials: false
+
+      - name: Install and cache PowerShell modules
+        uses: potatoqualitee/psmodulecache@9e4b63833c22c1768d648e115a9c849afdda22a5 # v6.3
+        with:
+          modules-to-cache: InvokeBuild, PSScriptAnalyzer, Pester:6.0.0, Az.Accounts, Az.Resources
+          shell: pwsh
+
+      - name: Install Bicep CLI
+        shell: pwsh
+        run: |
+          az bicep install
+          # Build-Toolkit calls `bicep` directly. az installs it here.
+          Add-Content -Path $env:GITHUB_PATH -Value (Join-Path $HOME '.azure/bin')
+
+      - name: Prepare release PR
+        id: prep
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          READY: ${{ inputs.ready }}
+          REFRESH_ELIGIBILITY: ${{ inputs.refresh_eligibility }}
+          ON_CONFLICT: ${{ inputs.on_conflict || 'keep-dev' }}
+        run: |
+          $params = @{
+              OnConflict = $env:ON_CONFLICT
+              RunUrl     = $env:RUN_URL
+              OutputDir  = Join-Path $env:RUNNER_TEMP 'ftk-release-pr'
+          }
+          if ($env:DRY_RUN -eq 'true') { $params.DryRun = $true }
+          if ($env:READY -eq 'true') { $params.Ready = $true }
+          if ($env:REFRESH_ELIGIBILITY -eq 'true') { $params.RefreshEligibility = $true }
+          ./src/scripts/New-ReleasePr.ps1 @params
+
+      - name: Upload release files
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-files
+          path: release/
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Upload PR details
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-pr-details
+          path: ${{ runner.temp }}/ftk-release-pr/
+          if-no-files-found: ignore
+          retention-days: 30

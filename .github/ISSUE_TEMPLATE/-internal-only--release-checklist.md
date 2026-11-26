@@ -214,7 +214,8 @@ Status icons:
   - [AQT](https://github.com/Azure/azure-quickstart-templates/pulls?q=is%3Apr+is%3Aopen+finops)
   - [Advisor workbook](https://github.com/microsoft/Application-Insights-Workbooks/pulls?q=is%3Apr+is%3Aopen+finops)
   > _Bicep Registry and Azure Quickstart Template repos are manually reviewed and closed 2-3x per week. If you don't see an update, contact the ARM team. The Docs repo is partially typically reviewed within a few hours but they may request blocking changes._
-- [ ] Merge to main: `<root>/src/scripts/Merge-DevBranch.ps1 main`
+- [ ] Merge to main: run the [Release PR workflow](https://github.com/microsoft/finops-toolkit/actions/workflows/release-pr.yml) and merge the PR it opens using **Create a merge commit** (never squash or rebase). The PR body lists the manual steps.
+  > _Do not run `Merge-DevBranch.ps1 main`. It pushes directly to `main`, which is protected._
 - [ ] Update the [milestone](https://github.com/microsoft/finops-toolkit/milestones).
   - Review all issues in the milestone, move anything that needs to be pushed, and close any completed items.
   - Close the milestone when all issues have been closed or moved.
