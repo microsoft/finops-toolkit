@@ -102,7 +102,7 @@ var defaultDatasetVersion = ({
   ActualCost: '2021-10-01'
   AmortizedCost: '2021-10-01'
   FocusCost: '1.0'
-  PriceSheet: '2023-05-01'
+  PriceSheet: '2026-10-01'
   ReservationDetails: '2023-03-01'
   ReservationRecommendations: '2023-05-01'
   ReservationTransactions: '2023-05-01'

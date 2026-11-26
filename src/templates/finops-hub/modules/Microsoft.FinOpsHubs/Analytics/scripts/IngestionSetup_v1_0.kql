@@ -13,6 +13,8 @@
 // Supported versions:
 // - MS EA 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-ea
 // - MS MCA 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-mca
+// - MS MCA 2024-08-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-mca
+// - MS EA + MCA 2026-10-01 -- Price factors are not exposed in Prices
 //======================================================================================================================
 
 // Prices_transform_v1_0 function
@@ -204,6 +206,7 @@ Prices_transform_v1_0()
         x_SkuRegion,
         x_SkuServiceFamily,
         x_SkuOfferId,
+        x_SkuOrderName = ProductOrderName,
         x_SkuPartNumber,
         x_SkuTerm,
         x_SkuTier,
@@ -261,6 +264,7 @@ Prices_transform_v1_0()
     x_SkuRegion:                          string,    // Azure
     x_SkuServiceFamily:                   string,    // Azure
     x_SkuOfferId:                         string,    // Azure EA
+    x_SkuOrderName:                       string,    // Azure MCA 2024-08-01+
     x_SkuPartNumber:                      string,    // Azure EA
     x_SkuTerm:                            int,       // Azure
     x_SkuTier:                            decimal,   // Azure MCA

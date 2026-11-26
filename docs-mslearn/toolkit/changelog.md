@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/24/2026
+ms.date: 11/26/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -59,6 +59,8 @@ _Released November 2026_
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v16
 
 - **Added**
+  - Added support for the Microsoft Customer Agreement (MCA) `2024-08-01` price sheet schema, which Cost Management now uses by default. The new `productOrderName` field populates `x_SkuOrderName`, matching the existing FOCUS cost details mapping; EA exports are unaffected and continue to use the `2023-05-01` schema ([#2311](https://github.com/microsoft/finops-toolkit/issues/2311)).
+  - Added support for the EA and MCA `2026-10-01` price sheet schemas, which add `priceFactors` and Flex Plan prices. Managed exports now use `2026-10-01` for price sheets; `priceFactors` is not added to the `Prices` schema to keep it compatible with FOCUS 1.2 ([#2311](https://github.com/microsoft/finops-toolkit/issues/2311)).
   - Added Azure Data Explorer disk and double encryption options for FinOps hub deployments ([#2196](https://github.com/microsoft/finops-toolkit/issues/2196)).
   - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
   - Added an opt-in `disableStorageSharedKeyAccess` parameter to disable Shared Key (storage account key) authentication on hub storage accounts. Power BI storage reports must then sign in with Microsoft Entra ID; SAS tokens and account keys stop working ([#2312](https://github.com/microsoft/finops-toolkit/issues/2312)).

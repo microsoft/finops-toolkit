@@ -40,7 +40,7 @@ param exports ExportsMetadata
 var exportsApiVersion = '2023-07-01-preview'
 var exportDataVersions = {
   focuscost: '1.2-preview'
-  pricesheet: '2023-05-01'
+  pricesheet: '2026-10-01'
   reservationdetails: '2023-03-01'
   reservationrecommendations: '2023-05-01'
   reservationtransactions: '2023-05-01'

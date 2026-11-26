@@ -3,7 +3,7 @@ title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: flanakin
 ms.author: micflan
-ms.date: 11/16/2026
+ms.date: 11/26/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -116,7 +116,7 @@ Cost Management provides the following 5 types of exports:
 FinOps hubs support the following dataset types, versions, and API versions:
 
 - FocusCost: 1.2-preview, 1.0r2, 1.0, 1.0-preview(v1)
-- PriceSheet: 2023-05-01
+- PriceSheet: 2023-05-01 (EA and MCA), 2024-08-01 (MCA only), 2026-10-01 (EA and MCA)
 - ReservationDetails: 2023-03-01
 - ReservationRecommendations: 2023-05-01
 - ReservationTransactions: 2023-05-01
@@ -184,7 +184,7 @@ If you can't grant permissions for your scope, you can create Cost Management ex
 3. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
 4. Create exports for any other data you would like to include in your reports.
    - Supported datasets and versions:
-     - Price sheet `2023-05-01`
+     - Price sheet `2026-10-01` (`2023-05-01` and, for MCA, `2024-08-01` are also supported)
        - Required to populate missing prices/costs and calculate savings when using Azure Data Explorer.
      - Reservation details `2023-03-01`
      - Reservation recommendations `2023-05-01`
