@@ -288,10 +288,14 @@ Prices_transform_v1_5()
 )
 
 // Update policy for Prices_raw -> Prices_final_v1_5
+// Disabled until the v1_5 cutover. Only one Prices_final_* policy can be enabled at a time, or Prices_v1_5()
+// returns each new row twice (once from Prices_final_v1_5 and once from Prices_v1_2()). At cutover, enable this
+// policy, disable the Prices_final_v1_2 policy (same as Prices_final_v1_0), and add Prices_final_v1_5 to the
+// Prices_v1_0() and Prices_v1_2() unions so earlier versions keep getting new rows.
 .alter table Prices_final_v1_5 policy update
 ```
 [{
-    "IsEnabled": true,
+    "IsEnabled": false,
     "Source": "Prices_raw",
     "Query": "Prices_transform_v1_5()",
     "IsTransactional": true,

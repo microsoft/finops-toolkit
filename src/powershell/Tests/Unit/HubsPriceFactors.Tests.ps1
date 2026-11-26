@@ -48,6 +48,14 @@ Describe 'Prices_v1_5 price factors' {
         (Get-Content (Join-Path $scripts 'HubSetup_v1_2.kql') -Raw) | Should -Match '(?s)Prices\(\)\s*\{\s*Prices_v1_2\(\)'
     }
 
+    It 'Should enable only one Prices_raw update policy' {
+        # Prices_v1_5() unions Prices_v1_2(), so two enabled policies would return each new row twice
+        $enabled = Get-ChildItem $scripts -Filter 'IngestionSetup_v*.kql' | Where-Object {
+            (Get-Content $_.FullName -Raw) -match '(?s)\.alter table Prices_final_v\d_\d policy update\s*```\s*\[\{\s*"IsEnabled": true,\s*"Source": "Prices_raw"'
+        }
+        $enabled.Name | Should -Be 'IngestionSetup_v1_2.kql'
+    }
+
     It 'Should not extract a product code when there is no Flex Plan factor' {
         $pattern = [regex]::Match($kql, "extract\(@'([^\r\n]+?)', 1, tostring\(PriceFactors\)\)").Groups[1].Value
         [regex]::Match('[{"Factors":[{"Type":"SavingsPlan","Extensions":{"ProductCode":"SP1"}}]}]', $pattern).Success | Should -BeFalse
