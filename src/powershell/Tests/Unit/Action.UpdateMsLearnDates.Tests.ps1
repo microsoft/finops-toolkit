@@ -57,13 +57,17 @@ Describe 'update-mslearn-dates GitHub Action' {
     }
 
     Context 'Workflow steps' {
+        # Actions are pinned to a full 40-character commit SHA (with the human-readable
+        # version in a trailing comment) rather than a floating @vN tag, so these
+        # assertions accept either form. Matching only @vN made the suite fail the
+        # moment the workflows were hardened.
         It 'Should checkout the PR branch' {
-            $workflowContent | Should -Match 'uses:\s*actions/checkout@v\d+'
+            $workflowContent | Should -Match 'uses:\s*actions/checkout@(?:[0-9a-f]{40}|v\d+)'
             $workflowContent | Should -Match 'ref:\s*\$\{\{\s*github\.head_ref\s*\}\}'
         }
 
         It 'Should use changed-files action' {
-            $workflowContent | Should -Match 'uses:\s*tj-actions/changed-files@v\d+'
+            $workflowContent | Should -Match 'uses:\s*tj-actions/changed-files@(?:[0-9a-f]{40}|v\d+)'
         }
 
         It 'Should filter changed-files to docs-mslearn markdown' {
@@ -76,6 +80,28 @@ Describe 'update-mslearn-dates GitHub Action' {
 
         It 'Should use correct date format (MM/DD/YYYY)' {
             $workflowContent | Should -Match "date \+'%m/%d/%Y'"
+        }
+
+        It 'Should compare files against the pull request base SHA' {
+            $workflowContent | Should -Match 'github\.event\.pull_request\.base\.sha'
+            $workflowContent | Should -Match 'git cat-file -e "\$BASE_SHA:\$file"'
+        }
+
+        It 'Should ignore frontmatter when checking for article body changes' {
+            $workflowContent | Should -Match 'strip_frontmatter\(\)'
+            $workflowContent | Should -Match 't == "---"'
+            $workflowContent | Should -Match 'No article body changes found, skipping'
+        }
+
+        It 'Should ignore markdownlint and prettier directives in body comparison' {
+            $workflowContent | Should -Match 'markdownlint-disable-next-line MD025'
+            $workflowContent | Should -Match 'prettier-ignore-start'
+            $workflowContent | Should -Match 'prettier-ignore-end'
+        }
+
+        It 'Should compare article body content before updating ms.date' {
+            $workflowContent | Should -Match 'cmp -s'
+            $workflowContent | Should -Match 'has_content_changes "\$file"'
         }
 
         It 'Should use sed to replace ms.date line' {

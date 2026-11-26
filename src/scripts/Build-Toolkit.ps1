@@ -193,14 +193,44 @@ $templates | ForEach-Object {
     # Create target directory
     $destDir = "$outdir/$templateName"
     Write-Verbose "  Creating target directory: $destDir"
-    Remove-Item $destDir -Recurse -ErrorAction SilentlyContinue
+    Remove-Item $destDir -Recurse -Force -ErrorAction SilentlyContinue
     & "$PSScriptRoot/New-Directory.ps1" $destDir
 
-    # Copy required files
+    function Copy-TemplateItem($source, [string]$destination)
+    {
+        $itemName = $source.Name
+        if ($source.Attributes -band [IO.FileAttributes]::ReparsePoint)
+        {
+            $target = $source.Target
+            if (-not [IO.Path]::IsPathRooted($target))
+            {
+                $target = Join-Path (Split-Path -Path $source.FullName -Parent) $target
+            }
+
+            $source = Get-Item (Resolve-Path -LiteralPath $target -ErrorAction Stop)
+        }
+
+        if ($source.PSIsContainer)
+        {
+            $destination = Join-Path $destination $itemName
+            New-Item $destination -ItemType Directory -Force | Out-Null
+            Get-ChildItem $source -Force | ForEach-Object {
+                Copy-TemplateItem $_ $destination
+            }
+        }
+        else
+        {
+            Copy-Item $source -Destination (Join-Path $destination $itemName) -Force -ErrorAction Stop
+        }
+    }
+
+    # Copy required files, resolving nested symlinks into the package.
     Write-Host "  Copying files..."
     $sourceFiles = Get-ChildItem $srcDir -Force | Where-Object { $_.Name -notin @(".build.config", ".buildignore", "scaffold.json") }
     Write-Verbose "    Copying $($sourceFiles.Count) items from source to destination"
-    $sourceFiles | Copy-Item -Destination $destDir -Recurse
+    $sourceFiles | ForEach-Object {
+        Copy-TemplateItem $_ $destDir
+    }
 
     Get-ChildItem $destDir -Force -Recurse -Filter ".DS_Store" | Remove-Item -Force
 

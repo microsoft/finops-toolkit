@@ -97,7 +97,14 @@ Once the above requirements have been met, the feature branch can be merged into
       <root>/src/scripts/Test-PowerShell
       ```
 
-   3. Check the docs for broken links:
+   3. Package all release files, except Power BI, which is packaged after the merge to main:
+
+      ```powershell
+      cd <root>/src/scripts
+      ./Package-Toolkit -Build -CopyFiles
+      ```
+
+   4. Check the docs for broken links:
       1. Create a personal fork of the main repo.
       2. If you already have one, update it to the latest.
       3. Enable GitHub pages in your fork to use the `dev` branch `docs` folder.
@@ -110,33 +117,47 @@ Once the above requirements have been met, the feature branch can be merged into
          - Ignore any 429 errors from GitHub. These are caused due to all the contributor links that are checked.
       6. Fix any broken links, push changes, and rerun the tool.
 
-   4. Merge to main:
+   5. Merge to main:
 
       ```powershell
       cd <root>/src/scripts
       ./Merge-DevBranch main
       ```
 
-   5. Verify [documentation](https://aka.ms/finops/toolkit) updated correctly.
+   6. Verify [documentation](https://aka.ms/finops/toolkit) updated correctly.
 
       > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at [GitHub actions](../actions/workflows/pages/pages-build-deployment) to see if there are any failures._
 
-   6. Run `Package-Toolkit -Build -PowerBI` script.
-      - For each Power BI report:
-        1. Save the file as a PBIX file to the release folder.
-        2. Change the sensitivity to **Public**. If the option is disabled, close the file and reopen it.
-           > ⚠️ _Power BI does not remember the sensitivity setting for Power BI projects so this needs to be done for each release. If not done, the report will not open for anyone outside of Microsoft._
-        3. Update the version on the **Get started** tab.
-        4. For the Cost summary and Data ingestion reports, remove the following from the Transform data (query editor):
-           1. Delete both **Recommendations\*** queries.
-           2. Delete the **InstanceSizeFlexibility** query.
-           3. Open the **▶️ START HERE** query in the advanced editor and remove connector settings and generated rows in the table from the separator line to the end.
-        5. For the Cost summary and Rate optimization reports, remove the following from the Transform data (query editor):
-           1. Delete all **Hub\*** queries.
-        6. Save PBIX again in the release folder.
-           > ⚠️ _**DO NOT** save the above changes back to the Power BI project files!_
-        7. Copy the first paragraph from the **Get started** page and export a template (PBIT file) in the release folder. Use the copied text for the description and add "Learn more at https://aka.ms/ftk/{report-name}" as a separate paragraph in the description.
-   7. Tag and publish a [new release](../releases/new):
+   7. Make sure the demo hub is on this release and has current data, because the demo reports are saved with its data. This deploys or updates the hub, loads history for a new hub, and waits until data is ingested. See [Deploy-Demo](../tree/dev/src/scripts/README.md#-deploy-demo).
+
+      ```powershell
+      cd <root>/src/scripts
+      ./Deploy-Demo
+      ```
+
+   8. Package the Power BI files on Windows with Power BI Desktop installed:
+
+      ```powershell
+      cd <root>/src/scripts
+      ./Package-PowerBI -Unattended
+      ```
+
+      > _Builds the templates, saves each demo report as a PBIX file with Power BI Desktop, validates the files, and packages them. Takes about an hour. Don't use the mouse or keyboard while it runs. If it stops because the reports were built from a test open data URL, rerun once with `-Build`._
+      >
+      > _First, sign in to Power BI Desktop and refresh one demo project from `<root>/release/pbix` by hand. That stores the data source credentials and makes the **Public** sensitivity label available. The command can't sign in or answer a credential prompt: a sign-in window makes it print ACTION NEEDED and wait for you, and missing credentials fail the refresh._
+      >
+      > ⚠️ _If the sensitivity label isn't **Public**, the report will not open for anyone outside of Microsoft. Validation fails when a demo report has any other label._
+
+      If a report can't be saved automatically, the command names the step that failed and saves a screenshot next to the PBIX file. Save that report by hand, then rerun the command:
+
+      1. Run `./Package-PowerBI -Open` to open the projects that still need to be saved.
+      2. Refresh the report so demo data is loaded.
+      3. Select **File** > **Save as**, keep the `<root>/release/pbix` folder, and change the file type to PBIX.
+      4. Change the sensitivity to **Public**. If the option is disabled, close the file and reopen it.
+         > _Queries are already trimmed and the **Get started** page is already selected. There is nothing else to change._
+
+      Confirm all 3 files were created: PowerBI-kql.zip, PowerBI-storage.zip, and PowerBI-demo.zip.
+   9. Tag and publish a [new release](../releases/new):
       1. Create a tag on publish using the "vX.X" format.
       2. Set the **Target** to `main`.
       3. Set the **Previous tag** to the previous release tag.
@@ -162,9 +183,9 @@ Once the above requirements have been met, the feature branch can be merged into
           - Open data CSV and JSON files.
           - ZIP file for sample data files.
           - **DO NOT** copy Bicep, PowerShell, PBIP, or image files.
-   8. Update the related discussion.
-   9. Update all issues to `Status: Released`.
-   10. Update the `Toolkit / Should return all known releases` PowerShell integration test based on the latest version.
+   10. Update the related discussion.
+   11. Update all issues to `Status: Released`.
+   12. Update the `Toolkit / Should return all known releases` PowerShell integration test based on the latest version.
 
        > _See `src/powershell/Tests/Integration/Toolkit.Tests.ps1` > `Get-FinOpsToolkitVersion` > `Should return all known releases`_
 

@@ -17,17 +17,21 @@ param hub HubProperties
 //==============================================================================
 
 var nsgName = '${hub.routing.networkName}-nsg'
+var natGatewayName = '${hub.routing.networkName}-natgw'
+var natGatewayPipName = '${hub.routing.networkName}-natgw-pip'
 
 // Workaround https://github.com/Azure/bicep/issues/1853
 var finopsHubSubnetName = 'private-endpoint-subnet'
 var scriptSubnetName = 'script-subnet'
 var dataExplorerSubnetName = 'dataExplorer-subnet'
 
+// Azure Policy requires private mode subnets to set defaultOutboundAccess to false explicitly.
 var subnets = !hub.options.privateRouting ? [] : [
   {
     name: finopsHubSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 0)
+      defaultOutboundAccess: !hub.options.natGateway
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -42,6 +46,12 @@ var subnets = !hub.options.privateRouting ? [] : [
     name: scriptSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 1)
+      defaultOutboundAccess: !hub.options.natGateway
+      ...(hub.options.natGateway ? {
+        natGateway: {
+          id: resourceId('Microsoft.Network/natGateways', natGatewayName)
+        }
+      } : {})
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -53,17 +63,18 @@ var subnets = !hub.options.privateRouting ? [] : [
           }
         }
       ]
-      serviceEndpoints: [
-        {
-          service: 'Microsoft.Storage'
-        }
-      ]
     }
   }
   {
     name: dataExplorerSubnetName
     properties: {
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 27, 1)
+      defaultOutboundAccess: !hub.options.natGateway
+      ...(hub.options.natGateway ? {
+        natGateway: {
+          id: resourceId('Microsoft.Network/natGateways', natGatewayName)
+        }
+      } : {})
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -171,7 +182,10 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (hub.opti
 resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.privateRouting) {
   name: hub.routing.networkName
   location: hub.location
-  tags: getHubTags(hub, 'Microsoft.Storage/virtualNetworks')
+  tags: getHubTags(hub, 'Microsoft.Network/virtualNetworks')
+  dependsOn: hub.options.natGateway ? [
+    natGateway
+  ] : []
   properties: {
     addressSpace: {
       addressPrefixes: [hub.options.networkAddressPrefix]
@@ -189,6 +203,42 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.p
 
   resource dataExplorerSubnet 'subnets' existing = {
     name: dataExplorerSubnetName
+  }
+}
+
+//------------------------------------------------------------------------------
+// NAT Gateway (provides explicit outbound for script-subnet + dataExplorer-subnet;
+// required by the 'Subnets should be private' policy and the September 2025
+// implicit-outbound retirement)
+//------------------------------------------------------------------------------
+
+resource natGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2023-11-01' = if (hub.options.natGateway) {
+  name: natGatewayPipName
+  location: hub.location
+  tags: getHubTags(hub, 'Microsoft.Network/publicIPAddresses')
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIPAllocationMethod: 'Static'
+    publicIPAddressVersion: 'IPv4'
+  }
+}
+
+resource natGateway 'Microsoft.Network/natGateways@2023-11-01' = if (hub.options.natGateway) {
+  name: natGatewayName
+  location: hub.location
+  tags: getHubTags(hub, 'Microsoft.Network/natGateways')
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    idleTimeoutInMinutes: 4
+    publicIpAddresses: [
+      {
+        id: natGatewayPublicIp.id
+      }
+    ]
   }
 }
 
@@ -231,6 +281,29 @@ resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (
 
   resource dfsPrivateDnsZoneLink 'virtualNetworkLinks' = {
     name: '${replace(dfsPrivateDnsZone.name, '.', '-')}-link'
+    location: 'global'
+    tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
+    properties: {
+      registrationEnabled: false
+      virtualNetwork: {
+        id: hub.routing.networkId
+      }
+    }
+  }
+}
+
+// Required for deployment scripts
+resource filePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
+  name: string(hub.routing.dnsZones.file.name)
+  dependsOn: [
+    vNet
+  ]
+  location: 'global'
+  tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
+  properties: {}
+
+  resource filePrivateDnsZoneLink 'virtualNetworkLinks' = {
+    name: '${replace(filePrivateDnsZone.name, '.', '-')}-link'
     location: 'global'
     tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
     properties: {
@@ -309,22 +382,16 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = i
     isHnsEnabled: false
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: 'Disabled'
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: 'Deny'
-      virtualNetworkRules: [
-        {
-          id: hub.routing.subnets.scripts
-          action: 'Allow'
-        }
-      ]
     }
   }
 }
 
 resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (hub.options.privateRouting) {
-  name: '${scriptStorageAccount.name}-blob-ep'
+  name: '${scriptStorageAccount.name}-file-ep'
   dependsOn: [
     vNet::scriptSubnet
   ]
@@ -339,20 +406,20 @@ resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (hu
         name: 'scriptLink'
         properties: {
           privateLinkServiceId: scriptStorageAccount.id
-          groupIds: ['blob']
+          groupIds: ['file']
         }
       }
     ]
   }
   
   resource scriptPrivateDnsZoneGroup 'privateDnsZoneGroups' = {
-    name: 'blob-endpoint-zone'
+    name: 'file-endpoint-zone'
     properties: {
       privateDnsZoneConfigs: [
         {
-          name: blobPrivateDnsZone.name
+          name: filePrivateDnsZone.name
           properties: {
-            privateDnsZoneId: blobPrivateDnsZone.id
+            privateDnsZoneId: filePrivateDnsZone.id
           }
         }
       ]
