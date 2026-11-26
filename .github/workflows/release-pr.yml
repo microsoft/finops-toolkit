@@ -60,8 +60,6 @@ concurrency:
 jobs:
   release-pr:
     name: Prepare release PR
-    # Scripts and source content must come from the same ref: always run from dev.
-    if: github.ref == 'refs/heads/dev'
     runs-on: windows-latest
     timeout-minutes: 240
     env:
@@ -69,6 +67,15 @@ jobs:
       # boolean expression (not `a && b || c`) so a false input is not replaced by the fallback.
       DRY_RUN: ${{ github.event_name != 'workflow_dispatch' || inputs.dry_run }}
     steps:
+      # Scripts and source content must come from the same ref. Fail (not skip) on any other ref, so the run
+      # does not show green with no work done.
+      - name: Require dev
+        if: ${{ github.ref != 'refs/heads/dev' }}
+        shell: pwsh
+        run: |
+          Write-Host "::error::Run the Release PR workflow from dev. This run used $env:GITHUB_REF."
+          exit 1
+
       # Keep LF line endings so generated files do not show as fully changed in the PR.
       - name: Configure git line endings
         shell: pwsh
@@ -91,6 +98,8 @@ jobs:
           fetch-depth: 0
           lfs: true
           token: ${{ steps.app-token.outputs.token || github.token }}
+          # Keep the write token out of .git/config. New-ReleasePr passes it only to the final push.
+          persist-credentials: false
 
       - name: Install and cache PowerShell modules
         uses: potatoqualitee/psmodulecache@9e4b63833c22c1768d648e115a9c849afdda22a5 # v6.3

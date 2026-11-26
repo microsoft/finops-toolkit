@@ -142,9 +142,31 @@ function Invoke-Git
 
 function Stop-Merge
 {
-    # Aborts an in-progress merge. Safe when no merge is in progress, so it never hides the real error.
-    & git merge --abort 2>&1 | Out-Null
+    # Aborts an in-progress merge. Does nothing when no merge is in progress, so it never hides the real error.
+    if (Test-Path (Join-Path (& git rev-parse --git-dir) 'MERGE_HEAD'))
+    {
+        & git merge --abort 2>&1 | Out-Null
+    }
     $global:LASTEXITCODE = 0
+}
+
+function Invoke-Merge
+{
+    # Runs git merge. Returns $true on success and $false on conflicts. Throws the git output for any other failure
+    # (for example unrelated histories or a dirty tree), so the real error is never reported as a conflict.
+    $out = & git merge @args 2>&1
+    $out | Out-Host
+    if ($LASTEXITCODE -eq 0) { return $true }
+    if (@(& git diff --name-only --diff-filter=U).Count -gt 0) { return $false }
+    Stop-Merge
+    throw "git merge $($args -join ' ') failed: $($out -join [Environment]::NewLine)"
+}
+
+function Get-MarkdownBody
+{
+    # Returns the text after the front matter block, so front-matter-only changes can be ignored.
+    param([string]$Text)
+    return [regex]::Replace($Text ?? '', '(?s)\A---\r?\n.*?\r?\n---\r?\n?', '')
 }
 
 function Resolve-MsDateConflicts
@@ -274,6 +296,12 @@ Invoke-Step 'Preflight' {
     $state.Branch = "bot/release-$($state.Tag)"
     Write-Host "Source version: $ver -> release $($state.Tag)"
 
+    # Check the tag first, so an already tagged release gets the right next step.
+    if (& git tag --list $state.Tag)
+    {
+        throw "Release $($state.Tag) is already tagged. $Source still has version $ver. Run /update-version to start the next release first."
+    }
+
     $remoteBranch = "origin/bot/release-$($state.Tag)"
     if (& git rev-parse --verify --quiet $remoteBranch)
     {
@@ -284,15 +312,10 @@ Invoke-Step 'Preflight' {
         }
     }
 
-    if (& git tag --list $state.Tag)
-    {
-        throw "Release $($state.Tag) is already tagged. $Source still has version $ver. Run /update-version to start the next release first."
-    }
-
-    # The bot branch is deleted on merge, so also look for a merged release PR.
-    $mergedJson = gh pr list --head $state.Branch --base $Base --state merged --json number,url
-    if ($LASTEXITCODE -ne 0) { throw "Could not check for a merged release PR: $mergedJson" }
-    $mergedPrs = @($mergedJson | ConvertFrom-Json)
+    # The bot branch is deleted on merge, so also look for a merged release PR. Fail closed if gh fails.
+    $mergedJson = gh pr list --head $state.Branch --base $Base --state merged --json number,url 2>&1
+    if ($LASTEXITCODE -ne 0) { throw "Could not check for a merged release PR: $($mergedJson -join ' ')" }
+    $mergedPrs = @($mergedJson | Where-Object { $_ -isnot [System.Management.Automation.ErrorRecord] } | ConvertFrom-Json)
     if ($mergedPrs.Count -gt 0)
     {
         throw "A release PR for $($state.Tag) was already merged: $($mergedPrs[0].url). Tag the release and run /update-version instead of re-running."
@@ -321,8 +344,7 @@ Invoke-Step "Prep branch ($($state.Branch))" {
         {
             Invoke-Git checkout --quiet -b $state.Branch "origin/$($state.Branch)" | Out-Null
         }
-        & git merge --no-edit "origin/$Source" 2>&1 | Out-Host
-        if ($LASTEXITCODE -ne 0 -and -not (Resolve-MsDateConflicts))
+        if (-not (Invoke-Merge --no-edit "origin/$Source") -and -not (Resolve-MsDateConflicts))
         {
             # Humans may have edited this branch (for example the changelog). Never overwrite their work.
             $conflicted = @(& git diff --name-only --diff-filter=U)
@@ -337,8 +359,7 @@ Invoke-Step "Prep branch ($($state.Branch))" {
 
     # Merge main into the prep branch so the PR is conflict-free and history is kept.
     $mergeMessage = "chore: Merge $Base into $($state.Branch)"
-    & git merge --no-ff --no-edit -m $mergeMessage "origin/$Base" 2>&1 | Out-Host
-    if ($LASTEXITCODE -ne 0)
+    if (-not (Invoke-Merge --no-ff --no-edit -m $mergeMessage "origin/$Base"))
     {
         $state.Conflicts = @(& git diff --name-only --diff-filter=U)
         Stop-Merge
@@ -347,8 +368,7 @@ Invoke-Step "Prep branch ($($state.Branch))" {
         {
             throw "Conflicts merging $Base into $($state.Branch): $($state.Conflicts -join ', ')"
         }
-        & git merge --no-ff --no-edit -X ours -m $mergeMessage "origin/$Base" 2>&1 | Out-Host
-        if ($LASTEXITCODE -ne 0)
+        if (-not (Invoke-Merge --no-ff --no-edit -X ours -m $mergeMessage "origin/$Base"))
         {
             $unresolved = @(& git diff --name-only --diff-filter=U)
             Stop-Merge
@@ -380,6 +400,15 @@ Invoke-Step 'Start release (version, changelog, milestones)' {
     @(& git diff --name-only -- 'docs-mslearn/*.md') | ForEach-Object {
         $path = Join-Path $repoRoot $_
         $text = Get-Content $path -Raw
+        $before = (& git show "HEAD:$_" 2>$null) -join "`n"
+        $global:LASTEXITCODE = 0
+        $oldBody = (Get-MarkdownBody $before).Replace("`r", '').TrimEnd("`n")
+        $newBody = (Get-MarkdownBody $text).Replace("`r", '').TrimEnd("`n")
+        if ($oldBody -ceq $newBody)
+        {
+            # Front matter only: leave ms.date alone
+            return
+        }
         $updated = [regex]::Replace($text, '(?s)\A---\r?\n.*?\r?\n---', { param($m) $m.Value -replace '(?m)^ms\.date:.*$', "ms.date: $today" })
         if ($updated -ne $text)
         {
@@ -426,7 +455,10 @@ if (-not $SkipTests)
 if (-not $SkipBuild)
 {
     Invoke-Step 'Package release files (except Power BI)' {
-        & (Join-Path $scripts 'Package-Toolkit.ps1') -Build -CopyFiles
+        # The Build toolkit step already ran Build-Toolkit. Package-Toolkit -Build would run it again, so only
+        # build the Power BI templates it would add, then package the existing output.
+        & (Join-Path $scripts 'Build-PowerBI.ps1') -NoPbip
+        & (Join-Path $scripts 'Package-Toolkit.ps1') -CopyFiles
         $relDir = Join-Path $repoRoot 'release'
         $zips = @(Get-ChildItem $relDir -Filter *.zip -ErrorAction SilentlyContinue)
         if ($zips.Count -eq 0)
@@ -497,7 +529,8 @@ Covers: version bump, changelog section, ms.date, open data and deployment files
 $(Format-Items $milestoneIssues)
   - PRs ($($milestonePrs.Count)):
 $(Format-Items $milestonePrs)
-- [ ] Triage untriaged issues ($($needsReview.Count) with the review label).
+- [ ] Triage untriaged issues with the review label:
+  - Open now: $($needsReview.Count)
 - [ ] Merge ready PRs and feature branches into ``$Source``, then re-run this workflow.
 - [ ] Package Power BI files (needs Power BI Desktop): ``Package-Toolkit.ps1 -OpenPBI``, save PBIX files, then ``Package-Toolkit.ps1 -ZipPBI``.
 - [ ] Check the docs for broken links (fork with GitHub Pages).
@@ -545,7 +578,17 @@ if ($DryRun)
 else
 {
     Invoke-Step "Push $($state.Branch) and open PR" {
-        Invoke-Git push --set-upstream origin $state.Branch | Out-Null
+        # The workflow checks out without persisted credentials, so earlier steps (build, tests) never see a write
+        # token. Pass the token only to this push.
+        $auth = @()
+        if ($env:GITHUB_ACTIONS -eq 'true' -and $env:GH_TOKEN)
+        {
+            $basic = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("x-access-token:$($env:GH_TOKEN)"))
+            Write-Host "::add-mask::$basic"
+            $auth = @('-c', "http.https://github.com/.extraheader=AUTHORIZATION: basic $basic")
+        }
+        $pushOut = & git @auth push --set-upstream origin $state.Branch 2>&1
+        if ($LASTEXITCODE -ne 0) { throw "git push of $($state.Branch) failed: $($pushOut -join [Environment]::NewLine)" }
         $state.Pushed = $true
 
         $title = "chore: Release $tag to $Base"
@@ -580,6 +623,7 @@ else
         {
             # Label may not exist. Retry without it.
             Write-Host "::warning::PR label 'Type: Release' was not applied. Create the label or add it by hand."
+            if ($env:GITHUB_STEP_SUMMARY) { Add-Content $env:GITHUB_STEP_SUMMARY "> ⚠️ The ``Type: Release 🚀`` label was not found. The PR opened without it. Add it by hand." }
             $labelArgs = @()
             $out = & gh @prArgs 2>&1
         }
@@ -587,6 +631,7 @@ else
         {
             # Milestone may not exist. Retry without it.
             Write-Host "::warning::PR milestone was not applied. Set it by hand."
+            if ($env:GITHUB_STEP_SUMMARY) { Add-Content $env:GITHUB_STEP_SUMMARY "> ⚠️ The ``$($release.Milestone.Title)`` milestone was not found. The PR opened without it. Set it by hand." }
             $withoutMilestone = @()
             for ($i = 0; $i -lt $prArgs.Count; $i++)
             {

@@ -42,7 +42,7 @@ The [Release PR workflow](../actions/workflows/release-pr.yml) automates every r
 1. Checks the release is not already tagged and that `dev` and `main` share history.
 2. Creates `bot/release-v<N>` from `dev` and merges `main` into it. If `main` conflicts, it keeps the `dev` side and lists the files in the PR.
 3. Runs [Start-Release](../tree/dev/src/scripts/Start-Release.ps1): release tracking issue, next milestones, version bump (strips the prerelease label), changelog section, Bicep CLI.
-4. Builds the toolkit, runs unit, lint, and toolkit integration tests, and runs `Package-Toolkit -Build -CopyFiles`.
+4. Builds the toolkit and runs unit, lint, and toolkit integration tests. Then it builds the Power BI templates and runs `Package-Toolkit -CopyFiles`.
 5. Pushes the branch and opens the PR with the manual steps as a checklist. Packaged files are in the `release-files` artifact on the run.
 
 **How to run it**
@@ -50,7 +50,7 @@ The [Release PR workflow](../actions/workflows/release-pr.yml) automates every r
 1. Finish the work in `dev`. Run **Actions > Release PR > Run workflow** from `dev` with **Dry run** on to rehearse. The same dry run also runs monthly on the 15th.
 2. Run it again with **Dry run** off to push the branch and open the PR.
 3. Complete the manual checklist in the PR body (Power BI packaging, Docs, Bicep Registry, and AQT PRs, GitHub release, announcements).
-4. If `dev` changes, re-run the workflow. It merges `dev` into the existing branch and updates the PR. Boxes you ticked stay ticked, except lines with live counts. If the merge conflicts, merge `origin/dev` into the branch by hand, push, and re-run.
+4. If `dev` changes, re-run the workflow. It merges `dev` into the existing branch and updates the PR. Boxes you ticked stay ticked. Conflicts on only the `ms.date` line are set to today automatically. For any other conflict, merge `origin/dev` into the branch by hand, push, and re-run.
 5. Mark the PR ready and merge it using **Create a merge commit**. Never squash or rebase.
 
 **Requirements** (repo or org admins configure these)
