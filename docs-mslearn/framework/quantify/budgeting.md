@@ -3,7 +3,7 @@ title: Budgeting
 description: This article helps you understand the budgeting capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 11/25/2026
+ms.date: 11/26/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources

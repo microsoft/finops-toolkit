@@ -3,7 +3,7 @@ title: Governance workbook
 description: Azure Monitor workbook focused on governance, providing an overview of your Azure environment's governance posture and compliance.
 author: flanakin
 ms.author: micflan
-ms.date: 11/25/2026
+ms.date: 11/26/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

@@ -3,7 +3,7 @@ title: FinOps toolkit agent plugin overview
 description: The FinOps toolkit agent plugin brings AI-powered cloud financial management to Claude Code and GitHub Copilot CLI.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/25/2026
+ms.date: 11/26/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
