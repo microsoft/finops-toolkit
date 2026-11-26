@@ -462,5 +462,43 @@ InModuleScope 'FinOpsToolkit' {
                 $result.RunHistory | Should -HaveCount 0
             }
         }
+
+        Context 'Identity' {
+            It 'Should return location and managed identity details' {
+                # Arrange
+                Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' {
+                    @{
+                        Success = $true
+                        Content = @{
+                            Value = @(
+                                @{
+                                    name       = 'with-identity'
+                                    id         = "$scope/providers/Microsoft.CostManagement/exports/with-identity"
+                                    location   = 'westeurope'
+                                    identity   = @{ type = 'SystemAssigned'; principalId = '11111111-1111-1111-1111-111111111111' }
+                                    properties = @{ }
+                                },
+                                @{
+                                    name       = 'without-identity'
+                                    id         = "$scope/providers/Microsoft.CostManagement/exports/without-identity"
+                                    properties = @{ }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                # Act
+                $result = Get-FinOpsCostExport -Scope $scope
+
+                # Assert
+                $result | Should -HaveCount 2
+                $result[0].Location | Should -Be 'westeurope'
+                $result[0].IdentityType | Should -Be 'SystemAssigned'
+                $result[0].PrincipalId | Should -Be '11111111-1111-1111-1111-111111111111'
+                $result[1].IdentityType | Should -BeNullOrEmpty
+                $result[1].PrincipalId | Should -BeNullOrEmpty
+            }
+        }
     }
 }

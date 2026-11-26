@@ -3,7 +3,7 @@ title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: flanakin
 ms.author: micflan
-ms.date: 11/16/2026
+ms.date: 11/26/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -448,9 +448,72 @@ If it's the first time you're using the FinOps toolkit PowerShell module, refer 
    New-FinOpsCostExport -Name 'ftk-FinOpsHub-costs' `
      -Scope "{scope-id}" `
      -StorageAccountId "{storage-resource-id}" `
+     -StorageContainer "msexports" `
+     -SystemAssignedIdentity `
+     -Location "{storage-location}" `
      -Backfill 12 `
      -Execute
    ```
+
+   The `-SystemAssignedIdentity` option creates the export with a managed identity and assigns it access to the container. To learn more, see [Use a managed identity for exports](#use-a-managed-identity-for-exports).
+
+<br>
+
+## Use a managed identity for exports
+
+Every Cost Management export needs permission to write to the storage account. An export gets that permission in one of two ways:
+
+- **With a system-assigned managed identity**: The export has its own identity with the **Storage Blob Data Contributor** role on the destination container. Runs don't depend on the permissions of a person. A managed identity is also required for storage accounts behind a firewall.
+- **Without a managed identity**: The export uses the storage permissions of the person who created or last updated it. Cost Management checks those permissions on every run, not only when the export is saved.
+
+Exports without a managed identity work until the person's access changes. When the person leaves the organization, loses the role, or has the role only through an eligible Privileged Identity Management (PIM) assignment that isn't active, scheduled runs fail with [AccessToStorageAccountDenied](../help/errors.md#accesstostorageaccountdenied). The export itself doesn't change, so the failure can look random. Runs succeed whenever the person happens to have the role activated and fail the rest of the time.
+
+We recommend a system-assigned managed identity for every export that feeds a FinOps hub.
+
+When you create an export in the Azure portal and you have permission to assign roles on the storage account, Cost Management adds the managed identity and the role assignment for you. When you create or update an export through the API or a script, the request must include the identity:
+
+```json
+{
+  "location": "{location}",
+  "identity": { "type": "SystemAssigned" },
+  "properties": { ... }
+}
+```
+
+Assigning the role requires **Owner**, **User Access Administrator**, or **Role Based Access Control Administrator** on the storage account, or a custom role with `Microsoft.Authorization/roleAssignments/write`. You need this permission only while you create or update the export, not for scheduled runs.
+
+### Create new exports with a managed identity
+
+Use the `-SystemAssignedIdentity` option of [New-FinOpsCostExport](../powershell/cost/new-finopscostexport.md). The command creates the export with a managed identity and assigns the Storage Blob Data Contributor role to the identity on the destination container.
+
+### Switch existing exports to a managed identity
+
+You don't need to delete and re-create an export to add a managed identity. Cost Management accepts the identity as an in-place update, so the schedule, run history, and the export's other settings stay as they are.
+
+1. Find the exports that don't use a managed identity:
+
+   ```powershell
+   Get-FinOpsCostExport -Scope "{scope-id}" `
+     | Where-Object { -not $_.PrincipalId } `
+     | Select-Object Name, Dataset, StorageContainer
+   ```
+
+2. Preview the change, and then apply it:
+
+   ```powershell
+   Enable-FinOpsCostExportIdentity -Name '*' -Scope "{scope-id}" -WhatIf
+   Enable-FinOpsCostExportIdentity -Name '*' -Scope "{scope-id}"
+   ```
+
+   [Enable-FinOpsCostExportIdentity](../powershell/cost/enable-finopscostexportidentity.md) adds the identity to each export and assigns the Storage Blob Data Contributor role to the identity on the destination container.
+
+3. Run one export to confirm the change. New role assignments can take a few minutes to take effect.
+
+   ```powershell
+   Start-FinOpsCostExport -Name "{export-name}" -Scope "{scope-id}"
+   ```
+
+If you don't use PowerShell, read the export with the [Exports - Get API](/rest/api/cost-management/exports/get), add `identity` and `location` to the response body, and send it back with the [Exports - Create Or Update API](/rest/api/cost-management/exports/create-or-update), including the `eTag`. Then assign the **Storage Blob Data Contributor** role to the export's `identity.principalId` on the destination container.
 
 <br>
 

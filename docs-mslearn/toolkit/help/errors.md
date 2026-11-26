@@ -3,7 +3,7 @@ title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
 author: flanakin
 ms.author: micflan
-ms.date: 10/28/2026
+ms.date: 11/26/2026
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -51,6 +51,31 @@ This error generally means the account you are connected with does not have acce
 **Mitigation**: Confirm you are using the correct account in the correct Microsoft Entra ID tenant.
 
 If this is an EA enrollment scenario, see [403](#403).
+
+<br>
+
+## AccessToStorageAccountDenied
+
+<sup>Severity: Critical</sup>
+
+Cost Management reports this error in the export run history when an export can't write to its storage account. Scheduled runs fail and no new files reach the storage container, so the FinOps hub stops getting new data for that export.
+
+The most common cause is an export without a managed identity. Such an export uses the storage permissions of the person who created or last updated it, and Cost Management checks those permissions on every run. When that person's access is removed or expires, runs fail. With access from an eligible Privileged Identity Management (PIM) role, runs succeed only while the role is active, so failures can look random.
+
+Other causes are a storage firewall that blocks Cost Management, or a managed identity that lost its role assignment on the storage account.
+
+**Mitigation**:
+
+1. Check whether the export uses a managed identity. The `PrincipalId` property is empty for exports that don't.
+
+   ```powershell
+   Get-FinOpsCostExport -Scope "{scope-id}" | Select-Object Name, IdentityType, PrincipalId
+   ```
+
+2. Switch the export to a system-assigned managed identity with [Enable-FinOpsCostExportIdentity](../powershell/cost/enable-finopscostexportidentity.md). The command updates the export in place and assigns the **Storage Blob Data Contributor** role on the destination container. To learn more, see [Use a managed identity for exports](../hubs/configure-scopes.md#use-a-managed-identity-for-exports).
+3. If the export already uses a managed identity, confirm that the identity has the **Storage Blob Data Contributor** role on the destination container or storage account.
+4. If the storage account has a firewall, confirm that **Allow Azure services on the trusted services list to access this storage account** is enabled. To learn more, see [Configure exports for storage accounts with a firewall](/azure/cost-management-billing/costs/tutorial-improved-exports#configure-exports-for-storage-accounts-with-a-firewall).
+5. Run the export again with [Start-FinOpsCostExport](../powershell/cost/start-finopscostexport.md) to backfill the days that failed.
 
 <br>
 

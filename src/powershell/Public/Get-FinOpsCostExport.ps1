@@ -76,6 +76,15 @@
 
     .EXAMPLE
     Get-FinOpsCostExport `
+        -Scope "/providers/Microsoft.Billing/billingAccounts/00000000" `
+        | Where-Object { -not $_.PrincipalId } `
+        | Select-Object Name, Dataset, StorageAccountId
+
+    ### Find exports that don't use a managed identity
+    Lists exports in the billing account that write to storage with the permissions of the person who created them instead of a managed identity. To switch them to a managed identity, use [Enable-FinOpsCostExportIdentity](enable-finopscostexportidentity.md).
+
+    .EXAMPLE
+    Get-FinOpsCostExport `
         -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" `
         -StorageContainer "mtd*" `
         -ApiVersion "2025-03-01"
@@ -312,6 +321,9 @@ function Get-FinOpsCostExport
                 # | `OverwriteData`       | Boolean                      | `properties.deliveryInfo.dataOverwriteBehavior` == "OverwritePreviousReport" |
                 # | `PartitionData`       | Boolean                      | `properties.deliveryInfo.partitionData`                                      |
                 # | `CompressionMode`     | String                       | `properties.deliveryInfo.compressionMode`                                    |
+                # | `Location`            | String                       | `location`                                                                   |
+                # | `IdentityType`        | String                       | `identity.type`                                                              |
+                # | `PrincipalId`         | String                       | `identity.principalId`                                                       |
                 # | `RunHistory`          | FinOpsCostExportRunHistory[] | `properties.runHistory.value`                                                |
                 Name                = $export.name
                 Id                  = $export.id
@@ -337,6 +349,9 @@ function Get-FinOpsCostExport
                 OverwriteData       = $export.properties.dataOverwriteBehavior -eq "OverwritePreviousReport"
                 PartitionData       = $export.properties.partitionData
                 CompressionMode     = $export.properties.compressionMode
+                Location            = $export.location
+                IdentityType        = $export.identity.type
+                PrincipalId         = $export.identity.principalId
                 RunHistory          = $runs
             }
             $exportdetails += $item

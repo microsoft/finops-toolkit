@@ -209,6 +209,97 @@ InModuleScope 'FinOpsToolkit' {
             }
         }
 
+        Describe 'Managed identity' {
+            BeforeAll {
+                [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
+                $mockPrincipalId = [Guid]::NewGuid().ToString()
+            }
+
+            It 'Should assign storage role to the new identity' {
+                # Arrange
+                Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' { @{ Success = $true; Content = @{ identity = @{ principalId = $mockPrincipalId } } } }
+                Mock -ModuleName FinOpsToolkit -CommandName 'Grant-FinOpsCostExportStorageAccess' { $true }
+
+                # Act
+                New-FinOpsCostExport @newExportParams -SystemAssignedIdentity -StorageContainer 'msexports'
+
+                # Assert
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Grant-FinOpsCostExportStorageAccess' -Times 1 -ParameterFilter {
+                    $PrincipalId -eq $mockPrincipalId `
+                        -and $StorageAccountId -eq $newExportParams.StorageAccountId `
+                        -and $StorageContainer -eq 'msexports'
+                }
+            }
+
+            It 'Should not assign storage role without identity' {
+                # Arrange
+                Mock -ModuleName FinOpsToolkit -CommandName 'Grant-FinOpsCostExportStorageAccess' { $true }
+
+                # Act
+                New-FinOpsCostExport @newExportParams
+
+                # Assert
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Grant-FinOpsCostExportStorageAccess' -Times 0
+            }
+
+            It 'Should warn when the response has no principal' {
+                # Arrange
+                Mock -ModuleName FinOpsToolkit -CommandName 'Grant-FinOpsCostExportStorageAccess' { $true }
+                Mock -ModuleName FinOpsToolkit -CommandName 'Write-Warning' { }
+
+                # Act
+                New-FinOpsCostExport @newExportParams -SystemAssignedIdentity
+
+                # Assert
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Grant-FinOpsCostExportStorageAccess' -Times 0
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Write-Warning' -Times 1
+            }
+
+            It 'Should keep the identity of an existing export' {
+                # Arrange
+                Mock -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' { @{ name = $exportName; etag = "etag"; IdentityType = 'SystemAssigned'; Location = 'westeurope'; PrincipalId = $mockPrincipalId } }
+                Mock -ModuleName FinOpsToolkit -CommandName 'Grant-FinOpsCostExportStorageAccess' { $true }
+
+                # Act
+                New-FinOpsCostExport @newExportParams
+
+                # Assert
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.identity.type -eq 'SystemAssigned' `
+                        -and $Body.location -eq 'westeurope' `
+                        -and $Body.eTag -eq 'etag'
+                }
+            }
+
+            It 'Should keep the identity location of an existing export with -SystemAssignedIdentity' {
+                # Arrange
+                Mock -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' { @{ name = $exportName; etag = "etag"; IdentityType = 'SystemAssigned'; Location = 'westeurope'; PrincipalId = $mockPrincipalId } }
+                Mock -ModuleName FinOpsToolkit -CommandName 'Grant-FinOpsCostExportStorageAccess' { $true }
+
+                # Act
+                New-FinOpsCostExport @newExportParams -SystemAssignedIdentity
+
+                # Assert
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.identity.type -eq 'SystemAssigned' -and $Body.location -eq 'westeurope'
+                }
+            }
+
+            It 'Should use -Location over the location of an existing export' {
+                # Arrange
+                Mock -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' { @{ name = $exportName; etag = "etag"; IdentityType = 'SystemAssigned'; Location = 'westeurope'; PrincipalId = $mockPrincipalId } }
+                Mock -ModuleName FinOpsToolkit -CommandName 'Grant-FinOpsCostExportStorageAccess' { $true }
+
+                # Act
+                New-FinOpsCostExport @newExportParams -Location 'eastus'
+
+                # Assert
+                Should -Invoke -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.identity.type -eq 'SystemAssigned' -and $Body.location -eq 'eastus'
+                }
+            }
+        }
+
         Describe 'Format and compression' {
             It 'Should default to CSV format' {
                 # Arrange

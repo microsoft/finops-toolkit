@@ -164,8 +164,15 @@ New-FinOpsCostExport -Name 'ftk-FinOpsHub-costs' `
     -StorageAccountId "{storage-resource-id}" `
     -StorageContainer msexports `
     -StoragePath 'billingAccounts/###' `
+    -SystemAssignedIdentity `
+    -Location '{storage-location}' `
     -Backfill 12 `
     -Execute
+
+# Use -SystemAssignedIdentity so runs don't depend on the creator's storage access
+# (without it, runs fail with AccessToStorageAccountDenied once that access expires).
+# Switch existing exports in place:
+Enable-FinOpsCostExportIdentity -Name '*' -Scope "{scope-id}"
 
 # Create price sheet export
 New-FinOpsCostExport -Name 'finops-hub-prices' `

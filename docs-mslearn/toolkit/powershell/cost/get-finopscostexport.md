@@ -3,7 +3,7 @@ title: Get-FinOpsCostExport command
 description: Get a list of Cost Management exports for a given scope using the Get-FinOpsCostExport command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 11/24/2026
+ms.date: 11/26/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -85,6 +85,9 @@ Get-FinOpsCostExport `
 | `OverwriteData`       | Boolean                      | `properties.deliveryInfo.dataOverwriteBehavior` == "OverwritePreviousReport" |
 | `PartitionData`       | Boolean                      | `properties.deliveryInfo.partitionData`                                      |
 | `CompressionMode`     | String                       | `properties.deliveryInfo.compressionMode`                                    |
+| `Location`            | String                       | `location`                                                                   |
+| `IdentityType`        | String                       | `identity.type`                                                              |
+| `PrincipalId`         | String                       | `identity.principalId`                                                       |
 | `RunHistory`          | FinOpsCostExportRunHistory[] | `properties.runHistory.value`                                                |
 
 ### FinOpsCostExportRunHistory object
@@ -154,6 +157,17 @@ Get-FinOpsCostExport `
 ```
 
 Gets all exports within the subscription scope for a specific container. Supports wildcard.
+
+### Find exports that don't use a managed identity
+
+```powershell
+Get-FinOpsCostExport `
+    -Scope "/providers/Microsoft.Billing/billingAccounts/00000000" `
+    | Where-Object { -not $_.PrincipalId } `
+    | Select-Object Name, Dataset, StorageAccountId
+```
+
+Lists exports in the billing account that write to storage with the permissions of the person who created them instead of a managed identity. To switch them to a managed identity, use [Enable-FinOpsCostExportIdentity](enable-finopscostexportidentity.md).
 
 ### Get exports using a specific API version
 

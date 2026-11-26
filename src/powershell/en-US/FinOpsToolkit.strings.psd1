@@ -7,6 +7,9 @@ ConvertFrom-StringData -StringData @'
     Common_ErrorResponse = {0} (Code: {1}).
 
     CostExport_Common_NotFoundFormat = Cost Management export '{0}' not found. Export ID: {1}/providers/Microsoft.CostManagement/exports/{0}.
+    CostExport_Identity_NoPrincipalFormat = Cost Management export '{0}' has no managed identity principal after the update. Check the export in the Azure portal and assign Storage Blob Data Contributor on the destination container manually.
+    CostExport_Identity_RoleAssignmentFailedFormat = Unable to assign Storage Blob Data Contributor to managed identity '{0}' on '{1}': {2} (Code: {3}). Assign the role manually, or ask someone with Owner, User Access Administrator, or Role Based Access Control Administrator on the storage account to assign it. Without it, the export can't write to storage.
+    CostExport_Identity_UpdateFailedFormat = Unable to enable managed identity for Cost Management export '{0}': {1} (Code: {2}).
     CostExport_Remove_DeleteFailedFormat = Unable to delete Cost Management export '{0}': '{1}' (Code: {2}).
 
     Hub_Deploy_Deploy = Deploying FinOps hub '{0}' to resource group '{1}'.
