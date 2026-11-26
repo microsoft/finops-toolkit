@@ -29,7 +29,7 @@
     Optional. Compression used for exported files. Allowed values = "None", "GZip", "Snappy". Default = "None".
 
     .PARAMETER DatasetVersion
-    Optional. Schema version of the dataset to export. Default = "1.2-preview" (applies to FocusCost only).
+    Optional. Schema version of the dataset to export. Default = "1.2-preview" for FocusCost, "2026-10-01" for PriceSheet, and the latest supported version for other datasets.
 
     .PARAMETER DatasetFilters
     Optional. Dictionary of key/value pairs to filter the dataset with. Only applies to ReservationRecommendations dataset in 2023-07-01-preview or newer. Valid filters are reservationScope (Shared or Single), resourceType (for example, VirtualMachines), lookBackPeriod (Last7Days, Last30Days, Last60Days).
