@@ -1,4 +1,3 @@
 # Commands whose docs-mslearn pages are hand-written. Build-Documentation skips them and
 # PowerShellDocs.Tests.ps1 doesn't require generated pages for them. One command per line.
-Start-FinOpsMultitool
 Start-FinOpsExplorer
