@@ -9,8 +9,11 @@
 
     Use it during a cost optimization assessment to:
     - Tell the customer which workloads need a modernization plan and by when.
-    - Spot reservation recommendations for series that are close to retirement before they are
-      added to a savings estimate.
+    - Spot reservation recommendations for series that are close to retirement, or that can no
+      longer get new or renewed reservations, before they are added to a savings estimate.
+
+    The retirement status comes from the table. When the retirement date has passed and the table
+    doesn't say "Retired" yet, the status is reported as "Past retirement date".
 
     Sizes that are not in the retirement table are reported as "Not listed". This does not mean
     the series is current: the table only contains series with an announced retirement.
@@ -141,12 +144,20 @@ $inventory = foreach ($r in $resources) {
     if ($match -and $match.RetirementDate) {
         $retirement = [datetime]::ParseExact($match.RetirementDate, 'yyyy-MM-dd', [System.Globalization.CultureInfo]::InvariantCulture)
     }
+    # The status comes from the date when it has passed, so the output stays right if the table isn't updated.
+    $status = 'Not listed'
+    $newReservations = ''
+    if ($match) {
+        $status = if ($match.Status -ne 'Retired' -and $retirement -and $retirement -lt $AsOfDate) { 'Past retirement date' } else { $match.Status }
+        $newReservations = if ($match.NewReservationsAvailable -eq 'false') { 'No' } else { 'Not stated' }
+    }
     $r | Select-Object *,
         @{ n = 'series'; e = { if ($match) { $match.Series } else { '' } } },
-        @{ n = 'retirementStatus'; e = { if ($match) { $match.Status } else { 'Not listed' } } },
+        @{ n = 'retirementStatus'; e = { $status } },
         @{ n = 'retirementDate'; e = { if ($match) { $match.RetirementDate } else { '' } } },
         @{ n = 'daysToRetirement'; e = { if ($retirement) { [int]($retirement - $AsOfDate).TotalDays } else { '' } } },
-        @{ n = 'capacityGrowthRestricted'; e = { if ($match) { $match.CapacityGrowthRestricted } else { '' } } }
+        @{ n = 'capacityGrowthRestricted'; e = { if ($match) { $match.CapacityGrowthRestricted } else { '' } } },
+        @{ n = 'newReservationsAvailable'; e = { $newReservations } }
 }
 $inventory = @($inventory)
 

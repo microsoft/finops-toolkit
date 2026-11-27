@@ -164,117 +164,126 @@ if ($VmListPath) {
 
 $matched = New-Object System.Collections.Generic.List[object]
 
-# --- Collect -------------------------------------------------------------------------------
-if ($CostDetailsPath) {
-    $files = if (Test-Path $CostDetailsPath -PathType Container) { Get-ChildItem $CostDetailsPath -Filter *.csv -File } else { Get-Item $CostDetailsPath }
-    foreach ($f in @($files)) {
-        Write-Status "Reading $($f.Name)"
-        Add-MatchingRows -File $f.FullName -Subscription ''
-    }
-} else {
-    $context = Get-AzContext
-    if (-not $context -or ($TenantId -and $context.Tenant.Id -ne $TenantId)) {
-        if (-not $TenantId) { throw 'No Azure session. Run Connect-AzAccount first, or pass -TenantId.' }
-        Write-Status "Connecting to tenant $TenantId"
-        Connect-AzAccount -Tenant $TenantId | Out-Null
-    }
-
-    $tempDir = Join-Path $OutputPath 'Temp/costdetails'
-    New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
-    $start = $StartDate.ToString('yyyy-MM-dd')
-    $end = $EndDate.ToString('yyyy-MM-dd')
-
-    foreach ($sub in $SubscriptionIds) {
-        Write-Status "[$sub] Requesting cost details report ($start to $end, $Metric)"
-        $body = @{ metric = $Metric; timePeriod = @{ start = $start; end = $end } } | ConvertTo-Json
-        $path = "/subscriptions/$sub/providers/Microsoft.CostManagement/generateCostDetailsReport?api-version=2023-11-01"
-        try {
-            $r = Invoke-AzRestMethod -Method POST -Path $path -Payload $body
-        } catch {
-            Write-Status "[$sub] ERROR on request: $($_.Exception.Message)"; continue
-        }
-
-        $result = $null
-        if ($r.StatusCode -eq 200) {
-            $result = $r.Content | ConvertFrom-Json
-        } elseif ($r.StatusCode -eq 202) {
-            $location = $r.Headers.Location
-            if ($location -is [array]) { $location = $location[0] }
-            if ($location -is [uri]) { $location = $location.AbsoluteUri }
-            if (-not $location) { Write-Status "[$sub] ERROR: 202 without Location header"; continue }
-            $deadline = (Get-Date).AddMinutes($TimeoutMinutes)
-            do {
-                Start-Sleep -Seconds 20
-                $p = Invoke-AzRestMethod -Method GET -Uri $location
-                $status = $null
-                if ($p.Content) { $status = ($p.Content | ConvertFrom-Json).status }
-                Write-Status "[$sub] Report status: HTTP $($p.StatusCode) $status"
-            } while (($p.StatusCode -eq 202 -or $status -in @('InProgress', 'Queued')) -and (Get-Date) -lt $deadline)
-            if ($p.StatusCode -ne 200) { Write-Status "[$sub] ERROR: report not ready. HTTP $($p.StatusCode) $($p.Content)"; continue }
-            $result = $p.Content | ConvertFrom-Json
-        } elseif ($r.StatusCode -eq 204) {
-            Write-Status "[$sub] No cost data for the period"; continue
-        } else {
-            Write-Status "[$sub] ERROR: HTTP $($r.StatusCode) $($r.Content)"; continue
-        }
-
-        $blobs = @($result.manifest.blobs)
-        if ($blobs.Count -eq 0) { Write-Status "[$sub] No data files returned (status: $($result.status))"; continue }
-        Write-Status "[$sub] Files: $($blobs.Count)"
-
-        $i = 0
-        foreach ($b in $blobs) {
-            $i++
-            $file = Join-Path $tempDir "$sub-$i.csv"
-            Invoke-WebRequest -Uri $b.blobLink -OutFile $file -UseBasicParsing
-            Add-MatchingRows -File $file -Subscription $sub
-        }
-        Write-Status "[$sub] Matching rows so far: $($matched.Count)"
-    }
-}
-
-# --- Per-VM summary ------------------------------------------------------------------------
-$summary = $matched | Group-Object ResourceId | ForEach-Object {
-    $rows = $_.Group
-    $compute = @($rows | Where-Object { $null -ne $_.ComputeHours })
-    $retail = Get-Sum $rows { param($x) if ($null -ne $x.Quantity -and $null -ne $x.PayGPrice) { $x.Quantity * $x.PayGPrice } }
-    $sheet = Get-Sum $rows { param($x) if ($null -ne $x.Quantity -and $null -ne $x.UnitPrice) { $x.Quantity * $x.UnitPrice } }
-    $billed = Get-Sum $rows { param($x) $x.Cost }
-    $hours = Get-Sum $compute { param($x) $x.ComputeHours }
-    $computeRetail = Get-Sum $compute { param($x) if ($null -ne $x.PayGPrice) { $x.Quantity * $x.PayGPrice } }
-    $computeBilled = Get-Sum $compute { param($x) $x.Cost }
-    [pscustomobject]@{
-        ResourceId              = $_.Name
-        SubscriptionId          = $rows[0].SubscriptionId
-        Rows                    = $rows.Count
-        PricingModels           = (($rows.PricingModel | Where-Object { $_ } | Sort-Object -Unique) -join ';')
-        ComputeHours            = [math]::Round($hours, 2)
-        RetailCost              = [math]::Round($retail, 2)
-        PriceSheetCost          = [math]::Round($sheet, 2)
-        BilledCost              = [math]::Round($billed, 2)
-        DiscountVsRetailPct     = if ($retail -gt 0) { [math]::Round((1 - $billed / $retail) * 100, 1) } else { $null }
-        RetailComputeHourlyRate = if ($hours -gt 0) { [math]::Round($computeRetail / $hours, 5) } else { $null }
-        BilledComputeHourlyRate = if ($hours -gt 0) { [math]::Round($computeBilled / $hours, 5) } else { $null }
-        Currency                = (($rows.Currency | Where-Object { $_ } | Sort-Object -Unique) -join ';')
-    }
-}
-$summary = @($summary | Sort-Object BilledCost -Descending)
-
 $summaryFile = Join-Path $OutputPath 'vm-billed-rates.csv'
 $rawFile = Join-Path $OutputPath 'vm-billed-rates-raw.csv'
 $logFile = Join-Path $OutputPath 'vm-billed-rates-log.txt'
-$summary | Export-Csv $summaryFile -NoTypeInformation -Encoding utf8
-$matched | Export-Csv $rawFile -NoTypeInformation -Encoding utf8
 
-Write-Status "Virtual machines with cost rows: $($summary.Count)"
-if ($vmSet) {
-    $found = New-Object 'System.Collections.Generic.HashSet[string]'
-    $summary | ForEach-Object { [void]$found.Add($_.ResourceId) }
-    $notFound = @($vmSet | Where-Object { -not $found.Contains($_) })
-    if ($notFound.Count -gt 0) {
-        Write-Status "Resources in the list without cost rows: $($notFound.Count)"
-        $notFound | ForEach-Object { Write-Status "  $_" }
+# The log is written in the finally block, so it's kept when the script stops on an error.
+try {
+    # --- Collect -------------------------------------------------------------------------------
+    if ($CostDetailsPath) {
+        $files = if (Test-Path $CostDetailsPath -PathType Container) { Get-ChildItem $CostDetailsPath -Filter *.csv -File } else { Get-Item $CostDetailsPath }
+        foreach ($f in @($files)) {
+            Write-Status "Reading $($f.Name)"
+            Add-MatchingRows -File $f.FullName -Subscription ''
+        }
+    } else {
+        $context = Get-AzContext
+        if (-not $context -or ($TenantId -and $context.Tenant.Id -ne $TenantId)) {
+            if (-not $TenantId) { throw 'No Azure session. Run Connect-AzAccount first, or pass -TenantId.' }
+            Write-Status "Connecting to tenant $TenantId"
+            Connect-AzAccount -Tenant $TenantId | Out-Null
+        }
+
+        $tempDir = Join-Path $OutputPath 'Temp/costdetails'
+        New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
+        $start = $StartDate.ToString('yyyy-MM-dd')
+        $end = $EndDate.ToString('yyyy-MM-dd')
+
+        foreach ($sub in $SubscriptionIds) {
+            Write-Status "[$sub] Requesting cost details report ($start to $end, $Metric)"
+            $body = @{ metric = $Metric; timePeriod = @{ start = $start; end = $end } } | ConvertTo-Json
+            $path = "/subscriptions/$sub/providers/Microsoft.CostManagement/generateCostDetailsReport?api-version=2023-11-01"
+            try {
+                $r = Invoke-AzRestMethod -Method POST -Path $path -Payload $body
+            } catch {
+                Write-Status "[$sub] ERROR on request: $($_.Exception.Message)"; continue
+            }
+
+            $result = $null
+            if ($r.StatusCode -eq 200) {
+                $result = $r.Content | ConvertFrom-Json
+            } elseif ($r.StatusCode -eq 202) {
+                $location = $r.Headers.Location
+                if ($location -is [array]) { $location = $location[0] }
+                if ($location -is [uri]) { $location = $location.AbsoluteUri }
+                if (-not $location) { Write-Status "[$sub] ERROR: 202 without Location header"; continue }
+                $deadline = (Get-Date).AddMinutes($TimeoutMinutes)
+                do {
+                    Start-Sleep -Seconds 20
+                    $p = Invoke-AzRestMethod -Method GET -Uri $location
+                    $status = $null
+                    if ($p.Content) { $status = ($p.Content | ConvertFrom-Json).status }
+                    Write-Status "[$sub] Report status: HTTP $($p.StatusCode) $status"
+                } while (($p.StatusCode -eq 202 -or $status -in @('InProgress', 'Queued')) -and (Get-Date) -lt $deadline)
+                if ($p.StatusCode -ne 200) { Write-Status "[$sub] ERROR: report not ready. HTTP $($p.StatusCode) $($p.Content)"; continue }
+                $result = $p.Content | ConvertFrom-Json
+            } elseif ($r.StatusCode -eq 204) {
+                Write-Status "[$sub] No cost data for the period"; continue
+            } else {
+                Write-Status "[$sub] ERROR: HTTP $($r.StatusCode) $($r.Content)"; continue
+            }
+
+            $blobs = @($result.manifest.blobs)
+            if ($blobs.Count -eq 0) { Write-Status "[$sub] No data files returned (status: $($result.status))"; continue }
+            Write-Status "[$sub] Files: $($blobs.Count)"
+
+            $i = 0
+            foreach ($b in $blobs) {
+                $i++
+                $file = Join-Path $tempDir "$sub-$i.csv"
+                try {
+                    Invoke-WebRequest -Uri $b.blobLink -OutFile $file -UseBasicParsing
+                } catch {
+                    Write-Status "[$sub] ERROR downloading file $i of $($blobs.Count): $($_.Exception.Message)"; continue
+                }
+                Add-MatchingRows -File $file -Subscription $sub
+            }
+            Write-Status "[$sub] Matching rows so far: $($matched.Count)"
+        }
     }
+
+    # --- Per-VM summary ------------------------------------------------------------------------
+    $summary = $matched | Group-Object ResourceId | ForEach-Object {
+        $rows = $_.Group
+        $compute = @($rows | Where-Object { $null -ne $_.ComputeHours })
+        $retail = Get-Sum $rows { param($x) if ($null -ne $x.Quantity -and $null -ne $x.PayGPrice) { $x.Quantity * $x.PayGPrice } }
+        $sheet = Get-Sum $rows { param($x) if ($null -ne $x.Quantity -and $null -ne $x.UnitPrice) { $x.Quantity * $x.UnitPrice } }
+        $billed = Get-Sum $rows { param($x) $x.Cost }
+        $hours = Get-Sum $compute { param($x) $x.ComputeHours }
+        $computeRetail = Get-Sum $compute { param($x) if ($null -ne $x.PayGPrice) { $x.Quantity * $x.PayGPrice } }
+        $computeBilled = Get-Sum $compute { param($x) $x.Cost }
+        [pscustomobject]@{
+            ResourceId              = $_.Name
+            SubscriptionId          = $rows[0].SubscriptionId
+            Rows                    = $rows.Count
+            PricingModels           = (($rows.PricingModel | Where-Object { $_ } | Sort-Object -Unique) -join ';')
+            ComputeHours            = [math]::Round($hours, 2)
+            RetailCost              = [math]::Round($retail, 2)
+            PriceSheetCost          = [math]::Round($sheet, 2)
+            BilledCost              = [math]::Round($billed, 2)
+            DiscountVsRetailPct     = if ($retail -gt 0) { [math]::Round((1 - $billed / $retail) * 100, 1) } else { $null }
+            RetailComputeHourlyRate = if ($hours -gt 0) { [math]::Round($computeRetail / $hours, 5) } else { $null }
+            BilledComputeHourlyRate = if ($hours -gt 0) { [math]::Round($computeBilled / $hours, 5) } else { $null }
+            Currency                = (($rows.Currency | Where-Object { $_ } | Sort-Object -Unique) -join ';')
+        }
+    }
+    $summary = @($summary | Sort-Object BilledCost -Descending)
+
+    $summary | Export-Csv $summaryFile -NoTypeInformation -Encoding utf8
+    $matched | Export-Csv $rawFile -NoTypeInformation -Encoding utf8
+
+    Write-Status "Virtual machines with cost rows: $($summary.Count)"
+    if ($vmSet) {
+        $found = New-Object 'System.Collections.Generic.HashSet[string]'
+        $summary | ForEach-Object { [void]$found.Add($_.ResourceId) }
+        $notFound = @($vmSet | Where-Object { -not $found.Contains($_) })
+        if ($notFound.Count -gt 0) {
+            Write-Status "Resources in the list without cost rows: $($notFound.Count)"
+            $notFound | ForEach-Object { Write-Status "  $_" }
+        }
+    }
+} finally {
+    $log | Set-Content $logFile
 }
-$log | Set-Content $logFile
 Write-Host "`nDone. Files: $summaryFile, $rawFile, $logFile"

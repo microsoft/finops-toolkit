@@ -1,27 +1,27 @@
-Series,SizePattern,Status,AnnouncedDate,RetirementDate,CapacityGrowthRestricted
-D-series,^Standard_D\d+$,Announced,2025-03-31,2028-05-01,true
-Ds-series,^Standard_DS\d+(-\d+)?$,Announced,2025-03-31,2028-05-01,true
-Dv2-series,^Standard_D\d+_v2(_Promo)?$,Announced,2025-03-31,2028-05-01,true
-Dsv2-series,^Standard_DS\d+(-\d+)?_v2(_Promo)?$,Announced,2025-03-31,2028-05-01,true
-Av2/Amv2-series,^Standard_A\d+m?_v2$,Announced,2025-10-15,2028-11-15,true
-B-series (v1),^Standard_B\d+(ls|s|ms)$,Announced,2025-10-15,2028-11-15,true
-Dv3-series,^Standard_D\d+_v3$,Announced,,2029-11-15,true
-Dsv3-series,^Standard_D\d+s_v3$,Announced,,2029-11-15,true
-DCsv2-series,^Standard_DC\d+s_v2$,Retired,,2026-06-30,false
-DCsv3/DCdsv3-series,^Standard_DC\d+d?s_v3$,Announced,,2029-10-31,false
-F-series,^Standard_F\d+$,Announced,2025-10-15,2028-11-15,true
-Fs-series,^Standard_F\d+s$,Announced,2025-10-15,2028-11-15,true
-Fsv2-series,^Standard_F\d+s_v2$,Announced,2025-10-15,2028-11-15,true
-G-series,^Standard_G\d+$,Announced,2025-10-15,2028-11-15,true
-Gs-series,^Standard_GS\d+(-\d+)?$,Announced,2025-10-15,2028-11-15,true
-Ev3-series,^Standard_E\d+i?_v3$,Announced,,2029-11-15,true
-Esv3-series,^Standard_E\d+(-\d+)?i?s_v3$,Announced,,2029-11-15,true
-M192 isolated sizes (Mv2),^Standard_M192id?m?s_v2$,Announced,2024-03-22,2027-03-31,false
-Ls-series,^Standard_L\d+s$,Announced,2025-03-31,2028-05-01,true
-Lsv2-series,^Standard_L\d+s_v2$,Announced,2025-10-15,2028-11-15,true
-NCv3-series,^Standard_NC\d+r?s_v3$,Retired,,2025-09-30,false
-NVv3-series,^Standard_NV\d+s_v3$,Announced,2025-04-15,2026-09-30,false
-NVv4-series,^Standard_NV\d+as_v4$,Announced,2025-04-15,2026-09-30,false
-NP-series,^Standard_NP\d+s$,Announced,2026-04-02,2027-05-31,false
-HC-series,^Standard_HC\d+(-\d+)?rs$,Announced,,2027-05-31,false
-HBv2-series,^Standard_HB\d+(-\d+)?rs_v2$,Announced,,2027-05-31,false
+Series,SizePattern,Status,AnnouncedDate,RetirementDate,CapacityGrowthRestricted,NewReservationsAvailable
+D-series,^Standard_D\d+$,Announced,2025-03-31,2028-05-01,true,false
+Ds-series,^Standard_DS\d+(-\d+)?$,Announced,2025-03-31,2028-05-01,true,false
+Dv2-series,^Standard_D\d+_v2(_Promo)?$,Announced,2025-03-31,2028-05-01,true,false
+Dsv2-series,^Standard_DS\d+(-\d+)?_v2(_Promo)?$,Announced,2025-03-31,2028-05-01,true,false
+Av2/Amv2-series,^Standard_A\d+m?_v2$,Announced,2025-10-15,2028-11-15,true,false
+B-series (v1),^Standard_B\d+(ls|s|ms)$,Announced,2025-10-15,2028-11-15,true,false
+Dv3-series,^Standard_D\d+_v3$,Announced,,2029-11-15,true,false
+Dsv3-series,^Standard_D\d+s_v3$,Announced,,2029-11-15,true,false
+DCsv2-series,^Standard_DC\d+s_v2$,Retired,,2026-06-30,false,
+DCsv3/DCdsv3-series,^Standard_DC\d+d?s_v3$,Announced,,2029-10-31,false,
+F-series,^Standard_F\d+$,Announced,2025-10-15,2028-11-15,true,false
+Fs-series,^Standard_F\d+s$,Announced,2025-10-15,2028-11-15,true,false
+Fsv2-series,^Standard_F\d+s_v2$,Announced,2025-10-15,2028-11-15,true,false
+G-series,^Standard_G\d+$,Announced,2025-10-15,2028-11-15,true,
+Gs-series,^Standard_GS\d+(-\d+)?$,Announced,2025-10-15,2028-11-15,true,
+Ev3-series,^Standard_E\d+i?_v3$,Announced,,2029-11-15,true,false
+Esv3-series,^Standard_E\d+(-\d+)?i?s_v3$,Announced,,2029-11-15,true,false
+M192 isolated sizes (Mv2),^Standard_M192id?m?s_v2$,Announced,2024-03-22,2027-03-31,false,
+Ls-series,^Standard_L\d+s$,Announced,2025-03-31,2028-05-01,true,false
+Lsv2-series,^Standard_L\d+s_v2$,Announced,2025-10-15,2028-11-15,true,false
+NCv3-series,^Standard_NC\d+r?s_v3$,Retired,,2025-09-30,false,
+NVv3-series,^Standard_NV\d+s_v3$,Announced,2025-04-15,2026-09-30,false,
+NVv4-series,^Standard_NV\d+as_v4$,Announced,2025-04-15,2026-09-30,false,
+NP-series,^Standard_NP\d+s$,Announced,2026-04-02,2027-05-31,false,false
+HC-series,^Standard_HC\d+(-\d+)?rs$,Announced,,2027-05-31,false,
+HBv2-series,^Standard_HB\d+(-\d+)?rs_v2$,Announced,,2027-05-31,false,

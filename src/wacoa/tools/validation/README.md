@@ -68,7 +68,7 @@ Lists virtual machines and scale sets and flags the ones that run on a series wi
 
 | Output | Content |
 |---|---|
-| `vm-lifecycle-inventory.csv` | One row per resource, with series, retirement status, retirement date and days to retirement. |
+| `vm-lifecycle-inventory.csv` | One row per resource, with series, retirement status, retirement date, days to retirement, and whether new reservations are available. |
 | `vm-lifecycle-summary.csv` | One row per series, with the number of resources, running VMs and instances. |
 
 ### Retirement table
@@ -76,6 +76,10 @@ Lists virtual machines and scale sets and flags the ones that run on a series wi
 The series and dates are in `vm-series-retirements.csv`, so they can be updated without changing the script. Each row has a regular expression (`SizePattern`) that is matched against the VM size name.
 
 The table was built from [VM size series retirements, capacity growth restrictions, and modernization guidance](https://learn.microsoft.com/azure/virtual-machines/migration/sizes/previous-gen-series-capacity-limitations) as last updated on September 25, 2026. Retirement dates change, so confirm them on that page before sharing results. The same page describes the reservation purchase, renewal and exchange rules for the affected series.
+
+The `retirementStatus` column comes from the table. When the retirement date has passed and the table doesn't say `Retired` yet, the script reports `Past retirement date`, so the output stays right if the table isn't updated.
+
+The `newReservationsAvailable` column is `No` for the A, B, D, E, F, and L variants of the v1 to v3 series, which can't get new or renewed one-year and three-year reservations, and for the NP-series. Take reservation recommendations for those series out of a savings estimate. `Not stated` means the page doesn't say that reservations ended for that series.
 
 Sizes that do not match any row are reported as `Not listed`. This does not mean the series is current. It only means the series is not in the table.
 
