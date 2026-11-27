@@ -3,7 +3,7 @@ title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
 author: flanakin
 ms.author: micflan
-ms.date: 10/28/2026
+ms.date: 11/27/2026
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -530,6 +530,9 @@ The exact reason for this error is unknown. If you experience it, please file a 
 <!-- cSpell:ignore eventhouse -->
 
 **Mitigation**: As a workaround, change the minimum consumption for the Fabric eventhouse to **Medium (18 CUs)**, wait 30 minutes, and rerun the **ingestion_ExecuteETL** pipeline for that dataset and month. To learn more minimum consumption, see [Minimum consumption](/fabric/real-time-intelligence/manage-monitor-eventhouse#enable-minimum-consumption) in the eventhouse overview.
+
+> [!WARNING]
+> On an F0 capacity, or a hybrid capacity that runs **Real-Time Intelligence - Eventhouse** on demand, minimum consumption is billed around the clock at the on-demand rate. A Medium (18 CUs) minimum can cost many times more than an F2 capacity. After the rerun succeeds, turn off minimum consumption or reset it to the previous value. To learn more, see [Fabric on-demand billing](/fabric/enterprise/on-demand-billing).
 
 <br>
 
