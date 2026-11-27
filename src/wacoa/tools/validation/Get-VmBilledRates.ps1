@@ -270,8 +270,8 @@ try {
     }
     $summary = @($summary | Sort-Object BilledCost -Descending)
 
-    $summary | Export-Csv $summaryFile -NoTypeInformation -Encoding utf8
-    $matched | Export-Csv $rawFile -NoTypeInformation -Encoding utf8
+    $summary | Export-Csv $summaryFile -Encoding utf8
+    $matched | Export-Csv $rawFile -Encoding utf8
 
     Write-Status "Virtual machines with cost rows: $($summary.Count)"
     if ($vmSet) {

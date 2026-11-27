@@ -178,8 +178,8 @@ $summary = $inventory | Group-Object series, retirementStatus, retirementDate | 
 
 $inventoryFile = Join-Path $OutputPath 'vm-lifecycle-inventory.csv'
 $summaryFile = Join-Path $OutputPath 'vm-lifecycle-summary.csv'
-$inventory | Export-Csv $inventoryFile -NoTypeInformation -Encoding utf8
-$summary | Export-Csv $summaryFile -NoTypeInformation -Encoding utf8
+$inventory | Export-Csv $inventoryFile -Encoding utf8
+$summary | Export-Csv $summaryFile -Encoding utf8
 
 $listed = @($inventory | Where-Object { $_.retirementStatus -ne 'Not listed' }).Count
 Write-Host "On a series with an announced retirement: $listed of $($inventory.Count)"
