@@ -7,7 +7,7 @@ param()
 
 ###########################################################################
 # GET-AIWORKLOADMETRICS.PS1
-# AZURE FINOPS MULTITOOL - AI/LLM Workload KPIs (token economics)
+# FINOPS EXPLORER - AI/LLM Workload KPIs (token economics)
 ###########################################################################
 # Purpose: Detect AI workloads up front with one cheap ARG query, and -
 #          only when AI is present - pull historical token usage from

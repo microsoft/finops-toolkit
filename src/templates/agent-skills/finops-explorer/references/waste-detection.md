@@ -2,7 +2,7 @@
 
 Finding resources that cost money without delivering value: orphaned infrastructure, idle compute, mis-tiered storage, and unclaimed licensing benefits.
 
-All queries here are read-only. Run them with `az graph query -q "<query>"`, an Azure MCP Resource Graph tool, or `Search-AzGraph`.
+All queries here are read-only. Run them with `az graph query -q "<query>"` (it needs the `resource-graph` extension, which Azure CLI normally installs on first use), an Azure MCP Resource Graph tool, or `Search-AzGraph`.
 
 ## Orphaned resources
 
@@ -106,14 +106,19 @@ resources
           powerState
 ```
 
-Then query Monitor metrics per running VM over a 14-day window:
+Then query Monitor metrics per running VM over a 14-day window. Ask for one value for the whole window with `interval=FULL`:
 
 ```bash
-az monitor metrics list --resource <vmResourceId> \
-  --metric "Percentage CPU" "Network In Total" "Network Out Total" \
-  --start-time <14d-ago> --end-time <now> \
-  --aggregation Average Total --interval P14D
+az rest --method get \
+  --url "https://management.azure.com<vmResourceId>/providers/Microsoft.Insights/metrics" \
+  --url-parameters api-version=2023-10-01 \
+    metricnames="Percentage CPU,Network In Total,Network Out Total" \
+    timespan="<14d-ago>/<now>" aggregation="Average,Total" interval=FULL
 ```
+
+Write `timespan` as UTC timestamps, for example `2026-10-07T00:00:00Z/2026-10-21T00:00:00Z`. Read `average` for CPU and `total` for each network metric.
+
+`FULL` returns one value per series for the whole `timespan`. Don't use `P14D` as the interval. A metric only accepts the time grains in its metric definition, and the API returns an error for any other interval unless `AutoAdjustTimegrain=true` is set. `az monitor metrics list --interval` doesn't accept `FULL`, so with that command request `--interval P1D`, sum the daily network totals, and combine the daily CPU averages. A plain average of daily averages is only exact when every day has the same number of samples, so add `Count` to `--aggregation` and weight each day by it.
 
 Classification used by the terminal UI:
 
@@ -140,13 +145,16 @@ resources
           creationTime = properties.creationTime
 ```
 
-Then check 30-day transaction volume and blob capacity per account:
+Then check 30-day transaction volume and blob capacity per account, again with `interval=FULL`:
 
 ```bash
-az monitor metrics list --resource <storageId>/blobServices/default \
-  --metric Transactions --start-time <30d-ago> --end-time <now> \
-  --aggregation Total --interval P30D
+az rest --method get \
+  --url "https://management.azure.com<storageId>/blobServices/default/providers/Microsoft.Insights/metrics" \
+  --url-parameters api-version=2023-10-01 metricnames=Transactions \
+    timespan="<30d-ago>/<now>" aggregation=Total interval=FULL
 ```
+
+Run it again with `metricnames=BlobCapacity` and `aggregation=Average` for capacity. As with `P14D` above, don't use `P30D`. `FULL` already covers the whole window.
 
 Low transactions plus meaningful capacity means the tier is wrong. Recommend Cool for infrequent access, Archive for effectively dormant data.
 

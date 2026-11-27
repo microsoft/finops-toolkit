@@ -2,11 +2,10 @@
 name: power-bi-finops
 description: Use when the user wants to connect, customize, troubleshoot, or build Power BI reports on Azure cost data, including the FinOps toolkit Power BI reports, the Cost Management connector, FinOps hubs (Azure Data Explorer / Microsoft Fabric) data sources, report refresh failures, or turning scan and KQL output into dashboards and visuals.
 license: MIT
-compatibility: Requires Power BI Desktop (or the Power BI service) and read access to the cost data source — a Cost Management scope, a FinOps hub ADX cluster, or a Fabric workspace. Pairs with the finops-multitool skill and the finops-toolkit skill.
+compatibility: Requires Power BI Desktop (or the Power BI service) and read access to the cost data source — a Cost Management scope, a FinOps hub ADX cluster, or a Fabric workspace. Pairs with the finops-explorer skill and the finops-toolkit skill.
 metadata:
   author: microsoft
   version: '1.0'
-allowed-tools: az pwsh
 ---
 
 # Power BI for FinOps
@@ -15,7 +14,7 @@ Build and operate Power BI reporting on Azure cost data. The FinOps toolkit ship
 
 ## When to use this skill
 
-Use it when the user wants a visual or dashboard, mentions Power BI, `.pbix`/`.pbit` files, report refresh errors, the Cost Management connector, or asks to "visualize" cost, savings, or tag data. For headless analysis (numbers without visuals) prefer the `finops-multitool` skill or the `finops-toolkit` KQL skill, then bring the output here when the user wants it visualized.
+Use it when the user wants a visual or dashboard, mentions Power BI, `.pbix`/`.pbit` files, report refresh errors, the Cost Management connector, or asks to "visualize" cost, savings, or tag data. For headless analysis (numbers without visuals) prefer the `finops-explorer` skill or the `finops-toolkit` KQL skill, then bring the output here when the user wants it visualized.
 
 ## Choosing a data source
 
@@ -41,7 +40,7 @@ The toolkit publishes report templates aligned to FinOps capabilities. Match the
 | **Governance**             | Tag coverage, policy compliance, allocation readiness            |
 | **Data ingestion / FOCUS** | Pipeline health, dataset completeness                            |
 
-Setup steps: open the `.pbit` template → supply the data-source parameters (cluster URI + `Hub` database, or billing scope) → load. For first-time connection details defer to the `finops-toolkit` skill reference `toolkit/power-bi/setup.md` and `toolkit/power-bi/connector.md`.
+Setup steps: open the `.pbit` template → supply the data-source parameters (cluster URI + `Hub` database, or billing scope) → load. For first-time connection details defer to the `finops-toolkit` skill references `references/docs-mslearn/toolkit/power-bi/setup.md` and `references/docs-mslearn/toolkit/power-bi/connector.md`.
 
 ## Common refresh and connection failures
 
@@ -63,5 +62,5 @@ Setup steps: open the `.pbit` template → supply the data-source parameters (cl
 ## Hand-offs
 
 - Need the underlying numbers or a KQL query → `finops-toolkit` skill.
-- Need live read-only numbers to seed a visual → `finops-multitool` skill (cost trend, resource costs, tag inventory).
+- Need live read-only numbers to seed a visual → `finops-explorer` skill (cost trend, resource costs, tag inventory).
 - Need an executive narrative around the visuals → `finops-reporting` skill.

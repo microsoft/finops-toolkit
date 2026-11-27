@@ -9,7 +9,7 @@ param()
 # GET-KPIINSIGHTS.PS1
 # FINOPS KPI CORRELATION LAYER
 ###########################################################################
-# Purpose: Map FinOps Multitool scan output to FinOps Foundation KPIs
+# Purpose: Map FinOps Explorer scan output to FinOps Foundation KPIs
 #          (https://www.finops.org/finops-kpis/) so callers who do not
 #          know the KPI taxonomy still see which industry KPIs their results
 #          inform, with a computed value where the data allows.

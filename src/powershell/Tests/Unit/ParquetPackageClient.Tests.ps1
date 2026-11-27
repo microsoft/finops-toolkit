@@ -84,7 +84,7 @@ function Get-FixtureStat {
 
         It 'Uses application data without a shared-temp fallback' {
             $base = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData, [Environment+SpecialFolderOption]::DoNotVerify)
-            Get-FinOpsParquetCachePath | Should -Be (Join-Path $base 'FinOpsMultitool/parquet')
+            Get-FinOpsParquetCachePath | Should -Be (Join-Path $base 'FinOpsToolkit/Explorer/parquet')
             (Get-Command Get-FinOpsParquetCachePath).Definition | Should -Not -Match 'GetTempPath'
         }
 

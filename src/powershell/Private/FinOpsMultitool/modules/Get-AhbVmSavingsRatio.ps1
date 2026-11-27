@@ -7,7 +7,7 @@ param()
 
 ###########################################################################
 # GET-AHBVMSAVINGSRATIO.PS1
-# AZURE FINOPS MULTITOOL - Per-SKU Azure Hybrid Benefit Savings Ratio
+# FINOPS EXPLORER - Per-SKU Azure Hybrid Benefit Savings Ratio
 ###########################################################################
 # Purpose: Compute the real Azure Hybrid Benefit savings for a VM size by
 #          comparing the Windows and Linux pay-as-you-go rates from the

@@ -7,7 +7,7 @@ param()
 
 ###########################################################################
 # GET-VMCOSTBREAKDOWN.PS1
-# AZURE FINOPS MULTITOOL - Full VM Cost Decomposition
+# FINOPS EXPLORER - Full VM Cost Decomposition
 ###########################################################################
 # Purpose: Decompose a single virtual machine's total solution cost into
 #          its meter components - compute, OS/data disks, network egress,

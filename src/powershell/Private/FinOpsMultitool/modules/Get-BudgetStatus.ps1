@@ -7,7 +7,7 @@ param()
 
 ###########################################################################
 # GET-BUDGETSTATUS.PS1
-# AZURE FINOPS MULTITOOL - Budget vs. Actual Comparison
+# FINOPS EXPLORER - Budget vs. Actual Comparison
 ###########################################################################
 # Purpose: Query Azure Budgets (Consumption API) for each subscription to
 #          show configured budget amount vs current spend. Highlights

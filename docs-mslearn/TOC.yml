@@ -198,12 +198,12 @@
           href: toolkit/alerts/finops-alerts-overview.md
         - name: Configure alerts
           href: toolkit/alerts/configure-finops-alerts.md
-    - name: FinOps multitool
+    - name: FinOps Explorer
       items:
         - name: Overview
-          href: toolkit/multitool/finops-multitool-overview.md
+          href: toolkit/explorer/finops-explorer-overview.md
         - name: Commands
-          href: toolkit/powershell/multitool/finops-multitool-commands.md
+          href: toolkit/powershell/explorer/finops-explorer-commands.md
     - name: Optimization engine
       items:
         - name: Overview
@@ -250,12 +250,12 @@
               href: toolkit/powershell/cost/remove-finopscostexport.md
             - name: Start-FinOpsCostExport
               href: toolkit/powershell/cost/start-finopscostexport.md
-        - name: FinOps multitool
+        - name: FinOps Explorer
           items:
-            - name: FinOps multitool commands
-              href: toolkit/powershell/multitool/finops-multitool-commands.md
-            - name: Start-FinOpsMultitool
-              href: toolkit/powershell/multitool/start-finopsmultitool.md
+            - name: FinOps Explorer commands
+              href: toolkit/powershell/explorer/finops-explorer-commands.md
+            - name: Start-FinOpsExplorer
+              href: toolkit/powershell/explorer/start-finopsexplorer.md
         - name: FinOps hubs
           items:
             - name: FinOps hubs commands

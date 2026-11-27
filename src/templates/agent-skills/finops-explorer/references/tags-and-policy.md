@@ -2,7 +2,7 @@
 
 Tag hygiene and Azure Policy coverage — the governance foundation that cost allocation depends on.
 
-Queries run read-only against Azure Resource Graph via `az graph query`, an Azure MCP Resource Graph tool, or `Search-AzGraph`.
+Queries run read-only against Azure Resource Graph via `az graph query` (it needs the `resource-graph` extension, which Azure CLI normally installs on first use), an Azure MCP Resource Graph tool, or `Search-AzGraph`.
 
 ## Tag inventory
 

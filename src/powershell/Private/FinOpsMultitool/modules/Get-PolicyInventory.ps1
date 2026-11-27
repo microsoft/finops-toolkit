@@ -8,7 +8,7 @@ param()
 
 ###########################################################################
 # GET-POLICYINVENTORY.PS1
-# AZURE FINOPS MULTITOOL - Policy Inventory Across the Tenant
+# FINOPS EXPLORER - Policy Inventory Across the Tenant
 ###########################################################################
 # Purpose: Scan all policy assignments across the tenant's subscriptions
 #          and return a summary of assigned policies, their effects,

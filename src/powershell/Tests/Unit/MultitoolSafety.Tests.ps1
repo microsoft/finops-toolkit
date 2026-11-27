@@ -3,7 +3,7 @@
 
 & "$PSScriptRoot/../Initialize-Tests.ps1"
 
-Describe 'FinOps Multitool safety' {
+Describe 'FinOps Explorer safety' {
 
     # Scoped to this Describe: Initialize-Tests.ps1 already declares a root-level
     # BeforeAll, and Pester 6 rejects a second one during discovery.
@@ -1623,7 +1623,7 @@ console.log('Credit, numeric, and unavailable sorting passed');
         It 'Uses per-user local application data rather than the working directory' {
             $base = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData, [Environment+SpecialFolderOption]::DoNotVerify)
 
-            Get-FinOpsReportRoot | Should -Be (Join-Path $base 'FinOpsToolkit/Multitool/Reports')
+            Get-FinOpsReportRoot | Should -Be (Join-Path $base 'FinOpsToolkit/Explorer/Reports')
         }
 
         It 'Creates the default reports folder for a fresh Linux application-data path' -Skip:(-not $IsLinux) {
@@ -1648,7 +1648,7 @@ console.log('Credit, numeric, and unavailable sorting passed');
                 $process.WaitForExit()
                 $process.ExitCode | Should -Be 0 -Because $standardError.GetAwaiter().GetResult()
                 $run = $standardOutput.GetAwaiter().GetResult().Trim()
-                Split-Path $run -Parent | Should -Be (Join-Path $applicationData 'FinOpsToolkit/Multitool/Reports')
+                Split-Path $run -Parent | Should -Be (Join-Path $applicationData 'FinOpsToolkit/Explorer/Reports')
                 Test-Path -LiteralPath (Join-Path $run '.gitignore') | Should -BeTrue
             }
             finally { $process.Dispose() }
@@ -2991,7 +2991,7 @@ console.log('Credit, numeric, and unavailable sorting passed');
     }
 }
 
-Describe 'FinOps Multitool cost math' {
+Describe 'FinOps Explorer cost math' {
 
     BeforeAll {
         $script:ModuleRoot = Join-Path $PSScriptRoot '../../Private/FinOpsMultitool'

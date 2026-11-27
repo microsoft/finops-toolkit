@@ -3,10 +3,10 @@
 
 <#
     .SYNOPSIS
-    Launches the Azure FinOps Multitool interactive terminal UI.
+    Launches the FinOps Explorer terminal UI.
 
     .DESCRIPTION
-    The Start-FinOpsMultitool command launches an interactive terminal UI (TUI) that
+    The Start-FinOpsExplorer command launches an interactive terminal UI (TUI) that
     scans an Azure tenant for cost optimization, governance, and FinOps insights. The
     tool authenticates to Azure, discovers subscriptions, and runs the scan modules you
     select - covering cost trends, orphaned resources, idle VMs, tag hygiene, reservation
@@ -32,7 +32,7 @@
 
     .PARAMETER OutputPath
     Optional local parent directory for reports. Each run creates a new timestamped
-    subfolder and never overwrites earlier reports. The default is FinOpsToolkit/Multitool/Reports
+    subfolder and never overwrites earlier reports. The default is FinOpsToolkit/Explorer/Reports
     under the current user's LocalApplicationData directory, usually LOCALAPPDATA on Windows.
     Git repositories, UNC paths, mapped Windows network drives, symbolic links, and
     junctions are rejected. Unix network mounts aren't detected; choose a local filesystem.
@@ -77,30 +77,28 @@
     NonInteractive takes precedence and disables all prompts when both switches are supplied.
 
     .EXAMPLE
-    Start-FinOpsMultitool
+    Start-FinOpsExplorer
 
-    Launches the FinOps Multitool TUI. You will be prompted to authenticate and
+    Launches FinOps Explorer. You will be prompted to authenticate and
     select the subscriptions and modules to scan.
 
     .EXAMPLE
-    Start-FinOpsMultitool -SubscriptionId '00000000-0000-0000-0000-000000000000'
+    Start-FinOpsExplorer -SubscriptionId '00000000-0000-0000-0000-000000000000'
 
     Launches the TUI scoped to a single subscription.
 
     .EXAMPLE
-    Start-FinOpsMultitool `
+    Start-FinOpsExplorer `
         -NonInteractive `
         -Scans Get-OrphanedResources, Get-IdleVMs
 
     Requires an existing authenticated Azure context. Runs two scans without prompting and saves CSV, HTML, and text reports in a new
     private run folder under the current user's local application data.
 
-    .LINK
-    https://aka.ms/ftk/Start-FinOpsMultitool
 #>
-function Start-FinOpsMultitool {
+function Start-FinOpsExplorer {
     [CmdletBinding()]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Start-FinOpsMultitool launches a read-only interactive scanner and does not modify system state.')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Start-FinOpsExplorer launches a read-only interactive scanner and does not modify system state.')]
     [OutputType([void])]
     param(
         [Parameter()]
@@ -125,15 +123,15 @@ function Start-FinOpsMultitool {
     )
 
     if ($PSVersionTable.PSVersion.Major -lt 7) {
-        throw "FinOps Multitool requires PowerShell 7 or later. This session is PowerShell $($PSVersionTable.PSVersion). Open PowerShell 7 with 'pwsh', import the module there, and run Start-FinOpsMultitool again. No scan was started."
+        throw "FinOps Explorer requires PowerShell 7 or later. This session is PowerShell $($PSVersionTable.PSVersion). Open PowerShell 7 with 'pwsh', import the module there, and run Start-FinOpsExplorer again. No scan was started."
     }
 
-    # Locate the Multitool TUI implementation
+    # Locate the FinOps Explorer runtime
     $multitoolRoot = Join-Path -Path $PSScriptRoot -ChildPath '../Private/FinOpsMultitool'
     $tuiScript = Join-Path -Path $multitoolRoot -ChildPath 'Invoke-FinOpsMultitool.ps1'
 
     if (-not (Test-Path -Path $tuiScript)) {
-        Write-Error "FinOps Multitool files not found at '$multitoolRoot'. The module installation may be incomplete."
+        Write-Error "FinOps Explorer files not found at '$multitoolRoot'. The module installation may be incomplete."
         return
     }
 

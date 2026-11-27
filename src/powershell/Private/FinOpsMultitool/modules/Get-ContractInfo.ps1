@@ -7,7 +7,7 @@ param()
 
 ###########################################################################
 # GET-CONTRACTINFO.PS1
-# AZURE FINOPS MULTITOOL - Billing Account & Contract Type Detection
+# FINOPS EXPLORER - Billing Account & Contract Type Detection
 ###########################################################################
 # Purpose: Detect the customer's Azure contract type (EA, MCA, PAYGO, CSP)
 #          and return billing account details.

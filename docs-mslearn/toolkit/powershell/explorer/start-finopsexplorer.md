@@ -1,6 +1,6 @@
 ---
-title: Start-FinOpsMultitool command
-description: Launch the FinOps multitool interactive terminal UI to scan an Azure environment for cost optimization, governance, and FinOps insights.
+title: Start-FinOpsExplorer command
+description: Launch the FinOps Explorer terminal UI to scan an Azure environment for cost, governance, and optimization insights.
 author: z-larsen
 ms.author: zlarsen
 ms.date: 11/23/2026
@@ -8,14 +8,14 @@ ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand how to use the Start-FinOpsMultitool command in the FinOpsToolkit module.
+#customer intent: As a FinOps user, I want to learn how to launch the FinOps Explorer terminal UI from PowerShell.
 ---
 
 <!-- markdownlint-disable -->
 
-# Start-FinOpsMultitool command
+# Start-FinOpsExplorer command
 
-The **Start-FinOpsMultitool** command launches the FinOps multitool interactive terminal UI (TUI). The tool authenticates to Azure, discovers accessible subscriptions, and runs the scan modules you select. Scans cover cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance.
+The **Start-FinOpsExplorer** command launches the FinOps Explorer terminal UI (TUI). It authenticates to Azure, discovers accessible subscriptions, and runs the scan modules you select. Scans cover cost trends, orphaned resources, idle VMs, tag hygiene, reservation and savings plan utilization, Azure Hybrid Benefit opportunities, budgets, anomaly alerts, and policy compliance.
 
 Results appear in the terminal and are saved automatically on the machine running the command. Each run creates a private folder with one CSV file per selected scan, a `FinOpsReport.html` summary, and a `ScanSummary.txt` file. Failed or empty scans have a CSV status record. The scans don't change Azure resources.
 
@@ -38,7 +38,7 @@ Automatic hub discovery keeps the selected tenant and subscriptions. When a hub 
 ## Syntax
 
 ```powershell
-Start-FinOpsMultitool `
+Start-FinOpsExplorer `
     [-SubscriptionId <string>] `
     [-OutputPath <string>] `
     [-Scans <string[]>] `
@@ -55,7 +55,7 @@ Start-FinOpsMultitool `
 | Name              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `‑SubscriptionId` | Optional. Scopes the scan to a single subscription in the current tenant. A failed or mismatched lookup stops the run without searching other tenants or widening scope. When omitted, accessible subscriptions in the selected tenant are discovered.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `‑OutputPath`     | Optional. Local parent folder for reports. Defaults to `FinOpsToolkit/Multitool/Reports` under the current user's local application data. Each run creates a new timestamped subfolder. Git repositories, UNC paths, mapped Windows network drives, symbolic links, and junctions aren't accepted. Unix network mounts aren't detected.                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `‑OutputPath`     | Optional. Local parent folder for reports. Defaults to `FinOpsToolkit/Explorer/Reports` under the current user's local application data. Each run creates a new timestamped subfolder. Git repositories, UNC paths, mapped Windows network drives, symbolic links, and junctions aren't accepted. Unix network mounts aren't detected.                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `‑Scans`          | Optional. Runs the specified scans instead of the default selection. Accepts a scan command name, such as `Get-OrphanedResources`, or its menu label, such as `Orphaned Resources`. Use `All` on its own to select every menu scan, including Billing Structure. An unrecognized name returns an error.                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `‑DataSource`     | Optional. Sets the data source and skips the data source prompt. Valid values are `Hub`, `Export`, `API`, and `GraphOnly`. `Export` reads one existing CSV or CSV.gz Cost Management export instead of querying live costs, and doesn't require a hub; it needs ActualCost or FOCUS BilledCost, plus Storage Blob Data Reader and network access to the export destination. Parquet and local files aren't supported on that path, and an unattended `Export` run requires exactly one readable candidate. `Export`, `API`, and `GraphOnly` take precedence over `FINOPS_HUB_KUSTO_URI` and don't preload hub data. An explicit `Hub` selection fails if no configured Kusto endpoint or hub storage is available. Select `API` separately for a live scan. |
 | `‑NonInteractive` | Optional. Runs without prompting and requires an existing authenticated Azure context. Every choice comes from the parameters or their defaults. Reports are saved automatically, even when `-OutputPath` is omitted.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -65,12 +65,12 @@ Start-FinOpsMultitool `
 
 ## Examples
 
-The following examples demonstrate how to use the Start-FinOpsMultitool command.
+The following examples demonstrate how to use the Start-FinOpsExplorer command.
 
-### Launch the multitool
+### Launch FinOps Explorer
 
 ```powershell
-Start-FinOpsMultitool
+Start-FinOpsExplorer
 ```
 
 Launches the terminal UI. You're prompted to authenticate, select a tenant if needed, and choose the subscriptions and modules to scan.
@@ -78,7 +78,7 @@ Launches the terminal UI. You're prompted to authenticate, select a tenant if ne
 ### Use numbered prompts
 
 ```powershell
-Start-FinOpsMultitool -Accessible
+Start-FinOpsExplorer -Accessible
 ```
 
 Uses numbered subscription and scan prompts in any console. The screen isn't cleared, and menu rows aren't repainted. This mode stays in the signed-in tenant; sign in separately before using a different tenant.
@@ -86,7 +86,7 @@ Uses numbered subscription and scan prompts in any console. The screen isn't cle
 ### Scope to a single subscription
 
 ```powershell
-Start-FinOpsMultitool -SubscriptionId '00000000-0000-0000-0000-000000000000'
+Start-FinOpsExplorer -SubscriptionId '00000000-0000-0000-0000-000000000000'
 ```
 
 Launches the terminal UI scoped to a single subscription.
@@ -94,7 +94,7 @@ Launches the terminal UI scoped to a single subscription.
 ### Choose a local report folder
 
 ```powershell
-Start-FinOpsMultitool -OutputPath (Join-Path $HOME 'FinOpsReports')
+Start-FinOpsExplorer -OutputPath (Join-Path $HOME 'FinOpsReports')
 ```
 
 Launches the terminal UI and saves reports in a new run subfolder under the specified local folder. Choose a location outside Git repositories and synced folders.
@@ -104,7 +104,7 @@ Launches the terminal UI and saves reports in a new run subfolder under the spec
 Authenticate with the intended identity first. Then run:
 
 ```powershell
-Start-FinOpsMultitool `
+Start-FinOpsExplorer `
     -NonInteractive `
     -SubscriptionId '00000000-0000-0000-0000-000000000000' `
     -Scans Get-OrphanedResources, Get-IdleVMs `
@@ -117,7 +117,7 @@ Runs two scans against one subscription without prompting and saves all report f
 
 ## Report storage
 
-The default parent folder is `FinOpsToolkit/Multitool/Reports` under `[Environment]::GetFolderPath('LocalApplicationData')`. On Windows, that's usually `%LOCALAPPDATA%\FinOpsToolkit\Multitool\Reports`. The command prints the full path for each run. Reports never overwrite an earlier run.
+The default parent folder is `FinOpsToolkit/Explorer/Reports` under `[Environment]::GetFolderPath('LocalApplicationData')`. On Windows, that's usually `%LOCALAPPDATA%\FinOpsToolkit\Explorer\Reports`. The command prints the full path for each run. Reports never overwrite an earlier run.
 
 The tool creates the run folder with permissions restricted to the current user. It rejects Git repositories, UNC paths, mapped Windows network drives, symbolic links, and junctions, and includes an ignore-all `.gitignore` to reduce accidental staging. Unix network mounts aren't detected, so choose a path on a local filesystem. If saving fails, the command reports the error and retains results in `$FinOpsResults`. It doesn't silently use the current directory instead.
 
@@ -141,7 +141,7 @@ In accessible mode, three invalid or blank source-menu answers cancel the run in
 
 ## FinOps hub data paths
 
-When you select [FinOps Hub](../../hubs/finops-hubs-overview.md), the tool uses the Kusto database that you configure. Kusto aggregates the data and returns summaries without loading raw cost records into PowerShell. To query a hub, set `FINOPS_HUB_KUSTO_URI` to its endpoint. A configured endpoint doesn't require a discovered storage account. The tool doesn't discover a Kusto cluster automatically. When no Kusto endpoint is configured, the tool reads hub storage exports, which is intended for smaller datasets. A failed query remains an error; it doesn't silently switch sources. For more information, see [FinOps multitool commands](finops-multitool-commands.md).
+When you select [FinOps Hub](../../hubs/finops-hubs-overview.md), the tool uses the Kusto database that you configure. Kusto aggregates the data and returns summaries without loading raw cost records into PowerShell. To query a hub, set `FINOPS_HUB_KUSTO_URI` to its endpoint. A configured endpoint doesn't require a discovered storage account. The tool doesn't discover a Kusto cluster automatically. When no Kusto endpoint is configured, the tool reads hub storage exports, which is intended for smaller datasets. A failed query remains an error; it doesn't silently switch sources. For more information, see [FinOps Explorer commands](finops-explorer-commands.md#finops-hub-data-paths).
 
 Reading Parquet exports prepares a pinned reader using NuGet on Windows or .NET SDK 8 or later on Linux. NuGet signed-package verification [isn't supported on macOS](/dotnet/core/tools/nuget-signed-package-verification#macos); use a configured Kusto source or available hub CSV exports there. Package signatures and hashes are checked before loading cached assemblies. An unavailable verifier leaves the cache unloaded but intact. If the reader can't be prepared, the tool warns you with the reason and attempts the hub's `msexports` CSV instead of normalized Parquet data. A failed export read remains an error, not zero cost.
 
@@ -153,7 +153,7 @@ On macOS, Parquet setup returns the unsupported-verification reason before invok
 
 Related solutions:
 
-- [FinOps multitool commands](finops-multitool-commands.md)
+- [FinOps Explorer commands](finops-explorer-commands.md)
 - [FinOps toolkit PowerShell module](../powershell-commands.md)
 - [FinOps hubs](../../hubs/finops-hubs-overview.md)
 

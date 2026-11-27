@@ -7,7 +7,7 @@ param()
 
 ###########################################################################
 # GET-ANOMALYALERTS.PS1
-# AZURE FINOPS MULTITOOL - Cost Management Anomaly & Budget Alerts
+# FINOPS EXPLORER - Cost Management Anomaly & Budget Alerts
 ###########################################################################
 # Purpose: Query Azure Cost Management for triggered alerts (anomaly,
 #          budget, forecast) and configured anomaly alert rules

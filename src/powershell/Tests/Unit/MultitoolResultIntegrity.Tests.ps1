@@ -3,7 +3,7 @@
 
 & "$PSScriptRoot/../Initialize-Tests.ps1"
 
-Describe 'Multitool result scope, currency, and coverage' {
+Describe 'FinOps Explorer result scope, currency, and coverage' {
 
     # Scoped to this Describe: Initialize-Tests.ps1 already declares a root-level
     # BeforeAll, and Pester 6 rejects a second one during discovery.

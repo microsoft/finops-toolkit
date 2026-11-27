@@ -2,11 +2,10 @@
 name: forecasting-budgeting
 description: Use when the user wants to forecast future Azure cost, design or evaluate budgets, run budget-vs-actual variance analysis, set up budget alerts, or model the cost impact of a planned change. Covers planning and the "manage anomalies and budgets" side of FinOps.
 license: MIT
-compatibility: Requires cost history (Cost Management or a FinOps hub) for forecasting and Cost Management Contributor to create budgets/alerts. Pairs with the finops-toolkit KQL skill and the finops-multitool skill.
+compatibility: Requires cost history (Cost Management or a FinOps hub) for forecasting and Cost Management Contributor to create budgets/alerts. Pairs with the finops-toolkit KQL skill and the finops-explorer skill.
 metadata:
   author: microsoft
   version: "1.0"
-allowed-tools: az pwsh
 ---
 
 # Forecasting and budgeting
@@ -49,11 +48,11 @@ For an over/under, decompose the gap:
 
 Report each driver with its $ contribution so the variance is explained, not just stated.
 
-For the month-by-month picture, run **Budget History** from `finops-multitool` rather than rebuilding the series from cost trend — it returns actuals per budget per month, which is the series variance analysis needs.
+For the month-by-month picture, run **Budget History** from `finops-explorer` rather than rebuilding the series from cost trend — it returns actuals per budget per month, which is the series variance analysis needs.
 
 ## Hand-offs
 
-- History + current budgets → `finops-multitool` (cost trend, budget status, budget history) / `finops-toolkit` KQL.
+- History + current budgets → `finops-explorer` (cost trend, budget status, budget history) / `finops-toolkit` KQL.
 - Rate-driven variance → `rate-optimization-portfolio` and `unit-economics`.
 - Sudden unexpected spike → `anomaly-investigation` skill.
 - Write up the variance → `finops-reporting`.

@@ -1,4 +1,4 @@
-﻿Describe 'FinOps multitool packaged integration' -Tag 'MultitoolLocal' {
+﻿Describe 'FinOps Explorer packaged integration' -Tag 'MultitoolLocal' {
     BeforeAll {
         $previousResults = Get-Variable -Name FinOpsResults -Scope Global -ErrorAction SilentlyContinue
         $script:HadFinOpsResults = $null -ne $previousResults
@@ -46,9 +46,9 @@
             @(Get-ChildItem -LiteralPath $parentPath -Directory | Where-Object { $_.Name -ceq $leafName }).Count | Should -Be 1
         }
         $module = Test-ModuleManifest -Path $script:PackageManifest -ErrorAction Stop
-        $module.ExportedFunctions.Keys | Should -Contain 'Start-FinOpsMultitool'
-        $command = Get-Command Start-FinOpsMultitool -Module FinOpsToolkit -ErrorAction Stop
-        $command.ScriptBlock.File | Should -Be (Join-Path $script:PackageRoot 'Public/Start-FinOpsMultitool.ps1')
+        $module.ExportedFunctions.Keys | Should -Contain 'Start-FinOpsExplorer'
+        $command = Get-Command Start-FinOpsExplorer -Module FinOpsToolkit -ErrorAction Stop
+        $command.ScriptBlock.File | Should -Be (Join-Path $script:PackageRoot 'Public/Start-FinOpsExplorer.ps1')
         $module.Path | Should -Be $script:PackageManifest
     }
 
@@ -98,7 +98,7 @@
         }
 
         $reportRoot = Join-Path $TestDrive 'packaged reports'
-        Start-FinOpsMultitool -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
+        Start-FinOpsExplorer -SubscriptionId '11111111-1111-1111-1111-111111111111' -Scans Get-CostData -DataSource API -OutputPath $reportRoot -NonInteractive -ErrorAction Stop
 
         $scanResults = Get-Variable -Name FinOpsResults -Scope Global -ValueOnly
         $scanResults.ContainsKey('_error_Get-CostData') | Should -BeFalse -Because ($scanResults | ConvertTo-Json -Depth 8 -Compress)

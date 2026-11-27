@@ -1,4 +1,4 @@
-﻿Describe 'FinOps multitool real Parquet integration' -Tag 'MultitoolLocal' {
+﻿Describe 'FinOps Explorer real Parquet integration' -Tag 'MultitoolLocal' {
     BeforeAll {
         $script:ParquetHelper = (Resolve-Path (Join-Path $PSScriptRoot '../../Private/FinOpsMultitool/modules/helpers/Read-FinOpsHubData.ps1')).Path
         $script:ParquetCache = Join-Path $TestDrive 'reader-cache'

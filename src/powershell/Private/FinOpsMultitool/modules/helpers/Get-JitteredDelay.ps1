@@ -4,7 +4,7 @@
 ###########################################################################
 # Purpose: Spread retry wake-ups so concurrent scans stop retrying in lockstep
 # Author: Zac Larsen
-# Date: Created for FinOps Multitool
+# Date: Created for FinOps Explorer
 #
 # Description:
 # Pure exponential backoff is deterministic, so several scans that are

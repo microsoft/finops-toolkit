@@ -10,7 +10,7 @@ param()
 ###########################################################################
 # Purpose: Track the currencies seen while summing cost rows and label the
 #          total honestly when more than one appears.
-# Date: Created for FinOps Multitool
+# Date: Created for FinOps Explorer
 #
 # Description:
 # A tenant can bill different subscriptions in different currencies. Summing

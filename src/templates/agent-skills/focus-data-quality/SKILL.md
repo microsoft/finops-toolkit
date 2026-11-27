@@ -2,7 +2,7 @@
 name: focus-data-quality
 description: Use when the user works with FOCUS cost data — validating FOCUS conformance, mapping native Azure cost exports to FOCUS columns, checking dataset completeness/freshness, or troubleshooting ingestion gaps that make cost analysis wrong. FOCUS is the FinOps Open Cost and Usage Specification.
 license: MIT
-compatibility: Requires access to the cost dataset — FOCUS exports in storage, or a FinOps hub that ingests them. Pairs with the finops-toolkit skill (hub ingestion) and the finops-multitool skill.
+compatibility: Requires access to the cost dataset — FOCUS exports in storage, or a FinOps hub that ingests them. Pairs with the finops-toolkit skill (hub ingestion) and the finops-explorer skill.
 metadata:
   author: microsoft
   version: "1.0"
@@ -49,7 +49,7 @@ Reference: https://learn.microsoft.com/cloud-computing/finops/focus/what-is-focu
 
 ## Mapping native exports to FOCUS
 
-When data comes from a legacy/native Azure cost export rather than a FOCUS export, map before analyzing: cost-in-billing-currency → `BilledCost`, amortized cost → `EffectiveCost`, list price × quantity → `ListCost`, meter/service → `ServiceName`, resource id → `ResourceId` (with the resource name in `ResourceName`). The FinOps hub does this automatically on ingestion; defer to the `finops-toolkit` skill's `focus/mapping.md` for the full crosswalk.
+When data comes from a legacy/native Azure cost export rather than a FOCUS export, map before analyzing: cost-in-billing-currency → `BilledCost`, amortized cost → `EffectiveCost`, list price × quantity → `ListCost`, meter/service → `ServiceName`, resource id → `ResourceId` (with the resource name in `ResourceName`). The FinOps hub does this automatically on ingestion; defer to `references/docs-mslearn/focus/mapping.md` in the `finops-toolkit` skill for the full crosswalk.
 
 ## Hand-offs
 

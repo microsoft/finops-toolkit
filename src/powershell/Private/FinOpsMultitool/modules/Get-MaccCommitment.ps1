@@ -7,7 +7,7 @@ param()
 
 ###########################################################################
 # GET-MACCCOMMITMENT.PS1
-# AZURE FINOPS MULTITOOL - MACC Consumption Commitment Tracking
+# FINOPS EXPLORER - MACC Consumption Commitment Tracking
 ###########################################################################
 # Purpose: Read the customer's Microsoft Azure Consumption Commitment (MACC)
 #          and return a minimal readout: commitment, consumed, remaining,

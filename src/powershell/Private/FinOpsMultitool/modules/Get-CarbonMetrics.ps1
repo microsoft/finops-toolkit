@@ -7,7 +7,7 @@ param()
 
 ###########################################################################
 # GET-CARBONMETRICS.PS1
-# AZURE FINOPS MULTITOOL - Carbon Emissions (Sustainability)
+# FINOPS EXPLORER - Carbon Emissions (Sustainability)
 ###########################################################################
 # Purpose: Query the Azure Carbon Optimization service for greenhouse-gas
 #          emissions (kgCO2e) across subscriptions: latest-month total,

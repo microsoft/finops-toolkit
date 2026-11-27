@@ -11,7 +11,7 @@ param()
 # Purpose: Read-only lookup of billing accounts you can see, their agreement
 #          type, whether they support cost allocation rules, and whether you
 #          can reach the rules endpoint (Cost Management Contributor signal).
-# Date: Created for FinOps Multitool shared-cost allocation
+# Date: Created for FinOps Explorer shared-cost allocation
 #
 # Description:
 # Lists Microsoft.Billing billing accounts visible to the signed-in identity

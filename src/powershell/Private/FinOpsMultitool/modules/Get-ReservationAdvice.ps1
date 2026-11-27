@@ -6,7 +6,7 @@ param()
 
 ###########################################################################
 # GET-RESERVATIONADVICE.PS1
-# AZURE FINOPS MULTITOOL - Reservation & Savings Plan Recommendations
+# FINOPS EXPLORER - Reservation & Savings Plan Recommendations
 ###########################################################################
 # Purpose: Pull RI (Reserved Instance) and Savings Plan recommendations
 #          from Azure Advisor and the Reservation Recommendation API.

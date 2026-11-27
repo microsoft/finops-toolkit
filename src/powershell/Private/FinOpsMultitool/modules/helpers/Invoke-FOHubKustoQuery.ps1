@@ -12,7 +12,7 @@ param()
 #          only the (already-summarized) result rows. This is the scalable
 #          hub path: aggregation is pushed into the engine so PowerShell
 #          never materializes tens of GB / hundreds of millions of rows.
-# Date: Created for FinOps Multitool scalable hub data path
+# Date: Created for FinOps Explorer scalable hub data path
 #
 # Description:
 # Thin REST transport over the Kusto query endpoint (POST {cluster}/v1/rest/query):

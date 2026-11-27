@@ -7,7 +7,7 @@ param()
 
 ###########################################################################
 # GET-COSTTREND.PS1
-# AZURE FINOPS MULTITOOL - 6-Month Cost Trend Data
+# FINOPS EXPLORER - 6-Month Cost Trend Data
 ###########################################################################
 # Purpose: Query Cost Management for the last 6 months of actual spend,
 #          returning monthly totals suitable for a bar chart display.

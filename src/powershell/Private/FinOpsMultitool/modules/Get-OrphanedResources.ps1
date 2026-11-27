@@ -7,7 +7,7 @@ param()
 
 ###########################################################################
 # GET-ORPHANEDRESOURCES.PS1
-# AZURE FINOPS MULTITOOL - Orphaned & Idle Resource Detection
+# FINOPS EXPLORER - Orphaned & Idle Resource Detection
 ###########################################################################
 # Purpose: Use Azure Resource Graph to find resources that are costing
 #          money but serving no purpose: orphaned disks, unattached IPs,

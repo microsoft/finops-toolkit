@@ -8,7 +8,7 @@ param()
 
 ###########################################################################
 # GET-COSTBYTAG.PS1
-# AZURE FINOPS MULTITOOL - Cost Breakdown by Tag
+# FINOPS EXPLORER - Cost Breakdown by Tag
 ###########################################################################
 # Purpose: For each CAF allocation tag (CostCenter, BusinessUnit,
 #          etc.), query Cost Management to show how spend distributes
