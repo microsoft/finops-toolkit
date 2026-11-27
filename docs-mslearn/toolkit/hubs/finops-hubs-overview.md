@@ -3,7 +3,7 @@ title: FinOps hubs overview
 description: FinOps hubs provide a reliable platform for cost analytics, insights, and optimization, supporting large accounts and organizations.
 author: flanakin
 ms.author: micflan
-ms.date: 11/23/2026
+ms.date: 11/27/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -28,6 +28,8 @@ FinOps hubs extend Cost Management to provide a scalable platform for advanced d
 > Estimated cost: Starts at ~$330/mo + $10/mo per $1M in cost being monitored.
 >
 > Estimated monthly cost includes ~$330 for a single-node Azure Data Explorer cluster (about $135 for compute, plus the managed VM, load balancer, storage, and public IP that Azure Data Explorer deploys) or $300 for F2 Fabric capacity, plus $10 in Azure storage and processing cost per $1M being monitored. Exact cost will vary based on region (for example, West Europe costs more than West US), discounts, data size (we estimate ~20GB per $1M), and Fabric or Power BI license requirements. Cost without Data Explorer or Fabric is $5 per $1M. For details, refer to the [FinOps hub cost estimate](https://aka.ms/finops/hubs/calculator) in the Azure Pricing Calculator.
+>
+> Fabric also offers [on-demand billing](/fabric/enterprise/on-demand-billing) (preview) with an F0 capacity or a hybrid F2 or larger capacity. With on-demand billing, the hub eventhouse is billed per capacity unit (CU) hour only while it's active, at a higher rate than pay-as-you-go capacity. Cost depends on how many hours the eventhouse is active each month. A hub with nightly ingestion and light dashboard use can cost less on F0 than on an always-on F2 capacity. For details, see [Use Fabric on-demand billing](deploy.md#optional-use-fabric-on-demand-billing).
 <!-- prettier-ignore-end -->
 
 <br>

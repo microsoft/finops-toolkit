@@ -3,7 +3,7 @@ title: How to create and update FinOps hubs
 description: This tutorial helps you create a new or update an existing FinOps hubs instance in Azure or Microsoft Fabric.
 author: flanakin
 ms.author: micflan
-ms.date: 11/23/2026
+ms.date: 11/27/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -129,6 +129,28 @@ Configuring Microsoft Fabric is a manual process and requires explicit steps bef
 3. Repeat step 2 for the **Hub** database using the [finops-hub-fabric-setup-Hub.kql file](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-fabric-setup-Hub.kql) script file.
 4. In the left pane, select **System overview**, then select the **Copy URI** link for the **Query URI** property in the details pane on the right.
    - Make note of the query URI. You'll use it in the next step.
+
+<br>
+
+### Optional: Use Fabric on-demand billing
+
+Microsoft Fabric [on-demand billing](/fabric/enterprise/on-demand-billing) (preview) bills usage per capacity unit (CU) hour instead of for provisioned capacity. You can host the hub eventhouse on either:
+
+- An **F0** capacity, which has no provisioned CUs and bills all usage on demand.
+- A **hybrid** F2 or larger capacity with the **Real-Time Intelligence - Eventhouse** billing category set to run on demand.
+
+On-demand eventhouse usage, such as eventhouse uptime, is billed through the **Eventhouse OD On-Demand Usage CU** meter at a multiplier of the pay-as-you-go rate, and only while the eventhouse is active. A hub with nightly ingestion and a few dashboard users is often idle most of the day, so on-demand billing can cost less than an always-on F2 capacity. If the eventhouse is active most of the month, or you have reserved capacity pricing, a provisioned capacity is usually cheaper. To compare, see [Meters and multipliers](/fabric/enterprise/on-demand-billing-meters-multipliers).
+
+Before you use on-demand billing for a hub:
+
+- Request on-demand quota for **Real-Time Intelligence - Eventhouse** in the region of the hub's capacity. The default quota can be 0 CU hours. To learn more, see [On-demand billing quotas](/fabric/enterprise/fabric-on-demand-billing-quotas).
+- Set a spend limit. The spend limit isn't a hard cap, so also monitor usage. To learn more, see [Set up on-demand billing](/fabric/enterprise/on-demand-billing-setup) and [Monitor on-demand billing](/fabric/enterprise/on-demand-billing-monitor).
+- Use a paid capacity. Trial capacities don't support on-demand billing.
+- If you need workspace monitoring, use a hybrid capacity. Workspace monitoring isn't supported on F0 capacities.
+- Don't pause the capacity. Pausing the capacity stops data ingestion into the hub.
+- Don't leave eventhouse minimum consumption turned on. Minimum consumption keeps the eventhouse active around the clock, which removes the savings of on-demand billing.
+
+On-demand eventhouse usage shows up in your Cost Management exports, so the hub can report its own Fabric cost in FOCUS data.
 
 <br>
 

@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/24/2026
+ms.date: 11/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -18,14 +18,16 @@ ms.reviewer: brettwil
 
 This article summarizes the features and enhancements in each release of the FinOps toolkit.
 
-<!--
 <br>
 
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
 
--->
+### [FinOps hubs](hubs/finops-hubs-overview.md) v17
+
+- **Changed**
+  - Documented Microsoft Fabric on-demand billing (preview) with F0 and hybrid capacities for FinOps hubs, including cost considerations, prerequisites, and a warning that the InternalServiceError workaround is billed around the clock on on-demand capacities ([#2451](https://github.com/microsoft/finops-toolkit/issues/2451)).
 
 <br><a name="latest"></a>
 
