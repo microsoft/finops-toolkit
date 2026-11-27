@@ -49,6 +49,7 @@ Notes:
 - With `ActualCost`, usage covered by a reservation or a savings plan has a cost of zero. A virtual machine that is fully covered by a reservation shows no direct saving from right-sizing. Use `AmortizedCost` to see the commitment cost spread over the usage.
 - `RetailCost`, `PriceSheetCost` and `BilledCost` include all meters charged to the virtual machine resource (for example license meters). The hourly rates only use the `Virtual Machines` meter category.
 - The Cost Details API accepts up to one month per request and can take several minutes for large subscriptions.
+- When a subscription returns no cost details or a file can't be downloaded, the script continues, logs the error, and prints a warning at the end that the results are incomplete.
 - Column names in cost details differ between agreement types. The script reads each value from the first column that has it.
 
 ## Get-VmLifecycleStatus.ps1
@@ -79,7 +80,7 @@ The table was built from [VM size series retirements, capacity growth restrictio
 
 The `retirementStatus` column comes from the table. When the retirement date has passed and the table doesn't say `Retired` yet, the script reports `Past retirement date`, so the output stays right if the table isn't updated.
 
-The `newReservationsAvailable` column is `No` for the A, B, D, E, F, and L variants of the v1 to v3 series, which can't get new or renewed one-year and three-year reservations, and for the NP-series. Take reservation recommendations for those series out of a savings estimate. `Not stated` means the page doesn't say that reservations ended for that series.
+The `newReservationsAvailable` column is `No` for the A, B, D, E, F, and L variants of the v1 to v3 series, which can't get new or renewed one-year and three-year reservations, for the NP-series, and for any series that is `Retired` or `Past retirement date`. Take reservation recommendations for those series out of a savings estimate. `Not stated` means the page doesn't say that reservations ended for that series.
 
 Sizes that do not match any row are reported as `Not listed`. This does not mean the series is current. It only means the series is not in the table.
 

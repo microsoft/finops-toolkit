@@ -149,7 +149,7 @@ $inventory = foreach ($r in $resources) {
     $newReservations = ''
     if ($match) {
         $status = if ($match.Status -ne 'Retired' -and $retirement -and $retirement -lt $AsOfDate) { 'Past retirement date' } else { $match.Status }
-        $newReservations = if ($match.NewReservationsAvailable -eq 'false') { 'No' } else { 'Not stated' }
+        $newReservations = if ($match.NewReservationsAvailable -eq 'false' -or $status -in 'Retired', 'Past retirement date') { 'No' } else { 'Not stated' }
     }
     $r | Select-Object *,
         @{ n = 'series'; e = { if ($match) { $match.Series } else { '' } } },

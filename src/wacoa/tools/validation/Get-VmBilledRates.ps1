@@ -163,6 +163,9 @@ if ($VmListPath) {
 }
 
 $matched = New-Object System.Collections.Generic.List[object]
+$totalFiles = 0
+$failedFiles = 0
+$failedSubscriptions = 0
 
 $summaryFile = Join-Path $OutputPath 'vm-billed-rates.csv'
 $rawFile = Join-Path $OutputPath 'vm-billed-rates-raw.csv'
@@ -197,7 +200,7 @@ try {
             try {
                 $r = Invoke-AzRestMethod -Method POST -Path $path -Payload $body
             } catch {
-                Write-Status "[$sub] ERROR on request: $($_.Exception.Message)"; continue
+                Write-Status "[$sub] ERROR on request: $($_.Exception.Message)"; $failedSubscriptions++; continue
             }
 
             $result = $null
@@ -207,7 +210,7 @@ try {
                 $location = $r.Headers.Location
                 if ($location -is [array]) { $location = $location[0] }
                 if ($location -is [uri]) { $location = $location.AbsoluteUri }
-                if (-not $location) { Write-Status "[$sub] ERROR: 202 without Location header"; continue }
+                if (-not $location) { Write-Status "[$sub] ERROR: 202 without Location header"; $failedSubscriptions++; continue }
                 $deadline = (Get-Date).AddMinutes($TimeoutMinutes)
                 do {
                     Start-Sleep -Seconds 20
@@ -216,12 +219,12 @@ try {
                     if ($p.Content) { $status = ($p.Content | ConvertFrom-Json).status }
                     Write-Status "[$sub] Report status: HTTP $($p.StatusCode) $status"
                 } while (($p.StatusCode -eq 202 -or $status -in @('InProgress', 'Queued')) -and (Get-Date) -lt $deadline)
-                if ($p.StatusCode -ne 200) { Write-Status "[$sub] ERROR: report not ready. HTTP $($p.StatusCode) $($p.Content)"; continue }
+                if ($p.StatusCode -ne 200) { Write-Status "[$sub] ERROR: report not ready. HTTP $($p.StatusCode) $($p.Content)"; $failedSubscriptions++; continue }
                 $result = $p.Content | ConvertFrom-Json
             } elseif ($r.StatusCode -eq 204) {
                 Write-Status "[$sub] No cost data for the period"; continue
             } else {
-                Write-Status "[$sub] ERROR: HTTP $($r.StatusCode) $($r.Content)"; continue
+                Write-Status "[$sub] ERROR: HTTP $($r.StatusCode) $($r.Content)"; $failedSubscriptions++; continue
             }
 
             $blobs = @($result.manifest.blobs)
@@ -231,11 +234,12 @@ try {
             $i = 0
             foreach ($b in $blobs) {
                 $i++
+                $totalFiles++
                 $file = Join-Path $tempDir "$sub-$i.csv"
                 try {
                     Invoke-WebRequest -Uri $b.blobLink -OutFile $file -UseBasicParsing
                 } catch {
-                    Write-Status "[$sub] ERROR downloading file $i of $($blobs.Count): $($_.Exception.Message)"; continue
+                    Write-Status "[$sub] ERROR downloading file $i of $($blobs.Count): $($_.Exception.Message)"; $failedFiles++; continue
                 }
                 Add-MatchingRows -File $file -Subscription $sub
             }
@@ -283,7 +287,16 @@ try {
             $notFound | ForEach-Object { Write-Status "  $_" }
         }
     }
+    if ($failedSubscriptions -gt 0) { Write-Status "WARNING: no cost details for $failedSubscriptions of $(@($SubscriptionIds).Count) subscriptions. The results are incomplete." }
+    if ($failedFiles -gt 0) { Write-Status "WARNING: $failedFiles of $totalFiles files couldn't be downloaded. The results are incomplete." }
+} catch {
+    # Record why the run stopped, because only Write-Status writes to the log.
+    Write-Status "ERROR: $($_.Exception.Message)"
+    throw
 } finally {
     $log | Set-Content $logFile
+}
+if ($failedSubscriptions -gt 0 -or $failedFiles -gt 0) {
+    Write-Warning "The results are incomplete: $failedSubscriptions subscriptions without cost details, $failedFiles of $totalFiles files not downloaded. See $logFile."
 }
 Write-Host "`nDone. Files: $summaryFile, $rawFile, $logFile"
