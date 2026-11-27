@@ -3,7 +3,7 @@ title: Get-FinOpsInstanceSizeFlexibility command
 description: Get the instance size flexibility group and ratio for an ARM SKU using the Get-FinOpsInstanceSizeFlexibility command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 10/12/2026
+ms.date: 11/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -29,10 +29,10 @@ Get-FinOpsInstanceSizeFlexibility `
 
 ## Parameters
 
-| Name                         | Description                                                                                            |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------ |
-| ArmSkuName                   | Optional. The ARM SKU name to look up. Accepts wildcards. Default = \* (all).                          |
-| InstanceSizeFlexibilityGroup | Optional. The instance size flexibility group to find SKUs for. Accepts wildcards. Default = \* (all). |
+| Name                            | Description                                                                                            |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `‑ArmSkuName`                   | Optional. The ARM SKU name to look up. Accepts wildcards. Default = \* (all).                          |
+| `‑InstanceSizeFlexibilityGroup` | Optional. The instance size flexibility group to find SKUs for. Accepts wildcards. Default = \* (all). |
 
 <br>
 
@@ -40,7 +40,7 @@ Get-FinOpsInstanceSizeFlexibility `
 
 The following examples demonstrate how to use the Get-FinOpsInstanceSizeFlexibility command to retrieve instance size flexibility data based on different criteria.
 
-### Get based on ARM SKU name
+### Example 1
 
 ```powershell
 Get-FinOpsInstanceSizeFlexibility -ArmSkuName "Standard_D4s_v5"
@@ -48,7 +48,7 @@ Get-FinOpsInstanceSizeFlexibility -ArmSkuName "Standard_D4s_v5"
 
 Returns the flexibility group and ratio for the Standard_D4s_v5 SKU.
 
-### Get based on flexibility group
+### Example 2
 
 ```powershell
 Get-FinOpsInstanceSizeFlexibility -InstanceSizeFlexibilityGroup "Dsv5 Series"

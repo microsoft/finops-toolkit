@@ -6,7 +6,7 @@
     Stops monitoring a scope within a FinOps hub instance.
 
     .DESCRIPTION
-    The Remove-FinOpsHubScope command removes a scope from being monitored by a FinOps hub instance. Data related to that scope is kept by default. To remove the data, use the -RemoveData option.
+    The Remove-FinOpsHubScope command removes a scope from being monitored by a FinOps hub instance. Data related to that scope is kept by default. To remove the data, use the `-RemoveData` option.
 
     .PARAMETER Id
     Required resource ID of the scope to remove.
@@ -21,13 +21,20 @@
     Optional. Indicates whether to remove data for this scope from storage. Default = false
 
     .EXAMPLE
-    Remove-FinOpsHubScope -Id "/providers/Microsoft.Billing/billingAccounts/123" -HubName "FooHub"
+    Remove-FinOpsHubScope `
+        -Id "/providers/Microsoft.Billing/billingAccounts/123" `
+        -HubName "FooHub"
 
+    ### Remove billing account and keep data
     Deletes the exports configured to use the FooHub hub instance. Existing data is retained in the storage account.
 
     .EXAMPLE
-    Remove-FinOpsHubScope -Id "/subscriptions/##-#-#-#-###" -HubName "FooHub" -RemoveData
+    Remove-FinOpsHubScope `
+        -Id "/subscriptions/##-#-#-#-###" `
+        -HubName "FooHub" `
+        -RemoveData
 
+    ### Remove subscription and historical data
     Deletes the exports configured to use the FooHub hub instance and removes data for that scope.
 
     .LINK
@@ -76,8 +83,17 @@ function Remove-FinOpsHubScope
             {
                 $exportStorageName = $export.StorageAccountId.Split("/")[-1]
                 $resourceGroup = (Get-AzResource -ResourceType "Microsoft.Storage/storageAccounts" -Name $exportStorageName).ResourceGroupName
-                $exportStorageKey = (Get-AzStorageAccountKey -ResourceGroupName $resourceGroup -Name $exportStorageName).Value[0]
-                $context = New-AzStorageContext -StorageAccountName $exportStorageName -StorageAccountKey $exportStorageKey
+                $exportStorage = Get-AzStorageAccount -ResourceGroupName $resourceGroup -Name $exportStorageName
+                if ($exportStorage.AllowSharedKeyAccess -eq $false)
+                {
+                    # Shared Key access is disabled; use Microsoft Entra auth (requires a Storage Blob Data role)
+                    $context = New-AzStorageContext -StorageAccountName $exportStorageName -UseConnectedAccount
+                }
+                else
+                {
+                    $exportStorageKey = (Get-AzStorageAccountKey -ResourceGroupName $resourceGroup -Name $exportStorageName).Value[0]
+                    $context = New-AzStorageContext -StorageAccountName $exportStorageName -StorageAccountKey $exportStorageKey
+                }
                 Write-Verbose -Message "Deleting data for Cost Management export $($export.Name) in storage account $($exportStorageName) at path $($export.StoragePath)."
                 Remove-AzDataLakeGen2Item -FileSystem "ingestion" -Path $export.Id.ToLower().Split("/provider/microsoft.costmanagement/exports/")[0] -Context $context -Force
                 Write-Verbose -Message "Complete: Deleted data for Cost Management export $($export.Name) in storage account $($exportStorageName) at path $($export.StoragePath)."

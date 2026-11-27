@@ -27,6 +27,9 @@ param storageSku string = 'Premium_LRS'
 @description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
 param enableInfrastructureEncryption bool = false
 
+@description('Optional. Disable Shared Key (storage account key) authentication on hub storage accounts. When enabled, only Microsoft Entra ID and managed identity authentication are allowed. Data Factory already authenticates using managed identity and RBAC, so this does not affect data ingestion. Power BI storage reports must then sign in with Microsoft Entra ID (Storage Blob Data Reader); SAS tokens and account keys stop working. Do not enable this on a hub that receives data from other hubs (remote hub ingestion authenticates with the storage account key). The private-mode deployment script storage account always allows Shared Key access because deployment scripts require it. Default = false.')
+param disableStorageSharedKeyAccess bool = false
+
 @description('Optional. SKU to use for the KeyVault instance, if enabled. Allowed values: "standard", "premium". Default: "premium".')
 @allowed([
   'premium'
@@ -70,6 +73,12 @@ param fabricCapacityUnits int = 2
 
 @description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).')
 param dataExplorerName string = ''
+
+@description('Optional. Enable disk encryption on the Azure Data Explorer cluster. Default: false.')
+param enableDataExplorerDiskEncryption bool = false
+
+@description('Optional. Enable double encryption on the Azure Data Explorer cluster. Can only be enabled during cluster creation. Default: false.')
+param enableDataExplorerDoubleEncryption bool = false
 
 // https://learn.microsoft.com/azure/templates/microsoft.kusto/clusters?pivots=deployment-language-bicep#azuresku
 @description('Optional. Name of the Azure Data Explorer SKU. Ignore when using Microsoft Fabric or not deploying Data Explorer. Default: "Dev(No SLA)_Standard_D11_v2".')
@@ -200,6 +209,7 @@ var hub = newHub(
   enablePurgeProtection,
   enableKeyVaultRbacAuthorization,
   enableInfrastructureEncryption,
+  disableStorageSharedKeyAccess,
   enablePublicAccess,
   enableNatGateway,
   virtualNetworkAddressPrefix,
@@ -311,6 +321,8 @@ module analytics 'Microsoft.FinOpsHubs/Analytics/app.bicep' = if (useFabric || u
     fabricQueryUri: fabricQueryUri
     fabricCapacityUnits: fabricCapacityUnits
     clusterName: dataExplorerName
+    enableDataExplorerDiskEncryption: enableDataExplorerDiskEncryption
+    enableDataExplorerDoubleEncryption: enableDataExplorerDoubleEncryption
     clusterSku: dataExplorerSku
     clusterCapacity: dataExplorerCapacity
     // Use the effective value from settings.json so a redeploy that omits the parameter keeps the current raw retention

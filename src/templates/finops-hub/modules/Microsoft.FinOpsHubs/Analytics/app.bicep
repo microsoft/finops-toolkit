@@ -28,6 +28,12 @@ param core CoreMetadata
 @maxLength(22)
 param clusterName string = ''
 
+@description('Optional. Enable disk encryption on the Azure Data Explorer cluster. Default: false.')
+param enableDataExplorerDiskEncryption bool = false
+
+@description('Optional. Enable double encryption on the Azure Data Explorer cluster. Can only be enabled during cluster creation. Default: false.')
+param enableDataExplorerDoubleEncryption bool = false
+
 // https://learn.microsoft.com/azure/templates/microsoft.kusto/clusters?pivots=deployment-language-bicep#azuresku
 @description('Optional. Name of the Azure Data Explorer SKU. Default: "Dev(No SLA)_Standard_E2a_v4".')
 @allowed([
@@ -141,6 +147,13 @@ var ftkReleaseUri = indexOf(finOpsToolkitVersion, '-dev') != -1
 
 var useFabric = !empty(fabricQueryUri)
 var useAzure = !useFabric && !empty(clusterName)
+
+var diskEncryptionProperties = !enableDataExplorerDiskEncryption ? {} : {
+  enableDiskEncryption: true
+}
+var doubleEncryptionProperties = !enableDataExplorerDoubleEncryption ? {} : {
+  enableDoubleEncryption: true
+}
 
 // cSpell:ignore ftkver, privatelink
 var dataExplorerDnsSuffixLookup = {
@@ -306,6 +319,8 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = if (useAzure) {
   }
   properties: {
     enableStreamingIngest: true
+    ...diskEncryptionProperties
+    ...doubleEncryptionProperties
     enableAutoStop: false
     publicNetworkAccess: app.hub.options.privateRouting ? 'Disabled' : 'Enabled'
     // TODO: Figure out why this is breaking upgrades

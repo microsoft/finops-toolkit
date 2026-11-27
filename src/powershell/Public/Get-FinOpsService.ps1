@@ -23,10 +23,10 @@
     .PARAMETER ServiceCategory
     Optional. The service category to find services for. Default = null (all).
 
-    .PARAMETER ServiceCategory
+    .PARAMETER ServiceSubcategory
     Optional. The service subcategory to find services for. Default = null (all).
 
-    .PARAMETER Servicemodel
+    .PARAMETER ServiceModel
     Optional. The service model the service aligns to. Expected values: IaaS, PaaS, SaaS. Default = null (all).
 
     .PARAMETER Environment
@@ -44,12 +44,17 @@
     Please note that both ConsumedService and ResourceType are required to find a unique service in many cases.
 
     .EXAMPLE
-    Get-FinOpsService -ConsumedService "Microsoft.C*" -ResourceType "Microsoft.Compute/virtualMachines"
+    Get-FinOpsService `
+        -ConsumedService "Microsoft.C*" `
+        -ResourceType "Microsoft.Compute/virtualMachines"
 
+    ### Get services for a resource provider
     Returns all services with a resource provider that starts with "Microsoft.C".
 
     .EXAMPLE
-    Get-FinOpsService -ResourceType "Microsoft.RecoveryServices/vaults" -MeterCategory "Backup"
+    Get-FinOpsService `
+        -ResourceType "Microsoft.RecoveryServices/vaults" `
+        -MeterCategory "Backup"
 
     Returns Azure Backup instead of Azure Site Recovery for backup charges on a Recovery Services vault.
 

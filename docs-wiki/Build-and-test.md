@@ -192,18 +192,11 @@ See [Review output from Copilot](https://docs.github.com/en/copilot/how-tos/copi
 
 ### Cleanup event policy
 
-`PR Cleanup` keeps `pull_request_target: closed`. This event starts cleanup when a PR closes, including a PR from a fork. The task needs Azure sign-in and repository write permissions to delete test resource groups and report failures. It does not check out code, run PR scripts, or use files from PR builds. Its permissions apply only to the cleanup job. Keep credentials for both `ftk-pr` and `ftk-fork` while cleanup can need them.
+`PR Cleanup` uses `pull_request: closed`, so it needs no event policy. Fork PRs never deploy, so they have no test resource groups to clean up. The workflow skips them. It signs in through the `ftk-pr` environment, does not check out code, and validates the PR number before it deletes `pr-<number>-*` resource groups.
 
-The October 28 reminder extends the deadline from November 2 to **December 2, 2026**. The notice states that GitHub will block this trigger in public repositories without an applicable event policy. A repository administrator must obtain temporary administrator access through JIT (just-in-time access). The administrator must then:
+Resource groups from earlier fork deployments are not cleaned up automatically. Delete any leftover `pr-<number>-*` groups manually.
 
-1. Open **Settings > Actions > Policy insights** to check which runs GitHub will block.
-2. Set an event policy that allows only `.github/workflows/ftk-pr-cleanup.yml`.
-3. Keep `.github/workflows/ftk-pr-deploy.yml` outside that policy. Deployment no longer uses `pull_request_target`.
-4. Check the policy and required environment approvals before a cleanup test.
-
-Do not allow this trigger for the whole repository. This code change does not change repository settings, environment protection, Azure permissions, or the event policy. Cleanup will stop at the deadline without a policy that allows it.
-
-Before use, run the five CodeQL checks for untrusted checkout and checkout timing errors against these two workflows. Require zero findings, or obtain the security-team review allowed by the notice. Checking out an exact commit prevents the checked version from changing. It does not make unreviewed code safe.
+GitHub doesn't run `pull_request` workflows, including the `closed` event, while a PR has a merge conflict. If you close a same-repository PR that deployed test environments while it conflicts with `dev`, cleanup doesn't run and no issue is created. Resolve the conflict before you close the PR, or delete the `pr-<number>-*` groups manually.
 
 Run the local workflow tests from the repository root:
 

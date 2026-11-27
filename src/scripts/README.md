@@ -7,6 +7,7 @@ On this page:
 - [🆕 Init-Repo](#-init-repo)
 - [🔧 Initialize-CI](#-initialize-ci)
 - [🌐 Build-OpenData](#-build-opendata)
+- [📖 Build-Documentation](#-build-documentation)
 - [📦 Build-Toolkit](#-build-toolkit)
 - [🚀 Deploy-Hub](#-deploy-hub)
 - [🚀 Deploy-Toolkit](#-deploy-toolkit)
@@ -147,6 +148,26 @@ Examples:
 
   ```powershell
   ./Build-OpenData -Test
+  ```
+
+<br>
+
+## 📖 Build-Documentation
+
+[Build-Documentation.ps1](./Build-Documentation.ps1) generates the PowerShell command reference pages in `docs-mslearn/toolkit/powershell` from the comment-based help in `src/powershell/Public`. Category index pages and `powershell-commands.md` are hand-maintained. Run it after changing command help, then check in the changes.
+
+Examples:
+
+- Generate docs for all commands:
+
+  ```powershell
+  ./Build-Documentation
+  ```
+
+- Generate docs for one command:
+
+  ```powershell
+  ./Build-Documentation -Command Get-FinOpsHub
   ```
 
 <br>

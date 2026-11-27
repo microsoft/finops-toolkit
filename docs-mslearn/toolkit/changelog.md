@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 11/23/2026
+ms.date: 11/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -59,12 +59,17 @@ _Released November 2026_
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v16
 
 - **Added**
+  - Added Azure Data Explorer disk and double encryption options for FinOps hub deployments ([#2196](https://github.com/microsoft/finops-toolkit/issues/2196)).
   - Added an opt-in `enableKeyVaultRbacAuthorization` parameter to switch the remote hub Key Vault from access policies to Azure RBAC, satisfying Cloud Adoption Framework / Enterprise-Scale landing zone guardrails that require RBAC-authorized key vaults; the Data Factory managed identity is granted an equivalent Key Vault Secrets User role assignment so secret access keeps working when enabled ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+  - Added an opt-in `disableStorageSharedKeyAccess` parameter to disable Shared Key (storage account key) authentication on hub storage accounts. Power BI storage reports must then sign in with Microsoft Entra ID; SAS tokens and account keys stop working ([#2312](https://github.com/microsoft/finops-toolkit/issues/2312)).
+    - Data Factory authenticates with managed identity and RBAC, so data ingestion isn't affected.
+    - Defaults to false to avoid changing the authentication model on existing deployments.
   - Added optional guidance to scope FinOps hub data by team with row-level security, so each team sees only its own scopes in KQL queries, dashboards, and AI agents ([#2374](https://github.com/microsoft/finops-toolkit/pull/2374)).
   - Added the [instance size flexibility](open-data.md#instance-size-flexibility) open data to the Data Explorer database. The hub initialization pipeline loads it into a new `InstanceSizeFlexibility` table, and the `InstanceSizeFlexibility()` function exposes it in the Hub database.
 - **Changed**
   - Documented that two exports of the same dataset and scope that cover the same month replace each other's data with no error. For guidance, see [Use one export per dataset and scope](hubs/configure-scopes.md#use-one-export-per-dataset-and-scope) ([#2383](https://github.com/microsoft/finops-toolkit/issues/2383)).
   - Updated the FinOps hub cost estimate to ~$330/mo for a default Data Explorer hub (was $120/mo) in the deployment UI and docs, based on measured costs that include the managed VM, load balancer, storage, and public IP. Updated the Data Explorer SKU price estimates in the deployment UI dropdown to current Azure retail pricing ([#2229](https://github.com/microsoft/finops-toolkit/issues/2229)).
+  - Changed the Data Explorer dashboard's Cost summary, Savings summary, Savings breakdown by month, savings pie and trend, stacked cost + savings, and Effective Savings Rate tiles to derive their displayed List cost and Contracted cost operands from the same clamped, row-level savings basis as the results shown alongside them, so the on-screen equations (for example, "List − Contracted = Negotiated savings") always reconcile. This changes the Effective Savings Rate definition on the affected tiles from `(sum(ListCost) − sum(EffectiveCost)) / sum(ListCost)` to a derived List cost built from Effective cost plus the clamped Negotiated and Commitment savings sums. Total savings is now the sum of the clamped Negotiated and Commitment savings everywhere it is shown, commitment discount purchases are excluded from savings on every Summary and Rate optimization tile using the same `x_AmortizationClass != 'Principal'` filter, and the Effective Savings Rate shows blank instead of NaN when List cost is 0 ([#2093](https://github.com/microsoft/finops-toolkit/issues/2093)).
 - **Fixed**
   - Fixed FOCUS 1.2 and 1.2-preview rows being flagged `LegacyFocusVersion` in `x_SourceChanges`. Only versions older than 1.2 are flagged now ([#2384](https://github.com/microsoft/finops-toolkit/issues/2384)).
     - FOCUS 1.0 rows (including `1.0r2` and 1.0 previews) are now flagged `LegacyFocusVersion` on newly ingested data. This is expected, since 1.0 is older than 1.2.
@@ -88,6 +93,8 @@ _Released November 2026_
     - Runs of `msexports_ExecuteETL` reported success while `CommitmentDiscountUsage` stopped updating. Exports with a `dataRowCount` of 0 are still skipped.
   - Fixed FinOps hub deployments failing when Data Factory has leftover triggers from older versions (for example, v0.7) with an invalid time zone. Deployment now only starts the triggers the hub creates ([#1995](https://github.com/microsoft/finops-toolkit/issues/1995)).
   - Fixed reservation recommendations missing `x_RecommendationDate` and `x_RecommendationDetails` after ingestion.
+  - Fixed the `monthly-cost-change-percentage` query returning `inf` when the prior month's cost was zero, which can happen when a month is fully covered by commitment discounts. The change percentage is now empty when there's no prior month or the prior month's cost was zero ([#2323](https://github.com/microsoft/finops-toolkit/issues/2323)).
+  - Fixed `ListCost`/`ContractedCost` never being repaired for rows without a Microsoft meter or offer ID (for example, third-party Marketplace/ISV purchases), which left `ListCost` at 0 despite a real `EffectiveCost` and corrupted Effective Savings Rate reporting; also cleared the `MissingListCost` data-quality flag once a row is successfully repaired instead of leaving it flagged as broken ([#2214](https://github.com/microsoft/finops-toolkit/issues/2214), [#2235](https://github.com/microsoft/finops-toolkit/issues/2235)).
 
 ### [Power BI reports](power-bi/reports.md) v16
 
@@ -112,6 +119,10 @@ _**Breaking change**_
 - **Added**
   - Added a `-MeterCategory` parameter to [Get-FinOpsService](powershell/data/get-finopsservice.md) to split resource types shared by multiple services, like Azure Backup and Azure Site Recovery ([#1751](https://github.com/microsoft/finops-toolkit/issues/1751)).
   - Added a `-EnableKeyVaultRbacAuthorization` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that moves the hub Key Vault from access policies to Azure RBAC. Requires hub template version 16.0 or later ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+  - Added a `-DisableStorageSharedKeyAccess` switch to [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that disables Shared Key authentication on hub storage accounts. Power BI storage reports must then sign in with Microsoft Entra ID; SAS tokens and account keys stop working. Requires hub template version 16.0 or later ([#2312](https://github.com/microsoft/finops-toolkit/issues/2312)).
+- **Changed**
+  - Changed the `-HubName` and `-Scope` parameters of [Add-FinOpsHubScope](powershell/hubs/add-finopshubscope.md) to required. Scripts that omit them now prompt or fail.
+  - Generated the PowerShell command reference pages from command help with `Build-Documentation`.
 
 ### [Open data](open-data.md) v16
 

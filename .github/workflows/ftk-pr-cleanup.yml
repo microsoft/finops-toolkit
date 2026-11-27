@@ -3,10 +3,10 @@
 
 name: 'PR Cleanup'
 
-# Requires an event policy that allows this workflow file before December 2, 2026.
-# Keep this privileged workflow checkout-free, including for closed fork PRs.
+# Uses pull_request, not pull_request_target, so no event policy is needed.
+# Fork PRs never deploy (see ftk-pr-deploy.yml), so they have nothing to clean up.
 on:
-  pull_request_target:
+  pull_request:
     types: [closed]
 
 permissions: {}
@@ -15,11 +15,12 @@ jobs:
   cleanup:
     name: Clean up PR resources
     runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository
     permissions:
       id-token: write
       pull-requests: write
       issues: write
-    environment: ${{ github.event.pull_request.head.repo.full_name != github.repository && 'ftk-fork' || 'ftk-pr' }}
+    environment: ftk-pr
     env:
       PR_NUMBER: ${{ github.event.pull_request.number }}
       PR_AUTHOR: ${{ github.event.pull_request.user.login }}
@@ -45,6 +46,10 @@ jobs:
         id: delete
         shell: pwsh
         run: |
+          if ($env:PR_NUMBER -notmatch "^[0-9]+$")
+          {
+              throw "Invalid PR number."
+          }
           $prNumber = [int]$env:PR_NUMBER
           $pattern = "pr-$prNumber-*"
           $groups = Get-AzResourceGroup | Where-Object { $_.ResourceGroupName -like $pattern }

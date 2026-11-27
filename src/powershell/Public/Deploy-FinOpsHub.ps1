@@ -6,9 +6,9 @@
     Deploys a FinOps hub instance.
 
     .DESCRIPTION
-    The Deploy-FinOpsHub command either creates a new or updates an existing FinOps hub instance by deploying an Azure Resource Manager deployment template. The FinOps hub template is downloaded from GitHub.
+    The Deploy-FinOpsHub command either creates a new or updates an existing FinOps hub instance by deploying an Azure Resource Manager deployment template. The FinOps hub template is downloaded from GitHub. To learn more about the template, see the [FinOps hub template](../../hubs/template.md).
 
-    Deploy-FinOpsHub calls Initialize-FinOpsHubDeployment before deploying the template.
+    Deploy-FinOpsHub calls [Initialize-FinOpsHubDeployment](Initialize-FinOpsHubDeployment.md) before deploying the template.
 
     .PARAMETER Name
     Required. Name of the hub. Used to ensure unique resource names.
@@ -36,6 +36,9 @@
 
     .PARAMETER EnableKeyVaultRbacAuthorization
     Optional. Switch the Key Vault from access policies to Azure RBAC authorization. Required for CAF/Enterprise-Scale landing zone compliance. Switching an existing vault from access policies to RBAC removes all access policies immediately; any access granted outside the template must be recreated as role assignments. Default = false.
+
+    .PARAMETER DisableStorageSharedKeyAccess
+    Optional. Disable Shared Key (storage account key) authentication on hub storage accounts. When enabled, only Microsoft Entra ID and managed identity authentication are allowed. Data Factory already authenticates using managed identity and RBAC, so this does not affect data ingestion. Power BI storage reports must then sign in with Microsoft Entra ID (Storage Blob Data Reader); SAS tokens and account keys stop working. Do not enable this on a hub that receives data from other hubs (remote hub ingestion authenticates with the storage account key). The private-mode deployment script storage account always allows Shared Key access because deployment scripts require it. Default = false.
 
     .PARAMETER RemoteHubStorageUri
     Optional. Storage account to push data to for ingestion into a remote hub.
@@ -97,14 +100,35 @@
     Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".
 
     .EXAMPLE
-    Deploy-FinOpsHub -Name MyHub -ResourceGroupName MyNewResourceGroup -Location westus -DataExplorerName MyFinOpsHubCluster
+    Deploy-FinOpsHub `
+        -Name MyHub `
+        -ResourceGroupName MyNewResourceGroup `
+        -Location westus `
+        -DataExplorerName MyFinOpsHubCluster
 
+    ### Deploy latest version
     Deploys a FinOps hub instance named MyHub to the MyNewResourceGroup resource group with a new MyFinOpsHubCluster Data Explorer cluster. If the resource group does not exist, it will be created. If the hub already exists, it will be updated to the latest version.
 
     .EXAMPLE
-    Deploy-FinOpsHub -Name MyHub -ResourceGroupName MyExistingResourceGroup -Location westus -Version 0.1.1
+    Deploy-FinOpsHub `
+        -Name MyHub `
+        -ResourceGroupName MyExistingResourceGroup `
+        -Location westus `
+        -Version 0.1.1
 
+    ### Deploy specific version
     Deploys a FinOps hub instance named MyHub to the MyExistingResourceGroup resource group using version 0.1.1 of the template. This version is required for Microsoft Online Services Agreement (MOSA) subscriptions since FOCUS exports aren't available from Cost Management. If the resource group does not exist, it will be created. If the hub already exists, it will be updated to version 0.1.1.
+
+    .EXAMPLE
+    Deploy-FinOpsHub `
+        -Name MyRemoteHub `
+        -ResourceGroupName MyRemoteHubResourceGroup `
+        -Location westus `
+        -RemoteHubStorageUri "https://centralfinopshub123.dfs.core.windows.net/" `
+        -RemoteHubStorageKey "abc123...xyz789=="
+
+    ### Deploy with remote hub configuration
+    Deploys a FinOps hub instance named MyRemoteHub configured to send data to a remote (central) hub. The remote hub storage URI and key enable cross-tenant data collection scenarios where a central tenant aggregates cost data from multiple tenants. The RemoteHubStorageUri should be copied from the central hub's storage account Settings > Endpoints > Data Lake storage, and the RemoteHubStorageKey should be copied from Security + networking > Access keys. Remote hubs require template version 0.4 or later.
 
     .LINK
     https://aka.ms/ftk/Deploy-FinOpsHub
@@ -151,6 +175,10 @@ function Deploy-FinOpsHub
         [Parameter()]
         [switch]
         $EnableKeyVaultRbacAuthorization,
+
+        [Parameter()]
+        [switch]
+        $DisableStorageSharedKeyAccess,
 
         [Parameter()]
         [string]
@@ -281,6 +309,12 @@ function Deploy-FinOpsHub
             throw "NAT Gateway / private network mode requires hub template version 15.0 or later. Current version: $Version"
         }
 
+        # Disabling Shared Key access requires hub template version 16.0 or later
+        if ($DisableStorageSharedKeyAccess -and $Version -ne 'latest' -and $templateVersion -lt '16.0')
+        {
+            throw "-DisableStorageSharedKeyAccess requires hub template version 16.0 or later. Current version: $Version"
+        }
+
         # Key Vault RBAC authorization requires hub template version 16.0 or later
         if ($EnableKeyVaultRbacAuthorization -and $Version -ne 'latest' -and $templateVersion -lt '16.0')
         {
@@ -359,6 +393,13 @@ function Deploy-FinOpsHub
             if ($EnableKeyVaultRbacAuthorization -and ($Version -eq 'latest' -or $templateVersion -ge '16.0'))
             {
                 $parameterSplat.TemplateParameterObject.Add('enableKeyVaultRbacAuthorization', $true)
+            }
+
+            # Only pass disableStorageSharedKeyAccess when requested so default deployments stay compatible
+            # with published templates that predate the parameter.
+            if ($DisableStorageSharedKeyAccess -and ($Version -eq 'latest' -or $templateVersion -ge '16.0'))
+            {
+                $parameterSplat.TemplateParameterObject.Add('disableStorageSharedKeyAccess', $true)
             }
 
             # Only pass enableNatGateway when private mode is requested. This keeps public/vnet

@@ -3,17 +3,19 @@ title: Get-FinOpsService command
 description: Get the name and category for a service, publisher, and cloud provider using the Get-FinOpsService command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 11/21/2026
+ms.date: 11/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand how to use the what Get-FinOpsService command in the FinOpsToolkit module.
+#customer intent: As a FinOps user, I want to understand how to use the Get-FinOpsService command in the FinOpsToolkit module.
 ---
 
 # Get-FinOpsService command
 
 The **Get-FinOpsService** command returns service details based on the specified filters. This command is designed to help map Cost Management cost data to the FinOps Open Cost and Usage Specification (FOCUS) schema but can also be useful for general data cleansing.
+
+Please note that both ConsumedService and ResourceType are required to find a unique service in many cases.
 
 <br>
 
@@ -27,6 +29,7 @@ Get-FinOpsService `
     [-MeterCategory <string>] `
     [-ServiceName <string>] `
     [-ServiceCategory <string>] `
+    [-ServiceSubcategory <string>] `
     [-ServiceModel <string>] `
     [-Environment <string>] `
     [-PublisherName <string>] `
@@ -37,18 +40,19 @@ Get-FinOpsService `
 
 ## Parameters
 
-| Name                 | Description                                                                                                                                                                                                                                                                                                                                             |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `‑ConsumedService`   | Optional. ConsumedService value from a Cost Management cost/usage details dataset. Accepts wildcards. Default = \* (all).                                                                                                                                                                                                                               |
-| `‑ResourceId`        | Optional. The Azure resource ID for resource you want to look up. Accepts wildcards. Default = \* (all).                                                                                                                                                                                                                                                |
-| `‑ResourceType`      | Optional. The Azure resource type for the resource you want to find the service for. Default = null (all).                                                                                                                                                                                                                                              |
-| `‑MeterCategory`     | Optional. The meter category (`x_SkuMeterCategory`) of the charge. Splits resource types shared by multiple services, like Azure Backup and Azure Site Recovery on Recovery Services vaults. When specified, services mapped to a matching meter category are returned instead of the general mapping for the same resource type. Default = null (all). |
-| `‑ServiceName`       | Optional. The service name to find. Default = null (all).                                                                                                                                                                                                                                                                                               |
-| `‑ServiceCategory`   | Optional. The service category to find services for. Default = null (all).                                                                                                                                                                                                                                                                              |
-| `‑Servicemodel`      | Optional. The service model the service aligns to. Expected values: IaaS, PaaS, SaaS. Default = null (all).                                                                                                                                                                                                                                             |
-| `‑Environment`       | Optional. The environment the service runs in. Expected values: Cloud, Hybrid. Default = null (all).                                                                                                                                                                                                                                                    |
-| `‑PublisherName`     | Optional. The publisher name to find services for. Default = null (all).                                                                                                                                                                                                                                                                                |
-| `‑PublisherCategory` | Optional. The publisher category to find services for. Default = null (all).                                                                                                                                                                                                                                                                            |
+| Name                  | Description                                                                                                                                                                                                                                                                                                                                                 |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `‑ConsumedService`    | Optional. ConsumedService value from a Cost Management cost/usage details dataset. Accepts wildcards. Default = \* (all).                                                                                                                                                                                                                                   |
+| `‑ResourceId`         | Optional. The Azure resource ID for resource you want to look up. Accepts wildcards. Default = \* (all).                                                                                                                                                                                                                                                    |
+| `‑ResourceType`       | Optional. The Azure resource type for the resource you want to find the service for. Default = null (all).                                                                                                                                                                                                                                                  |
+| `‑MeterCategory`      | Optional. The meter category (x_SkuMeterCategory) of the charge. Use to split resource types shared by multiple services, like Azure Backup and Azure Site Recovery on Recovery Services vaults. When specified, services mapped to a matching meter category are returned instead of the general mapping for the same resource type. Default = null (all). |
+| `‑ServiceName`        | Optional. The service name to find. Default = null (all).                                                                                                                                                                                                                                                                                                   |
+| `‑ServiceCategory`    | Optional. The service category to find services for. Default = null (all).                                                                                                                                                                                                                                                                                  |
+| `‑ServiceSubcategory` | Optional. The service subcategory to find services for. Default = null (all).                                                                                                                                                                                                                                                                               |
+| `‑ServiceModel`       | Optional. The service model the service aligns to. Expected values: IaaS, PaaS, SaaS. Default = null (all).                                                                                                                                                                                                                                                 |
+| `‑Environment`        | Optional. The environment the service runs in. Expected values: Cloud, Hybrid, On-Premises. Default = null (all).                                                                                                                                                                                                                                           |
+| `‑PublisherName`      | Optional. The publisher name to find services for. Default = null (all).                                                                                                                                                                                                                                                                                    |
+| `‑PublisherCategory`  | Optional. The publisher category to find services for. Default = null (all).                                                                                                                                                                                                                                                                                |
 
 <br>
 
@@ -56,7 +60,7 @@ Get-FinOpsService `
 
 The following example demonstrates how to use the Get-FinOpsService command to retrieve service details.
 
-### Get a specific region
+### Get services for a resource provider
 
 ```powershell
 Get-FinOpsService `
@@ -64,9 +68,9 @@ Get-FinOpsService `
     -ResourceType "Microsoft.Compute/virtualMachines"
 ```
 
-Returns all services with a resource provider that starts with `Microsoft.C`.
+Returns all services with a resource provider that starts with "Microsoft.C".
 
-### Split a shared resource type by meter category
+### Example 2
 
 ```powershell
 Get-FinOpsService `
